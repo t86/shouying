@@ -4,7 +4,7 @@ export const sessionStorage = {
     //   atool.setVal(key, value)
     // } catch (error) {
       try {
-        window.localStorage.setItem(key, value)
+        window.sessionStorage.setItem(key, value)
       } catch (error) {
         console.log('sessionStorage.setItem error', error);
       }
@@ -15,7 +15,7 @@ export const sessionStorage = {
     // try {
     //   return atool.getVal(key)
     // } catch (error) {
-      return window.localStorage.getItem(key)
+      return window.sessionStorage.getItem(key)
     // }
   },
 
@@ -23,7 +23,7 @@ export const sessionStorage = {
     // try {
     //   return atool.setVal(key, undefined)
     // } catch (error) {
-      return window.localStorage.removeItem(key)
+      return window.sessionStorage.removeItem(key)
     // }
   },
 
@@ -31,7 +31,7 @@ export const sessionStorage = {
     // try {
     //   return atool.clearCache()
     // } catch (error) {
-      return window.localStorage.clear()
+      return window.sessionStorage.clear()
     // }
   }
 }

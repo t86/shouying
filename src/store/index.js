@@ -15,7 +15,7 @@ export default new Vuex.Store({
     // 酒吧订台页面相关数据
     cardPageInfo: {
       storeStatusId: sessionStorage.getItem('storeStatusId') || false,  // 门店是否开启营业日
-      resResultDataObj: sessionStorage.getItem('resResultDataObj') ? JSON.parse(sessionStorage.getItem('resResultDataObj')) : {},  // 页面所有请求到后转化过的数据
+      resResultDataObj: localStorage.getItem('resResultDataObj') ? JSON.parse(localStorage.getItem('resResultDataObj')) : {},  // 页面所有请求到后转化过的数据
       tabList: sessionStorage.getItem('tabList') ? JSON.parse(sessionStorage.getItem('tabList')) : [],  // 区域列表
       cardList: sessionStorage.getItem('cardList') ? JSON.parse(sessionStorage.getItem('cardList')) : [], // 卡台列表
       newCardInfo: {},  // 转台选择的新卡台的相关信息
@@ -58,7 +58,7 @@ export default new Vuex.Store({
       state.userInfo = info
     },
     updateResResultDataObj(state, value) {
-      sessionStorage.setItem('resResultDataObj', JSON.stringify(value))
+      localStorage.setItem('resResultDataObj', JSON.stringify(value))
       state.cardPageInfo.resResultDataObj = value
       if (!value) return
       // 获取最新当前点单卡台信息(点单后更新已消费金额)
@@ -91,7 +91,7 @@ export default new Vuex.Store({
 
     updateMoneyCardNeedBackOrderCount(state, count) {
       state.cardPageInfo.resResultDataObj.needBackOrderListCount[0]['cnt'] = count
-      sessionStorage.setItem('resResultDataObj', JSON.stringify(state.cardPageInfo.resResultDataObj))
+      localStorage.setItem('resResultDataObj', JSON.stringify(state.cardPageInfo.resResultDataObj))
     }
   },
   actions: {

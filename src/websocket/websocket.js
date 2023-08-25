@@ -3,7 +3,7 @@ import base from '@/api/base'
 import api_card from '@/api/Book'
 import { resResultDataArr } from '@/utils/config/card'
 import { transformCardDataHandle } from '@/utils/transformCardData'
-import { sessionStorage, localStorage } from '@/utils/common/storage'
+import { localStorage } from '@/utils/common/storage'
 import eventVue from '@/utils/eventVue';
 export default class WebSocketClient {
     constructor(vue) {
@@ -70,7 +70,7 @@ export default class WebSocketClient {
         const { p: code, t: time, d: data } = JSON.parse(e.data)
         // 更新接收到消息的时间
         this.websocketTimeStart = +new Date()        // code: 1:数据更新  2：无更新，保持连接不断  3：错误信息
-        code == 1 ? this.updateCardList(data, time) : (code == 3 ? this.vue.$message.warning(typeof data == 'string' ? data : 'websocket返回数据出错') : sessionStorage.setItem('websocketTimeMessageTime', time))
+        code == 1 ? this.updateCardList(data, time) : (code == 3 ? this.vue.$message.warning(typeof data == 'string' ? data : 'websocket返回数据出错') : localStorage.setItem('websocketTimeMessageTime', time))
       }
     
     // 监听处理websocket是否断开
@@ -109,7 +109,7 @@ export default class WebSocketClient {
         console.log('this.res', JSON.parse(JSON.stringify(this.res)));
         this.resResultDataObj = this.vue.$store.state.cardPageInfo.resResultDataObj || {}
         // 是否需要重新请求元素据
-        const needReloadData = reload || (!(this.resResultDataObj && this.resResultDataObj.areaInfo)) || (!sessionStorage.getItem('websocketTimeMessageTime'))
+        const needReloadData = reload || (!(this.resResultDataObj && this.resResultDataObj.areaInfo)) || (!localStorage.getItem('websocketTimeMessageTime'))
         try {
           let res = {}
           if(reload || this.res.code != 1) {
@@ -218,7 +218,7 @@ export default class WebSocketClient {
 
        // 获取websocket断开期间的增量数据
      getUpdateData = async() => {
-        this.websocketTimeMessageTime = sessionStorage.getItem('websocketTimeMessageTime') || ''
+        this.websocketTimeMessageTime = localStorage.getItem('websocketTimeMessageTime') || ''
         if(!this.websocketTimeMessageTime) return
         const params = {  // '20220902171731'//
           last_sync_time: this.websocketTimeMessageTime, // string     //LastSyncTime 上次完成同步时间,建议往回走个30秒, 格式 yyyymmddhh24miss
@@ -346,7 +346,7 @@ export default class WebSocketClient {
         }
   
         
-        if(time) sessionStorage.setItem('websocketTimeMessageTime', time)
+        if(time) localStorage.setItem('websocketTimeMessageTime', time)
       }
   
   
