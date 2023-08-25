@@ -1,0 +1,63 @@
+// element-ui 表格样式
+
+/deep/ .el-table {
+  background-color: transparent !important;
+
+  &::before {
+    height: 0; // 将高度修改为0
+  }
+
+  .el-table__expanded-cell {
+    background-color: transparent !important;
+  }
+
+  .el-table__fixed {
+    height: 100% !important;
+
+    &::before {
+      height: 0;
+    }
+  }
+
+  table {
+    width: 100% !important;
+  }
+
+  th,
+  td {
+    border: none;
+    color: #fff;
+    background-color: rgb(11, 13, 21) !important;
+
+    &.el-table__cell,
+    &.el-table__cell.is-leaf {
+      border-bottom: none !important;
+    }
+  }
+
+  th {
+    background-color: rgb(30, 30, 30) !important;
+  }
+
+  tr:nth-child(2n) {
+    td {
+      background-color: rgb(30, 30, 30) !important;
+    }
+  }
+
+  .table-btn {
+    background: #4B89FF;
+    // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+}
+
+/deep/ .el-table__fixed-right,
+.el-table__fixed-body-wrapper {
+  height: 100% !important;
+}

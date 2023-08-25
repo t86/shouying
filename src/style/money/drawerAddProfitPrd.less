@@ -1,0 +1,110 @@
+.profit-prd {
+  color: rgba(255, 255, 255, .8);
+  padding: 10px 20px;
+
+  .profit-top{
+    font-size: 14px;
+    .tips{
+      line-height: 36px;
+    }
+  }
+
+  .table{
+    border: 1px solid #999;
+    border-radius: 10px;
+    height: calc(100vh - 260px);
+    overflow-y: auto;
+    .tr{
+      padding: 0 20px;
+      box-sizing: border-box;
+      height: 36px;
+      line-height: 36px;
+      font-size: 14px;
+    }
+    .thead{
+      position: sticky;
+      top: 0;
+      background: #182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+      border-radius: 10px 10px 0 0;
+      color: rgba(255, 255, 255, .5);
+      .title{
+        border-bottom: 1px solid rgba(255, 255, 255, .2);
+      }
+    }
+    .tbody{
+      .tr:nth-child(2n){
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+    }
+
+    .td input{
+      width: 80%;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 8px;
+      height: 30px;
+      padding: 0 8px;
+      box-sizing: border-box;
+      font-size: 12px;
+    }
+
+    .th:nth-child(1), .td:nth-child(1){
+      width: 8%;
+      min-width: 30px;
+    }
+    .th:nth-child(2), .td:nth-child(2){
+      width: 8%;
+      min-width: 40px;
+      img{
+        width: 18px;
+        cursor: pointer;
+      }
+    }
+    .th:nth-child(3), .td:nth-child(3){
+      width: 17%;
+      min-width: 120px;
+    }
+    .th:nth-child(4), .td:nth-child(4){
+      width: 10%;
+      min-width: 120px;
+    }
+    .th:nth-child(5), .td:nth-child(5){
+      width: 10%;
+      min-width: 120px;
+    }
+    .th:nth-child(6), .td:nth-child(6){
+      width: 15%;
+      min-width: 120px;
+    }
+    .th:nth-child(7), .td:nth-child(7){
+      width: 15%;
+      min-width: 120px;
+    }
+  }
+}
+
+
+
+/deep/.el-checkbox__label {
+  color: rgba(255, 255, 255, .8);
+}
+
+/deep/.select-com,
+/deep/.options li {
+  font-size: 14px;
+  height: 28px;
+  line-height: 28px;
+  color: rgba(255, 255, 255, .8);
+}
+
+
+
+/deep/.el-input__inner{
+  height: 30px;
+  border-radius: 8px;
+  border-color: rgba(255, 255, 255, .15);
+}
+
+/deep/.el-input__suffix{
+  display: none;
+}

@@ -1,0 +1,160 @@
+
+.el-form-item {
+  position: relative;
+}
+
+.required.el-form-item::before {
+  width: 10px !important;
+  height: 10px !important;
+  content: '*' !important;
+  color: #F56C6C !important;
+  margin-right: 4px !important;
+  position: absolute;
+  top: 10px;
+}
+
+.required2.el-form-item::before {
+  left: 80px;
+}
+
+.required3.el-form-item::before {
+  left: 84px;
+}
+
+.required4.el-form-item::before {
+  left: 70px;
+}
+
+.required5.el-form-item::before {
+  left: 56px;
+}
+
+.required6.el-form-item::before {
+  left: 42px;
+}
+
+.required7.el-form-item::before {
+  left: 28px;
+}
+
+/* 单选框 */
+label[role="radio"] {
+  width: 100px !important;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 20px;
+}
+
+// 转台
+.change-card {
+  &-info {
+    height: 60px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+      margin-top: 14px;
+    }
+
+    button {
+      float: right;
+      margin-right: 10%;
+    }
+  }
+}
+
+
+/* input样式 */
+/deep/ input::-webkit-outer-spin-button,
+/deep/ input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/deep/ input[type='number'] {
+  position: relative;
+  -moz-appearance: textfield;
+}
+
+/deep/ input,
+/deep/ textarea,
+/deep/ .is-disabled .el-input__inner {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Element-ui select下拉框样式 */
+
+/deep/ .el-select-dropdown.el-popper {
+  border: none;
+  border: 1px solid #32B9FF;
+}
+
+/deep/ .el-select-dropdown__wrap {
+  background: rgba(8, 8, 10, 1);
+  border-radius: 4px;
+
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-family: NSimSun;
+  }
+
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover {
+    background: rgba(90, 90, 90, .5);
+  }
+
+
+  .el-scrollbar {
+    >.el-scrollbar__bar {
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* 提交表单数据按钮 */
+
+.el-drawer {
+  position: relative;
+
+  .el-form {
+    padding-bottom: 64px;
+
+    .form-btn {
+      width: 100%;
+      height: 64px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      text-align: center;
+      background: #161D33;
+
+      button {
+        margin-top: 12px;
+      }
+    }
+  }
+}
+
+button {
+  width: 120px;
+  height: 40px;
+  border-radius: 20px;
+  border: none;
+
+  &.el-button.el-button--info {
+    width: 120px;
+    background: #374368;
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+  }
+
+  &.el-button.el-button--primary {
+    background: #4B89FF;
+    // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+  }
+}

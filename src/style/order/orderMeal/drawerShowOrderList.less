@@ -1,0 +1,396 @@
+.choose-pay-order {
+  .tab {
+    .tab-item {
+      padding: 4px 10px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 20px;
+      user-select: none;
+
+      &.active{
+        color: #4b89ff!important;
+        border-color: #4b89ff!important;
+      }
+    }
+  }
+  .order-table {
+    font-size: 15px;
+  
+    .thead {
+      .tr {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        min-height: 56px;
+        padding: 8px 16px;
+        box-sizing: border-box;
+        text-align: left;
+        background:  #182037;
+        // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+  
+        .th {
+          padding: 0 4px;
+          box-sizing: border-box;
+          color: rgba(255, 255, 255, .5);
+        }
+  
+        .th:nth-child(1) {
+          width: 10%;
+        }
+  
+        .th:nth-child(2) {
+          width: 10%;
+        }
+  
+  
+        .th:nth-child(3) {
+          width: 25%;
+        }
+  
+        .th:nth-child(4) {
+          text-align: right;
+          width: 15%;
+        }
+  
+        .th:nth-child(5) {
+          text-align: right;
+          width: 15%;
+        }
+  
+        .th:nth-child(6) {
+          text-align: right;
+          width: 15%;
+          padding-right: 1%;
+        }
+  
+        .th:nth-child(7) {
+          width: 15%;
+          padding-left: 1%;
+        }
+  
+        .th:nth-child(8) {
+          width: 15%;
+        }
+      }
+    }
+  
+    .tbody {
+      height: calc(100vh - 320px);
+      overflow-y: auto;
+      scroll-behavior: smooth;
+  
+      .coll {
+        .online-order {
+          .tr {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            min-height: 56px;
+            padding: 8px 16px;
+            box-sizing: border-box;
+            text-align: left;
+  
+            .td,
+            .td-td {
+              padding: 0 4px;
+              box-sizing: border-box;
+  
+              &.opacity {
+                opacity: .4;
+              }
+            }
+  
+            .td:nth-child(1) {
+              width: 8.6%;
+  
+              input {
+                cursor: pointer;
+              }
+            }
+  
+            .td:nth-child(2) {
+              width: 95%;
+  
+              .td-tr {
+                padding: 8px 0;
+  
+                .td-td:nth-child(1) {
+                  width: 10.263%;
+                  flex-wrap: wrap;
+  
+                  >span {
+                    display: inline-block;
+                    text-align: center;
+                    width: 20px;
+                    height: 20px;
+                    line-height: 18px;
+                    font-size: 12px;
+                    font-family: PingFangSC-Medium, PingFang SC;
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, .8);
+                    border-radius: 50%;
+  
+                    &.green {
+                      background:  #1DC344;
+                      // background: linear-gradient(180deg, #1DC344 0%, #00763E 100%);
+                    }
+  
+                    &.purple {
+                      background:  #9068FE;
+                      // background: linear-gradient(180deg, #9068FE 0%, #6D21E5 100%);
+                    }
+  
+                    &.red {
+                      background:  #FF3439;
+                      // background: linear-gradient(180deg, #FF3439 0%, #B00024 100%);
+                    }
+  
+                    &.pink {
+                      background:  #F56DD5;
+                      // background: linear-gradient(180deg, #F56DD5 0%, #E8117E 100%);
+                    }
+                    
+                    &.blue {
+                      background:  #0079FF;
+                      // background: linear-gradient(180deg, #0079FF 0%, #0046E2 100%);
+                    }
+  
+                    &.gray-tips {
+                      position: relative;
+                      background: #888;
+                      img{
+                        width: 11px;
+                        height: 11px;
+                        position: absolute;
+                        right: 0;
+                        bottom: 0;
+                        background-color: #222;
+                        padding: 1.5px;
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                      }
+                    }
+                  }
+  
+                }
+  
+                .td-td:nth-child(2) {
+                  width: 26.052%;
+                }
+  
+                .td-td:nth-child(3) {
+                  text-align: right;
+                  width: 15.526%;
+                }
+  
+                .td-td:nth-child(4) {
+                  text-align: right;
+                  width: 15.526%;
+                }
+  
+                .td-td:nth-child(5) {
+                  text-align: right;
+                  width: 15.526%;
+                  padding-right: 1.0526%;
+                }
+  
+                .td-td:nth-child(6) {
+                  width: 15.526%;
+                  padding-left: 1.0526%;
+                }
+  
+                .td-td:nth-child(7) {
+                  width: 15.526%;
+                  transform: translateX(2px);
+                }
+              }
+            }
+  
+            // 线上套餐明细
+            .online-detail-tr{
+              min-height: 20px !important;
+              font-size: 13px;
+              color: #AED8FF;
+              padding: 4px 0px;
+              .online-detail-td:nth-child(1){
+                padding: 0 4px;
+                box-sizing: border-box;
+                width: 9.263%;
+              }
+              .online-detail-td:nth-child(2){
+                padding: 0 8px;
+                box-sizing: border-box;
+                width: 22.5%;
+              }
+              .online-detail-td:nth-child(3){
+                padding: 0 4px;
+                box-sizing: border-box;
+                width: 13.5%;
+                text-align: right;
+              }
+            }
+          }
+        }
+  
+        // 线下订单
+        .another-order {
+          .tr {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            min-height: 56px;
+            padding: 8px 16px;
+            box-sizing: border-box;
+            text-align: left;
+  
+            .td {
+              padding: 0 4px;
+              box-sizing: border-box;
+  
+              &.opacity {
+                opacity: .4;
+              }
+            }
+  
+            .td:nth-child(1) {
+              width: 10%;
+  
+              input {
+                cursor: pointer;
+              }
+            }
+  
+            .td:nth-child(2) {
+              width: 10%;
+              flex-wrap: wrap;
+  
+              >span {
+                display: inline-block;
+                text-align: center;
+                width: 20px;
+                height: 20px;
+                line-height: 18px;
+                font-size: 12px;
+                font-family: PingFangSC-Medium, PingFang SC;
+                font-weight: 500;
+                color: rgba(255, 255, 255, .8);
+                border-radius: 50%;
+  
+                &.green {
+                  background:  #1DC344;
+                  // background: linear-gradient(180deg, #1DC344 0%, #00763E 100%);
+                }
+  
+                &.blue {
+                  background:  #00C0B5;
+                  // background: linear-gradient(180deg, #00C0B5 0%, #007BB5 100%);
+                }
+  
+                &.purple {
+                  background:  #9068FE;
+                  // background: linear-gradient(180deg, #9068FE 0%, #6D21E5 100%);
+                }
+  
+                &.red {
+                  background:  #FF3439;
+                  // background: linear-gradient(180deg, #FF3439 0%, #B00024 100%);
+                }
+  
+                &.pink {
+                  background:  #F56DD5;
+                  // background: linear-gradient(180deg, #F56DD5 0%, #E8117E 100%);
+                }
+  
+                &.gray-tips {
+                  background-color: #888;
+                  position: relative;
+                  img{
+                    width: 11px;
+                    height: 11px;
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+                    background-color: #666;
+                    padding: 1.5px;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                  }
+                }
+              }
+  
+            }
+  
+            .td:nth-child(3) {
+              width: 25%;
+            }
+  
+            .td:nth-child(4) {
+              text-align: right;
+              width: 15%;
+            }
+  
+            .td:nth-child(5) {
+              text-align: right;
+              width: 15%;
+            }
+  
+            .td:nth-child(6) {
+              text-align: right;
+              width: 15%;
+              padding-right: 1%;
+            }
+  
+            .td:nth-child(7) {
+              width: 15%;
+              padding-left: 1%;
+            }
+  
+            .td:nth-child(8) {
+              width: 15%;
+            }
+          }
+  
+          // 详细列表信息
+          .tr.detail-list {
+            min-height: 20px !important;
+            font-size: 13px;
+            color: #AED8FF;
+            padding: 4px 14px;
+          }
+  
+          // 要求
+          .requested {
+            width: 25%;
+            padding: 0px 14px 14px 10%;
+            font-size: 12px;
+            font-weight: 400;
+            color: #AED8FF;
+            line-height: 14px;
+  
+            &.pt {
+              padding-top: 10px;
+            }
+          }
+        }
+      }
+  
+    }
+  
+    /deep/.el-checkbox__label {
+      color: rgba(255, 255, 255, .5);
+    }
+  
+    // 线上下的单
+    .coll.online {
+      background: rgba(255, 47, 100, .1) !important;
+      border-bottom: 1px solid rgba(237, 127, 155, .4);
+    }
+  
+    .coll:nth-child(2n) {
+      background-color: rgba(255, 255, 255, .04);
+    }
+  
+  
+  }
+}

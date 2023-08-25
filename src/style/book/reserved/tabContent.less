@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+}
+
+// 滚动条的宽度
+/deep/ .el-table__body-wrapper::-webkit-scrollbar {
+  width: 4px!important; // 横向滚动条
+  height: 4px!important; // 纵向滚动条 必写
+}
+
+// 滚动条的滑块
+/deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
+  background-color: #555764;
+  border-radius: 3px;
+}
+
+/deep/ .el-table__body-wrapper::-webkit-scrollbar-track-piece {
+  //滚动条凹槽的颜色，还可以设置边框属性
+  background-color: #000;
+}
+
+
+
+
+.contain {
+  color: #fff;
+  padding: 0px 20px;
+
+  // search  reset搜索框
+  .select-box {
+    height: 52px;
+    overflow: hidden;
+    padding: 2px 0 16px;
+    .date{
+      span{
+        word-break: keep-all;
+      }
+      >ul{
+        margin-right: 20px;
+        li{
+          padding: 6px 14px;
+          border: 1px solid #666;
+          margin-right: 10px;
+          word-break: keep-all;
+          border-radius: 4px;
+          cursor: pointer;
+          &.active{
+            background: #4B89FF;
+            // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+            border: 1px solid transparent;
+          }
+        }
+      }
+    }
+    input {
+      color: #fff;
+      padding-left: 10px;
+      width: 360px;
+      height: 32px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      outline: none;
+
+      &:focus {
+        border: 1px solid #5C9FFF
+      }
+    }
+
+    // search  reset
+    button {
+      width: 80px;
+      height: 32px;
+      background: #4B89FF;
+      // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+      box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+      border-radius: 30px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 14px;
+      margin-left: 10px;
+
+      &.reset {
+        background: #374368;
+        box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+
+  // 操作按钮 新增预留 删除预留  一键分配卡台
+  .operate-btn {
+    height: 60px;
+    background: rgba(255, 255, 255, .04);
+
+    button {
+      width: 120px;
+      height: 32px;
+      margin-left: 16px;
+      border-radius: 22px;
+      border: 1px solid #2767BA;
+      color: #6A9EFF;
+      text-align: center;
+      background-color: transparent;
+      cursor: pointer;
+
+      &:nth-child(2) {
+        border-color: #D62855;
+        color: #D62855;
+      }
+
+      &:nth-child(3) {
+        width: 148px;
+      }
+
+      img,
+      span {
+        margin: 0 2px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  // 表格
+  .table-content{
+    height: calc(100vh - 254px);
+  }
+
+}

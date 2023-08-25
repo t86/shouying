@@ -1,0 +1,319 @@
+.drawer-pay {
+  /deep/.el-drawer__header {
+    margin-bottom: 0;
+  }
+
+  /deep/ .el-drawer__body {
+    padding-bottom: 0;
+  }
+
+  .content {
+    height: calc(100vh - 68px);
+
+    >div {
+      height: 100%;
+      box-sizing: border-box;
+      padding-bottom: 64px;
+    }
+
+    // 选择支付方式
+    .left {
+      position: relative;
+      width: 15%;
+      background: #212C44;
+      padding-bottom: 124px;
+      overflow: hidden;
+
+      >ul {
+        height: 100%;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+
+        li {
+          height: 56px;
+          line-height: 56px;
+          font-size: 15px;
+          font-weight: 400;
+          color: #FFFFFF;
+          text-align: center;
+          cursor: pointer;
+
+          &.active {
+            color: #6A9EFF;
+            background: url('../../assets/money-img/checked-pay.png');
+            background-size: 100% 100%;
+          }
+        }
+      }
+
+      .arrow {
+        position: absolute;
+        bottom: 74px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0 3px;
+        box-sizing: border-box;
+        width: 100px;
+        height: 40px;
+        background: rgba(13, 23, 45, 0.9000);
+        box-shadow: inset 0px 1px 1px 0px #2775BA;
+        border-radius: 30px;
+
+        &:after {
+          position: absolute;
+          content: '';
+          width: 1px;
+          height: 40px;
+          background-color: rgba(39, 117, 186, .5);
+          left: 50%;
+          top: 0;
+          transform: translateX(-50%);
+        }
+
+        img {
+          width: 20px;
+          cursor: pointer;
+
+          &.arrow-top {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
+
+    // 输入金额部分
+    .center {
+      width: 58%;
+      overflow-y: auto;
+
+      &-top {
+        padding: 20px 0 10px;
+
+        >div {
+          width: calc(50% + 100px);
+          text-align: center;
+
+          p {
+            text-align: left;
+
+            &.red {
+              font-size: 26px;
+              color: #FF2F64;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+
+      // 会员卡
+      .vip-com{
+        .form-item{
+          text-align: center;
+          line-height: 50px;
+          span{
+            display: inline-block;
+            width: 90px;
+            text-align: left;
+          }
+          input{
+            width: 50%;
+            height: 36px;
+            line-height: 36px;
+            padding: 0 30px 0 10px;
+            box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0);
+            &.active{
+              border-color: #32B9FF;
+            }
+          }
+        }
+      }
+
+      // 会员卡刷卡支付
+      .vip-pay{
+        span.value{
+          width: 50%;
+          &.count {
+            transform: translateY(8px);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            height: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            &:before{
+              position: absolute;
+              top: -7px;
+              left: 6px;
+              content: '￥';
+            }
+            input {
+              margin-left: 16px;
+            }
+          }
+        }
+      }
+
+      // 普通结账
+      &-center {
+        p {
+          span {
+            text-align: right;
+            width: 36%;
+
+            &:nth-child(2) {
+              position: relative;
+              display: inline-block;
+              width: 50%;
+              height: 36px;
+              line-height: 36px;
+              padding: 0 30px 0 10px;
+              box-sizing: border-box;
+              text-align: left;
+
+              &.count {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                input {
+                  background-color: rgba(0, 0, 0, 0);
+                }
+              }
+
+              .el-icon-close {
+                position: absolute;
+                top: 12px;
+                right: 10px;
+                font-size: 12px;
+                cursor: pointer;
+              }
+            }
+          }
+        }
+      }
+
+      // 键盘部分
+      &-bottom {
+        >ul {
+          margin-right: 10px;
+          margin-top: 24px;
+          width: 89px;
+          height: 355px;
+          background: #11182D;
+          // background: linear-gradient(180deg, #11182D 0%, #222D47 100%);
+          box-shadow: 0px 0px 12px 0px rgba(26, 137, 255, 0.5000);
+          border: 1px solid #32B9FF;
+          border-radius: 10px;
+
+          li {
+            height: 25%;
+            line-height: 89px;
+            text-align: center;
+            font-size: 20px;
+            color: #32B9FF;
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1500);
+            ;
+            cursor: pointer;
+          }
+        }
+      }
+
+    }
+
+    .right {
+      width: 27%;
+      border-left: 1px solid rgba(255, 255, 255, .2);
+
+      &-top {
+        p {
+          padding: 10px 20px;
+          font-size: 14px;
+          line-height: 14px;
+
+          .amt {
+            display: block;
+            padding-top: 10px;
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 26px;
+          }
+
+          .all-amt {
+            color: #1EDAAD;
+          }
+        }
+      }
+
+      // 结账种类列表
+      &-bottom {
+        margin-top: 20px;
+
+        ul {
+          padding: 0 10px;
+          box-sizing: border-box;
+          height: calc(100vh - 294px);
+          overflow-y: auto;
+
+          li {
+            margin-bottom: 6px;
+            padding: 10px 10px 10px 14px;
+            background: rgba(255, 255, 255, 0.0400);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.0800);
+
+            .pay-detail {
+              p {
+                font-size: 14px;
+                font-weight: 400;
+                color: #FFFFFF;
+                line-height: 14px;
+
+                &.amt {
+                  font-weight: 500;
+                  margin-top: 10px;
+                  color: #FFFFFF;
+                  font-size: 18px;
+                  ;
+                }
+              }
+            }
+
+            .close {
+              i.el-icon-error {
+                cursor: pointer;
+                font-size: 20px;
+                color: #FF2F64;
+                ;
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+  .form-btn {
+    width: 100%;
+
+    .btn-left {
+      height: 100%;
+      width: 73%;
+    }
+
+    .btn-right {
+      box-sizing: border-box;
+      height: 100%;
+      width: 27%;
+      border-left: 1px solid rgba(255, 255, 255, .2);
+    }
+  }
+}
+
+
+
+/deep/.select-com,
+/deep/.options li {
+  font-size: 14px;
+  height: 28px;
+  line-height: 28px;
+}

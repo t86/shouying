@@ -1,0 +1,60 @@
+.keyboard {
+
+  .ul {
+    width: 270px;
+    margin: 0 auto;
+    border: 1px solid #32B9FF;
+    border-radius: 10px;
+    background: #11182D;
+    // background: linear-gradient(180deg, #11182D 0%, #222D47 100%);
+    box-shadow: 0px 0px 12px 0px rgba(26, 137, 255, 0.5000);
+    overflow: hidden;
+
+    .li {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+      &:nth-last-child(1) {
+        border: none;
+      }
+
+      .item {
+        color: #fff;
+        width: 88px;
+        height: 88px;
+        text-align: center;
+        cursor: pointer;
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+
+        &:nth-last-child(1) {
+          border-color: transparent;
+        }
+
+        &.active {
+          background: #002760;
+          box-shadow: inset 0px 0px 12px 1px #32B9FF;
+        }
+
+        img {
+          margin-top: 20px;
+          overflow: hidden;
+        }
+
+        span {
+          display: block;
+          font-size: 30px;
+          line-height: 88px;
+          font-family: PingFangSC-Semibold, PingFang SC;
+          font-weight: 600;
+          color: #FFFFFF;
+          user-select: none;
+
+          &.hasIcon {
+            font-size: 14px;
+            line-height: 14px;
+            letter-spacing: 2px;
+          }
+        }
+      }
+    }
+  }
+}

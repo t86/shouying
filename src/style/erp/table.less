@@ -1,0 +1,82 @@
+// erp后台
+.table-content {
+  user-select: text;
+  position: relative;
+  width: 100%;
+
+  .table {
+    .thead {
+      position: sticky;
+      top: 0;
+      background-color: #f5f5f5;
+      z-index: 99;
+
+      .th {
+        font-weight: 600;
+
+        /deep/.el-checkbox__label {
+          font-weight: 600;
+        }
+      }
+    }
+
+    .tbody .tr{
+      &.selected, &:hover{
+        background-color: #d7e9ff!important;
+        .td {
+          background-color: #d7e9ff!important;
+        }
+      }
+      &.gray {
+        .td {
+          color: #bbb!important;
+        }
+      }
+    }
+
+    .tr {
+      min-height: 40px;
+      font-size: 14px;
+
+      &:nth-child(2n) {
+        background-color: #f5f5f5;
+      }
+    }
+
+    .th,
+    .td {
+      width: 50%;
+      padding-left: 10px;
+      box-sizing: border-box;
+      // text-align: center;
+    }
+  }
+
+  .no-data {
+    text-align: center;
+
+    img {
+      margin-top: 80px;
+      width: 60px;
+    }
+
+    p {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  }
+
+}
+
+.pagination {
+  float: right;
+}
+
+/deep/ .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #2170ff;
+}
+
+.link {
+  cursor: pointer;
+  color: #2170ff;
+}

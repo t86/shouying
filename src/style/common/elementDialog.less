@@ -1,0 +1,25 @@
+// element-ui dialog 弹框组件
+/deep/ .el-dialog {
+  background: #202C4A;
+  // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
+  box-shadow: 0px 0px 10px 0px rgba(26, 137, 255, 0.8);
+  border: 1px solid #32B9FF;
+  border-radius: 8px;
+
+  .el-dialog__header .el-dialog__title {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .el-dialog__footer .dialog-footer {
+    button {
+      color: rgba(255, 255, 255, .8);
+      &:nth-child(1) {
+        background: #374368;
+      }
+      &:nth-child(2) {
+        background: #4B89FF;
+        // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+      }
+    }
+  }
+}

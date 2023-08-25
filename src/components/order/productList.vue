@@ -1,0 +1,358 @@
+<template>
+  <!-- 点单商品/套餐列表 -->
+  <div class="product-list" ref="productListRef">
+    <div class="search" layout="row" layout-align="start center" >
+      <span>全局搜索：</span>
+      <input type="text" ref="searchInputRef" :style="{'width': isRect ? '220px' : '190px'}" @input="getPageData(1)" v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
+      <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord=''" />
+      <img class="icon" :src="imgSrc.search" alt />
+      <simpleKeyBoard v-if="isTerminal" :size="isRect ? 'big' : 'small'" @addInputHandle="addInputHandle" @subInputHandle="subInputHandle" />
+    </div>
+    <div class="card-list" ref="cardListRef">
+      <div
+        class="center-type"
+        layout="row"
+        layout-align="start start"
+        :style="{'width':centerType+'px'}"
+      >
+        <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)" :class="{'opacity': item.outSomethingCount == 0}">
+          <div class="title">
+            <h5>{{item.name}}</h5>
+            <p class="english-name one-txt-cut">{{item.nameEng}}</p>
+          </div>
+          <p v-if="item.outSomethingCount!='many'" class="count">余:{{item.outSomethingCount}}</p>
+          <p v-else class="count"></p>
+          <p class="price">{{item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price}}</p>
+          <img v-if="item.outSomethingCount==0" class="no-data-count" :src="require('@/assets/order-img/noCount.png')" />
+        </div>
+        <p v-if="totalPage!=1" class="tips">{{page>=totalPage? '没有更多了':'加载中...'}}</p>
+      </div>
+    </div>
+
+    <div class="arrow" :style="{'bottom': isRect ? '60px' : '120px'}">
+      <div class="bg" layout="row" layout-align="center center">
+        <div class="bg-left" @click="scrollArrowHandle('up')">
+          <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+        </div>
+        <div class="bg-right" @click="scrollArrowHandle('down')">
+          <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+        </div>
+      </div>
+    </div>
+
+    <!-- 单品点单 -->
+    <mealDrawer
+      ref="mealDrawerRef"
+      :showDrawer="drawer.showDrawer"
+      :productInfo="currentProductInfo"
+      @showOrHideDrawer="showOrHideDrawer"
+    />
+  </div>
+</template>
+
+<script>
+import search from "@/assets/order-img/search.png";
+import mealDrawer from "@/components/order/drawerMeal";
+
+import common_order from "@/utils/common/order";
+
+import simpleKeyBoard from '@/components/common/simpleKeyBoard.vue'
+
+
+// 键盘码 keycode
+let downKeyCode = [0, 0]
+const ctrlAndShiftCode = [17, 16]
+
+const cardWidth = 180;
+let oneLineCount = 0;
+let pageColl = 10; // 每页加载10行数据
+
+let firstLoad = true; // 首次加载
+export default {
+  data() {
+    return {
+      isRect: true, // 是否为横屏
+
+      centerType: 100, // 卡台版心宽度
+
+      productsList: [], // 页面卡台分页后展示在页面的数据
+      productsListTotal: [], // 卡台数据分页之前的所有数据
+      currentProductInfo: {}, // 当前点单的商品信息
+      page: 1,
+      totalPage: 1, // 总页数
+      search: {
+        keyWord: ""
+      },
+      imgSrc: {
+        search
+      },
+
+      drawer: {
+        showDrawer: false
+      }
+    };
+  },
+  methods: {
+    getCenterType() {
+      const containWidth = this.$refs.cardListRef.offsetWidth;
+      oneLineCount = Math.floor(containWidth / cardWidth);
+      this.centerType = oneLineCount * cardWidth;
+      this.getPageData();
+      this.getRectVal();
+    },
+
+    // 检测是否为横屏
+    getRectVal(){
+      const width = screen.availWidth
+      const height = screen.availHeight
+      this.isRect = width >= height
+    },
+
+    getPageData(page = 1) {
+      this.page = page;
+      const { keyWord } = this.search;
+
+      this.productsListTotal =
+        keyWord === ""
+          ? this.currentCategoryProductList.filter(
+              el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || el.name.toLowerCase().includes(keyWord.toLowerCase())
+            )
+          : this.allProductsList.filter(
+              el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || el.name.toLowerCase().includes(keyWord.toLowerCase())
+            );
+
+      // this.productsListTotal =
+      //   this.allProductsList.filter(el => el.namePy.startsWith(keyWord) || el.name.startsWith(keyWord))
+
+      /*
+      this.totalPage = Math.ceil(
+        this.productsListTotal.length / (pageColl * oneLineCount)
+      );
+      this.productsList = this.productsListTotal.slice(
+        0,
+        this.page * oneLineCount * pageColl
+      );
+      */
+     
+      this.productsList = this.productsListTotal || []
+
+      // 获取当前估清商品的数量
+      const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj[
+        "prdOutOfSomething"
+        ].filter(item => item.status == 1)
+
+      this.productsList.forEach(el => {
+        const find = outSomethingPrdList.find(item => item.id == el.id)
+        el.outSomethingCount = find ? find.cnt : 'many'
+      })
+      this.getGroupOutSomethingCount()
+    },
+
+    // 商品列表中套餐估清数量与不可选明细单品数量作比较（当前套餐可点数量为套餐估清数量与不可选商品估清数量最小值）
+    getGroupOutSomethingCount() {
+      const groupDetailList = this.$store.state.cardPageInfo.resResultDataObj["goodsDetailInfo"].filter(item => item.status == 1)
+      const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj["prdOutOfSomething"].filter(item => item.status == 1)
+      this.productsList.forEach(el => {
+        if(el.prdType == 2) {  // 套餐
+          // 不可选商品
+          const canNotSelectProOutSomethingCount = []
+          const canNotSelectPrdDetailList = groupDetailList.filter(item => item.prdId == el.id && item.grpId == 1)
+          canNotSelectPrdDetailList.forEach(ele => {
+            const find = outSomethingPrdList.find(item => item.id == ele.dtlPrdId)
+            if(find) canNotSelectProOutSomethingCount.push(Math.floor(find.cnt / ele.prdCnt))
+          })
+          if (canNotSelectProOutSomethingCount.length > 0) {  // 不可选单品配置过估清数量
+            el.outSomethingCount = el.outSomethingCount == 'many' ? Math.min(...canNotSelectProOutSomethingCount) : Math.min(el.outSomethingCount, ...canNotSelectProOutSomethingCount)
+          }
+        }
+      })
+    },
+
+    // scrollHandle() {
+    //   const pageHeight = this.$refs.cardListRef.offsetHeight;
+    //   const clientHeight = this.$refs.productListRef.offsetHeight;
+    //   const scrollTop = this.$refs.productListRef.scrollTop;
+    //   if (pageHeight - clientHeight - scrollTop < 20) {
+    //     this.page += 1;
+    //     if (this.page <= this.totalPage) this.getPageData(this.page);
+    //   }
+    // },
+
+    // 点击商品/套餐
+    setMealForProduct(productInfo) {
+      if (productInfo.outSomethingCount == 0) return this.$message.warning('当前商品已售罄')
+      productInfo.requireInfo = common_order.getRequireInfo(
+        productInfo.twoCateId
+      );
+      this.currentProductInfo = productInfo;
+      this.showOrHideDrawer(true);
+    },
+
+    showOrHideDrawer(value) {
+      this.drawer.showDrawer = value;
+    },
+
+    scrollArrowHandle(direction) {
+      let dom = this.$refs.productListRef;
+      const step = 200;
+      const scrollTop =
+        direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
+      dom.scrollTo(0, scrollTop);
+    },
+
+    // 收银快捷键
+    keyHandle(e){
+      // alt 或 windows键(防止利用alt切屏)
+      if (e.keyCode == 18 || e.keyCode == 91) return e.preventDefault()
+      switch (e.type){
+        case 'keydown':
+
+        if(downKeyCode.findIndex(item => item == 0) < 0) return
+
+        if (ctrlAndShiftCode.includes(e.keyCode)) {
+          downKeyCode[0] = e.keyCode
+        } else if (downKeyCode[0] == 0 && downKeyCode[1] == 0) {
+          downKeyCode[1] = e.keyCode
+        } else if (downKeyCode[0] == e.keyCode && downKeyCode[1] == 0 ){
+          // 重复按同一个件
+        } else if (downKeyCode[0] != 0 && downKeyCode[1] == 0) {
+          downKeyCode[1] = e.keyCode
+        }
+
+        this.$nextTick(() => {
+          if(downKeyCode[0] == 17 && downKeyCode[1] == 81) {
+            //  ctrl + q  // 返回收银首页
+            e.preventDefault()
+            this.$router.replace({name: 'moneyCard'})
+          } else if (downKeyCode[0] == 17 && downKeyCode[1] == 70) {
+            // ctrl + f  // 搜索框获取焦点
+            e.preventDefault()
+            this.$refs.searchInputRef.focus()
+          } else if (downKeyCode[0] == 16 && downKeyCode[1] == 83) {
+            // shift + s  // 购物车
+            e.preventDefault()
+            this.$parent.$parent.$refs.footBarRef &&
+            this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
+            this.$parent.$parent.$refs.footBarRef.footNavBarClick({
+              id: 3,
+              name: "商品菜单",
+              routeName: "shoppingCart"
+            });
+          } else if (downKeyCode[0] == 16 && downKeyCode[1] == 68) {
+            // shift + d  // 我的点单
+            e.preventDefault()
+            this.$parent.$parent.$refs.footBarRef &&
+            this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
+            this.$parent.$parent.$refs.footBarRef.footNavBarClick({
+              id: 4,
+              name: "商品菜单",
+              routeName: "myOrder"
+            });
+          } else if (downKeyCode[0] == 0 && downKeyCode[1] == 13) {
+            // enter  // 确认点单数量
+            e.preventDefault()
+            if(this.drawer.showDrawer){
+              this.$refs.mealDrawerRef.$refs.singleProductRef &&
+              this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit &&
+              this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit()
+            }
+            
+          } 
+        })
+          break;
+
+        case 'keyup':
+          const index = downKeyCode.findIndex(item => item == e.keyCode)
+
+          if (index > -1) downKeyCode[1] = 0
+
+          if(ctrlAndShiftCode.includes(e.keyCode)) downKeyCode = [0, 0]
+          
+          break
+      }
+    },
+
+    // 点单快捷键
+    keydownHandle(e) {
+      if(e.keyCode == 13) {
+        this.$nextTick(() => {
+          if (this.drawer.showDrawer) {
+            if (this.$refs.mealDrawerRef.type == 1 || this.$refs.mealDrawerRef.type == 4) {
+              // 点单数量
+              this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit()
+            } else if (this.$refs.mealDrawerRef.type == 2) {
+              // 点套餐
+              this.$refs.mealDrawerRef.$refs.groupProduct.onSubmit()
+            } else {
+              // 授权
+              this.$refs.mealDrawerRef.$refs.authorization.onSubmit()
+            }
+          }
+        })
+      }
+    },
+
+    addInputHandle(value){
+      this.search.keyWord = this.search.keyWord.toString() + value.toString()
+      this.getPageData(1)
+    },
+
+    subInputHandle(){
+      if(this.search.keyWord == '') return
+      this.search.keyWord = this.search.keyWord.toString().slice(0, -1)
+      this.getPageData(1)
+    }
+  },
+  created () {
+    setTimeout(() => {
+      if (this.$store.state.userInfo.authStatus == 4) {
+        document.onkeydown = this.keyHandle
+        document.onkeyup = this.keyHandle
+      } else {
+        document.onkeydown = this.keydownHandle
+      }
+    }, 200);
+  },
+  mounted () {
+    firstLoad = true;
+    this.getCenterType();
+    // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
+  },
+  props: ["allProductsList", "currentCategoryProductList"],
+  computed: {
+    isTerminal(){
+      let termType = ''
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log('获取终端类型失败', error)
+      }
+      return termType == 'android' || termType == 'pc'
+    }
+  },
+  components: {
+    mealDrawer,
+    simpleKeyBoard
+  },
+  watch: {
+    currentCategoryProductList(newVal) {
+      this.search.keyWord = firstLoad
+        ? this.$route.query.mustPrdName || ""
+        : "";
+      this.productsListTotal = newVal;
+      this.getPageData();
+      firstLoad = false;
+    }
+  },
+
+  beforeDestroy () {
+    document.onkeydown = null
+    document.onkeyup = null
+    downKeyCode = [0, 0]
+  }
+};
+</script>
+
+<style scoped lang="less">
+@import "../../style/order/orderMeal/productList.less";
+</style>

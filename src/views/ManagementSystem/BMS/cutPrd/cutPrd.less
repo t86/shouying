@@ -1,0 +1,26 @@
+@color: #2170ff;
+.table-count{
+  padding: 10px;
+  box-sizing: border-box;
+  height: 100%;
+  overflow-y: auto;
+  .tab{
+    span{
+      display: inline-block;
+      padding: 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 30px;
+      border-bottom: 2px solid transparent;
+      &.active{
+        color: @color;
+        border-bottom-color: @color;
+      }
+    }
+  }
+
+  .content{
+    padding: 10px;
+    box-sizing: border-box;
+  }
+}

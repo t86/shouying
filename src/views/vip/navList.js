@@ -1,0 +1,75 @@
+export default [
+  {
+    id: 0,
+    name: "返回",
+    icon: require("@/assets/vip-imgs/back.png"),
+    hoverIcon: require("@/assets/vip-imgs/back-hover.png"),
+    children: []
+  },
+  {
+    id: 1,
+    name: "首页",
+    icon: require("@/assets/vip-imgs/index.png"),
+    hoverIcon: require("@/assets/vip-imgs/index-hover.png"),
+    children: []
+  },
+  {
+    id: 2,
+    name: "会员管理",
+    icon: require("@/assets/vip-imgs/vip.png"),
+    hoverIcon: require("@/assets/vip-imgs/vip-hover.png"),
+    children: [
+      {
+        id: 21,
+        name: "会员管理",
+        routerName: "vipManager"
+      },
+      {
+        id: 22,
+        name: "会员卡类型",
+        routerName: "vipType"
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "业务配置",
+    icon: require("@/assets/vip-imgs/config.png"),
+    hoverIcon: require("@/assets/vip-imgs/config-hover.png"),
+    children: [
+      {
+        id: 31,
+        name: "线上充值设置",
+        routerName: "onlineMakeMoneyToVip"
+      },
+      {
+        id: 32,
+        name: "会员卡号生成规则",
+        routerName: "vipNumRules"
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: "报表管理",
+    icon: require("@/assets/vip-imgs/report.png"),
+    hoverIcon: require("@/assets/vip-imgs/report-hover.png"),
+    children: [
+      {
+        id: 41,
+        name: "充值记录",
+        routerName: "makeMoneyToVip"
+      },
+      {
+        id: 42,
+        name: "消费记录",
+        routerName: "payMoneyAll"
+      },
+      {
+        id: 43,
+        name: "扣款记录",
+        routerName: "vipPay"
+      }
+    ]
+  }
+];

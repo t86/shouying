@@ -1,0 +1,31 @@
+@borderColor: #ccc;
+.table-content {
+  .table.border {
+
+    border: 1px solid @borderColor;
+    border-right: none;
+    .thead {
+      border-bottom: 1px solid @borderColor;
+    }
+    .tr {
+      padding: 0!important;
+      border-bottom: 1px solid @borderColor;
+      &:nth-last-child(1) {
+        border: none;
+      }
+    }
+    .th,.td {
+      padding: 10px;
+      border-right: 1px solid @borderColor;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+  }
+
+  
+  .no-data {
+    padding-bottom: 80px;
+    border-right: 1px solid @borderColor;
+  }
+}

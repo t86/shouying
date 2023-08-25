@@ -1,0 +1,272 @@
+.pay-order {
+  position: relative;
+  top: -1px;
+  color: rgba(255, 255, 255, .8);
+  height: 100vh;
+  background-color: #08080A;
+
+  // 大tab
+  .top-tab {
+    position: relative;
+    height: 60px;
+
+    >ul {
+      position: absolute;
+      z-index: 10;
+      padding: 0 8px;
+      width: 100%;
+      background: rgba(8, 8, 10, .9);
+      box-sizing: border-box;
+      overflow: hidden;
+      flex-wrap: wrap;
+
+      &.overflow {
+        height: 60px;
+      }
+
+      li {
+        position: relative;
+        width: 152px;
+        height: 36px;
+        margin: 12px 7px;
+        font-size: 18px;
+        font-weight: 500;
+        white-space: nowrap;
+        text-align: center;
+        line-height: 36px;
+        background: #0D172D;
+        box-shadow: inset 0px 1px 1px 0px #2775BA;
+        border-radius: 18px;
+        cursor: pointer;
+
+        &:after {
+          display: none;
+          content: '';
+          width: 0px;
+          height: 0px;
+          border: 10px solid transparent;
+          border-top-color: #A9D1FA;
+          position: absolute;
+          left: 50%;
+          bottom: 0px;
+          transform: translate(-50%, 18px);
+        }
+
+        &.active {
+          color: #08080A;
+          background: #F8FEFF;
+          // background: linear-gradient(180deg, #F8FEFF 0%, #A9D1FA 100%);
+
+          &:after {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  // 订单详情
+  .order-content {
+    position: relative;
+    margin: 0 15px;
+    height: calc(100vh - 140px);
+    background-color: #212C44;
+    box-shadow: 0px 0px 12px 0px rgba(26, 137, 255, 0.8000);
+    border: 1px solid #32B9FF;
+    border-radius: 20px;
+
+    &-tab {
+      position: relative;
+      height: 60px;
+      border-radius: 20px 20px 0 0;
+
+      >ul {
+        width: calc(100% - 32px);
+        position: absolute;
+        z-index: 9;
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        background: #222d47;
+        // background: linear-gradient(to bottom, #222d47 0%, #182037 100%);
+        border-radius: 20px 20px 0 0;
+
+        &.overflow {
+          height: 40px;
+          overflow-y: hidden;
+          background-color: transparent;
+        }
+
+        >li {
+          width: 123px;
+          height: 32px;
+          border-radius: 30px;
+          border: 1px solid #2767BA;
+          margin: 6px;
+          line-height: 32px;
+          text-align: center;
+          cursor: pointer;
+
+          &.active {
+            background: #455EFF;
+            // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%);
+          }
+        }
+      }
+    }
+
+    // 表格内容
+    &-detail {
+      background-color: transparent;
+    }
+
+    &-bottom {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 64px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      background: #182037;
+      border-radius: 0px 0px 20px 20px;
+
+      &-left {
+        width: 40%;
+
+        &.not-pay{
+          width: 20%
+        }
+
+        &.pay-item{
+          width: 70%
+        }
+
+        .money {
+          margin-right: 30px;
+
+          span {
+            font-size: 18px;
+            color: rgba(255, 255, 255, .8);
+            line-height: 14px;
+            word-break: keep-all;
+
+            &.amt {
+              font-weight: 500;
+              font-size: 24px;
+              color: #1EDAAD;
+            }
+          }
+        }
+      }
+
+      &-right {
+        width: 60%;
+
+        &.not-pay{
+          width: 80%;
+        }
+
+        &.pay-item{
+          width: 30%
+        }
+
+        .button {
+          width: 120px;
+          height: 40px;
+          margin-right: 20px;
+          text-align: center;
+          line-height: 38px;
+          font-size: 16px;
+          background: #4B89FF;
+          // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+          box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5000);
+          border-radius: 30px;
+          color: rgba(255, 255, 255, .8);
+          cursor: pointer;
+
+          &.gray{
+            filter: grayscale(1);
+            cursor: not-allowed;
+          }
+
+          &.change-pay-type {
+            width: 140px;
+          }
+
+          &.pay {
+            background: #FF2F64;
+            box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+          }
+        }
+
+        .arrow {
+          position: relative;
+          padding: 0 3px;
+          box-sizing: border-box;
+          width: 100px;
+          height: 40px;
+          background: rgba(13, 23, 45, 0.9000);
+          box-shadow: inset 0px 1px 1px 0px #2775BA;
+          border-radius: 30px;
+
+          &:after {
+            position: absolute;
+            content: '';
+            width: 1px;
+            height: 40px;
+            background-color: rgba(39, 117, 186, .5);
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+          }
+
+          img {
+            width: 20px;
+            cursor: pointer;
+
+            &.arrow-top {
+              transform: rotate(180deg);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 底部
+  .bottom-nav {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    left: 0;
+    bottom: 0;
+    background: #0D172D;
+    // background: linear-gradient(180deg, #0D172D 0%, #060A14 100%);
+  }
+
+  // 线上转线下倒计时弹框
+  .num-sub-tips{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .3);
+    .contain{
+      width: 300px;
+      height: 100px;
+      padding: 20px;
+      border-radius: 8px;
+      background: #08080A;
+      // background: linear-gradient(180deg, #08080A 0%, #11182D 100%);
+      box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
+      position: absolute;
+      left: 50%;
+      top: 40%;
+      transform: translate(-50%, -50%);
+      line-height: 100px;
+      text-align: center;
+    }
+  }
+}

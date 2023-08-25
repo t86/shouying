@@ -1,0 +1,119 @@
+.day-report {
+  background: #202C4A;
+  // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
+
+  .header {
+    height: 48px;
+    background:#222D47;
+    // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
+  }
+
+  .session {
+
+    &-left {
+      width: 40%;
+
+      &-contain {
+        width: 45%;
+        border: 1px solid #999;
+        border-radius: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+
+        h4 {
+          line-height: 40px;
+        }
+
+        &-checkbox {
+          overflow-y: auto;
+          height: calc(100vh - 150px);
+        }
+      }
+    }
+
+    &-center {
+      width: 20%;
+      padding-bottom: 5%;
+
+      &-contain {
+        width: 100%;
+
+        button {
+          cursor: pointer;
+          color: #fff;
+          width: 120px;
+          height: 40px;
+          border-radius: 20px;
+          border: none;
+
+          &.primary {
+            background: #4b89ff;
+            // background: linear-gradient(180deg, #4b89ff 0%, #455eff 100%);
+            box-shadow: inset 0px 1px 1px 0px rgb(255 255 255 / 50%);
+          }
+
+          &.cancel {
+            background: #374368;
+            box-shadow: inset 0px 1px 1px 0px rgb(255 255 255 / 30%);
+          }
+        }
+      }
+    }
+
+    &-right {
+      width: 40%;
+      padding: 20px;
+      box-sizing: border-box;
+      .table{
+        border: 1px solid #999;
+        border-radius: 10px;
+        height: calc(100vh - 90px);
+        overflow-y: auto;
+        .tr{
+          padding: 0 20px;
+          box-sizing: border-box;
+          height: 36px;
+          line-height: 36px;
+          font-size: 14px;
+        }
+        .thead{
+          position: sticky;
+          top: 0;
+          background: #182037;
+          // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+          color: rgba(255, 255, 255, .5);
+        }
+        .tbody{
+          color: rgba(255, 255, 255, .8);
+          .tr:nth-child(2n){
+            background-color: rgba(255, 255, 255, 0.04);
+          }
+        }
+
+        .th:nth-child(1), .td:nth-child(1){
+          width: 70%;
+        }
+        .th:nth-child(2), .td:nth-child(2){
+          width: 30%;
+        }
+      }
+    }
+  }
+}
+
+
+/deep/.el-checkbox__label {
+  color: #fff;
+}
+
+/deep/.select-com,
+/deep/.options{
+  border-color: #999!important;
+}
+
+/deep/.select-com,
+/deep/.options li {
+  font-size: 14px;
+  height: 28px;
+  line-height: 28px;
+}

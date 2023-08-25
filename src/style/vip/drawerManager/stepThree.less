@@ -1,0 +1,57 @@
+.step-three{
+  .form {
+    padding-bottom: 30px;
+    .row {
+      margin: 20px 0;
+
+      .label {
+        width: 150px;
+        text-align: right;
+        font-size: 14px;
+        margin-right: 10px;
+
+        span.red {
+          color: #F51F4B;
+        }
+      }
+
+      .value {
+        .tips {
+          margin-top: 10px;
+          font-size: 13px;
+          color: #72727B;
+        }
+        .loading{
+          img{
+            width: 24px;
+            margin: 0 6px;
+            animation: rotateAnimation .7s linear infinite;
+          }
+
+          @keyframes rotateAnimation {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          span{
+            font-size: 14px;
+            color: #2362D5;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/deep/.el-checkbox__label{
+  font-weight: 400!important;
+}
+
+/deep/.el-select__input.is-small{
+  width: 284px;
+  border: none;
+}

@@ -1,0 +1,271 @@
+.footBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #0D172D;
+  // background: linear-gradient(180deg, #0D172D 0%, #060A14 100%);
+  color: #fff;
+  padding: 0 10px;
+  box-sizing: border-box;
+
+  &.rect{
+    height: 120px
+  }
+
+
+  .ul,
+  .date-time {
+    height: 60px;
+
+    .li {
+      position: relative;
+      width: 96px;
+      height: 100%;
+      padding-top: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #AED8FF;
+      text-align: center;
+      cursor: pointer;
+
+      &.active {
+        background: url(../../../assets//order-img/checkedBgi.png) top center;
+      }
+
+      .shopping-count {
+        position: absolute;
+        left: 52px;
+        top: 2px;
+        background: #FF2F64;
+        padding: 0 4px;
+        box-sizing: border-box;
+        height: 18px;
+        line-height: 18px;
+        text-align: center;
+        border-radius: 15px;
+        font-size: 12px;
+        font-family: PingFangSC-Semibold, PingFang SC;
+        font-weight: 600;
+        color: #FFFFFF;
+      }
+
+      img {
+        &.sanJiao {
+          width: 20px;
+          position: absolute;
+          left: 50%;
+          top: 0;
+          transform: translate(-50%, -24px) rotate(-90deg);
+
+        }
+      }
+
+    }
+
+    p.time {
+      width: 96px;
+      line-height: 20px;
+      font-weight: 400;
+      color: #AED8FF;
+      text-align: center;
+      font-size: 13px;
+      &.rect {
+        width: 120px;
+      }
+    }
+  }
+  // 服务员买单按钮
+  .server-pay-btn{
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-right: -20px;
+    .button{
+      width: 102px;
+      height: 40px;
+      background: #222A42;
+      box-shadow: inset 0px 1px 1px 0px #2775BA;
+      border-radius: 20px;
+      margin: 0 8px;
+      color: #aed8ff;
+      cursor: pointer;
+      img{
+        width: 20px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .pay-btn {
+    padding: 0 16px;
+
+    .button {
+      width: 112px;
+      height: 40px;
+      background: #222A42;
+      box-shadow: inset 0px 1px 1px 0px #2775BA;
+      border-radius: 20px;
+      margin: 0 8px;
+      cursor: pointer;
+      img{
+        width: 20px;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .card-name {
+    width: 150px;
+    font-size: 28px;
+    font-family: SimHei;
+    color: #FFFFFF;
+    line-height: 32px;
+    text-align: center;
+  }
+
+  .amt {
+    padding-left: 30px;
+
+    p {
+      height: 18px;
+
+      span {
+        display: inline-block;
+        min-width: 50px;
+        word-break: keep-all;
+        height: 12px;
+        font-size: 12px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 12px;
+        &.txt-right{
+          text-align: right;
+        }
+
+        &.ts {
+          color: #1EDAAD;
+        }
+      }
+    }
+
+  }
+
+}
+
+
+.line {
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(0, -50%);
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0);
+    opacity: 0.25;
+  }
+
+}
+
+
+// 倒计时退出登录模态框
+.num-sub-tips{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, .3);
+  .contain{
+    width: 300px;
+    height: 100px;
+    padding: 20px;
+    border-radius: 8px;
+    background: #202C4A;
+    // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
+    box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    line-height: 100px;
+    text-align: center;
+  }
+}
+
+// 选择支付渠道方式
+.choose-pay-type{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, .3);
+  .contain{
+    width: 500px;
+    height: 250px;
+    border-radius: 8px;
+    background: #202C4A;
+    // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
+    box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    .top {
+      padding: 0 20px;
+      height: 50px;
+      background-color: #1e2944;
+    }
+
+    .center {
+      height: 140px;
+      .choose {
+        cursor: pointer;
+        padding: 8px 16px;
+        margin: 0 20px;
+        border: 1px solid #999;
+        color: #999;
+        border-radius: 6px;
+
+        &.active {
+          border-color: #4B89FF;
+          color: #4B89FF;
+        }
+      }
+    }
+
+    .bottom {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 50px;
+      background-color: #202C4A;
+      .button {
+        padding: 6px 16px;
+        border-radius: 6px;
+        margin: 0 10px;
+        font-size: 14px;
+
+        &.primary {
+          background-color: #4B89FF;
+        }
+
+        &.info {
+          background-color: #374368;
+        }
+      }
+    }
+  }
+}

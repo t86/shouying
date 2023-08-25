@@ -1,0 +1,30 @@
+.pagination {
+  margin-top: 20px;
+  float: right;
+}
+
+/deep/.el-pagination.is-background .btn-next, 
+/deep/.el-pagination.is-background .btn-prev, 
+/deep/.el-pagination.is-background .el-pager li{
+  background-color: #DDE0E9;
+  color: #1A1A21;
+}
+
+/deep/.el-pagination.is-background .el-pager li:not(.disabled).active{
+  color: #fff;
+  background-color: #2362D5;
+}
+
+/deep/.el-pagination.is-background .el-pager li:not(.disabled):hover{
+  color: #2362D5;
+}
+
+/deep/.el-pagination.is-background .el-pager li:not(.disabled).active:hover{
+  color: #fff;
+}
+
+/deep/.el-icon-arrow-right:before,
+/deep/.el-icon-arrow-left:before{
+  color: #1A1A21;
+}
+

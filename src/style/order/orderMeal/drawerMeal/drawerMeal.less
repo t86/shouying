@@ -1,0 +1,48 @@
+.auth {
+  &-left {
+    width: 50%;
+    padding-right: 10px;
+    box-sizing: border-box;
+    border-right: 1px solid rgba(255, 255, 255, .2);
+
+    .table {
+      font-size: 14px;
+
+      .tr {
+        padding: 10px;
+
+        .th:nth-child(1),
+        .td:nth-child(1) {
+          width: 20%;
+        }
+
+        .th:nth-child(2),
+        .td:nth-child(2) {
+          width: 60%;
+        }
+
+        .th:nth-child(3).th:nth-child(3) {
+          width: 20%;
+        }
+      }
+
+      .thead {
+        background-color: rgba(216, 229, 255, 0.08);
+      }
+
+      .tbody {
+        height: calc(100vh - 250px);
+        overflow-y: auto;
+
+        .tr:nth-child(2n) {
+          background-color: rgba(255, 255, 255, 0.04);
+        }
+      }
+    }
+  }
+
+  // 授权刷卡或输入账号密码
+  &-right {
+    width: 50%;
+  }
+}

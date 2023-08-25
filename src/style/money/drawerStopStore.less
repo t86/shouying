@@ -1,0 +1,127 @@
+@color: #181830;
+
+
+h3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+p {
+  line-height: 20px;
+}
+
+.w64 {
+  width: 64%;
+}
+
+.w36 {
+  width: 36%;
+}
+
+.w50 {
+  width: 50%;
+}
+
+.w40 {
+  width: 40%;
+}
+
+.line {
+  border-bottom: 1px dashed #888;
+}
+
+// 手动结束营业日
+
+.store-end {
+  color: rgba(255, 255, 255, .8);
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+
+  // 班结表预览
+
+  &-prev {
+    position: relative;
+    width: 360px;
+    margin: 0 auto;
+  }
+
+  &-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    img {
+      width: 112%;
+      transform: translate(-5%);
+    }
+  }
+
+  &-content {
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .contain {
+      padding: 46px 20px 20px;
+      box-sizing: border-box;
+      background-color: #BABABA;
+
+      &-content {
+        color: @color;
+        font-size: 14px;
+
+        // 班结表标题
+        &-title {
+          text-align: center;
+
+          p {
+            text-align: right;
+            padding: 10px 0;
+          }
+        }
+
+        // 数据总览
+
+        &-all-data {
+          padding: 10px 0;
+        }
+
+        // 支付渠道 / 收入
+
+        &-pay-list,
+        &-get-money {
+          padding: 10px 0;
+        }
+
+        // 总结算数据
+        &-result {
+          padding: 10px 0;
+          padding-left: 140px;
+        }
+
+
+      }
+    }
+  }
+}
+
+// 自动结束营业日
+.auto-store-end {
+  margin: 0 auto;
+  max-width: 500px;
+  color: rgba(255, 255, 255, .8);
+}
+
+/deep/ .select-com {
+  line-height: 26px;
+}
+
+.txt-right {
+  text-align: right;
+}

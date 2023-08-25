@@ -1,0 +1,293 @@
+.give-more {
+  .content {
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .red {
+    color: rgba(214, 40, 85, 1);
+    font-size: 16px;
+  }
+
+  // 表单
+  .form {
+    .change-count {
+
+      img {
+        vertical-align: middle;
+        width: 26px;
+        cursor: pointer;
+      }
+
+      input {
+        color: #fff;
+        vertical-align: middle;
+        width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        text-align: center;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.0800);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3000);
+      }
+    }
+
+    // 理由
+    .reason-list{
+      margin-top: 4px;
+      flex-wrap: wrap;
+      li{
+        margin-right: 10px;
+        margin-bottom: 6px;
+        width: 160px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 2255, .5);
+        color: rgba(255, 255, 2255, .5);
+        cursor: pointer;
+        &.active{
+          border-color: #09f ;
+          color: #09f ;
+        }
+      }
+    }
+
+    input[type=button] {
+      width: 100px;
+      height: 30px;
+      background: #212C44;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1000);
+      cursor: pointer;
+      color: #fff;
+    }
+
+    /deep/ .el-radio__inner {
+      background-color: transparent;
+    }
+
+    /deep/ .is-checked .el-radio__inner {
+      background-color: rgba(92, 159, 255, 1);
+    }
+
+    /deep/ .el-radio {
+      margin-right: 0;
+    }
+  }
+
+  
+  // 选择需要更改的套餐明细
+  ul.choose-detail,ul.add-requested {
+    color: #fff;
+    padding-top: 20px;
+
+    li {
+      padding: 0 20px 20px;
+
+      .left {
+        width: 10%;
+
+        input[type="radio"] {
+          cursor: pointer;
+        }
+      }
+
+      .right {
+        width: 90%;
+        flex-wrap: wrap;
+
+        p {
+          padding: 4px 8px;
+        }
+      }
+    }
+  }
+
+  // 授权
+  .authorization {
+    &-left {
+      width: 50%;
+      padding-right: 10px;
+      box-sizing: border-box;
+      border-right: 1px solid rgba(255, 255, 255, .2);
+
+      .table {
+        font-size: 14px;
+
+        .tr {
+          padding: 10px;
+
+          .th:nth-child(1),
+          .td:nth-child(1) {
+            width: 20%;
+          }
+
+          .th:nth-child(2),
+          .td:nth-child(2) {
+            width: 60%;
+          }
+
+          .th:nth-child(3),.td:nth-child(3) {
+            text-align: right;
+            width: 20%;
+          }
+        }
+
+        .thead {
+          background-color: rgba(216, 229, 255, 0.08);
+        }
+
+        .tbody {
+          height: calc(100vh - 250px);
+          overflow-y: auto;
+
+          .tr:nth-child(2n) {
+            background-color: rgba(255, 255, 255, 0.04);
+          }
+        }
+      }
+    }
+
+    // 授权刷卡或输入账号密码
+    &-right {
+      width: 50%;
+    }
+  }
+}
+
+
+// 批量优惠/批量优惠2
+.seal-many {
+  .title {
+    color: #D62855;
+    font-size: 16px;
+  }
+  .table {
+    font-size: 15px;
+    padding-bottom: 0;
+  
+    .thead .tr {
+      background:#182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+    }
+  
+    .tbody {
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
+
+      &.give{
+        max-height: calc(100vh - 400px);
+      }
+  
+      .coll:nth-child(2n) {
+        background-color: rgba(255, 255, 255, .04);
+      }
+    }
+  
+  
+    .tr {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      min-height: 46px;
+      padding: 8px;
+      box-sizing: border-box;
+      text-align: left;
+  
+      .th,
+      .td {
+        padding: 0 4px;
+        box-sizing: border-box;
+        &.opacity{
+          opacity: .4;
+        }
+      }  
+
+  
+      .th:nth-child(1),
+      .td:nth-child(1) {
+        width: 15%;
+        /deep/.el-checkbox__label{
+          font-size: 15px;
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+
+      .th:nth-child(2),
+      .td:nth-child(2) {
+        width: 30%;
+      }
+
+      .th:nth-child(3),
+      .td:nth-child(3) {
+        width: 15%;
+      }
+  
+      .th:nth-child(4),
+      .td:nth-child(4) {
+        text-align: center;
+        width: 40%;
+        white-space: nowrap;
+  
+        img {
+          vertical-align: middle;
+          width: 26px;
+          cursor: pointer;
+        }
+  
+        input {
+          color: #fff;
+          vertical-align: middle;
+          width: 56px;
+          height: 28px;
+          padding: 0 10px;
+          text-align: center;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.0800);
+          border-radius: 24px;
+          border: 1px solid rgba(255, 255, 255, 0.3000);
+  
+        }
+  
+        input[disabled] {
+          opacity: .4;
+        }
+      }
+    }
+  }
+}
+
+
+
+
+.form-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  width: 100%;
+  height: 64px;
+  background-color: #161D33;
+
+  button {
+    width: 120px;
+    height: 40px;
+    border-radius: 20px;
+    border: none;
+
+    &.el-button.el-button--info {
+      width: 120px;
+      background: #374368;
+      box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+    }
+
+    &.el-button.el-button--primary {
+      background: #4b89ff;
+      // background: linear-gradient(180deg, #4b89ff 0%, #455eff 100%);
+      box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+    }
+  }
+}

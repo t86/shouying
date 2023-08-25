@@ -1,0 +1,36 @@
+@color: #2170ff;
+
+.item {
+  font-size: 14px;
+  width: 100%;
+  .name {
+    display: block;
+    width: 100px;
+    font-size: 14px;
+    color: #40404e;
+    line-height: 34px;
+  }
+
+  .menu-name {
+    padding-left: 4px;
+    &.active{
+      background-color: #d7e9ff;
+      border-radius: 6px;
+    }
+    &-contain {
+      >img {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+      }
+    }
+    
+    .rotate {
+      transform: rotate(90deg);
+    }
+
+    .el-icon-caret-right:before{
+      color: rgb(140, 140, 140);
+    }
+  }
+}

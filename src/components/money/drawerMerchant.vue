@@ -1,0 +1,691 @@
+<template>
+  <div>
+    <!-- 商户号管理 -->
+    <el-drawer
+      title="商户号管理"
+      :visible.sync="show"
+      :before-close="onCancelDrawer"
+      direction="rtl"
+      size="98%"
+    >
+      <div class="merchant fs14">
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>自动切换还商户号：</span>
+          </div>
+          <div class="value">
+            <el-switch
+              v-model="merchantVal"
+              active-color="#409EFF"
+              inactive-color="#ccc">
+            </el-switch>
+          </div>
+        </div>
+
+        <div class="coll" layout="row" layout-align="start center" v-if="merchantVal">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span>设置公账金额阈值：</span>
+          </div>
+          <div class="value">
+            <el-input
+              style="width:180px"
+              v-model="maxAmtVal"
+              size="mini"
+              placeholder="请输入金额"  
+            >
+            </el-input>&nbsp;元
+          </div>
+        </div>
+
+        <div class="coll" layout="row" layout-align="start center" v-if="merchantVal">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span>选择商户号：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <div class="merchant-item" :class="{'active': selectMerchantId == item.id}" v-for="item in merchantList" :key="item.id" v-show="item.gs == 2" @click="selectMerchantId = item.id">{{item.n}}</div>
+          </div>
+        </div>
+
+        <div v-if="merchantVal" class="red-color fs12 m-l-10 p-l-10 m-t-2">当门店已收公帐金额达到设置的公帐金额阈值后，会自动将门店所有卡台线上收款切换到选择的商户号；达不到则不切换；设置完成后即时生效！</div>
+
+        <div class="line"></div>
+
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span>默认商户号：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <div class="merchant-item" :class="{'merchant-common': item.gs == 1, 'active': defaultMerchantId == item.id}" v-for="item in merchantList" :key="item.id" @click="defaultMerchantId = item.id">{{item.n}}</div>
+          </div>
+        </div>
+
+        <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定商户号的卡台，线上收款计入选择的默认商户号</div>
+
+        <div class="line"></div>
+        
+        <div class="coll" layout="row" layout-align="start start">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span>时段额度控制：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <div class="content-table" layout="row" layout-align="center center">
+            <div class="table-content">
+              <div class="table">
+                <div class="thead">
+                  <div class="tr" layout="row" layout-align="space-between center">
+                    <div class="th">时间段(不含右区间)</div>
+                    <div class="th">额度金额</div>
+                    <div class="th">选择商户号</div>
+                  </div>
+                </div>
+                <div class="tbody">
+                  <div class="tr" v-for="(item, index) in leftTableData" :key="index" layout="row" layout-align="space-between center">
+                    <div class="td">{{item.name}}</div>
+                    <div class="td">
+                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini"></el-input>
+                    </div>
+                    <div class="td" layout="row" style="flex-wrap:wrap">
+                      <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-content">
+              <div class="table">
+                <div class="thead">
+                  <div class="tr" layout="row" layout-align="space-between center">
+                    <div class="th">时间段(不含右区间)</div>
+                    <div class="th">额度金额</div>
+                    <div class="th">选择商户号</div>
+                  </div>
+                </div>
+                <div class="tbody">
+                  <div class="tr" v-for="(item, index) in rightTableData" :key="index" layout="row" layout-align="space-between center">
+                    <div class="td">{{item.name}}</div>
+                    <div class="td">
+                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini"></el-input>
+                    </div>
+                    <div class="td" layout="row" style="flex-wrap:wrap">
+                      <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div class="line"></div>
+
+         <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>商户号：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <div class="merchant-item" :class="{'merchant-common': item.gs == 1, 'active': currentMerchantInfo.id == item.id}" v-for="item in merchantList" :key="item.id" @click="changeSeatMerchantHandle(item)">{{item.n}}</div>
+          </div>
+        </div>
+
+        <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定商户号的卡台，线上收款计入选择的默认商户号</div>
+
+        <div class="area-content" v-if="merchantList.length > 0">
+          <div class="area-list" v-for="item in areaList" :key="item.id">
+            <h3 class="area-name m-t-3 m-b-3">
+              <span class="m-r-3">{{item.n}}</span>
+              <el-checkbox v-model="item.checked" :indeterminate="item.isIndeterminate" @change="changeCheckBoxHandle(item)">全选</el-checkbox>
+            </h3>
+            <div class="seat-list"  layout="row" layout-align="start start" >
+              <div class="item cursor" :class="{'gray': items.no.toString().length > 1 && items.no.toString() != currentMerchantInfo.n.toString(), 'active': items.no.toString().length > 1 && items.no.toString() == currentMerchantInfo.n.toString()}" v-for="items in item.ss" :key="items.id" @click="chooseSeatMerchantHandle(items)">
+                <div class="item-name fs18">{{items.n}}</div>
+                <div class="item-merchant fs14">{{items.no ? (items.no.length > 5 ? ('*****' + items.no.slice(-5)): items.no) : ''}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 提交按钮 -->
+      <div class="form-btn" layout="row" layout-align="center center">
+        <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
+      </div>
+    </el-drawer>
+  </div>
+</template>
+ 
+<script>
+import api_money from "@/api/money";
+let loaded = false // 数据是否加载完成
+let updated = false  // 数据是否被修改
+const leftTableData = [
+    {
+    id: 12,
+    name: '12:00-13:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 13,
+    name: '13:00-14:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 14,
+    name: '14:00-15:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 15,
+    name: '15:00-16:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 16,
+    name: '16:00-17:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 17,
+    name: '17:00-18:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 18,
+    name: '18:00-19:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 19,
+    name: '19:00-20:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 20,
+    name: '20:00-21:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 21,
+    name: '21:00-22:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 22,
+    name: '22:00-23:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 23,
+    name: '23:00-24:00',
+    amt: '0',
+    checkedId: ''
+  }
+]
+const rightTableData = [
+  {
+    id: 0,
+    name: '00:00-01:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 1,
+    name: '01:00-02:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 2,
+    name: '02:00-03:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 3,
+    name: '03:00-04:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 4,
+    name: '04:00-05:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 5,
+    name: '05:00-06:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 6,
+    name: '06:00-07:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 7,
+    name: '07:00-08:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 8,
+    name: '08:00-09:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 9,
+    name: '09:00-10:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 10,
+    name: '10:00-11:00',
+    amt: '0',
+    checkedId: ''
+  },
+  {
+    id: 11,
+    name: '11:00-12:00',
+    amt: '0',
+    checkedId: ''
+  },
+]
+export default {
+  data() {
+    return {
+      show: false,
+      merchantVal: false,  // 自动切换商户号
+      maxAmtVal: '',  // 公账金额阈值
+      selectMerchantId: '', // 选择商户号id
+      defaultMerchantId: '', // 默认商户号id
+      leftTableData,
+      rightTableData,
+      merchantList: [], // 商户号列表
+      areaList: [], // 区域卡台列表
+      currentMerchantInfo: {}, // 选中的tab商户信息
+    };
+  },
+  methods: {
+    async getDetailData(){
+      try {
+        const res = await api_money.reqGetMerchantConfig()
+        if(res.code == 1) {
+          this.merchantVal = res.data.e_s == 1
+          this.maxAmtVal = res.data.max_amt
+          this.selectMerchantId = res.data.dest_cnl_cfg_id || ''
+          this.defaultMerchantId = res.data.def_cnl_cfg_id || ''
+          this.merchantList = res.data.cnl_cfgs || []
+
+          // 设置时段额度控制
+          res.data.hour_cfgs = res.data.hour_cfgs || []
+          this.rightTableData = this.rightTableData.map(item => {
+            const find = res.data.hour_cfgs.find(items => items.h * 1 === item.id * 1) || {}
+            const merchantListG = this.merchantList.filter(items => items.gs == 2)
+            return {
+              ...item,
+              amt: find.m || '0',
+              checkedId: find.c || (merchantListG.length > 0 ? merchantListG[0].id : '')
+            }
+          })
+          this.leftTableData = this.leftTableData.map(item => {
+            const find = res.data.hour_cfgs.find(items => items.h * 1 === item.id * 1) || {}
+            const merchantListG = this.merchantList.filter(items => items.gs == 2)
+            return {
+              ...item,
+              amt: find.m || '0',
+              checkedId: find.c || (merchantListG.length > 0 ? merchantListG[0].id : '')
+            }
+          })
+
+          this.areaList = (res.data.region_seats || []).map(item => ({
+            ...item,
+            ss: (item.ss || []).map(items => ({
+              ...items,
+              no: (this.merchantList.find(ite => ite.id == items.c) || { n: 0 }).n,  // 商户号id所对应的商户号
+            }))
+          }))
+
+          this.currentMerchantInfo = this.merchantList.length > 0 ? {...this.merchantList[0]} : {}
+
+          // 设置全选半选
+          this.setCheckBoxStatus()
+          
+          // 初始化是否加载完成及是否修改过表单数据
+          updated = false
+          setTimeout(() => {
+            loaded = true
+          }, 1000);
+
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('数据请求失败', error);
+      }
+    },
+
+    // 改变商户tab
+    changeSeatMerchantHandle(itemInfo){
+      this.currentMerchantInfo = {...itemInfo}
+      this.setCheckBoxStatus()
+    },
+
+    // 全选/反选区域
+    changeCheckBoxHandle(itemInfo){
+      itemInfo.isIndeterminate = false
+      itemInfo.ss.forEach(el => {
+        if(itemInfo.checked) {
+          // 选中
+          el.no = this.currentMerchantInfo.n
+        } else {
+          el.no = 0
+        }
+      })
+    },
+
+    // 卡台选中商户
+    chooseSeatMerchantHandle(itemInfo){
+      if(itemInfo.no == this.currentMerchantInfo.n) {
+        itemInfo.no = 0
+      } else {
+        itemInfo.no = this.currentMerchantInfo.n
+      }
+      this.setCheckBoxStatus()
+    },
+
+    // 设置区域checkbox的全选半选
+    setCheckBoxStatus(){
+      this.areaList = this.areaList.map(item => ({
+        ...item,
+        checked: item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()),
+        isIndeterminate: !item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()) && item.ss.some(items => items.no == this.currentMerchantInfo.n.toString())
+      }))
+    },
+
+    async onSubmit(){
+      const seatIdIdList = []
+      const seatMerchantIdList = []
+      this.areaList.forEach(el => {
+        el.ss && el.ss.forEach(ele => {
+          if(ele.no.toString().length > 1) {
+            const currentMerchantInfo = this.merchantList.find(item => item.n == ele.no)
+            if(currentMerchantInfo) {
+              seatIdIdList.push(ele.id)
+              seatMerchantIdList.push(currentMerchantInfo.id)
+            }
+          }
+        })
+      })
+      const resultHoursList = [...this.rightTableData, ...this.leftTableData]
+      console.log(resultHoursList);
+      
+      const params = {
+        def_cnl_cfg_id: this.defaultMerchantId * 1, // int64    默认商户号Id
+        enable_switch: this.merchantVal ? 1: 2, // int    阀值切换开关 1 开启 2 关闭
+        max_amt: this.maxAmtVal * 1, //    int     阀值金额,单位元
+        dest_cnl_cfg_id: this.selectMerchantId * 1, // int64    阀值切换目标商户号Id
+        seat_ids: seatIdIdList, //   []int64   有配置商户号的卡台列表,没有配置不需要传
+        seat_cnl_ids: seatMerchantIdList, // []int64   匹配上面卡台列表的商户号Id
+        hour_ids: resultHoursList.map(item => item.id * 1), //   []int   时段标记数组(这里对应0~23), 定义 0 对应00:00-01:00   1 对应 01:00--02:00  以此类推
+        hour_max_amts: resultHoursList.map(item => item.amt * 1), // []int   对应上面时段数组的,时段阀值金额,单位元
+        hour_cnl_cfg_ids: resultHoursList.map(item => item.checkedId * 1), // []int64  对应上面时段数组的,指定对私商户号
+      }
+
+      if(params.enable_switch == 1) {
+        if(!params.max_amt) return this.$message.warning('请输入默认公账金额阈值')
+        if(!params.dest_cnl_cfg_id) return this.$message.warning('请输入选择商户号')
+      }
+      try {
+        const res = await api_money.reqSaveMerchantConfig(params)
+        if(res.code == 1) {
+          this.$message.success('设置成功')
+          this.$emit("showOrHideDrawer");  
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('数据请求失败', error);
+      }
+
+    },
+
+    onCancelDrawer() {
+      if(updated) {
+        this.$confirm('您已修改数据，尚未保存，需要保存后退出吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(() => {
+          this.onSubmit()
+        }).catch(() => {
+          this.$emit("showOrHideDrawer");          
+        });
+      } else {
+        this.$emit("showOrHideDrawer");
+      }
+    },
+  },
+  created () {
+    this.$watch(
+      function () {
+        return this.$data; // 监听整个 data 对象
+      },
+      function(){
+        if(loaded){
+          updated = true
+        }
+      },
+      { deep: true }
+    );
+  },
+  props: {
+    showDrawer: {
+      default: false // 是否显示drawer
+    }
+  },
+  watch: {
+    showDrawer(newVal) {
+      this.show = newVal;
+      newVal ? this.getDetailData() : "";
+    }
+  }
+};
+</script>
+
+<style scoped lang="less">
+@import "../../style/common/elementDrawer.less";
+@import "../../style/common/elementDrawerHeaderAndSession.less";
+@import "../../style/common/elementFormBtn.less";
+@import "../../style/common/scrollBar.less";
+</style>
+<style lang="less" scoped>
+.merchant{
+  padding: 10px 20px 60px;
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.8);
+
+  .coll {
+    margin-top: 20px;
+    .label {
+      width: 160px;
+      text-align: right;
+    }
+    .value {
+      width: calc(100% - 160px);
+      flex-wrap: wrap;
+      margin-left: 10px;
+      .merchant-item {
+        min-width: 106px;
+        position: relative;
+        padding: 6px 10px;
+        border: 1px solid #999;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 4px 8px;
+
+        &.merchant-common{
+          &:after{
+            position: absolute;
+            content: '公';
+            padding: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background-color: #222f4d;
+            border-radius: 50%;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            right: 0;
+            top: 0;
+            transform: translate(50%, -50%);
+          }
+        }
+
+        &.active{
+          border-color: #409EFF;
+          color: #409EFF;
+
+          &.merchant-common{
+            &:after{
+              border-color: #409EFF;
+              color: #409EFF;
+            }
+          }
+        }
+
+      }
+    }
+  }
+
+  .line {
+    width: 100%;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-top: 20px;
+  }
+
+  .area-content {
+    padding-left: 40px;
+    box-sizing: border-box;
+    .seat-list {
+      flex-wrap: wrap;
+      .item {
+        width: 110px;
+        height: 60px;
+        border: 1px solid #999;
+        border-radius: 8px;
+        margin: 10px;
+        padding: 8px 10px;
+        box-sizing: border-box;
+
+        &.active {
+          position: relative;
+          background-color: #409EFF;
+          border-color: #409EFF;
+          &:after {
+            position: absolute;
+            right: 2px;
+            top: 2px;
+            padding: 2px;
+            content: '√';
+            border: 1px solid yellow;
+            color: yellow;
+            border-radius: 50%;
+            transform: rotate(10deg);
+          }
+        }
+
+        &.gray {
+          background-color: #999;
+        }
+
+
+        .item-merchant {
+          margin-top: 2px;
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+/deep/.el-checkbox__label{
+  color: rgba(255, 255, 255, 0.8);
+}
+</style>
+
+<style lang="less" scoped>
+.content-table {
+  width: 100%;
+  .table-content {
+    width: 100%;
+  }
+  .table {
+    border: 1px solid #999;
+    border-radius: 10px;
+    width: 98%;
+    overflow: hidden;
+
+    .tr {
+      box-sizing: border-box;
+      min-height: 36px;
+      // line-height: 36px;
+      padding: 4px 0;
+      font-size: 14px;
+    }
+
+    .thead {
+      width: 100%;
+      color: rgba(255, 255, 255, .5);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+      .th{
+        background-color: #131b31;
+      }
+    }
+
+    .tbody {
+      width: 100%;
+      .tr:nth-child(2n) {
+        background-color: #2f3342;
+        .td{
+          background-color: #2f3342;
+        }
+      }
+      .tr:nth-child(2n + 1) {
+        background-color: #2A3959;
+        .td{
+          background-color: #2A3959;
+        }
+      }
+    }
+
+    .th,
+    .td {
+      width: 50%;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+  }
+}
+</style>

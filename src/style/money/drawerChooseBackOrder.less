@@ -1,0 +1,205 @@
+.choose-back-order{
+  padding: 10px 20px;
+  p{
+    padding-bottom: 10px;;
+    &.red{
+      color: #D62855;;
+      font-size: 16px;
+    }
+  }
+
+  .order-back-table {
+    font-size: 15px;
+  
+    .thead .tr {
+      background: #182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+    }
+  
+    .tbody {
+      max-height: calc(100vh - 400px);
+      overflow-y: auto;
+  
+      .coll:nth-child(2n) {
+        background-color: rgba(255, 255, 255, .04);
+      }
+    }
+  
+  
+    .tr {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      min-height: 56px;
+      padding: 8px;
+      box-sizing: border-box;
+      text-align: left;
+  
+      .th,
+      .td {
+        padding: 0 4px;
+        box-sizing: border-box;
+        &.opacity{
+          opacity: .4;
+        }
+      }  
+      .th:nth-child(1),
+      .td:nth-child(1) {
+        width: 60px;
+        /deep/.el-checkbox__label{
+          font-size: 15px;
+          color: rgba(255, 255, 255, .8);
+          padding-left: 6px;
+          transform: translateY(1px);
+        }
+      }
+      .th:nth-child(2),
+      .td:nth-child(2) {
+        width: 60px;
+        span {
+          display: inline-block;
+          text-align: center;
+          width: 20px;
+          height: 20px;
+          line-height: 18px;
+          font-size: 12px;
+          font-family: PingFangSC-Medium, PingFang SC;
+          font-weight: 500;
+          color: rgba(255, 255, 255, .8);
+          border-radius: 50%;
+
+          &.green {
+            background: #1DC344;
+            // background: linear-gradient(180deg, #1DC344 0%, #00763E 100%);
+          }
+        }
+      }
+  
+      .th:nth-child(3),
+      .td:nth-child(3) {
+        width: 20%;
+      }
+
+      .th:nth-child(4),
+      .td:nth-child(4) {
+        text-align: right;
+        width: 11%;
+      }
+  
+      .th:nth-child(5),
+      .td:nth-child(5) {
+        text-align: center;
+        width: 20%;
+        white-space: nowrap;
+  
+        img {
+          vertical-align: middle;
+          width: 26px;
+          cursor: pointer;
+        }
+  
+        input {
+          color: #fff;
+          vertical-align: middle;
+          width: 56px;
+          height: 28px;
+          padding: 0 10px;
+          text-align: center;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.0800);
+          border-radius: 24px;
+          border: 1px solid rgba(255, 255, 255, 0.3000);
+  
+        }
+  
+        input[disabled] {
+          opacity: .4;
+        }
+      }
+  
+  
+      .th:nth-child(6),
+      .td:nth-child(6) {
+        text-align: right;
+        width: 10%;
+      }
+
+      .th:nth-child(7),
+      .td:nth-child(7) {
+        text-align: right;
+        width: 10%;
+      }
+  
+      .th:nth-child(8),
+      .td:nth-child(8) {
+        text-align: right;
+        width: 15%;
+        input {
+          color: #fff;
+          vertical-align: middle;
+          width: 80%;
+          height: 28px;
+          text-align: center;
+          box-sizing: border-box;
+          background: rgba(255, 255, 255, 0.0800);
+          border-radius: 24px;
+          border: 1px solid rgba(255, 255, 255, 0.3000);
+  
+        }
+      }
+  
+      .th:nth-child(9),
+      .td:nth-child(9) {
+        width: 10%;
+      }
+  
+      .th:nth-child(10),
+      .td:nth-child(10) {
+        width: 10%;
+      }
+    }
+  
+    // 详细列表信息
+    .tr.detail-list {
+      min-height: 20px !important;
+      font-size: 14px;
+      padding: 4px 14px;
+    }
+  
+    // 要求
+    .requested {
+      width: 25%;
+      padding: 0px 14px 14px 10px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #AED8FF;
+      line-height: 14px;
+      &.pt{
+        padding-top: 10px;
+      }
+    }
+  }
+
+  // 理由
+  .reason-list{
+    margin-top: 4px;
+    flex-wrap: wrap;
+    li{
+      margin-right: 10px;
+      margin-bottom: 6px;
+      width: 160px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 2255, .5);
+      color: rgba(255, 255, 2255, .5);
+      cursor: pointer;
+      &.active{
+        border-color: #09f ;
+        color: #09f ;
+      }
+    }
+  }
+
+}

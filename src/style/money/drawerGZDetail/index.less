@@ -1,0 +1,153 @@
+.GZ-detail {
+  color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  font-size: 14px;
+  box-sizing: border-box;
+
+  .top{
+    .btn {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgb(140, 140, 140);
+      outline: 1px;
+      cursor: pointer;
+      margin-right: 20px;
+      &:hover{
+        background-color: #383944 ;
+        .tips{
+          display: block;
+        }
+      }
+      img {
+        width: 16px;
+      }
+      .tips{
+        display: none;
+        position: absolute;
+        left: 50%;
+        bottom: -36px;
+        transform: translateX(-50%);
+        z-index: 2;
+        width: 50px;
+        padding: 6px 0;
+        text-align: center;
+        background: #555764;
+        box-shadow: 0px 4px 16px 0px rgba(0,0,0,0.4);
+        border-radius: 4px;
+        opacity: 0.9;
+        &:before{
+          content: '';
+          position: absolute;
+          top: -20px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border: 10px solid transparent;
+          border-bottom-color: #555764;
+        }
+      }
+    }
+  }
+
+  .table {
+    margin-top: 20px;
+    border: 1px solid #999;
+    border-radius: 10px;
+    height: calc(100vh - 220px);
+    width: 100%;
+    overflow: auto;
+
+    .tr {
+      box-sizing: border-box;
+      height: 36px;
+      line-height: 36px;
+      font-size: 14px;
+    }
+
+    .thead {
+      width: 100%;
+      min-width: 1000px;
+      color: rgba(255, 255, 255, .5);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+      .th{
+        background-color: #131b31;
+      }
+    }
+
+    .tbody {
+      width: 100%;
+      min-width: 1000px;
+      .tr:nth-child(2n) {
+        background-color: #2f3342;
+        .td{
+          background-color: #2f3342;
+        }
+      }
+      .tr:nth-child(2n + 1) {
+        background-color: #2A3959;
+        .td{
+          background-color: #2A3959;
+        }
+      }
+    }
+
+    .th,
+    .td {
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .th:nth-child(1),
+    .td:nth-child(1) {
+      width: 80px;
+      position: sticky;
+      left: 0;
+    }
+
+    .th:nth-child(2),
+    .td:nth-child(2) {
+      width: 20%;
+      position: sticky;
+      left: 80px;
+    }
+
+    .th:nth-child(3),
+    .td:nth-child(3) {
+      width: 20%;
+    }
+
+    .th:nth-child(4),
+    .td:nth-child(4) {
+      width: 20%;
+    }
+
+    .th:nth-child(5),
+    .td:nth-child(5) {
+      width: 20%;
+    }
+
+    .th:nth-child(6),
+    .td:nth-child(6) {
+      width: 15%;
+      span{
+        color: #2362D5;
+        cursor: pointer;
+        &.disabled{
+          color: rgba(255, 255, 255, .3);
+          cursor: no-drop;
+        }
+      };
+    }
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}

@@ -1,0 +1,63 @@
+<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+<style lang="less">
+/* .el-popup-parent--hidden{
+  padding-right: 0px !important;
+} */
+#app {
+  font-family: "黑体";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  min-height: max-content;
+  /* min-height: -webkit-max-content; */
+  width: 100%;
+  /* height:100%; */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+
+  /* 解决elementui出现弹框纵向滚动条被隐藏页面向右闪动的问题 */
+  &.el-popup-parent--hidden {
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+.one-txt-cut {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.el-checkbox .el-checkbox__inner {
+  border: 1px solid #8c8c8c;
+}
+
+.el-scrollbar__view.el-select-dropdown__list {
+  background-color: #f5f5f5!important;
+}
+.el-select-dropdown__item.hover, .el-select-dropdown__item:hover{
+  background-color: #e5e5e5!important;
+}
+</style>

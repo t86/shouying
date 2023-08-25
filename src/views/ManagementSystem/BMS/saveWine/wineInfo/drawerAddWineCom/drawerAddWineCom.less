@@ -1,0 +1,45 @@
+
+.select-top{
+  flex-wrap: wrap;
+
+    .item {
+      margin: 4px 20px 4px 0;
+    }
+}
+
+.table{
+  height: calc(100% - 60px);
+  overflow-y: auto;
+  .thead{
+    background-color: #eee;
+    .th {
+      font-weight: 600;
+    }
+  }
+  .tr {
+    padding: 0 20px;
+    min-height: 40px;
+    &:nth-child(2n) {
+      background-color: #f5f5f5;
+    }
+  }
+  .th,.td{
+    width: 25%;
+  }
+
+  .td {
+    /deep/.el-checkbox__label{
+      font-weight: 400;
+    }
+  }
+}
+
+/deep/.el-input__inner{
+  background-color: transparent!important;
+  color: #40404e!important;
+}
+
+// 分类选择框icon
+/deep/.el-cascader .el-input .el-icon-arrow-down{
+  transform-origin: center 20px;
+}
