@@ -3,7 +3,7 @@
   <div class="pay-QR" v-if="show">
     <div class="contain">
       <div class="header">买单</div>
-      <div class="content">
+      <div class="content" v-if="[1, 2, 3].includes(payType)">
         <p class="label">
           <span>线下订单待支付金额:</span>
           <span class="amt" style="font-size: 28px">¥</span>
@@ -16,8 +16,25 @@
           请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
         </div>
       </div>
+      <div class="wait_content" v-if="[5, 6].includes(payType)">
+        <div v-if="this.orderInfoDetail.r == 0">
+          <img
+            class="loading"
+            :src="require('@/assets/order-img/loading.png')"
+          />
+          <div class="wait_tip">等待支付结果…</div>
+        </div>
+        <div class="fail" v-if="this.orderInfoDetail.r == 2">
+          <i class="el-icon-warning" />
+          <div class="tip">支付失败</div>
+        </div>
+      </div>
       <div class="footer" layout="row" layout-align="center center">
-        <el-button type="info" @click="notPayHandle">暂不支付</el-button>
+        <div v-if="this.orderInfoDetail.r == 2">
+          <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+          <el-button type="info" @click="reloadQrRequest">重新扫码</el-button>
+        </div>
+        <el-button v-else type="info" @click="notPayHandle">暂不支付</el-button>
       </div>
     </div>
   </div>
@@ -48,7 +65,7 @@ export default {
       this.textValue = this.orderInfoDetail.pay_url;
       if (this.timer) clearInterval(this.timer);
       this.timer = setInterval(() => {
-        this.getOrderPayStatus();
+        // this.getOrderPayStatus();
       }, 1000);
     },
 
@@ -131,6 +148,10 @@ export default {
     },
     onCancelDrawer() {
       this.$emit("showOrHideQRDrawerHandle");
+    },
+    reloadQrRequest() {
+      this.$emit("showOrHideQRDrawerHandle");
+      this.$emit("reloadQrRequest");
     },
   },
   props: {

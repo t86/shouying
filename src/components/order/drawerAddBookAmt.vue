@@ -1,5 +1,5 @@
 <template>
-<!-- 服务员添加滞留金（让客人扫码） -->
+  <!-- 服务员添加滞留金（让客人扫码） -->
   <div>
     <el-drawer
       :title="title"
@@ -19,11 +19,16 @@
             <div class="value" layout="row" layout-align="start center">
               <div
                 class="choose"
-                :class="{'active': payType == item.id}"
+                :class="{ active: payType == item.id }"
                 v-for="item in payTypeList"
                 :key="item.id"
                 @click="payType = item.id"
-              >{{item.name}}</div>
+              >
+                {{ item.name
+                }}<span v-if="[5, 6].includes(item.id)" style="color: red"
+                  >(推荐)</span
+                >
+              </div>
             </div>
           </div>
           <div class="coll" layout="row" layout-align="start center">
@@ -32,7 +37,13 @@
               <span>金额：</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
-              <el-input style="width: 260px" v-model="amt" size="small" placeholder="请输入金额"></el-input>&nbsp;
+              <el-input
+                style="width: 260px"
+                v-model="amt"
+                size="small"
+                placeholder="请输入金额"
+              ></el-input
+              >&nbsp;
               <span>元</span>
             </div>
           </div>
@@ -43,43 +54,105 @@
         </div>
 
         <div v-if="status == 2">
-          <div class="content">
+          <div class="content" v-if="[1, 2].includes(payType)">
             <p class="label">
               <span>待支付金额:</span>
-              <span class="amt" style="font-size:28px">¥</span>
-              <span class="amt">{{(amt * 1).toFixed(2)}}</span>
+              <span class="amt" style="font-size: 28px">¥</span>
+              <span class="amt">{{ (amt * 1).toFixed(2) }}</span>
             </p>
             <div class="qr" layout="column" layout-align="center center">
-              <img v-if="!textValue" class="loading" :src="require('@/assets/order-img/loading.png')" />
-              <vue-qr v-else ref="qrCode" :text="textValue" :size="240" :margin="8" />
+              <img
+                v-if="!textValue"
+                class="loading"
+                :src="require('@/assets/order-img/loading.png')"
+              />
+              <vue-qr
+                v-else
+                ref="qrCode"
+                :text="textValue"
+                :size="240"
+                :margin="8"
+              />
             </div>
-            <div class="tips">请客人使用{{payType == 1 ? '支付宝' : '微信'}}扫描二维码进行付款</div>
+            <div class="tips">
+              请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
+            </div>
+          </div>
+          <div class="wait_content" v-if="[5, 6].includes(payType)">
+            <div v-if="qr_pay_state == 0">
+              <img
+                class="loading"
+                :src="require('@/assets/order-img/loading.png')"
+              />
+              <div class="wait_tip">等待支付结果…</div>
+            </div>
+            <div class="fail" v-if="qr_pay_state == 2">
+              <i class="el-icon-warning" />
+              <div class="tip">支付失败</div>
+            </div>
           </div>
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" v-if="status == 1" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" v-if="status == 1" @click="onSubmit">确定</el-button>
-
-        <el-button type="info" v-if="status == 2" @click="notPayHandle">暂不支付</el-button>
-        <el-button type="primary" v-if="status == 2" @click="goPrevStepHandle">上一步</el-button>
+        <el-button type="info" v-if="status == 1" @click="onCancelDrawer"
+          >取消</el-button
+        >
+        <el-button type="primary" v-if="status == 1" @click="onSubmit"
+          >确定</el-button
+        >
+        <div v-if="![5, 6].includes(payType)">
+          <el-button type="info" v-if="status == 2" @click="notPayHandle"
+            >暂不支付</el-button
+          >
+          <el-button type="primary" v-if="status == 2" @click="goPrevStepHandle"
+            >上一步</el-button
+          >
+        </div>
+        <div v-if="[5, 6].includes(payType)">
+          <el-button
+            type="info"
+            v-if="status == 2 && qr_pay_state == 0"
+            @click="notPayHandle"
+            >关闭</el-button
+          >
+          <el-button
+            type="info"
+            v-if="status == 2 && qr_pay_state == 2"
+            @click="onCancelDrawer"
+            >关闭</el-button
+          >
+          <el-button
+            type="info"
+            v-if="status == 2 && qr_pay_state == 2"
+            @click="goPrevStepHandle"
+            >重新扫描</el-button
+          >
+        </div>
       </div>
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
 const payTypeList = [
   {
+    id: 5,
+    name: "扫客人-支付宝",
+  },
+  {
+    id: 6,
+    name: "扫客人-微信",
+  },
+  {
     id: 1,
-    name: "支付宝扫码"
+    name: "客人扫我-支付宝",
   },
   {
     id: 2,
-    name: "微信扫码"
-  }
+    name: "客人扫我-微信",
+  },
 ];
 export default {
   data() {
@@ -89,64 +162,85 @@ export default {
       payTypeList,
       payType: "",
       amt: "",
-      textValue: '',
-      textId: 0,  //  二维码订单Id, 用于查询支付订单状态
+      textValue: "",
+      textId: 0, //  二维码订单Id, 用于查询支付订单状态
+
+      // 扫码支付
+      qrResult: null, // 扫码结果
+      qr_pay_state: 0, // 0:未支付 1:已支付 2:支付失败
     };
   },
   methods: {
     // 获取二维码
-    async getQRcodeUrl(){
-      this.textId = ''
-      this.textValue = ''
+    async getQRcodeUrl() {
+      this.textId = "";
+      this.textValue = "";
+      // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
+      if ([5, 6].includes(this.payType) && this.qrResult == null) {
+        try {
+          atool.startScan("scan_callback");
+        } catch (e) {
+          console.log(e);
+          this.$message.warning("启动扫码失败，请重试");
+        }
+        return;
+      }
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   卡台Id
-        pay_type: this.payType * 1, //   int    买单方式: 1 支付宝扫码 2 微信扫码
+        pay_type: this.payType * 1, //   int    买单方式: 1 支付宝扫我 2 微信扫我 5 扫我支付宝 6 扫我微信
         pay_amt: this.amt.toString(), //    string  滞留金金额
-      }
+        auth_code: this.qrResult, //    string  付款码
+      };
       try {
-        const res = await api_order.reqGetMerchantPayQRcode(params)
-        if(res.code == 1) {
-          this.textValue = res.data.pay_url || ''
-          this.textId = res.data.pay_dtl_id || 0
+        const res = await api_order.reqGetMerchantPayQRcode(params);
+        if (res.code == 1) {
+          this.textValue = res.data.pay_url || "";
+          this.textId = res.data.pay_dtl_id || 0;
+          this.qr_pay_state = res.data.r || 0;
+          if (this.qr_pay_state == 1) {
+            clearInterval(this.timer);
+            this.$message.success("支付成功");
+            this.onCancelDrawer();
+            return;
+          }
 
-          if(this.timer) clearInterval(this.timer)
+          if (this.timer) clearInterval(this.timer);
           this.timer = setInterval(() => {
-            this.getPayStatus()
-          }, 1000)
-
+            this.getPayStatus();
+          }, 1000);
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('数据请求失败', error);
+        console.log("数据请求失败", error);
       }
     },
 
     // 获取支付状态
-    async getPayStatus(){
+    async getPayStatus() {
       const params = {
         id: this.textId * 1, //  int64  订单Id
-      }
+      };
       try {
-        const res = await api_order.reqGetMerchantPayQRcodeStatus(params)
-        if(res.code == 1) {
-          if(res.data.status == 5) {
-            clearInterval(this.timer)
-            this.$message.success('支付成功')
-            this.onCancelDrawer()
+        const res = await api_order.reqGetMerchantPayQRcodeStatus(params);
+        if (res.code == 1) {
+          if (res.data.status == 5) {
+            clearInterval(this.timer);
+            this.$message.success("支付成功");
+            this.onCancelDrawer();
           }
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('数据请求失败', error);
+        console.log("数据请求失败", error);
       }
     },
 
     // 返回上一步
-    goPrevStepHandle(){
-      this.status = 1
-      if(this.timer) clearInterval(this.timer)
+    goPrevStepHandle() {
+      this.status = 1;
+      if (this.timer) clearInterval(this.timer);
     },
 
     changeNum(value) {
@@ -176,42 +270,59 @@ export default {
       }
     },
 
-    
     // 操作确认框
     async showConfirmHandle(title = "", content = "") {
       return this.$confirm(content, title, {
         distinguishCancelAndClose: true,
         confirmButtonText: "确定",
-        cancelButtonText: "取消"
+        cancelButtonText: "取消",
       })
-        .then(res => {
+        .then((res) => {
           return res;
         })
-        .catch(e => "");
+        .catch((e) => "");
     },
 
     onSubmit() {
       if (!this.payType) return this.$message.warning("请选择渠道");
       if (!this.amt) return this.$message.warning("请输入金额");
       this.status = 2;
-      this.getQRcodeUrl()
+      this.getQRcodeUrl();
     },
     onCancelDrawer() {
       this.show = false;
     },
 
     resetHandle() {
-      this.status = 1
+      this.status = 1;
       this.amt = "";
       this.payType = "";
-    }
+    },
   },
   created() {},
-  mounted() {},
+  mounted() {
+    const that = this;
+    function scan_callback(value) {
+      try {
+        if (value.code === 0) {
+          that.qrResult = value.data;
+          // TODO： 扫码后的操作
+        } else {
+          that.qrResult = null;
+          that.$message.warning("扫码取消");
+        }
+      } catch (error) {
+        console.log("扫码失败：", error);
+        that.$message.warning("扫码失败：" + error);
+      }
+    }
+
+    window.scan_callback = scan_callback;
+  },
   props: {
     value: {
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     title() {
@@ -223,12 +334,12 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
   components: {
     VueQr,
-    keyBoard: () => import("@/components/common/keyBoard")
+    keyBoard: () => import("@/components/common/keyBoard"),
   },
   watch: {
     value: {
@@ -236,42 +347,47 @@ export default {
         if (newVal) {
           this.resetHandle();
         } else {
-          if(this.timer) clearInterval(this.timer)
+          if (this.timer) clearInterval(this.timer);
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
-  beforeDestroy () {
-    if(this.timer) clearInterval(this.timer)
-  }
+  beforeDestroy() {
+    if (this.timer) clearInterval(this.timer);
+  },
 };
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
 </style>
-<style scoped lang='less'>
+<style scoped lang="less">
 .session {
   color: rgba(255, 255, 255, 0.8);
 }
 
 .coll {
   margin-top: 20px;
+  align-items: baseline;
   .label {
     width: 80px;
+    min-width: 80px;
     text-align: right;
   }
 
   .value {
     margin-left: 10px;
+    flex-wrap: wrap;
     .choose {
       cursor: pointer;
+      width: 130px;
       padding: 6px 16px;
       margin-right: 20px;
+      margin-bottom: 20px;
       border: 1px solid #999;
       color: #999;
       border-radius: 6px;
@@ -326,6 +442,37 @@ export default {
     color: #d62855;
     margin-top: 4.5vh;
     margin-bottom: 5vh;
+  }
+}
+
+.wait_content {
+  padding: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  background: #202c4a;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 376px;
+  img.loading {
+    width: 70px;
+    animation: rotateAnimation 0.7s linear infinite;
+  }
+  .wait_tip {
+    color: #fff;
+    font-size: 16px;
+    margin-top: 72px;
+  }
+  .fail {
+    i {
+      font-size: 120px;
+      color: red;
+    }
+    .tip {
+      font-size: 16px;
+      margin-top: 70px;
+    }
   }
 }
 </style>

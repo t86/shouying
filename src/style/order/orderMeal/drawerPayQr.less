@@ -5,7 +5,7 @@
   z-index: 100;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, .7);
+  background-color: rgba(0, 0, 0, 0.7);
 
   .contain {
     position: absolute;
@@ -16,12 +16,12 @@
     min-height: 100px;
     border-radius: 20px;
     box-shadow: 0px 0px 16px 0px rgba(26, 137, 255, 0.8);
-    border: 1px solid #32B9FF;
+    border: 1px solid #32b9ff;
 
     .header {
       height: 40px;
       line-height: 40px;
-      background: #222D47;
+      background: #222d47;
       // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
       border-radius: 20px 20px 0px 0px;
       opacity: 0.97;
@@ -33,7 +33,7 @@
       padding: 10px;
       text-align: center;
       box-sizing: border-box;
-      background: #202C4A;
+      background: #202c4a;
       // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
 
       .label {
@@ -42,7 +42,7 @@
         line-height: 16px;
 
         .amt {
-          color: #1EDAAD;
+          color: #1edaad;
           font-size: 30px;
         }
       }
@@ -51,10 +51,10 @@
         margin: 0 auto;
         width: 240px;
         height: 240px;
-        
-        img.loading{
+
+        img.loading {
           width: 70px;
-          animation: rotateAnimation .7s linear infinite;
+          animation: rotateAnimation 0.7s linear infinite;
         }
 
         @keyframes rotateAnimation {
@@ -69,9 +69,39 @@
 
       .tips {
         font-size: 15px;
-        color: #D62855;
+        color: #d62855;
         margin-top: 4.5vh;
         margin-bottom: 5vh;
+      }
+    }
+    .wait_content {
+      padding: 10px;
+      text-align: center;
+      box-sizing: border-box;
+      background: #202c4a;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      height: 376px;
+      img.loading {
+        width: 70px;
+        animation: rotateAnimation 0.7s linear infinite;
+      }
+      .wait_tip {
+        color: #fff;
+        font-size: 16px;
+        margin-top: 72px;
+      }
+      .fail {
+        i {
+          font-size: 120px;
+          color: red;
+        }
+        .tip {
+          font-size: 16px;
+          margin-top: 70px;
+        }
       }
     }
 
@@ -79,7 +109,7 @@
       padding: 0 10px;
       box-sizing: border-box;
       height: 64px;
-      background: #161D33;
+      background: #161d33;
       border-radius: 0px 0px 20px 20px;
     }
   }

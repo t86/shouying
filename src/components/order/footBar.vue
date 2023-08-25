@@ -1,41 +1,69 @@
 <template>
-  <div class="footBar" :class="{rect: !isRect}" :layout="isRect ? 'row' : 'column'" layout-align="space-between center">
+  <div
+    class="footBar"
+    :class="{ rect: !isRect }"
+    :layout="isRect ? 'row' : 'column'"
+    layout-align="space-between center"
+  >
     <div class="ul" layout="row" layout-align="start center">
       <div
         class="li line"
-        v-for="(item,index) in navList"
+        v-for="(item, index) in navList"
         :key="index"
-        :class="{'active': item.routeName === activeRouteName}"
+        :class="{ active: item.routeName === activeRouteName }"
         @click="footNavBarClick(item)"
       >
         <div
           class="shopping-count"
-          v-if="item.id===3&&$store.state.orderInfo.shoppingCartInfo.shoppingCount"
-        >{{$store.state.orderInfo.shoppingCartInfo.shoppingCount}}</div>
+          v-if="
+            item.id === 3 &&
+            $store.state.orderInfo.shoppingCartInfo.shoppingCount
+          "
+        >
+          {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
+        </div>
         <img width="20" :src="item.icon" alt />
-        <img class="sanJiao" v-if="item.routeName === activeRouteName" :src="item.icon1" alt />
-        <p>{{item.name}}</p>
+        <img
+          class="sanJiao"
+          v-if="item.routeName === activeRouteName"
+          :src="item.icon1"
+          alt
+        />
+        <p>{{ item.name }}</p>
       </div>
       <!-- 服务员买单结账按钮 -->
-      <div v-if="$store.state.userInfo.authStatus!=4 && $store.state.userInfo.authStatusArr.includes(1) && (cardInfo.orderAmt - cardInfo.payedAmt) > 0" class="server-pay-btn">
+      <div
+        v-if="
+          $store.state.userInfo.authStatus != 4 &&
+          $store.state.userInfo.authStatusArr.includes(1) &&
+          cardInfo.orderAmt - cardInfo.payedAmt > 0
+        "
+        class="server-pay-btn"
+      >
         <div
-            class="button"
-            layout="row"
-            layout-align="center center"
-            @click="showOrderListDrawerHandle"
-          >
+          class="button"
+          layout="row"
+          layout-align="center center"
+          @click="showOrderListDrawerHandle"
+        >
           <img :src="imgSrc.orderQRPayIcon" alt />
           <span>买单</span>
         </div>
       </div>
       <!-- 服务员充值滞留金 -->
-      <div v-if="$store.state.userInfo.authStatus!=4 && $store.state.userInfo.authStatusArr.includes(1)" class="server-pay-btn line">
+      <div
+        v-if="
+          $store.state.userInfo.authStatus != 4 &&
+          $store.state.userInfo.authStatusArr.includes(1)
+        "
+        class="server-pay-btn line"
+      >
         <div
-            class="button"
-            layout="row"
-            layout-align="center center"
-            @click="showAddBookDrawer = true"
-          >
+          class="button"
+          layout="row"
+          layout-align="center center"
+          @click="showAddBookDrawer = true"
+        >
           <img :src="imgSrc.orderQRPayIcon" alt />
           <span>滞留金</span>
         </div>
@@ -43,12 +71,19 @@
       <!-- 收银系统按钮 -->
       <div
         class="pay-btn line"
-        v-if="$store.state.userInfo.authStatus == 4&&
-        !this.$route.path.startsWith('/orderMeal') &&
-        $store.state.orderInfo.currentCardInfo.bizStatus != 1"
+        v-if="
+          $store.state.userInfo.authStatus == 4 &&
+          !this.$route.path.startsWith('/orderMeal') &&
+          $store.state.orderInfo.currentCardInfo.bizStatus != 1
+        "
         layout="row"
       >
-        <div class="button" layout="row" layout-align="center center" @click="$router.push({name:'orderMealList'})" >
+        <div
+          class="button"
+          layout="row"
+          layout-align="center center"
+          @click="$router.push({ name: 'orderMealList' })"
+        >
           <img :src="imgSrc.shoppingNav" alt />
           <span>点单</span>
         </div>
@@ -61,60 +96,100 @@
           <img :src="imgSrc.giveNav" alt />
           <span>优惠2</span>
         </div> -->
-        <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
+        <div
+          class="button"
+          @click.stop="clearCardHandle"
+          layout="row"
+          layout-align="center center"
+        >
           <img :src="imgSrc.clearNav" alt />
           <span>清台</span>
         </div>
 
-        <div class="button" @click.stop="showMerchantConfig=true" style="width:140px" layout="row" layout-align="center center">
+        <div
+          class="button"
+          @click.stop="showMerchantConfig = true"
+          style="width: 140px"
+          layout="row"
+          layout-align="center center"
+        >
           <img :src="require('@/assets/money-img/merchant-btn-icon.png')" alt />
-          <span style="transform:translateX(-2px)">滞留金管理</span>
+          <span style="transform: translateX(-2px)">滞留金管理</span>
         </div>
       </div>
       <!-- 卡台名称 -->
-      <div class="card-name" :class="{'line':$store.state.userInfo.authStatus==4 || !($store.state.userInfo.authStatusArr.length==1&&$store.state.userInfo.authStatusArr[0]==3)}">{{cardInfo.name}}</div>
+      <div
+        class="card-name"
+        :class="{
+          line:
+            $store.state.userInfo.authStatus == 4 ||
+            !(
+              $store.state.userInfo.authStatusArr.length == 1 &&
+              $store.state.userInfo.authStatusArr[0] == 3
+            ),
+        }"
+      >
+        {{ cardInfo.name }}
+      </div>
 
       <div class="emp-info">
         {{ empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId) }}
       </div>
-
     </div>
     <div layout="row" layout-align="start center">
       <!-- 消费情况 -->
-      <div class="amt line p-r-6" v-if="$store.state.userInfo.authStatus==4 || canLookOrderAmt" layout="row" layout-align="start start">
+      <div
+        class="amt line p-r-6"
+        v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
+        layout="row"
+        layout-align="start start"
+      >
         <div class="left m-r-2">
           <p class="one-txt-cut">
             <!-- 折前：当太总消费的应收金额（不含赠送） -->
             <span>折前金额:</span>
-            <span>￥{{Number((cardInfo.orderAmt || 0)).toFixed(2)}}</span>
+            <span>￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
           </p>
           <p class="one-txt-cut">
             <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
             <span>折后金额:</span>
-            <span>￥{{Number((cardInfo.payed_val_amt || 0)).toFixed(2)}}</span>
+            <span>￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
           </p>
           <p class="one-txt-cut">
             <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
             <span>主营点单金额:</span>
-            <span>￥{{Number((cardInfo.order_zy_amt || 0)).toFixed(2)}}</span>
+            <span>￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
           </p>
         </div>
         <div class="right">
           <p class="one-txt-cut">
             <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
             <span>已收金额:</span>
-            <span>￥{{Number((cardInfo.payedAmt || 0)).toFixed(2)}}</span>
+            <span>￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
           </p>
           <p class="one-txt-cut">
             <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
             <span class="txt-right">当台实收:</span>
-            <span>￥{{Number((cardInfo.payed_zy_val_amt || 0)).toFixed(2)}}</span>
+            <span
+              >￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span
+            >
           </p>
         </div>
       </div>
-      <div class="date-time p-l-3" :class="{'m-l-6': !isRect}" layout="column" layout-align="center center">
-        <p class="time">{{authInfo.month}}-{{authInfo.day}} {{authInfo.hour}}:{{authInfo.minute}}</p>
-        <p class="time" :class="{rect: !isRect}">{{authTips}}:{{authInfo.name}}</p>
+      <div
+        class="date-time p-l-3"
+        :class="{ 'm-l-6': !isRect }"
+        layout="column"
+        layout-align="center center"
+      >
+        <p class="time">
+          {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
+            authInfo.minute
+          }}
+        </p>
+        <p class="time" :class="{ rect: !isRect }">
+          {{ authTips }}:{{ authInfo.name }}
+        </p>
       </div>
     </div>
 
@@ -123,10 +198,16 @@
       <div class="contain">
         <i
           class="el-icon-close"
-          style="position:absolute;top:10px;right:20px;color:#fff;cursor:pointer"
+          style="
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #fff;
+            cursor: pointer;
+          "
           @click="hideTimeSubHandle()"
         ></i>
-        {{logoutCount}}秒后将退出登录！
+        {{ logoutCount }}秒后将退出登录！
       </div>
     </div>
 
@@ -135,25 +216,53 @@
       <div class="contain">
         <div class="top" layout="row" layout-align="space-between center">
           <div>选择支付方式</div>
-          <i class="el-icon-close cursor" style="color:#fff;" @click="showChoosePayType=false"></i>
+          <i
+            class="el-icon-close cursor"
+            style="color: #fff"
+            @click="showChoosePayType = false"
+          ></i>
         </div>
 
-        <div class="center" layout="row" layout-align="center center">
-          <div class="choose" :class="{'active': payType == item.id}" v-for="item in payTypeList" :key="item.id" @click="payType = item.id">{{item.name}}</div>
+        <div class="center" layout="row" layout-align="start center">
+          <div
+            class="choose"
+            :class="{ active: payType == item.id }"
+            v-for="item in payTypeList"
+            :key="item.id"
+            @click="payType = item.id"
+          >
+            {{ item.name
+            }}<span v-if="[5, 6].includes(item.id)" style="color: red"
+              >(推荐)</span
+            >
+          </div>
         </div>
-        
+
         <div class="bottom" layout="row" layout-align="center center">
-          <div class="button info cursor" @click="showChoosePayType=false">取消</div>
+          <div class="button info cursor" @click="showChoosePayType = false">
+            取消
+          </div>
           <div class="button primary cursor" @click="getPayQRCode(2)">确定</div>
         </div>
       </div>
     </div>
 
     <!-- 服务员买单选择商品列表 -->
-    <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer" @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
+    <drawerOrderList
+      v-show="showOrderListDrawer"
+      v-model="showOrderListDrawer"
+      @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle"
+    />
 
-    <!-- 客人扫码支付订单费用 -->
-    <drawerPayQR :showDrawer="showOrHideQRDrawer" :payType="payType" :orderInfoDetail="orderInfoDetail" @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle" />
+    <!-- 客人扫码支付订单费用/扫码支付订单 -->
+    <drawerPayQR
+      :showDrawer="showOrHideQRDrawer"
+      :payType="payType"
+      :orderInfoDetail="orderInfoDetail"
+      @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle"
+      @subSecondLogoutHandle="subSecondLogoutHandle"
+      @reloadQrRequest="showChoosePayTypeHandle"
+    />
 
     <!-- 服务员让客人扫码添加滞留金 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
@@ -161,19 +270,21 @@
 
     <!-- 收银系统滞留金管理 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-    <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
-
+    <drawerMerchantConfig
+      v-show="showMerchantConfig"
+      v-model="showMerchantConfig"
+    />
   </div>
 </template>
 
 <script>
-import common_book from '@/utils/common/book'
-import eventVue from '@/utils/eventVue';
+import common_book from "@/utils/common/book";
+import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import api_money from "@/api/money";
 
-import drawerPayQR from './drawerPayQR.vue'
+import drawerPayQR from "./drawerPayQR.vue";
 
 import goBack from "@/assets/order-img/back.png";
 import shoppingNav from "@/assets/order-img/shoppingNav.png";
@@ -189,51 +300,59 @@ const orderNavList = [
   {
     id: 1,
     name: "返回首页",
-    icon: goBack
+    icon: goBack,
   },
   {
     id: 2,
     name: "商品菜单",
     routeName: "orderMealList",
-    icon: shoppingNav
+    icon: shoppingNav,
   },
   {
     id: 3,
     name: "购物车",
     routeName: "shoppingCart",
     icon: shoppingCart,
-    icon1: sanJiao
+    icon1: sanJiao,
   },
   {
     id: 4,
     name: "我的点单",
     routeName: "myOrder",
     icon: myselfNav,
-    icon1: sanJiao
-  }
+    icon1: sanJiao,
+  },
 ];
 const payNavList = [
   {
     id: 1,
     name: "返回首页",
-    icon: goBack
-  }
+    icon: goBack,
+  },
 ];
 
 const payTypeList = [
   {
-    id: 1,
-    name: '支付宝扫码'
+    id: 6,
+    name: "扫客人-微信",
+  },
+  {
+    id: 5,
+    name: "扫客人-支付宝",
   },
   {
     id: 2,
-    name: '微信扫码'
+    name: "客人扫我-微信",
+  },
+  {
+    id: 1,
+    name: "客人扫我-支付宝",
   },
   {
     id: 3,
-    name: '会员微信自助'
-  }
-]
+    name: "微信小程序自助",
+  },
+];
 
 export default {
   data() {
@@ -245,13 +364,13 @@ export default {
       activeRouteName: "", // 当前页面的routerName
       navList: [],
 
-      showOrHideQRDrawer: false,  // 是否显示付款二维码
+      showOrHideQRDrawer: false, // 是否显示付款二维码
       orderInfoDetail: {},
-      
-      payType: '',
+
+      payType: "",
       showChoosePayType: false, // 选择支付渠道方式
 
-      timer: '', // 暂不支付倒计时退出登录
+      timer: "", // 暂不支付倒计时退出登录
       showNumSubTips: false, // 暂不支付倒计时退出模态框
       logoutCount: 4, // 暂不支付倒计时秒数
 
@@ -262,13 +381,16 @@ export default {
 
       showMerchantConfig: false, // 滞留金管理
 
+      // 扫码支付
+      qrResult: null, // 扫码结果
+
       cardInfo: {},
       authInfo: {
         month: "00",
         day: "00",
         hour: "00",
         minute: "00",
-        name: ""
+        name: "",
       },
 
       imgSrc: {
@@ -276,10 +398,10 @@ export default {
         shoppingNav,
         giveNav,
         choosedNav,
-        clearNav
+        clearNav,
       },
 
-      payTypeList,   // 支付方式
+      payTypeList, // 支付方式
     };
   },
   methods: {
@@ -296,7 +418,7 @@ export default {
                 give: this.$route.query.give,
                 mustOrderPrdId: item.mustOrderPrdId,
                 mustPrdName: item.mustPrdName,
-              }
+              },
             },
             () => {
               this.activeRouteName = this.navList[item.id - 1].routeName;
@@ -308,19 +430,10 @@ export default {
       const date = new Date();
       this.authInfo = {
         month: (date.getMonth() + 1).toString().padStart(2, 0),
-        day: date
-          .getDate()
-          .toString()
-          .padStart(2, 0),
-        hour: date
-          .getHours()
-          .toString()
-          .padStart(2, 0),
-        minute: date
-          .getMinutes()
-          .toString()
-          .padStart(2, 0),
-        name: this.$store.state.userInfo.name
+        day: date.getDate().toString().padStart(2, 0),
+        hour: date.getHours().toString().padStart(2, 0),
+        minute: date.getMinutes().toString().padStart(2, 0),
+        name: this.$store.state.userInfo.name,
       };
     },
 
@@ -329,12 +442,12 @@ export default {
       this.$confirm("确定要进行清台操作吗？", "清台", {
         distinguishCancelAndClose: true,
         confirmButtonText: "确定",
-        cancelButtonText: "取消"
+        cancelButtonText: "取消",
       })
         .then(async () => {
           try {
             const res = await api_money.reqClearCard({
-              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1 // int64  卡台Id
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
             });
             if (res.code === 1) {
               this.$message.success("清台成功");
@@ -346,33 +459,33 @@ export default {
             console.log("清台失败", error);
           }
         })
-        .catch(e => "");
+        .catch((e) => "");
     },
 
     init() {
       this.activeRouteName = this.$route.name;
-      if(this.$store.state.userInfo.authStatus == 4){
+      if (this.$store.state.userInfo.authStatus == 4) {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
-        eventVue.$off('changeTurnOverCountHandle')
-        eventVue.$on('changeTurnOverCountHandle', (amtInfoList = []) => {
-          let orderAmt = 0
-          let payed_val_amt = 0
-          let order_zy_amt = 0
-          let payedAmt = 0
-          let payed_zy_val_amt = 0
+        eventVue.$off("changeTurnOverCountHandle");
+        eventVue.$on("changeTurnOverCountHandle", (amtInfoList = []) => {
+          let orderAmt = 0;
+          let payed_val_amt = 0;
+          let order_zy_amt = 0;
+          let payedAmt = 0;
+          let payed_zy_val_amt = 0;
 
-          amtInfoList.forEach(el => {
+          amtInfoList.forEach((el) => {
             // 折前金额
-            orderAmt += el.amts.o * 1
+            orderAmt += el.amts.o * 1;
             // 折后金额
-            payed_val_amt += el.amts.pv * 1
+            payed_val_amt += el.amts.pv * 1;
             // 主营点单金额
-            order_zy_amt += el.amts.pzv * 1
+            order_zy_amt += el.amts.pzv * 1;
             // 已收金额
-            payedAmt += el.amts.p * 1
+            payedAmt += el.amts.p * 1;
             // 当台实收
-            payed_zy_val_amt += el.amts.pzv * 1
-          })
+            payed_zy_val_amt += el.amts.pzv * 1;
+          });
 
           this.cardInfo = {
             ...this.cardInfo,
@@ -380,16 +493,16 @@ export default {
             payed_val_amt,
             order_zy_amt,
             payedAmt,
-            payed_zy_val_amt
-          }
-        })
+            payed_zy_val_amt,
+          };
+        });
 
         // 查看当台记录，更新页面底部的五个金额
-        eventVue.$off('changeTurnOverCountNotPayHandle')
-        eventVue.$on('changeTurnOverCountNotPayHandle', () => {
+        eventVue.$off("changeTurnOverCountNotPayHandle");
+        eventVue.$on("changeTurnOverCountNotPayHandle", () => {
           this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
-        })
-      } 
+        });
+      }
       this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
       this.getAuthInfo();
       this.timer = setInterval(this.getAuthInfo, 30000);
@@ -410,107 +523,121 @@ export default {
               this.navList[0],
               this.navList[1],
               this.navList[2],
-              this.navList[3]
+              this.navList[3],
             ];
       } else {
         this.navList[0]["name"] = "返回首页";
       }
 
       // 是否为收银系统查看翻台记录
-      if(this.$store.state.orderInfo.currentCardInfo.bizStatus != 1) this.getOrderedData() // 通过后台获取当前当前账号是否有查单权限
+      if (this.$store.state.orderInfo.currentCardInfo.bizStatus != 1)
+        this.getOrderedData(); // 通过后台获取当前当前账号是否有查单权限
 
-      this.getRectVal()  // 检测是否为横屏
+      this.getRectVal(); // 检测是否为横屏
     },
 
     // 检测是否为横屏
-    getRectVal(){
-      const width = screen.availWidth
-      const height = screen.availHeight
-      this.isRect = width >= height
+    getRectVal() {
+      const width = screen.availWidth;
+      const height = screen.availHeight;
+      this.isRect = width >= height;
     },
 
     // 服务员买单
-    showOrderListDrawerHandle(){
-      this.showOrderListDrawer = true
+    showOrderListDrawerHandle() {
+      this.showOrderListDrawer = true;
     },
 
     // 设置选择好的服务员买单列表
-    setNeedPayOrderIdHandle(selectedOrderIdList = []){
-      this.selectedOrderIdList = [...selectedOrderIdList]
-      this.showChoosePayTypeHandle()
+    setNeedPayOrderIdHandle(selectedOrderIdList = []) {
+      this.selectedOrderIdList = [...selectedOrderIdList];
+      this.showChoosePayTypeHandle();
     },
 
-    showChoosePayTypeHandle(){
-      this.payType = ''
-      this.showChoosePayType = true
+    showChoosePayTypeHandle() {
+      this.payType = "";
+      this.showChoosePayType = true;
     },
-    
+
     // 获取去买单数据
-    async getPayQRCode(force = 2){
+    async getPayQRCode(force = 2) {
+      if (!this.payType) return this.$message.warning("请选择支付方式");
 
-      if(!this.payType) return this.$message.warning('请选择支付方式')
-
-      this.showChoosePayType = false
-
+      this.showChoosePayType = false;
+      // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
+      if ([5, 6].includes(this.payType) && this.qrResult == null) {
+        try {
+          atool.startScan("scan_callback");
+        } catch (e) {
+          console.log(e);
+          this.$message.warning("启动扫码失败，请重试");
+        }
+        return;
+      }
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
-        force: force,   //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
-        pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助
-        order_ids: this.selectedOrderIdList.map(item => item * 1), //  []int64   要买单的订单Id列表
-      }
+        force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
+        pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助  5:扫客人-支付宝 6:扫客人-微信
+        order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
+        auth_code: this.qrResult, //  string   扫码结果
+      };
 
       try {
-        const res = await api_order.reqGetPayQRcode(params)
-        if(res.code == 1) {
-          res.data = res.data || {}
-          res.data.orders = res.data.orders || []
-          this.orderInfoDetail = {...res.data, force}
-          this.showOrHideQRDrawerHandle()
+        const res = await api_order.reqGetPayQRcode(params);
+        if (res.code == 1) {
+          res.data = res.data || {};
+          res.data.orders = res.data.orders || [];
+          this.orderInfoDetail = { ...res.data, force };
+          if (res.data.r == 1) {
+            this.subSecondLogoutHandle();
+            return;
+          }
+          this.showOrHideQRDrawerHandle();
         } else if (res.code == 2) {
-          const result = await this.showConfirmHandle('买单', res.msg)
-          if(result == 'confirm') {
-            this.getPayQRCode(1)
+          const result = await this.showConfirmHandle("买单", res.msg);
+          if (result == "confirm") {
+            this.getPayQRCode(1);
           }
         } else if (res.code == 3) {
           // 已经发起过生成二维码，当前订单正在处于付款状态
-          this.getPayQRCode(3)
+          this.getPayQRCode(3);
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('生成二维码相关数据获取失败', error)
+        console.log("生成二维码相关数据获取失败", error);
       }
     },
 
-    showOrHideQRDrawerHandle(){
-      this.showOrHideQRDrawer = !this.showOrHideQRDrawer
+    showOrHideQRDrawerHandle() {
+      this.showOrHideQRDrawer = !this.showOrHideQRDrawer;
     },
 
     // 倒计时退出登录
-    subSecondLogoutHandle(){
-      this.showNumSubTips = true
-      if(this.$route.name == 'shoppingCart') {
+    subSecondLogoutHandle() {
+      this.showNumSubTips = true;
+      if (this.$route.name == "shoppingCart") {
         for (var i = 0; i < this.$parent.$children.length; i++) {
-           if(this.$parent.$children[i].$el.className == 'shopping-cart') {
-              this.$parent.$children[i].getShoppingCartData()
-           }
-        };
+          if (this.$parent.$children[i].$el.className == "shopping-cart") {
+            this.$parent.$children[i].getShoppingCartData();
+          }
+        }
       }
-      if(this.timer) clearInterval(this.timer)
+      if (this.timer) clearInterval(this.timer);
       this.timer = setInterval(() => {
-        this.logoutCount--
-        if(this.logoutCount == 0) {
-          this.hideTimeSubHandle()
-          this.logOutHandle()
-          clearInterval(this.timer)
+        this.logoutCount--;
+        if (this.logoutCount == 0) {
+          this.hideTimeSubHandle();
+          this.logOutHandle();
+          clearInterval(this.timer);
         }
       }, 1000);
     },
 
-    hideTimeSubHandle(){
-      this.showNumSubTips = false
-      this.logoutCount = 4
-      if(this.timer) clearInterval(this.timer)
+    hideTimeSubHandle() {
+      this.showNumSubTips = false;
+      this.logoutCount = 4;
+      if (this.timer) clearInterval(this.timer);
     },
 
     async logOutHandle() {
@@ -523,8 +650,8 @@ export default {
             name: "Thelogin",
             replace: true,
             query: {
-              client: "order"
-            }
+              client: "order",
+            },
           });
           this.$message.success("退出成功！");
         } else {
@@ -539,13 +666,13 @@ export default {
     async getOrderedData() {
       try {
         const params = {
-          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1 // int64  卡台Id
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
         };
         const res = await api_order.reqCanLookMyOrderData(params);
         if (res.code === 1) {
-          this.canLookOrderAmt = true
-        } else if(res.code == 2) {
-          this.canLookOrderAmt = false
+          this.canLookOrderAmt = true;
+        } else if (res.code == 2) {
+          this.canLookOrderAmt = false;
         } else {
           this.$message.warning(res.msg);
         }
@@ -559,44 +686,61 @@ export default {
       return this.$confirm(content, title, {
         distinguishCancelAndClose: true,
         confirmButtonText: "确定",
-        cancelButtonText: "取消"
+        cancelButtonText: "取消",
       })
-        .then(res => {
+        .then((res) => {
           return res;
         })
-        .catch(e => "");
+        .catch((e) => "");
     },
 
     // 获取员工信息
     empInfoFilter(empId) {
-      empId = this.$route.path.startsWith('/payOrder') ? this.empId : empId
-      const empInfo = common_book.getOrderPersonInfo(empId) || { name: '散客'}
-      const groupInfoName = common_book.getDepartmentName(empId) || ''
-      return (groupInfoName ? (groupInfoName + '/') : '') +  empInfo.name
-    }
+      empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
+      const empInfo = common_book.getOrderPersonInfo(empId) || { name: "散客" };
+      const groupInfoName = common_book.getDepartmentName(empId) || "";
+      return (groupInfoName ? groupInfoName + "/" : "") + empInfo.name;
+    },
   },
   mounted() {
     this.init();
+    const that = this;
+    function scan_callback(value) {
+      try {
+        if (value.code === 0) {
+          that.qrResult = value.data;
+          that.showOrHideQRDrawerHandle();
+        } else {
+          that.qrResult = null;
+          that.$message.warning("扫码取消");
+        }
+      } catch (error) {
+        console.log("扫码失败：", error);
+        that.$message.warning("扫码失败：" + error);
+      }
+    }
+
+    window.scan_callback = scan_callback;
   },
   props: {
     empId: {
-      default: 0
-    }
+      default: 0,
+    },
   },
   computed: {
-    authTips(){
-      return this.$route.path.startsWith("/orderMeal") ? '点单人' : '收银员'
-    }
+    authTips() {
+      return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
+    },
   },
   components: {
     drawerPayQR,
-    drawerAddBookAmt: () => import('./drawerAddBookAmt.vue'),
-    drawerMerchantConfig: () => import('./drawerMerchantConfig.vue'),
-    drawerOrderList: () => import('./drawerShowOrderList.vue'),
+    drawerAddBookAmt: () => import("./drawerAddBookAmt.vue"),
+    drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
+    drawerOrderList: () => import("./drawerShowOrderList.vue"),
   },
   beforeDestroy() {
     clearInterval(this.timer);
-  }
+  },
 };
 </script>
 

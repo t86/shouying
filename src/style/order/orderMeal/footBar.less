@@ -4,16 +4,15 @@
   left: 0;
   width: 100%;
   height: 60px;
-  background: #0D172D;
+  background: #0d172d;
   // background: linear-gradient(180deg, #0D172D 0%, #060A14 100%);
   color: #fff;
   padding: 0 10px;
   box-sizing: border-box;
 
-  &.rect{
-    height: 120px
+  &.rect {
+    height: 120px;
   }
-
 
   .ul,
   .date-time {
@@ -28,7 +27,7 @@
       font-size: 14px;
       font-family: PingFangSC-Medium, PingFang SC;
       font-weight: 500;
-      color: #AED8FF;
+      color: #aed8ff;
       text-align: center;
       cursor: pointer;
 
@@ -40,7 +39,7 @@
         position: absolute;
         left: 52px;
         top: 2px;
-        background: #FF2F64;
+        background: #ff2f64;
         padding: 0 4px;
         box-sizing: border-box;
         height: 18px;
@@ -50,7 +49,7 @@
         font-size: 12px;
         font-family: PingFangSC-Semibold, PingFang SC;
         font-weight: 600;
-        color: #FFFFFF;
+        color: #ffffff;
       }
 
       img {
@@ -60,17 +59,15 @@
           left: 50%;
           top: 0;
           transform: translate(-50%, -24px) rotate(-90deg);
-
         }
       }
-
     }
 
     p.time {
       width: 96px;
       line-height: 20px;
       font-weight: 400;
-      color: #AED8FF;
+      color: #aed8ff;
       text-align: center;
       font-size: 13px;
       &.rect {
@@ -79,20 +76,20 @@
     }
   }
   // 服务员买单按钮
-  .server-pay-btn{
+  .server-pay-btn {
     padding-left: 16px;
     padding-right: 16px;
     margin-right: -20px;
-    .button{
+    .button {
       width: 102px;
       height: 40px;
-      background: #222A42;
-      box-shadow: inset 0px 1px 1px 0px #2775BA;
+      background: #222a42;
+      box-shadow: inset 0px 1px 1px 0px #2775ba;
       border-radius: 20px;
       margin: 0 8px;
       color: #aed8ff;
       cursor: pointer;
-      img{
+      img {
         width: 20px;
         margin-right: 8px;
       }
@@ -105,12 +102,12 @@
     .button {
       width: 112px;
       height: 40px;
-      background: #222A42;
-      box-shadow: inset 0px 1px 1px 0px #2775BA;
+      background: #222a42;
+      box-shadow: inset 0px 1px 1px 0px #2775ba;
       border-radius: 20px;
       margin: 0 8px;
       cursor: pointer;
-      img{
+      img {
         width: 20px;
         margin-right: 8px;
       }
@@ -121,7 +118,7 @@
     width: 150px;
     font-size: 28px;
     font-family: SimHei;
-    color: #FFFFFF;
+    color: #ffffff;
     line-height: 32px;
     text-align: center;
   }
@@ -142,26 +139,23 @@
         font-weight: 500;
         color: rgba(255, 255, 255, 0.8);
         line-height: 12px;
-        &.txt-right{
+        &.txt-right {
           text-align: right;
         }
 
         &.ts {
-          color: #1EDAAD;
+          color: #1edaad;
         }
       }
     }
-
   }
-
 }
-
 
 .line {
   position: relative;
 
   &:after {
-    content: '';
+    content: "";
     position: absolute;
     right: 0;
     top: 50%;
@@ -171,25 +165,23 @@
     background: rgba(255, 255, 255, 0);
     opacity: 0.25;
   }
-
 }
 
-
 // 倒计时退出登录模态框
-.num-sub-tips{
+.num-sub-tips {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 10;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, .3);
-  .contain{
+  background-color: rgba(0, 0, 0, 0.3);
+  .contain {
     width: 300px;
     height: 100px;
     padding: 20px;
     border-radius: 8px;
-    background: #202C4A;
+    background: #202c4a;
     // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
     box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
     position: absolute;
@@ -202,19 +194,19 @@
 }
 
 // 选择支付渠道方式
-.choose-pay-type{
+.choose-pay-type {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 10;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, .3);
-  .contain{
-    width: 500px;
+  background-color: rgba(0, 0, 0, 0.3);
+  .contain {
+    width: 660px;
     height: 250px;
     border-radius: 8px;
-    background: #202C4A;
+    background: #202c4a;
     // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
     box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
     position: absolute;
@@ -229,18 +221,20 @@
     }
 
     .center {
-      height: 140px;
+      flex-wrap: wrap;
+      margin-top: 20px;
       .choose {
+        width: 160px;
         cursor: pointer;
         padding: 8px 16px;
-        margin: 0 20px;
+        margin: 0 0 20px 20px;
         border: 1px solid #999;
         color: #999;
         border-radius: 6px;
 
         &.active {
-          border-color: #4B89FF;
-          color: #4B89FF;
+          border-color: #4b89ff;
+          color: #4b89ff;
         }
       }
     }
@@ -251,7 +245,7 @@
       bottom: 0;
       width: 100%;
       height: 50px;
-      background-color: #202C4A;
+      background-color: #202c4a;
       .button {
         padding: 6px 16px;
         border-radius: 6px;
@@ -259,7 +253,7 @@
         font-size: 14px;
 
         &.primary {
-          background-color: #4B89FF;
+          background-color: #4b89ff;
         }
 
         &.info {
