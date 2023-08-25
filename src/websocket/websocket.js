@@ -259,9 +259,6 @@ export default class WebSocketClient {
             this.vue.$store.commit('updateStoreStatusId', dataObj[key][0][0])
             console.log(2, 'key', key);
             eventVue.$emit('reloadData')
-            setTimeout(()=>{
-              this.vue.$router.go(0)
-            },10)
             return this.getAllData(true, true)
           } else if (key == 22) { // 收银系统卡台页面小红点数量发生变化
             this.vue.$store.commit('updateMoneyCardNeedBackOrderCount', dataObj[key][0][0])
