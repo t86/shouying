@@ -1349,9 +1349,6 @@ export default {
             // 此处卡台的业务数据websocket会返回相应的更新数据
             // this.modelVisible = false;
             this.$message.success("开启营业日成功！");
-            setTimeout(() => {
-              window.location.reload();
-            }, 1000);
           } else {
             this.$message.warning(res.msg);
           }

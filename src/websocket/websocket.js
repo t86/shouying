@@ -192,13 +192,14 @@ export default class WebSocketClient {
               if (this.vue.$route.name == 'cardMachine' || this.vue.$route.name == 'orderCard' || this.vue.$route.name == 'moneyCard') {
   
                 // 加载卡台相关数据
-                const getTabShowCount = this.vue.$children[0].getTabShowCount
-                const getAllData = this.vue.$children[0].getAllData
+                // const getTabShowCount = this.vue.$children[0].getTabShowCount
+                // const getAllData = this.vue.$children[0].getAllData
   
-                if (getTabShowCount && getAllData) getTabShowCount(getAllData);
+                // if (getTabShowCount && getAllData) getTabShowCount(getAllData);
   
-                this.vue.$children[0].showOrHideModelVisible && this.vue.$children[0].showOrHideModelVisible();
+                // this.vue.$children[0].showOrHideModelVisible && this.vue.$children[0].showOrHideModelVisible();
   
+                eventVue.$emit('reloadData', {func:getAllData, hide: true})
               } else { // 更新本地store和sessionStorage中存储的卡台信息
                 this.updateTabListData(this.resResultDataObj['areaInfo'])
                 this.updateCardListData(this.resResultDataObj['cardInfo'], this.resResultDataObj['businessData'])
@@ -257,6 +258,10 @@ export default class WebSocketClient {
             // 判断营业日id状态是否发生变化，变化的话重新获取业务数据
             this.vue.$store.commit('updateStoreStatusId', dataObj[key][0][0])
             console.log(2, 'key', key);
+            eventVue.$emit('reloadData')
+            setTimeout(()=>{
+              this.vue.$router.go(0)
+            },10)
             return this.getAllData(true, true)
           } else if (key == 22) { // 收银系统卡台页面小红点数量发生变化
             this.vue.$store.commit('updateMoneyCardNeedBackOrderCount', dataObj[key][0][0])
