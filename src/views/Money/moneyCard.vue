@@ -973,7 +973,7 @@ export default {
   data() {
     return {
       loadIndex: 0,
-      modelVisible: true, // 是否显示未开启营业日模态框
+      // modelVisible: true, // 是否显示未开启营业日模态框
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showOrHideOutSomething: false, // 是否显示估清商品模态框
