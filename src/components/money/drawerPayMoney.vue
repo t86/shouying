@@ -805,7 +805,7 @@ export default {
         if (res.code === 1) {
           this.$message.success("支付成功");
           this.closeDrawerHandle();
-          this.$parent.getOrderInfo(this.$parent.getPayTabList);
+          this.$parent.getOrderInfo(this.$parent.getPayTabList, true);
           // this.$router.replace('/moneyCard');
         } else {
           this.$message.warning(res.msg);
