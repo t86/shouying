@@ -1,15 +1,24 @@
 <template>
   <div class="Thelogin">
-    <span class="terminal-type">{{typeName}}</span>
+    <span class="terminal-type">{{ typeName }}</span>
     <div class="peak">
       <div class="left">
-        <img :src="require('@/assets/register-login/shangdaohang_zuo.png')" alt="">
+        <img
+          :src="require('@/assets/register-login/shangdaohang_zuo.png')"
+          alt=""
+        />
       </div>
       <div class="center">
-        <img :src="require('@/assets/register-login/shangdaohang_denglu.png')" alt="">
+        <img
+          :src="require('@/assets/register-login/shangdaohang_denglu.png')"
+          alt=""
+        />
       </div>
       <div class="right">
-        <img :src="require('@/assets/register-login/shangdaohang_you.png')" alt="">
+        <img
+          :src="require('@/assets/register-login/shangdaohang_you.png')"
+          alt=""
+        />
       </div>
     </div>
     <div class="elasticity">
@@ -22,37 +31,65 @@
           </el-carousel> -->
         </div>
         <div class="keyboard-contain">
-          <div class="OpenKeyboard" :class="{'android':isAndroidTerminal}">
+          <div class="OpenKeyboard" :class="{ android: isAndroidTerminal }">
             <div class="Keyboards">
               <div class="staff">
                 <span>员工号登录</span>
                 <img src="@/assets/img/b14.png" alt />
               </div>
               <div class="middle">
-                <div class="AccountNumber" :class="{'aer':(pitchon == 1)}" @click="pitchon = 1">
+                <div
+                  class="AccountNumber"
+                  :class="{ aer: pitchon == 1 }"
+                  @click="pitchon = 1"
+                >
                   <img src="@/assets/img/b15.png" alt />
-                  <el-input placeholder="请输入员工工号" v-model="account"></el-input>
+                  <el-input
+                    placeholder="请输入员工工号"
+                    v-model="account"
+                  ></el-input>
                 </div>
-                <div class="AccountNumber" :class="{'aer':(pitchon == 2)}" @click="pitchon = 2">
+                <div
+                  class="AccountNumber"
+                  :class="{ aer: pitchon == 2 }"
+                  @click="pitchon = 2"
+                >
                   <img src="@/assets/img/b11.png" alt />
-                  <el-input show-password placeholder="请输入密码" v-model="password"></el-input>
+                  <el-input
+                    show-password
+                    placeholder="请输入密码"
+                    v-model="password"
+                  ></el-input>
                 </div>
                 <div class="keyboard">
-                  <div class="table"> 
+                  <div class="table">
                     <div class="tbody">
                       <div class="tr" layout="row" layout-align="start start">
-                        <div class="td"
-                          v-for="(eachof,index) in numList"
+                        <div
+                          class="td"
+                          v-for="(eachof, index) in numList"
                           :key="index"
-                          :class="{'pressdown':(eachof.num == pressdowns)}"
+                          :class="{ pressdown: eachof.num == pressdowns }"
                           @mousedown="pressdowns = eachof.num"
                           @mouseup="pressdowns = Number"
                           @click="select(eachof.num)"
                         >
-                          <img src="@/assets/img/b13.png" v-if="eachof.num == 100" alt />
-                          <img src="@/assets/img/b10.png" v-if="eachof.num == 101" alt />
-                          <img src="@/assets/img/b12.png" v-if="eachof.num == 102" alt />
-                          <div>{{eachof.title}}</div>
+                          <img
+                            src="@/assets/img/b13.png"
+                            v-if="eachof.num == 100"
+                            alt
+                          />
+                          <img
+                            src="@/assets/img/b10.png"
+                            v-if="eachof.num == 101"
+                            alt
+                          />
+                          <img
+                            src="@/assets/img/b12.png"
+                            v-if="eachof.num == 102"
+                            alt
+                          />
+                          <div>{{ eachof.title }}</div>
                         </div>
                         <div
                           class="td"
@@ -71,14 +108,32 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <el-dialog title="温馨提示" :visible.sync="showWarning" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
-      <p style="color:#fff;margin-bottom:50px;padding:0 20px;line-height:30px" v-html="warningText"></p>
+    <el-dialog
+      title="温馨提示"
+      :visible.sync="showWarning"
+      :show-close="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <p
+        style="
+          color: #fff;
+          margin-bottom: 50px;
+          padding: 0 20px;
+          line-height: 30px;
+        "
+        v-html="warningText"
+      ></p>
       <div class="login-choose-btn">
-        <button class="ok" @click="routerGo({ authStatus: 4, authName: '收银人' })">确定</button>
+        <button
+          class="ok"
+          @click="routerGo({ authStatus: 4, authName: '收银人' })"
+        >
+          确定
+        </button>
       </div>
     </el-dialog>
   </div>
@@ -88,28 +143,28 @@ import b3 from "@/assets/img/b3.png";
 import b17 from "@/assets/img/b17.png";
 import { mapActions, mapState, mapMutations } from "vuex";
 import md5 from "js-md5";
-import {projectConfig, projectName} from '@/utils/config/projectConfig'
+import { projectConfig, projectName } from "@/utils/config/projectConfig";
 import swipingCard from "@/mixin/swipingCard";
 
 const clientInfo = {
-    '1': 'org_mgr',
-    '2': 'book',
-    '4': 'order',
-    '8': 'money',
-    '16': 'vip',
-    '32': 'erp',
-    '64': 'erpAdmin',
-    '256': 'wine'
-  }
+  1: "org_mgr",
+  2: "book",
+  4: "order",
+  8: "money",
+  16: "vip",
+  32: "erp",
+  64: "erpAdmin",
+  256: "wine",
+};
 export default {
   data() {
     return {
-      typeName: '',  // 设备名称
+      typeName: "", // 设备名称
       wa: [b3, b17], //图片控制
       controller: true, //图片控制器
-      account: projectConfig[projectName]['username'], //账号
-      password: projectConfig[projectName]['password'], //密码
-      clientName: '', // 系统名称
+      account: projectConfig[projectName]["username"], //账号
+      password: projectConfig[projectName]["password"], //密码
+      clientName: "", // 系统名称
 
       dialogTableVisible: false, // 选择身份的弹框显示隐藏
       sysPrivList: [], // 当前登录账号的身份集合
@@ -119,56 +174,56 @@ export default {
       numList: [
         {
           title: "1",
-          num: 1
+          num: 1,
         },
         {
           title: "2",
-          num: 2
+          num: 2,
         },
         {
           title: "3",
-          num: 3
+          num: 3,
         },
         {
           title: "4",
-          num: 4
+          num: 4,
         },
         {
           title: "5",
-          num: 5
+          num: 5,
         },
         {
           title: "6",
-          num: 6
+          num: 6,
         },
         {
           title: "7",
-          num: 7
+          num: 7,
         },
         {
           title: "8",
-          num: 8
+          num: 8,
         },
         {
           title: "9",
-          num: 9
+          num: 9,
         },
         {
           title: "清空",
-          num: 100
+          num: 100,
         },
         {
           title: "0",
-          num: 0
+          num: 0,
         },
         {
           title: "回退",
-          num: 101
+          num: 101,
         },
         {
           title: "切换输入框",
-          num: 102
-        }
+          num: 102,
+        },
       ],
       pressdowns: Number, //点了哪一个键盘数字
       gaibtup: false, //登录图片控制器
@@ -178,74 +233,74 @@ export default {
         {
           name: "org_mgr",
           systemName: "门店管理后台",
-          url: "/BMS/genRule"
+          url: "/BMS/genRule",
         },
         {
           name: "erp",
           systemName: "ERP仓库管理员",
-          url: "/ERP/sin"
+          url: "/ERP/sin",
         },
         {
           name: "erpAdmin",
           systemName: "ERP管理员",
-          url: "/ERP/home"
+          url: "/ERP/home",
         },
         {
           name: "book",
           systemName: "预定系统",
-          url: "/cardMachine"
+          url: "/cardMachine",
         },
         {
           name: "order",
           systemName: "点单系统",
-          url: "/orderCard"
+          url: "/orderCard",
         },
         {
           name: "money",
           systemName: "收银系统",
-          url: "/moneyCard"
+          url: "/moneyCard",
         },
         {
           name: "vip",
           systemName: "会员系统",
-          url: "/vipManager"
+          url: "/vipManager",
         },
         {
           name: "wine",
           systemName: "存酒仓库",
-          url: "/wine/saveNeedToLib"
-        }
+          url: "/wine/saveNeedToLib",
+        },
       ],
 
       showWarning: false,
-      warningText: ''
+      warningText: "",
     };
   },
   methods: {
     // 设备终端授权
     async term() {
-      let code = ''
+      let code = "";
       try {
-        code = atool.getMachineCode()
-        console.log('设备注册码:' + code)
-      } catch (error){
-        code = this.$route.query.code
-        if(!code) return this.$router.replace('/register')
+        code = atool.getMachineCode();
+        console.log("设备注册码:" + code);
+      } catch (error) {
+        code = this.$route.query.code;
+        if (!code) return this.$router.replace("/register");
       }
 
       try {
         const res = await this.$api.UtilAuth.term.termauth({ code });
-        if(res.code == 1) {
+        if (res.code == 1) {
           // this.$store.commit('updateResResultDataObj', '')
-          this.typeName = res.data.n
-          this.$localStorage.setItem("tk", res.data.tk)
-          this.$localStorage.setItem("am", res.data.am.toString())
-          this.$localStorage.setItem("machineId", res.data.id.toString())
-          this.clientName = clientInfo[res.data.am.toString()]
+          this.typeName = res.data.n;
+          this.$localStorage.setItem("tk", res.data.tk);
+          this.$localStorage.setItem("am", res.data.am.toString());
+          this.$localStorage.setItem("machineId", res.data.id.toString());
+          this.clientName = clientInfo[res.data.am.toString()];
           this.$store.commit("updateClient", this.clientName);
         } else {
           this.$message.warning(res.msg);
-          this.$router.replace('/register')
+          this.$router.replace("/register");
         }
       } catch (error) {
         console.log("设备授权失败", error);
@@ -304,64 +359,92 @@ export default {
           this.password = value;
         }
       } else if (i == 102) {
-        this.pitchon = this.pitchon == 1 ? 2 : 1
+        this.pitchon = this.pitchon == 1 ? 2 : 1;
       }
     },
 
     routerGo(currentStatusObj = {}) {
       this.$store.commit("updateUserInfo", {
         ...this.originInfo,
-        ...currentStatusObj
+        ...currentStatusObj,
       });
       this.$router.push({ path: this.url });
     },
     // 登录
-    submit(userName = '', passWord = '', type = 1) { // 验证类型type 1:账号 2： 卡
-      const account = type == 1 ? this.account : userName
-      const password = type == 1 ? this.password : passWord
+    submit(userName = "", passWord = "", type = 1) {
+      if (!this.$websocket.isValid()) {
+        this.$message({
+          message: "授权认证中，请稍候",
+          type: "info",
+        });
+      }
+      // 验证类型type 1:账号 2： 卡
+      const account = type == 1 ? this.account : userName;
+      const password = type == 1 ? this.password : passWord;
       if (type == 1 && (this.account == "" || this.password == "")) {
         this.$message.warning("账号或密码不能为空");
       } else {
         this.$api.UtilAuth.auth
           .requestauthlogin({
             code: account,
-            passwd: md5(password)
-              .toString()
-              .toUpperCase(),
+            passwd: md5(password).toString().toUpperCase(),
             client_name: this.clientName,
-            pt: type  
+            pt: type,
           })
-          .then(res => {
+          .then(async (res) => {
             if (res.code == 1) {
-              res.data.sys_priv = res.data.sys_priv ? res.data.sys_priv.toString() : ''
+              res.data.sys_priv = res.data.sys_priv
+                ? res.data.sys_priv.toString()
+                : "";
               if (res.data.sys_priv) {
                 var s = [];
                 for (const i in this.clients) {
                   s[i] = this.clientName == this.clients[i].name;
                   if (this.clientName == this.clients[i].name) {
-                    if (((this.$localStorage.getItem("am") * 1) & (res.data.sys_priv * 1)) > 0) {
+                    if (
+                      ((this.$localStorage.getItem("am") * 1) &
+                        (res.data.sys_priv * 1)) >
+                      0
+                    ) {
                       // 存储
                       this.$localStorage.setItem("priv", res.data.sys_priv);
-                      this.$localStorage.setItem("station_id", res.data.station_id.toString()); // 用户岗位id
-                      this.$localStorage.setItem("navigation", [ 0, 0, this.clients[i].url ].join(','));
-                      this.$localStorage.setItem("client", this.clients[i].name);
+                      this.$localStorage.setItem(
+                        "station_id",
+                        res.data.station_id.toString()
+                      ); // 用户岗位id
+                      this.$localStorage.setItem(
+                        "navigation",
+                        [0, 0, this.clients[i].url].join(",")
+                      );
+                      this.$localStorage.setItem(
+                        "client",
+                        this.clients[i].name
+                      );
 
-                      this.$store.commit('gaibian', res.data.name)
+                      this.$store.commit("gaibian", res.data.name);
 
                       // 判断登录身份
                       this.url = this.clients[i]["url"];
                       this.originInfo = res.data;
                       switch (this.clientName) {
                         case "order":
-                          this.routerGo({ authStatus: 1, authName: "点单人"});
+                          this.routerGo({ authStatus: 1, authName: "点单人" });
                           break;
                         case "money":
-                          this.warningText = res.data.login_msg
-                          if(this.warningText) {
-                            this.warningText = this.warningText.replaceAll('<warn>', '<span class="red-color fs18 m-l-1 m-r-1">').replaceAll('</warn>', '</span>')
-                            this.showWarning = true
+                          this.warningText = res.data.login_msg;
+                          if (this.warningText) {
+                            this.warningText = this.warningText
+                              .replaceAll(
+                                "<warn>",
+                                '<span class="red-color fs18 m-l-1 m-r-1">'
+                              )
+                              .replaceAll("</warn>", "</span>");
+                            this.showWarning = true;
                           } else {
-                            this.routerGo({ authStatus: 4, authName: "收银人" });
+                            this.routerGo({
+                              authStatus: 4,
+                              authName: "收银人",
+                            });
                           }
                           break;
                         default:
@@ -369,62 +452,64 @@ export default {
                           break;
                       }
                     } else {
-                      this.$api.UtilAuth.auth.requestauthlogout().then(ress => {
-                        if (ress.code == 1) {
-                          this.$message({
-                            message:
-                              "没有权限登录" +
-                              this.clients[i].systemName +
-                              ",请查看你的账号密码是否正确",
-                            type: "info"
-                          });
-                        }
-                      });
-                      window.loopReadCard()
+                      this.$api.UtilAuth.auth
+                        .requestauthlogout()
+                        .then((ress) => {
+                          if (ress.code == 1) {
+                            this.$message({
+                              message:
+                                "没有权限登录" +
+                                this.clients[i].systemName +
+                                ",请查看你的账号密码是否正确",
+                              type: "info",
+                            });
+                          }
+                        });
+                      window.loopReadCard();
                     }
                   }
                 }
               } else {
                 this.$message({
                   message: "没有权限登录",
-                  type: "info"
+                  type: "info",
                 });
-                window.loopReadCard()
+                window.loopReadCard();
               }
             } else {
               this.$message.warning(res.msg);
-              window.loopReadCard()
+              window.loopReadCard();
             }
           });
       }
-    }
+    },
   },
   mounted() {
     this.term();
-    window.loopReadCard()
-    document.onkeydown = e => { 
-      if (e.keyCode == 13) this.submit()
-    }
+    window.loopReadCard();
+    document.onkeydown = (e) => {
+      if (e.keyCode == 13) this.submit();
+    };
   },
 
   mixins: [swipingCard],
 
-  computed:{
-    isAndroidTerminal(){
-      let termType = ''
+  computed: {
+    isAndroidTerminal() {
+      let termType = "";
       try {
         termType = atool.getTermType();
       } catch (error) {
-        console.log('获取终端类型失败', error)
+        console.log("获取终端类型失败", error);
       }
-      return termType == 'android'
-    }
+      return termType == "android";
+    },
   },
 
-  beforeDestroy(){
-    window.stopLoopReadCard()
-    document.onkeydown = null
-  }
+  beforeDestroy() {
+    window.stopLoopReadCard();
+    document.onkeydown = null;
+  },
 };
 </script>
 
@@ -441,7 +526,7 @@ export default {
   }
 
   .el-dialog__header {
-    background-color: transparent!important;
+    background-color: transparent !important;
   }
 
   .el-dialog__footer .dialog-footer {
@@ -493,14 +578,14 @@ export default {
 }
 
 .Thelogin {
-  background-color: #080B16;;
+  background-color: #080b16;
   width: 100vw;
   height: 100vh;
-  .terminal-type{
-    position:fixed;
-    right:20px;
-    top:20px;
-    color:#fff
+  .terminal-type {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    color: #fff;
   }
   .peak {
     display: grid;
@@ -508,33 +593,34 @@ export default {
     grid-template-rows: 88px;
     img {
       width: 100%;
-      height: 100%
+      height: 100%;
     }
   }
 
-  .elasticity{
+  .elasticity {
     width: 100%;
     height: calc(100vh - 88px);
     box-sizing: border-box;
-    .center-type{
+    .center-type {
       width: 100%;
       height: 100%;
       max-width: 1380px;
       margin: 0 auto;
-      background: url('../../assets/register-login/denglu_bg.png') center center no-repeat;
+      background: url("../../assets/register-login/denglu_bg.png") center center
+        no-repeat;
       background-size: contain;
-      
-      .slideshow{
-        width: calc(100% - 400px)
+
+      .slideshow {
+        width: calc(100% - 400px);
       }
 
-      .keyboard-contain{
+      .keyboard-contain {
         width: 400px;
         height: 600px;
         .OpenKeyboard {
           width: 400px;
           height: 580px;
-          &.android{
+          &.android {
             transform: scale(0.8);
           }
           .Keyboards {
@@ -553,7 +639,7 @@ export default {
                 width: 100px;
                 font-size: 20px;
                 font-weight: 500;
-                color: #FFFFFF;
+                color: #ffffff;
                 position: absolute;
                 top: 50%;
                 left: 50%;
@@ -580,7 +666,7 @@ export default {
                 border: 1px solid rgba(255, 255, 255, 0.15);
                 padding-left: 10px;
                 box-sizing: border-box;
-                background: rgba(0,0,0,0.2);
+                background: rgba(0, 0, 0, 0.2);
                 img {
                   width: 24px;
                 }
@@ -590,19 +676,19 @@ export default {
                 }
               }
 
-              .keyboard{
+              .keyboard {
                 width: 100%;
-                .table{
+                .table {
                   margin: 0 auto;
                   width: 300px;
                   height: 314px;
-                  background: rgba(0,0,0,0.2);
-                  border: 1px solid rgba(255,255,255,0.15);
+                  background: rgba(0, 0, 0, 0.2);
+                  border: 1px solid rgba(255, 255, 255, 0.15);
                   border-radius: 6px;
                   overflow: hidden;
-                  .tr{
+                  .tr {
                     flex-wrap: wrap;
-                    .td{
+                    .td {
                       position: relative;
                       width: 100px;
                       height: calc(315px / 5);
@@ -610,52 +696,54 @@ export default {
                       text-align: center;
                       font-size: 30px;
                       font-weight: 600;
-                      color: #FFFFFF;
+                      color: #ffffff;
                       cursor: pointer;
-                      &:before{
-                        content: '';
+                      &:before {
+                        content: "";
                         display: block;
                         position: absolute;
                         bottom: 0;
                         left: 0;
                         width: 100%;
                         height: 1px;
-                        background-color: rgba(255,255,255,0.15);
+                        background-color: rgba(255, 255, 255, 0.15);
                       }
-                      &:after{
-                        content: '';
+                      &:after {
+                        content: "";
                         display: block;
                         position: absolute;
                         top: 0;
                         right: 0;
                         width: 1px;
                         height: 100%;
-                        background-color: rgba(255,255,255,0.15);
+                        background-color: rgba(255, 255, 255, 0.15);
                       }
 
-                      &:nth-child(3n){
-                        &:after{
+                      &:nth-child(3n) {
+                        &:after {
                           width: 0;
                           height: 0;
                         }
                       }
 
-                      &:nth-child(10), &:nth-child(12), &:nth-child(13){
+                      &:nth-child(10),
+                      &:nth-child(12),
+                      &:nth-child(13) {
                         padding-top: 10px;
                         box-sizing: border-box;
                         line-height: 14px;
-                        img{
+                        img {
                           width: 30px;
                         }
-                        >div {
+                        > div {
                           font-size: 12px;
                           font-weight: 400;
                         }
                       }
 
-                      &:nth-last-child(1){
+                      &:nth-last-child(1) {
                         width: 200px;
-                        img{
+                        img {
                           width: 100%;
                           height: 100%;
                         }
@@ -677,7 +765,7 @@ export default {
   border: none !important;
   background-color: rgba(0, 0, 0, 0);
   color: #d9d9d9;
-  font-size: 16px;;
+  font-size: 16px;
   height: 44px;
   cursor: pointer;
 }

@@ -231,10 +231,13 @@ export const cardPageMixins = {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadData", (e) => {
       this.getAllData();
-      if (this.getTabShowCount && this.getAllData) {
-        e.func ? this.getTabShowCount(func) : this.getTabShowCount();
+      if (e && e.func) {
+        this.getTabShowCount(e.func);
       }
-      e.hide && this.showOrHideModelVisible && this.showOrHideModelVisible();
+      e &&
+        e.hide &&
+        this.showOrHideModelVisible &&
+        this.showOrHideModelVisible();
     });
     this.authName =
       this.$store.state.userInfo && this.$store.state.userInfo.name;

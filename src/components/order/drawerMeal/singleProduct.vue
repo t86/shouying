@@ -225,7 +225,7 @@ export default {
       if (this.productInfo.prdType == 4) {
         this.count = this.$route.name != "moneyCard" ? "" : 0;
       }
-      this.focus = this.$store.state.userInfo.authStatus == 4 ? 1 : 2;
+      // this.focus = this.$store.state.userInfo.authStatus == 4 ? 1 : 2;
       this.isGQ = this.$route.name == "moneyCard";
     },
 

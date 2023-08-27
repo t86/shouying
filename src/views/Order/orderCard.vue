@@ -1118,6 +1118,16 @@ export default {
               this.$store.state.userInfo.authStatusArr.length == 1 &&
               this.$store.state.userInfo.authStatusArr[0] == 1
             ) {
+              // 区域下部分卡台
+              const cardStatusNo =
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
+                [];
+              // 累计卡台数
+              const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);
+              // 累计抵达数
+              const allArriveInfo = cardStatusNo.filter(
+                (item) => item.id == 31
+              );
               // 服务员，显示的我的卡台
               this.card.cardList.forEach((el) => {
                 if (el.bizStatus != 4 && el.bizStatus != 20) {
