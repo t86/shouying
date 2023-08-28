@@ -16,6 +16,16 @@
               size="small"
               style="width: 180px"
               placeholder="请输入有效期天数"
+              @keyup.native="
+              (e) => {
+                day1Val = inputLimitPositiveNum(e.target.value);
+              }
+            "
+            @blur="
+              (e) => {
+                day1Val = formatPointNumber(e.target.value);
+              }
+            "
             ></el-input>天
           </div>
         </div>
@@ -28,6 +38,16 @@
               size="small"
               style="width: 180px"
               placeholder="请输入有效期天数"
+              @keyup.native="
+              (e) => {
+                day2Val = inputLimitPositiveNum(e.target.value);
+              }
+            "
+              @blur="
+                (e) => {
+                  day2Val = formatPointNumber(e.target.value);
+                }
+              "
             ></el-input>天
           </div>
         </div>
@@ -42,9 +62,12 @@
 </template>
  
 <script>
+import { inputLimitPositiveNum, formatPointNumber } from '@/utils/formatNumber'
 export default {
   data() {
     return {
+      inputLimitPositiveNum, 
+      formatPointNumber,
       show: false,
       day1Val: "",
       day2Val: ""
