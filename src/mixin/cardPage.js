@@ -3,11 +3,10 @@
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import md5 from "js-md5";
-import eventVue from '@/utils/eventVue';
+import eventVue from "@/utils/eventVue";
 
 export const cardPageMixins = {
   methods: {
-
     // 切换tab
     changeTab(index, id) {
       if (this.modelVisible) return;
@@ -84,7 +83,9 @@ export const cardPageMixins = {
     // 页面可视区域尺寸发生变化
     windowResizeHandle() {
       this.getTabShowCount();
-      this.getTabList(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]);
+      this.getTabList(
+        this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]
+      );
       // 此延时器为了解决苹果iPad中，竖向使用时，scrollTop达到最大，突然转到横向，横向无法滚动到超出自己最大的scrollTop位置的问题，而出现白屏问题
       setTimeout(() => {
         const pageHeight = document.body.clientHeight;
@@ -109,7 +110,7 @@ export const cardPageMixins = {
         // this.tab.activeIndex = 0;
         // this.tab.showAnotherInfo = false;
         // this.getTabShowCount(this.getAllData);
-        this.$router.go(0)
+        this.$router.go(0);
       }
       clearTimeout(this.clickTimer);
       this.clickTimer = setTimeout(() => (this.arrowStatus = ""), 100);
@@ -120,17 +121,17 @@ export const cardPageMixins = {
       this.$confirm(content, title, {
         distinguishCancelAndClose: true,
         confirmButtonText: "确定",
-        cancelButtonText: "取消"
+        cancelButtonText: "取消",
       })
         .then(() => {
           callback && callback();
         })
-        .catch(e => "");
+        .catch((e) => "");
     },
 
     // 展示或隐藏营业日模态框
     showOrHideModelVisible() {
-      this.modelVisible = this.$store.state.cardPageInfo.storeStatusId == 0;
+      // this.modelVisible = this.$store.state.cardPageInfo.storeStatusId == 0;
     },
 
     // 修改密码取消按钮
@@ -138,7 +139,7 @@ export const cardPageMixins = {
       this.legendOptions.form = {
         old_password: "",
         new_password: "",
-        rnew_password: ""
+        rnew_password: "",
       };
       this.legendOptions.updatePwdModel = false;
     },
@@ -147,14 +148,14 @@ export const cardPageMixins = {
       修改密码
      */
 
-    changePwdHandle(e, text){
-      if(isNaN(e.target._value * 1)){
-        this.$message.warning(text + '必须为数字')
+    changePwdHandle(e, text) {
+      if (isNaN(e.target._value * 1)) {
+        this.$message.warning(text + "必须为数字");
       }
     },
 
     // 提交修改密码
-    async submitUpdatePwdHandle(form={}) {
+    async submitUpdatePwdHandle(form = {}) {
       if (!form.old_password) return this.$message.warning("请输入原密码");
       if (!form.new_password) return this.$message.warning("请输入新密码");
       if (form.new_password != form.rnew_password)
@@ -177,57 +178,67 @@ export const cardPageMixins = {
     },
 
     // 修改授权密码
-    async submitUpdateAuthPwdHandle(authPwdInfo = {}){
-      if(authPwdInfo.show) {
-        if(authPwdInfo.authPwd == '' || authPwdInfo.loginPwd == ''){
-          return this.$message.warning('登录密码和授权密码不能为空')
+    async submitUpdateAuthPwdHandle(authPwdInfo = {}) {
+      if (authPwdInfo.show) {
+        if (authPwdInfo.authPwd == "" || authPwdInfo.loginPwd == "") {
+          return this.$message.warning("登录密码和授权密码不能为空");
         }
-  
-        if(authPwdInfo.authPwd != authPwdInfo.repAuthPwd){
-          return this.$message.warning('授权密码与确认授权密码不一致')
+
+        if (authPwdInfo.authPwd != authPwdInfo.repAuthPwd) {
+          return this.$message.warning("授权密码与确认授权密码不一致");
         }
-        if(authPwdInfo.authPwd == authPwdInfo.loginPwd){
-          return this.$message.warning('授权密码不能与登录密码相同')
+        if (authPwdInfo.authPwd == authPwdInfo.loginPwd) {
+          return this.$message.warning("授权密码不能与登录密码相同");
         }
-  
-        if(isNaN(authPwdInfo.loginPwd * 1)){
-          return this.$message.warning('授权密码必须为数字')
+
+        if (isNaN(authPwdInfo.loginPwd * 1)) {
+          return this.$message.warning("授权密码必须为数字");
         }
-        if(isNaN(authPwdInfo.authPwd * 1)){
-          return this.$message.warning('授权密码必须为数字')
+        if (isNaN(authPwdInfo.authPwd * 1)) {
+          return this.$message.warning("授权密码必须为数字");
         }
       }
 
       const params = {
-        login_password: authPwdInfo.show ? md5(authPwdInfo.loginPwd)
-        .toString().toUpperCase() : '',// string     //LoginPassword 登录密码(SHA摘要后的)
-        auth_password: authPwdInfo.show ? md5(authPwdInfo.authPwd)
-        .toString().toUpperCase() : '',// string     //AuthPassword 授权密码(SHA摘要后的)
-      }
+        login_password: authPwdInfo.show
+          ? md5(authPwdInfo.loginPwd).toString().toUpperCase()
+          : "", // string     //LoginPassword 登录密码(SHA摘要后的)
+        auth_password: authPwdInfo.show
+          ? md5(authPwdInfo.authPwd).toString().toUpperCase()
+          : "", // string     //AuthPassword 授权密码(SHA摘要后的)
+      };
       try {
-        const res = await api_order.reqUpdateAuthPwd(params)
-        if(res.code == 1) {
-          this.legendOptions.showAuthPwdModel=false
-          this.$message.success('操作成功！')
+        const res = await api_order.reqUpdateAuthPwd(params);
+        if (res.code == 1) {
+          this.legendOptions.showAuthPwdModel = false;
+          this.$message.success("操作成功！");
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('保存授权密码失败', error)
+        console.log("保存授权密码失败", error);
       }
     },
 
     // 卡台名称放大倍数
-    getScaleCardName(cardName){
-      const cardNameLength = this.$overall.character(cardName)
-      return Math.min(1, 8 / cardNameLength)
-    }
-
+    getScaleCardName(cardName) {
+      const cardNameLength = this.$overall.character(cardName);
+      return Math.min(1, 8 / cardNameLength);
+    },
   },
 
   mounted() {
     // 监听是否有其他人更改订单相关数据
-    eventVue.$on('reloadData', this.getAllData)
+    eventVue.$on("reloadData", (e) => {
+      this.getAllData();
+      if (e && e.func) {
+        this.getTabShowCount(e.func);
+      }
+      e &&
+        e.hide &&
+        this.showOrHideModelVisible &&
+        this.showOrHideModelVisible();
+    });
     this.authName =
       this.$store.state.userInfo && this.$store.state.userInfo.name;
     this.showOrHideModelVisible();
@@ -241,7 +252,12 @@ export const cardPageMixins = {
       const hour = timeNumber.slice(9, 11);
       const minute = timeNumber.slice(11, 13);
       return `(${hour}:${minute})`;
-    }
-  }
-
-}
+    },
+  },
+  computed: {
+    modelVisible() {
+      const visible = this.$store.state.cardPageInfo.storeStatusId == 0;
+      return visible;
+    },
+  },
+};

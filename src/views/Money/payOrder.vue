@@ -327,7 +327,7 @@ export default {
   methods: {
     init() {
       this.getTurnTabList();
-      this.getOrderInfo(this.getPayTabList);
+      this.getOrderInfo(this.getPayTabList, false);
       
       // 解决空台状态（翻台后查看消费记录）tab补选中
       if(this.$store.state.orderInfo.currentCardInfo.bizStatus == 1) {
@@ -469,7 +469,7 @@ export default {
     },
 
     // 获取订单相关数据
-    async getOrderInfo(callback) {
+    async getOrderInfo(callback, backToCardList) {
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         turnover_cnt: this.turnOverInfo.activeTurnOverCount // int   第几次翻台,默认是0; 总翻台次数可以从业务原数据中获取
@@ -655,6 +655,19 @@ export default {
           ];
 
           callback && callback();
+          if(backToCardList) {
+            if (res.data.unpay_order) {
+              let onlineNotPayOrderList = res.data.unpay_order.oos
+                ? [...res.data.unpay_order.oos]
+                : [];
+              let anotherNotPayOrderList = res.data.unpay_order.os
+                ? [...res.data.unpay_order.os]
+                : [];
+              if(onlineNotPayOrderList.length == 0 &&anotherNotPayOrderList.length == 0) {
+                this.$router.replace('/moneyCard');
+              }
+            }
+          }
         } else {
           this.$message.warning(res.msg);
         }
@@ -1172,7 +1185,7 @@ export default {
           return this.payOrder0(wk_order_ids, prd_cnts, amt)
         } 
       } 
-      if (this.drawer.payDrawer.showDrawer) this.$router.go(0);
+      // if (this.drawer.payDrawer.showDrawer) this.$router.go(0);
       this.drawer.payDrawer.showDrawer = !this.drawer.payDrawer.showDrawer;
     },
 

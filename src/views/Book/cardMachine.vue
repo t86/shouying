@@ -6,18 +6,18 @@
         <div class="scroll-date">
           <div
             class="tab-date"
-            :style="{'width':tabDateWidth + 'px'}"
+            :style="{ width: tabDateWidth + 'px' }"
             layout="row"
             layout-align="start center"
           >
             <div
               class="date-item"
-              :class="{'active': index===dateTab.activeIndex}"
+              :class="{ active: index === dateTab.activeIndex }"
               v-for="(item, index) in dateTab.dateTabList"
               :key="index"
               @click="changeDateTab(index)"
             >
-              <p>{{item.name}}</p>
+              <p>{{ item.name }}</p>
             </div>
           </div>
         </div>
@@ -27,21 +27,24 @@
           <div class="tab" layout="row" layout-align="start center">
             <div
               class="area-item"
-              :class="{'active': item.id===tab.activeIndex}"
+              :class="{ active: item.id === tab.activeIndex }"
               v-for="(item, index) in tab.tabList"
               :key="index"
-              @click="changeTab(index,item.id)"
+              @click="changeTab(index, item.id)"
             >
-              <span>{{item.name}}</span>
-              <div v-if="item.id===999&&tab.showAnotherInfo" class="anotherInfo">
+              <span>{{ item.name }}</span>
+              <div
+                v-if="item.id === 999 && tab.showAnotherInfo"
+                class="anotherInfo"
+              >
                 <div
                   class="another-item"
-                  :class="{'active': items.id===tab.anotherInfoActiveId}"
+                  :class="{ active: items.id === tab.anotherInfoActiveId }"
                   v-for="(items, i) in tab.anotherInfo"
                   :key="i"
                   @click.stop="changeTab('9999', items.id)"
                 >
-                  <span>{{items.name}}</span>
+                  <span>{{ items.name }}</span>
                 </div>
               </div>
             </div>
@@ -62,96 +65,135 @@
       <div class="content">
         <!-- 开启营业日 -->
         <div class="open-store" v-if="modelVisible">
-          <div class="open-store-btn" @click.stop="openStoreHandle">营业日未开启，点击开启营业日</div>
+          <div class="open-store-btn" @click.stop="openStoreHandle">
+            营业日未开启，点击开启营业日
+          </div>
         </div>
         <!-- 卡台列表 -->
         <div
-          v-if="card.cardList.length>0"
+          v-if="card.cardList.length > 0"
           class="center-type"
-          :style="{'width':card.centerTypeWidth+'px','padding-top': modelVisible ? '50px':'0px' }"
+          :style="{
+            width: card.centerTypeWidth + 'px',
+            'padding-top': modelVisible ? '50px' : '0px',
+          }"
           layout="row"
           layout-align="start center"
         >
           <div
             class="card-item"
-            v-for="(item,index) in card.cardList"
+            v-for="(item, index) in card.cardList"
             :key="index"
-            :class="'bgc'+(Number(item.bizStatus))"
-            @click.stop="showOrHideOptionHandle(index,item,true)"
+            :class="'bgc' + Number(item.bizStatus)"
+            @click.stop="showOrHideOptionHandle(index, item, true)"
             @contextmenu.prevent.stop="rightClickHandle"
           >
             <p layout="row" layout-align="space-between center">
               <span class="area-name" layout="row" layout-align="center center">
-                <span>{{item.regionId | getAreaName}}</span>
+                <span>{{ item.regionId | getAreaName }}</span>
                 <!-- 当前这个‘线’字标记代表：线上卡台或者卡台的线上预定（线上卡台先被预定，后来被转为线下卡台，但是线上的预定没有被取消） -->
                 <span class="line-tips" v-if="item.showOnlineText">线</span>
               </span>
               <span layout="row" layout-align="center center">
-                <span v-if="item.mark" class="mark">{{item.mark}}</span>
-                <span>{{item.openTime ? '(' + item.openTime + ')' : '' | filterTime}}</span>
-                <span v-if="item.bizStatus==1">{{item.capacity}}人</span>
+                <span v-if="item.mark" class="mark">{{ item.mark }}</span>
+                <span>{{
+                  item.openTime ? "(" + item.openTime + ")" : "" | filterTime
+                }}</span>
+                <span v-if="item.bizStatus == 1">{{ item.capacity }}人</span>
               </span>
             </p>
-            
+
             <h3 class="card-name" layout="row" layout-align="start center">
-              <div style="white-space: nowrap;transform-origin:left center" :style="{'transform':'scale('+item.cardNameScale+')'}">{{item.name}}</div>
+              <div
+                style="white-space: nowrap; transform-origin: left center"
+                :style="{ transform: 'scale(' + item.cardNameScale + ')' }"
+              >
+                {{ item.name }}
+              </div>
             </h3>
 
             <!-- 金额 -->
             <p
               layout="row"
-              v-if="[4,5,6,7].find(items=>items==item.bizStatus)"
+              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)"
               layout-align="space-between center"
             >
-              <span 
-                v-if="$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ?
-                $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true"
-                >￥{{item.zengSongAmt}}</span>
+              <span
+                v-if="
+                  $store.state.cardPageInfo.resResultDataObj.showAmt.find(
+                    (item) => item.id == 3
+                  )
+                    ? $store.state.cardPageInfo.resResultDataObj.showAmt.find(
+                        (item) => item.id == 3
+                      ).param1 == 2
+                    : true
+                "
+                >￥{{ item.zengSongAmt }}</span
+              >
               <span v-else></span>
-              <span class="card-step">{{item.diXiaoJindu}}</span>
+              <span class="card-step">{{ item.diXiaoJindu }}</span>
             </p>
-            <p v-else style="height:17px"></p>
+            <p v-else style="height: 17px"></p>
 
             <!-- 订位人 -->
-            <p class="one-txt-cut" v-if="item.bizStatus!=1&&item.bizStatus!=2">
-              {{item.salesEmpId | getDepartmentName}} {{item.salesEmpId |
-              getOrderPersonName}}
+            <p
+              class="one-txt-cut"
+              v-if="item.bizStatus != 1 && item.bizStatus != 2"
+            >
+              {{ item.salesEmpId | getDepartmentName }}
+              {{ item.salesEmpId | getOrderPersonName }}
             </p>
-            <p v-else style="height:17px"></p>
+            <p v-else style="height: 17px"></p>
 
             <!-- 客人信息 -->
             <p
               class="one-txt-cut"
-              v-if="item.bizStatus!=1&&item.bizStatus!=2"
-            >{{item.customerName}} {{item.customerPhone ? item.customerPhone.slice(0,3) +'****'+item.customerPhone.slice(-4): ''}}</p>
-            <p v-else style="height:18px"></p>
+              v-if="item.bizStatus != 1 && item.bizStatus != 2"
+            >
+              {{ item.customerName }}
+              {{
+                item.customerPhone
+                  ? item.customerPhone.slice(0, 3) +
+                    "****" +
+                    item.customerPhone.slice(-4)
+                  : ""
+              }}
+            </p>
+            <p v-else style="height: 18px"></p>
 
-            <p layout="row" layout-align="space-between center" style="margin-top:4px;">
+            <p
+              layout="row"
+              layout-align="space-between center"
+              style="margin-top: 4px"
+            >
               <!-- tips -->
               <span layout="row" layout-align="space-between center">
                 <span
                   class="card-tips"
-                  :class="{'green':items!=='锁', 'yellow': items==='锁'}"
-                  v-for="(items,i) in item.tipsArr"
+                  :class="{ green: items !== '锁', yellow: items === '锁' }"
+                  v-for="(items, i) in item.tipsArr"
                   :key="i"
-                >{{items}}</span>
+                  >{{ items }}</span
+                >
                 <!-- remark -->
-                <span>{{item.remark&&item.remark.slice(0, 6)}}</span>
+                <span>{{ item.remark && item.remark.slice(0, 6) }}</span>
               </span>
               <!-- 翻台数 -->
               <span>
-                <span v-if="item.turnoverCnt>0">翻{{item.turnoverCnt}}</span>
+                <span v-if="item.turnoverCnt > 0"
+                  >翻{{ item.turnoverCnt }}</span
+                >
               </span>
             </p>
             <!-- 选项操作箭头 -->
             <img
-              v-if="item.showOption&&item.isLeftArrow"
+              v-if="item.showOption && item.isLeftArrow"
               :src="imgSrc.sanJiao"
               alt
               class="sanjiao left"
             />
             <img
-              v-if="item.showOption&&!item.isLeftArrow"
+              v-if="item.showOption && !item.isLeftArrow"
               :src="imgSrc.sanJiao"
               alt
               class="sanjiao right"
@@ -160,18 +202,24 @@
             <div
               class="card-options"
               v-if="item.showOption"
-              :style="{top:card.optionsPosition.top,bottom:card.optionsPosition.bottom,left:card.optionsPosition.left,right:card.optionsPosition.right,transform:card.optionsPosition.transform}"
+              :style="{
+                top: card.optionsPosition.top,
+                bottom: card.optionsPosition.bottom,
+                left: card.optionsPosition.left,
+                right: card.optionsPosition.right,
+                transform: card.optionsPosition.transform,
+              }"
               ref="cardOptions"
             >
               <div
                 class="options-item"
-                v-for="(el,i) in item.options"
+                v-for="(el, i) in item.options"
                 :key="i"
-                @click.stop="optionsClickHandle(el,item,index)"
+                @click.stop="optionsClickHandle(el, item, index)"
               >
                 <div class="options-item-contain">
                   <img :src="el.icon" alt />
-                  <span>{{el.name}}</span>
+                  <span>{{ el.name }}</span>
                 </div>
               </div>
               <div class="close">
@@ -190,29 +238,58 @@
       <!-- 卡台图例tab -->
       <div class="legend" layout="row" layout-align="space-between center">
         <!-- 卡台状态图例 -->
-        <div class="legend-list" layout="row" layout-align="space-around center">
+        <div
+          class="legend-list"
+          layout="row"
+          layout-align="space-around center"
+        >
           <!-- 过滤掉锁台 -->
-          <div class="legend-list-item" v-for="(item,index) in legendList" :key="item.id">
-            <span class="btn" v-if="item.id!=20" :class="{'active': legendActive===item.id}" @click.stop="changeCardStatus(item.id)" >
-                <div class="img-contain" :class="[item.id == 20 ? '' : 'bgc' +(index+2)]">
+          <div
+            class="legend-list-item"
+            v-for="(item, index) in legendList"
+            :key="item.id"
+          >
+            <span
+              class="btn"
+              v-if="item.id != 20"
+              :class="{ active: legendActive === item.id }"
+              @click.stop="changeCardStatus(item.id)"
+            >
+              <div
+                class="img-contain"
+                :class="[item.id == 20 ? '' : 'bgc' + (index + 2)]"
+              >
                 <img :src="item.allRight" alt />
               </div>
             </span>
-            <span class="btn" v-else style="transform:translateY(26px)" :class="{'active': legendActive===item.id}">
-              <div class="img-contain" :class="[item.id == 20 ? '' : 'bgc' +(index+2)]">
-                <span style="color:#fff;line-height:20px">{{cardStatusNoInfo[20]  || 0}}</span>
+            <span
+              class="btn"
+              v-else
+              style="transform: translateY(26px)"
+              :class="{ active: legendActive === item.id }"
+            >
+              <div
+                class="img-contain"
+                :class="[item.id == 20 ? '' : 'bgc' + (index + 2)]"
+              >
+                <span style="color: #fff; line-height: 20px">{{
+                  cardStatusNoInfo[20] || 0
+                }}</span>
               </div>
             </span>
             <p v-if="item.id != 20">
-              <span style="margin-right:2px">{{item.name}}</span><span>{{(cardStatusNoInfo[item.id == 4 ? 10 : item.id]) || 0}}</span>
+              <span style="margin-right: 2px">{{ item.name }}</span
+              ><span>{{
+                cardStatusNoInfo[item.id == 4 ? 10 : item.id] || 0
+              }}</span>
             </p>
-            <p v-else style="transform:translateY(-28px)">
-              <span style="margin-right:2px">{{item.name}}</span>
+            <p v-else style="transform: translateY(-28px)">
+              <span style="margin-right: 2px">{{ item.name }}</span>
             </p>
           </div>
           <div
             class="legend-list-item reload-btn"
-            :class="{'pressdown': arrowStatus === 'reload'}"
+            :class="{ pressdown: arrowStatus === 'reload' }"
             @mousedown="keyDownHandle('reload')"
             @touchstart="keyDownHandle('reload')"
             @mouseup="keyDownHandle"
@@ -222,11 +299,19 @@
           </div>
         </div>
         <!-- 操作面板 -->
-        <ul class="dosomething" layout="row" layout-align="space-between center">
-          <div class="dosomething-item" layout="row" layout-align="space-between center">
+        <ul
+          class="dosomething"
+          layout="row"
+          layout-align="space-between center"
+        >
+          <div
+            class="dosomething-item"
+            layout="row"
+            layout-align="space-between center"
+          >
             <div
               class="arrow arr-left"
-              :class="{'pressdown': arrowStatus === 'down'}"
+              :class="{ pressdown: arrowStatus === 'down' }"
               @mousedown="keyDownHandle('down')"
               @touchstart="keyDownHandle('down')"
               @mouseup="keyDownHandle"
@@ -235,7 +320,7 @@
             </div>
             <div
               class="arrow arr-right"
-              :class="{'pressdown': arrowStatus === 'up'}"
+              :class="{ pressdown: arrowStatus === 'up' }"
               @mousedown="keyDownHandle('up')"
               @touchstart="keyDownHandle('up')"
               @mouseup="keyDownHandle"
@@ -244,8 +329,10 @@
             </div>
           </div>
 
-
-          <div class="dosomething-item" @click.stop="legendOptionHandle('more')">
+          <div
+            class="dosomething-item"
+            @click.stop="legendOptionHandle('more')"
+          >
             <img :src="imgSrc.more" alt />
             <p>更多功能</p>
             <div class="option more" v-if="legendOptions.showMoreFunc">
@@ -253,7 +340,10 @@
                 <img :src="imgSrc.openCard" alt />
                 <span>开台记录</span>
               </div>
-              <div class="option-item line" @click="showOrHideTurnOverDrawerHandle">
+              <div
+                class="option-item line"
+                @click="showOrHideTurnOverDrawerHandle"
+              >
                 <img :src="imgSrc.turnOver" alt />
                 <span>转台记录</span>
               </div>
@@ -261,17 +351,26 @@
             </div>
           </div>
 
-
           <div class="dosomething-item" @click.stop="legendOptionHandle('pwd')">
-            <img :src="imgSrc.arrowTop" :class="{'rotate':legendOptions.showUpdatePwd }" alt />
-            <p>{{authName}}</p>
+            <img
+              :src="imgSrc.arrowTop"
+              :class="{ rotate: legendOptions.showUpdatePwd }"
+              alt
+            />
+            <p>{{ authName }}</p>
             <!-- 操作选项 -->
             <div class="option" v-if="legendOptions.showUpdatePwd">
-              <div class="option-item" @click.stop="legendOptionHandle('updatePwd')">
+              <div
+                class="option-item"
+                @click.stop="legendOptionHandle('updatePwd')"
+              >
                 <img :src="imgSrc.updatepwd" alt />
                 <span>修改密码</span>
               </div>
-              <div class="option-item logout" @click.stop="legendOptionHandle('logout')">
+              <div
+                class="option-item logout"
+                @click.stop="legendOptionHandle('logout')"
+              >
                 <img :src="imgSrc.loginOut" alt />
                 <span>退出登录</span>
               </div>
@@ -311,16 +410,24 @@
     />
 
     <!-- 开台记录 -->
-    <drawerOpenCard :showDrawer="showOpenCardDrawer" @showOrHideDrawer="showOrHideOpenCardDrawerHandle" />
+    <drawerOpenCard
+      :showDrawer="showOpenCardDrawer"
+      @showOrHideDrawer="showOrHideOpenCardDrawerHandle"
+    />
 
     <!-- 转台记录 -->
-    <drawerTurnOver :showDrawer="showTurnOverDrawer" @showOrHideDrawer="showOrHideTurnOverDrawerHandle"/>
+    <drawerTurnOver
+      :showDrawer="showTurnOverDrawer"
+      @showOrHideDrawer="showOrHideTurnOverDrawerHandle"
+    />
 
     <!-- 修改密码 -->
-    <updatePassword 
+    <updatePassword
       ref="updatePassword"
-      :showDrawer="legendOptions.updatePwdModel" @submitHandle="submitUpdatePwdHandle" @cancelUpdatePwdHandle="cancelUpdatePwdHandle" />
-
+      :showDrawer="legendOptions.updatePwdModel"
+      @submitHandle="submitUpdatePwdHandle"
+      @cancelUpdatePwdHandle="cancelUpdatePwdHandle"
+    />
   </div>
 </template>
 
@@ -328,9 +435,9 @@
 import drawerReserved from "@/components/book/reserved/drawerReserved.vue";
 import cardDrawer from "@/components/book/machine/cardDrawer"; // 抽屉组件
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏表格
-import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"  // 开台记录
-import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"  // 转台记录
-import updatePassword from '@/components/common/updatePassword.vue'  // 修改密码
+import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"; // 开台记录
+import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"; // 转台记录
+import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
 
 import api_card from "@/api/Book";
 import api_money from "@/api/money";
@@ -361,14 +468,14 @@ export default {
   data() {
     return {
       // loadIndex: 0,
-      modelVisible: true, // 是否显示未开启营业日模态框
+      // modelVisible: true, // 是否显示未开启营业日模态框
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
-      showOpenCardDrawer: false,  // 是否显示卡台记录drawer
+      showOpenCardDrawer: false, // 是否显示卡台记录drawer
       showTurnOverDrawer: false, // 是否显示转台记录drawer
       dateTab: {
         dateTabList: [],
-        activeIndex: 0
+        activeIndex: 0,
       },
       keyWord: "", // 搜索框
       tab: {
@@ -378,7 +485,7 @@ export default {
         tabMaxCount: 0,
         anotherInfo: [],
         showAnotherInfo: false,
-        anotherInfoActiveId: 0
+        anotherInfoActiveId: 0,
       },
       card: {
         centerTypeWidth: 0, // 版心宽度
@@ -389,11 +496,11 @@ export default {
           bottom: "",
           transform: "translate(0,-50%)",
           left: cardOptionHos + "px",
-          right: ""
-        }
+          right: "",
+        },
       },
       reserved: {
-        showDrawer: false
+        showDrawer: false,
       },
       imgSrc: {
         reload,
@@ -406,9 +513,9 @@ export default {
         loginOut,
         updatepwd,
         noCardInfo,
-        sanJiao
+        sanJiao,
       },
-      legendList: legendList.filter(item => item.id !== 2),
+      legendList: legendList.filter((item) => item.id !== 2),
       legendActive: 0,
       authName: "", // 员工姓名
       arrowStatus: "", // 鼠标按下按钮状态
@@ -421,8 +528,8 @@ export default {
         form: {
           old_password: "",
           new_password: "",
-          rnew_password: ""
-        }
+          rnew_password: "",
+        },
       },
       cardStatusNoInfo: {}, // 图例抵达卡台数量
 
@@ -440,15 +547,15 @@ export default {
         // 1:预定 2：开台 3：查看卡台消费 4：修改翻台订位人 5：锁定 6：取消锁定 7：转台 8：修改预定 9：修改翻台定位人
         // 10：修改低消  11:修改订位人  12：撤台  13：修改开台类型（已删除此功能）  14：查看卡台详情  15：取消预定
 
-        cardInfo: {} // 数据修改等相关操作时当前卡台的信息
-      }
+        cardInfo: {}, // 数据修改等相关操作时当前卡台的信息
+      },
     };
   },
   methods: {
     // 获取时间tab
     getTimeTabData(nextDayDataArr = []) {
-      this.dateTab.dateTabList = nextDayDataArr.map(item => ({
-        ...item
+      this.dateTab.dateTabList = nextDayDataArr.map((item) => ({
+        ...item,
       }));
     },
     // 切换时间tab
@@ -467,18 +574,18 @@ export default {
     // 获取区域tab数据
     getTabList(arr = []) {
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
-      let tabList = arr.filter(el => el.status === "1"); // status:  1:有效 2:无效
+      let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
       tabList.unshift({
         id: 0,
-        name: "全部"
+        name: "全部",
       });
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
         tabList.push({
           id: 999,
-          name: "其它"
+          name: "其它",
         });
       }
       this.tab.tabList = tabList;
@@ -527,25 +634,26 @@ export default {
       //   }, 100);
       //   return
       // }
-      cardInfo = cardInfo.sort((a, b) => (a.dsp - b.dsp));
+      cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
       cardInfo.forEach((item, index) => {
         if (item.status == "1") {
           const cardOnlineStatus =
             this.$store.state.cardPageInfo.resResultDataObj[
               "lineOrBookCard"
-            ].find(items => items.seat_id == item.id) || {};
+            ].find((items) => items.seat_id == item.id) || {};
 
           // 查找对应的业务数据
-          let data = businessData.find(el => el.seatId === item.id) || {};
+          let data = businessData.find((el) => el.seatId === item.id) || {};
           // 初始化卡台状态（空台）
-          data.bizStatus = data.bizStatus || '1';
+          data.bizStatus = data.bizStatus || "1";
           // 卡台是线上还是线下
           data.cardStatus = cardOnlineStatus.cardStatus || "";
           // 是否是线上转线下卡台
-          data.isTurnBottomCard = this.$store.state.cardPageInfo.resResultDataObj[
+          data.isTurnBottomCard =
+            this.$store.state.cardPageInfo.resResultDataObj[
               "turnLineBottomCard"
-            ].find(items => items.seat_id == item.id);
+            ].find((items) => items.seat_id == item.id);
           // ‘线’字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
           data.showOnlineText =
             data.bizStatus > 2
@@ -553,18 +661,19 @@ export default {
               : cardOnlineStatus.cardStatus == 1 && !data.isTurnBottomCard;
 
           // 是否有置顶
-          const topNumInfo = this.$store.state.cardPageInfo.resResultDataObj['topCard'].find(items => items.seat_id == item.id && items.status == 1)
+          const topNumInfo = this.$store.state.cardPageInfo.resResultDataObj[
+            "topCard"
+          ].find((items) => items.seat_id == item.id && items.status == 1);
 
-          data.topNum = topNumInfo ? topNumInfo.seq_id : '0'
+          data.topNum = topNumInfo ? topNumInfo.seq_id : "0";
           // 未来日期的卡台相关数据
           if (this.dateTab.activeIndex != 0) {
             // 只有空台和预留两个状态
             // 未来预留数据
-            const nextDayData = this.$store.state.cardPageInfo.resResultDataObj[
-              "nextDayData"
-            ];
+            const nextDayData =
+              this.$store.state.cardPageInfo.resResultDataObj["nextDayData"];
             const currentDayInfo = nextDayData.find(
-              el =>
+              (el) =>
                 el.seat_id == item.id &&
                 el.status == 1 &&
                 el.book_day_value ==
@@ -592,7 +701,7 @@ export default {
                 grpMinCsmAmt: data.grpMinCsmAmt, // 卡台自带低消金额(根据实际情况设置的默认值)
                 assignMinCsmAmt: data.assignMinCsmAmt, // 操作员设置低消金额(根据grpMinCsmAmt上下调动的金额)
                 yhAmt: data.yhAmt, // 优惠金额
-                yh2Amt: data.yh2Amt,  // 优惠2金额
+                yh2Amt: data.yh2Amt, // 优惠2金额
                 turnoverCnt: 0, // 翻台数
                 salesEmpId: currentDayInfo.sales_emp_id, // 订位人Id
                 secondSalesEmpId: currentDayInfo.second_sales_emp_id, // 联合订位人Id
@@ -606,7 +715,7 @@ export default {
                 pay_notify: data.pay_notify, // 支付超时提醒 1 需要提醒 2 不需要提醒
                 platform_id: currentDayInfo.platform_id, // 渠道来源 0 代表本地系统 1 代表微信小程序 (以后有抖音,大众点评等再扩展)
                 remark: currentDayInfo.remark,
-                topNum: data.topNum
+                topNum: data.topNum,
               };
               data = { ..._data };
             } else {
@@ -627,7 +736,7 @@ export default {
                 grpMinCsmAmt: data.grpMinCsmAmt, // 卡台自带低消金额(根据实际情况设置的默认值)
                 assignMinCsmAmt: data.assignMinCsmAmt, // 操作员设置低消金额(根据grpMinCsmAmt上下调动的金额)
                 yhAmt: data.yhAmt, // 优惠金额
-                yh2Amt: data.yh2Amt,  // 优惠2金额
+                yh2Amt: data.yh2Amt, // 优惠2金额
                 turnoverCnt: 0, // 翻台数
                 salesEmpId: "", // 订位人Id
                 secondSalesEmpId: "", // 联合订位人Id
@@ -640,8 +749,8 @@ export default {
                 waiter_emp_ids_arr: "", // 当前卡台对应的点单服务员empId（展示在首页我的卡台）
                 pay_notify: data.pay_notify, // 支付超时提醒 1 需要提醒 2 不需要提醒
                 platform_id: "", // 渠道来源 0 代表本地系统 1 代表微信小程序 (以后有抖音,大众点评等再扩展)
-                remark: '',
-                topNum: data.topNum
+                remark: "",
+                topNum: data.topNum,
               };
               data = { ..._data };
             }
@@ -655,40 +764,47 @@ export default {
               // 卡台名称放大倍数
               cardNameScale: this.getScaleCardName(item.name),
               // 赠送金额
-              zengSongAmt: (
-                Number(data.yhAmt) +
-                Number(data.yh2Amt) 
-              ).toFixed(2),
+              zengSongAmt: (Number(data.yhAmt) + Number(data.yh2Amt)).toFixed(
+                2
+              ),
               // 当前卡台所处状态的小卡片
               tipsArr: this.getTips(data.bizStatus),
               // 低消进度
               diXiaoJindu:
                 Number(data.assignMinCsmAmt) > 0
-                  ? (
-                      Number(data.order_zy_amt - data.payed_zy_free_amt) / Number(data.assignMinCsmAmt)
-                    ) * 100 > 100
+                  ? (Number(data.order_zy_amt - data.payed_zy_free_amt) /
+                      Number(data.assignMinCsmAmt)) *
+                      100 >
+                    100
                     ? "100%"
                     : (
-                        (Number(data.order_zy_amt - data.payed_zy_free_amt) / Number(data.assignMinCsmAmt)) *
+                        (Number(data.order_zy_amt - data.payed_zy_free_amt) /
+                          Number(data.assignMinCsmAmt)) *
                         100
                       ).toFixed(0) + "%"
                   : "",
               // 点击卡台出现的可操作选项
-              options: this.getCardOptions(data.bizStatus, data.platform_id, data.showOnlineText, data.turnoverCnt, data.topNum),
+              options: this.getCardOptions(
+                data.bizStatus,
+                data.platform_id,
+                data.showOnlineText,
+                data.turnoverCnt,
+                data.topNum
+              ),
               // 是否显示卡台的操作按钮选项
               // showOption: this.card.cardList[index] && this.card.cardList[index].showOption
               showOption:
                 cardListInfoArr[index] && cardListInfoArr[index].showOption,
-              isLeftArrow: false // 操作选项列表是否显示在左边
+              isLeftArrow: false, // 操作选项列表是否显示在左边
             });
           }
         }
       });
-      
-      // 设置图例中显示的抵达数量
-      this.setLegendCount(this.tab.activeIndex)
 
-      cardList = cardList.sort((a, b) => b.topNum - a.topNum)
+      // 设置图例中显示的抵达数量
+      this.setLegendCount(this.tab.activeIndex);
+
+      cardList = cardList.sort((a, b) => b.topNum - a.topNum);
 
       cardListInfoArr = cardList;
       this.card.cardListInfoArr = JSON.parse(JSON.stringify(cardList));
@@ -720,19 +836,25 @@ export default {
 
     // 筛选卡台数据
     filterCardList(key, id) {
-      cardListInfoArr.forEach(el => {
+      cardListInfoArr.forEach((el) => {
         el.showOption = false;
       });
       if (key === "keyword")
         return cardListInfoArr.filter(
-          item =>
-            item.customerName.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) ||
+          (item) =>
+            item.customerName
+              .toLocaleUpperCase()
+              .includes(this.keyWord.toLocaleUpperCase()) ||
             item.customerPhone.slice(-4).includes(this.keyWord) ||
-            item.customer_name_py.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) ||
-            item.name.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase())
+            item.customer_name_py
+              .toLocaleUpperCase()
+              .includes(this.keyWord.toLocaleUpperCase()) ||
+            item.name
+              .toLocaleUpperCase()
+              .includes(this.keyWord.toLocaleUpperCase())
         );
       if (key === "regionId" && id === 0) return cardListInfoArr; // 点击全部按钮
-      return cardListInfoArr.filter(item => item[key] == id);
+      return cardListInfoArr.filter((item) => item[key] == id);
     },
 
     // 操作图例legend中的option
@@ -752,7 +874,7 @@ export default {
                 this.$store.commit("updateUserInfo", "");
                 this.$router.replace({
                   name: "Thelogin",
-                  replace: true
+                  replace: true,
                 });
                 this.$message.success("退出成功！");
               } else {
@@ -812,36 +934,58 @@ export default {
       const cardResultOptions = [];
       switch (Number(status)) {
         case 1: // 空台
-          if(this.modelVisible || this.$store.state.cardPageInfo.resResultDataObj.canDoList[this.dateTab.activeIndex].id > this.getCurrentDay()){
+          if (
+            this.modelVisible ||
+            this.$store.state.cardPageInfo.resResultDataObj.canDoList[
+              this.dateTab.activeIndex
+            ].id > this.getCurrentDay()
+          ) {
             // 未开启营业日 或 自然日日期为未来日期
-            optionsIdArr = [1] 
-          } else if (this.$store.state.cardPageInfo.resResultDataObj.canDoList[this.dateTab.activeIndex].id <= this.getCurrentDay()) {
+            optionsIdArr = [1];
+          } else if (
+            this.$store.state.cardPageInfo.resResultDataObj.canDoList[
+              this.dateTab.activeIndex
+            ].id <= this.getCurrentDay()
+          ) {
             // 自然日日期小于等于为当天
-            if(this.dateTab.activeIndex == 0) {
-              optionsIdArr = showOnlineText ? [17] : turnoverCnt > 0 ? [1, 2, 4, 5] : [1, 2, 5]
+            if (this.dateTab.activeIndex == 0) {
+              optionsIdArr = showOnlineText
+                ? [17]
+                : turnoverCnt > 0
+                ? [1, 2, 4, 5]
+                : [1, 2, 5];
             } else {
-              optionsIdArr = [1]
+              optionsIdArr = [1];
             }
           }
           break;
         case 2: // 锁定台
           optionsIdArr =
-            this.modelVisible || this.dateTab.activeIndex != 0 ? [] : [6]
+            this.modelVisible || this.dateTab.activeIndex != 0 ? [] : [6];
           break;
         case 4: // 开台
-          optionsIdArr = [10, 11, 7, 12, 14, 4, 20]; 
+          optionsIdArr = [10, 11, 7, 12, 14, 4, 20];
           break;
         case 5: // 点单未结账
           optionsIdArr = [10, 11, 7, 14, 4, 20];
           break;
         case 6: // 点单部分结账
-          optionsIdArr = [10, 11, 7, 14, 4, 20]; 
+          optionsIdArr = [10, 11, 7, 14, 4, 20];
           break;
         case 7: // 已结账
-          optionsIdArr = [10, 11, 7, 14, 4, 20]; 
-          if(this.$store.state.cardPageInfo.resResultDataObj.showAmt.length > 0 && this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 5) && this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 5).param1 == 2) {
+          optionsIdArr = [10, 11, 7, 14, 4, 20];
+          if (
+            this.$store.state.cardPageInfo.resResultDataObj.showAmt.length >
+              0 &&
+            this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(
+              (item) => item.id == 5
+            ) &&
+            this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(
+              (item) => item.id == 5
+            ).param1 == 2
+          ) {
             // 有清台权限
-            optionsIdArr.push(16)
+            optionsIdArr.push(16);
           }
           break;
         case 8: // 预留
@@ -853,34 +997,29 @@ export default {
                 : [2, 7, 15, 8, 4]; // [2, 7, 15, 8, 3, 4]
           } else {
             // 线上预留
-            if(!this.modelVisible) {
-              optionsIdArr = this.dateTab.activeIndex != 0
-                ? [8, 15]
-                : [2, 7];
+            if (!this.modelVisible) {
+              optionsIdArr = this.dateTab.activeIndex != 0 ? [8, 15] : [2, 7];
             } else {
-              optionsIdArr = []
+              optionsIdArr = [];
             }
           }
           break;
       }
       optionsIdArr.push(18);
-      if(topNum > 0) optionsIdArr.push(19);
-      optionsIdArr.forEach(el => {
-        cardResultOptions.push(cardOptions.find(ele => ele.id === el));
+      if (topNum > 0) optionsIdArr.push(19);
+      optionsIdArr.forEach((el) => {
+        cardResultOptions.push(cardOptions.find((ele) => ele.id === el));
       });
       return cardResultOptions;
     },
 
     // 点击卡台options选项
     async optionsClickHandle(optionsInfo, cardInfo, index) {
-      console.log(optionsInfo)
+      console.log(optionsInfo);
       //index:卡台的index索引值
       this.showOrHideOptionHandle(index);
       // 预定（预留）新建或修改
-      if (
-        optionsInfo.id == 1 ||
-        optionsInfo.id == 8
-      ) {
+      if (optionsInfo.id == 1 || optionsInfo.id == 8) {
         this.changeReservedShowDrawer(
           optionsInfo.id == 1 || optionsInfo.id == 18
             ? { seatId: cardInfo.id }
@@ -890,7 +1029,7 @@ export default {
       }
       switch (optionsInfo.id) {
         case 3: // 查看卡台消费
-          console.log('查看卡台消费')
+          console.log("查看卡台消费");
           break;
         case 4: // 修改翻台订位人
           if (cardInfo.turnoverCnt == 0)
@@ -903,11 +1042,11 @@ export default {
             async () => {
               try {
                 const res = await api_card.reqClockCard({
-                  id: Number(cardInfo.id)
+                  id: Number(cardInfo.id),
                 });
                 this.confirmSuccess(res);
               } catch (error) {
-                console.log(error)
+                console.log(error);
                 this.$message.warning("锁定卡台失败");
               }
             }
@@ -917,11 +1056,11 @@ export default {
           this.showConfirmHandle("取消锁定", "是否确认取消锁定？", async () => {
             try {
               const res = await api_card.reqCancelClockCard({
-                id: Number(cardInfo.id)
+                id: Number(cardInfo.id),
               });
               this.confirmSuccess(res);
             } catch (error) {
-              console.log(error)
+              console.log(error);
               this.$message.warning("取消锁台失败");
             }
           });
@@ -930,11 +1069,11 @@ export default {
           this.showConfirmHandle("撤台", "是否确认撤台操作？", async () => {
             try {
               const res = await api_card.reqCancelOpenCard({
-                id: Number(cardInfo.id)
+                id: Number(cardInfo.id),
               });
               this.confirmSuccess(res);
             } catch (error) {
-              console.log(error)
+              console.log(error);
               this.$message.warning("取消锁台失败");
             }
           });
@@ -943,11 +1082,11 @@ export default {
           this.showConfirmHandle("取消预留", "是否确认取消预留", async () => {
             try {
               const res = await api_card.reqCancelReservedInfo({
-                id: cardInfo.wkBookId * 1 // int64   待操作预留记录Id
+                id: cardInfo.wkBookId * 1, // int64   待操作预留记录Id
               });
               this.confirmSuccess(res);
             } catch (error) {
-              console.log(error)
+              console.log(error);
               this.$message.warning("取消预留失败");
             }
           });
@@ -956,59 +1095,63 @@ export default {
           this.showConfirmHandle("清台", "是否确认清台", async () => {
             try {
               const res = await api_money.reqClearCard({
-                seat_id: cardInfo.id * 1 //    int64  卡台Id
+                seat_id: cardInfo.id * 1, //    int64  卡台Id
               });
               this.confirmSuccess(res);
             } catch (error) {
-              console.log(error)
+              console.log(error);
               this.$message.warning("清台失败");
             }
           });
           return;
         case 17: // 临时转为线下卡台
-          this.showConfirmHandle("临时转为线下卡台", "是否确认将此卡台临时转为线下卡台", async () => {
-            try {
-              const res = await api_card.reqTurnLineBottomCard({
-                id: Number(cardInfo.id)  // int64  待操作卡台Id
-              });
-              if(res.code == 1){
-                this.$message.success('转线下操作中，请稍后...');
-              } else {
-                this.$message.warning(res.msg);
+          this.showConfirmHandle(
+            "临时转为线下卡台",
+            "是否确认将此卡台临时转为线下卡台",
+            async () => {
+              try {
+                const res = await api_card.reqTurnLineBottomCard({
+                  id: Number(cardInfo.id), // int64  待操作卡台Id
+                });
+                if (res.code == 1) {
+                  this.$message.success("转线下操作中，请稍后...");
+                } else {
+                  this.$message.warning(res.msg);
+                }
+              } catch (error) {
+                console.log(error);
+                this.$message.warning("临时转为线下卡台失败");
               }
-            } catch (error) {
-              console.log(error)
-              this.$message.warning("临时转为线下卡台失败");
             }
-          });
+          );
           return;
         case 18: // 卡台置顶
           try {
             const res = await api_card.reqTopCard({
-              id: Number(cardInfo.id)  // int64  待操作卡台Id
+              id: Number(cardInfo.id), // int64  待操作卡台Id
             });
-            if(res.code == 1){
-              this.$message.success('置顶成功');
+            if (res.code == 1) {
+              this.$message.success("置顶成功");
             } else {
               this.$message.warning(res.msg);
             }
           } catch (error) {
-            console.log(error)
+            console.log(error);
             this.$message.warning("临时转为线下卡台失败");
           }
           return;
         case 19: // 卡台取消置顶
           try {
             const res = await api_card.reqCancelTopCard({
-              id: Number(cardInfo.id)  // int64  待操作卡台Id
+              id: Number(cardInfo.id), // int64  待操作卡台Id
             });
-            if(res.code == 1){
-              this.$message.success('取消置成功');
+            if (res.code == 1) {
+              this.$message.success("取消置成功");
             } else {
               this.$message.warning(res.msg);
             }
           } catch (error) {
-            console.log(error)
+            console.log(error);
             this.$message.warning("临时转为线下卡台失败");
           }
           return;
@@ -1038,14 +1181,16 @@ export default {
       if (
         (itemInfo.bizStatus == 1 || itemInfo.bizStatus == 8) &&
         itemInfo.showOnlineText
-      ){
+      ) {
         // if(this.$store.state.cardPageInfo.resResultDataObj.canDoList[this.dateTab.activeIndex].id > this.getCurrentDay() || ( this.dateTab.activeIndex != 0 && this.$store.state.cardPageInfo.resResultDataObj.canDoList[this.dateTab.activeIndex].id == this.getCurrentDay() && this.isMorning)){
         //   return this.$message.warning("未来日期的线上卡台，线下不可操作！");
         // }
-        if(this.dateTab.activeIndex != 0) return this.$message.warning("非营业日栏所在线上卡台，线下不可操作！");
+        if (this.dateTab.activeIndex != 0)
+          return this.$message.warning(
+            "非营业日栏所在线上卡台，线下不可操作！"
+          );
       }
 
-        
       this.card.cardList.forEach((el, i) => {
         el.showOption = index === i ? !el.showOption : false;
       });
@@ -1059,7 +1204,7 @@ export default {
         bottom: "",
         transform: "translate(0,-50%)",
         left: cardOptionHos + "px",
-        right: ""
+        right: "",
       };
 
       if (isClickCard) {
@@ -1067,7 +1212,7 @@ export default {
         hasShowOptions = true;
         this.$store.commit("updateOrderInfo", {
           key: "currentCardInfo",
-          value: itemInfo
+          value: itemInfo,
         });
         this.$nextTick(() => {
           this.getOptionsPosition(index);
@@ -1104,15 +1249,17 @@ export default {
         if (domTop < 0) {
           const beyondDis = Math.abs(domTop);
           const translateY = Math.max(minDistant, domHeight / 2 - beyondDis);
-          this.card.optionsPosition.transform = `translate(0,${-1 *
-            translateY}px)`;
+          this.card.optionsPosition.transform = `translate(0,${
+            -1 * translateY
+          }px)`;
         } else if (domBottom > domMaxBottomDistant) {
           const beyondDis = Math.abs(domMaxBottomDistant - domBottom);
           const translateY =
             Math.min(domHeight - minDistant, domHeight / 2 + beyondDis) + 60;
           // console.log('bottom:', `translate(0,${-1 * translateY}px)`);
-          this.card.optionsPosition.transform = `translate(0,${-1 *
-            translateY}px)`;
+          this.card.optionsPosition.transform = `translate(0,${
+            -1 * translateY
+          }px)`;
         }
 
         // 判断左右显示
@@ -1147,7 +1294,7 @@ export default {
       res.code === 1
         ? this.$message({
             type: "success",
-            message
+            message,
           })
         : this.$message.warning(res.msg);
     },
@@ -1155,7 +1302,7 @@ export default {
     // 页面滚动隐藏目前页面中显示的卡台操作选项
     windowScrollHideOptionsHandle() {
       if (hasShowOptions) {
-        this.card.cardList.forEach(el => {
+        this.card.cardList.forEach((el) => {
           el.showOption = false;
         });
         hasShowOptions = false;
@@ -1180,15 +1327,15 @@ export default {
     /**
      * 显示或隐藏开台记录
      */
-    showOrHideOpenCardDrawerHandle(){
-      this.showOpenCardDrawer = !this.showOpenCardDrawer
+    showOrHideOpenCardDrawerHandle() {
+      this.showOpenCardDrawer = !this.showOpenCardDrawer;
     },
 
     /**
      * 显示或隐藏转台记录
      */
-    showOrHideTurnOverDrawerHandle(){
-      this.showTurnOverDrawer = !this.showTurnOverDrawer
+    showOrHideTurnOverDrawerHandle() {
+      this.showTurnOverDrawer = !this.showTurnOverDrawer;
     },
 
     /**
@@ -1200,7 +1347,7 @@ export default {
           const res = await api_card.reqWorkStart();
           if (res.code === 1) {
             // 此处卡台的业务数据websocket会返回相应的更新数据
-            this.modelVisible = false;
+            // this.modelVisible = false;
             this.$message.success("开启营业日成功！");
           } else {
             this.$message.warning(res.msg);
@@ -1212,145 +1359,189 @@ export default {
     },
 
     // 获取当天年月日
-    getCurrentDay(){
-      const Y = new Date().getFullYear().toString().padStart(2, 0)
-      const M = (new Date().getMonth() + 1).toString().padStart(2, 0)
-      const D = (new Date().getDate()).toString().padStart(2, 0)
-      return `${Y}${M}${D}`
+    getCurrentDay() {
+      const Y = new Date().getFullYear().toString().padStart(2, 0);
+      const M = (new Date().getMonth() + 1).toString().padStart(2, 0);
+      const D = new Date().getDate().toString().padStart(2, 0);
+      return `${Y}${M}${D}`;
     },
 
     keydownHandle(e) {
-      if(e.keyCode == 13) {
+      if (e.keyCode == 13) {
         this.$nextTick(() => {
-          if(this.reserved.showDrawer) {
+          if (this.reserved.showDrawer) {
             // 预留
-            this.$refs.drawerReserved.onSubmit()
+            this.$refs.drawerReserved.onSubmit();
           } else if (this.drawer.showDrawer) {
             // 除了预留以外的drawer操作
-            this.$refs.cardDrawer.onSubmit()
+            this.$refs.cardDrawer.onSubmit();
           } else if (this.showFullPageTable) {
             // 全屏表格
-            this.$refs.fullPageTable.submitHandle()
+            this.$refs.fullPageTable.submitHandle();
           } else if (this.legendOptions.updatePwdModel) {
             // 修改密码
-            this.$refs.updatePassword.onSubmit()
+            this.$refs.updatePassword.onSubmit();
           }
-        })
+        });
       }
     },
 
-    rightClickHandle(){
-      return false
+    rightClickHandle() {
+      return false;
     },
 
     // 赋值图例中的抵达数量
-    setLegendCount(regionId = 0){
+    setLegendCount(regionId = 0) {
       setTimeout(() => {
-        let result = {}
-        
+        let result = {};
+
         // 获取设备可操作区域或卡台
-        const currentMachineId = this.$localStorage.getItem("machineId")
-        const currentAreaAndCardList  = (resResultDataObj['machineArea'] || []).filter(item => item.license_id == currentMachineId && item.status == 1)
-        const isNoLimit = currentAreaAndCardList.filter(item => item.type_id == 3)
-        if(isNoLimit.length > 0) {
+        const currentMachineId = this.$localStorage.getItem("machineId");
+        const currentAreaAndCardList = (
+          resResultDataObj["machineArea"] || []
+        ).filter(
+          (item) => item.license_id == currentMachineId && item.status == 1
+        );
+        const isNoLimit = currentAreaAndCardList.filter(
+          (item) => item.type_id == 3
+        );
+        if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
-          if(regionId == 0) {
+          if (regionId == 0) {
             // 选择的'全部'
-            (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || []).forEach(el => {
-              if(result[el.id] != undefined) {
-                result[el.id] = result[el.id] * 1 + el.cnt * 1
+            (
+              this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || []
+            ).forEach((el) => {
+              if (result[el.id] != undefined) {
+                result[el.id] = result[el.id] * 1 + el.cnt * 1;
               } else {
-                result[el.id] = el.cnt * 1
+                result[el.id] = el.cnt * 1;
               }
-            })
+            });
           } else {
-            (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || []).filter(item => item.region_id == regionId).forEach(el => {
-              if(result[el.id] != undefined) {
-                result[el.id] = result[el.id] * 1 + el.cnt * 1
-              } else {
-                result[el.id] = el.cnt * 1
-              }
-            })
+            (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || [])
+              .filter((item) => item.region_id == regionId)
+              .forEach((el) => {
+                if (result[el.id] != undefined) {
+                  result[el.id] = result[el.id] * 1 + el.cnt * 1;
+                } else {
+                  result[el.id] = el.cnt * 1;
+                }
+              });
           }
         } else {
           // 对设备进行了卡台区域配置
-          if(regionId == 0) {
+          if (regionId == 0) {
             // 选择的'全部'
-            this.tab.tabListOrigin.forEach(el => {
-              if(el.isAllCard) {
+            this.tab.tabListOrigin.forEach((el) => {
+              if (el.isAllCard) {
                 // 区域下所有卡台
-                const currentAreaData = (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || []).filter(item => item.region_id == el.id)
+                const currentAreaData = (
+                  this.$store.state.cardPageInfo.resResultDataObj
+                    .cardStatusNo || []
+                ).filter((item) => item.region_id == el.id);
                 // 当前区域下所有卡台都展示
-                currentAreaData.forEach(el => {
-                  if(result[el.id] != undefined) {
-                    result[el.id] = result[el.id] * 1 + el.cnt * 1
+                currentAreaData.forEach((el) => {
+                  if (result[el.id] != undefined) {
+                    result[el.id] = result[el.id] * 1 + el.cnt * 1;
                   } else {
-                    result[el.id] = el.cnt * 1
+                    result[el.id] = el.cnt * 1;
                   }
-                })
+                });
               } else {
                 // 区域下部分卡台
-                const cardStatusNo = (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || [])
+                const cardStatusNo =
+                  this.$store.state.cardPageInfo.resResultDataObj
+                    .cardStatusNo || [];
                 // 累计卡台数
-                const allOpenInfo = cardStatusNo.filter(item => item.id == 30)
+                const allOpenInfo = cardStatusNo.filter(
+                  (item) => item.id == 30
+                );
                 // 累计抵达数
-                const allArriveInfo = cardStatusNo.filter(item => item.id == 31)
-                this.card.cardList.filter(item => item.regionId == el.id).forEach(el => {
-                  if(el.bizStatus != 4 && el.bizStatus != 20) {
-                    // 除了开台数和抵达数以外的状态
-                    result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1
-                  }
-                  // 开台数、抵达数
-                  const currentSeatOpenInfo = allOpenInfo.find(items => items.region_id == el.id) || {cnt : 0}
-                  const currentSeatArriveInfo = allArriveInfo.find(items => items.region_id == el.id) || {cnt : 0}
-                  result['10'] = (result['10'] || 0) * 1 + currentSeatOpenInfo.cnt * 1   // 开台数
-                  result['20'] = (result['20'] || 0) * 1 + currentSeatArriveInfo.cnt * 1  // 抵达数
-                })
+                const allArriveInfo = cardStatusNo.filter(
+                  (item) => item.id == 31
+                );
+                this.card.cardList
+                  .filter((item) => item.regionId == el.id)
+                  .forEach((el) => {
+                    if (el.bizStatus != 4 && el.bizStatus != 20) {
+                      // 除了开台数和抵达数以外的状态
+                      result[el.bizStatus] =
+                        (result[el.bizStatus] || 0) * 1 + 1;
+                    }
+                    // 开台数、抵达数
+                    const currentSeatOpenInfo = allOpenInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    const currentSeatArriveInfo = allArriveInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    result["10"] =
+                      (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
+                    result["20"] =
+                      (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
+                  });
               }
-            })
+            });
           } else {
-            const currentAreaInfo = this.tab.tabList.find(item => item.id == this.tab.activeIndex) || {}
-            if(currentAreaInfo.isAllCard) {
-              const currentAreaData = (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || []).filter(item => item.region_id == regionId)
+            const currentAreaInfo =
+              this.tab.tabList.find(
+                (item) => item.id == this.tab.activeIndex
+              ) || {};
+            if (currentAreaInfo.isAllCard) {
+              const currentAreaData = (
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
+                []
+              ).filter((item) => item.region_id == regionId);
               // 当前区域下所有卡台都展示
-              currentAreaData.forEach(el => {
-                if(result[el.id] != undefined) {
-                  result[el.id] = result[el.id] * 1 + el.cnt * 1
+              currentAreaData.forEach((el) => {
+                if (result[el.id] != undefined) {
+                  result[el.id] = result[el.id] * 1 + el.cnt * 1;
                 } else {
-                  result[el.id] = el.cnt * 1
+                  result[el.id] = el.cnt * 1;
                 }
-              })
+              });
             } else {
               // 展示的是当前区域下部分卡台的信息，需要重新计算卡台的数量
 
-              const cardStatusNo = (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || [])
+              const cardStatusNo =
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
+                [];
               // 累计卡台数
-              const allOpenInfo = cardStatusNo.filter(item => item.id == 30)
+              const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);
               // 累计抵达数
-              const allArriveInfo = cardStatusNo.filter(item => item.id == 31)
-              this.card.cardList.forEach(el => {
-                if(el.bizStatus != 4 && el.bizStatus != 20) {
+              const allArriveInfo = cardStatusNo.filter(
+                (item) => item.id == 31
+              );
+              this.card.cardList.forEach((el) => {
+                if (el.bizStatus != 4 && el.bizStatus != 20) {
                   // 除了开台数和抵达数以外的状态
-                  result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1
+                  result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1;
                 }
                 // 开台数、抵达数
-                const currentSeatOpenInfo = allOpenInfo.find(items => items.region_id == el.id) || {cnt : 0}
-                const currentSeatArriveInfo = allArriveInfo.find(items => items.region_id == el.id) || {cnt : 0}
-                result['10'] = (result['10'] || 0) * 1 + currentSeatOpenInfo.cnt * 1   // 开台数
-                result['20'] = (result['20'] || 0) * 1 + currentSeatArriveInfo.cnt * 1  // 抵达数
-              })
+                const currentSeatOpenInfo = allOpenInfo.find(
+                  (items) => items.region_id == el.id
+                ) || { cnt: 0 };
+                const currentSeatArriveInfo = allArriveInfo.find(
+                  (items) => items.region_id == el.id
+                ) || { cnt: 0 };
+                result["10"] =
+                  (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
+                result["20"] =
+                  (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
+              });
             }
           }
         }
 
         // console.log(result);
-        this.cardStatusNoInfo = result
+        this.cardStatusNoInfo = result;
       }, 200);
-    }
+    },
   },
 
   mounted() {
-    window.addEventListener("click", e => this.legendOptionHandle());
+    window.addEventListener("click", (e) => this.legendOptionHandle());
     this.$refs.containRef.addEventListener(
       "scroll",
       this.windowScrollHideOptionsHandle
@@ -1358,7 +1549,7 @@ export default {
     window.addEventListener("resize", this.windowResizeHandle);
     document.body.addEventListener("click", this.showOrHideOptionHandle);
 
-    window.onkeydown = this.keydownHandle
+    window.onkeydown = this.keydownHandle;
   },
 
   computed: {
@@ -1366,25 +1557,25 @@ export default {
       return this.dateTab.dateTabList.length * 120;
     },
     // 是否为中午12点之前
-    isMorning(){
-      return new Date().getHours() < 12
-    }
+    isMorning() {
+      return new Date().getHours() < 12;
+    },
   },
 
   watch: {
-    'tab.activeIndex': {
-      handler(newVal, oldVal){
-        let regionId = ''
-        if(newVal == 999) {
+    "tab.activeIndex": {
+      handler(newVal, oldVal) {
+        let regionId = "";
+        if (newVal == 999) {
           // 选的的是'其他'按钮
-          regionId = oldVal
+          regionId = oldVal;
         } else {
-          regionId = newVal
+          regionId = newVal;
         }
-        this.setLegendCount(regionId)
+        this.setLegendCount(regionId);
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   beforeDestroy() {
@@ -1394,50 +1585,50 @@ export default {
       this.windowScrollHideOptionsHandle
     );
     window.removeEventListener("resize", this.windowResizeHandle);
-    window.removeEventListener("click", e => this.legendOptionHandle());
-    window.onkeydown = null
+    window.removeEventListener("click", (e) => this.legendOptionHandle());
+    window.onkeydown = null;
   },
 
   components: {
     drawerReserved, // 未来日期预留
     cardDrawer, // 右侧弹出框
     fullPageTable, // 全屏表格数据
-    drawerOpenCard,  // 开台记录
-    drawerTurnOver,  // 转台记录
-    updatePassword  // 修改密码
+    drawerOpenCard, // 开台记录
+    drawerTurnOver, // 转台记录
+    updatePassword, // 修改密码
   },
 
   filters: {
     // 根据区域id获取区域名称
-    getAreaName: areaId => {
-      const result = resResultDataObj.areaInfo.find(el => el.id === areaId);
+    getAreaName: (areaId) => {
+      const result = resResultDataObj.areaInfo.find((el) => el.id === areaId);
       return (result && result.name) || "";
     },
     // 根据部门id获取员工姓名
-    getOrderPersonName: orderPersonId =>
-      (resResultDataObj.orderPersonInfo.find(el => el.id === orderPersonId) &&
-        resResultDataObj.orderPersonInfo.find(el => el.id === orderPersonId)
+    getOrderPersonName: (orderPersonId) =>
+      (resResultDataObj.orderPersonInfo.find((el) => el.id === orderPersonId) &&
+        resResultDataObj.orderPersonInfo.find((el) => el.id === orderPersonId)
           .name) ||
       "散客",
     // 根据定位人（员工）id获取部门名称
-    getDepartmentName: orderPersonId => {
+    getDepartmentName: (orderPersonId) => {
       const sealPersonInfo = resResultDataObj.orderPersonInfo.find(
-        el => el.id === orderPersonId
+        (el) => el.id === orderPersonId
       );
       if (sealPersonInfo) {
         // 非散客（有定位人）
         const result = resResultDataObj.departmentInfo.find(
-          el => el.id === sealPersonInfo.deptId
+          (el) => el.id === sealPersonInfo.deptId
         );
         return (result && result.name) || "";
       } else {
         // 散客
         return "";
       }
-    }
+    },
   },
 
-  mixins: [cardPageMixins]
+  mixins: [cardPageMixins],
 };
 </script>
 
@@ -1450,4 +1641,3 @@ export default {
 <style lang="less">
 @import "../../style/common/elementConfirm.less";
 </style>
-
