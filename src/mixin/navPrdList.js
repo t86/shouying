@@ -87,6 +87,7 @@ export default {
         }
       }
 
+      console.log("YH2PrdListId", YH2PrdListId)
       function getSealConfigPrdId(that, type = 2) {
         const limitRoleFreeLimitIdList =
           that.$store.state.cardPageInfo.resResultDataObj["roleLimitConfig"]
@@ -174,21 +175,22 @@ export default {
               item.prdType != 13 &&
               item.prdType != 14
           );
+          let newList = []
           findList.forEach((ele) => {
-            ele.canOrderMeal = true;
+            newList.push({...ele,canOrderMeal:true })
           });
-          FWYSecondCategoryPrdList.push(...findList);
+          FWYSecondCategoryPrdList.push(...newList);
         });
 
         FWYAreaPrdList.forEach((el) => {
           const find = FWYSecondCategoryPrdList.find(
             (item) => item.id == el.id
           );
-          if (find) FWYAllProductList.push(find);
+          if (find) FWYAllProductList.push({...find});
         });
       }
 
-      console.log("FWYAllProductList", FWYAllProductList.length);
+      console.log("FWYAllProductList", FWYAllProductList);
 
       /**
        * 营销
@@ -218,10 +220,10 @@ export default {
         // 当前区域下商品 与 可优惠总商品求 交集
         YXCanSealAllPrdList.forEach((el) => {
           const find = YXAreaPrdList.find((item) => item.id == el.id);
-          if (find) YXAllProductList.push(find);
+          if (find) YXAllProductList.push({...find});
         });
 
-        console.log("YXAllProductList", YXAllProductList.length);
+        console.log("YXAllProductList", YXAllProductList);
       }
 
       /**
@@ -261,10 +263,10 @@ export default {
         YH2CanSealAllPrdList.forEach((el) => {
           // const find = YH2AreaPrdList.find(item => item.id == el.id && item.useType != 2)  // 过滤掉仅用于优惠的商品
           const find = YH2AreaPrdList.find((item) => item.id == el.id);
-          if (find) YH2AllProductList.push(find);
+          if (find) YH2AllProductList.push({...find});
         });
 
-        console.log("YH2AllProductList", YH2AllProductList.length);
+        console.log("YH2AllProductList", YH2AllProductList);
       }
 
       /**
@@ -310,10 +312,10 @@ export default {
         // 当前区域下商品 与 花篮商品求 交集
         HLCanHLPrdList.forEach((el) => {
           const find = HLAreaPrdList.find((item) => item.id == el.id);
-          if (find) HLAllProductList.push(find);
+          if (find) HLAllProductList.push({...find});
         });
 
-        console.log("HLAllProductList", HLAllProductList.length);
+        console.log("HLAllProductList", HLAllProductList);
       }
 
       // 最终展示在页面上的商品列表
@@ -330,14 +332,14 @@ export default {
           const findProduct = currentAreaAllProduct.find(
             (ele) => ele.prd_id == el.id
           );
-          if (findProduct) SYResultProductArrList.push(el);
+          if (findProduct) SYResultProductArrList.push({...el});
         });
 
         SYResultProductArrList.forEach((el) => {
           const resultProduct = SYSecondCategory.find(
             (ele) => el.twoCateId == ele.twoCateId
           );
-          if (resultProduct) resultSYProductArr.push(el);
+          if (resultProduct) resultSYProductArr.push({...el});
         });
 
         // console.log('resultSYProductArr', resultSYProductArr)
@@ -352,7 +354,7 @@ export default {
         // FWYAllProductList.filter(item => YXAllProductList.find(items => item.id == items.id))
         FWYAllProductList.forEach((el) => {
           const find = YXAllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList.push(find);
+          if (find) mergePrdList.push({...find});
         });
 
         const tempResultProductArrList = [
@@ -383,7 +385,7 @@ export default {
         const mergePrdList2 = [];
         tempResultProductArrList.forEach((el) => {
           const find = YH2AllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList2.push(find);
+          if (find) mergePrdList2.push({...find});
         });
 
         const tempResultProductArrList2 = [
@@ -419,7 +421,7 @@ export default {
         const mergePrdList3 = [];
         tempResultProductArrList2.forEach((el) => {
           const find = HLAllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList3.push(find);
+          if (find) mergePrdList3.push({...find});
         });
 
         const tempResultProductArrList3 = [
@@ -522,7 +524,7 @@ export default {
         const secondCategoryInfo = secondCategoryInfoArr.find(
           (ele) => el.id == ele.twoCateId
         );
-        if (secondCategoryInfo) resultSecondCategoryInfoArr.push(el);
+        if (secondCategoryInfo) resultSecondCategoryInfoArr.push({...el});
       });
 
       // 通过匹配到的二级分类获取一级分类
@@ -531,7 +533,7 @@ export default {
         const firstCategoryInfo = resultSecondCategoryInfoArr.find(
           (ele) => el.id == ele.oneCateId
         );
-        if (firstCategoryInfo) resultFirstCategoryInfoArr.push(el);
+        if (firstCategoryInfo) resultFirstCategoryInfoArr.push({...el});
       });
 
       // 排序（从小到大）
