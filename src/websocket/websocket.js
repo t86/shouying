@@ -5,6 +5,19 @@ import { transformCardDataHandle } from "@/utils/transformCardData";
 import { localStorage } from "@/utils/common/storage";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
+
+let keys = {
+  9: ["prdId", "grpId", "seqId"],
+  12: ["stationId", "authType", "twoCateId"],
+  15: ["station_id", "region_id"],
+  16: ["region_id", "prd_id"],
+  21: ["two_cate_id", "rqm_type_id"],
+  27: ["station_id", "prd_id"],
+  36: ["station_id", "auth_type", "free_limit_id"],
+  37: ["free_limit_id", "prd_id"],
+  39: ["id", "region_id"],
+  40: ["license_id", "type_id", "region_o_seat_id"],
+};
 export default class WebSocketClient {
   constructor(vue) {
     this.vue = vue;
@@ -40,7 +53,7 @@ export default class WebSocketClient {
 
   openHandle = (e) => {
     this.connectTime = new Date();
-    const token = this.vue.$localStorage.getItem("tk") || "";
+    const token = localStorage.getItem("tk") || "";
     if (token) {
       if (!localStorage.getItem("refreshAll")) {
         this.getAllData(true, true, true);
@@ -65,7 +78,9 @@ export default class WebSocketClient {
       "color:blue;font-size:14px"
     );
     this.closeHandle();
-    this.initAllData();
+    setTimeout(() => {
+      this.initAllData();
+    }, 5000);
     //   // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
     //   this.websocketTimeMessageTime
     //     ? this.getUpdateData()
@@ -100,9 +115,11 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
-        localStorage.setItem("tk", null);
+        localStorage.setItem("tk", "");
         this.closeHandle();
-        this.initAllData();
+        setTimeout(() => {
+          this.initAllData();
+        }, 5000);
       }
       this.vue.$message.warning(message);
     } else {
@@ -388,6 +405,18 @@ export default class WebSocketClient {
           // 查找当前改变的数据下标索引值
           const index = this.resResultDataObj[resResultDataArr[key]].findIndex(
             (ele) => {
+              if (key in keys) {
+                let match = true;
+                let values = keys[key];
+                for (let i = 0; i < values.length; i++) {
+                  if (ele[values[i]] !== el[values[i]]) {
+                    match = false;
+                    break;
+                  }
+                }
+                return match;
+              }
+
               if (Number(key) <= 8) {
                 // 数据id字段名称为id
                 return ele.id == el.id;
@@ -461,18 +490,6 @@ export default class WebSocketClient {
               this.resResultDataObj[resResultDataArr[key]].length
             ] = el;
           } else {
-            let keys = {
-              9: ["prdId", "grpId", "seqId"],
-              12: ["stationId", "authType", "twoCateId"],
-              15: ["station_id", "region_id"],
-              16: ["region_id", "prd_id"],
-              21: ["two_cate_id", "rqm_type_id"],
-              27: ["station_id", "prd_id"],
-              36: ["station_id", "auth_type", "free_limit_id"],
-              37: ["free_limit_id", "prd_id"],
-              39: ["id", "region_id"],
-              40: ["license_id", "type_id", "region_o_seat_id"],
-            };
             if (key in keys) {
               let stId = this.resResultDataObj[resResultDataArr[key]][index];
               let elements = this.resResultDataObj[
@@ -586,7 +603,7 @@ export default class WebSocketClient {
     if (this.isConnecting) return;
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
-      const token = this.vue.$localStorage.getItem("tk") || "";
+      const token = localStorage.getItem("tk") || "";
       if (token) {
         this.connect();
       } else {
