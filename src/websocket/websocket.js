@@ -202,68 +202,68 @@ export default class WebSocketClient {
                   );
           });
 
-          // 获取设备可操作区域或卡台
-          const currentMachineId = this.vue.$localStorage.getItem("machineId");
-          const currentAreaAndCardList = (
-            this.resResultDataObj["machineArea"] || []
-          ).filter(
-            (item) => item.license_id == currentMachineId && item.status == 1
-          );
-          const isNoLimit = currentAreaAndCardList.filter(
-            (item) => item.type_id == 3
-          );
-          if (isNoLimit.length <= 0) {
-            // 有限制
-            const areaList = currentAreaAndCardList.filter(
-              (item) => item.type_id == 1
-            );
-            const cardList = currentAreaAndCardList.filter(
-              (item) => item.type_id == 2
-            );
-            // 当前配置的区域id
-            let areaIdList = areaList.map((item) => item.region_o_seat_id);
+          // // 获取设备可操作区域或卡台
+          // const currentMachineId = this.vue.$localStorage.getItem("machineId");
+          // const currentAreaAndCardList = (
+          //   this.resResultDataObj["machineArea"] || []
+          // ).filter(
+          //   (item) => item.license_id == currentMachineId && item.status == 1
+          // );
+          // const isNoLimit = currentAreaAndCardList.filter(
+          //   (item) => item.type_id == 3
+          // );
+          // if (isNoLimit.length <= 0) {
+          //   // 有限制
+          //   const areaList = currentAreaAndCardList.filter(
+          //     (item) => item.type_id == 1
+          //   );
+          //   const cardList = currentAreaAndCardList.filter(
+          //     (item) => item.type_id == 2
+          //   );
+          //   // 当前配置的区域id
+          //   let areaIdList = areaList.map((item) => item.region_o_seat_id);
 
-            // 通过cardList反推出对应的区域，并添加到区域id中
-            const allCardInfo = [...this.resResultDataObj.cardInfo] || [];
+          //   // 通过cardList反推出对应的区域，并添加到区域id中
+          //   const allCardInfo = [...this.resResultDataObj.cardInfo] || [];
 
-            // 最终经过筛选过后的区域列表，对应元数据的areaInfo
-            let resultAreaList = [];
-            // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
-            let resultCardList = [];
+          //   // 最终经过筛选过后的区域列表，对应元数据的areaInfo
+          //   let resultAreaList = [];
+          //   // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+          //   let resultCardList = [];
 
-            areaIdList.forEach((el) => {
-              // 存储配置区域的区域下所有卡台
-              const currentAreaCardList = allCardInfo.filter(
-                (item) => item.regionId == el
-              );
-              resultCardList = [...resultCardList, ...currentAreaCardList];
-            });
+          //   areaIdList.forEach((el) => {
+          //     // 存储配置区域的区域下所有卡台
+          //     const currentAreaCardList = allCardInfo.filter(
+          //       (item) => item.regionId == el
+          //     );
+          //     resultCardList = [...resultCardList, ...currentAreaCardList];
+          //   });
 
-            cardList.forEach((el) => {
-              const find = allCardInfo.find(
-                (item) => item.id == el.region_o_seat_id
-              );
-              if (find) {
-                resultCardList.push(find);
-                if (!areaIdList.find((item) => item == find.regionId)) {
-                  areaIdList.push(find.regionId);
-                }
-              }
-            });
+          //   cardList.forEach((el) => {
+          //     const find = allCardInfo.find(
+          //       (item) => item.id == el.region_o_seat_id
+          //     );
+          //     if (find) {
+          //       resultCardList.push(find);
+          //       if (!areaIdList.find((item) => item == find.regionId)) {
+          //         areaIdList.push(find.regionId);
+          //       }
+          //     }
+          //   });
 
-            const allAreaInfo = [...this.resResultDataObj.areaInfo] || [];
-            areaIdList.forEach((el) => {
-              const find = allAreaInfo.find((item) => item.id == el);
-              resultAreaList.push(find);
-            });
-            this.resResultDataObj.areaInfo = resultAreaList.map((item) => ({
-              ...item,
-              isAllCard: !!areaList
-                .map((item) => item.region_o_seat_id)
-                .find((items) => items == item.id), // 是否是配置的可可显示的区域（如果配置的区域，则展现出的卡台为当前区域下所有卡台，否则为部分卡台，即通过部分卡台反推出来的区域）
-            }));
-            this.resResultDataObj.cardInfo = resultCardList;
-          }
+          //   const allAreaInfo = [...this.resResultDataObj.areaInfo] || [];
+          //   areaIdList.forEach((el) => {
+          //     const find = allAreaInfo.find((item) => item.id == el);
+          //     resultAreaList.push(find);
+          //   });
+          //   this.resResultDataObj.areaInfo = resultAreaList.map((item) => ({
+          //     ...item,
+          //     isAllCard: !!areaList
+          //       .map((item) => item.region_o_seat_id)
+          //       .find((items) => items == item.id), // 是否是配置的可可显示的区域（如果配置的区域，则展现出的卡台为当前区域下所有卡台，否则为部分卡台，即通过部分卡台反推出来的区域）
+          //   }));
+          //   this.resResultDataObj.cardInfo = resultCardList;
+          // }
 
           console.log("new-resResultDataObj:", this.resResultDataObj);
 
