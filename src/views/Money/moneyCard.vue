@@ -1101,6 +1101,57 @@ export default {
 
     // 获取全量数据
     getCardList(cardInfo = [], businessData = []) {
+      // // 获取设备可操作区域或卡台
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      const currentAreaAndCardList = (
+        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
+      ).filter(
+        (item) => item.license_id == currentMachineId && item.status == 1
+      );
+      const isNoLimit = currentAreaAndCardList.filter(
+        (item) => item.type_id == 3
+      );
+      if (isNoLimit.length <= 0) {
+        // 有限制
+        const areaList = currentAreaAndCardList.filter(
+          (item) => item.type_id == 1
+        );
+        const cardListNew = currentAreaAndCardList.filter(
+          (item) => item.type_id == 2
+        );
+        // 当前配置的区域id
+        let areaIdList = areaList.map((item) => item.region_o_seat_id);
+
+        // 通过cardList反推出对应的区域，并添加到区域id中
+        const allCardInfo =
+          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
+
+        // 最终经过筛选过后的区域列表，对应元数据的areaInfo
+        let resultAreaList = [];
+        // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+        let resultCardList = [];
+
+        areaIdList.forEach((el) => {
+          // 存储配置区域的区域下所有卡台
+          const currentAreaCardList = allCardInfo.filter(
+            (item) => item.regionId == el
+          );
+          resultCardList = [...resultCardList, ...currentAreaCardList];
+        });
+
+        cardListNew.forEach((el) => {
+          const find = allCardInfo.find(
+            (item) => item.id == el.region_o_seat_id
+          );
+          if (find) {
+            resultCardList.push(find);
+            if (!areaIdList.find((item) => item == find.regionId)) {
+              areaIdList.push(find.regionId);
+            }
+          }
+        });
+        cardInfo = resultCardList;
+      }
       // cardInfo:卡台数据  businessData:业务数据
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       console.log("%c 卡台数据断点", "color:blue;font-size:14px");
