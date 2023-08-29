@@ -236,7 +236,7 @@
     />
 
     <!-- 打印消费单 -->
-    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
+    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" :isTurnOver="isOldOrder" :turnover_cnt="turnOverInfo.activeTurnOverCount" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>
  
