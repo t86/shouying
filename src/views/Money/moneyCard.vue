@@ -1083,6 +1083,10 @@ export default {
     getTabList(arr = []) {
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
       let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
+      tabList = tabList.filter(
+        (e) => this.filterCardList("regionId", e.id).length > 0
+      );
+
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
       tabList.unshift({
