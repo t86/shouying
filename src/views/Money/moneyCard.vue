@@ -30,7 +30,7 @@
             </div>
           </div>
           <!-- 搜索框 -->
-          <div class="search" v-if="tab.tabList.length>0">
+          <div class="search" v-if="tab.tabList.length > 0">
             <input
               type="text"
               v-model="keyWord"
@@ -356,6 +356,8 @@
               <span
                 class="count"
                 v-if="
+                  this.$store.state.cardPageInfo.resResultDataObj
+                    .needBackOrderListCount &&
                   this.$store.state.cardPageInfo.resResultDataObj
                     .needBackOrderListCount[0]['cnt'] > 0
                 "
@@ -1606,7 +1608,6 @@ export default {
         );
         await this.getTabList(resResultDataObj["areaInfo"]);
         // 获取卡台数据
-       
       } catch (error) {
         console.log("全量数据请求失败", error);
       }
