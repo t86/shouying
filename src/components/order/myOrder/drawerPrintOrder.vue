@@ -59,6 +59,8 @@ export default {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
             turnover_cnt:this.turnover_cnt, 
             pay_id: 0,
+            range_type: 1, //  int64    1 总消费单 
+            include_hl: this.radio * 1 /// int    1 含花篮小费 2 不含花篮小费
           };
           res = await api_order.reqAnewPrintOrder(params);
         }
