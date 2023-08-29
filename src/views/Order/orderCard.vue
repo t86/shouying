@@ -605,9 +605,14 @@ export default {
         );
       }
 
-      const tabList = arr
+      let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
+
+      tabList = tabList.filter(
+        (e) => this.filterCardList("regionId", e.id).length > 0
+      );
+
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
