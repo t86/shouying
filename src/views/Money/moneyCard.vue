@@ -30,7 +30,7 @@
             </div>
           </div>
           <!-- 搜索框 -->
-          <div class="search">
+          <div class="search" v-if="tab.tabList.length>0">
             <input
               type="text"
               v-model="keyWord"
@@ -1089,10 +1089,12 @@ export default {
 
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
-      tabList.unshift({
-        id: 0,
-        name: "全部",
-      });
+      if (tabList.length > 0) {
+        tabList.unshift({
+          id: 0,
+          name: "全部",
+        });
+      }
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
         tabList.push({
@@ -1579,7 +1581,7 @@ export default {
     },
 
     // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
-    getAllData() {
+    async getAllData() {
       this.getAuthStatus();
       // const loading = this.$loading({
       //   lock: true,
@@ -1598,13 +1600,13 @@ export default {
           return;
 
         // console.log("inMoney", resResultDataObj);
-
-        this.getTabList(resResultDataObj["areaInfo"]);
-        // 获取卡台数据
-        this.getCardList(
+        await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]
         );
+        await this.getTabList(resResultDataObj["areaInfo"]);
+        // 获取卡台数据
+       
       } catch (error) {
         console.log("全量数据请求失败", error);
       }

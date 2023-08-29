@@ -608,7 +608,6 @@ export default {
       let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
-
       console.log('tablist', tabList);
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0, tabList
@@ -617,13 +616,16 @@ export default {
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
-      tabList.unshift({
+      if (tabList.length > 0) {
+        tabList.unshift({
         id: 0,
         name:
           authStatusArr.length == 1 && authStatusArr.includes(1)
             ? "我的卡台"
             : "全部",
-      });
+        });
+      }
+     
 
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
@@ -1031,14 +1033,13 @@ export default {
           return;
 
         // console.log("inOrder", resResultDataObj);
-
-        this.getTabList(resResultDataObj["areaInfo"]);
-        // 获取卡台数据
+ // 获取卡台数据
         await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]
         );
-
+        await this.getTabList(resResultDataObj["areaInfo"]);
+       
         // 获取自己及下属员工卡台列表
         if (this.$store.state.userInfo.authStatusArr.includes(2)) {
           this.getSelfAndSelfStaffCardList();
