@@ -28,7 +28,9 @@
           placeholder="请输入有效期天数"
           @keyup.native="
               (e) => {
+                showMessage(e);
                 day1Val = inputLimitPositiveNum(e.target.value);
+               
               }
             "
             @blur="
@@ -50,6 +52,7 @@
           placeholder="请输入有效期天数"
           @keyup.native="
               (e) => {
+                showMessage(e);
                 day2Val = inputLimitPositiveNum(e.target.value);
               }
             "
@@ -130,6 +133,12 @@ export default {
     };
   },
   methods: {
+    showMessage(e){
+      let value = e.target.value;
+      if(value&&value.indexOf('.')>-1){
+        this.$message.warning('请输入正整数')
+      }
+    },
     async getData() {
       try {
         const res = await this.$api.BMS.saveWine.reqGetWineConfig();
