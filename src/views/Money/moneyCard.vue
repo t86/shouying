@@ -359,6 +359,8 @@
                   this.$store.state.cardPageInfo.resResultDataObj
                     .needBackOrderListCount &&
                   this.$store.state.cardPageInfo.resResultDataObj
+                    .needBackOrderListCount.length > 0 &&
+                  this.$store.state.cardPageInfo.resResultDataObj
                     .needBackOrderListCount[0]['cnt'] > 0
                 "
                 >{{
