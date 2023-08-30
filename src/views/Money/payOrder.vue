@@ -170,7 +170,7 @@
 
           <div class="button" style="width:150px" v-if="payTabInfo.activePayId == -1 && !isOldOrder" @click="showOrHidePrintDrawer(1)">打印未结消费单</div>
 
-          <div class="button" v-if="payTabInfo.activePayId == -1" @click="showOrHidePrintDrawer(2)">
+          <div class="button" v-if="payTabInfo.activePayId != 0" @click="showOrHidePrintDrawer(2)">
             {{isOldOrder?'补打':'打印'}}消费单
           </div>
 
@@ -236,7 +236,8 @@
     />
 
     <!-- 打印消费单 -->
-    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" :isTurnOver="isOldOrder" :turnover_cnt="turnOverInfo.activeTurnOverCount" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
+    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" :isTurnOver="isOldOrder" :payId = "payTabInfo.activePayId" :turnover_cnt="turnOverInfo.activeTurnOverCount" 
+    @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>
  
