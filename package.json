@@ -1,12 +1,13 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202308292206",
+  "version": "1.0.202308301032",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-development": "vue-cli-service build  --mode development",
     "build-production": "vue-cli-service build  --mode production",
+    "build-store": "vue-cli-service build  --mode store",
     "build-serve": "vue-cli-service build  --mode serve",
     "test": "webpack-dev-server --config webpack.config.js",
     "webpack": "webpack --config webpack.config.js",
