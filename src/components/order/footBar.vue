@@ -557,6 +557,26 @@ export default {
     showChoosePayTypeHandle() {
       this.payType = "";
       this.showChoosePayType = true;
+
+      const that = this;
+      function scan_callback(value) {
+        try {
+          if (value && value.code === 0) {
+            that.qrResult = value.data;
+            that.showOrHideQRDrawerHandle();
+          } else {
+            that.qrResult = null;
+            that.$message.warning("扫码取消");
+            that.orderInfoDetail.r = 2;
+            that.showOrHideQRDrawerHandle();
+          }
+        } catch (error) {
+          console.log("扫码失败：", error);
+          that.$message.warning("扫码失败：" + error);
+        }
+      }
+
+      window.scan_callback = scan_callback;
     },
 
     // 获取去买单数据
@@ -705,26 +725,6 @@ export default {
   },
   mounted() {
     this.init();
-    const that = this;
-    function scan_callback(value) {
-      debugger
-      try {
-        if (value && value.code === 0) {
-          that.qrResult = value.data;
-          that.showOrHideQRDrawerHandle();
-        } else {
-          that.qrResult = null;
-          that.$message.warning("扫码取消");
-          that.orderInfoDetail.r = 2;
-          that.showOrHideQRDrawerHandle();
-        }
-      } catch (error) {
-        console.log("扫码失败：", error);
-        that.$message.warning("扫码失败：" + error);
-      }
-    }
-
-    window.scan_callback = scan_callback;
   },
   props: {
     empId: {
