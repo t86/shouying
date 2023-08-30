@@ -137,22 +137,22 @@
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
 const payTypeList = [
+{
+    id: 6,
+    name: "扫客人-微信",
+  },
   {
     id: 5,
     name: "扫客人-支付宝",
   },
   {
-    id: 6,
-    name: "扫客人-微信",
+    id: 2,
+    name: "客人扫我-微信",
   },
   {
     id: 1,
     name: "客人扫我-支付宝",
-  },
-  {
-    id: 2,
-    name: "客人扫我-微信",
-  },
+  }, 
 ];
 export default {
   data() {
@@ -304,11 +304,14 @@ export default {
     const that = this;
     function scan_callback(value) {
       try {
-        if (value.code === 0) {
+        if (value && value.code === 0) {
           that.qrResult = value.data;
           // TODO： 扫码后的操作
+          that.qr_pay_state = 0;
+          that.getQRcodeUrl();
         } else {
           that.qrResult = null;
+          that.qr_pay_state = 2;
           that.$message.warning("扫码取消");
         }
       } catch (error) {

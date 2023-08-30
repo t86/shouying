@@ -266,7 +266,7 @@
 
     <!-- 服务员让客人扫码添加滞留金 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-    <drawerAddBookAmt v-show="showAddBookDrawer" v-model="showAddBookDrawer" />
+    <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer" />
 
     <!-- 收银系统滞留金管理 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
@@ -589,6 +589,7 @@ export default {
           res.data.orders = res.data.orders || [];
           this.orderInfoDetail = { ...res.data, force };
           if (res.data.r == 1) {
+            this.$message.success("支付成功");
             this.subSecondLogoutHandle();
             return;
           }
@@ -706,13 +707,16 @@ export default {
     this.init();
     const that = this;
     function scan_callback(value) {
+      debugger
       try {
-        if (value.code === 0) {
+        if (value && value.code === 0) {
           that.qrResult = value.data;
           that.showOrHideQRDrawerHandle();
         } else {
           that.qrResult = null;
           that.$message.warning("扫码取消");
+          that.orderInfoDetail.r = 2;
+          that.showOrHideQRDrawerHandle();
         }
       } catch (error) {
         console.log("扫码失败：", error);

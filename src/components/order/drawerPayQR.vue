@@ -56,7 +56,9 @@ export default {
   },
   methods: {
     init() {
-      this.setQRCodeInfo();
+      if(this.orderInfoDetail.r !== 2){
+        this.setQRCodeInfo();
+      }
       this.reloadMyOrderTableData();
     },
 
@@ -65,7 +67,7 @@ export default {
       this.textValue = this.orderInfoDetail.pay_url;
       if (this.timer) clearInterval(this.timer);
       this.timer = setInterval(() => {
-        // this.getOrderPayStatus();
+        this.getOrderPayStatus();
       }, 1000);
     },
 
