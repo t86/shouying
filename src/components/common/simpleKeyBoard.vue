@@ -38,7 +38,7 @@ export default {
         {
           id: 1,
           name: "GHI<br/>JKL",
-          children: ["G", "H", "I", "G", "K", "L"]
+          children: ["G", "H", "I", "J", "K", "L"]
         },
         {
           id: 2,
