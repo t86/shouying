@@ -57,7 +57,7 @@ import mealDrawer from "@/components/order/drawerMeal";
 import common_order from "@/utils/common/order";
 
 import simpleKeyBoard from '@/components/common/simpleKeyBoard.vue'
-
+import { cloneDeep } from "lodash-es";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -152,17 +152,24 @@ export default {
     getGroupOutSomethingCount() {
       const groupDetailList = this.$store.state.cardPageInfo.resResultDataObj["goodsDetailInfo"].filter(item => item.status == 1)
       const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj["prdOutOfSomething"].filter(item => item.status == 1)
+      const allProductsList = cloneDeep(this.allProductsList)
       this.productsList.forEach(el => {
         if(el.prdType == 2) {  // 套餐
           // 不可选商品
           const canNotSelectProOutSomethingCount = []
+          const canNotSelectProOutSomethingName = []
           const canNotSelectPrdDetailList = groupDetailList.filter(item => item.prdId == el.id && item.grpId == 1)
           canNotSelectPrdDetailList.forEach(ele => {
             const find = outSomethingPrdList.find(item => item.id == ele.dtlPrdId)
-            if(find) canNotSelectProOutSomethingCount.push(Math.floor(find.cnt / ele.prdCnt))
+            if(find) {
+              canNotSelectProOutSomethingCount.push(Math.floor(find.cnt / ele.prdCnt))
+              const product = allProductsList.find(item => item.id == find.id);
+              canNotSelectProOutSomethingName.push(product.name)
+            }
           })
           if (canNotSelectProOutSomethingCount.length > 0) {  // 不可选单品配置过估清数量
-            el.outSomethingCount = el.outSomethingCount == 'many' ? Math.min(...canNotSelectProOutSomethingCount) : Math.min(el.outSomethingCount, ...canNotSelectProOutSomethingCount)
+            el.outSomethingCount = el.outSomethingCount == 'many' ? Math.min(...canNotSelectProOutSomethingCount) : Math.min(el.outSomethingCount, ...canNotSelectProOutSomethingCount);
+            el['outSomethingName'] = canNotSelectProOutSomethingName.join('、')
           }
         }
       })
@@ -180,7 +187,14 @@ export default {
 
     // 点击商品/套餐
     setMealForProduct(productInfo) {
-      if (productInfo.outSomethingCount == 0) return this.$message.warning('当前商品已售罄')
+      if (productInfo.outSomethingCount == 0){
+        if(productInfo.prdType == 2 && productInfo.outSomethingName) 
+        {
+          return this.$message.warning(`当前套餐内: ${productInfo.outSomethingName} 已售罄`)
+        }else{
+          return this.$message.warning('当前商品已售罄')
+        }
+      } 
       productInfo.requireInfo = common_order.getRequireInfo(
         productInfo.twoCateId
       );
