@@ -105,6 +105,10 @@
                   </div>
                 </div>
               </div>
+              <div>
+                <span>版本号：{{ version }}</span>
+                <span @click="clear">清缓存</span>
+              </div>
             </div>
           </div>
         </div>
@@ -171,6 +175,10 @@ export default {
       authRadio: 0, // 默认身份选中项
 
       pitchon: 1, //选中账号还是密码状态
+      version:
+        localStorage.getItem("projectVersion") +
+        " - " +
+        localStorage.getItem("refreshAll"),
       numList: [
         {
           title: "1",
@@ -369,6 +377,14 @@ export default {
         ...currentStatusObj,
       });
       this.$router.push({ path: this.url });
+    },
+    clear() {
+      sessionStorage.clear();
+      localStorage.clear();
+      this.$message({
+        message: "缓存已清理",
+        type: "info",
+      });
     },
     // 登录
     submit(userName = "", passWord = "", type = 1) {

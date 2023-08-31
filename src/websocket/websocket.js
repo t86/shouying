@@ -397,7 +397,7 @@ export default class WebSocketClient {
         console.log(3, "key", key);
         localStorage.setItem("refreshAll", ...dataObj[key]);
         // 页面需要从新获取最新全量数据
-        // return this.getAllData(true, true);
+        return this.getAllData(true, true);
       } else {
         dataObj[key] = transformCardDataHandle(dataObj[key], key);
         dataObj[key].forEach((el) => {
