@@ -189,6 +189,20 @@
             <img class="arrow-bottom" @click.stop="scrollHandle('down')" :src="imgSrc.arrowBottom" />
           </div>
         </div>
+        <div v-if="$store.state.orderInfo.currentCardInfo.bizStatus == 1 && $store.state.orderInfo.currentCardInfo.turnoverCnt > 0"
+          class="order-content-bottom-right"
+          :class="{'not-pay': payTabInfo.activePayId == 0,'pay-item' : payTabInfo.activePayId!=0 && payTabInfo.activePayId!=-1}"
+          layout="row"
+          layout-align="end center">
+          <div class="button" v-if="payTabInfo.activePayId != 0" @click="showOrHidePrintDrawer(2)">
+            {{isOldOrder?'补打':'打印'}}消费单
+          </div>
+          <div
+            class="button"
+            v-if="payTabInfo.activePayId==-1"
+            @click="printOrderPayedList"
+          >{{isOldOrder?'补打':'打印'}}结算单</div>
+        </div>
       </div>
     </div>
 
