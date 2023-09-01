@@ -1,7 +1,12 @@
 <template>
   <div class="Thelogin">
-    <span class="terminal-type">{{ typeName }}</span>
-    <div class="peak">
+      <div class="terminal-type">
+          <div class="clear-cache" @click="clear" >
+            <span>清理缓存</span> 
+          </div>
+        <div class="terminal-type-name">{{ typeName }}</div>
+      </div>
+      <div class="peak">
       <div class="left">
         <img
           :src="require('@/assets/register-login/shangdaohang_zuo.png')"
@@ -105,9 +110,8 @@
                   </div>
                 </div>
               </div>
-              <div>
+              <div style="color: #fff; font-size: 12px;text-align: center;margin-top: 8px;">
                 <span>版本号：{{ version }}</span>
-                <span @click="clear">清缓存</span>
               </div>
             </div>
           </div>
@@ -601,10 +605,38 @@ export default {
   width: 100vw;
   height: 100vh;
   .terminal-type {
+    width: 200px;
     position: fixed;
     right: 20px;
-    top: 20px;
+    top: 10px;
+
     color: #fff;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    .terminal-type-name{
+      margin-left: 16px;
+      line-height: 30px;
+    }
+    .clear-cache{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #367bd5;
+        width: 100px;
+        border: 1px solid #367bd5;
+        border-radius: 4px;
+        height: 30px;
+        cursor: pointer;
+        img{
+          width: 20px;
+          height: 20px;
+        }
+        &:hover{
+          color: #fff;
+          border-color: #fff;
+        }
+      }
   }
   .peak {
     display: grid;
@@ -613,7 +645,7 @@ export default {
     img {
       width: 100%;
       height: 100%;
-    }
+    } 
   }
 
   .elasticity {
