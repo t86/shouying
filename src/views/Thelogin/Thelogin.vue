@@ -4,7 +4,12 @@
           <div class="clear-cache" @click="clear" >
             <span>清理缓存</span> 
           </div>
-        <div class="terminal-type-name">{{ typeName }}</div>
+        <div class="terminal-type-name">
+          <div>{{ typeName }}</div>
+          <div class="app-version">
+             版本号：{{ version }}
+          </div>
+        </div>
       </div>
       <div class="peak">
       <div class="left">
@@ -110,9 +115,7 @@
                   </div>
                 </div>
               </div>
-              <div style="color: #fff; font-size: 12px;text-align: center;margin-top: 8px;">
-                <span>版本号：{{ version }}</span>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -179,10 +182,6 @@ export default {
       authRadio: 0, // 默认身份选中项
 
       pitchon: 1, //选中账号还是密码状态
-      version:
-        localStorage.getItem("projectVersion") +
-        " - " +
-        localStorage.getItem("refreshAll"),
       numList: [
         {
           title: "1",
@@ -527,6 +526,11 @@ export default {
       }
       return termType == "android";
     },
+    version(){
+       const pv =  localStorage.getItem("projectVersion");
+       const av =  localStorage.getItem("refreshAll");
+        return pv + (av ? ` - ${av}` : "");
+    }
   },
 
   beforeDestroy() {
@@ -605,20 +609,18 @@ export default {
   width: 100vw;
   height: 100vh;
   .terminal-type {
-    width: 200px;
+    margin-top: 5px;
     position: fixed;
     right: 20px;
-    top: 10px;
-
     color: #fff;
     display: flex;
     justify-content: flex-end;
     align-items: center;
     .terminal-type-name{
-      margin-left: 16px;
-      line-height: 30px;
+      text-align: center;
     }
     .clear-cache{
+        margin-right: 16px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -628,6 +630,7 @@ export default {
         border-radius: 4px;
         height: 30px;
         cursor: pointer;
+        opacity: 0.6;
         img{
           width: 20px;
           height: 20px;
@@ -635,8 +638,14 @@ export default {
         &:hover{
           color: #fff;
           border-color: #fff;
+          opacity: 1;
         }
-      }
+    }
+    .app-version {
+      color: #fff; 
+      font-size: 12px;
+      text-align: center;
+    }
   }
   .peak {
     display: grid;
