@@ -310,7 +310,7 @@ export default {
           this.clientName = clientInfo[res.data.am.toString()];
           this.$store.commit("updateClient", this.clientName);
         } else {
-          this.$message.warning(res.msg);
+          this.$message.warning(res.message);
           this.$router.replace("/register");
         }
       } catch (error) {
@@ -394,12 +394,6 @@ export default {
     },
     // 登录
     submit(userName = "", passWord = "", type = 1) {
-      if (!this.$websocket.isValid()) {
-        this.$message({
-          message: "授权认证中，请稍候",
-          type: "info",
-        });
-      }
       // 验证类型type 1:账号 2： 卡
       const account = type == 1 ? this.account : userName;
       const password = type == 1 ? this.password : passWord;
@@ -499,6 +493,9 @@ export default {
                 window.loopReadCard();
               }
             } else {
+              if (res.code == 12) {
+                this.term();
+              }
               this.$message.warning(res.msg);
               window.loopReadCard();
             }

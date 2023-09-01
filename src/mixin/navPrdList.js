@@ -86,8 +86,6 @@ export default {
           YH2PrdListId = getSealConfigPrdId(this, 3);
         }
       }
-
-      console.log("YH2PrdListId", YH2PrdListId)
       function getSealConfigPrdId(that, type = 2) {
         const limitRoleFreeLimitIdList =
           that.$store.state.cardPageInfo.resResultDataObj["roleLimitConfig"]
@@ -190,8 +188,6 @@ export default {
         });
       }
 
-      console.log("FWYAllProductList", FWYAllProductList);
-
       /**
        * 营销
        */
@@ -223,7 +219,6 @@ export default {
           if (find) YXAllProductList.push({...find});
         });
 
-        console.log("YXAllProductList", YXAllProductList);
       }
 
       /**
@@ -265,8 +260,6 @@ export default {
           const find = YH2AreaPrdList.find((item) => item.id == el.id);
           if (find) YH2AllProductList.push({...find});
         });
-
-        console.log("YH2AllProductList", YH2AllProductList);
       }
 
       /**
@@ -314,8 +307,6 @@ export default {
           const find = HLAreaPrdList.find((item) => item.id == el.id);
           if (find) HLAllProductList.push({...find});
         });
-
-        console.log("HLAllProductList", HLAllProductList);
       }
 
       // 最终展示在页面上的商品列表
@@ -485,8 +476,6 @@ export default {
         resultProductArr = [...resultDDProductArr];
       }
 
-      console.log("resultProductArr", resultProductArr);
-
       // 判断是否当前卡台为补交卡台（不能点优惠/优惠2）
       if (this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         resultProductArr = resultProductArr.filter(
@@ -502,8 +491,6 @@ export default {
           canSealYH2: false,
         }));
       }
-
-      console.log("resultProductArr.length", resultProductArr.length);
 
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];

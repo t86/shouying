@@ -24,8 +24,6 @@ export default class WebSocketClient {
     this.res = { code: 1 };
     this.initAllData = this.initAllData.bind(this);
     this.isConnecting = false;
-    this.connectTime = 0;
-    this.updateTime = 0;
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     // 初始化 WebSocket 连接
@@ -52,7 +50,6 @@ export default class WebSocketClient {
   };
 
   openHandle = (e) => {
-    this.connectTime = new Date();
     const token = localStorage.getItem("tk") || "";
     if (token) {
       if (!localStorage.getItem("refreshAll")) {
@@ -101,7 +98,7 @@ export default class WebSocketClient {
     clearTimeout(this.isConnectedTimer);
   };
 
-  messageHandle = (e) => {
+  messageHandle = async (e) => {
     console.log(e);
     const { p: code, t: time, d: data } = JSON.parse(e.data);
     // 更新接收到消息的时间
@@ -110,17 +107,30 @@ export default class WebSocketClient {
       this.updateCardList(data, time);
     } else if (code == 3) {
       let message = typeof data == "string" ? data : "websocket返回数据出错";
-      // if (
-      //   message === "第一个消息必须为授权信息" ||
-      //   message === "未发现授权信息" ||
-      //   message === "授权信息未找到或已过期"
-      // ) {
-      //   localStorage.setItem("tk", "");
-      //   this.closeHandle();
-      //   setTimeout(() => {
-      //     this.initAllData();
-      //   }, 5000);
-      // }
+      if (
+        message === "第一个消息必须为授权信息" ||
+        message === "未发现授权信息" ||
+        message === "授权信息未找到或已过期"
+      ) {
+        localStorage.setItem("tk", "");
+        let newCode;
+        try {
+          newCode = atool.getMachineCode();
+          console.log("设备注册码:" + newCode);
+        } catch (error) {
+          newCode = this.vue.$route.query && this.vue.$route.query.code;
+          if (!newCode) return this.vue.$router.replace("/register");
+        }
+      const res = await this.vue.$api.UtilAuth.term.termauth({ code: newCode });
+        if(res.code == 1) {
+          localStorage.setItem("tk", res.data.tk)
+        } else {
+          this.vue.$message.warning(res.msg);
+          this.vue.$router.replace('/register')
+        }
+        this.closeHandle();
+        this.initAllData();
+      }
       this.vue.$message.warning(message);
     } else {
       localStorage.setItem("websocketTimeMessageTime", time);
@@ -177,6 +187,7 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
+        this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
@@ -309,7 +320,6 @@ export default class WebSocketClient {
           }
         }
       }
-      this.updateTime = new Date();
     } catch (error) {
       console.log("全量数据请求失败", error);
     }
@@ -365,7 +375,6 @@ export default class WebSocketClient {
       } else {
         this.vue.$message.warning(res.msg);
       }
-      this.updateTime = new Date();
     } catch (error) {
       console.log("获取websocket断开期间的增量数据失败", error);
     }
@@ -612,7 +621,4 @@ export default class WebSocketClient {
     }, 100);
   }
 
-  isValid = () => {
-    return this.connectTime < this.updateTime;
-  };
 }
