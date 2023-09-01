@@ -49,18 +49,23 @@ export default class WebSocketClient {
     this.socket.onmessage = this.messageHandle;
   };
 
-  openHandle = (e) => {
+  openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
     if (token) {
+      localStorage.setItem("codeCheck", false);
       if (!localStorage.getItem("refreshAll")) {
-        this.getAllData(true, true, true);
+        await this.getAllData(true, true, true);
       } else {
-        this.getUpdateData();
+        await this.getUpdateData();
       }
     }
 
-    this.socket.send(JSON.stringify(token));
+    if (localStorage.getItem("codeCheck") === "false") {
+      this.reset();
+      return;
+    }
 
+    this.socket.send(JSON.stringify(token));
     // 监听处理websocket是否断开连接
     this.websocketHasConnect();
   };
@@ -75,9 +80,7 @@ export default class WebSocketClient {
       "color:blue;font-size:14px"
     );
     this.closeHandle();
-    setTimeout(() => {
-      this.initAllData();
-    }, 5000);
+    this.initAllData();
     //   // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
     //   this.websocketTimeMessageTime
     //     ? this.getUpdateData()
@@ -112,24 +115,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
-        localStorage.setItem("tk", "");
-        let newCode;
-        try {
-          newCode = atool.getMachineCode();
-          console.log("设备注册码:" + newCode);
-        } catch (error) {
-          newCode = this.vue.$route.query && this.vue.$route.query.code;
-          if (!newCode) return this.vue.$router.replace("/register");
-        }
-      const res = await this.vue.$api.UtilAuth.term.termauth({ code: newCode });
-        if(res.code == 1) {
-          localStorage.setItem("tk", res.data.tk)
-        } else {
-          this.vue.$message.warning(res.msg);
-          this.vue.$router.replace('/register')
-        }
-        this.closeHandle();
-        this.initAllData();
+        this.reset();
       }
       this.vue.$message.warning(message);
     } else {
@@ -137,6 +123,28 @@ export default class WebSocketClient {
     }
   };
 
+  reset = async () => {
+    localStorage.setItem("tk", "");
+    let newCode;
+    try {
+      newCode = atool.getMachineCode();
+      console.log("设备注册码:" + newCode);
+    } catch (error) {
+      newCode = this.vue.$route.query && this.vue.$route.query.code;
+      if (!newCode) return this.vue.$router.replace("/register");
+    }
+    const res = await this.vue.$api.UtilAuth.term.termauth({
+      code: newCode,
+    });
+    if (res.code == 1) {
+      localStorage.setItem("tk", res.data.tk);
+    } else {
+      this.vue.$message.warning(res.msg);
+      this.vue.$router.replace("/register");
+    }
+    this.closeHandle();
+    this.initAllData();
+  };
   // 监听处理websocket是否断开
   websocketHasConnect = () => {
     // 首次加载时间
@@ -187,6 +195,10 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
+        localStorage.setItem(
+          "codeCheck",
+          res.code && res.code !== 11 && res.code !== 12
+        );
         this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
@@ -358,8 +370,10 @@ export default class WebSocketClient {
     };
     try {
       const res = await api_card.reqGetUpdateData(params);
-      // console.log('增量数据:', res)  // TODO:
-
+      localStorage.setItem(
+        "codeCheck",
+        res.code && res.code !== 11 && res.code !== 12
+      );
       // 更新接收到消息的时间
       this.websocketTimeStart = +new Date();
 
@@ -620,5 +634,4 @@ export default class WebSocketClient {
       }
     }, 100);
   }
-
 }
