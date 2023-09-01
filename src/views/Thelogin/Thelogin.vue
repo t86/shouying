@@ -379,8 +379,10 @@ export default {
       this.$router.push({ path: this.url });
     },
     clear() {
+      let version = localStorage.getItem("projectVersion");
       sessionStorage.clear();
       localStorage.clear();
+      localStorage.setItem("projectVersion", version);
       this.$message({
         message: "缓存已清理",
         type: "info",

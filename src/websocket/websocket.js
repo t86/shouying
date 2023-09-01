@@ -110,17 +110,17 @@ export default class WebSocketClient {
       this.updateCardList(data, time);
     } else if (code == 3) {
       let message = typeof data == "string" ? data : "websocket返回数据出错";
-      if (
-        message === "第一个消息必须为授权信息" ||
-        message === "未发现授权信息" ||
-        message === "授权信息未找到或已过期"
-      ) {
-        localStorage.setItem("tk", "");
-        this.closeHandle();
-        setTimeout(() => {
-          this.initAllData();
-        }, 5000);
-      }
+      // if (
+      //   message === "第一个消息必须为授权信息" ||
+      //   message === "未发现授权信息" ||
+      //   message === "授权信息未找到或已过期"
+      // ) {
+      //   localStorage.setItem("tk", "");
+      //   this.closeHandle();
+      //   setTimeout(() => {
+      //     this.initAllData();
+      //   }, 5000);
+      // }
       this.vue.$message.warning(message);
     } else {
       localStorage.setItem("websocketTimeMessageTime", time);
