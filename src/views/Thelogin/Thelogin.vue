@@ -387,6 +387,7 @@ export default {
         message: "缓存已清理",
         type: "info",
       });
+      this.term();
     },
     // 登录
     submit(userName = "", passWord = "", type = 1) {
