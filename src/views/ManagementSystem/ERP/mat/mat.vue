@@ -13,13 +13,13 @@
         <el-collapse v-model="stairNames" @change="stairhandleChange" accordion>
           <el-collapse-item name="全部">
             <!-- <span slot="title" class=" " >
-                        <img class="icons" src="@/assets/img/文件夹.png"  alt="">
+                        <img class="icons" src="@/assets/img/file_list.png"  alt="">
                         <router-link to="/ERP/mat/mocate" class="routerlinkyus" >
                             <div>全部</div>
                         </router-link>
             </span> #162C69-->
             <router-link to="/ERP/mat/mocate" slot="title" class="routerlinkyus collapse-title">
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip text="全部"></ellipsis-tooltip>
             </router-link>
             <!-- 一级分类列表 stair -->
@@ -27,7 +27,7 @@
               <el-collapse v-model="secondNames" @change="secondhandleChange" accordion>
                 <el-collapse-item :name="stair.id+''">
                   <span slot="title" class="collapse-title" style="width: calc(100% - 18px);">
-                    <img class="icons" src="@/assets/img/文件夹.png" alt />
+                    <img class="icons" src="@/assets/img/file_list.png" alt />
                     <router-link
                       :to="`/ERP/mat/mtcate/${stair.id}`"
                       class="routerlinkyus"
@@ -44,7 +44,7 @@
                     class="second"
                     @click="materialhandleChange(second.id+'')"
                   >
-                    <img class="icons" src="@/assets/img/文件夹.png" alt />
+                    <img class="icons" src="@/assets/img/file_list.png" alt />
                     <router-link
                       :to="`/ERP/mat/mats/${second.id}`"
                       class="routerlinkyus"
@@ -69,7 +69,7 @@
               :key="i"
               @click="xuanzyij(stair.id+'')"
             >
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
@@ -81,7 +81,7 @@
               :key="i"
               @click="xuanzerj(stair.id+'',stair.yij+'')"
             >
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
@@ -93,7 +93,7 @@
               :key="i"
               @click="xuanzwl(stair)"
             >
-              <img class="icons" src="@/assets/img/商品列表.png" alt />
+              <img class="icons" src="@/assets/img/commodity_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
@@ -180,8 +180,8 @@
                             </div>
                                 <div class="Materialunit">
                                     <div class="rial-unit">
-                                        <icon-button @click.native="addunitpopup" text="新增" img="添加.png" colors="#f5f5f5"></icon-button>
-                                        <icon-button @click.native="deleteunit" text="删除" img="删除.png" colors="#6B2830"  bjcolors="#491E24"></icon-button>                                        
+                                        <icon-button @click.native="addunitpopup" text="新增" img="btn_add.png" colors="#f5f5f5"></icon-button>
+                                        <icon-button @click.native="deleteunit" text="删除" img="btn_delete.png" colors="#6B2830"  bjcolors="#491E24"></icon-button>                                        
                                         <div class="miaos">【如物料有多种单位；例如支、箱等，则需要将不同的单位都添加；基础单位必须排在第一个】</div>
                                     </div>
                                     <table class="Mater-unit">
@@ -241,9 +241,9 @@
         <!-- <div class="biaot">扩展属性</div>
                 <div class="fenge">
                     <div class="annkz">
-                        <icon-button @click.native="addpropertyedit" style="margin: 0px 8px;" text="新增" img="添加.png" colors="#f5f5f5"></icon-button>
-                        <icon-button @click.native="compileaddcroperty" style="margin: 0px 8px;"  text="编辑" img="编辑.png" colors="#f5f5f5"></icon-button>
-                        <icon-button @click.native="delteperty" style="margin: 0px 8px;"  text="批量删除" img="删除.png" colors="#6B2830"  bjcolors="#491E24"></icon-button>           
+                        <icon-button @click.native="addpropertyedit" style="margin: 0px 8px;" text="新增" img="btn_add.png" colors="#f5f5f5"></icon-button>
+                        <icon-button @click.native="compileaddcroperty" style="margin: 0px 8px;"  text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
+                        <icon-button @click.native="delteperty" style="margin: 0px 8px;"  text="批量删除" img="btn_delete.png" colors="#6B2830"  bjcolors="#491E24"></icon-button>           
                     </div>
                     <el-form label-position="left">
                       <div class="compatibil">
@@ -388,7 +388,7 @@
                     @click.native="attrs.ns.splice(i,1)"
                     style="margin: 0px 8px;"
                     text="批量删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                     bjcolors="#491E24"
                   ></icon-button>
@@ -397,7 +397,7 @@
                     @click.native="xinz"
                     style="margin: 0px 8px;"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                 </div>
@@ -447,7 +447,7 @@
                     @click.native="delecpilecuspperty(item.id,i)"
                     style="margin: 0px 8px;"
                     text="批量删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                     bjcolors="#491E24"
                   ></icon-button>
@@ -456,7 +456,7 @@
                     @click.native="addcpilecuspperty"
                     style="margin: 0px 8px;"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                 </div>

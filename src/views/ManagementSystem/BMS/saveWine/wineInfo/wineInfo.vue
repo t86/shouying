@@ -1,8 +1,8 @@
 <template>
   <div class="wine-info">
     <div class="top" layout="row" layout-align="start center">
-      <icon-button @click.native="showDrawerHandle" text="新增" img="添加.png" colors="#383943"></icon-button>
-      <icon-button @click.native="deleteHandle" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="showDrawerHandle" text="新增" img="btn_add.png" colors="#383943"></icon-button>
+      <icon-button @click.native="deleteHandle" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
       <characters-button @click.native="showDrawerOfPassTime" colors="transparent" wz='批量设置有效期'></characters-button>
     </div>
 

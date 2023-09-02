@@ -1,13 +1,13 @@
 <template>
     <div class="Seat">
         <div class="Seat-controller" v-if="tableData.length != 0">
-            <icon-button @click.native="xingh" text="新增卡台" img="添加.png" colors="#f5f5f5"></icon-button>
-            <icon-button @click.native="compileSeat" text="编辑" img="编辑.png" colors="#f5f5f5"></icon-button>
-            <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#f5f5f5"></icon-button>
-            <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#f5f5f5"></icon-button>
-            <icon-button @click.native="Seatdel" text="批量删除" img="删除.png" colors="#6B2830"
+            <icon-button @click.native="xingh" text="新增卡台" img="btn_add.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="compileSeat" text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="Seatdel" text="批量删除" img="btn_delete.png" colors="#6B2830"
                          bjcolors="#491E24"></icon-button>
-            <icon-button @click.native="plnewly" text="批量新增" img="批量新增.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="plnewly" text="批量新增" img="btn_batch_add.png" colors="#f5f5f5"></icon-button>
         </div>
         <div style="width: 1080px;border-top: 1px solid #f5f5f5;border-left: 1px solid #f5f5f5;"
                  v-if="tableData.length != 0">

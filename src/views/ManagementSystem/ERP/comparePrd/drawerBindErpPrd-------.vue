@@ -57,8 +57,8 @@
               <tr class="drag-list" v-if="erps_prdss.length<1">
                 <td class="nodata">
                   <img v-show="controlpicture ==1" src="../../../../assets/img/wu.png" alt />
-                  <img v-show="controlpicture ==2" src="../../../../assets/img/空-请检索.png" alt />
-                  <img v-show="controlpicture ==3" src="../../../../assets/img/加载中.png" alt />
+                  <img v-show="controlpicture ==2" src="../../../../assets/img/empty_search.png" alt />
+                  <img v-show="controlpicture ==3" src="../../../../assets/img/state_loading.png" alt />
                   <div v-show="controlpicture ==1" class="hint">暂无数据</div>
                   <div v-show="controlpicture ==2" class="hint">空-请检索</div>
                   <div v-show="controlpicture ==3" class="hint">加载中...</div>

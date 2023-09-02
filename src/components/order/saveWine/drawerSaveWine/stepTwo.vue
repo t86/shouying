@@ -73,7 +73,7 @@
                   <img :src="item.c > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')" @click="changeShoppingCartCount(item, Math.max(1, (item.c * 1 - 1)))"
                   />
                   <input type="number" :min="1" v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c * 1, 1))" />
-                  <img :src="((item.a == '-' && !item.disabled) || (item.a != '-' && item.c < item.ac))? require('@/assets/order-img/add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeShoppingCartCount(item, (item.c * 1 + 1))" />
+                  <img :src="((item.a == '-' && !item.disabled) || (item.a != '-' && item.c < item.ac))? require('@/assets/order-img/order_add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeShoppingCartCount(item, (item.c * 1 + 1))" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
                   <span>{{item.a}}</span>

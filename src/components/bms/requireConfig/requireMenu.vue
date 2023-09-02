@@ -17,7 +17,7 @@
           ></i>
           <i style="width:18px" v-else></i>
           <div class="menu-name-contain cursor" layout="row" layout-align="start center">
-            <img src="@/assets/img/文件夹.png" alt />
+            <img src="@/assets/img/file_list.png" alt />
             <span class="name">{{item.n}}</span>
           </div>
         </div>

@@ -5,18 +5,18 @@
                 <span class="">出库日期：</span>
                 <el-radio-group v-model="jindst" class="danxk">
                     <el-radio-button label="1">
-                        <img v-show="jindst != 1" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 1" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 1" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 1" src="@/assets/img/date_label_selete.png" alt="">
                         近七天
                     </el-radio-button>
                     <el-radio-button label="2">
-                        <img v-show="jindst != 2" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 2" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 2" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 2" src="@/assets/img/date_label_selete.png" alt="">
                         近1个月
                     </el-radio-button>
                     <el-radio-button label="3">
-                        <img v-show="jindst != 3" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 3" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 3" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 3" src="@/assets/img/date_label_selete.png" alt="">
                         近3个月
                     </el-radio-button>
                 </el-radio-group>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="sout-controller">
-            <icon-button @click.native="xingh" text="新增" img="添加.png" colors="#f5f5f5"></icon-button>
+            <icon-button @click.native="xingh" text="新增" img="btn_add.png" colors="#f5f5f5"></icon-button>
             <characters-button @click.native="compileprinter" colors="#f5f5f5" wz='红冲'></characters-button>
             <characters-button @click.native="noneffective" colors="#f5f5f5" wz='红冲整单'></characters-button>
             <characters-button @click.native="effective" colors="#f5f5f5" wz='类似创建'></characters-button>
@@ -218,9 +218,9 @@
                 </el-form>
                 <div class="addmaterial">
                     <div class="rkrq">
-                        <icon-button @click.native="appendmaterial" text="添加物料" img="添加.png"
+                        <icon-button @click.native="appendmaterial" text="添加物料" img="btn_add.png"
                                      colors="#f5f5f5"></icon-button>
-                        <icon-button @click.native="batchDeleteSupplies" text="批量删除" img="删除.png" colors="#6B2830"
+                        <icon-button @click.native="batchDeleteSupplies" text="批量删除" img="btn_delete.png" colors="#6B2830"
                                      bjcolors="#491E24"></icon-button>
                         <!-- <el-button type="primary" @click="appendmaterial">添加物料</el-button>
                         <el-button type="primary" @click="batchDeleteSupplies">批量删除</el-button> -->

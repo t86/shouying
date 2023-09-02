@@ -2,12 +2,12 @@
   <div class="Single">
     <div>
       <div class="Single-controller">
-        <icon-button @click.native="VolumeProduction" text="新增" img="添加.png" colors="#f5f5f5"></icon-button>
-        <icon-button @click.native="staircompile" text="编辑" img="编辑.png" colors="#f5f5f5"></icon-button>
-        <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#f5f5f5"></icon-button>
-        <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#f5f5f5"></icon-button>
-        <icon-button @click.native="printerdel" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
-        <icon-button @click.native="DownloadBatch" text="批量导入" img="批量导入.png" colors="#f5f5f5"></icon-button>
+        <icon-button @click.native="VolumeProduction" text="新增" img="btn_add.png" colors="#f5f5f5"></icon-button>
+        <icon-button @click.native="staircompile" text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
+        <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#f5f5f5"></icon-button>
+        <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#f5f5f5"></icon-button>
+        <icon-button @click.native="printerdel" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
+        <icon-button @click.native="DownloadBatch" text="批量导入" img="btn_batch_import.png" colors="#f5f5f5"></icon-button>
         <characters-button @click.native="editTwoCategoryHandle" colors="#383943" wz='批量修改物料分类'></characters-button>
       </div>
       <div style="position: relative">
@@ -194,9 +194,9 @@
                             </div>
                             <div class="Materialunit">
                                 <div class="rial-unit">
-                                    <icon-button @click.native="addMaterialunit" text="新增" img="添加.png"
+                                    <icon-button @click.native="addMaterialunit" text="新增" img="btn_add.png"
                                                  colors="#f5f5f5"></icon-button>
-                                    <icon-button @click.native="deleteMaterialunit" text="删除" img="删除.png"
+                                    <icon-button @click.native="deleteMaterialunit" text="删除" img="btn_delete.png"
                                                  colors="#6B2830" bjcolors="#491E24"></icon-button>
                                     <div class="miaos">【如物料有多种单位；例如支、箱等，则需要将不同的单位都添加；】</div>
                                 </div>
@@ -255,11 +255,11 @@
         </el-form>
         <!-- <div class="biaot">扩展属性</div>
                 <div class="annkz">
-                    <icon-button @click.native="addproperty" style="margin: 0px 8px;" text="新增" img="添加.png"
+                    <icon-button @click.native="addproperty" style="margin: 0px 8px;" text="新增" img="btn_add.png"
                                  colors="#f5f5f5"></icon-button>
-                    <icon-button @click.native="compilecustomproperty" style="margin: 0px 8px;" text="编辑" img="编辑.png"
+                    <icon-button @click.native="compilecustomproperty" style="margin: 0px 8px;" text="编辑" img="btn_edit.png"
                                  colors="#f5f5f5"></icon-button>
-                    <icon-button @click.native="deleteproperty" style="margin: 0px 8px;" text="批量删除" img="删除.png"
+                    <icon-button @click.native="deleteproperty" style="margin: 0px 8px;" text="批量删除" img="btn_delete.png"
                                  colors="#6B2830" bjcolors="#491E24"></icon-button>
                 </div>
                 <el-form label-position="left">
@@ -362,7 +362,7 @@
                     @click.native="attrs.ns.splice(i,1)"
                     style="margin: 0px 8px;"
                     text="批量删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                     bjcolors="#491E24"
                   ></icon-button>
@@ -371,7 +371,7 @@
                     @click.native="xinz"
                     style="margin: 0px 8px;"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                   <div class="cwts" v-show="i == 0">{{form_rule_msg_val_custom}}</div>
@@ -466,9 +466,9 @@
                                 </div>
                                 <div class="Materialunit">
                                     <div class="rial-unit">
-                                        <icon-button @click.native="addunitpopup" text="新增" img="添加.png"
+                                        <icon-button @click.native="addunitpopup" text="新增" img="btn_add.png"
                                                      colors="#f5f5f5"></icon-button>
-                                        <icon-button @click.native="deleteunit" text="删除" img="删除.png" colors="#6B2830"
+                                        <icon-button @click.native="deleteunit" text="删除" img="btn_delete.png" colors="#6B2830"
                                                      bjcolors="#491E24"></icon-button>
                                         <div class="miaos">【如物料有多种单位；例如支、箱等，则需要将不同的单位都添加；】</div>
                                     </div>
@@ -544,11 +544,11 @@
         <!-- <div class="biaot">扩展属性</div>
                 <div class="fenge">
                     <div class="annkz">
-                        <icon-button @click.native="addpropertyedit" style="margin: 0px 8px;" text="新增" img="添加.png"
+                        <icon-button @click.native="addpropertyedit" style="margin: 0px 8px;" text="新增" img="btn_add.png"
                                      colors="#f5f5f5"></icon-button>
-                        <icon-button @click.native="compileaddcroperty" style="margin: 0px 8px;" text="编辑" img="编辑.png"
+                        <icon-button @click.native="compileaddcroperty" style="margin: 0px 8px;" text="编辑" img="btn_edit.png"
                                      colors="#f5f5f5"></icon-button>
-                        <icon-button @click.native="delteperty" style="margin: 0px 8px;" text="批量删除" img="删除.png"
+                        <icon-button @click.native="delteperty" style="margin: 0px 8px;" text="批量删除" img="btn_delete.png"
                                      colors="#6B2830" bjcolors="#491E24"></icon-button>
                     </div>
                     <el-form label-position="left">
@@ -715,7 +715,7 @@
                     @click.native="attrs.ns.splice(i,1)"
                     style="margin: 0px 8px;"
                     text="批量删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                     bjcolors="#491E24"
                   ></icon-button>
@@ -724,7 +724,7 @@
                     @click.native="xinz"
                     style="margin: 0px 8px;"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                   <div class="cwts" v-show="i == 0">{{form_rule_msg_val_custom}}</div>
@@ -784,7 +784,7 @@
                     @click.native="delecpilecuspperty(item.id,i)"
                     style="margin: 0px 8px;"
                     text="批量删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                     bjcolors="#491E24"
                   ></icon-button>
@@ -793,7 +793,7 @@
                     @click.native="addcpilecuspperty"
                     style="margin: 0px 8px;"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                   <div class="cwts" v-show="i == 0">{{form_rule_msg_val_custom}}</div>
@@ -849,7 +849,7 @@
             multiple
           >
             <div style="margin: 35px 0 10px;">
-              <img style="height: 70px;width: 67px;" src="../../../../../assets/img/上传文件.png" alt />
+              <img style="height: 70px;width: 67px;" src="../../../../../assets/img/upload_file.png" alt />
             </div>
             <div class="el-upload__text" style="color: #40404e;">
               将文件拖到此处，或

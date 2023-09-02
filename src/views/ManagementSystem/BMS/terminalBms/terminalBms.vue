@@ -29,7 +29,7 @@
       <icon-button
         @click.native="clearBindHandle"
         text="批量清除绑定"
-        img="删除.png"
+        img="btn_delete.png"
         colors="#6B2830"
       ></icon-button>
     </div>

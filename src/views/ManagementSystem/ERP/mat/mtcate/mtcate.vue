@@ -2,11 +2,11 @@
     <div class="mtcate">
         <!-- <div class="mtcate-headline">物料二级分类</div> -->
         <div class="mtcate-controller">
-            <icon-button @click.native="xingh" text="新增二级分类" img="添加.png" colors="#383943"></icon-button>
-            <icon-button @click.native="compileprinter" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-            <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="printerdel" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
+            <icon-button @click.native="xingh" text="新增二级分类" img="btn_add.png" colors="#383943"></icon-button>
+            <icon-button @click.native="compileprinter" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+            <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+            <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+            <icon-button @click.native="printerdel" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
         </div>
         <div style="position: relative">
             <div style="display: inline-block;" class="meisfgr">

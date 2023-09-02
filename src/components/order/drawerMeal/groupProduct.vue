@@ -135,7 +135,7 @@
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/add.png";
+import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 
 import drawerChooseRequireInfo from "@/components/order/drawerMeal/drawerChooseRequireInfo";

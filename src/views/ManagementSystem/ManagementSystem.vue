@@ -107,7 +107,7 @@ import erpNavList from './erpNavList'
 import { mapState, mapMutations } from "vuex";
 import { sessionStorage, localStorage } from "@/utils/common/storage";
 import md5 from "js-md5";
-import xzbjt from "@/assets/img/选中背景图.png";
+import xzbjt from "@/assets/img/selected_bg.png";
 export default {
   name: "ManagementSystem",
   data() {
@@ -137,7 +137,7 @@ export default {
           name: "用户管理",
           sys_priv: ["-888"],
           system: ["appinfo"],
-          img: "用户管理.png",
+          img: "user_manage.png",
           content: [
             {
               name: "用户管理",

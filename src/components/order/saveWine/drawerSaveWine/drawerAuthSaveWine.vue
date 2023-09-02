@@ -122,7 +122,7 @@
                         />
                         <input type="number" :min="1" v-model="item.count" />
                         <img
-                          :src="require('@/assets/order-img/add.png')"
+                          :src="require('@/assets/order-img/order_add.png')"
                           @click="item.count++"
                         />
                       </div>

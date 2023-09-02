@@ -41,8 +41,8 @@
             <div class="tr" layout="row" layout-align="space-between center" v-for="(item,index) in tableData" :key="item.key">
               <div class="td">{{index + 1}}</div>
               <div class="td">
-                <img class="m-r-2" :src="require('@/assets/img/添加hover.png')" @click="changePrdData('add', index)" />
-                <img :src="require('@/assets/img/删除.png')" @click="changePrdData('del', index)" />
+                <img class="m-r-2" :src="require('@/assets/img/btn_addhover.png')" @click="changePrdData('add', index)" />
+                <img :src="require('@/assets/img/btn_delete.png')" @click="changePrdData('del', index)" />
               </div>
               <div class="td">
                 <el-select v-model="item.prdValue" @change="changePrdInfoHandle(item)" filterable placeholder="请选择">

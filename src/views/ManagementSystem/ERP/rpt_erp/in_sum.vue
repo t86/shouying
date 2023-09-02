@@ -5,18 +5,18 @@
                 <span style="width:66px">入库日期：</span>
                 <el-radio-group v-model="jindst" class="danxk">
                     <el-radio-button label="1">
-                        <img v-show="jindst != 1" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 1" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 1" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 1" src="@/assets/img/date_label_selete.png" alt="">
                         近七天
                     </el-radio-button>
                     <el-radio-button label="2">
-                        <img v-show="jindst != 2" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 2" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 2" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 2" src="@/assets/img/date_label_selete.png" alt="">
                         近1个月
                     </el-radio-button>
                     <el-radio-button label="3">
-                        <img v-show="jindst != 3" src="@/assets/img/日期标签-灰.png" alt="">
-                        <img v-show="jindst == 3" src="@/assets/img/日期标签-选中.png" alt="">
+                        <img v-show="jindst != 3" src="@/assets/img/date_label_grey.png" alt="">
+                        <img v-show="jindst == 3" src="@/assets/img/date_label_selete.png" alt="">
                         近3个月
                     </el-radio-button>
                 </el-radio-group>

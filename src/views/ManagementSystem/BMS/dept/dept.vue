@@ -8,7 +8,7 @@
                     <el-collapse-item name="全部">
                         <router-link to="/BMS/dept/emp/0"
                                      slot="title" class="routerlinkyus collapse-title">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <ellipsis-tooltip text="全部"></ellipsis-tooltip>
                         </router-link>
 
@@ -24,14 +24,14 @@
                         <div class="lbnrs" v-for="(stair,i) in searchesult.yij" :key="i"
                              :style="{'background-color':deptId==stair.id?'#D7E9FF':''}"
                              @click="xuanzyij(stair.id+'')">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
                         </div>
                     </div>
                     <div class="liebia" v-show="searchesult.wl.length > 0">员工列表(姓名+工号)：</div>
                     <div class="yansnafe" v-show="searchesult.wl.length > 0">
                         <div class="lbnrs" v-for="(stair,i) in searchesult.wl" :key="i" @click="xuanzwl(stair.id)">
-                            <img class="icons" src="@/assets/img/商品列表.png" alt="">
+                            <img class="icons" src="@/assets/img/commodity_list.png" alt="">
                             <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
                         </div>
                     </div>
