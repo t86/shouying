@@ -136,24 +136,35 @@
 <script>
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
-const payTypeList = [
-{
-    id: 6,
-    name: "扫客人-微信",
-  },
-  {
-    id: 5,
-    name: "扫客人-支付宝",
-  },
-  {
-    id: 2,
-    name: "客人扫我-微信",
-  },
-  {
-    id: 1,
-    name: "客人扫我-支付宝",
-  }, 
-];
+const payTypeList = atool.startScan
+  ? [
+      {
+        id: 6,
+        name: "扫客人-微信",
+      },
+      {
+        id: 5,
+        name: "扫客人-支付宝",
+      },
+      {
+        id: 2,
+        name: "客人扫我-微信",
+      },
+      {
+        id: 1,
+        name: "客人扫我-支付宝",
+      },
+    ]
+  : [
+      {
+        id: 2,
+        name: "客人扫我-微信",
+      },
+      {
+        id: 1,
+        name: "客人扫我-支付宝",
+      },
+    ];
 export default {
   data() {
     return {
