@@ -66,7 +66,8 @@ export default {
 
   // 手工打印消费单
   reqPrintOrder: params => axios.post(`${base.htgl}/wo/prt_csm_bill`, params),
-
+  // 手工补打消费单
+  reqAnewPrintOrder: params => axios.post(`${base.htgl}/sel/sy_prt_csm_bill`, params),
   /**
    * 服务员生成二维码
    */

@@ -51,7 +51,7 @@
           :payedOrderList="payedData.payedOrderList"
           :payedOrderInfo="payedData.payedOrderInfo"
           :payTabList="payTabInfo.payTabList"
-          :isTurnOver="$store.state.orderInfo.currentCardInfo.turnoverCnt!=turnOverInfo.activeTurnOverCount"
+          :isTurnOver="isOldOrder"
           @updateChangedOrderData="updateBackOrderData"
         />
       </div>
@@ -168,24 +168,40 @@
             @click="printYH2OrderList"
           >打印优惠2消费单</div>
 
-          <div class="button" style="width:150px" v-if="payTabInfo.activePayId == -1" @click="showOrHidePrintDrawer(1)">打印未结消费单</div>
+          <div class="button" style="width:150px" v-if="payTabInfo.activePayId == -1 && !isOldOrder" @click="showOrHidePrintDrawer(1)">打印未结消费单</div>
 
-          <div class="button" v-if="payTabInfo.activePayId == -1" @click="showOrHidePrintDrawer(2)">打印消费单</div>
+          <div class="button" v-if="payTabInfo.activePayId != 0" @click="showOrHidePrintDrawer(2)">
+            {{isOldOrder?'补打':'打印'}}消费单
+          </div>
 
           <div
             class="button"
             v-if="payTabInfo.activePayId==-1"
             @click="printOrderPayedList"
-          >{{$store.state.orderInfo.currentCardInfo.turnoverCnt==turnOverInfo.activeTurnOverCount?'打印':'补打'}}结算单</div>
+          >{{isOldOrder?'补打':'打印'}}结算单</div>
           <div
             class="button"
-            v-if="payTabInfo.activePayId!=0&&payTabInfo.activePayId!=-1&&$store.state.orderInfo.currentCardInfo.turnoverCnt==turnOverInfo.activeTurnOverCount"
+            v-if="payTabInfo.activePayId!=0&&payTabInfo.activePayId!=-1&& !isOldOrder"
             @click="showOrHideBackDrawer"
           >退单</div>
           <div class="arrow" layout="row" layout-align="space-around center">
             <img class="arrow-top" @click.stop="scrollHandle('up')" :src="imgSrc.arrowBottom" />
             <img class="arrow-bottom" @click.stop="scrollHandle('down')" :src="imgSrc.arrowBottom" />
           </div>
+        </div>
+        <div v-if="$store.state.orderInfo.currentCardInfo.bizStatus == 1 && $store.state.orderInfo.currentCardInfo.turnoverCnt > 0"
+          class="order-content-bottom-right"
+          :class="{'not-pay': payTabInfo.activePayId == 0,'pay-item' : payTabInfo.activePayId!=0 && payTabInfo.activePayId!=-1}"
+          layout="row"
+          layout-align="end center">
+          <div class="button" v-if="payTabInfo.activePayId != 0" @click="showOrHidePrintDrawer(2)">
+            {{isOldOrder?'补打':'打印'}}消费单
+          </div>
+          <div
+            class="button"
+            v-if="payTabInfo.activePayId==-1"
+            @click="printOrderPayedList"
+          >{{isOldOrder?'补打':'打印'}}结算单</div>
         </div>
       </div>
     </div>
@@ -234,7 +250,8 @@
     />
 
     <!-- 打印消费单 -->
-    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
+    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" :isTurnOver="isOldOrder" :payId = "payTabInfo.activePayId" :turnover_cnt="turnOverInfo.activeTurnOverCount" 
+    @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>
  
@@ -862,6 +879,10 @@ export default {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         pay_id: 0
       };
+      // 补打结算单
+      if(this.isOldOrder){
+        params.turnover_cnt = this.turnOverInfo.activeTurnOverCount // int   第几次翻台,默认是0;
+      }
       try {
         const res = await api_money.reqPrintResultOrder(params);
         res.code === 1
@@ -1527,7 +1548,11 @@ export default {
         amt = this.cardAllOrderInfo[this.cardAllOrderInfo.length - 1].ps.reduce((a, b) => a + b.pa * 1, 0)
       }
       return amt.toFixed(2)
-    }
+    },
+    // 翻台之前旧订单
+    isOldOrder(){
+      return this.$store.state.orderInfo.currentCardInfo.turnoverCnt != this.turnOverInfo.activeTurnOverCount
+    },
   },
   watch: {
     turnOverAmtInfo:{

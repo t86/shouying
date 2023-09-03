@@ -26,6 +26,18 @@
           size="small"
           style="width: 180px"
           placeholder="请输入有效期天数"
+          @keyup.native="
+              (e) => {
+                showMessage(e);
+                day1Val = inputLimitPositiveNum(e.target.value);
+               
+              }
+            "
+            @blur="
+              (e) => {
+                day1Val = formatPointNumber(e.target.value);
+              }
+            "
         ></el-input>天
       </div>
     </div>
@@ -38,6 +50,17 @@
           size="small"
           style="width: 180px"
           placeholder="请输入有效期天数"
+          @keyup.native="
+              (e) => {
+                showMessage(e);
+                day2Val = inputLimitPositiveNum(e.target.value);
+              }
+            "
+            @on-blur="
+              (e) => {
+                day2Val = formatPointNumber(e.target.value);
+              }
+            "
         ></el-input>天
       </div>
     </div>
@@ -90,9 +113,12 @@
 </template>
  
 <script>
+import { inputLimitPositiveNum, formatPointNumber } from '@/utils/formatNumber'
 export default {
   data() {
     return {
+      inputLimitPositiveNum,
+      formatPointNumber,
       hadLoaded: false,  // 页面数据是否加载完成
       radioVal: "1",
       checkboxList: [],
@@ -107,6 +133,12 @@ export default {
     };
   },
   methods: {
+    showMessage(e){
+      let value = e.target.value;
+      if(value&&value.indexOf('.')>-1){
+        this.$message.warning('请输入正整数')
+      }
+    },
     async getData() {
       try {
         const res = await this.$api.BMS.saveWine.reqGetWineConfig();

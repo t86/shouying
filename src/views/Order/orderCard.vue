@@ -605,19 +605,25 @@ export default {
         );
       }
 
-      const tabList = arr
+      let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
+      tabList = tabList.filter(
+        (e) => this.filterCardList("regionId", e.id).length > 0,
+        tabList
+      );
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
-      tabList.unshift({
-        id: 0,
-        name:
-          authStatusArr.length == 1 && authStatusArr.includes(1)
-            ? "我的卡台"
-            : "全部",
-      });
+      if (tabList.length > 0) {
+        tabList.unshift({
+          id: 0,
+          name:
+            authStatusArr.length == 1 && authStatusArr.includes(1)
+              ? "我的卡台"
+              : "全部",
+        });
+      }
 
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
@@ -666,15 +672,57 @@ export default {
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
-      // cardInfo:卡台数据  businessData:业务数据
-      // if(cardInfo.length > businessData.length) {
-      //   console.log('%c 卡台数据断点重新开始', 'color:red;font-size:14px');
-      //   setTimeout(() => {
-      //     this.loadIndex += 1
-      //     this.$parent.getAllData(true, this.loadIndex % 5 == 0)
-      //   }, 100);
-      //   return
-      // }
+      // // 获取设备可操作区域或卡台
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      const currentAreaAndCardList = (
+        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
+      ).filter(
+        (item) => item.license_id == currentMachineId && item.status == 1
+      );
+      const isNoLimit = currentAreaAndCardList.filter(
+        (item) => item.type_id == 3
+      );
+      if (isNoLimit.length <= 0) {
+        // 有限制
+        const areaList = currentAreaAndCardList.filter(
+          (item) => item.type_id == 1
+        );
+        const cardListNew = currentAreaAndCardList.filter(
+          (item) => item.type_id == 2
+        );
+        // 当前配置的区域id
+        let areaIdList = areaList.map((item) => item.region_o_seat_id);
+
+        // 通过cardList反推出对应的区域，并添加到区域id中
+        const allCardInfo =
+          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
+
+        // 最终经过筛选过后的区域列表，对应元数据的areaInfo
+        let resultAreaList = [];
+        // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+        let resultCardList = [];
+
+        areaIdList.forEach((el) => {
+          // 存储配置区域的区域下所有卡台
+          const currentAreaCardList = allCardInfo.filter(
+            (item) => item.regionId == el
+          );
+          resultCardList = [...resultCardList, ...currentAreaCardList];
+        });
+
+        cardListNew.forEach((el) => {
+          const find = allCardInfo.find(
+            (item) => item.id == el.region_o_seat_id
+          );
+          if (find) {
+            resultCardList.push(find);
+            if (!areaIdList.find((item) => item == find.regionId)) {
+              areaIdList.push(find.regionId);
+            }
+          }
+        });
+        cardInfo = resultCardList;
+      }
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
       cardInfo.forEach((item, index) => {
@@ -798,25 +846,26 @@ export default {
     },
 
     // 筛选卡台数据
-    filterCardList(key, id) {
-      cardListInfoArr.forEach((el) => {
+    filterCardList(key, id, cardList) {
+      let targetCardList = cardListInfoArr;
+      if (cardList) {
+        targetCardList = cardList;
+      }
+      targetCardList.forEach((el) => {
         el.showOption = false;
       });
 
+      const filterArr = targetCardList.filter((item) => item[key] == id);
       // 登录账号身份筛选
       if (
         this.$store.state.userInfo.authStatusArr.length == 1 &&
         this.$store.state.userInfo.authStatusArr.includes(1)
       ) {
         // 单纯只有服务员权限
-        return id == 0
-          ? this.getMyCardList()
-          : cardListInfoArr.filter((item) => item[key] == id);
+        return id == 0 ? this.getMyCardList() : filterArr;
       } else {
         // 有除了服务员以外的多个权限
-        return id == 0
-          ? JSON.parse(JSON.stringify(cardListInfoArr))
-          : cardListInfoArr.filter((item) => item[key] == id);
+        return id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr;
       }
     },
 
@@ -975,13 +1024,12 @@ export default {
           return;
 
         // console.log("inOrder", resResultDataObj);
-
-        this.getTabList(resResultDataObj["areaInfo"]);
         // 获取卡台数据
         await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]
         );
+        await this.getTabList(resResultDataObj["areaInfo"]);
 
         // 获取自己及下属员工卡台列表
         if (this.$store.state.userInfo.authStatusArr.includes(2)) {
@@ -997,7 +1045,7 @@ export default {
           this.tab.activeIndex
         );
 
-        this.$forceUpdate();
+        // this.$forceUpdate();
       } catch (error) {
         console.log("全量数据请求失败", error);
       }

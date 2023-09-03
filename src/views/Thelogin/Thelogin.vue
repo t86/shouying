@@ -1,7 +1,17 @@
 <template>
   <div class="Thelogin">
-    <span class="terminal-type">{{ typeName }}</span>
-    <div class="peak">
+      <div class="terminal-type">
+          <div class="clear-cache" @click="clear" >
+            <span>清理缓存</span> 
+          </div>
+        <div class="terminal-type-name">
+          <div>{{ typeName }}</div>
+          <div class="app-version">
+             版本号：{{ version }}
+          </div>
+        </div>
+      </div>
+      <div class="peak">
       <div class="left">
         <img
           :src="require('@/assets/register-login/shangdaohang_zuo.png')"
@@ -105,6 +115,7 @@
                   </div>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
@@ -299,7 +310,7 @@ export default {
           this.clientName = clientInfo[res.data.am.toString()];
           this.$store.commit("updateClient", this.clientName);
         } else {
-          this.$message.warning(res.msg);
+          this.$message.warning(res.message);
           this.$router.replace("/register");
         }
       } catch (error) {
@@ -370,14 +381,19 @@ export default {
       });
       this.$router.push({ path: this.url });
     },
+    clear() {
+      let version = localStorage.getItem("projectVersion");
+      sessionStorage.clear();
+      localStorage.clear();
+      localStorage.setItem("projectVersion", version);
+      this.$message({
+        message: "缓存已清理",
+        type: "info",
+      });
+      this.term();
+    },
     // 登录
     submit(userName = "", passWord = "", type = 1) {
-      if (!this.$websocket.isValid()) {
-        this.$message({
-          message: "授权认证中，请稍候",
-          type: "info",
-        });
-      }
       // 验证类型type 1:账号 2： 卡
       const account = type == 1 ? this.account : userName;
       const password = type == 1 ? this.password : passWord;
@@ -477,6 +493,9 @@ export default {
                 window.loopReadCard();
               }
             } else {
+              if (res.code == 12) {
+                this.term();
+              }
               this.$message.warning(res.msg);
               window.loopReadCard();
             }
@@ -504,6 +523,11 @@ export default {
       }
       return termType == "android";
     },
+    version(){
+       const pv =  localStorage.getItem("projectVersion");
+       const av =  localStorage.getItem("refreshAll");
+        return pv + (av ? ` - ${av}` : "");
+    }
   },
 
   beforeDestroy() {
@@ -582,10 +606,43 @@ export default {
   width: 100vw;
   height: 100vh;
   .terminal-type {
+    margin-top: 5px;
     position: fixed;
     right: 20px;
-    top: 20px;
     color: #fff;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    .terminal-type-name{
+      text-align: center;
+    }
+    .clear-cache{
+        margin-right: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #367bd5;
+        width: 100px;
+        border: 1px solid #367bd5;
+        border-radius: 4px;
+        height: 30px;
+        cursor: pointer;
+        opacity: 0.6;
+        img{
+          width: 20px;
+          height: 20px;
+        }
+        &:hover{
+          color: #fff;
+          border-color: #fff;
+          opacity: 1;
+        }
+    }
+    .app-version {
+      color: #fff; 
+      font-size: 12px;
+      text-align: center;
+    }
   }
   .peak {
     display: grid;
@@ -594,7 +651,7 @@ export default {
     img {
       width: 100%;
       height: 100%;
-    }
+    } 
   }
 
   .elasticity {

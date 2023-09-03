@@ -476,7 +476,7 @@ export default {
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price == "时价" ? "0" : this.price,
-        prd_type: this.prdType * 1, // 商品类型  1 存货(需关联erp) 7 普通商品(不需关联erp) 2 套餐 3 存货花篮(需关联erp,且分成) 8 普通花篮(不需关联erp,且分成) 4 小费(不需关联erp,且分成) 5 赔偿(不需关联erp,且非主营) 6 联营(不需关联erp,且非主营)
+        prd_type: this.prdType * 1, // 商品类型  1 存货(需关联erp) 7 普通商品(不需关联erp,默认主营) 2 套餐 3 存货花篮(需关联erp,且分成) 8 普通花篮(不需关联erp,且分成) 4 小费(不需关联erp,且分成) 5 赔偿(不需关联erp,且非主营) 6 联营(不需关联erp,且主营)
         biz_type: this.businessType * 1, // 营业类型  1 主营 2 非主营 3 非主营(分成) (prd_type 1,7 可指定1,2,3 ;   2 填0 ;   3,8,4 填3 ;   5,6 填2)
         // erp_prd_id: this.newmerchandise.inventory.id,  // erp商品Id, 普通商品,花篮商品 需提供
         use_type: this.userYH ? 2 : 1, // 用途限制 1 不限 2 仅用于优惠
@@ -634,6 +634,9 @@ export default {
       if (!this.loaded) return false;
       if (newVal != 1) {
         this.businessType = 2;
+      }
+      if (newVal == 1 || newVal == 6) {
+        this.businessType = 1;
       }
       if (newVal == 1) {
         // this.businessType = 1

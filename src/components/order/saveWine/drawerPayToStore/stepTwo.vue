@@ -104,7 +104,7 @@
                   v-for="item in resultWineList"
                   :key="item.id"
                 >
-                  <div class="td one-txt-cut">{{item.name}}</div>
+                  <div class="td">{{item.name}}</div>
                   <div class="td">{{item.selectVal == 1 ? '整瓶' : item.selectVal + '瓶'}}</div>
                   <div class="td">{{item.allWeight || '-'}}</div>
                   <div class="td" layout="row" layout-align="start center">

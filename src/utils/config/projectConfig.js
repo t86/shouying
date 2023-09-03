@@ -1,6 +1,5 @@
 
-export const projectName = 'dev'
-
+export const projectName = process.env.VUE_APP_PROJECT_NAME
 export const projectConfig = {
   // 开发环境
   'dev': {

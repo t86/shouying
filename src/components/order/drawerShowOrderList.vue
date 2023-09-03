@@ -122,7 +122,7 @@
                     <div
                       class="td"
                       :class="{'opacity':item.back}"
-                    >{{item.at==2 || item.at==3 ? '0.00' : item.pp==0? (item.pa*1).toFixed(2) : (item.pp * 1).toFixed(2)}}</div>
+                    >{{item.at==2 || item.at==3 ? '0.00' : item.pp==0? (item.pa*1).toFixed(2) : (item.pa * 1).toFixed(2)}}</div>
                     <div
                       class="td"
                       :class="{'opacity':item.back}"

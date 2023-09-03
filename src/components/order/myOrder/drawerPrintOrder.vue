@@ -45,12 +45,26 @@ export default {
     // 提交
     async onSubmit() {
       try {
-        const params = {
+        
+        let res;
+        if(!this.isTurnOver){
+          const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
           total_type: this.isNotPay ? 2 : 1, //  int64    1 总消费单 2 未结账消费单
           include_hl: this.radio * 1 /// int    1 含花篮小费 2 不含花篮小费
-        };
-        const res = await api_order.reqPrintOrder(params);
+          };
+          res = await api_order.reqPrintOrder(params);
+        }else{
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+            turnover_cnt:this.turnover_cnt, 
+            pay_id: this.payId == -1 ?0:this.payId * 1, //消费单id
+            range_type: this.payId == -1?1:3, //  int64    范围标识 1 总单(pay_id需要传0), 2 未结账消费单(pay_id需要传0), 3 指定结账pay_id的消费单(pay_id<>0)
+            include_hl: this.radio * 1 /// int    1 含花篮小费 2 不含花篮小费
+          };
+          res = await api_order.reqAnewPrintOrder(params);
+        }
+      
         if(res.code == 1) {
           this.$message.success("打印成功")
           this.onCancelDrawer()
@@ -74,6 +88,15 @@ export default {
     },
     isNotPay:{
       default: false
+    },
+    isTurnOver:{
+      default: false
+    },
+    turnover_cnt:{
+      default: 0
+    },
+    payId:{
+      default: 0
     }
   },
   computed: {

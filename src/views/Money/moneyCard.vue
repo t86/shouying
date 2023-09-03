@@ -30,7 +30,7 @@
             </div>
           </div>
           <!-- 搜索框 -->
-          <div class="search">
+          <div class="search" v-if="tab.tabList.length > 0">
             <input
               type="text"
               v-model="keyWord"
@@ -356,6 +356,10 @@
               <span
                 class="count"
                 v-if="
+                  this.$store.state.cardPageInfo.resResultDataObj
+                    .needBackOrderListCount &&
+                  this.$store.state.cardPageInfo.resResultDataObj
+                    .needBackOrderListCount.length > 0 &&
                   this.$store.state.cardPageInfo.resResultDataObj
                     .needBackOrderListCount[0]['cnt'] > 0
                 "
@@ -1083,12 +1087,18 @@ export default {
     getTabList(arr = []) {
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
       let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
+      tabList = tabList.filter(
+        (e) => this.filterCardList("regionId", e.id).length > 0
+      );
+
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
-      tabList.unshift({
-        id: 0,
-        name: "全部",
-      });
+      if (tabList.length > 0) {
+        tabList.unshift({
+          id: 0,
+          name: "全部",
+        });
+      }
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
         tabList.push({
@@ -1101,6 +1111,57 @@ export default {
 
     // 获取全量数据
     getCardList(cardInfo = [], businessData = []) {
+      // // 获取设备可操作区域或卡台
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      const currentAreaAndCardList = (
+        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
+      ).filter(
+        (item) => item.license_id == currentMachineId && item.status == 1
+      );
+      const isNoLimit = currentAreaAndCardList.filter(
+        (item) => item.type_id == 3
+      );
+      if (isNoLimit.length <= 0) {
+        // 有限制
+        const areaList = currentAreaAndCardList.filter(
+          (item) => item.type_id == 1
+        );
+        const cardListNew = currentAreaAndCardList.filter(
+          (item) => item.type_id == 2
+        );
+        // 当前配置的区域id
+        let areaIdList = areaList.map((item) => item.region_o_seat_id);
+
+        // 通过cardList反推出对应的区域，并添加到区域id中
+        const allCardInfo =
+          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
+
+        // 最终经过筛选过后的区域列表，对应元数据的areaInfo
+        let resultAreaList = [];
+        // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+        let resultCardList = [];
+
+        areaIdList.forEach((el) => {
+          // 存储配置区域的区域下所有卡台
+          const currentAreaCardList = allCardInfo.filter(
+            (item) => item.regionId == el
+          );
+          resultCardList = [...resultCardList, ...currentAreaCardList];
+        });
+
+        cardListNew.forEach((el) => {
+          const find = allCardInfo.find(
+            (item) => item.id == el.region_o_seat_id
+          );
+          if (find) {
+            resultCardList.push(find);
+            if (!areaIdList.find((item) => item == find.regionId)) {
+              areaIdList.push(find.regionId);
+            }
+          }
+        });
+        cardInfo = resultCardList;
+      }
       // cardInfo:卡台数据  businessData:业务数据
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       console.log("%c 卡台数据断点", "color:blue;font-size:14px");
@@ -1524,7 +1585,7 @@ export default {
     },
 
     // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
-    getAllData() {
+    async getAllData() {
       this.getAuthStatus();
       // const loading = this.$loading({
       //   lock: true,
@@ -1543,13 +1604,12 @@ export default {
           return;
 
         // console.log("inMoney", resResultDataObj);
-
-        this.getTabList(resResultDataObj["areaInfo"]);
-        // 获取卡台数据
-        this.getCardList(
+        await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]
         );
+        await this.getTabList(resResultDataObj["areaInfo"]);
+        // 获取卡台数据
       } catch (error) {
         console.log("全量数据请求失败", error);
       }

@@ -73,7 +73,7 @@
               :key="i"
               layout="row"
               layout-align="space-between center"
-              :style="{'opacity': items.outSomethingCount == 0 ? '.3' : '1'}"
+              :style="{'opacity': items.outSomethingCount == 0 || items.prdCnt * groupInfo.count > items.outSomethingCount ? '.3' : '1'}"
             >
               <span>{{items.productInfo.name}} * {{items.prdCnt * groupInfo.count}}</span>
               <span
@@ -264,10 +264,9 @@ export default {
 
           // 用完定制要求的商品数量以后，重置数量为1
           this.requireDrawerInfo.selectedCount = 1
-
           // 判断可点商品数量单品是否超出估清值
-          if(items.outSomethingCount != 'many' && this.groupInfo.count * selectedCount * this.groupInfo.count > items.outSomethingCount) 
-            return this.$message.warning(`目前此商品数量仅剩${items.outSomethingCount}，小于所需数量${this.groupInfo.count * selectedCount * this.groupInfo.count}，不可选择`)
+          if(items.outSomethingCount != 'many' && items.prdCnt * selectedCount * this.groupInfo.count > items.outSomethingCount) 
+            return this.$message.warning(`目前此商品数量仅剩${items.outSomethingCount}，小于所需数量${items.prdCnt * selectedCount * this.groupInfo.count}，不可选择`)
             
           items.selectedCount = JSON.parse(JSON.stringify(selectedCount))
           

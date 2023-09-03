@@ -24,8 +24,6 @@ export default class WebSocketClient {
     this.res = { code: 1 };
     this.initAllData = this.initAllData.bind(this);
     this.isConnecting = false;
-    this.connectTime = 0;
-    this.updateTime = 0;
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     // 初始化 WebSocket 连接
@@ -51,19 +49,23 @@ export default class WebSocketClient {
     this.socket.onmessage = this.messageHandle;
   };
 
-  openHandle = (e) => {
-    this.connectTime = new Date();
+  openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
     if (token) {
+      localStorage.setItem("codeCheck", false);
       if (!localStorage.getItem("refreshAll")) {
-        this.getAllData(true, true, true);
+        await this.getAllData(true, true, true);
       } else {
-        this.getUpdateData();
+        await this.getUpdateData();
       }
     }
 
-    this.socket.send(JSON.stringify(token));
+    if (localStorage.getItem("codeCheck") === "false") {
+      this.reset();
+      return;
+    }
 
+    this.socket.send(JSON.stringify(token));
     // 监听处理websocket是否断开连接
     this.websocketHasConnect();
   };
@@ -78,9 +80,7 @@ export default class WebSocketClient {
       "color:blue;font-size:14px"
     );
     this.closeHandle();
-    setTimeout(() => {
-      this.initAllData();
-    }, 5000);
+    this.initAllData();
     //   // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
     //   this.websocketTimeMessageTime
     //     ? this.getUpdateData()
@@ -101,7 +101,7 @@ export default class WebSocketClient {
     clearTimeout(this.isConnectedTimer);
   };
 
-  messageHandle = (e) => {
+  messageHandle = async (e) => {
     console.log(e);
     const { p: code, t: time, d: data } = JSON.parse(e.data);
     // 更新接收到消息的时间
@@ -115,11 +115,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
-        localStorage.setItem("tk", "");
-        this.closeHandle();
-        setTimeout(() => {
-          this.initAllData();
-        }, 5000);
+        this.reset();
       }
       this.vue.$message.warning(message);
     } else {
@@ -127,6 +123,28 @@ export default class WebSocketClient {
     }
   };
 
+  reset = async () => {
+    localStorage.setItem("tk", "");
+    let newCode;
+    try {
+      newCode = atool.getMachineCode();
+      console.log("设备注册码:" + newCode);
+    } catch (error) {
+      newCode = this.vue.$route.query && this.vue.$route.query.code;
+      if (!newCode) return this.vue.$router.replace("/register");
+    }
+    const res = await this.vue.$api.UtilAuth.term.termauth({
+      code: newCode,
+    });
+    if (res.code == 1) {
+      localStorage.setItem("tk", res.data.tk);
+    } else {
+      this.vue.$message.warning(res.msg);
+      this.vue.$router.replace("/register");
+    }
+    this.closeHandle();
+    this.initAllData();
+  };
   // 监听处理websocket是否断开
   websocketHasConnect = () => {
     // 首次加载时间
@@ -177,6 +195,11 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
+        localStorage.setItem(
+          "codeCheck",
+          res.code && res.code !== 11 && res.code !== 12
+        );
+        this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
@@ -202,68 +225,68 @@ export default class WebSocketClient {
                   );
           });
 
-          // 获取设备可操作区域或卡台
-          const currentMachineId = this.vue.$localStorage.getItem("machineId");
-          const currentAreaAndCardList = (
-            this.resResultDataObj["machineArea"] || []
-          ).filter(
-            (item) => item.license_id == currentMachineId && item.status == 1
-          );
-          const isNoLimit = currentAreaAndCardList.filter(
-            (item) => item.type_id == 3
-          );
-          if (isNoLimit.length <= 0) {
-            // 有限制
-            const areaList = currentAreaAndCardList.filter(
-              (item) => item.type_id == 1
-            );
-            const cardList = currentAreaAndCardList.filter(
-              (item) => item.type_id == 2
-            );
-            // 当前配置的区域id
-            let areaIdList = areaList.map((item) => item.region_o_seat_id);
+          // // 获取设备可操作区域或卡台
+          // const currentMachineId = this.vue.$localStorage.getItem("machineId");
+          // const currentAreaAndCardList = (
+          //   this.resResultDataObj["machineArea"] || []
+          // ).filter(
+          //   (item) => item.license_id == currentMachineId && item.status == 1
+          // );
+          // const isNoLimit = currentAreaAndCardList.filter(
+          //   (item) => item.type_id == 3
+          // );
+          // if (isNoLimit.length <= 0) {
+          //   // 有限制
+          //   const areaList = currentAreaAndCardList.filter(
+          //     (item) => item.type_id == 1
+          //   );
+          //   const cardList = currentAreaAndCardList.filter(
+          //     (item) => item.type_id == 2
+          //   );
+          //   // 当前配置的区域id
+          //   let areaIdList = areaList.map((item) => item.region_o_seat_id);
 
-            // 通过cardList反推出对应的区域，并添加到区域id中
-            const allCardInfo = [...this.resResultDataObj.cardInfo] || [];
+          //   // 通过cardList反推出对应的区域，并添加到区域id中
+          //   const allCardInfo = [...this.resResultDataObj.cardInfo] || [];
 
-            // 最终经过筛选过后的区域列表，对应元数据的areaInfo
-            let resultAreaList = [];
-            // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
-            let resultCardList = [];
+          //   // 最终经过筛选过后的区域列表，对应元数据的areaInfo
+          //   let resultAreaList = [];
+          //   // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+          //   let resultCardList = [];
 
-            areaIdList.forEach((el) => {
-              // 存储配置区域的区域下所有卡台
-              const currentAreaCardList = allCardInfo.filter(
-                (item) => item.regionId == el
-              );
-              resultCardList = [...resultCardList, ...currentAreaCardList];
-            });
+          //   areaIdList.forEach((el) => {
+          //     // 存储配置区域的区域下所有卡台
+          //     const currentAreaCardList = allCardInfo.filter(
+          //       (item) => item.regionId == el
+          //     );
+          //     resultCardList = [...resultCardList, ...currentAreaCardList];
+          //   });
 
-            cardList.forEach((el) => {
-              const find = allCardInfo.find(
-                (item) => item.id == el.region_o_seat_id
-              );
-              if (find) {
-                resultCardList.push(find);
-                if (!areaIdList.find((item) => item == find.regionId)) {
-                  areaIdList.push(find.regionId);
-                }
-              }
-            });
+          //   cardList.forEach((el) => {
+          //     const find = allCardInfo.find(
+          //       (item) => item.id == el.region_o_seat_id
+          //     );
+          //     if (find) {
+          //       resultCardList.push(find);
+          //       if (!areaIdList.find((item) => item == find.regionId)) {
+          //         areaIdList.push(find.regionId);
+          //       }
+          //     }
+          //   });
 
-            const allAreaInfo = [...this.resResultDataObj.areaInfo] || [];
-            areaIdList.forEach((el) => {
-              const find = allAreaInfo.find((item) => item.id == el);
-              resultAreaList.push(find);
-            });
-            this.resResultDataObj.areaInfo = resultAreaList.map((item) => ({
-              ...item,
-              isAllCard: !!areaList
-                .map((item) => item.region_o_seat_id)
-                .find((items) => items == item.id), // 是否是配置的可可显示的区域（如果配置的区域，则展现出的卡台为当前区域下所有卡台，否则为部分卡台，即通过部分卡台反推出来的区域）
-            }));
-            this.resResultDataObj.cardInfo = resultCardList;
-          }
+          //   const allAreaInfo = [...this.resResultDataObj.areaInfo] || [];
+          //   areaIdList.forEach((el) => {
+          //     const find = allAreaInfo.find((item) => item.id == el);
+          //     resultAreaList.push(find);
+          //   });
+          //   this.resResultDataObj.areaInfo = resultAreaList.map((item) => ({
+          //     ...item,
+          //     isAllCard: !!areaList
+          //       .map((item) => item.region_o_seat_id)
+          //       .find((items) => items == item.id), // 是否是配置的可可显示的区域（如果配置的区域，则展现出的卡台为当前区域下所有卡台，否则为部分卡台，即通过部分卡台反推出来的区域）
+          //   }));
+          //   this.resResultDataObj.cardInfo = resultCardList;
+          // }
 
           console.log("new-resResultDataObj:", this.resResultDataObj);
 
@@ -309,7 +332,6 @@ export default class WebSocketClient {
           }
         }
       }
-      this.updateTime = new Date();
     } catch (error) {
       console.log("全量数据请求失败", error);
     }
@@ -348,8 +370,10 @@ export default class WebSocketClient {
     };
     try {
       const res = await api_card.reqGetUpdateData(params);
-      // console.log('增量数据:', res)  // TODO:
-
+      localStorage.setItem(
+        "codeCheck",
+        res.code && res.code !== 11 && res.code !== 12
+      );
       // 更新接收到消息的时间
       this.websocketTimeStart = +new Date();
 
@@ -365,7 +389,6 @@ export default class WebSocketClient {
       } else {
         this.vue.$message.warning(res.msg);
       }
-      this.updateTime = new Date();
     } catch (error) {
       console.log("获取websocket断开期间的增量数据失败", error);
     }
@@ -397,7 +420,7 @@ export default class WebSocketClient {
         console.log(3, "key", key);
         localStorage.setItem("refreshAll", ...dataObj[key]);
         // 页面需要从新获取最新全量数据
-        // return this.getAllData(true, true);
+        return this.getAllData(true, true);
       } else {
         dataObj[key] = transformCardDataHandle(dataObj[key], key);
         dataObj[key].forEach((el) => {
@@ -611,8 +634,4 @@ export default class WebSocketClient {
       }
     }, 100);
   }
-
-  isValid = () => {
-    return this.connectTime < this.updateTime;
-  };
 }
