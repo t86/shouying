@@ -5,6 +5,7 @@ import { transformCardDataHandle } from "@/utils/transformCardData";
 import { localStorage } from "@/utils/common/storage";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
+import { CODE_INVALID } from "@/observer";
 
 let keys = {
   9: ["prdId", "grpId", "seqId"],
@@ -29,6 +30,9 @@ export default class WebSocketClient {
     // 初始化 WebSocket 连接
     this.initAllData();
     window.addEventListener("beforeunload", (e) => this.closeHandle(e));
+    this.vue.$observer.subscribe(CODE_INVALID, () => {
+      this.reset();
+    });
   }
 
   connect = () => {
@@ -52,17 +56,11 @@ export default class WebSocketClient {
   openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
     if (token) {
-      localStorage.setItem("codeCheck", false);
       if (!localStorage.getItem("refreshAll")) {
         await this.getAllData(true, true, true);
       } else {
         await this.getUpdateData();
       }
-    }
-
-    if (localStorage.getItem("codeCheck") === "false") {
-      this.reset();
-      return;
     }
 
     this.socket.send(JSON.stringify(token));
@@ -97,7 +95,7 @@ export default class WebSocketClient {
       // this.socket.onclose = event => console.log('websocket已关闭')
     }
     clearTimeout(this.timeOutTimer);
-    clearTimeout(this.errorTimer);
+    // clearTimeout(this.errorTimer);
     clearTimeout(this.isConnectedTimer);
   };
 
@@ -115,7 +113,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
-        this.reset();
+        this.vue.$observer.send(CODE_INVALID);
       }
       this.vue.$message.warning(message);
     } else {
@@ -130,8 +128,7 @@ export default class WebSocketClient {
       newCode = atool.getMachineCode();
       console.log("设备注册码:" + newCode);
     } catch (error) {
-      newCode = this.vue.$route.query && this.vue.$route.query.code;
-      if (!newCode) return this.vue.$router.replace("/register");
+      return this.vue.$router.replace("/register");
     }
     const res = await this.vue.$api.UtilAuth.term.termauth({
       code: newCode,
@@ -139,7 +136,6 @@ export default class WebSocketClient {
     if (res.code == 1) {
       localStorage.setItem("tk", res.data.tk);
     } else {
-      this.vue.$message.warning(res.msg);
       this.vue.$router.replace("/register");
     }
     this.closeHandle();
@@ -195,10 +191,6 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
-        localStorage.setItem(
-          "codeCheck",
-          res.code && res.code !== 11 && res.code !== 12
-        );
         this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
@@ -370,10 +362,6 @@ export default class WebSocketClient {
     };
     try {
       const res = await api_card.reqGetUpdateData(params);
-      localStorage.setItem(
-        "codeCheck",
-        res.code && res.code !== 11 && res.code !== 12
-      );
       // 更新接收到消息的时间
       this.websocketTimeStart = +new Date();
 

@@ -5,6 +5,7 @@ import { sessionStorage, localStorage } from "../utils/common/storage";
 import { projectName, projectConfig } from "@/utils/config/projectConfig.js";
 import getTermType from "./addTermType";
 import { canRequest } from "./intercept";
+import Observer, { CODE_INVALID } from "../observer";
 
 // 创建axios实例
 var instance = axios.create({ timeout: 1000 * 12 });
@@ -56,6 +57,7 @@ instance.interceptors.response.use(
         router.push({ path: "/" });
       }
       localStorage.removeItem("s");
+      Observer.send(CODE_INVALID);
     } else if (res.data.code == 15 || res.data.code == 14) {
       if (localStorage.getItem("super") == "true") {
         router.push({ path: "/admin" });

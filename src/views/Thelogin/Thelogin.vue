@@ -496,7 +496,6 @@ export default {
               if (res.code == 12) {
                 this.term();
               }
-              this.$message.warning(res.msg);
               window.loopReadCard();
             }
           });
