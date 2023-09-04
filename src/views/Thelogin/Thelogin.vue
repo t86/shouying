@@ -383,6 +383,7 @@ export default {
       sessionStorage.clear();
       localStorage.clear();
       localStorage.setItem("projectVersion", version);
+      this.term();
       this.$websocket.reset();
       this.$message({
         message: "缓存已清理",

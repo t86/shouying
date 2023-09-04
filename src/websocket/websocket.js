@@ -119,22 +119,6 @@ export default class WebSocketClient {
   };
 
   reset = async () => {
-    localStorage.setItem("tk", "");
-    let newCode;
-    try {
-      newCode = atool.getMachineCode();
-      console.log("设备注册码:" + newCode);
-    } catch (error) {
-      return this.vue.$router.replace("/register");
-    }
-    const res = await this.vue.$api.UtilAuth.term.termauth({
-      code: newCode,
-    });
-    if (res.code == 1) {
-      localStorage.setItem("tk", res.data.tk);
-    } else {
-      this.vue.$router.replace("/register");
-    }
     this.closeHandle();
     this.initAllData();
   };
