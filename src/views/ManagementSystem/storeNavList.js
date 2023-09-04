@@ -4,7 +4,7 @@ export default [
         //   name: "开店助手",
         //   sys_priv: [1],
         //   system: ["org_mgr"],
-        //   img: "开店助手.png",
+        //   img: "shop_assistant.png",
         //   content: [
         //     {
         //       name: "开店向导",
@@ -17,7 +17,7 @@ export default [
           name: "人员管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "人员管理.png",
+          img: "people_manage.png",
           content: [
             {
               name: "工号生成规则",
@@ -49,7 +49,7 @@ export default [
           name: "商品管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "商品管理.png",
+          img: "commodity_manage.png",
           content: [
             {
               name: "商品管理",
@@ -69,7 +69,7 @@ export default [
           name: "卡台管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "卡台管理.png",
+          img: "card_manage.png",
           content: [
             //            {
             //              name:'区域管理',
@@ -109,7 +109,7 @@ export default [
           name: "限额限量管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "商品组管理.png",
+          img: "commodity_group_manage.png",
           content: [
             {
               name: "商品组管理",
@@ -135,7 +135,7 @@ export default [
           name: "门店信息",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "门店管理.png",
+          img: "store_manage.png",
           content: [
             {
               name: "门店信息",
@@ -147,7 +147,7 @@ export default [
           name: "支付管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "支付管理.png",
+          img: "payed_manage.png",
           content: [
             {
               name: "渠道管理",
@@ -163,7 +163,7 @@ export default [
           name: "设备管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "设备管理.png",
+          img: "device_manage.png",
           content: [
             {
               name: "打印机管理",
@@ -199,7 +199,7 @@ export default [
           name: "收银报表配置",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "报表管理1.png",
+          img: "report_manage1.png",
           content: [
             {
               name: "特饮小费导出配置",
@@ -215,7 +215,7 @@ export default [
           name: "小程序报表",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "报表管理1.png",
+          img: "report_manage1.png",
           content: [
             {
               name: "高毛利商品配置",
@@ -227,7 +227,7 @@ export default [
           name: "要求管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "要求管理.png",
+          img: "request_manage.png",
           content: [
             {
               name: "要求管理",
@@ -243,7 +243,7 @@ export default [
           name: "理由管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "理由管理.png",
+          img: "reason_manage.png",
           content: [
             {
               name: "优惠理由管理",
@@ -263,7 +263,7 @@ export default [
           name: "业务配置",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "业务配置.png",
+          img: "service_config.png",
           content: [
             {
               name: "规则配置",
@@ -279,7 +279,7 @@ export default [
           name: "存酒管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "存酒管理.png",
+          img: "save_wine_manage.png",
           content: [
             {
               name: "存酒设置",
@@ -295,7 +295,7 @@ export default [
           name: "抽成管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "要求管理.png",
+          img: "request_manage.png",
           content: [
             {
               name: "抽成管理",
@@ -307,7 +307,7 @@ export default [
           name: "短信管理",
           sys_priv: [1],
           system: ["org_mgr"],
-          img: "要求管理.png",
+          img: "request_manage.png",
           content: [
             {
               name: "账户管理",

@@ -230,7 +230,7 @@
                             @input="changeCountOfSeal('input',items)"
                           />
                           <img
-                            :src="items.changeCount>=items.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/add.png')"
+                            :src="items.changeCount>=items.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/order_add.png')"
                             @click="changeCountOfSeal('add',items)"
                             alt
                           />
@@ -259,7 +259,7 @@
                         @input="changeCountOfSeal('input',item)"
                       />
                       <img
-                        :src="item.changeCount>=item.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/add.png')"
+                        :src="item.changeCount>=item.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/order_add.png')"
                         @click="changeCountOfSeal('add',item)"
                         alt
                       />
@@ -362,7 +362,7 @@ import api_order from "@/api/order";
 import api_money from "@/api/money";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/add.png";
+import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";

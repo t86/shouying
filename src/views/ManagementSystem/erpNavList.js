@@ -3,7 +3,7 @@ export default [
     name: "首页",
     sys_priv: [2],
     system: ['erp', "erpAdmin"],
-    img: "开店助手.png",
+    img: "shop_assistant.png",
     content: [
       {
         name: "首页",
@@ -15,7 +15,7 @@ export default [
     name: "erp仓库管理",
     sys_priv: [2],
     system: ["erpAdmin"],
-    img: "erp仓库管理.png",
+    img: "erp_warehouse_manage.png",
     content: [
       {
         name: "erp仓库管理",
@@ -27,7 +27,7 @@ export default [
     name: "物料管理",
     sys_priv: [2],
     system: ["erpAdmin"],
-    img: "物料管理.png",
+    img: "material_manage.png",
     content: [
       // new
       {
@@ -49,7 +49,7 @@ export default [
     name: "入库管理",
     sys_priv: [2],
     system: ["erp", 'erpAdmin'],
-    img: "入库管理.png",
+    img: "storage_manage.png",
     content: [
       {
         name: "其他入库",
@@ -81,7 +81,7 @@ export default [
     name: "出库管理",
     sys_priv: [2],
     system: ["erp", 'erpAdmin'],
-    img: "出库管理.png",
+    img: "outbound_manage.png",
     content: [
       {
         name: "其他出库",
@@ -113,7 +113,7 @@ export default [
     name: "供应商管理",
     sys_priv: [2],
     system: ["erpAdmin"],
-    img: "供应商管理.png",
+    img: "vendor_manage.png",
     content: [
       {
         name: "供应商管理",
@@ -131,7 +131,7 @@ export default [
     system: ["erpAdmin"],
     needAuth: true,  // 需要权限配置
     auth: ['erp'],  // erp仓库管理员需要进行相应的岗位权限配置
-    img: "空瓶管理.png",
+    img: "empty_bottle_manage.png",
     content: [
       {
         name: "空瓶入库单",
@@ -151,7 +151,7 @@ export default [
     name: "报表管理",
     sys_priv: [2],
     system: ["erp", 'erpAdmin'],
-    img: "报表管理.png",
+    img: "report_manage.png",
     content: [
       {
         name: "物料实时库存表",

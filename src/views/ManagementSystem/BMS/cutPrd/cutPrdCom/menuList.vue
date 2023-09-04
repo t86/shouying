@@ -20,7 +20,7 @@
                 style="color: #8c8c8c"
                 class="el-icon-caret-right"
               ></i>
-              <img src="@/assets/img/文件夹.png" alt />
+              <img src="@/assets/img/file_list.png" alt />
               <span class="name">全部</span>
             </div>
             <secondEmployeeListNavBarItem v-if="showMenuList" :menuList="menuList" />
@@ -37,7 +37,7 @@
                   layout-align="start center"
                   @click.stop="getAreaDetail(item, 'group')"
                 >
-                  <img src="@/assets/img/文件夹.png" alt />
+                  <img src="@/assets/img/file_list.png" alt />
                   <span>{{ item.n }}</span>
                 </li>
               </ul>
@@ -52,7 +52,7 @@
                   layout-align="start center"
                   @click.stop="getAreaDetail(item, 'employee')"
                 >
-                  <img src="@/assets/img/商品列表.png" alt />
+                  <img src="@/assets/img/commodity_list.png" alt />
                   <span>{{ item.n }}</span>
                 </li>
               </ul>

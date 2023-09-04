@@ -2,11 +2,11 @@
     <div class="emp-list">
         <div class="title">部门人员</div>
         <div class="emp-list-controller">
-            <icon-button @click.native="xingh" text="新增员工" img="添加.png" colors="#383943"></icon-button>
-            <icon-button @click.native="compileprinter" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-            <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="printerdel" text="批量删除" img="删除.png" colors="#6B2830"
+            <icon-button @click.native="xingh" text="新增员工" img="btn_add.png" colors="#383943"></icon-button>
+            <icon-button @click.native="compileprinter" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+            <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+            <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+            <icon-button @click.native="printerdel" text="批量删除" img="btn_delete.png" colors="#6B2830"
                          bjcolors="#491E24"></icon-button>
             <characters-button @click.native="toEditDept" colors="#383943" wz='批量修改部门'></characters-button>
             <characters-button @click.native="toEditUpper" colors="#383943" wz='批量修改直属上级'></characters-button>
@@ -400,7 +400,7 @@
                             name="impfile"
                             multiple>
                         <div style="margin: 35px 0 10px;"><img style="height: 70px;width: 67px;"
-                                                               src="../../../../../../assets/img/上传文件.png" alt=""></div>
+                                                               src="../../../../../../assets/img/upload_file.png" alt=""></div>
                         <div class="el-upload__text" style="color: #40404e;">将文件拖到此处，或<em>点击上传</em></div>
                         <div class="el-upload__tip" slot="tip" style="color: #8C8C8C;">只支持上传xlsx文件</div>
                     </el-upload>

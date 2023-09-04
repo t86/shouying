@@ -1,9 +1,9 @@
 <template>
     <div class="pgrp">
         <div class="pgrp-controller">
-            <icon-button @click.native="xingh" text="新增商品组" img="添加.png" colors="#383943"></icon-button>
-            <icon-button @click.native="compileprinter" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-            <icon-button @click.native="printerdel" text="批量删除" img="删除.png" colors="#6B2830"
+            <icon-button @click.native="xingh" text="新增商品组" img="btn_add.png" colors="#383943"></icon-button>
+            <icon-button @click.native="compileprinter" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+            <icon-button @click.native="printerdel" text="批量删除" img="btn_delete.png" colors="#6B2830"
                          bjcolors="#491E24"></icon-button>
         </div>
         <div style="position: relative">
@@ -240,8 +240,8 @@
                         <tr class="drag-list" v-if="Commodityontent.length<1">
                             <td class="nodata">
                                 <img v-show="controlpicture ==1" src="../../../../assets/img/wu.png" alt="">
-                                <img v-show="controlpicture ==2" src="../../../../assets/img/空-请检索.png" alt="">
-                                <img v-show="controlpicture ==3" src="../../../../assets/img/加载中.png" alt="">
+                                <img v-show="controlpicture ==2" src="../../../../assets/img/empty_search.png" alt="">
+                                <img v-show="controlpicture ==3" src="../../../../assets/img/state_loading.png" alt="">
                                 <div v-show="controlpicture ==1" class="hint">暂无数据</div>
                                 <div v-show="controlpicture ==2" class="hint">空-请检索</div>
                                 <div v-show="controlpicture ==3" class="hint">加载中...</div>

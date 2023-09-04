@@ -13,7 +13,7 @@
         <el-collapse v-model="stairNames" @change="stairhandleChange" accordion>
           <el-collapse-item name="全部">
             <!-- <span slot="title" class=" " >
-                            <img class="icons" src="@/assets/img/文件夹.png"  alt="">
+                            <img class="icons" src="@/assets/img/file_list.png"  alt="">
                             <router-link to="/ERP/mat/mocate" class="routerlinkyus" >
                                 <div>全部</div>
                             </router-link>
@@ -24,7 +24,7 @@
               slot="title"
               class="routerlinkyus collapse-title"
             >
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip text="全部"></ellipsis-tooltip>
             </router-link>
             <!-- 一级分类列表 stair -->
@@ -37,7 +37,7 @@
                     class="collapse-title"
                     style="width: calc(100% - 18px);"
                   >
-                    <img class="icons" src="@/assets/img/文件夹.png" alt />
+                    <img class="icons" src="@/assets/img/file_list.png" alt />
                     <router-link
                       :to="`/BMS/Prds/tcate/${stair.id}`"
                       class="routerlinkyus"
@@ -54,7 +54,7 @@
                     class="second"
                     @click="materialhandleChange(second.id+'')"
                   >
-                    <img class="icons" src="@/assets/img/文件夹.png" alt />
+                    <img class="icons" src="@/assets/img/file_list.png" alt />
                     <router-link
                       :to="`/BMS/Prds/Prd/${second.id}`"
                       class="routerlinkyus"
@@ -79,7 +79,7 @@
               :key="i"
               @click="xuanzyij(stair.id+'')"
             >
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
@@ -91,14 +91,14 @@
               :key="i"
               @click="xuanzerj(stair.id+'',stair.yij+'')"
             >
-              <img class="icons" src="@/assets/img/文件夹.png" alt />
+              <img class="icons" src="@/assets/img/file_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
           <div class="liebia" v-show="searchesult.wl.length > 0">商品列表：</div>
           <div class="yansnafe" v-show="searchesult.wl.length > 0">
             <div class="lbnrs" v-for="(stair,i) in searchesult.wl" :key="i" @click="xuanzwl(stair)">
-              <img class="icons" src="@/assets/img/商品列表.png" alt />
+              <img class="icons" src="@/assets/img/commodity_list.png" alt />
               <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
             </div>
           </div>
@@ -291,7 +291,7 @@
                       <div class="upload-btn-icon">
                         <img
                           style="height: 30px;width: 30px;"
-                          src="../../../../assets/img/添加.png"
+                          src="../../../../assets/img/btn_add.png"
                           alt
                         />
                       </div>
@@ -439,8 +439,8 @@
                 <tr class="drag-list" v-if="erps_prdss.length<1">
                   <td class="nodata">
                     <img v-show="controlpicture ==1" src="../../../../assets/img/wu.png" alt />
-                    <img v-show="controlpicture ==2" src="../../../../assets/img/空-请检索.png" alt />
-                    <img v-show="controlpicture ==3" src="../../../../assets/img/加载中.png" alt />
+                    <img v-show="controlpicture ==2" src="../../../../assets/img/empty_search.png" alt />
+                    <img v-show="controlpicture ==3" src="../../../../assets/img/state_loading.png" alt />
                     <div v-show="controlpicture ==1" class="hint">暂无数据</div>
                     <div v-show="controlpicture ==2" class="hint">空-请检索</div>
                     <div v-show="controlpicture ==3" class="hint">加载中...</div>
@@ -583,7 +583,7 @@
                       <div class="upload-btn-icon">
                         <img
                           style="height: 30px;width: 30px;"
-                          src="../../../../assets/img/添加.png"
+                          src="../../../../assets/img/btn_add.png"
                           alt
                         />
                       </div>
@@ -633,7 +633,7 @@
                       <th class="tbdgf">
                         <span>数量</span>
                         <el-tooltip class="item" effect="light" content="数量不填，默认为1" placement="top">
-                          <img src="../../../../assets/img/问号.png" alt />
+                          <img src="../../../../assets/img/btn_help.png" alt />
                         </el-tooltip>
                       </th>
                       <th>存货商品名</th>
@@ -719,7 +719,7 @@
                       <br />那么客户下单套餐时, 可以选 1份红茶2瓶, 2份绿茶2瓶。
                       <br />
                     </div>
-                    <img src="../../../../assets/img/问号.png" alt />
+                    <img src="../../../../assets/img/btn_help.png" alt />
                   </el-tooltip>
                 </div>
                 <div
@@ -742,7 +742,7 @@
                     <th class="tbdgf">
                       <span>数量</span>
                       <el-tooltip class="item" effect="light" content="数量不填，默认为1" placement="top">
-                        <img src="../../../../assets/img/问号.png" alt />
+                        <img src="../../../../assets/img/btn_help.png" alt />
                       </el-tooltip>
                     </th>
                     <th>存货商品名</th>
@@ -954,8 +954,8 @@
                 <tr class="drag-list" v-if="ImportDatas.length<1">
                   <td class="nodata">
                     <img v-show="contcture ==1" src="../../../../assets/img/wu.png" alt />
-                    <img v-show="contcture ==2" src="../../../../assets/img/空-请检索.png" alt />
-                    <img v-show="contcture ==3" src="../../../../assets/img/加载中.png" alt />
+                    <img v-show="contcture ==2" src="../../../../assets/img/empty_search.png" alt />
+                    <img v-show="contcture ==3" src="../../../../assets/img/state_loading.png" alt />
                     <div v-show="contcture ==1" class="hint">暂无数据</div>
                     <div v-show="contcture ==2" class="hint">空-请检索</div>
                     <div v-show="contcture ==3" class="hint">加载中...</div>

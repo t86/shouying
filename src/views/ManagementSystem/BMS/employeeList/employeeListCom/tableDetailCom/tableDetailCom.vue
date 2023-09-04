@@ -3,11 +3,11 @@
     <div class="group">
       <h3 class="fs18 m-b-2">下级部门</h3>
       <div class="top" layout="row" layout-align="start center">
-        <icon-button @click.native="addOrUpdateHandle(11)" text="新增" img="添加.png" colors="#383943"></icon-button>
-        <icon-button @click.native="addOrUpdateHandle(12)" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(11)" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(12)" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(13)" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
+        <icon-button @click.native="addOrUpdateHandle(11)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
+        <icon-button @click.native="addOrUpdateHandle(12)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(11)" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(12)" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(13)" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
       </div>
       <div class="table-content table1">
         <div class="table">
@@ -60,11 +60,11 @@
     <div class="employee m-t-6">
       <h3 class="fs18 m-b-2">部门员工</h3>
       <div class="top" layout="row" layout-align="start center">
-        <icon-button @click.native="addOrUpdateHandle(21)" text="新增" img="添加.png" colors="#383943"></icon-button>
-        <icon-button @click.native="addOrUpdateHandle(22)" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(21)" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(22)" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-        <icon-button @click.native="setEffectOrNotEffect(23)" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
+        <icon-button @click.native="addOrUpdateHandle(21)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
+        <icon-button @click.native="addOrUpdateHandle(22)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(21)" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(22)" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+        <icon-button @click.native="setEffectOrNotEffect(23)" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
         <characters-button @click.native="anotherEffectHandle(1)" colors="#383943" wz='批量修改部门'></characters-button>
         <characters-button @click.native="anotherEffectHandle(2)" colors="#383943" wz='批量修改直属上级'></characters-button>
         <characters-button @click.native="anotherEffectHandle(3)" colors="#383943" wz='批量导入'></characters-button>

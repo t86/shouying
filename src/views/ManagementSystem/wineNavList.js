@@ -2,7 +2,7 @@ export default [{
   name: "存酒管理",
   sys_priv: [3],
   system: ["wine"],
-  img: "存酒管理.png",
+  img: "save_wine_manage.png",
   content: [
     {
       name: "存酒待入库",
@@ -29,7 +29,7 @@ export default [{
   name: "充公管理",
   sys_priv: [3],
   system: ["wine"],
-  img: "充公管理.png",
+  img: "confiscation_manage.png",
   content: [
     {
       name: "待充公",
@@ -49,7 +49,7 @@ export default [{
   name: "用户管理",
   sys_priv: [3],
   system: ["wine"],
-  img: "用户管理1.png",
+  img: "user_manage1.png",
   content: [
     {
       name: "用户管理",
@@ -61,7 +61,7 @@ export default [{
   name: "客户中心存酒",
   sys_priv: [3],
   system: ["wine"],
-  img: "客户中心存酒.png",
+  img: "customer_center_store_wine.png",
   content: [
     {
       name: "待入库",
@@ -77,7 +77,7 @@ export default [{
   name: "报表管理",
   sys_priv: [3],
   system: ["wine"],
-  img: "报表管理1.png",
+  img: "report_manage1.png",
   content: [
     {
       name: "存取酒记录",

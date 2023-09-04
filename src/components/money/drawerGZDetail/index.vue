@@ -11,7 +11,7 @@
       <div class="GZ-detail">
         <div class="top" layout="row" layout-align="start center">
           <div class="btn" @click="showOrHideDrawer($event,'add')" layout="row" layout-align="center center">
-            <img :src="require('../../../assets/money-img/add.png')" alt="">
+            <img :src="require('../../../assets/money-img/money_add.png')" alt="">
             <div class="tips">新增</div>
           </div>
           <div class="btn" @click="showOrHideDrawer($event,'edit')" layout="row" layout-align="center center">

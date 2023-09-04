@@ -1,13 +1,13 @@
 <template>
   <div class="prd-table">
     <div class="top" layout="row" layout-align="start center">
-      <icon-button @click.native="addOrUpdatePrdHandle(1)" text="新增" img="添加.png" colors="#383943"></icon-button>
-      <icon-button @click.native="addOrUpdateGroupHandle(1)" text="新增套餐" img="新增套餐.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="updatePrdOrGroupHandle(2)" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-      <icon-button @click.native="setEffectOrNotEffect(1)" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-      <icon-button @click.native="setEffectOrNotEffect(2)" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-      <icon-button @click.native="setEffectOrNotEffect(3)" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
-      <icon-button @click.native="showImportDrawer = true" text="批量导入" img="批量导入.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="addOrUpdatePrdHandle(1)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
+      <icon-button @click.native="addOrUpdateGroupHandle(1)" text="新增套餐" img="btn_new_package.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="updatePrdOrGroupHandle(2)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+      <icon-button @click.native="setEffectOrNotEffect(1)" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+      <icon-button @click.native="setEffectOrNotEffect(2)" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+      <icon-button @click.native="setEffectOrNotEffect(3)" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="showImportDrawer = true" text="批量导入" img="btn_batch_import.png" colors="#f5f5f5"></icon-button>
       <characters-button @click.native="showOrHideAreaLibraryHandle" colors="#f5f5f5" wz="批量设置区域出品库"></characters-button>
       <characters-button @click.native="editTwoCategoryHandle" colors="#383943" wz='批量修改商品分类'></characters-button>
       <characters-button @click.native="$message.info('上下拖动商品可调整顺序')" colors="#383943" wz='调整顺序'></characters-button>

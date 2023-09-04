@@ -20,7 +20,7 @@
               <div class="value" layout="row" layout-align="start center">
                 <img :src="chooseCount > 0 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')" @click="chooseCount--"/>
                 <input type="number" @click="focus = '-1'" :class="{focus: focus == -1}" :min="0" v-model="chooseCount" />
-                <img :src="(type == 1 && currentChooseCount < maxCount || type == 2) ? require('@/assets/order-img/add.png') : require('@/assets/order-img/add-disabled.png')" @click="chooseCount++"/>
+                <img :src="(type == 1 && currentChooseCount < maxCount || type == 2) ? require('@/assets/order-img/order_add.png') : require('@/assets/order-img/add-disabled.png')" @click="chooseCount++"/>
               </div>
             </div>
           </div>
@@ -57,7 +57,7 @@
                       <div class="td" layout="row" layout-align="start center">
                         <img :src="item.count > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')" @click="changeItemCountHandle(item, 'sub')"/>
                         <input type="number" @click="focus = index;itemText = 'count'" :class="{focus: focus == index && itemText == 'count'}" :min="1" v-model="item.count" />
-                        <img :src="(type == 1 && currentChooseCount < maxCount || type == 2) ? require('@/assets/order-img/add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeItemCountHandle(item, 'add')"/>
+                        <img :src="(type == 1 && currentChooseCount < maxCount || type == 2) ? require('@/assets/order-img/order_add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeItemCountHandle(item, 'add')"/>
                       </div>
                     </div>
                   </div>
@@ -210,15 +210,19 @@ export default {
               currentInfo.count = (currentInfo.count == 0 ? '' : currentInfo.count.toString()) + value * 1;
               break;
           }
-          const allCount = this.tableData.reduce((a, b) => a + b.count * 1, 0)
-          if(allCount + this.chooseCount * 1 > this.maxCount * 1) {
-            let anotherCount = 0
-            this.tableData.forEach((el, i) => {
-              if(i != this.focus) {
-                anotherCount += el.count * 1
-              }
-            })
-            currentInfo.count = this.maxCount * 1 - anotherCount - this.chooseCount
+            // 非授权存酒才计算
+          if(this.type == 1){ 
+            const allCount = this.tableData.reduce((a, b) => a + b.count * 1, 0)
+            if(allCount + this.chooseCount * 1 > this.maxCount * 1) {
+              let anotherCount = 0
+              this.tableData.forEach((el, i) => {
+                if(i != this.focus) {
+                  anotherCount += el.count * 1
+                }
+              })
+            
+                currentInfo.count = this.maxCount * 1 - anotherCount - this.chooseCount
+            }
           }
         }
       }

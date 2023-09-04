@@ -18,21 +18,21 @@
         <ul class="time-select fs14 m-r-1" layout="row" layout-align="start center">
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
-              :src="activeTime == 1 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 1}">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
-              :src="activeTime == 2 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 2}">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
-              :src="activeTime == 3 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 3}">近90天</span>
@@ -67,7 +67,7 @@
       </div>
     </div>
     <div class="btn-area m-t-4" layout="row" layout-align="start center">
-      <icon-button @click.native="addHandle(1)" text="新增" img="添加.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="addHandle(1)" text="新增" img="btn_add.png" colors="#f5f5f5"></icon-button>
       <characters-button @click.native="hcHandle(1)" colors="#f5f5f5" wz="红冲"></characters-button>
       <characters-button @click.native="hcHandle(2)" colors="#f5f5f5" wz="红冲整单"></characters-button>
       <characters-button @click.native="addHandle(2)" colors="#f5f5f5" wz="类似创建"></characters-button>

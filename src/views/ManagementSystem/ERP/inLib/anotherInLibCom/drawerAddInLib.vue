@@ -140,14 +140,14 @@
                     style="width:20px;height:20px"
                     @click.native="addTableRow"
                     text="新增"
-                    img="添加.png"
+                    img="btn_add.png"
                     colors="#f5f5f5"
                   ></icon-button>
                   <icon-button
                     style="width:20px;height:20px"
                     @click.native="delTableRow(item)"
                     text="删除"
-                    img="删除.png"
+                    img="btn_delete.png"
                     colors="#6B2830"
                   ></icon-button>
                 </div>

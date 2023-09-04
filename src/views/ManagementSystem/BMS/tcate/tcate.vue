@@ -1,11 +1,11 @@
 <template>
     <div class="tcate">
         <div class="tcate-controller">
-            <icon-button @click.native="xingh" text="新增二级分类" img="添加.png" colors="#383943"></icon-button>
-            <icon-button @click.native="compiletcate" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-            <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#383943"></icon-button>
-            <icon-button @click.native="tcatedel" text="批量删除" img="删除.png" colors="#6B2830"
+            <icon-button @click.native="xingh" text="新增二级分类" img="btn_add.png" colors="#383943"></icon-button>
+            <icon-button @click.native="compiletcate" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+            <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#383943"></icon-button>
+            <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#383943"></icon-button>
+            <icon-button @click.native="tcatedel" text="批量删除" img="btn_delete.png" colors="#6B2830"
                          bjcolors="#491E24"></icon-button>
         </div>
         <div class="zsykd" style="display: inline-block;">

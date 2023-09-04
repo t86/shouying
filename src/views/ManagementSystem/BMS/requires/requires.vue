@@ -8,14 +8,14 @@
                     <el-collapse-item name="全部">
                         <router-link to="/BMS/requires/requireType"
                                      slot="title" class="routerlinkyus collapse-title">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <ellipsis-tooltip text="全部"></ellipsis-tooltip>
                         </router-link>
                         <!--要求类型列表 stair -->
                         <div v-for="(stair,i) in classify" :style="{'background-color':gaibland==stair.id?'#d7e9ff':''}"
                              style="width: calc(100% - 35px);padding-left: 35px;border-radius:6px"
                              :key="i" class="collapse-title" @click="secondhandleChange(stair)">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <router-link :to="`/BMS/requires/require/${stair.id}`" class="routerlinkyus" style="width: calc(100% - 18px);">
                                 <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
                             </router-link>
@@ -28,7 +28,7 @@
                     <div class="liebia" v-show="searchesult.yij.length > 0">要求类型列表：</div>
                     <div class="yansnafe" v-show="searchesult.yij.length > 0">
                         <div class="lbnrs" v-for="(stair,i) in searchesult.yij" :key="i" @click="xuanzyij(stair.id+'')">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                     <div class="yansnafe" v-show="searchesult.erj.length > 0">
                         <div class="lbnrs" v-for="(stair,i) in searchesult.erj" :key="i"
                              @click="xuanzerj(stair.id, stair.rt)">
-                            <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                            <img class="icons" src="@/assets/img/file_list.png" alt="">
                             <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
                         </div>
                     </div>

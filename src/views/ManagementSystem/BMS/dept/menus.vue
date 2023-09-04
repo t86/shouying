@@ -5,7 +5,7 @@
                 <el-collapse-item :name="stair.id+''">
                     <span slot="title"
                           class="collapse-title" style="width: calc(100% - 18px);">
-                        <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                        <img class="icons" src="@/assets/img/file_list.png" alt="">
                         <router-link :to="`/BMS/dept/emp/${stair.id}`" class="routerlinkyus"
                                      style="width: calc(100% - 18px);">
                             <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>
@@ -22,7 +22,7 @@
                   :style="{'background-color':gaibland==stair.id?'#d7e9ff':'','padding-left':'17px','border-radius':'6px'}"
                   class="collapse-title" style="width: calc(100% - 18px);"
                   @click="handleClick(stair)">
-                <img class="icons" src="@/assets/img/文件夹.png" alt="">
+                <img class="icons" src="@/assets/img/file_list.png" alt="">
                 <router-link :to="`/BMS/dept/emp/${stair.id}`" class="routerlinkyus"
                              style="width: calc(100% - 18px);">
                     <ellipsis-tooltip :text="stair.n || '-----'"></ellipsis-tooltip>

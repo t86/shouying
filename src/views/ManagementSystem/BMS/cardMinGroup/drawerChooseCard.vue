@@ -16,7 +16,7 @@
             <div class="card-item cursor" :class="{border: items.checked}" v-for="items in item.is" :key="items.id">
                 <div class="card-content" @click.stop="chooseCard(items)">
                   <h3>{{items.n}}</h3>
-                  <img v-if="items.checked" :class="{border: items.checked}" :src="require('@/assets/img/分配卡台选中角.png')" alt />
+                  <img v-if="items.checked" :class="{border: items.checked}" :src="require('@/assets/img/assign_cards_to_select.png')" alt />
                 </div>
             </div>
           </div>
