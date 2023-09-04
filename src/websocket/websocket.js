@@ -388,9 +388,12 @@ export default class WebSocketClient {
         );
       } else if (key == 23) {
         console.log(3, "key", key);
-        localStorage.setItem("refreshAll", ...dataObj[key]);
-        // 页面需要从新获取最新全量数据
-        return this.getAllData(true, true);
+        let version = localStorage.getItem("refreshAll");
+        if (version && version != dataObj[key][0] * 1) {
+          localStorage.setItem("refreshAll", ...dataObj[key]);
+          // 页面需要从新获取最新全量数据
+          return this.getAllData(true, true);
+        }
       } else {
         dataObj[key] = transformCardDataHandle(dataObj[key], key);
         dataObj[key].forEach((el) => {
@@ -599,7 +602,7 @@ export default class WebSocketClient {
         setTimeout(() => {
           this.closeHandle();
           this.initAllData();
-        }, 1000)
+        }, 1000);
 
         return;
       }
@@ -613,7 +616,7 @@ export default class WebSocketClient {
           sessionStorage.getItem("client") == "book"
         ) {
           this.connect();
-          return
+          return;
         }
       }
       this.initAllData();
