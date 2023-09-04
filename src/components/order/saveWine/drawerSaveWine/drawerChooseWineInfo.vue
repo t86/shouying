@@ -134,6 +134,9 @@ export default {
       if(type == 'add') {
         if(this.type == 1) {
           const currentMaxCount = this.maxCount - this.chooseCount - this.tableData.filter(item => item.id != itemInfo.id).reduce((a, b) => a + b.count * 1, 0)
+          if(itemInfo.count + 1>currentMaxCount){
+            this.$message.warning('整瓶数量和散瓶数量之和不得超过可存数量' +  this.maxCount)
+          }
           itemInfo.count = Math.min(itemInfo.count + 1, currentMaxCount * 1)
         } else {
           itemInfo.count = Math.max(itemInfo.count + 1, 1)
@@ -144,7 +147,7 @@ export default {
     },
     addRowHandle(){
       if(this.type == 1 && this.currentChooseCount >= this.maxCount) {
-        return this.$message.warning('当前可存数量已达最大值' + this.maxCount)
+        return this.$message.warning('整瓶数量和散瓶数量之和不得超过可存数量' + this.maxCount)
       }
       this.tableData = [...this.tableData, {
         id: +new Date(),
@@ -220,8 +223,9 @@ export default {
                   anotherCount += el.count * 1
                 }
               })
-            
+                
                 currentInfo.count = this.maxCount * 1 - anotherCount - this.chooseCount
+                this.$message.warning("整瓶数量和散瓶数量之和不得超过可存数量" + this.maxCount)
             }
           }
         }
@@ -246,7 +250,7 @@ export default {
 
       if(this.type == 1) {  // 流水存酒
         // 当前选择的总数量 
-        if(this.currentChooseCount > this.maxCount) return this.$message.warning('当前存酒总数量已超过可存总数量' + this.maxCount)
+        if(this.currentChooseCount > this.maxCount) return this.$message.warning('整瓶数量和散瓶数量之和不得超过可存数量' + this.maxCount)
 
         const params = {
           csm_id: this.checkedOrderInfo.id * 1, //   int64   流水Id
@@ -322,6 +326,7 @@ export default {
         if(newVal < 0) {
           this.chooseCount = 0
         } else if(newVal > currentMaxCount) {
+          this.$message.warning('整瓶数量和散瓶数量之和不得超过可存数量' + this.maxCount)
           this.chooseCount = currentMaxCount
         }
       }
