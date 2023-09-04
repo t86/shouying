@@ -24,7 +24,6 @@ export default class WebSocketClient {
     this.vue = vue;
     this.res = { code: 1 };
     this.initAllData = this.initAllData.bind(this);
-    this.isConnecting = false;
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     // 初始化 WebSocket 连接
@@ -42,7 +41,6 @@ export default class WebSocketClient {
   };
 
   connectWebsocket = () => {
-    this.isConnecting = true;
     // 实例化socket
     this.socket = new WebSocket(base.cardWebsocketPath + "/sync");
     // 监听socket连接
@@ -87,7 +85,6 @@ export default class WebSocketClient {
   };
 
   closeHandle = (e) => {
-    this.isConnecting = false;
     if (this.socket) {
       this.socket.close();
       this.socket = null;
@@ -335,7 +332,7 @@ export default class WebSocketClient {
     try {
       const res = await api_auth.auth.requestauthlogout();
       if (res.code === 1) {
-        this.vue.$store.commit("updateResResultDataObj", "");
+        // this.vue.$store.commit("updateResResultDataObj", "");
         this.vue.$store.commit("updateUserInfo", "");
         this.vue.$router.replace({
           name: "Thelogin",
@@ -612,27 +609,30 @@ export default class WebSocketClient {
   };
 
   initAllData() {
-    if (this.isConnecting) return;
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
       if (this.vue.$route.name == "register") {
-        this.initAllData();
+        setTimeout(() => {
+          this.closeHandle();
+          this.initAllData();
+        }, 1000)
+
         return;
       }
-      
+
       const token = localStorage.getItem("tk") || "";
       if (token) {
         // 不是订单，收银，预定系统，不需要websocket
         if (
-          localStorage.getItem("client") == "money" ||
-          localStorage.getItem("client") == "order" ||
-          localStorage.getItem("client") == "book"
+          sessionStorage.getItem("client") == "money" ||
+          sessionStorage.getItem("client") == "order" ||
+          sessionStorage.getItem("client") == "book"
         ) {
           this.connect();
+          return
         }
-      } else {
-        this.initAllData();
       }
+      this.initAllData();
     }, 100);
   }
 }

@@ -383,11 +383,11 @@ export default {
       sessionStorage.clear();
       localStorage.clear();
       localStorage.setItem("projectVersion", version);
+      this.$websocket.reset();
       this.$message({
         message: "缓存已清理",
         type: "info",
       });
-      this.term();
     },
     // 登录
     submit(userName = "", passWord = "", type = 1) {

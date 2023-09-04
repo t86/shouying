@@ -18,8 +18,8 @@ export default new Vuex.Store({
     cardPageInfo: {
       storeStatusId: sessionStorage.getItem("storeStatusId") || false, // 门店是否开启营业日
       resResultDataObj: sessionStorage.getItem("resResultDataObj")
-        ? JSON.parse(localStorage.getItem("resResultDataObj"))
-        : sessionStorage.getItem("resResultDataObj"), // 页面所有请求到后转化过的数据
+        ? JSON.parse(sessionStorage.getItem("resResultDataObj"))
+        : {}, // 页面所有请求到后转化过的数据
       tabList: sessionStorage.getItem("tabList")
         ? JSON.parse(sessionStorage.getItem("tabList"))
         : [], // 区域列表

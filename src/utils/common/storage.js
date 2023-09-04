@@ -16,9 +16,7 @@ export const sessionStorage = {
     // try {
     //   return atool.getVal(key)
     // } catch (error) {
-    return window.sessionStorage.getItem(key)
-      ? window.sessionStorage.getItem(key)
-      : window.localStorage.getItem(key);
+    return window.sessionStorage.getItem(key) || window.localStorage.getItem(key);
     // }
   },
 
@@ -26,7 +24,7 @@ export const sessionStorage = {
     // try {
     //   return atool.setVal(key, undefined)
     // } catch (error) {
-    window.localStorage.removeItem(key);
+      window.localStorage.removeItem(key)
     return window.sessionStorage.removeItem(key);
     // }
   },
