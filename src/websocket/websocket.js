@@ -191,7 +191,6 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
-        this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
@@ -318,8 +317,10 @@ export default class WebSocketClient {
               this.resResultDataObj["businessData"]
             );
             if (this.resResultDataObj["storeStatusInfo"][0]["wkday_id"] == 0) {
-              this.vue.$message.warning("营业日已关闭，即将返回登录页面");
-              setTimeout(this.logoutHandle, 1000);
+              if (this.vue.$route.name !== "Thelogin") {
+                this.vue.$message.warning("营业日已关闭，即将返回登录页面");
+                setTimeout(this.logoutHandle, 1000);
+              }
             }
           }
         }
@@ -616,6 +617,14 @@ export default class WebSocketClient {
     this.timeOutTimer = setTimeout(() => {
       const token = localStorage.getItem("tk") || "";
       if (token) {
+        // 不是订单，收银，预定系统，不需要websocket
+        if (
+          localStorage.getItem("client") != "money" &&
+          localStorage.getItem("client") != "order" &&
+          localStorage.getItem("client") != "book"
+        ) {
+          return;
+        }
         this.connect();
       } else {
         this.initAllData();
