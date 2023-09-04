@@ -619,13 +619,12 @@ export default class WebSocketClient {
       if (token) {
         // 不是订单，收银，预定系统，不需要websocket
         if (
-          localStorage.getItem("client") != "money" &&
-          localStorage.getItem("client") != "order" &&
-          localStorage.getItem("client") != "book"
+          localStorage.getItem("client") == "money" ||
+          localStorage.getItem("client") == "order" ||
+          localStorage.getItem("client") == "book"
         ) {
-          return;
+          this.connect();
         }
-        this.connect();
       } else {
         this.initAllData();
       }

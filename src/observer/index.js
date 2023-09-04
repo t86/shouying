@@ -1,4 +1,4 @@
-const CODE_INVALID = "code-invaid";
+export const CODE_INVALID = "code-invaid";
 
 class Observer {
   constructor() {
