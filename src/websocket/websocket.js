@@ -615,6 +615,11 @@ export default class WebSocketClient {
     if (this.isConnecting) return;
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
+      if (this.vue.$route.name == "register") {
+        this.initAllData();
+        return;
+      }
+      
       const token = localStorage.getItem("tk") || "";
       if (token) {
         // 不是订单，收银，预定系统，不需要websocket
