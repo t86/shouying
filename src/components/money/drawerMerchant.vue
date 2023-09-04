@@ -11,7 +11,7 @@
       <div class="merchant fs14">
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
-            <span>自动切换还商户号：</span>
+            <span>自动切换商户号：</span>
           </div>
           <div class="value">
             <el-switch

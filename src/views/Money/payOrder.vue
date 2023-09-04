@@ -877,12 +877,9 @@ export default {
       if(hasNotPayOrder && this.payTabInfo.activePayId == -1) return this.$message.warning('存在未结账订单，不可打印结算单')
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
-        pay_id: 0
+        pay_id: 0,
+        turnover_cnt: this.turnOverInfo.activeTurnOverCount
       };
-      // 补打结算单
-      if(this.isOldOrder){
-        params.turnover_cnt = this.turnOverInfo.activeTurnOverCount // int   第几次翻台,默认是0;
-      }
       try {
         const res = await api_money.reqPrintResultOrder(params);
         res.code === 1
