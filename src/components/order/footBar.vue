@@ -563,7 +563,8 @@ export default {
         try {
           if (value && value.code === 0) {
             that.qrResult = value.data;
-            that.showOrHideQRDrawerHandle();
+            that.getPayQRCode(2);
+            // that.showOrHideQRDrawerHandle();
           } else {
             that.qrResult = null;
             that.$message.warning("扫码取消");
@@ -585,14 +586,17 @@ export default {
 
       this.showChoosePayType = false;
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
-      if ([5, 6].includes(this.payType) && this.qrResult == null) {
-        try {
-          atool.startScan("scan_callback");
-        } catch (e) {
-          console.log(e);
-          this.$message.warning("启动扫码失败，请重试");
+      if ([5, 6].includes(this.payType)) {
+        if (this.qrResult == null) {
+          try {
+            // atool.startScan("scan_callback");
+            scan_callback({ code: -1, data: "281878484334399565" });
+          } catch (e) {
+            console.log(e);
+            this.$message.warning("启动扫码失败，请重试");
+          }
+          return;
         }
-        return;
       }
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id

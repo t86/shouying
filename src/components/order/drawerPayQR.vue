@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     init() {
-      if(this.orderInfoDetail.r !== 2){
+      if (this.orderInfoDetail.r !== 2 && this.orderInfoDetail.ol_pay_lock_id) {
         this.setQRCodeInfo();
       }
       this.reloadMyOrderTableData();
