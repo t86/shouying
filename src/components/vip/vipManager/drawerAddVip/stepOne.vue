@@ -17,7 +17,7 @@
           <span>手机号:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-          <el-input v-model="phoneNum" size="small" style="width:284px" placeholder="请输入手机号"></el-input>
+          <el-input v-model="phoneNum" size="small" style="width:284px" :maxlength="11"  placeholder="请输入手机号"></el-input>
           <button
             class="btn primary m-l-2"
             :class="{'disabled': count != 60}"
