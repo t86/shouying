@@ -130,6 +130,7 @@
     <!-- 打印消费单 -->
     <drawerPrintOrder
       ref="drawerPrintOrder"
+      pageType='myOrder'
       :showDrawer="showPrintDrawer" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>

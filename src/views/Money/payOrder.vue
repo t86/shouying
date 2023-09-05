@@ -250,7 +250,7 @@
     />
 
     <!-- 打印消费单 -->
-    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay" :isTurnOver="isOldOrder" :payId = "payTabInfo.activePayId" :turnover_cnt="turnOverInfo.activeTurnOverCount" 
+    <drawerPrintOrder ref="drawerPrintOrder" :showDrawer="showPrintDrawer" :isNotPay = "isPrintNotPay"  :payId = "payTabInfo.activePayId" :turnover_cnt="turnOverInfo.activeTurnOverCount" pageType='payOrder'
     @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>
