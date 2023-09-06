@@ -677,8 +677,9 @@ export default {
           if (res.data.r == 1) {
             this.$message.success("支付成功");
             this.subSecondLogoutHandle();
+            this.showOrHideQRDrawerHandle();
             return;
-          }else if (res.data.r == 2) {
+          } else if (res.data.r == 2) {
             this.$message.warning(res.msg);
           }
           this.showOrHideQRDrawerHandle();
