@@ -101,16 +101,16 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 34px">点：</span>
+                <span style="width: 68px">点：</span>
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ item.orderAmt }}</span
+                  >¥{{ Number(item.orderAmt).toFixed(2) }}</span
                 >
               </p>
               <p v-else style="height: 16px"></p>
 
-              <!-- 优惠金额 -->
+              <!-- 已付 -->
               <p
                 layout="row"
                 v-if="
@@ -121,16 +121,16 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 34px">惠：</span>
+                <span style="width: 68px">已付：</span>
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ item.yhAmt }}</span
+                  >¥{{ Number(item.payedAmt).toFixed(2) }}</span
                 >
               </p>
               <p v-else style="height: 16px"></p>
 
-              <!-- 优惠2金额 -->
+              <!-- 未付 -->
               <p
                 layout="row"
                 v-if="
@@ -141,11 +141,13 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 34px">惠2：</span>
+                <span style="width: 68px">未付：</span>
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ item.yh2Amt }}</span
+                  >¥{{
+                    Number(item.orderAmt - item.payedAmt || 0).toFixed(2)
+                  }}</span
                 >
               </p>
               <p v-else style="height: 16px"></p>
