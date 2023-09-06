@@ -250,7 +250,11 @@
     <!-- 扫码输入支付码 -->
     <div class="scan_input" v-if="scanStart">
       <div class="contain">
-        <div class="top center" layout="row" layout-align="space-between center">
+        <div
+          class="top center"
+          layout="row"
+          layout-align="space-between center"
+        >
           <input
             style="width: 260px"
             v-model="scanCode"
@@ -260,13 +264,11 @@
           />
         </div>
         <div class="m-t-6">
-          <keyBoard  @changeNum="changeCode" />
+          <keyBoard @changeNum="changeCode" />
         </div>
         <div class="bottom" layout="row" layout-align="center center">
-            <div class="button info cursor" @click="onCancelScan">
-              取消
-            </div>
-            <div class="button primary cursor" @click="onSubmitScan">确定</div>
+          <div class="button info cursor" @click="onCancelScan">取消</div>
+          <div class="button primary cursor" @click="onSubmitScan">确定</div>
         </div>
       </div>
     </div>
@@ -589,6 +591,7 @@ export default {
       const that = this;
       function scan_callback(value) {
         try {
+          console.log("scan_callback:", JSON.stringify(value));
           if (value && value.code === 0) {
             that.qrResult = value.data;
             that.getPayQRCode(that.scanForce);
@@ -609,20 +612,21 @@ export default {
     },
 
     // 开始扫码
-    startScan(){
-      if(window.atool && atool.startScan) {
+    startScan() {
+      console.log("startScan");
+      if (window.atool && atool.startScan) {
         atool.startScan("scan_callback");
         // scan_callback({ code: 0, data: "284058227514617549" });
       } else {
         this.scanStart = true;
       }
     },
-    onCancelScan(){
+    onCancelScan() {
       this.scanStart = false;
       this.qrResult = null;
       this.scanCode = "";
     },
-    onSubmitScan(){
+    onSubmitScan() {
       this.scanStart = false;
       scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
       this.scanCode = "";
@@ -631,11 +635,12 @@ export default {
     changeCode(value) {
       switch (value) {
         case 10: // 清空
-          this.scanCode = '';
+          this.scanCode = "";
           break;
         case 12: // 回退
-          this.scanCode =
-            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1);
+          this.scanCode = this.scanCode
+            .toString()
+            .slice(0, this.scanCode.toString().length - 1);
           break;
         default:
           this.scanCode = this.scanCode.toString() + value;
@@ -665,11 +670,13 @@ export default {
         force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
         pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助  5:扫客人-支付宝 6:扫客人-微信
         order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
-        auth_code: this.qrResult, //  string   扫码结果
+        auth_code: this.qrResult.toString(), //  string   扫码结果
       };
 
       try {
+        console.log("reqGetPayQRcode, req:", JSON.stringify(params));
         const res = await api_order.reqGetPayQRcode(params);
+        console.log("reqGetPayQRcode, res:", JSON.stringify(res));
         if (res.code == 1) {
           res.data = res.data || {};
           res.data.orders = res.data.orders || [];
