@@ -53,9 +53,9 @@
           </div>
         </div>
 
-        <div v-show="status == 3">
+        <div v-show="status == 3 && qrResult == null">
           <div class="coll" layout="row" layout-align="start center">
-            <div class="value" layout="row" layout-align="start center">
+            <div class="value" layout-align="start center">
               <el-input
                 style="width: 260px"
                 v-model="scanCode"
@@ -63,21 +63,14 @@
                 placeholder="请输入支付码"
               ></el-input>
             </div>
-            <div class="m-t-6">
-              <keyBoard needPoint="false" @changeNum="changeCode" />
-            </div>
-            <div class="form-btn" layout="row" layout-align="center center">
-              <el-button type="info" @click="onCancelScan"
-              >取消</el-button
-              >
-              <el-button type="primary" @click="onSubmitScan"
-                >确定</el-button
-              >
-            </div>
           </div>
+          <div class="m-t-6"   >
+            <keyBoard needPoint="false" @changeNum="changeCode" />
+          </div>
+
         </div>
 
-        <div v-if="status == 2">
+        <div v-if="status == 2 || status == 3">
           <div class="content" v-if="[1, 2].includes(payType)">
             <p class="label">
               <span>待支付金额:</span>
@@ -102,7 +95,7 @@
               请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
             </div>
           </div>
-          <div class="wait_content" v-if="[5, 6].includes(payType)">
+          <div class="wait_content" v-if="[5, 6].includes(payType) && this.qrResult != null">
             <div v-if="qr_pay_state == 0">
               <img
                 class="loading"
@@ -110,22 +103,20 @@
               />
               <div class="wait_tip">等待支付结果…</div>
             </div>
-            <div class="fail" v-if="qr_pay_state == 2">
-              <i class="el-icon-warning" />
-              <div class="tip">支付失败</div>
-            </div>
           </div>
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" v-if="status == 1" @click="onCancelDrawer"
+
+        <el-button type="info" v-if="status == 1 || (status == 3 && qrResult == null)" @click="onCancelDrawer"
           >取消</el-button
         >
-        <el-button type="primary" v-if="status == 1" @click="onSubmit"
+        <el-button type="primary" v-if="status == 1 || status == 3 && qrResult == null" @click="onSubmit"
           >确定</el-button
         >
-        <div v-if="![5, 6].includes(payType)">
-          <el-button type="info" v-if="status == 2" @click="notPayHandle"
+
+        <div>
+          <el-button type="info" v-if="status == 2 || (status == 3 && qrResult)" @click="notPayHandle"
             >暂不支付</el-button
           >
           <el-button type="primary" v-if="status == 2" @click="goPrevStepHandle"
@@ -160,8 +151,7 @@
 <script>
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
-const payTypeList = atool.startScan
-  ? [
+const payTypeList = [
       {
         id: 6,
         name: "扫客人-微信",
@@ -170,16 +160,6 @@ const payTypeList = atool.startScan
         id: 5,
         name: "扫客人-支付宝",
       },
-      {
-        id: 2,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        name: "客人扫我-支付宝",
-      },
-    ]
-  : [
       {
         id: 2,
         name: "客人扫我-微信",
@@ -210,18 +190,11 @@ export default {
 
     // 开始扫码
     startScan(){
-      if(atool.startScan) {
+      if(window.atool && atool.startScan) {
         atool.startScan("scan_callback");
       } else {
         this.status = 3;
       }
-    },
-    onCancelScan(){
-      this.onCancelDrawer();
-    },
-    onSubmitScan(){
-      this.onCancelDrawer();
-      scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
     },
     changeCode(value) {
       switch (value) {
@@ -263,6 +236,11 @@ export default {
           if (this.qr_pay_state == 1) {
             clearInterval(this.timer);
             this.$message.success("支付成功");
+            this.onCancelDrawer();
+            return;
+          } else if (this.qr_pay_state == 2) {
+            clearInterval(this.timer);
+            this.$message.warning(res.msg);
             this.onCancelDrawer();
             return;
           }
@@ -314,7 +292,7 @@ export default {
           break;
         case 12: // 回退
           this.amt =
-            this.amt.toString().slice(0, this.amt.toString().length - 1) * 1;
+            this.amt.toString().slice(0, this.amt.toString().length - 1) ;
           break;
         default:
           this.amt = this.amt.toString() + value;
@@ -347,10 +325,14 @@ export default {
     },
 
     onSubmit() {
-      if (!this.payType) return this.$message.warning("请选择渠道");
-      if (!this.amt) return this.$message.warning("请输入金额");
-      this.status = 2;
-      this.getQRcodeUrl();
+      if (this.status == 1) {
+        if (!this.payType) return this.$message.warning("请选择渠道");
+        if (!this.amt) return this.$message.warning("请输入金额");
+        this.status = 2;
+        this.getQRcodeUrl();
+      } else if (this.status == 3) {
+        scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
+      }
     },
     onCancelDrawer() {
       this.show = false;
@@ -446,7 +428,7 @@ export default {
   }
 
   .value {
-    margin-left: 10px;
+    margin: 0 auto;
     flex-wrap: wrap;
     .choose {
       cursor: pointer;

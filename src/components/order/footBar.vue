@@ -678,6 +678,8 @@ export default {
             this.$message.success("支付成功");
             this.subSecondLogoutHandle();
             return;
+          }else if (res.data.r == 2) {
+            this.$message.warning(res.msg);
           }
           this.showOrHideQRDrawerHandle();
         } else if (res.code == 2) {
