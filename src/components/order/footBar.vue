@@ -247,6 +247,29 @@
       </div>
     </div>
 
+    <!-- 扫码输入支付码 -->
+    <div class="scan_input" v-if="scanStart">
+      <div class="contain">
+        <div class="top center" layout="row" layout-align="space-between center">
+          <input
+            style="width: 260px"
+            v-model="scanCode"
+            class="value focus"
+            size="small"
+            placeholder="请输入支付码"
+          />
+        </div>
+        <div class="m-t-6">
+          <keyBoard  @changeNum="changeCode" />
+        </div>
+        <div class="bottom" layout="row" layout-align="center center">
+            <div class="button info cursor" @click="onCancelScan">
+              取消
+            </div>
+            <div class="button primary cursor" @click="onSubmitScan">确定</div>
+        </div>
+      </div>
+    </div>
     <!-- 服务员买单选择商品列表 -->
     <drawerOrderList
       v-show="showOrderListDrawer"
@@ -380,6 +403,7 @@ export default {
       showAddBookDrawer: false, // 新增滞留金
 
       showMerchantConfig: false, // 滞留金管理
+      scanStart: false,
 
       // 扫码支付
       qrResult: null, // 扫码结果
@@ -394,6 +418,7 @@ export default {
         minute: "00",
         name: "",
       },
+      scanCode: "",
 
       imgSrc: {
         orderQRPayIcon,
@@ -558,6 +583,7 @@ export default {
 
     showChoosePayTypeHandle() {
       this.payType = "";
+      this.qrResult = null;
       this.showChoosePayType = true;
 
       const that = this;
@@ -582,6 +608,40 @@ export default {
       window.scan_callback = scan_callback;
     },
 
+    // 开始扫码
+    startScan(){
+      if(window.atool && atool.startScan) {
+        atool.startScan("scan_callback");
+        // scan_callback({ code: 0, data: "284058227514617549" });
+      } else {
+        this.scanStart = true;
+      }
+    },
+    onCancelScan(){
+      this.scanStart = false;
+      this.qrResult = null;
+      this.scanCode = "";
+    },
+    onSubmitScan(){
+      this.scanStart = false;
+      scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
+      this.scanCode = "";
+      this.qrResult = null;
+    },
+    changeCode(value) {
+      switch (value) {
+        case 10: // 清空
+          this.scanCode = '';
+          break;
+        case 12: // 回退
+          this.scanCode =
+            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1);
+          break;
+        default:
+          this.scanCode = this.scanCode.toString() + value;
+          break;
+      }
+    },
     // 获取去买单数据
     async getPayQRCode(force = 2) {
       if (!this.payType) return this.$message.warning("请选择支付方式");
@@ -591,9 +651,8 @@ export default {
       if ([5, 6].includes(this.payType)) {
         if (this.qrResult == null) {
           try {
-            // atool.startScan("scan_callback");
             this.scanForce = force;
-            scan_callback({ code: 0, data: "287312640878943981" });
+            this.startScan();
           } catch (e) {
             console.log(e);
             this.$message.warning("启动扫码失败，请重试");
@@ -748,6 +807,7 @@ export default {
     drawerAddBookAmt: () => import("./drawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
     drawerOrderList: () => import("./drawerShowOrderList.vue"),
+    keyBoard: () => import("@/components/common/keyBoard"),
   },
   beforeDestroy() {
     clearInterval(this.timer);

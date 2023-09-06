@@ -53,6 +53,30 @@
           </div>
         </div>
 
+        <div v-show="status == 3">
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="value" layout="row" layout-align="start center">
+              <el-input
+                style="width: 260px"
+                v-model="scanCode"
+                size="small"
+                placeholder="请输入支付码"
+              ></el-input>
+            </div>
+            <div class="m-t-6">
+              <keyBoard needPoint="false" @changeNum="changeCode" />
+            </div>
+            <div class="form-btn" layout="row" layout-align="center center">
+              <el-button type="info" @click="onCancelScan"
+              >取消</el-button
+              >
+              <el-button type="primary" @click="onSubmitScan"
+                >确定</el-button
+              >
+            </div>
+          </div>
+        </div>
+
         <div v-if="status == 2">
           <div class="content" v-if="[1, 2].includes(payType)">
             <p class="label">
@@ -169,10 +193,11 @@ export default {
   data() {
     return {
       timer: null, // 定时器
-      status: 1, // 1 选择支付方式  2 二维码
+      status: 1, // 1 选择支付方式  2 二维码  3 扫码支付输入支付码
       payTypeList,
       payType: "",
       amt: "",
+      scanCode: "",
       textValue: "",
       textId: 0, //  二维码订单Id, 用于查询支付订单状态
 
@@ -182,6 +207,33 @@ export default {
     };
   },
   methods: {
+
+    // 开始扫码
+    startScan(){
+      if(atool.startScan) {
+        atool.startScan("scan_callback");
+      } else {
+        this.status = 3;
+      }
+    },
+    onCancelScan(){
+      this.onCancelDrawer();
+    },
+    onSubmitScan(){
+      this.onCancelDrawer();
+      scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
+    },
+    changeCode(value) {
+      switch (value) {
+        case 12: // 回退
+          this.scanCode =
+            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1) * 1;
+          break;
+        default:
+          this.scanCode = this.scanCode.toString() + value;
+          break;
+      }
+    },
     // 获取二维码
     async getQRcodeUrl() {
       this.textId = "";
@@ -189,7 +241,7 @@ export default {
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType) && this.qrResult == null) {
         try {
-          atool.startScan("scan_callback");
+          this.startScan();
         } catch (e) {
           console.log(e);
           this.$message.warning("启动扫码失败，请重试");
