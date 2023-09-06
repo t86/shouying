@@ -383,6 +383,8 @@ export default {
 
       // 扫码支付
       qrResult: null, // 扫码结果
+      // 扫码force
+      scanForce: 2,
 
       cardInfo: {},
       authInfo: {
@@ -563,7 +565,7 @@ export default {
         try {
           if (value && value.code === 0) {
             that.qrResult = value.data;
-            that.getPayQRCode(2);
+            that.getPayQRCode(that.scanForce);
             // that.showOrHideQRDrawerHandle();
           } else {
             that.qrResult = null;
@@ -590,7 +592,8 @@ export default {
         if (this.qrResult == null) {
           try {
             // atool.startScan("scan_callback");
-            scan_callback({ code: -1, data: "281878484334399565" });
+            this.scanForce = force;
+            scan_callback({ code: 0, data: "287312640878943981" });
           } catch (e) {
             console.log(e);
             this.$message.warning("启动扫码失败，请重试");
