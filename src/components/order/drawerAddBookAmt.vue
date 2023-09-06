@@ -65,7 +65,7 @@
             </div>
           </div>
           <div class="m-t-6"   >
-            <keyBoard needPoint="false" @changeNum="changeCode" />
+            <keyBoard @changeNum="changeCode" />
           </div>
 
         </div>
@@ -198,9 +198,12 @@ export default {
     },
     changeCode(value) {
       switch (value) {
+        case 10: // 清空
+          this.scanCode = '';
+          break;
         case 12: // 回退
           this.scanCode =
-            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1) * 1;
+            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1);
           break;
         default:
           this.scanCode = this.scanCode.toString() + value;
