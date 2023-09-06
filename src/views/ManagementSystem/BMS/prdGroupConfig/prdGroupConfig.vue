@@ -1,9 +1,9 @@
 <template>
   <div class="one-table">
     <div class="top" layout="row" layout-align="start center">
-      <icon-button @click.native="addOrUpdateHandle(1)" text="新增" img="添加.png" colors="#383943"></icon-button>
-      <icon-button @click.native="addOrUpdateHandle(2)" text="编辑" img="编辑.png" colors="#383943"></icon-button>
-      <icon-button @click.native="deleteHandle" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="addOrUpdateHandle(1)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
+      <icon-button @click.native="addOrUpdateHandle(2)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
+      <icon-button @click.native="deleteHandle" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
     </div>
     <div class="table-content">
       <div class="table">

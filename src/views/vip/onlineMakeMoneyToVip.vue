@@ -5,14 +5,14 @@
       <icon-button
         @click.native="showDrawerHandle('add')"
         text="新增"
-        img="添加.png"
+        img="btn_add.png"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
       ></icon-button>
       <icon-button
         @click.native="showDrawerHandle('edit')"
         text="编辑"
-        img="编辑.png"
+        img="btn_edit.png"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
       ></icon-button>

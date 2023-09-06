@@ -46,7 +46,7 @@
     </div>
 
     <div class="top" v-if="$store.getters.vipAuth" layout="row" layout-align="start center">
-      <icon-button @click.native="showOrHideAddVipDrawerHandle" text="新增" img="添加.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
+      <icon-button @click.native="showOrHideAddVipDrawerHandle" text="新增" img="btn_add.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
       <characters-button @click.native="showOrHideAddMoneyToVipDrawerHandle" bjcolors="#DDE0E9" bcolor="#8c8c8c" wz='充值'></characters-button>
       <characters-button @click.native="showOrHideReadCardDrawerHandle" bjcolors="#DDE0E9" bcolor="#8c8c8c" wz='读取卡信息'></characters-button>
       <characters-button @click.native="showOrHidePayNumSearchDrawerHandle" bjcolors="#DDE0E9" bcolor="#8c8c8c" wz='付款序列号制卡'></characters-button>

@@ -2,8 +2,8 @@
   <div class="vip vip-type">
     <h3 class="title">会员卡类型</h3>
     <div class="top" v-if="$store.getters.vipAuth" layout="row" layout-align="start center">
-      <icon-button @click.native="showDrawerHandle('add')" text="新增" img="添加.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
-      <icon-button @click.native="showDrawerHandle('edit')" text="编辑" img="编辑.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
+      <icon-button @click.native="showDrawerHandle('add')" text="新增" img="btn_add.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
+      <icon-button @click.native="showDrawerHandle('edit')" text="编辑" img="btn_edit.png" bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
     </div>
 
     <!-- table -->

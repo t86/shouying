@@ -19,7 +19,7 @@
                 style="color: #8c8c8c"
                 class="el-icon-caret-right"
               ></i>
-              <img :src="require('@/assets/img/文件夹.png')" alt />
+              <img :src="require('@/assets/img/file_list.png')" alt />
               <span class="name">全部</span>
             </div>
             <areaMenu v-if="showMenuList" :menuList="menuList" />
@@ -36,7 +36,7 @@
                   layout-align="start center"
                   @click.stop="getSearchDetail(item, 'area')"
                 >
-                  <img :src="require('@/assets/img/文件夹.png')" alt />
+                  <img :src="require('@/assets/img/file_list.png')" alt />
                   <span>{{ item.n }}</span>
                 </li>
               </ul>
@@ -51,7 +51,7 @@
                   layout-align="start center"
                   @click.stop="getSearchDetail(item, 'card')"
                 >
-                  <img :src="require('@/assets/img/商品列表.png')" alt />
+                  <img :src="require('@/assets/img/commodity_list.png')" alt />
                   <span>{{ item.n }}</span>
                 </li>
               </ul>

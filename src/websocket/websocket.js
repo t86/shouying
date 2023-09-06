@@ -5,6 +5,7 @@ import { transformCardDataHandle } from "@/utils/transformCardData";
 import { localStorage } from "@/utils/common/storage";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
+import { CODE_INVALID } from "@/observer";
 
 let keys = {
   9: ["prdId", "grpId", "seqId"],
@@ -23,12 +24,14 @@ export default class WebSocketClient {
     this.vue = vue;
     this.res = { code: 1 };
     this.initAllData = this.initAllData.bind(this);
-    this.isConnecting = false;
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     // 初始化 WebSocket 连接
     this.initAllData();
     window.addEventListener("beforeunload", (e) => this.closeHandle(e));
+    this.vue.$observer.subscribe(CODE_INVALID, () => {
+      this.reset();
+    });
   }
 
   connect = () => {
@@ -38,7 +41,6 @@ export default class WebSocketClient {
   };
 
   connectWebsocket = () => {
-    this.isConnecting = true;
     // 实例化socket
     this.socket = new WebSocket(base.cardWebsocketPath + "/sync");
     // 监听socket连接
@@ -52,17 +54,11 @@ export default class WebSocketClient {
   openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
     if (token) {
-      localStorage.setItem("codeCheck", false);
       if (!localStorage.getItem("refreshAll")) {
         await this.getAllData(true, true, true);
       } else {
         await this.getUpdateData();
       }
-    }
-
-    if (localStorage.getItem("codeCheck") === "false") {
-      this.reset();
-      return;
     }
 
     this.socket.send(JSON.stringify(token));
@@ -89,7 +85,6 @@ export default class WebSocketClient {
   };
 
   closeHandle = (e) => {
-    this.isConnecting = false;
     if (this.socket) {
       this.socket.close();
       this.socket = null;
@@ -97,7 +92,7 @@ export default class WebSocketClient {
       // this.socket.onclose = event => console.log('websocket已关闭')
     }
     clearTimeout(this.timeOutTimer);
-    clearTimeout(this.errorTimer);
+    // clearTimeout(this.errorTimer);
     clearTimeout(this.isConnectedTimer);
   };
 
@@ -115,7 +110,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
-        this.reset();
+        this.vue.$observer.send(CODE_INVALID);
       }
       this.vue.$message.warning(message);
     } else {
@@ -124,24 +119,6 @@ export default class WebSocketClient {
   };
 
   reset = async () => {
-    localStorage.setItem("tk", "");
-    let newCode;
-    try {
-      newCode = atool.getMachineCode();
-      console.log("设备注册码:" + newCode);
-    } catch (error) {
-      newCode = this.vue.$route.query && this.vue.$route.query.code;
-      if (!newCode) return this.vue.$router.replace("/register");
-    }
-    const res = await this.vue.$api.UtilAuth.term.termauth({
-      code: newCode,
-    });
-    if (res.code == 1) {
-      localStorage.setItem("tk", res.data.tk);
-    } else {
-      this.vue.$message.warning(res.msg);
-      this.vue.$router.replace("/register");
-    }
     this.closeHandle();
     this.initAllData();
   };
@@ -195,11 +172,6 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
-        localStorage.setItem(
-          "codeCheck",
-          res.code && res.code !== 11 && res.code !== 12
-        );
-        this.vue.$message.warning(res);
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
@@ -326,8 +298,10 @@ export default class WebSocketClient {
               this.resResultDataObj["businessData"]
             );
             if (this.resResultDataObj["storeStatusInfo"][0]["wkday_id"] == 0) {
-              this.vue.$message.warning("营业日已关闭，即将返回登录页面");
-              setTimeout(this.logoutHandle, 1000);
+              if (this.vue.$route.name !== "Thelogin") {
+                this.vue.$message.warning("营业日已关闭，即将返回登录页面");
+                setTimeout(this.logoutHandle, 1000);
+              }
             }
           }
         }
@@ -342,7 +316,7 @@ export default class WebSocketClient {
     try {
       const res = await api_auth.auth.requestauthlogout();
       if (res.code === 1) {
-        this.vue.$store.commit("updateResResultDataObj", "");
+        // this.vue.$store.commit("updateResResultDataObj", "");
         this.vue.$store.commit("updateUserInfo", "");
         this.vue.$router.replace({
           name: "Thelogin",
@@ -370,10 +344,6 @@ export default class WebSocketClient {
     };
     try {
       const res = await api_card.reqGetUpdateData(params);
-      localStorage.setItem(
-        "codeCheck",
-        res.code && res.code !== 11 && res.code !== 12
-      );
       // 更新接收到消息的时间
       this.websocketTimeStart = +new Date();
 
@@ -418,9 +388,12 @@ export default class WebSocketClient {
         );
       } else if (key == 23) {
         console.log(3, "key", key);
-        localStorage.setItem("refreshAll", ...dataObj[key]);
-        // 页面需要从新获取最新全量数据
-        return this.getAllData(true, true);
+        let version = localStorage.getItem("refreshAll");
+        if (version && version != dataObj[key][0] * 1) {
+          localStorage.setItem("refreshAll", ...dataObj[key]);
+          // 页面需要从新获取最新全量数据
+          return this.getAllData(true, true);
+        }
       } else {
         dataObj[key] = transformCardDataHandle(dataObj[key], key);
         dataObj[key].forEach((el) => {
@@ -623,15 +596,30 @@ export default class WebSocketClient {
   };
 
   initAllData() {
-    if (this.isConnecting) return;
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
+      if (this.vue.$route.name == "register") {
+        setTimeout(() => {
+          this.closeHandle();
+          this.initAllData();
+        }, 1000);
+
+        return;
+      }
+
       const token = localStorage.getItem("tk") || "";
       if (token) {
-        this.connect();
-      } else {
-        this.initAllData();
+        // 不是订单，收银，预定系统，不需要websocket
+        if (
+          sessionStorage.getItem("client") == "money" ||
+          sessionStorage.getItem("client") == "order" ||
+          sessionStorage.getItem("client") == "book"
+        ) {
+          this.connect();
+          return;
+        }
       }
+      this.initAllData();
     }, 100);
   }
 }

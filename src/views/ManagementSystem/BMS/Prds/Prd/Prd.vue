@@ -1,13 +1,13 @@
 <template>
   <div class="Prd">
     <div class="Prd-controller">
-      <icon-button @click.native="VolumeProduction" text="新增单品" img="新增单品.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="newsetmeal" text="新增套餐" img="新增套餐.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="staircompile" text="编辑" img="编辑.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#f5f5f5"></icon-button>
-      <icon-button @click.native="DelPayChannel" text="批量删除" img="删除.png" colors="#6B2830"></icon-button>
-      <icon-button @click.native="DownloadBatch" text="批量导入" img="批量导入.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="VolumeProduction" text="新增单品" img="btn_new_item.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="newsetmeal" text="新增套餐" img="btn_new_package.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="staircompile" text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#f5f5f5"></icon-button>
+      <icon-button @click.native="DelPayChannel" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="DownloadBatch" text="批量导入" img="btn_batch_import.png" colors="#f5f5f5"></icon-button>
       <characters-button
         @click.native="showOrHideAreaLibraryHandle"
         colors="#f5f5f5"
@@ -335,7 +335,7 @@
                     <div class="upload-btn-icon">
                       <img
                         style="height: 30px;width: 30px;"
-                        src="../../../../../assets/img/添加.png"
+                        src="../../../../../assets/img/btn_add.png"
                         alt
                       />
                     </div>
@@ -485,8 +485,8 @@
               <tr class="drag-list" v-if="erps_prdss.length<1">
                 <td class="nodata">
                   <img v-show="controlpicture ==1" src="../../../../../assets/img/wu.png" alt />
-                  <img v-show="controlpicture ==2" src="../../../../../assets/img/空-请检索.png" alt />
-                  <img v-show="controlpicture ==3" src="../../../../../assets/img/加载中.png" alt />
+                  <img v-show="controlpicture ==2" src="../../../../../assets/img/empty_search.png" alt />
+                  <img v-show="controlpicture ==3" src="../../../../../assets/img/state_loading.png" alt />
                   <div v-show="controlpicture ==1" class="hint">暂无数据</div>
                   <div v-show="controlpicture ==2" class="hint">空-请检索</div>
                   <div v-show="controlpicture ==3" class="hint">加载中...</div>
@@ -627,7 +627,7 @@
                     <div class="upload-btn-icon">
                       <img
                         style="height: 30px;width: 30px;"
-                        src="../../../../../assets/img/添加.png"
+                        src="../../../../../assets/img/btn_add.png"
                         alt
                       />
                     </div>
@@ -677,7 +677,7 @@
                     <th class="tbdgf">
                       <span>数量</span>
                       <el-tooltip class="item" effect="light" content="数量不填，默认为1" placement="top">
-                        <img src="../../../../../assets/img/问号.png" alt />
+                        <img src="../../../../../assets/img/btn_help.png" alt />
                       </el-tooltip>
                     </th>
                     <th>存货商品名</th>
@@ -757,7 +757,7 @@
                     <br />那么客户下单套餐时, 可以选 1份红茶2瓶, 2份绿茶2瓶。
                     <br />
                   </div>
-                  <img src="../../../../../assets/img/问号.png" alt />
+                  <img src="../../../../../assets/img/btn_help.png" alt />
                 </el-tooltip>
               </div>
               <div
@@ -780,7 +780,7 @@
                   <th class="tbdgf">
                     <span>数量</span>
                     <el-tooltip class="item" effect="light" content="数量不填，默认为1" placement="top">
-                      <img src="../../../../../assets/img/问号.png" alt />
+                      <img src="../../../../../assets/img/btn_help.png" alt />
                     </el-tooltip>
                   </th>
                   <th>存货商品名</th>
@@ -993,8 +993,8 @@
               <tr class="drag-list" v-if="ImportDatas.length<1">
                 <td class="nodata">
                   <img v-show="contcture ==1" src="../../../../../assets/img/wu.png" alt />
-                  <img v-show="contcture ==2" src="../../../../../assets/img/空-请检索.png" alt />
-                  <img v-show="contcture ==3" src="../../../../../assets/img/加载中.png" alt />
+                  <img v-show="contcture ==2" src="../../../../../assets/img/empty_search.png" alt />
+                  <img v-show="contcture ==3" src="../../../../../assets/img/state_loading.png" alt />
                   <div v-show="contcture ==1" class="hint">暂无数据</div>
                   <div v-show="contcture ==2" class="hint">空-请检索</div>
                   <div v-show="contcture ==3" class="hint">加载中...</div>
@@ -1220,7 +1220,7 @@
               multiple
             >
               <div style="margin: 35px 0 10px;">
-                <img style="height: 70px;width: 67px;" src="../../../../../assets/img/上传文件.png" alt />
+                <img style="height: 70px;width: 67px;" src="../../../../../assets/img/upload_file.png" alt />
               </div>
               <div class="el-upload__text" style="color: #1A1A21;">
                 将文件拖到此处，或

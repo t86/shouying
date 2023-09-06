@@ -3,14 +3,14 @@
     <div class="zsykd" style="display: inline-block;">
       <table class="zhuixiaoi" style="min-width: 1191px;">
         <div class="mklib-controller">
-          <icon-button @click.native="productionlibrary" text="新增出品库" img="添加.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="compileprinter" text="编辑" img="编辑.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="noneffective" text="置为无效" img="无效.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="effective" text="置为有效" img="有效.png" colors="#f5f5f5"></icon-button>
+          <icon-button @click.native="productionlibrary" text="新增出品库" img="btn_add.png" colors="#f5f5f5"></icon-button>
+          <icon-button @click.native="compileprinter" text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
+          <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#f5f5f5"></icon-button>
+          <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#f5f5f5"></icon-button>
           <icon-button
             @click.native="printerdel"
             text="批量删除"
-            img="删除.png"
+            img="btn_delete.png"
             colors="#6B2830"
             bjcolors="#491E24"
           ></icon-button>

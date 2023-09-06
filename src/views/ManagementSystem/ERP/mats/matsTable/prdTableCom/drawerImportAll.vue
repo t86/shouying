@@ -43,7 +43,7 @@
               multiple
             >
               <div style="margin: 35px 0 10px;">
-                <img style="height: 70px;width: 67px;" :src="require('@/assets/img/上传文件.png')" alt />
+                <img style="height: 70px;width: 67px;" :src="require('@/assets/img/upload_file.png')" alt />
               </div>
               <div class="el-upload__text">
                 将文件拖到此处，或

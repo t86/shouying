@@ -228,7 +228,7 @@
                       @input="changeCountOfSeal('input',item)"
                     />
                     <img
-                      :src="item.changeCount>=item.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/add.png')"
+                      :src="item.changeCount>=item.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/order_add.png')"
                       @click="changeCountOfSeal('add',item)"
                       alt
                     />
@@ -312,7 +312,7 @@ import eventVue from '@/utils/eventVue';
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/add.png";
+import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";

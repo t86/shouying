@@ -1,17 +1,15 @@
 <template>
   <div class="Thelogin">
-      <div class="terminal-type">
-          <div class="clear-cache" @click="clear" >
-            <span>清理缓存</span> 
-          </div>
-        <div class="terminal-type-name">
-          <div>{{ typeName }}</div>
-          <div class="app-version">
-             版本号：{{ version }}
-          </div>
-        </div>
+    <div class="terminal-type">
+      <div class="clear-cache" @click="clear">
+        <span>清理缓存</span>
       </div>
-      <div class="peak">
+      <div class="terminal-type-name">
+        <div>{{ typeName }}</div>
+        <div class="app-version">版本号：{{ version }}</div>
+      </div>
+    </div>
+    <div class="peak">
       <div class="left">
         <img
           :src="require('@/assets/register-login/shangdaohang_zuo.png')"
@@ -115,7 +113,6 @@
                   </div>
                 </div>
               </div>
-              
             </div>
           </div>
         </div>
@@ -386,11 +383,12 @@ export default {
       sessionStorage.clear();
       localStorage.clear();
       localStorage.setItem("projectVersion", version);
+      this.term();
+      this.$websocket.reset();
       this.$message({
         message: "缓存已清理",
         type: "info",
       });
-      this.term();
     },
     // 登录
     submit(userName = "", passWord = "", type = 1) {
@@ -523,11 +521,11 @@ export default {
       }
       return termType == "android";
     },
-    version(){
-       const pv =  localStorage.getItem("projectVersion");
-       const av =  localStorage.getItem("refreshAll");
-        return pv + (av ? ` - ${av}` : "");
-    }
+    version() {
+      const pv = localStorage.getItem("projectVersion");
+      const av = localStorage.getItem("refreshAll");
+      return pv + (av ? ` - ${av}` : "");
+    },
   },
 
   beforeDestroy() {
@@ -613,33 +611,33 @@ export default {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    .terminal-type-name{
+    .terminal-type-name {
       text-align: center;
     }
-    .clear-cache{
-        margin-right: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #367bd5;
-        width: 100px;
-        border: 1px solid #367bd5;
-        border-radius: 4px;
-        height: 30px;
-        cursor: pointer;
-        opacity: 0.6;
-        img{
-          width: 20px;
-          height: 20px;
-        }
-        &:hover{
-          color: #fff;
-          border-color: #fff;
-          opacity: 1;
-        }
+    .clear-cache {
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #367bd5;
+      width: 100px;
+      border: 1px solid #367bd5;
+      border-radius: 4px;
+      height: 30px;
+      cursor: pointer;
+      opacity: 0.6;
+      img {
+        width: 20px;
+        height: 20px;
+      }
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+        opacity: 1;
+      }
     }
     .app-version {
-      color: #fff; 
+      color: #fff;
       font-size: 12px;
       text-align: center;
     }
@@ -651,7 +649,7 @@ export default {
     img {
       width: 100%;
       height: 100%;
-    } 
+    }
   }
 
   .elasticity {

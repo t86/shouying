@@ -113,7 +113,7 @@
                   <div class="upload-btn-icon">
                     <img
                       style="height: 30px; width: 30px"
-                      :src="require('@/assets/img/添加.png')"
+                      :src="require('@/assets/img/btn_add.png')"
                     />
                   </div>
                   <div class="upload-btn-text" style="color: #1a1a21">上传</div>
@@ -169,7 +169,7 @@
                       >
                         <img
                           style="width: 14px; transform: translateY(-6px)"
-                          :src="require('@/assets/img/问号.png')"
+                          :src="require('@/assets/img/btn_help.png')"
                           alt
                         />
                       </el-tooltip>
@@ -268,7 +268,7 @@
                     </div>
                     <img
                       style="width: 14px; transform: translateY(-10px)"
-                      :src="require('@/assets/img/问号.png')"
+                      :src="require('@/assets/img/btn_help.png')"
                       alt
                     />
                   </el-tooltip>
@@ -302,7 +302,7 @@
                       >
                         <img
                           style="width: 14px; transform: translateY(-6px)"
-                          :src="require('@/assets/img/问号.png')"
+                          :src="require('@/assets/img/btn_help.png')"
                           alt
                         />
                       </el-tooltip>

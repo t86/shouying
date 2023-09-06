@@ -130,6 +130,7 @@
     <!-- 打印消费单 -->
     <drawerPrintOrder
       ref="drawerPrintOrder"
+      pageType='myOrder'
       :showDrawer="showPrintDrawer" @showOrHidePrintDrawer="showOrHidePrintDrawer"/>
   </div>
 </template>
@@ -141,7 +142,7 @@ import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
 
-import add from "@/assets/order-img/add.png";
+import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";

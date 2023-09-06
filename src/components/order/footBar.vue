@@ -731,7 +731,7 @@ export default {
       try {
         const res = await api_auth.auth.requestauthlogout();
         if (res.code === 1) {
-          this.$store.commit("updateResResultDataObj", "");
+          // this.$store.commit("updateResResultDataObj", "");
           this.$store.commit("updateUserInfo", "");
           this.$router.replace({
             name: "Thelogin",

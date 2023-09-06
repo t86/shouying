@@ -12,21 +12,21 @@
         <ul class="time-select fs14 m-r-1" layout="row" layout-align="start center">
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
-              :src="activeTime == 1 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 1}">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
-              :src="activeTime == 2 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 2}">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
-              :src="activeTime == 3 ? require('@/assets/img/日期标签-选中.png') : require('@/assets/img/日期标签-灰.png')"
+              :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
               alt
             />
             <span :class="{active:activeTime == 3}">近90天</span>

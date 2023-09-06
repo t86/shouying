@@ -51,7 +51,7 @@
           <span>联系电话:</span>
         </div>
         <div class="value">
-          <el-input v-model="form.connectPhoneNum" placeholder="请输入联系电话" style="width:284px" size="small"></el-input>
+          <el-input type="text" v-model="form.connectPhoneNum" placeholder="请输入联系电话" :maxlength="11"  style="width:284px" size="small" ></el-input>
         </div>
       </div>
       <div class="row" layout="row" layout-align="start center">

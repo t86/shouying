@@ -47,7 +47,7 @@ export default {
       try {
         
         let res;
-        if(!this.isTurnOver){
+        if(this.pageType == 'myOrder'){
           const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
           total_type: this.isNotPay ? 2 : 1, //  int64    1 总消费单 2 未结账消费单
@@ -62,6 +62,9 @@ export default {
             range_type: this.payId == -1?1:3, //  int64    范围标识 1 总单(pay_id需要传0), 2 未结账消费单(pay_id需要传0), 3 指定结账pay_id的消费单(pay_id<>0)
             include_hl: this.radio * 1 /// int    1 含花篮小费 2 不含花篮小费
           };
+          if(this.isNotPay){
+            params.range_type = 2
+          }
           res = await api_order.reqAnewPrintOrder(params);
         }
       
@@ -89,14 +92,14 @@ export default {
     isNotPay:{
       default: false
     },
-    isTurnOver:{
-      default: false
-    },
     turnover_cnt:{
       default: 0
     },
     payId:{
       default: 0
+    },
+    pageType:{
+      default: 'payOrder' // payOrder: 收银系统, myOrder: 点单系统
     }
   },
   computed: {
