@@ -53,7 +53,7 @@ export default class WebSocketClient {
 
   openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
-    if (token) {
+    if (token && token.length > 0) {
       if (!localStorage.getItem("refreshAll")) {
         await this.getAllData(true, true, true);
       } else {
@@ -75,8 +75,8 @@ export default class WebSocketClient {
       "%c websocket连接失败，5s后将重新连接！",
       "color:blue;font-size:14px"
     );
-    this.closeHandle();
-    this.initAllData();
+    this.reset();
+
     //   // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
     //   this.websocketTimeMessageTime
     //     ? this.getUpdateData()
@@ -110,6 +110,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
+        localStorage.removeItem("tk");
         this.vue.$observer.send(CODE_INVALID);
       }
       this.vue.$message.warning(message);
@@ -120,7 +121,9 @@ export default class WebSocketClient {
 
   reset = async () => {
     this.closeHandle();
-    this.initAllData();
+    setTimeout(() => {
+      this.initAllData();
+    }, 3000);
   };
   // 监听处理websocket是否断开
   websocketHasConnect = () => {
@@ -139,8 +142,7 @@ export default class WebSocketClient {
             "%c检测到websocket已断开，即将重新连接！",
             "color:blue;font-size:14px"
           );
-          this.closeHandle();
-          this.initAllData();
+          this.reset();
           // // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
           // this.websocketTimeMessageTime
           //   ? this.getUpdateData()
@@ -337,7 +339,8 @@ export default class WebSocketClient {
   getUpdateData = async () => {
     this.websocketTimeMessageTime =
       localStorage.getItem("websocketTimeMessageTime") || "";
-    if (!this.websocketTimeMessageTime) return;
+    if (!this.websocketTimeMessageTime || this.websocketTimeMessageTime == "")
+      return;
     const params = {
       // '20220902171731'//
       last_sync_time: this.websocketTimeMessageTime, // string     //LastSyncTime 上次完成同步时间,建议往回走个30秒, 格式 yyyymmddhh24miss
@@ -599,16 +602,12 @@ export default class WebSocketClient {
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
       if (this.vue.$route.name == "register") {
-        setTimeout(() => {
-          this.closeHandle();
-          this.initAllData();
-        }, 1000);
-
+        this.reset();
         return;
       }
 
       const token = localStorage.getItem("tk") || "";
-      if (token) {
+      if (token && token.length > 0) {
         // 不是订单，收银，预定系统，不需要websocket
         if (
           sessionStorage.getItem("client") == "money" ||
