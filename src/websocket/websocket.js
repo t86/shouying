@@ -75,8 +75,8 @@ export default class WebSocketClient {
       "%c websocket连接失败，5s后将重新连接！",
       "color:blue;font-size:14px"
     );
-    this.closeHandle();
-    this.initAllData();
+    this.reset();
+
     //   // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
     //   this.websocketTimeMessageTime
     //     ? this.getUpdateData()
@@ -120,7 +120,9 @@ export default class WebSocketClient {
 
   reset = async () => {
     this.closeHandle();
-    this.initAllData();
+    setTimeout(() => {
+      this.initAllData();
+    }, 3000);
   };
   // 监听处理websocket是否断开
   websocketHasConnect = () => {
@@ -139,8 +141,7 @@ export default class WebSocketClient {
             "%c检测到websocket已断开，即将重新连接！",
             "color:blue;font-size:14px"
           );
-          this.closeHandle();
-          this.initAllData();
+          this.reset();
           // // 是否接收到系统返回的时间？接收到了获取增量数据，否则重新拉取全量数据
           // this.websocketTimeMessageTime
           //   ? this.getUpdateData()
@@ -599,11 +600,7 @@ export default class WebSocketClient {
     clearTimeout(this.timeOutTimer);
     this.timeOutTimer = setTimeout(() => {
       if (this.vue.$route.name == "register") {
-        setTimeout(() => {
-          this.closeHandle();
-          this.initAllData();
-        }, 1000);
-
+        this.reset();
         return;
       }
 
