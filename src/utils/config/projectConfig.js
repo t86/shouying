@@ -1,8 +1,20 @@
 
 export const projectName = process.env.VUE_APP_PROJECT_NAME
 export const projectConfig = {
-  // 开发环境
+  // 开发环境 外网可以直接访问
   'dev': {
+    username: '000000',
+    password: '666666',
+
+    // 开发测试环境的hosts配置： 10.118.128.1      nls.server.com
+    development: 'http://nls-dev.xmsjznwl.com/server',
+    product: 'http://nls-dev.xmsjznwl.com/server',
+    onlineBase:'https://ncrmyun-dev.xmsjznwl.com/server',
+    wsDevelopment: 'ws://nls-dev.xmsjznwl.com/server',
+    wsProduct: 'ws://nls-dev.xmsjznwl.com/server'
+  },
+  // 开发环境 本地访问
+  'local': {
     username: '000000',
     password: '666666',
 
