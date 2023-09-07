@@ -53,7 +53,7 @@ export default class WebSocketClient {
 
   openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
-    if (token) {
+    if (token && token.length > 0) {
       if (!localStorage.getItem("refreshAll")) {
         await this.getAllData(true, true, true);
       } else {
@@ -338,7 +338,8 @@ export default class WebSocketClient {
   getUpdateData = async () => {
     this.websocketTimeMessageTime =
       localStorage.getItem("websocketTimeMessageTime") || "";
-    if (!this.websocketTimeMessageTime) return;
+    if (!this.websocketTimeMessageTime || this.websocketTimeMessageTime == "")
+      return;
     const params = {
       // '20220902171731'//
       last_sync_time: this.websocketTimeMessageTime, // string     //LastSyncTime 上次完成同步时间,建议往回走个30秒, 格式 yyyymmddhh24miss
@@ -605,7 +606,7 @@ export default class WebSocketClient {
       }
 
       const token = localStorage.getItem("tk") || "";
-      if (token) {
+      if (token && token.length > 0) {
         // 不是订单，收银，预定系统，不需要websocket
         if (
           sessionStorage.getItem("client") == "money" ||
