@@ -64,10 +64,9 @@
               ></el-input>
             </div>
           </div>
-          <div class="m-t-6"   >
+          <div class="m-t-6">
             <keyBoard @changeNum="changeCode" />
           </div>
-
         </div>
 
         <div v-if="status == 2 || status == 3">
@@ -95,7 +94,10 @@
               请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
             </div>
           </div>
-          <div class="wait_content" v-if="[5, 6].includes(payType) && this.qrResult != null">
+          <div
+            class="wait_content"
+            v-if="[5, 6].includes(payType) && this.qrResult != null"
+          >
             <div v-if="qr_pay_state == 0">
               <img
                 class="loading"
@@ -107,19 +109,30 @@
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-
-        <el-button type="info" v-if="status == 1 || (status == 3 && qrResult == null)" @click="onCancelDrawer"
+        <el-button
+          type="info"
+          v-if="status == 1 || (status == 3 && qrResult == null)"
+          @click="onCancelDrawer"
           >取消</el-button
         >
-        <el-button type="primary" v-if="status == 1 || status == 3 && qrResult == null" @click="onSubmit"
+        <el-button
+          type="primary"
+          v-if="status == 1 || (status == 3 && qrResult == null)"
+          @click="onSubmit"
           >确定</el-button
         >
 
         <div>
-          <el-button type="info" v-if="status == 2 || (status == 3 && qrResult)" @click="notPayHandle"
+          <el-button
+            type="info"
+            v-if="status == 2 && ![5, 6].includes(payType)"
+            @click="notPayHandle"
             >暂不支付</el-button
           >
-          <el-button type="primary" v-if="status == 2" @click="goPrevStepHandle"
+          <el-button
+            type="primary"
+            v-if="status == 2 && ![5, 6].includes(payType)"
+            @click="goPrevStepHandle"
             >上一步</el-button
           >
         </div>
@@ -152,23 +165,23 @@
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
 const payTypeList = [
-      {
-        id: 6,
-        name: "扫客人-微信",
-      },
-      {
-        id: 5,
-        name: "扫客人-支付宝",
-      },
-      {
-        id: 2,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        name: "客人扫我-支付宝",
-      },
-    ];
+  {
+    id: 6,
+    name: "扫客人-微信",
+  },
+  {
+    id: 5,
+    name: "扫客人-支付宝",
+  },
+  {
+    id: 2,
+    name: "客人扫我-微信",
+  },
+  {
+    id: 1,
+    name: "客人扫我-支付宝",
+  },
+];
 export default {
   data() {
     return {
@@ -187,10 +200,9 @@ export default {
     };
   },
   methods: {
-
     // 开始扫码
-    startScan(){
-      if(window.atool && atool.startScan) {
+    startScan() {
+      if (window.atool && atool.startScan) {
         atool.startScan("scan_callback");
       } else {
         this.status = 3;
@@ -199,11 +211,12 @@ export default {
     changeCode(value) {
       switch (value) {
         case 10: // 清空
-          this.scanCode = '';
+          this.scanCode = "";
           break;
         case 12: // 回退
-          this.scanCode =
-            this.scanCode.toString().slice(0, this.scanCode.toString().length - 1);
+          this.scanCode = this.scanCode
+            .toString()
+            .slice(0, this.scanCode.toString().length - 1);
           break;
         default:
           this.scanCode = this.scanCode.toString() + value;
@@ -239,6 +252,7 @@ export default {
           if (this.qr_pay_state == 1) {
             clearInterval(this.timer);
             this.$message.success("支付成功");
+            this.$emit("subSecondLogoutHandle");
             this.onCancelDrawer();
             return;
           } else if (this.qr_pay_state == 2) {
@@ -271,6 +285,7 @@ export default {
           if (res.data.status == 5) {
             clearInterval(this.timer);
             this.$message.success("支付成功");
+            this.$emit("subSecondLogoutHandle");
             this.onCancelDrawer();
           }
         } else {
@@ -294,8 +309,9 @@ export default {
           this.amt = this.amt.toString() + ".";
           break;
         case 12: // 回退
-          this.amt =
-            this.amt.toString().slice(0, this.amt.toString().length - 1) ;
+          this.amt = this.amt
+            .toString()
+            .slice(0, this.amt.toString().length - 1);
           break;
         default:
           this.amt = this.amt.toString() + value;
@@ -311,6 +327,7 @@ export default {
       );
       if (res == "confirm") {
         this.onCancelDrawer();
+        this.$emit("subSecondLogoutHandle");
       }
     },
 
@@ -359,7 +376,8 @@ export default {
           that.getQRcodeUrl();
         } else {
           that.qrResult = null;
-          that.qr_pay_state = 2;
+          that.qr_pay_state = 0;
+          that.status = 1;
           that.$message.warning("扫码取消");
         }
       } catch (error) {

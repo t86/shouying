@@ -291,7 +291,11 @@
 
     <!-- 服务员让客人扫码添加滞留金 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-    <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer" />
+    <drawerAddBookAmt
+      v-if="showAddBookDrawer"
+      v-model="showAddBookDrawer"
+      @subSecondLogoutHandle="subSecondLogoutHandle"
+    />
 
     <!-- 收银系统滞留金管理 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
@@ -409,8 +413,6 @@ export default {
 
       // 扫码支付
       qrResult: null, // 扫码结果
-      // 扫码force
-      scanForce: 2,
 
       cardInfo: {},
       authInfo: {
@@ -583,32 +585,34 @@ export default {
       this.showChoosePayTypeHandle();
     },
 
-    showChoosePayTypeHandle() {
-      this.payType = "";
+    showChoosePayTypeHandle(scan = 0) {
       this.qrResult = null;
-      this.showChoosePayType = true;
-
-      const that = this;
-      function scan_callback(value) {
-        try {
-          console.log("scan_callback:", JSON.stringify(value));
-          if (value && value.code === 0) {
-            that.qrResult = value.data;
-            that.getPayQRCode(that.scanForce);
-            // that.showOrHideQRDrawerHandle();
-          } else {
-            that.qrResult = null;
-            that.$message.warning("扫码取消");
-            that.orderInfoDetail.r = 2;
-            that.showOrHideQRDrawerHandle();
+      if (scan == 1) {
+        this.getPayQRCode(2);
+      } else {
+        const that = this;
+        this.payType = "";
+        this.showChoosePayType = true;
+        function scan_callback(value) {
+          try {
+            console.log("scan_callback:", JSON.stringify(value));
+            if (value && value.code === 0) {
+              that.qrResult = value.data;
+              that.getPayQRCode(1);
+            } else {
+              that.qrResult = null;
+              that.$message.warning("扫码取消");
+              that.orderInfoDetail.r = 2;
+              // that.showOrHideQRDrawerHandle();
+            }
+          } catch (error) {
+            console.log("扫码失败：", error);
+            that.$message.warning("扫码失败：" + error);
           }
-        } catch (error) {
-          console.log("扫码失败：", error);
-          that.$message.warning("扫码失败：" + error);
         }
-      }
 
-      window.scan_callback = scan_callback;
+        window.scan_callback = scan_callback;
+      }
     },
 
     // 开始扫码
@@ -654,9 +658,24 @@ export default {
       this.showChoosePayType = false;
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType)) {
+        if (force == 2) {
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
+            order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
+          };
+          const res = await api_order.reqCheckPayOrder(params);
+          if (res.code == 2) {
+            const result = await this.showConfirmHandle("买单", res.msg);
+            if (result != "confirm") {
+              return;
+            }
+          } else if (res.code != 1) {
+            this.$message.warning(res.msg);
+            return;
+          }
+        }
         if (this.qrResult == null) {
           try {
-            this.scanForce = force;
             this.startScan();
           } catch (e) {
             console.log(e);
@@ -670,7 +689,7 @@ export default {
         force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
         pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助  5:扫客人-支付宝 6:扫客人-微信
         order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
-        auth_code: this.qrResult.toString(), //  string   扫码结果
+        auth_code: this.qrResult ? this.qrResult.toString() : "", //  string   扫码结果
       };
 
       try {
@@ -684,10 +703,7 @@ export default {
           if (res.data.r == 1) {
             this.$message.success("支付成功");
             this.subSecondLogoutHandle();
-            this.showOrHideQRDrawerHandle();
             return;
-          } else if (res.data.r == 2) {
-            this.$message.warning(res.msg);
           }
           this.showOrHideQRDrawerHandle();
         } else if (res.code == 2) {

@@ -153,7 +153,7 @@ export default {
     },
     reloadQrRequest() {
       this.$emit("showOrHideQRDrawerHandle");
-      this.$emit("reloadQrRequest");
+      this.$emit("reloadQrRequest", 1);
     },
   },
   props: {
