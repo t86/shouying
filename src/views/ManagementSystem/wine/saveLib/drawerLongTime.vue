@@ -10,12 +10,24 @@
     >
       <div class="session p-5 fs14">
         <div class="coll" layout="row" layout-align="start center">
-          <div class="label">延期时长:</div>
+          <div class="label">设置过期时间:</div>
           <div class="value m-l-4">
-            <el-input v-model="dayVal" style="width:200px" class="m-r-2" size="small"></el-input>天
+            <el-input v-model="dayVal" style="width:200px" class="m-r-2" size="small"
+            @keyup.native="
+              (e) => {
+                showMessage(e);
+                dayVal = inputLimitPositiveNum(e.target.value);
+              }
+            "
+              @blur="
+                (e) => {
+                  dayVal = formatPointNumber(e.target.value);
+                }
+              "
+            ></el-input>天后过期
           </div>
         </div>
-        <div class="red tips">例如：剩余有效期为10天，延期5天后，变为15天</div>
+        <div class="red tips">例如：填写5，则从当前日期开始计算，5天后过期</div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
@@ -27,13 +39,22 @@
  
 <script>
 import api_wine from "@/api/wine";
+import { inputLimitPositiveNum, formatPointNumber } from '@/utils/formatNumber'
 export default {
   data() {
     return {
-      dayVal: ""
+      inputLimitPositiveNum,
+      formatPointNumber ,
+      dayVal: "",
     };
   },
   methods: {
+    showMessage(e){
+      let value = e.target.value;
+      if(value&&value.indexOf('.')>-1){
+        this.$message.warning('请输入正整数')
+      }
+    },
     async onSubmit() {
       const params = {
         invt_ids: this.ids, //    []int64    库存Id列表
