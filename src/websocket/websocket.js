@@ -110,6 +110,7 @@ export default class WebSocketClient {
         message === "未发现授权信息" ||
         message === "授权信息未找到或已过期"
       ) {
+        localStorage.removeItem("tk");
         this.vue.$observer.send(CODE_INVALID);
       }
       this.vue.$message.warning(message);
