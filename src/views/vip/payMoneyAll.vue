@@ -15,7 +15,7 @@
             end-placeholder="结束日期"
             size="small"
             value-format="yyyy-MM-dd"
-            style="width:280px"
+            style="width: 280px"
           ></el-date-picker>
         </div>
         <div class="row" layout="row" layout-align="start center">
@@ -24,26 +24,32 @@
             v-model="form.keyword"
             size="small"
             placeholder="姓名/手机号/会员卡号"
-            style="width:200px"
+            style="width: 200px"
           ></el-input>
           <button class="btn primary m-l-4" @click="getTableData">查询</button>
           <button class="btn info m-l-4" @click="resetHandle">重置</button>
-          <button class="btn info m-l-4" @click="exportExcel" v-if="$store.getters.vipAuth">导出</button>
+          <button
+            class="btn info m-l-4"
+            @click="exportExcel"
+            v-if="$store.getters.vipAuth"
+          >
+            导出
+          </button>
         </div>
       </div>
-      
+
       <div class="amt-info" layout="row" layout-align="start center">
         <div class="m-r-6">
           <span class="label">消费总金额:</span>
-          <span>¥{{amtInfo.amt}}</span>
+          <span>¥{{ amtInfo.amt }}</span>
         </div>
         <div class="m-r-6">
           <span class="label">储值消费总金额:</span>
-          <span>¥{{amtInfo.val_amt}}</span>
+          <span>¥{{ amtInfo.val_amt }}</span>
         </div>
         <div class="m-r-6">
           <span class="label">赠送消费总金额:</span>
-          <span>¥{{amtInfo.free_amt}}</span>
+          <span>¥{{ amtInfo.free_amt }}</span>
         </div>
       </div>
 
@@ -65,30 +71,48 @@
               <div class="th">订位人</div>
               <div class="th">卡台</div>
               <div class="th">消费类型</div>
-              <div class="th" :style="{'visibility': $store.getters.vipAuth ? 'visible' : 'hidden'}">操作</div>
+              <div
+                class="th"
+                :style="{
+                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+                }"
+              >
+                操作
+              </div>
             </div>
           </div>
           <div class="tbody">
-            <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row" layout-align="space-between center">
-              <div class="td">{{index + 1}}</div>
-              <div class="td">{{item.d}}</div>
-              <div class="td">{{item.n}}</div>
-              <div class="td">{{item.bp}}</div>
-              <div class="td">{{item.cp}}</div>
-              <div class="td">{{item.cn}}</div>
-              <div class="td">{{item.ct}}</div>
-              <div class="td">{{item.cl}}</div>
-              <div class="td fs16-bold">{{item.va}}</div>
-              <div class="td fs16-bold">{{item.fa}}</div>
-              <div class="td fs16-bold">{{item.a}}</div>
-              <div class="td">{{item.s}}</div>
-              <div class="td">{{item.st}}</div>
-              <div class="td">{{item.o}}</div>
-              <div class="td" :style="{'visibility': $store.getters.vipAuth ? 'visible' : 'hidden'}">
+            <div
+              class="tr"
+              v-for="(item, index) in tableData"
+              :key="index"
+              layout="row"
+              layout-align="space-between center"
+            >
+              <div class="td">{{ index + 1 }}</div>
+              <div class="td">{{ item.d }}</div>
+              <div class="td">{{ item.n }}</div>
+              <div class="td">{{ item.bp }}</div>
+              <div class="td">{{ item.cp }}</div>
+              <div class="td">{{ item.cn }}</div>
+              <div class="td">{{ item.ct }}</div>
+              <div class="td">{{ item.cl }}</div>
+              <div class="td fs16-bold">{{ item.va }}</div>
+              <div class="td fs16-bold">{{ item.fa }}</div>
+              <div class="td fs16-bold">{{ item.a }}</div>
+              <div class="td">{{ item.s }}</div>
+              <div class="td">{{ item.st }}</div>
+              <div class="td">{{ item.o }}</div>
+              <div
+                class="td"
+                :style="{
+                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+                }"
+              >
                 <span @click="printHandle(item)">重打小票</span>
               </div>
             </div>
-            <div class="no-data" v-if="tableData.length==0">
+            <div class="no-data" v-if="tableData.length == 0">
               <img :src="require('@/assets/vip-imgs/empty.png')" alt />
               <p>暂无数据</p>
             </div>
@@ -109,7 +133,7 @@
     </div>
   </div>
 </template>
- 
+
 <script>
 import api_vip from "@/api/vip";
 export default {
@@ -117,25 +141,25 @@ export default {
     return {
       form: {
         dateVal: [],
-        keyword: ""
+        keyword: "",
       },
       tableData: [],
       amtInfo: {},
       pageInfo: {
         page: 1,
         pageSize: 20,
-        total: 0
-      }
+        total: 0,
+      },
     };
   },
-    methods: {
-    initDate(){
-      const date = new Date()
-      const year = date.getFullYear()
-      const month = (date.getMonth() + 1).toString().padStart(2, 0)
-      const day = date.getDate().toString().padStart(2, 0)
-      const result = year + '-' + month + '-' + day
-      this.form.dateVal = [result, result]
+  methods: {
+    initDate() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, 0);
+      const day = date.getDate().toString().padStart(2, 0);
+      const result = year + "-" + month + "-" + day;
+      this.form.dateVal = [result, result];
     },
     async getTableData() {
       const params = {
@@ -143,43 +167,55 @@ export default {
         page_size: this.pageInfo.pageSize * 1, //   int     每页行数
         begin_day: this.form.dateVal[0], //   string  消费开始日期 格式  yyyy-mm-dd
         end_day: this.form.dateVal[1], //     string   消费结束日期 格式 yyyy-mm-dd
-        key: this.form.keyword //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
+        key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
       };
       try {
-        const res = await api_vip.reqGetVipCarXFListReport(params)
+        const res = await api_vip.reqGetVipCarXFListReport(params);
         if (res.code == 1) {
-          this.tableData = res.data.datas || []
-          this.pageInfo.total = res.data.row_cnt || 0
+          this.tableData = res.data.datas || [];
+          this.pageInfo.total = res.data.row_cnt || 0;
           this.amtInfo = {
             free_amt: res.data.free_amt,
             val_amt: res.data.val_amt,
-            amt: res.data.amt
-          }
+            amt: res.data.amt,
+          };
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('获取消费记录失败', error)
+        console.log("获取消费记录失败", error);
       }
     },
-    resetHandle(){
-      this.initDate()
-      this.form.keyword = ''
-      this.getTableData()
+    async printHandle(itemInfo) {
+      const params = {
+        log_id: itemInfo.id * 1, //   int64   重打订单Id
+      };
+      try {
+        const res = await api_vip.reqPrintTicketNew(params);
+        res.code == 1
+          ? this.$message.success("重打小票成功")
+          : this.$message.warning(res.msg);
+      } catch (error) {
+        console.log("重打小票失败", error);
+      }
     },
-    async exportExcel(){
+    resetHandle() {
+      this.initDate();
+      this.form.keyword = "";
+      this.getTableData();
+    },
+    async exportExcel() {
       const params = {
         begin_day: this.form.dateVal[0], //   string  消费开始日期 格式  yyyy-mm-dd
         end_day: this.form.dateVal[1], //     string   消费结束日期 格式 yyyy-mm-dd
-        key: this.form.keyword //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
-      }
+        key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
+      };
       try {
         const res = await api_vip.reqExportExcelForPayMoney(params);
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
-              type:
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             })
           );
           const a = document.createElement("a"); //添加a标签
@@ -199,12 +235,12 @@ export default {
     changePageHandle(page) {
       this.pageInfo.page = page;
       this.getTableData();
-    }
+    },
   },
   mounted() {
-    this.initDate()
-    this.getTableData()
-  }
+    this.initDate();
+    this.getTableData();
+  },
 };
 </script>
 
@@ -215,32 +251,33 @@ export default {
 @import "../../style/vip/payMoneyAll.less";
 </style>
 <style>
-.el-select-dropdown__empty{
-  background-color: #BEC5D5!important;
+.el-select-dropdown__empty {
+  background-color: #bec5d5 !important;
 }
-.el-scrollbar .el-scrollbar__view.el-select-dropdown__list{
-  background-color: #BEC5D5!important;
-}
-
-.el-picker-panel{
-  background-color: #BEC5D5!important;
+.el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
+  background-color: #bec5d5 !important;
 }
 
+.el-picker-panel {
+  background-color: #bec5d5 !important;
+}
 
 /* 日期选择器 */
-.el-date-picker__header-label{
-  color: #1A1A21;
+.el-date-picker__header-label {
+  color: #1a1a21;
 }
-.el-date-table th,.el-picker-panel__content{
-  color: #1A1A21;
+.el-date-table th,
+.el-picker-panel__content {
+  color: #1a1a21;
 }
 </style>
 <style scoped>
-.el-select-dropdown__item{
-  color: rgba(255, 255, 255, .8);
+.el-select-dropdown__item {
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
 }
-.el-select-dropdown__item.hover, .el-select-dropdown__item:hover{
-    background-color: rgba(90, 90, 90, 0.5)!important;
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background-color: rgba(90, 90, 90, 0.5) !important;
 }
 </style>
