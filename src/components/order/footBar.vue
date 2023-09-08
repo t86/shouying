@@ -72,7 +72,10 @@
         </div>
       </div>
       <!-- 卡台名称 -->
-      <div class="card-name" :class="{'line':$store.state.userInfo.authStatus==4 || !($store.state.userInfo.authStatusArr.length==1&&$store.state.userInfo.authStatusArr[0]==3)}">{{cardInfo.name}}</div>
+      <div class="card-name" :class="{'line':$store.state.userInfo.authStatus==4 || !($store.state.userInfo.authStatusArr.length==1&&$store.state.userInfo.authStatusArr[0]==3)}">
+        <p>{{ cardInfo.name }}</p>
+        <p>{{ cardInfo.chgSeatInfo }}</p>
+      </div>
 
       <div class="emp-info">
         {{ empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId) }}

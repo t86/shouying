@@ -135,6 +135,9 @@
 
         <!-- 查看卡台详情 -->
         <div class="m-l-10 p-l-10" v-if="formStatus==14">
+          <el-form-item label="转台信息:">
+            <span class="white">{{cardDetailInfo.chgSeatInfo}}</span>
+          </el-form-item>
           <el-form-item label="订位人:">
             <span class="white">{{cardDetailInfo.saleName}}</span>
           </el-form-item>
