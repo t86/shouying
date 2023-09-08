@@ -56,7 +56,7 @@ instance.interceptors.response.use(
       } else {
         router.push({ path: "/" });
       }
-      localStorage.removeItem("s");
+      localStorage.removeItem("tk");
       Observer.send(CODE_INVALID);
     } else if (res.data.code == 15 || res.data.code == 14) {
       if (localStorage.getItem("super") == "true") {
