@@ -65,6 +65,7 @@
               <div class="th">订位人</div>
               <div class="th">卡台</div>
               <div class="th">消费类型</div>
+              <div class="th" :style="{'visibility': $store.getters.vipAuth ? 'visible' : 'hidden'}">操作</div>
             </div>
           </div>
           <div class="tbody">
@@ -83,6 +84,9 @@
               <div class="td">{{item.s}}</div>
               <div class="td">{{item.st}}</div>
               <div class="td">{{item.o}}</div>
+              <div class="td" :style="{'visibility': $store.getters.vipAuth ? 'visible' : 'hidden'}">
+                <span @click="printHandle(item)">重打小票</span>
+              </div>
             </div>
             <div class="no-data" v-if="tableData.length==0">
               <img :src="require('@/assets/vip-imgs/empty.png')" alt />

@@ -51,6 +51,32 @@
       </div>
     </div>
 
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">会员充值小票打印份数：</div>
+      <div class="value">
+        <el-select :disabled="onlineOrderCount <= 0" clearable v-model="onlineOrderPrint">
+          <el-option v-for="item in onlineOrderPrintList" :key="item.id" :label="item.n" :value="item.id"></el-option>
+        </el-select>
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">会员消费小票打印份数：</div>
+      <div class="value">
+        <el-select :disabled="onlineOrderCount <= 0" clearable v-model="onlineOrderPrint">
+          <el-option v-for="item in onlineOrderPrintList" :key="item.id" :label="item.n" :value="item.id"></el-option>
+        </el-select>
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">会员扣款小票打印份数：</div>
+      <div class="value">
+        <el-select :disabled="onlineOrderCount <= 0" clearable v-model="onlineOrderPrint">
+          <el-option v-for="item in onlineOrderPrintList" :key="item.id" :label="item.n" :value="item.id"></el-option>
+        </el-select>
+      </div>
+    </div>
     <drawerPreview v-model="showPreviewDrawer" />
 
     <el-button class="button" type="primary" @click.stop="submitHandle">保存</el-button>
@@ -69,7 +95,10 @@ export default {
       showPreviewDrawer: false,
       onlineOrderCount: 1,  // 线上结算单小票打印分书
       onlineOrderPrint: '',  // 线上结算单小票打印机
-      onlineOrderPrintList: []  // 线上结算单小票打印机option
+      onlineOrderPrintList: [],  // 线上结算单小票打印机option
+      vipRechargeReceipt: 0, // 会员充值小票打印份数
+      vipConsumptionReceipt: 0, // 会员消费小票份数
+      vipDeductionReceipt: 0, // 会员扣款小票份数
     };
   },
   methods: {

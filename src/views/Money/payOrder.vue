@@ -497,7 +497,7 @@ export default {
           
           // 获取翻台记录
           // 最左边的记录，如果是清台状态，和翻台一样处理
-          if (this.turnOverInfo.turnOverTabList.length != id + 1 
+          if (this.turnOverInfo.turnOverTabList.length != this.turnOverInfo.activeTurnOverCount + 1 
           || this.$store.state.orderInfo.currentCardInfo.bizStatus != 4) {
             this.$refs.footBar.cardInfo =  {...this.$refs.footBar.cardInfo, chgSeatInfo : res.data.chgSeatInfo }
           }
