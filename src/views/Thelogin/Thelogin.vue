@@ -491,7 +491,7 @@ export default {
                 window.loopReadCard();
               }
             } else {
-              if (res.code == 12) {
+              if (res.code == 12 || res.code == 11) {
                 this.term();
               }
               this.$message.warning(res.msg);
