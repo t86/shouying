@@ -17,6 +17,10 @@ export default [{
       url: "/wine/saveLib"
     },
     {
+      name: "存酒库子订单",
+      url: "/wine/saveLibChild"
+    },
+    {
       name: "过期待处理",
       url: "/wine/passTime"
     },

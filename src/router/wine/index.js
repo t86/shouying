@@ -12,6 +12,10 @@ export default [
     component: () => import('@/views/ManagementSystem/wine/saveLib/saveLib.vue')
   },
   {
+    path: '/wine/saveLibChild', name: "saveLibChild", meta: { title: '存酒库子订单' },
+    component: () => import('@/views/ManagementSystem/wine/saveLibChild/saveLibChild.vue')
+  },
+  {
     path: '/wine/passTime', name: "passTime", meta: { title: '过期待处理' },
     component: () => import('@/views/ManagementSystem/wine/passTime/passTime.vue')
   },
