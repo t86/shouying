@@ -27,9 +27,12 @@ export default {
   reqGetSaveLibList: params => axios.post(`${base.htgl}/wine/get_wine_invt`, params),
 
   // 过期库存延期
-  reqAddLongTime: params => axios.post(`${base.htgl}/wine/delay_wine_invt`, params),
+  reqAddLongTime: params => axios.post(`${base.htgl}/wine/delay_wine_invt2`, params),
 
-
+ /**
+   * 存酒库子订单
+   */
+ reqGetSaveLibChildList: params => axios.post(`${base.htgl}/wine/rpt/get_wine_invt_sub_order`, params),
   /**
    * 过期待处理
    */

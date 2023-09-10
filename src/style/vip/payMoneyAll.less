@@ -11,21 +11,20 @@
     }
   }
 
-
-  .amt-info{
+  .amt-info {
     font-size: 0;
     span {
       font-size: 20px;
       font-weight: 600;
-      color: #F51F4B;
+      color: #f51f4b;
       line-height: 30px;
       &.label {
-        color: #1A1A21;
+        color: #1a1a21;
         font-size: 18px;
       }
     }
   }
-  
+
   .contain {
     width: 100%;
     height: calc(100vh - 320px);
@@ -36,19 +35,19 @@
       min-width: 1670px;
 
       .thead .th {
-        background-color: #BEC5D5;
+        background-color: #bec5d5;
       }
 
       .tbody .tr {
         &:nth-child(2n) {
           .td {
-            background-color: #BEC5D5;
+            background-color: #bec5d5;
           }
         }
 
         &:nth-child(2n + 1) {
           .td {
-            background-color: #CCD1DC;
+            background-color: #ccd1dc;
           }
         }
       }
@@ -123,10 +122,19 @@
         .td:nth-child(13) {
           width: 120px;
         }
-        
+
         .th:nth-child(14),
         .td:nth-child(14) {
           width: 120px;
+        }
+
+        .th:nth-child(15),
+        .td:nth-child(15) {
+          width: 130px;
+          span {
+            color: #2362d5;
+            cursor: pointer;
+          }
         }
       }
     }
@@ -137,8 +145,8 @@
   background: #d1d5e0;
 }
 
-/deep/.el-range-input::placeholder{
-  color: #8C8C8C;
+/deep/.el-range-input::placeholder {
+  color: #8c8c8c;
 }
 
 /deep/.el-input__inner {

@@ -369,10 +369,10 @@ export default {
           if(params.shopping_cart_ids.length == 0) return this.$message.warning('购物车商品为空，请添加商品至购物车再下单！')
           try {
             const res = await api_order.reqPlaceAnOrder(params);
-            this.$message.success("下单成功");
+         
 
             if (res.code === 1) {
-
+              this.$message.success("下单成功");
               if (callback) {
                 this.$parent.$children[0] &&
                 this.$parent.$children[0].footNavBarClick &&
@@ -390,6 +390,14 @@ export default {
                 this.$router.replace({name: 'payOrder'})
               } else {
                 // 点单系统点单
+                this.subSecondLogoutHandle()
+              }
+              // 提示下单并买单，应该只适用于金额为零的场景
+            } else if(res.code == 5) {
+              if(this.amt.allAmt != 0) {
+                this.$message.warning('支付金额不为零，却买单成功了！！');
+              } else {
+                this.$message.warning('买单成功');
                 this.subSecondLogoutHandle()
               }
             } else {

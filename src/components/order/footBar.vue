@@ -129,7 +129,8 @@
             ),
         }"
       >
-        {{ cardInfo.name }}
+      <p>{{ cardInfo.name }}</p>
+        <p>{{ cardInfo.chgSeatInfo }}</p>
       </div>
 
       <div class="emp-info">

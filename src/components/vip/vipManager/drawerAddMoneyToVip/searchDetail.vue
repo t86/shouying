@@ -3,43 +3,43 @@
     <div class="form-grid">
       <div class="row">
         <div class="label">会员卡号:</div>
-        <div class="value">{{vipInfo.card_no}}</div>
+        <div class="value">{{ vipInfo.card_no }}</div>
       </div>
       <div class="row">
         <div class="label">会员卡等级:</div>
-        <div class="value">{{vipInfo.card_level_name}}</div>
+        <div class="value">{{ vipInfo.card_level_name }}</div>
       </div>
       <div class="row">
         <div class="label">绑定手机:</div>
-        <div class="value">{{vipInfo.bind_phone}}</div>
+        <div class="value">{{ vipInfo.bind_phone }}</div>
       </div>
       <div class="row">
         <div class="label">联系手机:</div>
-        <div class="value">{{vipInfo.contact_phone}}</div>
+        <div class="value">{{ vipInfo.contact_phone }}</div>
       </div>
       <div class="row">
         <div class="label">姓名:</div>
-        <div class="value">{{vipInfo.name}}</div>
+        <div class="value">{{ vipInfo.name }}</div>
       </div>
       <div class="row">
         <div class="label">卡类型:</div>
-        <div class="value">{{vipInfo.card_type_name}}</div>
+        <div class="value">{{ vipInfo.card_type_name }}</div>
       </div>
       <div class="row">
         <div class="label">会员卡标签:</div>
-        <div class="value">{{vipInfo.mark}}</div>
+        <div class="value">{{ vipInfo.mark }}</div>
       </div>
       <div class="row">
         <div class="label">会员卡总余额:</div>
-        <div class="value">{{vipInfo.bal}}</div>
+        <div class="value">{{ vipInfo.bal }}</div>
       </div>
       <div class="row">
         <div class="label">储值余额:</div>
-        <div class="value">{{vipInfo.val_bal}}</div>
+        <div class="value">{{ vipInfo.val_bal }}</div>
       </div>
       <div class="row">
         <div class="label">赠送余额:</div>
-        <div class="value">{{vipInfo.free_bal}}</div>
+        <div class="value">{{ vipInfo.free_bal }}</div>
       </div>
       <!-- <div class="row">
         <div class="label">剩余积分:</div>
@@ -55,7 +55,7 @@
         <div class="value" layout="row" layout-align="start center">
           <div
             class="item"
-            :class="{active: index == form.activeDetailId}"
+            :class="{ active: index == form.activeDetailId }"
             v-for="(item, index) in makeMoneyList"
             :key="index"
             layout="column"
@@ -64,9 +64,11 @@
           >
             <div class="item-top">
               <span>¥</span>
-              {{item.d}}
+              {{ item.d }}
             </div>
-            <div class="item-bottom" v-if="item.f * 1 > 0">赠 ¥ {{item.f}}</div>
+            <div class="item-bottom" v-if="item.f * 1 > 0">
+              赠 ¥ {{ item.f }}
+            </div>
           </div>
         </div>
       </div>
@@ -75,7 +77,12 @@
           <span>充值金额:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-          <el-input v-model="form.makeAmt" size="small" style="width:284px" placeholder="请输入充值金额"></el-input>
+          <el-input
+            v-model="form.makeAmt"
+            size="small"
+            style="width: 284px"
+            placeholder="请输入充值金额"
+          ></el-input>
         </div>
       </div>
       <div class="row" v-if="form.activeDetailId == makeMoneyList.length - 1">
@@ -83,7 +90,12 @@
           <span>赠送金额:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-          <el-input v-model="form.freeAmt" size="small" style="width:284px" placeholder="请输入赠送金额"></el-input>
+          <el-input
+            v-model="form.freeAmt"
+            size="small"
+            style="width: 284px"
+            placeholder="请输入赠送金额"
+          ></el-input>
         </div>
       </div>
       <div class="row">
@@ -92,8 +104,18 @@
           <span>充值方式:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-          <el-select v-model="form.typeVal" size="small" style="width:284px" placeholder="请选择充值方式">
-            <el-option v-for="item in typeOption" :key="item.id" :label="item.n" :value="item.id"></el-option>
+          <el-select
+            v-model="form.typeVal"
+            size="small"
+            style="width: 284px"
+            placeholder="请选择充值方式"
+          >
+            <el-option
+              v-for="item in typeOption"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            ></el-option>
           </el-select>
         </div>
       </div>
@@ -103,12 +125,12 @@
         </div>
         <div class="value">
           <el-select
-            style="width:284px"
+            style="width: 284px"
             v-model="form.personVal"
             filterable
             remote
             reserve-keyword
-            placeholder="输入员工工号可查询"
+            placeholder="输入员工姓名或工号可查询"
             :remote-method="remoteMethod"
             :loading="remoteLoading"
             size="small"
@@ -132,14 +154,14 @@
             :rows="2"
             placeholder="请输入备注"
             v-model="form.remark"
-            style="width:284px"
+            style="width: 284px"
           ></el-input>
         </div>
       </div>
     </div>
   </div>
 </template>
- 
+
 <script>
 import api_vip from "@/api/vip";
 export default {
@@ -155,26 +177,31 @@ export default {
         typeVal: "", // 充值方式
         personVal: "",
         remark: "",
-        makeAmt: '',
-        freeAmt: ''
-      }
+        makeAmt: "",
+        freeAmt: "",
+      },
     };
   },
   methods: {
     init() {
-      const id = this.currentInfo.id ? this.currentInfo.id : this.vipIdOfSwiper * 1
+      const id = this.currentInfo.id
+        ? this.currentInfo.id
+        : this.vipIdOfSwiper * 1;
       this.getVipDetailInfo(id);
     },
     // 获取vip详情
     async getVipDetailInfo(id) {
       const params = {
-        id: id * 1 //   int64   会员卡Id
+        id: id * 1, //   int64   会员卡Id
       };
       try {
         const res = await api_vip.reqGetVipCardDetailForMakeMoney(params);
         if (res.code == 1) {
           this.vipInfo = res.data.mb_card;
-          this.makeMoneyList = [...(res.data.deposit_rules || []), {d: '自定义', f: 0}];
+          this.makeMoneyList = [
+            ...(res.data.deposit_rules || []),
+            { d: "自定义", f: 0 },
+          ];
           this.typeOption = res.data.depoist_cnls || [];
         } else {
           this.$message.warning(res.msg);
@@ -189,20 +216,22 @@ export default {
         this.remoteLoading = true;
         const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-        this.personOptions = result.filter(item => item.code.includes(query));
+        this.personOptions = result.filter(
+          (item) => item.code.includes(query) || item.name.includes(query)
+        );
         this.remoteLoading = false;
       } else {
         this.options = [];
       }
-    }
+    },
   },
   props: {
     currentInfo: {
-      default: () => {}
+      default: () => {},
     },
     vipIdOfSwiper: {
-      default: ""
-    }
+      default: "",
+    },
   },
   watch: {
     form: {
@@ -212,13 +241,13 @@ export default {
           makeAmtInfo:
             this.makeMoneyList.length > 0
               ? this.makeMoneyList[this.form.activeDetailId]
-              : {}
+              : {},
         });
       },
       deep: true,
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 };
 </script>
 

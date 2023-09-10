@@ -494,6 +494,14 @@ export default {
       try {
         const res = await api_money.reqGetCardPayInfo(params);
         if (res.code === 1) {
+          
+          // 获取翻台记录
+          // 最左边的记录，如果是清台状态，和翻台一样处理
+          if (this.turnOverInfo.turnOverTabList.length != this.turnOverInfo.activeTurnOverCount + 1 
+          || this.$store.state.orderInfo.currentCardInfo.bizStatus != 4) {
+            this.$refs.footBar.cardInfo =  {...this.$refs.footBar.cardInfo, chgSeatInfo : res.data.chgSeatInfo }
+          }
+
           this.flag = true
           this.empId = res.data.sales_emp_id || 0
           // 存储当前卡台的翻台记录金额，即已付款翻台记录的相关金额信息（用于展示在页面底部footer的金额）
@@ -577,6 +585,7 @@ export default {
               ...anotherNotPayOrderList,
               ...onlineNotPayOrderList
             ]);
+            
           }
 
           const payedOrderList = [];
@@ -825,6 +834,7 @@ export default {
           }
           this.turnOverInfo.activeTurnOverCount = id;
           this.turnOverInfo.turnOverTabShow = false;
+          this.$refs.footBar.cardInfo = {...this.$store.state.orderInfo.currentCardInfo}
           await this.getOrderInfo(this.getPayTabList);
           this.sortTurnOverTab();
           const turnOverId = this.payTabInfo.payTabList[0].id;
