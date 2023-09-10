@@ -335,36 +335,35 @@
             <div class="title bold">会员卡扣款格式:</div>
             <div class="content">
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">操作人：000000 系统管理员</div>
+                <div class="guest_info_l">操作人：收银员</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">流水号：1483</div>
+                <div class="guest_info_l">流水号：129988877777</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
                 <div class="guest_info_l">扣款时间：2023-09-09 12:33:32</div>
               </div>
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">卡号：00002</div>
+                <div class="guest_info_l">卡号：00000000000001</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">姓名：张三</div>
+                <div class="guest_info_l">姓名：会员vip</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">储值金额扣款：￥0.09</div>
+                <div class="guest_info_l">储值金额扣款：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">赠送金额扣款：￥0.03</div>
+                <div class="guest_info_l">赠送金额扣款：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">扣款类型：充错扣款</div>
+                <div class="guest_info_l">扣款类型：业务扣款</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">扣后储值余额: ￥98.00</div>
+                <div class="guest_info_l">扣后储值余额: ￥2000.00</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
-                <div class="guest_info_l">扣后赠送余额：￥29.00</div>
+                <div class="guest_info_l">扣后赠送余额：￥0.00</div>
               </div>
-
               <div class="order_time">
                 <div class="order_time_li">打印时间：2023-09-09 12:33:32</div>
               </div>
@@ -375,33 +374,32 @@
             <div class="title bold">会员卡消费格式:</div>
             <div class="content">
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">操作人：000000 系统管理员</div>
+                <div class="guest_info_l">操作人：收银员</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">流水号：1483</div>
+                <div class="guest_info_l">流水号：129988877777</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
                 <div class="guest_info_l">扣款时间：2023-09-09 12:33:32</div>
               </div>
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">卡号：00002</div>
+                <div class="guest_info_l">卡号：00000000000001</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">姓名：张三</div>
+                <div class="guest_info_l">姓名：会员vip</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">储值金额消费：￥0.09</div>
+                <div class="guest_info_l">储值金额消费：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">赠送金额消费：￥0.03</div>
+                <div class="guest_info_l">赠送金额消费：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">消后储值余额: ￥98.00</div>
+                <div class="guest_info_l">消后储值余额: ￥2000.00</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
-                <div class="guest_info_l">消后赠送余额：￥29.00</div>
+                <div class="guest_info_l">消后赠送余额：￥0.00</div>
               </div>
-
               <div class="order_time">
                 <div class="order_time_li">打印时间：2023-09-09 12:33:32</div>
               </div>
@@ -681,37 +679,37 @@
             <div class="title bold">会员卡充值格式:</div>
             <div class="content">
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">操作人：000000 系统管理员</div>
+                <div class="guest_info_l">操作人：收银员</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
                 <div class="guest_info_l">推荐人：李四</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">流水号：1483</div>
+                <div class="guest_info_l">流水号：129988877777</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
                 <div class="guest_info_l">充值时间：2023-09-09 12:33:32</div>
               </div>
               <div class="guest_info" style="border: none">
-                <div class="guest_info_l">卡号：00002</div>
+                <div class="guest_info_l">卡号：00000000000001</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">姓名：张三</div>
+                <div class="guest_info_l">姓名：会员vip</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">充值金额：￥0.09</div>
+                <div class="guest_info_l">充值金额：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">赠送金额：￥0.03</div>
+                <div class="guest_info_l">赠送金额：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">充值方式：微信</div>
+                <div class="guest_info_l">充值方式：现金</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
-                <div class="guest_info_l">充后储值余额: ￥98.00</div>
+                <div class="guest_info_l">充后储值余额: ￥2000.00</div>
               </div>
               <div class="guest_info" style="margin-top: -4px">
-                <div class="guest_info_l">充后赠送余额：￥29.00</div>
+                <div class="guest_info_l">充后赠送余额：￥2000.00</div>
               </div>
 
               <div class="order_time">
@@ -837,6 +835,11 @@ export default {
       align-items: center;
       justify-content: space-between;
       margin: 8px 0 16px;
+    }
+
+    .sign {
+      padding: 26px 0 26px;
+      border-bottom: 1px dashed #333;
     }
 
     .order_time {
