@@ -164,24 +164,37 @@
 <script>
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
-const payTypeList = [
-  {
-    id: 6,
-    name: "扫客人-微信",
-  },
-  {
-    id: 5,
-    name: "扫客人-支付宝",
-  },
-  {
-    id: 2,
-    name: "客人扫我-微信",
-  },
-  {
-    id: 1,
-    name: "客人扫我-支付宝",
-  },
-];
+const payTypeList =
+  window.atool &&
+  (window.atool.startScan || window.atool.getTermType() == "android")
+    ? [
+        {
+          id: 6,
+          name: "扫客人-微信",
+        },
+        {
+          id: 5,
+          name: "扫客人-支付宝",
+        },
+        {
+          id: 2,
+          name: "客人扫我-微信",
+        },
+        {
+          id: 1,
+          name: "客人扫我-支付宝",
+        },
+      ]
+    : [
+        {
+          id: 2,
+          name: "客人扫我-微信",
+        },
+        {
+          id: 1,
+          name: "客人扫我-支付宝",
+        },
+      ];
 export default {
   data() {
     return {
@@ -230,6 +243,15 @@ export default {
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType) && this.qrResult == null) {
         try {
+          if (
+            window.atool.getTermType() == "android" &&
+            !window.atool.startScan
+          ) {
+            this.$message.warning(
+              "当前版本还不支持, 请联系系统运维人员升级版本"
+            );
+            return;
+          }
           this.startScan();
         } catch (e) {
           console.log(e);
@@ -366,6 +388,11 @@ export default {
   },
   created() {},
   mounted() {
+    console.log(
+      "drawerAddBookAmt",
+      window.atool &&
+        (window.atool.startScan || window.atool.getTermType() == "android")
+    );
     const that = this;
     function scan_callback(value) {
       try {

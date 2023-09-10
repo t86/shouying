@@ -181,7 +181,9 @@ export default {
   },
   methods: {
     initDate() {
-      const date = new Date();
+      const oneHour =
+        +new Date("2023/07/22 12:00:00") - +new Date("2023/07/22 11:00:00");
+      const date = new Date(+new Date() - 8 * oneHour);
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, 0);
       const day = date.getDate().toString().padStart(2, 0);

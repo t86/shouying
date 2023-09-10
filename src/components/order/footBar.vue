@@ -129,7 +129,7 @@
             ),
         }"
       >
-      <p>{{ cardInfo.name }}</p>
+        <p>{{ cardInfo.name }}</p>
         <p>{{ cardInfo.chgSeatInfo }}</p>
       </div>
 
@@ -361,28 +361,45 @@ const payNavList = [
   },
 ];
 
-const payTypeList = [
-  {
-    id: 6,
-    name: "扫客人-微信",
-  },
-  {
-    id: 5,
-    name: "扫客人-支付宝",
-  },
-  {
-    id: 2,
-    name: "客人扫我-微信",
-  },
-  {
-    id: 1,
-    name: "客人扫我-支付宝",
-  },
-  {
-    id: 3,
-    name: "微信小程序自助",
-  },
-];
+const payTypeList =
+  window.atool &&
+  (window.atool.startScan || window.atool.getTermType() == "android")
+    ? [
+        {
+          id: 6,
+          name: "扫客人-微信",
+        },
+        {
+          id: 5,
+          name: "扫客人-支付宝",
+        },
+        {
+          id: 2,
+          name: "客人扫我-微信",
+        },
+        {
+          id: 1,
+          name: "客人扫我-支付宝",
+        },
+        {
+          id: 3,
+          name: "微信小程序自助",
+        },
+      ]
+    : [
+        {
+          id: 2,
+          name: "客人扫我-微信",
+        },
+        {
+          id: 1,
+          name: "客人扫我-支付宝",
+        },
+        {
+          id: 3,
+          name: "微信小程序自助",
+        },
+      ];
 
 export default {
   data() {
@@ -495,6 +512,11 @@ export default {
     },
 
     init() {
+      console.log(
+        "drawerAddBookAmt",
+        window.atool &&
+          (window.atool.startScan || window.atool.getTermType() == "android")
+      );
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
@@ -659,6 +681,13 @@ export default {
       this.showChoosePayType = false;
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType)) {
+        if (
+          window.atool.getTermType() == "android" &&
+          !window.atool.startScan
+        ) {
+          this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
+          return;
+        }
         if (force == 2) {
           const params = {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
