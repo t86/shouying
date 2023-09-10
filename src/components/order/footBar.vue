@@ -363,7 +363,7 @@ const payNavList = [
 
 const payTypeList =
   window.atool &&
-  (window.atool.startScan || window.atool.getTermType() == "android")
+  ("startScan" in window.atool || window.atool.getTermType() == "android")
     ? [
         {
           id: 6,
@@ -515,7 +515,8 @@ export default {
       console.log(
         "drawerAddBookAmt",
         window.atool &&
-          (window.atool.startScan || window.atool.getTermType() == "android")
+          ("startScan" in window.atool ||
+            window.atool.getTermType() == "android")
       );
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
@@ -641,7 +642,7 @@ export default {
     // 开始扫码
     startScan() {
       console.log("startScan");
-      if (window.atool && atool.startScan) {
+      if (window.atool && "startScan" in window.atool) {
         atool.startScan("scan_callback");
         // scan_callback({ code: 0, data: "284058227514617549" });
       } else {
@@ -683,7 +684,7 @@ export default {
       if ([5, 6].includes(this.payType)) {
         if (
           window.atool.getTermType() == "android" &&
-          !window.atool.startScan
+          !("startScan" in window.atool)
         ) {
           this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
           return;
