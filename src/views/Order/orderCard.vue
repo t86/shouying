@@ -1088,9 +1088,11 @@ export default {
       const isBooker =
         cardItemInfo.salesEmpId * 1 == this.$store.state.userInfo.emp_id * 1;
       // 是否是当前卡台点单服务员
-      const isSealer = !!cardItemInfo.waiter_emp_ids_arr.find(
-        (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
-      );
+      const isSealer =
+        "waiter_emp_ids_arr" in cardItemInfo &&
+        !!cardItemInfo.waiter_emp_ids_arr.find(
+          (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
+        );
       // TODO: console.log(n, isLookAll , isBooker , isSealer, isLookAll || isBooker || isSealer);
       return isLookAll || isBooker || isSealer;
     },
