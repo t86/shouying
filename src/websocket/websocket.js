@@ -54,7 +54,11 @@ export default class WebSocketClient {
   openHandle = async (e) => {
     const token = localStorage.getItem("tk") || "";
     if (token && token.length > 0) {
-      if (!localStorage.getItem("refreshAll")) {
+      // 存储时间格式为： 20230909010100
+      const allLocalTime = localStorage.getItem("refreshAllLocalTime");
+      // 如果上次拉取all的时间已经超过一定时间: 暂定13小时，确保超过一个营业时间
+      //  || allLocalTime < +this.formattedDate() - 130000
+      if (!allLocalTime) {
         await this.getAllData(true, true, true);
       } else {
         await this.getUpdateData();
@@ -161,8 +165,7 @@ export default class WebSocketClient {
 
   getAllData = async (loadCard = false, reload = false, init = false) => {
     console.log("%c begin", "color:red;font-size:14px");
-    console.log("reload", reload);
-    console.log("this.res", JSON.parse(JSON.stringify(this.res)));
+
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     // 是否需要重新请求元素据
@@ -188,6 +191,8 @@ export default class WebSocketClient {
           this.resResultDataObj = {};
 
           let data = res.data ? res.data.ds : [];
+          localStorage.setItem("refreshAllTime", res.data && res.data.ts);
+          localStorage.setItem("refreshAllLocalTime", +this.formattedDate());
           localStorage.setItem("refreshAll", ...data["23"]);
           localStorage.setItem("websocketTimeMessageTime", res.data.ts);
           resResultDataArr.forEach((el, index) => {
@@ -313,6 +318,17 @@ export default class WebSocketClient {
     }
   };
 
+  formattedDate() {
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = (date.getMonth() + 1).toString().padStart(2, "0");
+    let day = date.getDate().toString().padStart(2, "0");
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
+
+    return year + month + day + hours + minutes + seconds;
+  }
   // 退出登录
   async logoutHandle() {
     try {
@@ -358,6 +374,7 @@ export default class WebSocketClient {
       }
 
       if (res.code === 1) {
+        localStorage.setItem("updateLocalTime", +this.formattedDate());
         this.updateCardList(data.ds || [], this.websocketTimeMessageTime);
       } else {
         this.vue.$message.warning(res.msg);
@@ -379,7 +396,9 @@ export default class WebSocketClient {
         return this.getAllData(true, false);
       } else if (key == 18) {
         // 判断营业日id状态是否发生变化，变化的话重新获取业务数据
-        this.vue.$store.commit("updateStoreStatusId", dataObj[key][0][0]);
+        try {
+          this.vue.$store.commit("updateStoreStatusId", dataObj[key][0][0]);
+        } catch (e) {}
         console.log(2, "key", key);
         eventVue.$emit("reloadData");
         return this.getAllData(true, true);
