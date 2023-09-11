@@ -469,8 +469,24 @@ export default {
           } else {
             this.$message.warning("买单成功");
             if (this.$store.state.userInfo.authStatus == 4) {
-              // 收银系统跳转来的点单
-              this.$router.replace({ name: "payOrder" });
+              let businessData =
+                this.$store.state.cardPageInfo.resResultDataObj.businessData.find(
+                  (el) =>
+                    el.seatId ==
+                    this.$store.state.orderInfo.currentCardInfo.seatId
+                );
+              if (
+                businessData.orderAmt -
+                  businessData.payedAmt +
+                  businessData.yh2Amt +
+                  businessData.yhAmt >
+                0
+              ) {
+                // 收银系统跳转来的点单
+                this.$router.replace({ name: "payOrder" });
+              } else {
+                this.$router.replace({ name: "moneyCard" });
+              }
             } else {
               // 点单系统点单
               this.subSecondLogoutHandle();
