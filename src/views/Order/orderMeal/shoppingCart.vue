@@ -475,13 +475,7 @@ export default {
                     el.seatId ==
                     this.$store.state.orderInfo.currentCardInfo.seatId
                 );
-              if (
-                businessData.orderAmt -
-                  businessData.payedAmt +
-                  businessData.yh2Amt +
-                  businessData.yhAmt >
-                0
-              ) {
+              if (businessData.bizStatus != 7) {
                 // 收银系统跳转来的点单
                 this.$router.replace({ name: "payOrder" });
               } else {
