@@ -178,8 +178,7 @@ import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
 import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
 
 const payTypeList =
-  window.atool &&
-  ("startScan" in window.atool || window.atool.getTermType() == "android")
+  atool && ("startScan" in atool || atool.getTermType() == "android")
     ? [
         {
           id: 6,
@@ -244,7 +243,7 @@ export default {
   methods: {
     // 开始扫码
     startScan() {
-      if (window.atool && "startScan" in window.atool) {
+      if (atool && "startScan" in atool) {
         atool.startScan("scan_callback");
       } else {
         this.status = 3;
@@ -272,10 +271,7 @@ export default {
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType) && this.qrResult == null) {
         try {
-          if (
-            window.atool.getTermType() == "android" &&
-            !("startScan" in window.atool)
-          ) {
+          if (atool.getTermType() == "android" && !("startScan" in atool)) {
             this.$message.warning(
               "当前版本还不支持, 请联系系统运维人员升级版本"
             );
@@ -417,11 +413,6 @@ export default {
   },
   created() {},
   mounted() {
-    console.log(
-      "drawerAddBookAmt",
-      window.atool &&
-        ("startScan" in window.atool || window.atool.getTermType() == "android")
-    );
     const that = this;
     function scan_callback(value) {
       try {

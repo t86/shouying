@@ -375,8 +375,7 @@ const payNavList = [
 ];
 
 const payTypeList =
-  window.atool &&
-  ("startScan" in window.atool || window.atool.getTermType() == "android")
+  atool && ("startScan" in atool || atool.getTermType() == "android")
     ? [
         {
           id: 6,
@@ -535,9 +534,7 @@ export default {
     init() {
       console.log(
         "drawerAddBookAmt",
-        window.atool &&
-          ("startScan" in window.atool ||
-            window.atool.getTermType() == "android")
+        atool && ("startScan" in atool || atool.getTermType() == "android")
       );
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
@@ -663,7 +660,7 @@ export default {
     // 开始扫码
     startScan() {
       console.log("startScan");
-      if (window.atool && "startScan" in window.atool) {
+      if (atool && "startScan" in atool) {
         atool.startScan("scan_callback");
         // scan_callback({ code: 0, data: "284058227514617549" });
       } else {
@@ -703,10 +700,7 @@ export default {
       this.showChoosePayType = false;
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType)) {
-        if (
-          window.atool.getTermType() == "android" &&
-          !("startScan" in window.atool)
-        ) {
+        if (atool.getTermType() == "android" && !("startScan" in atool)) {
           this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
           return;
         }
