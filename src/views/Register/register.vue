@@ -1,5 +1,8 @@
 <template>
   <div class="register" layout="row" layout-align="center center">
+    <div class="switch switch-position" @click="changePosition">
+        <span>横竖屏</span>
+      </div>
     <div class="contain" layout="row" layout-align="center center">
       <img :src="require('@/assets/register-login/denglu_bg.png')" alt />
       <div class="register-contain" :style="{transform: 'translate(-50%, -50%) scale(' + this.scale + ')'}">
@@ -117,6 +120,11 @@ export default {
         this.scale = (formHeight / pageHeight) - 0.1
       }
     },
+    changePosition(){
+      if(window.atool && 'changePosition' in window.atool){
+        window.atool.changePosition();
+      }
+    },
     exitHandle() {
       try {
         atool.exit();
@@ -215,10 +223,45 @@ export default {
 </script>
 
 <style scoped lang="less">
+.switch {
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  margin-left: -240px;
+  margin-top: 20px;
+  width: 50px;
+  height: 30px;
+}
+
 .register {
   width: 100vw;
   height: 100vh;
   background: #080b16;
+  position: relative;
+    
+
+  .switch-position {
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #367bd5;
+    width: 100px;
+    border: 1px solid #367bd5;
+    border-radius: 4px;
+    height: 30px;
+    cursor: pointer;
+    opacity: 0.6;
+    img {
+      width: 20px;
+      height: 20px;
+    }
+    &:hover {
+      color: #fff;
+      border-color: #fff;
+      opacity: 1;
+    }
+  }
   .contain {
     width: 100%;
     max-width: 1024px;
