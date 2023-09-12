@@ -375,7 +375,8 @@ const payNavList = [
 ];
 
 const payTypeList =
-  atool && ("startScan" in atool || atool.getTermType() == "android")
+  window.atool &&
+  ("startScan" in window.atool || window.atool.getTermType() == "android")
     ? [
         {
           id: 6,
@@ -532,10 +533,6 @@ export default {
     },
 
     init() {
-      console.log(
-        "drawerAddBookAmt",
-        atool && ("startScan" in atool || atool.getTermType() == "android")
-      );
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
@@ -660,8 +657,8 @@ export default {
     // 开始扫码
     startScan() {
       console.log("startScan");
-      if (atool && "startScan" in atool) {
-        atool.startScan("scan_callback");
+      if (window.atool && "startScan" in window.atool) {
+        window.atool.startScan("scan_callback");
         // scan_callback({ code: 0, data: "284058227514617549" });
       } else {
         this.scanStart = true;
@@ -700,7 +697,10 @@ export default {
       this.showChoosePayType = false;
       // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType)) {
-        if (atool.getTermType() == "android" && !("startScan" in atool)) {
+        if (
+          window.atool.getTermType() == "android" &&
+          !("startScan" in window.atool)
+        ) {
           this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
           return;
         }

@@ -3,21 +3,19 @@
     <div class="terminal-type">
       <div class="clear-cache" @click="clear">
         <img
-          width="20"
           :src="require('@/assets/register-login/qinglihuancun.png')"
           alt
+          style="width: 18px; height: 18px; margin-right: 2px"
         />
         <span>清理缓存</span>
       </div>
       <div
         class="change-position"
         @click="changePosition"
-        v-if="
-          atool && 'getTermType' in atool && 'android' == atool.getTermType()
-        "
+        v-if="isAndroidTerminal"
       >
         <img
-          width="20"
+          style="width: 18px; height: 18px; margin-right: 2px"
           :src="require('@/assets/register-login/qiehuan.png')"
           alt
         />
@@ -410,8 +408,8 @@ export default {
       });
     },
     changePosition() {
-      if (atool && "changePosition" in atool) {
-        atool.changePosition();
+      if (window.atool && "changePosition" in window.atool) {
+        window.atool.changePosition();
       } else {
         this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
       }
