@@ -32,7 +32,7 @@
           </div>
 
           <div
-            class="close"
+            class="position"
             layout="row"
             layout-align="start center"
             @click="changePosition"
@@ -42,7 +42,7 @@
               'android' == atool.getTermType()
             "
           >
-            <img :src="require('@/assets/register-login/close_sys.png')" alt />
+            <img :src="require('@/assets/register-login/qiehuan.png')" alt />
             <span>横竖屏切换</span>
           </div>
         </div>
@@ -374,6 +374,12 @@ export default {
         .close {
           color: rgba(255, 255, 255, 0.4);
           cursor: pointer;
+          margin-right: 20px;
+        }
+        .position {
+          color: rgba(255, 255, 255, 0.4);
+          cursor: pointer;
+          margin-left: 20px;
         }
       }
 

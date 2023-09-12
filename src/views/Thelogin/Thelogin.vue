@@ -2,6 +2,11 @@
   <div class="Thelogin">
     <div class="terminal-type">
       <div class="clear-cache" @click="clear">
+        <img
+          width="20"
+          :src="require('@/assets/register-login/qinglihuancun.png')"
+          alt
+        />
         <span>清理缓存</span>
       </div>
       <div
@@ -11,6 +16,11 @@
           atool && 'getTermType' in atool && 'android' == atool.getTermType()
         "
       >
+        <img
+          width="20"
+          :src="require('@/assets/register-login/qiehuan.png')"
+          alt
+        />
         <span>切换横竖屏</span>
       </div>
       <div class="terminal-type-name">
@@ -637,8 +647,6 @@ export default {
       align-items: center;
       color: #367bd5;
       width: 100px;
-      border: 1px solid #367bd5;
-      border-radius: 4px;
       height: 30px;
       cursor: pointer;
       opacity: 0.6;
@@ -660,8 +668,6 @@ export default {
       align-items: center;
       color: #367bd5;
       width: 100px;
-      border: 1px solid #367bd5;
-      border-radius: 4px;
       height: 30px;
       cursor: pointer;
       opacity: 0.6;
