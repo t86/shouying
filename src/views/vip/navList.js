@@ -4,14 +4,14 @@ export default [
     name: "返回",
     icon: require("@/assets/vip-imgs/back.png"),
     hoverIcon: require("@/assets/vip-imgs/back-hover.png"),
-    children: []
+    children: [],
   },
   {
     id: 1,
     name: "首页",
     icon: require("@/assets/vip-imgs/index.png"),
     hoverIcon: require("@/assets/vip-imgs/index-hover.png"),
-    children: []
+    children: [],
   },
   {
     id: 2,
@@ -22,14 +22,14 @@ export default [
       {
         id: 21,
         name: "会员管理",
-        routerName: "vipManager"
+        routerName: "vipManager",
       },
       {
         id: 22,
         name: "会员卡类型",
-        routerName: "vipType"
-      }
-    ]
+        routerName: "vipType",
+      },
+    ],
   },
   {
     id: 3,
@@ -40,14 +40,19 @@ export default [
       {
         id: 31,
         name: "线上充值设置",
-        routerName: "onlineMakeMoneyToVip"
+        routerName: "onlineMakeMoneyToVip",
       },
       {
         id: 32,
         name: "会员卡号生成规则",
-        routerName: "vipNumRules"
-      }
-    ]
+        routerName: "vipNumRules",
+      },
+      {
+        id: 33,
+        name: "会员卡结账规则",
+        routerName: "vipBillRules",
+      },
+    ],
   },
   {
     id: 4,
@@ -58,18 +63,18 @@ export default [
       {
         id: 41,
         name: "充值记录",
-        routerName: "makeMoneyToVip"
+        routerName: "makeMoneyToVip",
       },
       {
         id: 42,
         name: "消费记录",
-        routerName: "payMoneyAll"
+        routerName: "payMoneyAll",
       },
       {
         id: 43,
         name: "扣款记录",
-        routerName: "vipPay"
-      }
-    ]
-  }
+        routerName: "vipPay",
+      },
+    ],
+  },
 ];

@@ -5,20 +5,31 @@
         <li
           v-for="item in navList"
           :key="item.id"
-          :class="{'back':item.id==0,'active': item.hover || item.id == firstCateId}"
+          :class="{
+            back: item.id == 0,
+            active: item.hover || item.id == firstCateId,
+          }"
           layout="row"
           v-show="!(!$store.getters.vipAuth && item.id == 0)"
           layout-align="center center"
-          @click="cateClickHandle('firstCate',item)"
+          @click="cateClickHandle('firstCate', item)"
           @mouseenter="mouseHandle(item, 1)"
           @mouseleave="mouseHandle(item, 2)"
         >
-          <img :src="item.hover || item.id == firstCateId ? item.hoverIcon : item.icon" alt />
-          <span>{{item.name}}</span>
+          <img
+            :src="
+              item.hover || item.id == firstCateId ? item.hoverIcon : item.icon
+            "
+            alt
+          />
+          <span>{{ item.name }}</span>
         </li>
 
-        <div class="options-contain cursor" @click.stop="showOption = !showOption">
-          <span>{{$store.state.userInfo.name}}</span>
+        <div
+          class="options-contain cursor"
+          @click.stop="showOption = !showOption"
+        >
+          <span>{{ $store.state.userInfo.name }}</span>
           <el-icon class="el-icon-arrow-down cursor m-r-10"></el-icon>
           <ul class="m-r-10 cursor" v-if="showOption">
             <!-- <li class="cursor" @click="showOrHideDrawer">修改密码</li> -->
@@ -30,13 +41,13 @@
         <li
           v-for="item in navList[firstCateId].children"
           :key="item.id"
-          :class="{'active':item.id == secondCateId}"
+          :class="{ active: item.id == secondCateId }"
           v-show="!(!$store.getters.vipAuth && item.id == 32)"
           layout="row"
           layout-align="center center"
-          @click="cateClickHandle('secondCate',item)"
+          @click="cateClickHandle('secondCate', item)"
         >
-          <span>{{item.name}}</span>
+          <span>{{ item.name }}</span>
         </li>
       </ul>
     </div>
@@ -47,16 +58,16 @@
     </div>
   </div>
 </template>
- 
+
 <script>
-import navList from './navList'
+import navList from "./navList";
 import api_auth from "@/api/UtilAuth";
 export default {
   data() {
     return {
       firstCateId: 2,
       secondCateId: 1,
-      showOption: false
+      showOption: false,
     };
   },
   methods: {
@@ -70,13 +81,13 @@ export default {
           if (itemInfo.id == 0) {
             this.$router.replace("moneyCard");
           } else if (itemInfo.id == 1) {
-            return this.$message.warning('开发中，敬请期待...');
+            return this.$message.warning("开发中，敬请期待...");
           } else {
             this.firstCateId = itemInfo.id;
             if (itemInfo.children.length > 0) {
               this.secondCateId = itemInfo.children[0].id;
               this.$router.push({
-                name: itemInfo.children[0].routerName
+                name: itemInfo.children[0].routerName,
               });
             }
           }
@@ -86,7 +97,7 @@ export default {
           this.$router.push({ name: itemInfo.routerName });
           break;
       }
-    },    
+    },
     async logOutHandle() {
       try {
         const res = await api_auth.auth.requestauthlogout();
@@ -95,7 +106,7 @@ export default {
           this.$store.commit("updateUserInfo", "");
           this.$router.replace({
             name: "Thelogin",
-            replace: true
+            replace: true,
           });
           this.$message.success("退出成功！");
         } else {
@@ -106,41 +117,42 @@ export default {
       }
     },
   },
-  mounted () {
+  mounted() {
     const routerParams = {
       vipManager: 21,
       vipType: 22,
       onlineMakeMoneyToVip: 31,
       vipNumRules: 32,
+      vipBillRules: 33,
       makeMoneyToVip: 41,
       payMoneyAll: 42,
-      vipPay: 43
-    }
-    this.firstCateId = Math.floor(routerParams[this.$route.name] / 10)
-    this.secondCateId = routerParams[this.$route.name]
+      vipPay: 43,
+    };
+    this.firstCateId = Math.floor(routerParams[this.$route.name] / 10);
+    this.secondCateId = routerParams[this.$route.name];
 
     window.onclick = () => {
-      this.showOption = false
-    }
+      this.showOption = false;
+    };
   },
   computed: {
     navList() {
-      return navList.map(item => ({
+      return navList.map((item) => ({
         ...item,
-        hover: false
+        hover: false,
       }));
-    }
+    },
   },
 };
 </script>
 
 <style lang="less" scoped>
-@import '../../style/common/scrollBarVip.less';
+@import "../../style/common/scrollBarVip.less";
 </style>
 
 <style scoped lang="less">
 .vip-nav {
-  color: #1A1A21;
+  color: #1a1a21;
   .nav-top {
     box-sizing: border-box;
     ul.first-cate {
@@ -199,7 +211,7 @@ export default {
           position: absolute;
           top: 26px;
           right: 0%;
-          background-color: #BEC5D5;
+          background-color: #bec5d5;
           border: 1px solid #999;
           width: 100px;
           padding: 10px 0;
@@ -211,7 +223,7 @@ export default {
             color: #333;
             line-height: 30px;
             &:hover {
-              color: #2362D5;
+              color: #2362d5;
             }
           }
         }
@@ -238,14 +250,14 @@ export default {
 
   .contain {
     height: calc(100vh - 92px);
-    background: linear-gradient(179deg, #8A95B0 0%, #ABB2C5 100%);
+    background: linear-gradient(179deg, #8a95b0 0%, #abb2c5 100%);
     padding: 10px;
     box-sizing: border-box;
     .content {
       height: 100%;
       overflow-y: auto;
       border-radius: 4px;
-      background: #BEC5D5;
+      background: #bec5d5;
       padding: 10px 15px;
       box-sizing: border-box;
     }
