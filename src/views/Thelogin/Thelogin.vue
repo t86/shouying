@@ -4,6 +4,15 @@
       <div class="clear-cache" @click="clear">
         <span>清理缓存</span>
       </div>
+      <div
+        class="change-position"
+        @click="changePosition"
+        v-if="
+          atool && 'getTermType' in atool && 'android' == atool.getTermType()
+        "
+      >
+        <span>切换横竖屏</span>
+      </div>
       <div class="terminal-type-name">
         <div>{{ typeName }}</div>
         <div class="app-version">版本号：{{ version }}</div>
@@ -390,6 +399,13 @@ export default {
         type: "info",
       });
     },
+    changePosition() {
+      if (atool && "changePosition" in atool) {
+        atool.changePosition();
+      } else {
+        this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
+      }
+    },
     // 登录
     submit(userName = "", passWord = "", type = 1) {
       // 验证类型type 1:账号 2： 卡
@@ -636,6 +652,30 @@ export default {
         opacity: 1;
       }
     }
+
+    .change-position {
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #367bd5;
+      width: 100px;
+      border: 1px solid #367bd5;
+      border-radius: 4px;
+      height: 30px;
+      cursor: pointer;
+      opacity: 0.6;
+      img {
+        width: 20px;
+        height: 20px;
+      }
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+        opacity: 1;
+      }
+    }
+
     .app-version {
       color: #fff;
       font-size: 12px;

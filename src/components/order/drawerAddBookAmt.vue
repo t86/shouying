@@ -7,7 +7,7 @@
       :before-close="notPayHandle"
       direction="rtl"
       append-to-body
-      size="500px"
+      size="600px"
     >
       <div class="session p-5 fs14">
         <div v-show="status == 1">
@@ -24,8 +24,15 @@
                 :key="item.id"
                 @click="payType = item.id"
               >
-                {{ item.name
-                }}<span v-if="[5, 6].includes(item.id)" style="color: red"
+                <img
+                  :src="item.icon"
+                  style="height: 25px; width: 25px; vertical-align: middle"
+                  alt=""
+                />
+                <span style="vertical-align: middle">{{ item.name }}</span
+                ><span
+                  v-if="[5, 6].includes(item.id)"
+                  style="margin-left: 4px; vertical-align: middle; color: red"
                   >(推荐)</span
                 >
               </div>
@@ -164,35 +171,57 @@
 <script>
 import api_order from "@/api/order";
 import VueQr from "vue-qr";
+import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
+import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
+import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
+import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
+import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
+
 const payTypeList =
   window.atool &&
   ("startScan" in window.atool || window.atool.getTermType() == "android")
     ? [
         {
           id: 6,
+          icon: weixin_saokeren,
           name: "扫客人-微信",
         },
         {
           id: 5,
+          icon: zhifubaozhifu_saokeren,
           name: "扫客人-支付宝",
         },
         {
           id: 2,
+          icon: weixin_kerensaowo,
           name: "客人扫我-微信",
         },
         {
           id: 1,
+          icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
+        },
+        {
+          id: 3,
+          icon: weixinxiaochengxu,
+          name: "微信小程序自助",
         },
       ]
     : [
         {
           id: 2,
+          icon: weixin_kerensaowo,
           name: "客人扫我-微信",
         },
         {
           id: 1,
+          icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
+        },
+        {
+          id: 3,
+          icon: weixinxiaochengxu,
+          name: "微信小程序自助",
         },
       ];
 export default {
@@ -480,8 +509,8 @@ export default {
     flex-wrap: wrap;
     .choose {
       cursor: pointer;
-      width: 130px;
-      padding: 6px 16px;
+      width: 168px;
+      padding: 6px 6px 6px 16px;
       margin-right: 20px;
       margin-bottom: 20px;
       border: 1px solid #999;

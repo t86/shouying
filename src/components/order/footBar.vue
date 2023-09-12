@@ -232,8 +232,15 @@
             :key="item.id"
             @click="payType = item.id"
           >
-            {{ item.name
-            }}<span v-if="[5, 6].includes(item.id)" style="color: red"
+            <img
+              :src="item.icon"
+              style="height: 25px; width: 25px; vertical-align: middle"
+              alt=""
+            />
+            <span style="vertical-align: middle">{{ item.name }}</span
+            ><span
+              v-if="[5, 6].includes(item.id)"
+              style="margin-left: 4px; vertical-align: middle; color: red"
               >(推荐)</span
             >
           </div>
@@ -326,6 +333,12 @@ import myselfNav from "@/assets/order-img/myselfNav.png";
 import orderQRPayIcon from "@/assets/order-img/orderQRPayIcon.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 
+import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
+import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
+import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
+import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
+import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
+
 const orderNavList = [
   {
     id: 1,
@@ -367,36 +380,44 @@ const payTypeList =
     ? [
         {
           id: 6,
+          icon: weixin_saokeren,
           name: "扫客人-微信",
         },
         {
           id: 5,
+          icon: zhifubaozhifu_saokeren,
           name: "扫客人-支付宝",
         },
         {
           id: 2,
+          icon: weixin_kerensaowo,
           name: "客人扫我-微信",
         },
         {
           id: 1,
+          icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
         },
         {
           id: 3,
+          icon: weixinxiaochengxu,
           name: "微信小程序自助",
         },
       ]
     : [
         {
           id: 2,
+          icon: weixin_kerensaowo,
           name: "客人扫我-微信",
         },
         {
           id: 1,
+          icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
         },
         {
           id: 3,
+          icon: weixinxiaochengxu,
           name: "微信小程序自助",
         },
       ];
