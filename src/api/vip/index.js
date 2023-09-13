@@ -112,6 +112,26 @@ export default {
     axios.post(`${base.htgl}/mb/deposit_rule/del`, params),
 
   /**
+   *
+   * 会员卡结账规则
+   */
+  // 读取会员卡消费规则配置列表
+  reqGetVipBillRuleList: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_grp_mb_csm_rule_list`, params),
+
+  // 获取会员卡消费规则,待配置候选商品
+  reqGetVipBillRuleProductsList: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_grp_mb_csm_rule_items`, params),
+
+  // 添加会员卡消费规则
+  reqAddVipBillRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/add_grp_mb_csm_rule`, params),
+
+  // 修改会员卡消费规则
+  reqUpdateVipBillRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/chg_grp_mb_csm_rule`, params),
+
+  /**
    * 会员充值
    */
 

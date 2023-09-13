@@ -35,6 +35,103 @@
         <button class="btn primary m-l-4" @click="getTableData">查询</button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
       </div>
+      <div class="row m-t-4" layout="row" layout-align="start center">
+        <button class="btn primary" @click="create">新增</button>
+        <button class="btn primary m-l-4" @click="batchDelete">批量删除</button>
+        <button class="btn primary large m-l-4" @click="batchChange">
+          批量更改扣款规则
+        </button>
+      </div>
+    </div>
+
+    <div class="contain">
+      <div class="table">
+        <div class="thead">
+          <div class="tr" layout="row" layout-align="space-between center">
+            <div class="th">序号</div>
+            <div class="th">商品名称</div>
+            <div class="th">一级分类</div>
+            <div class="th">二级分类</div>
+            <div class="th">单价</div>
+            <div class="th">商品类型</div>
+            <div class="th">扣款规则</div>
+          </div>
+        </div>
+        <div class="tbody">
+          <div
+            class="tr"
+            v-for="(item, index) in tableData"
+            :key="index"
+            layout="row"
+            layout-align="space-between center"
+            @click.right.prevent.stop="rightClickHandle($event, item)"
+          >
+            <div class="td">{{ index + 1 }}</div>
+            <div class="td">{{ item.n }}</div>
+            <div class="td">{{ item.bp }}</div>
+            <div class="td">{{ item.cp }}</div>
+            <div class="td">{{ item.s }}</div>
+            <div class="td">{{ item.b }}</div>
+            <div class="td" layout="row" layout-align="start center">
+              <span>{{ item.cn }}</span>
+              <img
+                v-if="item.h == 1"
+                :src="require('@/assets/vip-imgs/vip-manager-icon.png')"
+              />
+            </div>
+            <div class="td">{{ item.ct }}</div>
+            <div class="td">{{ item.cl }}</div>
+            <div class="td">{{ item.m }}</div>
+            <div class="td fs16-bold">{{ item.ba }}</div>
+            <div class="td"></div>
+            <div class="td">{{ item.lc }}</div>
+            <div class="td">{{ item.r }}</div>
+            <div class="td">{{ item.e }}</div>
+            <div class="td">
+              <span @click="preVipDetail(item)">查看详情</span>
+            </div>
+
+            <div
+              class="sj"
+              v-if="item.showTips"
+              :style="{ left: item.pointerX - 20 + 'px' }"
+            ></div>
+            <ul
+              class="tips"
+              v-if="item.showTips"
+              :style="{
+                left: item.pointerX + 65 + 'px',
+                transform: 'translate(-50%,' + item.disY * -1 + 'px)',
+              }"
+            >
+              <li
+                class="item"
+                v-for="items in item.tipsList"
+                :key="items.id"
+                @click="clickOptionHandle(item, items)"
+              >
+                <div>{{ items.name }}</div>
+              </li>
+            </ul>
+          </div>
+          <div class="no-data" v-if="tableData.length == 0">
+            <img :src="require('@/assets/vip-imgs/empty.png')" alt />
+            <p>暂无数据</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="pageInfo.total"
+        :page-size="pageInfo.pageSize"
+        :current-page="pageInfo.page"
+        @current-change="changePageHandle"
+      >
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -49,9 +146,61 @@ export default {
         productOption: [],
         keyword: "",
       },
+      tableData: [],
+      pageInfo: {
+        page: 1,
+        pageSize: 20,
+        total: 0,
+      },
     };
   },
-  methods: {},
+  methods: {
+    async getTableData(rest = false) {
+      if (rest) this.pageInfo.page = 1;
+      const params = {
+        page_num: this.pageInfo.page, //   int   第几页
+        page_size: this.pageInfo.pageSize, //  int     每页行数
+        is_init: rest ? 1 : 2, //    int    1 初始化,会返回会员类型及会员等级列表 2 非初始化
+        begin_birth_day: this.form.dateVal[0] || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
+        end_birth_day: this.form.dateVal[1] || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
+        card_type_id: this.form.typeVal, // int64    卡类型Id
+        card_level_id: this.form.deepVal, // int64   卡等级Id
+        key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
+      };
+      try {
+        const res = await api_vip.reqGetVipCardList(params);
+        if (res.code == 1) {
+          this.form.typeOption = res.data.card_types || [];
+          this.pageInfo.total = res.data.row_cnt || 0;
+          this.tableData = (res.data.records || []).map((item) => ({
+            ...item,
+            tipsList: this.getTipsList(item.h),
+            showTips: false,
+            pointerX: 0,
+          }));
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("会员管理表格数据获取失败", error);
+      }
+    },
+    resetHandle() {
+      this.form = {
+        productVal: [],
+        productOption: "",
+        keyword: [],
+      };
+      this.getTableData(true);
+    },
+    create() {},
+    batchDelete() {},
+    batchChange() {},
+    changePageHandle(page = 1) {
+      this.pageInfo.page = page;
+      this.getTableData();
+    },
+  },
   mounted() {},
 };
 </script>
@@ -60,6 +209,7 @@ export default {
 @import "../../style/common/elementDrawerVip.less";
 @import "../../style/vip/vipBtn.less";
 @import "../../style/vip/vip.less";
+@import "../../style/vip/vipPagination.less";
 </style>
 
 <style lang="less" scoped>
