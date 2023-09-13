@@ -2,15 +2,23 @@
   <div class="Thelogin">
     <div class="terminal-type">
       <div class="clear-cache" @click="clear">
+        <img
+          :src="require('@/assets/register-login/qinglihuancun.png')"
+          alt
+          style="width: 18px; height: 18px; margin-right: 2px"
+        />
         <span>清理缓存</span>
       </div>
       <div
         class="change-position"
         @click="changePosition"
-        v-if="
-          atool && 'getTermType' in atool && 'android' == atool.getTermType()
-        "
+        v-if="isAndroidTerminal"
       >
+        <img
+          style="width: 18px; height: 18px; margin-right: 2px"
+          :src="require('@/assets/register-login/qiehuan.png')"
+          alt
+        />
         <span>切换横竖屏</span>
       </div>
       <div class="terminal-type-name">
@@ -400,8 +408,8 @@ export default {
       });
     },
     changePosition() {
-      if (atool && "changePosition" in atool) {
-        atool.changePosition();
+      if (window.atool && "changePosition" in window.atool) {
+        window.atool.changePosition();
       } else {
         this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
       }
@@ -637,8 +645,6 @@ export default {
       align-items: center;
       color: #367bd5;
       width: 100px;
-      border: 1px solid #367bd5;
-      border-radius: 4px;
       height: 30px;
       cursor: pointer;
       opacity: 0.6;
@@ -660,8 +666,6 @@ export default {
       align-items: center;
       color: #367bd5;
       width: 100px;
-      border: 1px solid #367bd5;
-      border-radius: 4px;
       height: 30px;
       cursor: pointer;
       opacity: 0.6;

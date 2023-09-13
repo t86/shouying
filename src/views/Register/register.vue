@@ -32,17 +32,13 @@
           </div>
 
           <div
-            class="close"
+            class="position"
             layout="row"
             layout-align="start center"
             @click="changePosition"
-            v-if="
-              atool &&
-              'getTermType' in atool &&
-              'android' == atool.getTermType()
-            "
+            v-if="isAndroidTerminal"
           >
-            <img :src="require('@/assets/register-login/close_sys.png')" alt />
+            <img :src="require('@/assets/register-login/qiehuan.png')" alt />
             <span>横竖屏切换</span>
           </div>
         </div>
@@ -162,7 +158,7 @@ export default {
       }
     },
     changePosition() {
-      if (atool && "changePosition" in atool) {
+      if (window.atool && "changePosition" in window.atool) {
         atool.changePosition();
       } else {
         this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
@@ -248,6 +244,15 @@ export default {
     window.qr_scan_callback = qr_scan_callback;
   },
   computed: {
+    isAndroidTerminal() {
+      let termType = "";
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log("获取终端类型失败", error);
+      }
+      return termType == "android";
+    },
     showEffectArea() {
       let showArea = true;
       try {
@@ -374,6 +379,12 @@ export default {
         .close {
           color: rgba(255, 255, 255, 0.4);
           cursor: pointer;
+          margin-right: 20px;
+        }
+        .position {
+          color: rgba(255, 255, 255, 0.4);
+          cursor: pointer;
+          margin-left: 20px;
         }
       }
 
