@@ -9,30 +9,27 @@
     <div class="search m-t-2 m-b-4">
       <div class="row">
         <span class="label">商品分类:</span>
-        <el-select
-          v-model="form.productVal"
+        <el-cascader
+          clearable
           size="small"
-          placeholder="请选择商品类型"
-          style="width: 200px"
-        >
-          <el-option
-            v-for="item in form.productOption"
-            :key="item.id"
-            :label="item.n"
-            :value="item.id"
-          >
-          </el-option>
-        </el-select>
+          :options="cateOptions"
+          v-model="cateVal"
+        ></el-cascader>
       </div>
       <div class="row" layout="row" layout-align="start center">
         <el-input
           class="m-r-2"
-          v-model="form.keyword"
+          v-model="keyword"
           size="small"
           placeholder="商品名称/首字母"
           style="width: 200px"
         ></el-input>
-        <button class="btn primary m-l-4" @click="getTableData">查询</button>
+        <button
+          class="btn primary m-l-4"
+          @click="() => this.getTableData(false)"
+        >
+          查询
+        </button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
       </div>
       <div class="row m-t-4" layout="row" layout-align="start center">
@@ -141,11 +138,9 @@ import api_vip from "@/api/vip";
 export default {
   data() {
     return {
-      form: {
-        productVal: "",
-        productOption: [],
-        keyword: "",
-      },
+      cateOptions: [],
+      cateVal: [],
+      keyword: "",
       tableData: [],
       pageInfo: {
         page: 1,
@@ -160,24 +155,31 @@ export default {
       const params = {
         page_num: this.pageInfo.page, //   int   第几页
         page_size: this.pageInfo.pageSize, //  int     每页行数
-        is_init: rest ? 1 : 2, //    int    1 初始化,会返回会员类型及会员等级列表 2 非初始化
-        begin_birth_day: this.form.dateVal[0] || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
-        end_birth_day: this.form.dateVal[1] || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
-        card_type_id: this.form.typeVal, // int64    卡类型Id
-        card_level_id: this.form.deepVal, // int64   卡等级Id
-        key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
+        init: rest ? 1 : 2, //    int    初始化标记 1 初始化, 会返回一级分类的结构    2 非初始化, 不返回一级分类结构
+        one_cate_id: this.cateVal[0] || 0, // string   一级分类id =0 代表不限制
+        two_cate_id: this.cateVal[1] || 0, // string 二级分类id =0 代表不限制
       };
       try {
-        const res = await api_vip.reqGetVipCardList(params);
+        const res = await api_vip.reqGetVipBillRuleList(params);
         if (res.code == 1) {
-          this.form.typeOption = res.data.card_types || [];
+          if (rest) {
+            const cateOptions = res.data.cates || [];
+            cateOptions.forEach((el) => {
+              el.value = el.id;
+              el.label = el.n;
+              if (el.ss) {
+                el.ss.forEach((ele) => {
+                  ele.value = ele.id;
+                  ele.label = ele.n;
+                });
+                el.children = el.ss;
+              }
+            });
+
+            this.cateOptions = cateOptions;
+          }
           this.pageInfo.total = res.data.row_cnt || 0;
-          this.tableData = (res.data.records || []).map((item) => ({
-            ...item,
-            tipsList: this.getTipsList(item.h),
-            showTips: false,
-            pointerX: 0,
-          }));
+          this.tableData = res.data.records || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -186,11 +188,9 @@ export default {
       }
     },
     resetHandle() {
-      this.form = {
-        productVal: [],
-        productOption: "",
-        keyword: [],
-      };
+      this.productVal = [];
+      this.productOption = "";
+      this.keyword = [];
       this.getTableData(true);
     },
     create() {},
@@ -201,7 +201,9 @@ export default {
       this.getTableData();
     },
   },
-  mounted() {},
+  mounted() {
+    this.getTableData(true);
+  },
 };
 </script>
 

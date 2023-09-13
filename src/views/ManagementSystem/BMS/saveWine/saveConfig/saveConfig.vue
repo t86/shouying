@@ -137,7 +137,7 @@
       class="coll"
       layout="row"
       layout-align="start center"
-      v-if="enableStorePrt"
+      v-if="enableStorePrt && storePrtType == '2'"
     >
       <div class="label">存酒小票标签打印机：</div>
       <div class="value" layout="row" layout-align="start center">
@@ -154,7 +154,7 @@
       class="coll"
       layout="row"
       layout-align="start center"
-      v-if="enableStorePrt"
+      v-if="enableStorePrt && storePrtType == '2'"
     >
       <div class="label"></div>
       <div
@@ -268,7 +268,19 @@ export default {
     },
 
     async saveHandle() {
-      if (this.enableStorePrt && !this.isValidIP(this.labelStorePrtIp)) {
+      if (
+        this.enableStorePrt &&
+        this.storePrtType != "1" &&
+        this.storePrtType != "2"
+      ) {
+        this.$message.warning("请选择存酒小票打印类型");
+        return;
+      }
+      if (
+        this.enableStorePrt &&
+        this.storePrtType == "2" &&
+        !this.isValidIP(this.labelStorePrtIp)
+      ) {
         this.$message.warning("请输入有效的ip地址");
         return;
       }
@@ -280,7 +292,11 @@ export default {
         cust_in_need_sms: this.needPhoneValidate ? 1 : 2, // int    客户手机号存酒,是否需要手机验证码 1 需要 2 不需要 (如果选择不需要,需要免责条款)
         need_waiter_auth: this.needAuthValidate ? 1 : 2, // int    服务员存/取酒,参考修改,是否要服务员授权 1 需要 2 不需要(如果选择不需要,需要免责条款)
         enable_store_prt: this.enableStorePrt ? 1 : 2, // 存酒小票打印功能
-        store_prt_type: this.storePrtType == "1" ? 1 : 2, // 存酒小票打印机类型 1 普通打印机 2 标签打印机
+        store_prt_type: this.enableStorePrt
+          ? this.storePrtType == "1"
+            ? 1
+            : 2
+          : 0, // 存酒小票打印机类型 1 普通打印机 2 标签打印机
         label_store_prt_ip: this.labelStorePrtIp,
         wine_sms_list: this.checkboxList
           .filter((item) => item.checked)
