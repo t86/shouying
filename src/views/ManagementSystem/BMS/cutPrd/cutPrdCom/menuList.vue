@@ -4,13 +4,13 @@
     <div class="nav fs14">
       <!-- 二级菜单 -->
       <!-- <div class="nav-menu" :style="{ width: navWidth + 'px' }"> -->
-        <!-- <div class="search">
+      <!-- <div class="search">
           <i class="el-icon-search"></i>
           <el-input size="mini" clearable v-model="searchVal" placeholder="搜索" @input="inputSearchHandle" />
         </div>
         <div class="menu-list"> -->
-          <!-- 完整分类菜单 -->
-          <!-- <ul v-if="!searchVal" class="first-cate">
+      <!-- 完整分类菜单 -->
+      <!-- <ul v-if="!searchVal" class="first-cate">
             <div
               class="pointer p-l-2"
               @click="showOrHideMenuListHandle"
@@ -25,8 +25,8 @@
             </div>
             <secondEmployeeListNavBarItem v-if="showMenuList" :menuList="menuList" />
           </ul> -->
-          <!-- 展示搜索结果的二级菜单 -->
-          <!-- <div v-else class="search-list">
+      <!-- 展示搜索结果的二级菜单 -->
+      <!-- <div v-else class="search-list">
             <div v-if="searchMenu.groupList.length > 0" class="cate-list">
               <p>部门列表：</p>
               <ul>
@@ -69,16 +69,16 @@
               <div class="fs12 m-t-2">暂无查找内容</div>
             </div>
           </div> -->
-        <!-- </div> -->
+      <!-- </div> -->
       <!-- </div> -->
       <!-- 菜单对应内容 -->
       <!-- <div class="nav-content" :style="{ 'margin-left': navWidth + 10 + 'px' }"> -->
-        <cutPrdTableCom />
+      <cutPrdTableCom />
       <!-- </div> -->
     </div>
   </div>
 </template>
- 
+
 <script>
 const menuWidth = 230;
 import cutPrdTableCom from "./cutPrdTableCom/cutPrdTable.vue";
@@ -92,10 +92,10 @@ export default {
       searchMenu: {
         groupList: [],
         employeeList: [],
-        employeeId: ""
+        employeeId: "",
       },
 
-      activeMenuId: 0
+      activeMenuId: 0,
     };
   },
   methods: {
@@ -108,16 +108,16 @@ export default {
       if (this.menuList.length > 0) return;
       try {
         const res = await this.$api.BMS.dept.requestDeptTree();
-        if(res.code == 1) {
+        if (res.code == 1) {
           this.menuList = res.data || [];
           this.$router.replace({
             name: "cutPrd",
             query: {
-              menuId: this.menuList.length == 0 ? 0 : this.menuList[0].id
-            }
+              menuId: this.menuList.length == 0 ? 0 : this.menuList[0].id,
+            },
           });
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
         console.log("获取完整的二级菜单列表失败", error);
@@ -132,21 +132,18 @@ export default {
     async getSearchMenuData(keyword) {
       keyword = keyword || this.searchVal;
       const params = {
-        name: keyword //   string   模糊查询关键字
+        name: keyword, //   string   模糊查询关键字
       };
 
       try {
         const res = await this.$api.BMS.dept.requestDeptSearch(params);
-        if(res.code == 1) {
+        if (res.code == 1) {
           res.data = res.data || [];
-          this.searchMenu.groupList = res.data.filter(
-            item => item.t == 1
-          );
-          this.searchMenu.employeeList = []
+          this.searchMenu.groupList = res.data.filter((item) => item.t == 1);
+          this.searchMenu.employeeList = [];
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
-
       } catch (error) {
         console.log("模糊查询二级菜单列表失败", error);
       }
@@ -173,8 +170,8 @@ export default {
       this.$router.replace({
         name: "cutPrd",
         query: {
-          menuId: menuId
-        }
+          menuId: menuId,
+        },
       });
 
       this.setMenuShowListStatus(this.menuList, menuId);
@@ -182,7 +179,7 @@ export default {
 
     // 递归处理模糊搜索完之后的菜单展开状态
     setMenuShowListStatus(menuList, menuId) {
-      menuList.forEach(el => {
+      menuList.forEach((el) => {
         el.showList = el.id == menuId;
         if (!el.showList) {
           el.subs && this.setMenuShowListStatus(el.subs, menuId);
@@ -192,16 +189,15 @@ export default {
           }
         }
       });
-    }
+    },
   },
   mounted() {
     this.init();
   },
   components: {
-    cutPrdTableCom
+    cutPrdTableCom,
   },
-  watch: {
-  }
+  watch: {},
 };
 </script>
 

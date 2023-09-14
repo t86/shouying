@@ -131,6 +131,10 @@ export default {
   reqUpdateVipBillRule: (params) =>
     axios.post(`${base.htgl}/mb/card/chg_grp_mb_csm_rule`, params),
 
+  // 删除会员卡消费规则
+  reqDelVipBillRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/del_grp_mb_csm_rule`, params),
+
   /**
    * 会员充值
    */

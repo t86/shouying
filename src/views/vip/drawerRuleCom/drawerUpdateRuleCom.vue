@@ -1,0 +1,113 @@
+<template>
+  <div>
+    <el-drawer
+      :title="title"
+      :visible.sync="show"
+      :before-close="closeDrawerHandle"
+      direction="rtl"
+      size="80%"
+    >
+      <div class="session p-3 fs14">
+        <p class="m-b-2">选择扣款规则</p>
+
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="1"
+            >按比例扣款</el-radio
+          >
+        </div>
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="2"
+            >优先用赠送金额</el-radio
+          >
+        </div>
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="3"
+            >禁用</el-radio
+          >
+        </div>
+      </div>
+      <!-- 提交按钮 -->
+      <div class="form-btn" layout="row" layout-align="center center">
+        <el-button type="primary" size="small" @click="submitHandle"
+          >确定</el-button
+        >
+      </div>
+    </el-drawer>
+  </div>
+</template>
+
+<script>
+import api_vip from "@/api/vip";
+
+export default {
+  data() {
+    return {
+      show: false,
+      ruleValue: "1",
+    };
+  },
+  methods: {
+    async submitHandle() {
+      const params = {
+        prd_ids: this.addedSeatListId.map((id) => id * 1),
+        type_id: this.ruleValue * 1, //   []int64   待添加商品列表
+      };
+
+      try {
+        const res = await api_vip.reqUpdateVipBillRule(params);
+        if (res.code == 1) {
+          this.closeDrawerHandle();
+          this.$emit("getTableData", this.menuId);
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("扣款规则更新失败", error);
+      }
+    },
+    // 关闭drawer
+    closeDrawerHandle() {
+      this.$emit("showOrHideDrawerHandle");
+    },
+  },
+  props: {
+    showDrawer: {
+      default: false,
+    },
+    addedSeatList: {
+      default: () => [],
+    },
+  },
+  computed: {
+    title() {
+      return "批量更改扣款规则";
+    },
+
+    addedSeatListId() {
+      return this.addedSeatList.map((item) => item.id * 1);
+    },
+  },
+  watch: {
+    showDrawer(newVal) {
+      this.show = newVal;
+    },
+  },
+};
+</script>
+
+<style scoped lang="less">
+@import "../../../style/common/elementDrawerWine.less";
+@import "../../../style/common/elementDrawerHeaderAndSession.less";
+@import "../../../style/common/elementFormBtnWine.less";
+@import "../../../style/erp/form.less";
+@import "../../../style/erp/table.less";
+</style>
+<style scoped lang="less">
+@import "./drawerUpdateRuleCom.less";
+</style>
+
+<style>
+.el-icon-arrow-right:before {
+  color: #606266;
+}
+</style>

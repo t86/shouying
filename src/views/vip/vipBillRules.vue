@@ -33,7 +33,9 @@
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
       </div>
       <div class="row m-t-4" layout="row" layout-align="start center">
-        <button class="btn primary" @click="create">新增</button>
+        <button class="btn primary" @click="showOrHideDrawerHandle">
+          新增
+        </button>
         <button class="btn primary m-l-4" @click="batchDelete">批量删除</button>
         <button class="btn primary large m-l-4" @click="batchChange">
           批量更改扣款规则
@@ -45,7 +47,14 @@
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
-            <div class="th">序号</div>
+            <div class="th">
+              <el-checkbox
+                v-model="checked"
+                :indeterminate="isIndeterminate"
+                @change="changeCheckboxHandle('all')"
+                >序号</el-checkbox
+              >
+            </div>
             <div class="th">商品名称</div>
             <div class="th">一级分类</div>
             <div class="th">二级分类</div>
@@ -58,34 +67,32 @@
           <div
             class="tr"
             v-for="(item, index) in tableData"
-            :key="index"
+            :key="item.id"
             layout="row"
             layout-align="space-between center"
-            @click.right.prevent.stop="rightClickHandle($event, item)"
           >
-            <div class="td">{{ index + 1 }}</div>
-            <div class="td">{{ item.n }}</div>
-            <div class="td">{{ item.bp }}</div>
-            <div class="td">{{ item.cp }}</div>
-            <div class="td">{{ item.s }}</div>
-            <div class="td">{{ item.b }}</div>
-            <div class="td" layout="row" layout-align="start center">
-              <span>{{ item.cn }}</span>
-              <img
-                v-if="item.h == 1"
-                :src="require('@/assets/vip-imgs/vip-manager-icon.png')"
-              />
-            </div>
-            <div class="td">{{ item.ct }}</div>
-            <div class="td">{{ item.cl }}</div>
-            <div class="td">{{ item.m }}</div>
-            <div class="td fs16-bold">{{ item.ba }}</div>
-            <div class="td"></div>
-            <div class="td">{{ item.lc }}</div>
-            <div class="td">{{ item.r }}</div>
-            <div class="td">{{ item.e }}</div>
             <div class="td">
-              <span @click="preVipDetail(item)">查看详情</span>
+              <el-checkbox
+                v-model="item.checked"
+                @change="changeCheckboxHandle('item')"
+                >{{ index + 1 }}</el-checkbox
+              >
+            </div>
+            <div class="td">{{ item.n }}</div>
+            <div class="td">
+              {{ cateOptions.find((i) => i.id == item.oc).n }}
+            </div>
+            <div class="td">
+              {{
+                cateOptions
+                  .find((i) => i.id == item.oc)
+                  .children.find((i) => (i.id = item.tc)).n
+              }}
+            </div>
+            <div class="td">{{ item.p }}</div>
+            <div class="td">{{ item.t }}</div>
+            <div class="td" layout="row" layout-align="start center">
+              <span>{{ item.tn }}</span>
             </div>
 
             <div
@@ -130,24 +137,59 @@
       >
       </el-pagination>
     </div>
+
+    <drawerAddRuleCom
+      :showDrawer="showDrawer"
+      :addedSeatList="tableData"
+      @showOrHideDrawerHandle="showOrHideDrawerHandle"
+      @getTableData="getTableData"
+    />
+    <drawerUpdateRuleCom
+      :showDrawer="showUpdateDrawer"
+      :addedSeatList="tableData"
+      @showOrHideDrawerHandle="showOrHideUpdateDrawerHandle"
+      @getTableData="refresh"
+    />
   </div>
 </template>
 
 <script>
 import api_vip from "@/api/vip";
+import drawerAddRuleCom from "./drawerRuleCom/drawerAddRuleCom.vue";
+import drawerUpdateRuleCom from "./drawerRuleCom/drawerUpdateRuleCom.vue";
 export default {
+  components: {
+    drawerAddRuleCom,
+    drawerUpdateRuleCom,
+  },
   data() {
     return {
       cateOptions: [],
       cateVal: [],
+      checked: false,
       keyword: "",
       tableData: [],
+      showDrawer: false,
+      showUpdateDrawer: false,
       pageInfo: {
         page: 1,
         pageSize: 20,
         total: 0,
       },
     };
+  },
+  computed: {
+    isIndeterminate() {
+      if (
+        this.tableData
+          .filter((item) => !item.disabled)
+          .every((item) => item.checked)
+      ) {
+        return false;
+      } else {
+        return this.tableData.some((item) => item.checked);
+      }
+    },
   },
   methods: {
     async getTableData(rest = false) {
@@ -158,9 +200,10 @@ export default {
         init: rest ? 1 : 2, //    int    初始化标记 1 初始化, 会返回一级分类的结构    2 非初始化, 不返回一级分类结构
         one_cate_id: this.cateVal[0] || 0, // string   一级分类id =0 代表不限制
         two_cate_id: this.cateVal[1] || 0, // string 二级分类id =0 代表不限制
+        name: this.keyword,
       };
       try {
-        const res = await api_vip.reqGetVipBillRuleList(params);
+        let res = await api_vip.reqGetVipBillRuleList(params);
         if (res.code == 1) {
           if (rest) {
             const cateOptions = res.data.cates || [];
@@ -178,27 +221,83 @@ export default {
 
             this.cateOptions = cateOptions;
           }
+
           this.pageInfo.total = res.data.row_cnt || 0;
           this.tableData = res.data.records || [];
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("会员管理表格数据获取失败", error);
+        console.log("会员结账规则数据获取失败", error);
       }
+    },
+    // 改变多选框的值
+    changeCheckboxHandle(type) {
+      switch (type) {
+        case "all":
+          this.tableData.forEach((el) => {
+            if (!el.disabled) el.checked = this.checked;
+          });
+          break;
+        case "item":
+          this.checked = this.tableData
+            .filter((item) => !item.disabled)
+            .every((item) => item.checked);
+          break;
+      }
+      this.$forceUpdate();
     },
     resetHandle() {
       this.productVal = [];
       this.productOption = "";
       this.keyword = [];
+      this.checked = false;
       this.getTableData(true);
     },
-    create() {},
-    batchDelete() {},
-    batchChange() {},
+    async batchDelete() {
+      const params = {
+        prd_ids: this.tableData
+          .filter((item) => item.checked)
+          .map((item) => item.id * 1), //   []int64  待删除商品列表
+      };
+      if (params.prd_ids.length == 0)
+        return this.$message.warning("请选择需要删除的商品");
+      try {
+        const res = await api_vip.reqDelVipBillRule(params);
+        if (res.code == 1) {
+          this.$message.success("删除成功");
+          this.getTableData(this.menuId);
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("批量删除商品失败", error);
+      }
+    },
+    batchChange() {
+      const params = {
+        prd_ids: this.tableData
+          .filter((item) => item.checked)
+          .map((item) => item.id * 1), //   []int64  待删除商品列表
+      };
+      if (params.prd_ids.length == 0)
+        return this.$message.warning("请选择需要批量操作的商品");
+      this.showOrHideUpdateDrawerHandle();
+    },
     changePageHandle(page = 1) {
       this.pageInfo.page = page;
       this.getTableData();
+    },
+    showOrHideDrawerHandle() {
+      this.showDrawer = !this.showDrawer;
+    },
+    showOrHideUpdateDrawerHandle() {
+      this.showUpdateDrawer = !this.showUpdateDrawer;
+    },
+    refresh() {
+      this.getTableData();
+      this.checked = false;
+      this.changeCheckboxHandle("all");
     },
   },
   mounted() {
