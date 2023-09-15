@@ -24,10 +24,14 @@
               :key="item.id"
             >
               <div class="td">
-                <el-checkbox v-model="item.checked" @change="changeCheckBox(item)">{{index + 1}}</el-checkbox>
+                <el-checkbox
+                  v-model="item.checked"
+                  @change="changeCheckBox(item)"
+                  >{{ index + 1 }}</el-checkbox
+                >
               </div>
-              <div class="td">{{item.o}}</div>
-              <div class="td">{{item.s}}</div>
+              <div class="td">{{ item.o }}</div>
+              <div class="td">{{ item.s }}</div>
             </div>
           </div>
         </div>
@@ -38,43 +42,71 @@
           <span class="red">*</span>
           <span>客人信息</span>
         </div>
-        <div class="info-detail m-t-3" :layout="isRect ? 'row' : 'column'" :layout-align="isRect ? 'center start' : 'center center'">
+        <div
+          class="info-detail m-t-3"
+          :layout="isRect ? 'row' : 'column'"
+          :layout-align="isRect ? 'center start' : 'center center'"
+        >
           <div class="info-tab">
             <div class="tab" layout="row" layout-align="start center">
               <div
                 class="tab-item m-r-3"
-                :class="{active: tabIndex == 1}"
-                @click="tabIndex = 1;focus = 0"
-              >服务码</div>
+                :class="{ active: tabIndex == 1 }"
+                @click="
+                  tabIndex = 1;
+                  focus = 0;
+                "
+              >
+                服务码
+              </div>
               <div
                 class="tab-item m-r-3"
-                :class="{active: tabIndex == 2}"
-                @click="tabIndex = 2;focus = 0"
-              >手机号</div>
+                :class="{ active: tabIndex == 2 }"
+                @click="
+                  tabIndex = 2;
+                  focus = 0;
+                "
+              >
+                手机号
+              </div>
               <div
                 class="tab-item m-r-3"
-                :class="{active: tabIndex == 3}"
-                @click="tabIndex = 3;focus = 0"
-              >客户中心存酒</div>
+                :class="{ active: tabIndex == 3 }"
+                @click="
+                  tabIndex = 3;
+                  focus = 0;
+                "
+              >
+                客户中心存酒
+              </div>
               <div
                 v-if="stepOneInfo.needAuthPhoneVal"
                 class="tab-item"
-                :class="{active: tabIndex == 4}"
-                @click="tabIndex = 4;focus = 0"
-              >超级授权码</div>
+                :class="{ active: tabIndex == 4 }"
+                @click="
+                  tabIndex = 4;
+                  focus = 0;
+                "
+              >
+                超级授权码
+              </div>
             </div>
             <div class="tab-content m-t-6">
               <div v-if="tabIndex == 1" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
-                  <div class="label" style="position:relative">
-                    <span class="red-color" style="position:absolute;left:-12px">*</span>
+                  <div class="label" style="position: relative">
+                    <span
+                      class="red-color"
+                      style="position: absolute; left: -12px"
+                      >*</span
+                    >
                     <span>服务码</span>
                   </div>
                   <div class="value">
                     <input
                       v-model="authValidateVal"
-                      :class="{focus: focus == 1}"
-                      @click="focus=1"
+                      :class="{ focus: focus == 1 }"
+                      @click="focus = 1"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入服务码"
                     />
@@ -83,47 +115,57 @@
               </div>
               <div v-if="tabIndex == 2" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
-                  <div class="label" style="width:70px;position:relative">
-                    <span class="red-color" style="position:absolute;left:-12px">*</span>
+                  <div class="label" style="width: 70px; position: relative">
+                    <span
+                      class="red-color"
+                      style="position: absolute; left: -12px"
+                      >*</span
+                    >
                     <span>手机号码</span>
                   </div>
                   <div class="value">
                     <input
                       v-model="phoneNum"
-                      :class="{focus: focus == 2}"
-                      @click="focus=2"
+                      :class="{ focus: focus == 2 }"
+                      @click="focus = 2"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入手机号"
                     />
                     <el-button
                       v-if="stepOneInfo.needAuthPhoneVal"
-                      style="position:absolute;left:280px"
+                      style="position: absolute; left: 280px"
                       :type="count == 60 ? 'primary' : 'info'"
                       :disabled="count != 60"
                       size="small"
                       @click="sendPhoneMessage"
-                    >{{btnText}}</el-button>
+                      >{{ btnText }}</el-button
+                    >
                   </div>
                 </div>
-                <div class="coll" v-if="stepOneInfo.needAuthPhoneVal" layout="row" layout-align="start center">
-                  <div class="label" style="width:70px">验证码</div>
+                <div
+                  class="coll"
+                  v-if="stepOneInfo.needAuthPhoneVal"
+                  layout="row"
+                  layout-align="start center"
+                >
+                  <div class="label" style="width: 70px">验证码</div>
                   <div class="value">
                     <input
                       v-model="validateVal"
-                      :class="{focus: focus == 3}"
-                      @click="focus=3"
+                      :class="{ focus: focus == 3 }"
+                      @click="focus = 3"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入验证码"
                     />
                   </div>
                 </div>
-                <div class="coll"  layout="row" layout-align="start center">
-                  <div class="label" style="width:70px">客人姓名</div>
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label" style="width: 70px">客人姓名</div>
                   <div class="value">
                     <input
                       v-model="customName"
-                      :class="{focus: focus == 10}"
-                      @click="focus=10"
+                      :class="{ focus: focus == 10 }"
+                      @click="focus = 10"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入客户姓名"
                     />
@@ -132,34 +174,40 @@
               </div>
               <div v-if="tabIndex == 3" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
-                  <div class="label" style="width:70px;position:relative">
-                    <span class="red-color" style="position:absolute;left:-12px">*</span>
+                  <div class="label" style="width: 70px; position: relative">
+                    <span
+                      class="red-color"
+                      style="position: absolute; left: -12px"
+                      >*</span
+                    >
                     <span>手机号码</span>
                   </div>
                   <div class="value">
                     <input
                       v-model="customPhoneNum"
-                      :class="{focus: focus == 4}"
-                      @click="focus=4"
+                      :class="{ focus: focus == 4 }"
+                      @click="focus = 4"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入客户手机号"
                     />
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
-                  <div class="label" style="width:70px">客人姓名</div>
+                  <div class="label" style="width: 70px">客人姓名</div>
                   <div class="value">
                     <input
                       v-model="customPhoneName"
-                      :class="{focus: focus == 11}"
-                      @click="focus=11"
+                      :class="{ focus: focus == 11 }"
+                      @click="focus = 11"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入客户姓名"
                     />
                   </div>
                 </div>
-                
-                <div class="red m-t-2">手机号仅用于区分客人信息，做备注用；不会发送短信</div>
+
+                <div class="red m-t-2">
+                  手机号仅用于区分客人信息，做备注用；不会发送短信
+                </div>
               </div>
               <div v-if="tabIndex == 4" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
@@ -167,8 +215,8 @@
                   <div class="value">
                     <input
                       v-model="phoneNum"
-                      :class="{focus: focus == 2}"
-                      @click="focus=2"
+                      :class="{ focus: focus == 2 }"
+                      @click="focus = 2"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入手机号"
                     />
@@ -179,8 +227,8 @@
                   <div class="value">
                     <input
                       v-model="superValidate"
-                      :class="{focus: focus == 5}"
-                      @click="focus=5"
+                      :class="{ focus: focus == 5 }"
+                      @click="focus = 5"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入超级授权码"
                     />
@@ -189,9 +237,14 @@
               </div>
             </div>
           </div>
-          
-          <div style="width:280px">
-            <simpleKeyBoard v-if="focus == 10 || focus == 11" size="small" @addInputHandle="addInputHandle" @subInputHandle="subInputHandle" />
+
+          <div style="width: 280px">
+            <simpleKeyBoard
+              v-if="focus == 10 || focus == 11"
+              size="small"
+              @addInputHandle="addInputHandle"
+              @subInputHandle="subInputHandle"
+            />
             <keyBoard v-else @changeNum="changeNumHandle" />
           </div>
         </div>
@@ -199,7 +252,7 @@
     </div>
   </div>
 </template>
- 
+
 <script>
 import api_vip from "@/api/vip";
 import api_saveWine from "@/api/saveWine";
@@ -208,7 +261,7 @@ import simpleKeyBoard from "@/components/common/simpleKeyBoard.vue";
 export default {
   data() {
     return {
-      isRect: true,  // 是否为横屏
+      isRect: true, // 是否为横屏
       focus: 1,
       timer: null,
       count: 60, // 验证码倒计时
@@ -218,20 +271,24 @@ export default {
       authValidateVal: "", // 服务码
       phoneNum: "", // 手机号
       validateVal: "", // 验证码
-      customPhoneNum: '', // 客户手机号
-      customPhoneName:'',  // 客户中心客户姓名
-      superValidate: '',  // 超级授权码
-      customName: '', // 客户名称
+      customPhoneNum: "", // 客户手机号
+      customPhoneName: "", // 客户中心客户姓名
+      superValidate: "", // 超级授权码
+      customName: "", // 客户名称
     };
   },
   methods: {
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem("secondCount"); // 获取发送短信时的时间戳
-      const now = +new Date()
-      const oneMinute = +new Date('2023/05/25 12:01:00') - +new Date('2023/05/25 12:00:00')
+      const now = +new Date();
+      const oneMinute =
+        +new Date("2023/05/25 12:01:00") - +new Date("2023/05/25 12:00:00");
       if (now - storageSecondCount < oneMinute) {
         // 倒计时为结束接着倒计时
-        this.count = ((oneMinute - (now - storageSecondCount)) / (oneMinute / 60)).toFixed(0) * 1;
+        this.count =
+          ((oneMinute - (now - storageSecondCount)) / (oneMinute / 60)).toFixed(
+            0
+          ) * 1;
         this.loopSecond();
       } else {
         this.count = 60;
@@ -242,12 +299,19 @@ export default {
       if (this.count != 60) return;
       const params = {
         t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
-        m: this.phoneNum //  string   手机号
+        m: this.phoneNum, //  string   手机号
       };
       if (params.m.length != 11)
         return this.$message.warning("请输入正确的11位手机号");
       try {
-        const res = await api_vip.reqSendPhoneMsg(params);
+        let res = await api_saveWine.reqCheckBlackPhone({
+          p: this.phoneNum,
+        });
+
+        res = await api_vip.reqSendPhoneMsg(params);
+        if (res.code == 2) {
+          this.$message.warning("短信发送失败：" + res.msg);
+        }
         if (res.code == 1) {
           this.$message.success("验证码发送成功");
           this.count--;
@@ -277,29 +341,29 @@ export default {
       this.focus = 0;
     },
 
-    addInputHandle(value){
-      if( this.focus == 10) {
-        this.customName = this.customName.toString() + value.toString()
+    addInputHandle(value) {
+      if (this.focus == 10) {
+        this.customName = this.customName.toString() + value.toString();
       } else {
-        this.customPhoneName = this.customPhoneName.toString() + value.toString()
+        this.customPhoneName =
+          this.customPhoneName.toString() + value.toString();
       }
-      this.emitStepOneInfoHandle()
-        
+      this.emitStepOneInfoHandle();
     },
 
-    subInputHandle(){
-      if(this.focus == 10) {
+    subInputHandle() {
+      if (this.focus == 10) {
         // 手机号存酒
-        if(this.customName == '') return
-        this.customName = this.customName.toString().slice(0, -1)
+        if (this.customName == "") return;
+        this.customName = this.customName.toString().slice(0, -1);
       }
 
-      if(this.focus == 11) {
+      if (this.focus == 11) {
         // 客户中心存酒
-        if(this.customPhoneName == '') return
-        this.customPhoneName = this.customPhoneName.toString().slice(0, -1)
+        if (this.customPhoneName == "") return;
+        this.customPhoneName = this.customPhoneName.toString().slice(0, -1);
       }
-      this.emitStepOneInfoHandle()
+      this.emitStepOneInfoHandle();
     },
 
     changeNumHandle(value) {
@@ -323,13 +387,13 @@ export default {
           this[count] = this[count].toString() + value * 1;
           break;
       }
-      this.emitStepOneInfoHandle()
+      this.emitStepOneInfoHandle();
     },
     changeCheckBox(itemInfo) {
-      this.selectedInfo = {...itemInfo}
-      this.tableData = this.tableData.map(item => ({
+      this.selectedInfo = { ...itemInfo };
+      this.tableData = this.tableData.map((item) => ({
         ...item,
-        checked: item.id == itemInfo.id
+        checked: item.id == itemInfo.id,
       }));
       this.emitStepOneInfoHandle();
     },
@@ -339,27 +403,27 @@ export default {
         ...JSON.parse(JSON.stringify(this.stepOneInfo)),
         orderList: [...this.tableData],
         tabIndex: this.tabIndex,
-        authValidateVal: this.authValidateVal || '', // 服务码
-        phoneNum: this.phoneNum || '', // 手机号
-        validateVal: this.validateVal || '', // 验证码
-        customPhoneNum: this.customPhoneNum || '', // 验证码
-        customName: this.customName || '',  // 客户姓名
-        customPhoneName: this.customPhoneName || '', // 客户中心存酒客户姓名
-        superValidate: this.superValidate || ''  // 超级授权码
+        authValidateVal: this.authValidateVal || "", // 服务码
+        phoneNum: this.phoneNum || "", // 手机号
+        validateVal: this.validateVal || "", // 验证码
+        customPhoneNum: this.customPhoneNum || "", // 验证码
+        customName: this.customName || "", // 客户姓名
+        customPhoneName: this.customPhoneName || "", // 客户中心存酒客户姓名
+        superValidate: this.superValidate || "", // 超级授权码
       });
 
-      if(this.focus == 10 || this.focus == 11) return  
+      if (this.focus == 10 || this.focus == 11) return;
 
-      if(this.tabIndex == 2) {
-        if(!this.selectedInfo.id) return this.$message.warning('请选择流水')
-        if(this.phoneNum.toString().length == 11) {
-          this.getOrderCanSaveWine()
+      if (this.tabIndex == 2) {
+        if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
+        if (this.phoneNum.toString().length == 11) {
+          this.getOrderCanSaveWine();
         }
       }
-      if(this.tabIndex == 3) {
-        if(!this.selectedInfo.id) return this.$message.warning('请选择流水')
-        if(this.customPhoneNum.toString().length == 11) {
-          this.getOrderCanSaveWine()
+      if (this.tabIndex == 3) {
+        if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
+        if (this.customPhoneNum.toString().length == 11) {
+          this.getOrderCanSaveWine();
         }
       }
     },
@@ -368,47 +432,52 @@ export default {
     async getOrderCanSaveWine() {
       const params = {
         csm_id: this.selectedInfo.id * 1, //    int64    流水Id
-        cust_phone_num: this.tabIndex == 2 ? (this.phoneNum.toString() || '-') : (this.customPhoneNum.toString() || '-'),  // string   客户手机号,用以返还客户姓名
-      }
+        cust_phone_num:
+          this.tabIndex == 2
+            ? this.phoneNum.toString() || "-"
+            : this.customPhoneNum.toString() || "-", // string   客户手机号,用以返还客户姓名
+      };
 
       try {
-        const res = await api_saveWine.reqGetCanSaveWineList(params)
-        if(res.code == 1) {
-          this.tabIndex == 2 ? (this.customName = res.data.cust_name || '') : this.customPhoneName = res.data.cust_name || ''
+        const res = await api_saveWine.reqGetCanSaveWineList(params);
+        if (res.code == 1) {
+          this.tabIndex == 2
+            ? (this.customName = res.data.cust_name || "")
+            : (this.customPhoneName = res.data.cust_name || "");
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('获取订单流水可存酒水列表失败', error)
+        console.log("获取订单流水可存酒水列表失败", error);
       }
     },
     // 检测是否为横屏
-    getRectVal(){
-      const width = screen.availWidth
-      const height = screen.availHeight
-      this.isRect = width >= height
+    getRectVal() {
+      const width = screen.availWidth;
+      const height = screen.availHeight;
+      this.isRect = width >= height;
     },
   },
   props: {
     stepOneInfo: {
-      default: () => ({ orderList: [] })
-    }
+      default: () => ({ orderList: [] }),
+    },
   },
   components: {
     keyBoard,
-    simpleKeyBoard
+    simpleKeyBoard,
   },
   computed: {
     btnText() {
       return this.count == 60 ? "发送验证码" : this.count + "s后发送";
-    }
+    },
   },
   watch: {
     stepOneInfo: {
       handler(newVal) {
-        this.getRectVal()
+        this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
-        this.selectedInfo = this.tableData.find(item => item.checked) || {}
+        this.selectedInfo = this.tableData.find((item) => item.checked) || {};
         this.tabIndex = newVal.tabIndex;
         this.validateVal = newVal.validateVal;
         this.customPhoneNum = newVal.customPhoneNum;
@@ -419,12 +488,12 @@ export default {
         this.superValidate = newVal.superValidate;
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
-    tabIndex(){
-      this.emitStepOneInfoHandle()
-    }
-  }
+    tabIndex() {
+      this.emitStepOneInfoHandle();
+    },
+  },
 };
 </script>
 <style lang="less" scoped>
@@ -448,7 +517,7 @@ export default {
 
   .custom-info {
     .info-detail {
-      .info-tab{
+      .info-tab {
         width: 500px;
         margin-right: 20px;
         .tab {
