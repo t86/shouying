@@ -73,8 +73,8 @@
           >
             <div class="td">
               <el-checkbox
-                v-model="item.checked"
-                @change="changeCheckboxHandle('item')"
+                :value="item.checked"
+                @change="changeCheckboxHandle('item', item.id)"
                 >{{ index + 1 }}</el-checkbox
               >
             </div>
@@ -223,7 +223,10 @@ export default {
           }
 
           this.pageInfo.total = res.data.row_cnt || 0;
-          this.tableData = res.data.records || [];
+          this.tableData = res.data.records.map(d=>{
+            d.checked = false;
+            return d;
+          }) || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -232,7 +235,7 @@ export default {
       }
     },
     // 改变多选框的值
-    changeCheckboxHandle(type) {
+    changeCheckboxHandle(type,itemId) {
       switch (type) {
         case "all":
           this.tableData.forEach((el) => {
@@ -243,6 +246,11 @@ export default {
           this.checked = this.tableData
             .filter((item) => !item.disabled)
             .every((item) => item.checked);
+          this.tableData.forEach((el) => {
+            if (el.id == itemId) {
+              el.checked = !el.checked;
+            }
+          });
           break;
       }
       this.$forceUpdate();
