@@ -15,20 +15,23 @@
             <el-button
               class="m-l-2"
               type="primary"
-              style="width:70px;height:30px;line-height:30px;padding:0"
+              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
               @click="getTableData"
-            >查询</el-button>
+              >查询</el-button
+            >
             <el-button
               type="info"
-              style="width:70px;height:30px;line-height:30px;padding:0"
+              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
               @click="resetHandle"
-            >重置</el-button>
+              >重置</el-button
+            >
           </div>
           <el-button
             type="primary"
             @click="exportExcel"
-            style="width:90px;height:30px;line-height:30px;padding:0"
-          >导出Excel</el-button>
+            style="width: 90px; height: 30px; line-height: 30px; padding: 0"
+            >导出Excel</el-button
+          >
         </div>
 
         <div class="table">
@@ -47,6 +50,7 @@
               <div class="th">实收金额</div>
               <div class="th">订台人</div>
               <div class="th">订位部门</div>
+              <div class="th">支付信息</div>
             </div>
           </div>
           <div class="tbody">
@@ -57,21 +61,28 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
-              <div class="td">{{item.r}}</div>
-              <div class="td">{{item.s}}</div>
-              <div class="td">{{item.o}}</div>
-              <div class="td">{{item.od}}</div>
-              <div class="td">{{item.oe}}</div>
-              <div class="td">{{item.po}}</div>
-              <div class="td">{{item.pt}}</div>
-              <div class="td">{{item.p}}</div>
-              <div class="td">{{item.c}}</div>
-              <div class="td">{{item.a}}</div>
-              <div class="td">{{item.v}}</div>
-              <div class="td">{{item.se}}</div>
-              <div class="td">{{item.sd}}</div>
+              <div class="td">{{ item.r }}</div>
+              <div class="td">{{ item.s }}</div>
+              <div class="td">{{ item.o }}</div>
+              <div class="td">{{ item.od }}</div>
+              <div class="td">{{ item.oe }}</div>
+              <div class="td">{{ item.po }}</div>
+              <div class="td">{{ item.pt }}</div>
+              <div class="td">{{ item.p }}</div>
+              <div class="td">{{ item.c }}</div>
+              <div class="td">{{ item.a }}</div>
+              <div class="td">{{ item.v }}</div>
+              <div class="td">{{ item.se }}</div>
+              <div class="td">{{ item.sd }}</div>
+              <div class="td">{{ item.pi }}</div>
             </div>
-            <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
+            <p
+              v-if="tableData.length == 0"
+              class="m-t-10 fs14"
+              style="text-align: center"
+            >
+              暂无数据
+            </p>
           </div>
         </div>
       </div>
@@ -82,7 +93,7 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
 export default {
@@ -97,12 +108,12 @@ export default {
     // 获取数据
     async getTableData() {
       const params = {
-        key: this.keyword //  string  查询关键字 
+        key: this.keyword, //  string  查询关键字
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
         if (res.code == 1) {
-          this.tableData = res.data.records || []
+          this.tableData = res.data.records || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -114,7 +125,7 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
-        key: this.keyword //  string  查询关键字 
+        key: this.keyword, //  string  查询关键字
       };
 
       try {
@@ -122,8 +133,7 @@ export default {
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
-              type:
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             })
           );
           const a = document.createElement("a"); //添加a标签
@@ -148,19 +158,19 @@ export default {
     resetHandle() {
       this.keyword = "";
       this.getTableData();
-    }
+    },
   },
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
-    }
+      default: false, // 是否显示drawer
+    },
   },
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
       newVal ? this.resetHandle() : "";
-    }
-  }
+    },
+  },
 };
 </script>
 
