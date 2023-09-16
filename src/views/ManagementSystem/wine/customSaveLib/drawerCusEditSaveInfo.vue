@@ -11,10 +11,10 @@
       <div class="session edit-save-info p-5">
         <div class="top" layout="row" layout-align="start center">
           <div class="title">存酒详情</div>
-          <div class="name">{{currentSaveInfo.c}}</div>
-          <div class="phone">{{currentSaveInfo.p}}</div>
+          <div class="name">{{ currentSaveInfo.c }}</div>
+          <div class="phone">{{ currentSaveInfo.p }}</div>
         </div>
-        <div class="red fs14 m-t-3 m-b-3">点击规格可更改</div>
+        <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
         <div class="table-content">
           <div class="table">
@@ -25,7 +25,7 @@
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
                 <div class="th">授权人</div>
-                <div class="th" style="width:120px">操作</div>
+                <div class="th" style="width: 120px">操作</div>
               </div>
             </div>
             <div class="tbody">
@@ -36,11 +36,16 @@
                 v-for="item in tableData"
                 :key="item.id"
               >
-                <div class="td">{{item.n}}</div>
+                <div class="td">{{ item.n }}</div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{item.u}}</div>
+                  <div v-if="item.u == '整瓶'">{{ item.u }}</div>
                   <div v-else>
-                    <el-select v-model="item.u" size="mini" style="width:100px" placeholder="请选择">
+                    <el-select
+                      v-model="item.u"
+                      size="mini"
+                      style="width: 100px"
+                      placeholder="请选择"
+                    >
                       <el-option
                         v-for="item in options"
                         :key="item.value"
@@ -51,32 +56,56 @@
                   </div>
                 </div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{item.g || '-'}}</div>
+                  <div v-if="item.u == '整瓶'">{{ item.g || "-" }}</div>
                   <div v-else>
-                    <el-input v-model="item.g" size="mini" style="width:100px"></el-input>
+                    <el-input
+                      v-model="item.g"
+                      size="mini"
+                      style="width: 100px"
+                    ></el-input>
                   </div>
                 </div>
                 <div class="td" layout="row" layout-align="center center">
                   <el-button
                     type
                     size="small"
-                    style="width:26px;padding:0;height:26px;border-radius:50%"
+                    style="
+                      width: 26px;
+                      padding: 0;
+                      height: 26px;
+                      border-radius: 50%;
+                    "
                     icon="el-icon-minus"
-                    :disabled="item.c<=1"
+                    :disabled="item.c <= 1"
                     @click="item.c = Math.max(1, item.c - 1)"
                   ></el-button>
-                  <el-input v-model="item.c" size="mini" style="width:60px;margin:0 10px"></el-input>
+                  <el-input
+                    v-model="item.c"
+                    size="mini"
+                    style="width: 60px; margin: 0 10px"
+                  ></el-input>
                   <el-button
                     type
                     size="mini"
-                    :disabled="item.a !='-' && item.c >= item.ac"
-                    style="width:26px;padding:0;height:26px;border-radius:50%"
+                    :disabled="item.a != '-' && item.c >= item.ac"
+                    style="
+                      width: 26px;
+                      padding: 0;
+                      height: 26px;
+                      border-radius: 50%;
+                    "
                     icon="el-icon-plus"
                     @click="item.c++"
                   ></el-button>
                 </div>
-                <div class="td">{{item.a}}</div>
-                <div class="td" style="width:120px"><span style="color:#2170ff;cursor:pointer" @click="deleteHandle(item)">删除</span></div>
+                <div class="td">{{ item.a }}</div>
+                <div class="td" style="width: 120px">
+                  <span
+                    style="color: #2170ff; cursor: pointer"
+                    @click="deleteHandle(item)"
+                    >删除</span
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -84,13 +113,25 @@
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">备注姓名：</div>
           <div class="value">
-            <el-input type="primary" size="small" style="width: 260px" v-model="remarkName" placeholder="请输入备注姓名"></el-input>
+            <el-input
+              type="primary"
+              size="small"
+              style="width: 260px"
+              v-model="remarkName"
+              placeholder="请输入备注姓名"
+            ></el-input>
           </div>
         </div>
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">备注手机号：</div>
           <div class="value">
-            <el-input type="primary" size="small" style="width: 260px" v-model="remarkPhone" placeholder="请输入备注手机号"></el-input>
+            <el-input
+              type="primary"
+              size="small"
+              style="width: 260px"
+              v-model="remarkPhone"
+              placeholder="请输入备注手机号"
+            ></el-input>
           </div>
         </div>
       </div>
@@ -106,7 +147,8 @@
         title="提示"
         :visible.sync="dialogVisible"
         append-to-body
-        width="30%">
+        width="30%"
+      >
         <p>确认入库吗？</p>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
@@ -116,12 +158,14 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="showAuthHandle">{{needWaiterAuth ? '服务员授权' : '确认入库'}}</el-button>
+        <el-button type="primary" @click="showAuthHandle">{{
+          needWaiterAuth ? "服务员授权" : "确认入库"
+        }}</el-button>
       </div>
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_wine from "@/api/wine";
 import authCom from "../commonCom/auth.vue";
@@ -130,8 +174,8 @@ export default {
     return {
       dialogVisible: false,
       tableData: [],
-      remarkName: '',
-      remarkPhone: '',
+      remarkName: "",
+      remarkPhone: "",
       showAuthDrawer: false,
       options: [
         { id: 1, label: "0.1" },
@@ -142,27 +186,27 @@ export default {
         { id: 6, label: "0.6" },
         { id: 7, label: "0.7" },
         { id: 8, label: "0.8" },
-        { id: 9, label: "0.9" }
+        { id: 9, label: "0.9" },
       ],
-      authInfo: {}
+      authInfo: {},
     };
   },
   methods: {
     async onSubmit() {
-      const { userName, passWord, type } = this.authInfo
+      const { userName, passWord, type } = this.authInfo;
       const params = {
         auth_emp_code: userName, // string   授权人工号
         auth_emp_passwd: passWord, //  string   授权人密码
         pass_type: type, //  int   1 验证 员工号/密码  2 验证卡号/卡数据 为兼容之前的账号密码认证, 当=2的时候验证卡号和卡密, 共用emp_code,password
         bef_in_id: this.currentSaveInfo.o * 1, //  int64      //BefInId 待入库订单Id
-        bef_in_dtl_ids: this.tableData.map(item => item.id * 1), //  []int64   待入库子订单Id
-        unit_types: this.tableData.map(item =>
+        bef_in_dtl_ids: this.tableData.map((item) => item.id * 1), //  []int64   待入库子订单Id
+        unit_types: this.tableData.map((item) =>
           item.u == "整瓶" ? "1" : item.u
         ), //  []string   对应子定单修改后的规格
-        prd_cnts: this.tableData.map(item => item.c * 1), //   []int   对应子订单修改后的商品数量
-        g_cnts: this.tableData.map(item => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
-        remark_cust_phone: this.remarkPhone || '', // string   客户中心存酒,备注客人手机号
-        remark_cust_name: this.remarkName || '', // string   客户中心存酒,备注客人姓名
+        prd_cnts: this.tableData.map((item) => item.c * 1), //   []int   对应子订单修改后的商品数量
+        g_cnts: this.tableData.map((item) => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
+        remark_cust_phone: this.remarkPhone || "", // string   客户中心存酒,备注客人手机号
+        remark_cust_name: this.remarkName || "", // string   客户中心存酒,备注客人姓名
       };
       try {
         const res = await api_wine.reqAuthSureToLib(params);
@@ -172,55 +216,57 @@ export default {
           this.onCancelDrawer();
           this.$emit("getTableData");
         } else {
-          if(type == 2) window.loopReadCard()
+          if (type == 2) window.loopReadCard();
           this.$message.warning(res.msg);
         }
         this.dialogVisible = false;
       } catch (error) {
-        if(type == 2) window.loopReadCard()
+        if (type == 2) window.loopReadCard();
         console.log("授权修改存酒详情失败", error);
       }
     },
 
-    deleteHandle(itemInfo){
-      const index = this.tableData.findIndex(item => item.id == itemInfo.id)
-      if(index > -1) {
-        this.tableData.splice(index, 1)
+    deleteHandle(itemInfo) {
+      const index = this.tableData.findIndex((item) => item.id == itemInfo.id);
+      if (index > -1) {
+        this.tableData.splice(index, 1);
       }
     },
 
-    showAuthHandle(){
-      if(this.remarkPhone && this.remarkPhone.length != 11) return this.$message.warning('请输入正确的11位手机号')
-      if(this.needWaiterAuth) {
-        if(this.tableData.length <= 0) return this.$message.warning('当前暂无商品可授权')
-        this.showAuthDrawer = true
+    showAuthHandle() {
+      if (this.remarkPhone && this.remarkPhone.length != 11)
+        return this.$message.warning("请输入正确的11位手机号");
+      if (this.needWaiterAuth) {
+        if (this.tableData.length <= 0)
+          return this.$message.warning("当前暂无商品可授权");
+        this.showAuthDrawer = true;
       } else {
         // 仓库人员编辑完存酒单，不需要服务员授权，直接提交
-        this.authInfo = { userName: '', passWord: '', type: 1 }
-        this.dialogVisible = true
+        this.authInfo = { userName: "", passWord: "", type: 1 };
+        this.dialogVisible = true;
       }
     },
-    
-    submitSureHandle({ userName, passWord, type }){
-      this.authInfo = { userName, passWord, type }
-      this.dialogVisible = true
+
+    submitSureHandle({ userName, passWord, type }) {
+      this.authInfo = { userName, passWord, type };
+      this.dialogVisible = true;
     },
 
     onCancelDrawer() {
       this.show = false;
-    }
+    },
   },
   mounted() {},
   props: {
     value: {
-      default: false // 是否显示drawer
+      default: false, // 是否显示drawer
     },
     currentSaveInfo: {
-      default: () => ({})
+      default: () => ({}),
     },
     needWaiterAuth: {
-      default: true
-    }
+      default: true,
+    },
   },
   computed: {
     show: {
@@ -230,11 +276,11 @@ export default {
 
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
   components: {
-    authCom
+    authCom,
   },
   watch: {
     value: {
@@ -243,14 +289,14 @@ export default {
           this.tableData = JSON.parse(
             JSON.stringify(this.currentSaveInfo.ss || [])
           );
-          this.remarkName = ''
-          this.remarkPhone = ''
+          this.remarkName = "";
+          this.remarkPhone = "";
         } else {
         }
       },
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 };
 </script>
 

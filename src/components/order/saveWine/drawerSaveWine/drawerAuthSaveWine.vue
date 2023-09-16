@@ -10,27 +10,40 @@
     >
       <div class="content">
         <div class="session m-b-10">
-          <div v-if="status == 1" layout="row" layout-align="space-between center">
+          <div
+            v-if="status == 1"
+            layout="row"
+            layout-align="space-between center"
+          >
             <div class="left-area">
               <div class="nav" layout="row" layout-align="start start">
                 <div class="nav-left">
                   <ul class="first-menu" ref="firstMenuRef">
                     <li
-                      :class="{'active': firstCategoryActiveId === item.id}"
-                      v-for="(item,index) in firstCategoryList"
+                      :class="{ active: firstCategoryActiveId === item.id }"
+                      v-for="(item, index) in firstCategoryList"
                       :key="index"
                       @click="changeFirstCategory(item)"
                     >
-                      <span>{{item.n}}</span>
+                      <span>{{ item.n }}</span>
                     </li>
                   </ul>
                   <li class="arrow">
                     <div class="bg" layout="row" layout-align="center center">
-                      <div class="bg-left" @click="scrollHandle('first','up')">
-                        <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <div class="bg-left" @click="scrollHandle('first', 'up')">
+                        <img
+                          :src="require('@/assets/order-img/arrowBottom.png')"
+                          alt
+                        />
                       </div>
-                      <div class="bg-right" @click="scrollHandle('first','down')">
-                        <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <div
+                        class="bg-right"
+                        @click="scrollHandle('first', 'down')"
+                      >
+                        <img
+                          :src="require('@/assets/order-img/arrowBottom.png')"
+                          alt
+                        />
                       </div>
                     </div>
                   </li>
@@ -38,32 +51,53 @@
                 <div class="nav-right">
                   <ul class="second-menu" ref="secondMenuRef">
                     <li
-                      :class="{'active': secondCategoryActiveId === item.id}"
-                      v-for="(item,index) in secondCategoryList"
+                      :class="{ active: secondCategoryActiveId === item.id }"
+                      v-for="(item, index) in secondCategoryList"
                       :key="index"
                       @click="changeSecondCategory(item.id)"
                     >
-                      <div class="item" layout="row" layout-align="center center">
-                        <span>{{item.n}}</span>
+                      <div
+                        class="item"
+                        layout="row"
+                        layout-align="center center"
+                      >
+                        <span>{{ item.n }}</span>
                       </div>
                     </li>
                   </ul>
                   <li class="arrow">
                     <div class="bg" layout="row" layout-align="center center">
-                      <div class="bg-left" @click="scrollHandle('second','up')">
-                        <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <div
+                        class="bg-left"
+                        @click="scrollHandle('second', 'up')"
+                      >
+                        <img
+                          :src="require('@/assets/order-img/arrowBottom.png')"
+                          alt
+                        />
                       </div>
-                      <div class="bg-right" @click="scrollHandle('second','down')">
-                        <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <div
+                        class="bg-right"
+                        @click="scrollHandle('second', 'down')"
+                      >
+                        <img
+                          :src="require('@/assets/order-img/arrowBottom.png')"
+                          alt
+                        />
                       </div>
                     </div>
                   </li>
                 </div>
               </div>
-              <div class="prd-list" ref="cardListRef" layout="row" layout-align="center start">
+              <div
+                class="prd-list"
+                ref="cardListRef"
+                layout="row"
+                layout-align="center start"
+              >
                 <ul
                   class="center-type"
-                  :style="{'width':centerType+'px'}"
+                  :style="{ width: centerType + 'px' }"
                   layout="row"
                   layout-align="start start"
                 >
@@ -73,17 +107,23 @@
                     :key="item.id"
                     @click="chooseWindInfoHandle(item)"
                   >
-                    <div class="name">{{item.n}}</div>
+                    <div class="name">{{ item.n }}</div>
                   </li>
                 </ul>
                 <!-- arrow -->
                 <div class="arrow" style="bottom: 0px">
                   <div class="bg" layout="row" layout-align="center center">
                     <div class="bg-left" @click="scrollArrowHandle('up')">
-                      <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <img
+                        :src="require('@/assets/order-img/arrowBottom.png')"
+                        alt
+                      />
                     </div>
                     <div class="bg-right" @click="scrollArrowHandle('down')">
-                      <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                      <img
+                        :src="require('@/assets/order-img/arrowBottom.png')"
+                        alt
+                      />
                     </div>
                   </div>
                 </div>
@@ -96,7 +136,11 @@
               <div class="table-content">
                 <div class="table">
                   <div class="thead">
-                    <div class="tr" layout="row" layout-align="space-between center">
+                    <div
+                      class="tr"
+                      layout="row"
+                      layout-align="space-between center"
+                    >
                       <div class="th">名称</div>
                       <div class="th">规格</div>
                       <div class="th">每瓶克数</div>
@@ -112,12 +156,20 @@
                       v-for="item in resultWineList"
                       :key="item.id"
                     >
-                      <div class="td one-txt-cut">{{item.name}}</div>
-                      <div class="td">{{item.selectVal == 1 ? '整瓶' : item.selectVal + '瓶'}}</div>
-                      <div class="td">{{item.allWeight || '-'}}</div>
+                      <div class="td one-txt-cut">{{ item.name }}</div>
+                      <div class="td">
+                        {{
+                          item.selectVal == 1 ? "整瓶" : item.selectVal + "瓶"
+                        }}
+                      </div>
+                      <div class="td">{{ item.allWeight || "-" }}</div>
                       <div class="td" layout="row" layout-align="start center">
                         <img
-                          :src="item.count > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')"
+                          :src="
+                            item.count > 1
+                              ? require('@/assets/order-img/sub.png')
+                              : require('@/assets/order-img/sub-disabled.png')
+                          "
                           @click="item.count = Math.max(item.count - 1, 1)"
                         />
                         <input type="number" :min="1" v-model="item.count" />
@@ -127,7 +179,10 @@
                         />
                       </div>
                       <div class="td" layout="row" layout-align="start center">
-                        <img @click="deleteWineHandle(item)" :src="require('@/assets/order-img/delete.png')" />
+                        <img
+                          @click="deleteWineHandle(item)"
+                          :src="require('@/assets/order-img/delete.png')"
+                        />
                       </div>
                     </div>
                   </div>
@@ -152,12 +207,22 @@
                     </div>
                   </div>
                   <div class="tbody">
-                    <div class="tr" layout="row" layout-align="start start" v-for="(item, index) in resultWineList" :key="item.id">
-                      <div class="td">{{index + 1}}</div>
-                      <div class="td one-txt-cut">{{item.name}}</div>
-                      <div class="td">{{item.selectVal == 1 ? '整瓶' : item.selectVal + '瓶'}}</div>
-                      <div class="td">{{item.allWeight || '-'}}</div>
-                      <div class="td">{{item.count}}</div>
+                    <div
+                      class="tr"
+                      layout="row"
+                      layout-align="start start"
+                      v-for="(item, index) in resultWineList"
+                      :key="item.id"
+                    >
+                      <div class="td">{{ index + 1 }}</div>
+                      <div class="td one-txt-cut">{{ item.name }}</div>
+                      <div class="td">
+                        {{
+                          item.selectVal == 1 ? "整瓶" : item.selectVal + "瓶"
+                        }}
+                      </div>
+                      <div class="td">{{ item.allWeight || "-" }}</div>
+                      <div class="td">{{ item.count }}</div>
                     </div>
                   </div>
                 </div>
@@ -182,8 +247,15 @@
         <!-- 提交按钮 -->
         <div class="form-btn" layout="row" layout-align="center center">
           <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-          <el-button type="primary" v-if="status == 2" @click.stop="onSubmit('self')">自己授权</el-button>
-          <el-button type="primary" @click.stop="onSubmit('another')">授权</el-button>
+          <el-button
+            type="primary"
+            v-if="status == 2"
+            @click.stop="onSubmit('self')"
+            >自己授权</el-button
+          >
+          <el-button type="primary" @click.stop="onSubmit('another')"
+            >授权</el-button
+          >
         </div>
       </div>
     </el-drawer>
@@ -191,7 +263,7 @@
 </template>
 
 <script>
-import eventVue from '@/utils/eventVue';
+import eventVue from "@/utils/eventVue";
 const cardWidth = 140;
 import api_saveWine from "@/api/saveWine";
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
@@ -200,7 +272,7 @@ import md5 from "js-md5";
 export default {
   data() {
     return {
-      status: 1,  // 1:选择商品   2：授权
+      status: 1, // 1:选择商品   2：授权
       centerType: 100, // 卡台版心宽度
 
       keyword: "",
@@ -215,11 +287,11 @@ export default {
       currentWineInfo: {},
 
       resultWineList: [],
-      
+
       // 授权
       authorizationInfo: {
         userName: "",
-        passWord: ""
+        passWord: "",
       },
     };
   },
@@ -234,16 +306,16 @@ export default {
     },
 
     // 过滤掉没有商品的一级和二级菜单分类
-    filterEmptyCate(cateList = [], prdList = []){
-      cateList.forEach(el => {
-        el.ss = (el.ss || []).filter(item => item.s == 1)
-        el.ss.forEach(ele => {
-          ele.hasPrd = !!prdList.find(item => item.t == ele.id)
-        })
-        el.ss = el.ss.filter(item => item.hasPrd)
-        el.hasPrd = el.ss.some(item => item.hasPrd)
-      })
-      return cateList.filter(item => item.hasPrd)
+    filterEmptyCate(cateList = [], prdList = []) {
+      cateList.forEach((el) => {
+        el.ss = (el.ss || []).filter((item) => item.s == 1);
+        el.ss.forEach((ele) => {
+          ele.hasPrd = !!prdList.find((item) => item.t == ele.id);
+        });
+        el.ss = el.ss.filter((item) => item.hasPrd);
+        el.hasPrd = el.ss.some((item) => item.hasPrd);
+      });
+      return cateList.filter((item) => item.hasPrd);
     },
 
     async getNavData(init = 2) {
@@ -251,25 +323,26 @@ export default {
         name: this.keyword, //  string   模糊查询,名字或拼音
         is_init: init * 1, //    int    1 页面初始化, 会返回一级分和二级分类信息  2 非初始化(只返回刷新后的主数据)
         one_cate_id: init == 1 ? 0 : this.firstCategoryActiveId * 1, //  int64   一级分类id, 0表示不限制
-        two_cate_id: init == 1 ? 0 : this.secondCategoryActiveId * 1 // int64    二级分类id, 0表示不限制
+        two_cate_id: init == 1 ? 0 : this.secondCategoryActiveId * 1, // int64    二级分类id, 0表示不限制
       };
       try {
         const res = await api_saveWine.reqGetCanAuthSaveWineList(params);
         if (res.code == 1) {
-
           this.productListAll = res.data.items || [];
 
           if (init == 1) {
             const cateList = (res.data.cates || []).filter(
-              item => item.s == 1
+              (item) => item.s == 1
             );
-            this.firstCategoryList = this.filterEmptyCate(cateList, this.productListAll)
+            this.firstCategoryList = this.filterEmptyCate(
+              cateList,
+              this.productListAll
+            );
             if (this.firstCategoryList.length > 0) {
               this.firstCategoryActiveId = this.firstCategoryList[0].id;
               this.changeFirstCategory(this.firstCategoryList[0]);
             }
           }
-
         } else {
           this.$message.warning(res.msg);
         }
@@ -281,7 +354,7 @@ export default {
     changeFirstCategory(firstItemInfo) {
       this.firstCategoryActiveId = firstItemInfo.id;
       this.secondCategoryList = (firstItemInfo.ss || []).filter(
-        item => item.s == 1
+        (item) => item.s == 1
       );
       if (this.secondCategoryList.length > 0) {
         this.changeSecondCategory(this.secondCategoryList[0].id);
@@ -291,7 +364,7 @@ export default {
     changeSecondCategory(secondCateId) {
       this.secondCategoryActiveId = secondCateId;
       this.productList = this.productListAll.filter(
-        item => item.t == this.secondCategoryActiveId
+        (item) => item.t == this.secondCategoryActiveId
       );
     },
 
@@ -303,67 +376,92 @@ export default {
 
     // 临时购物车增加商品
     addAuthWineHandle(resultList) {
-      const resultWineListArr = resultList.map(item => ({
+      const resultWineListArr = resultList.map((item) => ({
         ...item,
         name: this.currentWineInfo.n,
-        id: this.currentWineInfo.id
-      }))
-      const resultWineList = []
-      const tempWineList = [...this.resultWineList, ...resultWineListArr]
+        id: this.currentWineInfo.id,
+      }));
+      const resultWineList = [];
+      const tempWineList = [...this.resultWineList, ...resultWineListArr];
 
-      tempWineList.forEach(el => {
-        const index = resultWineList.findIndex(item => item.name == el.name && item.selectVal == el.selectVal && item.allWeight == el.allWeight)
-        if(index > -1) {
-          resultWineList[index].count = resultWineList[index].count * 1 + el.count * 1
+      tempWineList.forEach((el) => {
+        const index = resultWineList.findIndex(
+          (item) =>
+            item.name == el.name &&
+            item.selectVal == el.selectVal &&
+            item.allWeight == el.allWeight
+        );
+        if (index > -1) {
+          resultWineList[index].count =
+            resultWineList[index].count * 1 + el.count * 1;
         } else {
-          resultWineList.push(el)
+          resultWineList.push(el);
         }
-      })
+      });
 
-
-      this.resultWineList = resultWineList
+      this.resultWineList = resultWineList;
     },
 
     // 当前临时购物车删除
-    deleteWineHandle(itemInfo){
-      const index = this.resultWineList.findIndex(item => item.id == itemInfo.id)
-      if(index > -1) this.resultWineList.splice(index, 1)
+    deleteWineHandle(itemInfo) {
+      const index = this.resultWineList.findIndex(
+        (item) => item.id == itemInfo.id
+      );
+      if (index > -1) this.resultWineList.splice(index, 1);
     },
 
-    getCodeAndPwd(personType, empCardInfo, type){
-      let authEmpCode = ''
-      let authEmpPasswd = ''
-      if(type == 1) {
+    getCodeAndPwd(personType, empCardInfo, type) {
+      let authEmpCode = "";
+      let authEmpPasswd = "";
+      if (type == 1) {
         // 账号密码授权
-        authEmpCode = personType == "self" ? "" : this.authorizationInfo.userName
-        authEmpPasswd = personType == "self" ? "" : md5(this.authorizationInfo.passWord).toString().toUpperCase()
+        authEmpCode =
+          personType == "self" ? "" : this.authorizationInfo.userName;
+        authEmpPasswd =
+          personType == "self"
+            ? ""
+            : md5(this.authorizationInfo.passWord).toString().toUpperCase();
       } else {
         // 刷卡授权
-        authEmpCode = empCardInfo.cardNo
-        authEmpPasswd = md5(empCardInfo.password).toString().toUpperCase()
+        authEmpCode = empCardInfo.cardNo;
+        authEmpPasswd = md5(empCardInfo.password).toString().toUpperCase();
       }
       return {
         authEmpCode,
-        authEmpPasswd
-      }
+        authEmpPasswd,
+      };
     },
 
-    async onSubmit(personType, empCardInfo={} , type=1) {
-      if(this.status == 1) {
-        this.status = 2
+    async onSubmit(personType, empCardInfo = {}, type = 1) {
+      if (this.status == 1) {
+        if (this.resultWineList.length == 0) {
+          this.$message.warning("没有需要授权的商品");
+          return;
+        }
+        this.status = 2;
       } else {
-        const authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
-        const authEmpPasswd = this.getCodeAndPwd(personType, empCardInfo, type).authEmpPasswd
+        const authEmpCode = this.getCodeAndPwd(
+          personType,
+          empCardInfo,
+          type
+        ).authEmpCode;
+        const authEmpPasswd = this.getCodeAndPwd(
+          personType,
+          empCardInfo,
+          type
+        ).authEmpPasswd;
         const params = {
           auth_emp_code: authEmpCode, // string    授权人工号
           auth_emp_passwd: authEmpPasswd, // string    授权人密码
-          pass_type: type,    //  int     1 验证 员工号/密码  2 验证卡号/卡数据 为兼容之前的账号密码认证, 当=2的时候验证卡号和卡密, 共用emp_code,password
-          csm_id: this.checkedOrderInfo.id * 1,    //   int64   流水Id
-          prd_ids: this.resultWineList.map(item => item.id * 1),  //    []int64  商品Id列表
-          unit_types: this.resultWineList.map(item => item.selectVal.toString()),  // []string   规格列表,对应上面的商品列表
-          prd_cnts: this.resultWineList.map(item => item.count * 1),  //   []int     商品数量,对应上面的商品列表
-          g_cnts: this.resultWineList.map(item => item.allWeight * 1),  //  []int   克数,,对应上面的商品列表
-        }
+          pass_type: type, //  int     1 验证 员工号/密码  2 验证卡号/卡数据 为兼容之前的账号密码认证, 当=2的时候验证卡号和卡密, 共用emp_code,password
+          csm_id: this.checkedOrderInfo.id * 1, //   int64   流水Id
+          prd_ids: this.resultWineList.map((item) => item.id * 1), //    []int64  商品Id列表
+          unit_types: this.resultWineList.map((item) =>
+            item.selectVal.toString()
+          ), // []string   规格列表,对应上面的商品列表
+          prd_cnts: this.resultWineList.map((item) => item.count * 1), //   []int     商品数量,对应上面的商品列表
+          g_cnts: this.resultWineList.map((item) => item.allWeight * 1), //  []int   克数,,对应上面的商品列表
+        };
         if (!params.auth_emp_code && personType != "self")
           return this.$message.warning("请输入授权员工号");
         if (!params.auth_emp_passwd && personType != "self")
@@ -371,21 +469,20 @@ export default {
         try {
           const res = await api_saveWine.reqAddAuthWine(params);
           if (res.code == 1) {
-            this.$message.success('授权成功');
-            this.$emit('getShoppingCartWineList')
+            this.$message.success("授权成功");
+            this.$emit("getShoppingCartWineList");
             this.onCancelDrawer(true);
           } else {
-            window.loopReadCard()
+            window.loopReadCard();
             this.$message.warning(res.msg);
           }
         } catch (error) {
-          window.loopReadCard()
+          window.loopReadCard();
           console.log("存酒授权失败", error);
         }
       }
     },
 
-    
     updateAuthorizationInfo({ key, value }) {
       this.authorizationInfo[key] = value;
     },
@@ -398,7 +495,6 @@ export default {
       dom.scrollTo(0, scrollTop);
     },
 
-    
     scrollArrowHandle(direction) {
       let dom = this.$refs.cardListRef;
       const step = 200;
@@ -408,39 +504,38 @@ export default {
     },
 
     onCancelDrawer(isClose) {
-      if(this.status > 1 && !isClose) return this.status -= 1
+      if (this.status > 1 && !isClose) return (this.status -= 1);
       this.show = false;
     },
 
-    
     // 刷卡授权
-    swipingOrderHandle(empCardInfo){
-      if(this.show && this.status == 2) {
-        const childrenVNode = this.$children[0].$children || []
-        childrenVNode.forEach(el => {
-          if(el.$el.className == 'auth') {
-            if(el.tabIndex == 1) {
+    swipingOrderHandle(empCardInfo) {
+      if (this.show && this.status == 2) {
+        const childrenVNode = this.$children[0].$children || [];
+        childrenVNode.forEach((el) => {
+          if (el.$el.className == "auth") {
+            if (el.tabIndex == 1) {
               // 刷卡
-              this.onSubmit('another', empCardInfo, 2)
+              this.onSubmit("another", empCardInfo, 2);
             } else {
-              this.$message.warning('当前为输入账号授权，不可刷卡')
+              this.$message.warning("当前为输入账号授权，不可刷卡");
             }
           }
-        })
+        });
       } else {
-        this.$message.warning('刷卡无效，请在登录或授权时进行刷卡！')
+        this.$message.warning("刷卡无效，请在登录或授权时进行刷卡！");
       }
     },
   },
   props: {
     value: false,
-    checkedOrderInfo:{
-      default: () => ({})
-    }
+    checkedOrderInfo: {
+      default: () => ({}),
+    },
   },
   components: {
     drawerChooseWineInfo,
-    authorization
+    authorization,
   },
   computed: {
     show: {
@@ -449,25 +544,27 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
   watch: {
     value(newVal) {
       this.show = newVal;
       if (newVal) {
-        this.resultWineList = []
-        this.status = 1
+        this.resultWineList = [];
+        this.status = 1;
         this.getCenterType();
       }
     },
-    status(newVal){
-      if(newVal == 2) {
-        eventVue.$off('saveWineToShoppingCartHandle')
-        eventVue.$on('saveWineToShoppingCartHandle', empCardInfo => { this.swipingOrderHandle(empCardInfo) })
+    status(newVal) {
+      if (newVal == 2) {
+        eventVue.$off("saveWineToShoppingCartHandle");
+        eventVue.$on("saveWineToShoppingCartHandle", (empCardInfo) => {
+          this.swipingOrderHandle(empCardInfo);
+        });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -496,7 +593,7 @@ export default {
     .nav {
       height: 100%;
       .nav-left {
-        ul.first-menu{
+        ul.first-menu {
           height: calc(100vh - 200px);
           overflow-y: auto;
           color: #fff;
@@ -507,7 +604,7 @@ export default {
             height: 56px;
             text-align: center;
             font-size: 15px;
-            color: #AED8FF;
+            color: #aed8ff;
             cursor: pointer;
 
             span {
@@ -519,19 +616,15 @@ export default {
             }
 
             &.active {
-              background: url('../../../../assets/order-img/navBarBgi.png');
+              background: url("../../../../assets/order-img/navBarBgi.png");
               background-size: 100% 100%;
               color: #6a9eff;
             }
-
           }
         }
-
       }
       .nav-right {
-          
         ul.second-menu {
-
           height: calc(100vh - 200px);
           overflow-y: auto;
           color: #fff;
@@ -555,9 +648,9 @@ export default {
 
             &.active {
               .item {
-                background: #455EFF;
+                background: #455eff;
                 // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%);
-                box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5000);
+                box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
                 border-radius: 20px;
               }
             }
@@ -586,7 +679,7 @@ export default {
           border-radius: 6px;
         }
       }
-      
+
       //  箭头
       .arrow {
         width: 120px;
@@ -602,8 +695,8 @@ export default {
           .bg-right {
             width: 46px;
             height: 40px;
-            background: #0D172D;
-            box-shadow: inset 0px 1px 1px 0px #2775BA;
+            background: #0d172d;
+            box-shadow: inset 0px 1px 1px 0px #2775ba;
             text-align: center;
 
             img {
@@ -674,8 +767,7 @@ export default {
     }
   }
 
-
-    // 授权
+  // 授权
   .authorization {
     margin-top: 10px;
     padding: 20px;
@@ -684,7 +776,7 @@ export default {
       width: 50%;
       padding-right: 10px;
       box-sizing: border-box;
-      border-right: 1px solid rgba(255, 255, 255, .2);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
 
       .table {
         font-size: 14px;
@@ -692,8 +784,9 @@ export default {
         .tr {
           padding: 10px;
 
-          .th,.td{
-            width: 30%
+          .th,
+          .td {
+            width: 30%;
           }
 
           .th:nth-child(1),

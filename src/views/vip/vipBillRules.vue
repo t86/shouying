@@ -223,10 +223,11 @@ export default {
           }
 
           this.pageInfo.total = res.data.row_cnt || 0;
-          this.tableData = res.data.records.map(d=>{
-            d.checked = false;
-            return d;
-          }) || [];
+          this.tableData =
+            res.data.records.map((d) => {
+              d.checked = false;
+              return d;
+            }) || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -235,7 +236,7 @@ export default {
       }
     },
     // 改变多选框的值
-    changeCheckboxHandle(type,itemId) {
+    changeCheckboxHandle(type, itemId) {
       switch (type) {
         case "all":
           this.tableData.forEach((el) => {
@@ -243,14 +244,14 @@ export default {
           });
           break;
         case "item":
-          this.checked = this.tableData
-            .filter((item) => !item.disabled)
-            .every((item) => item.checked);
           this.tableData.forEach((el) => {
             if (el.id == itemId) {
               el.checked = !el.checked;
             }
           });
+          this.checked = this.tableData
+            .filter((item) => !item.disabled)
+            .every((item) => item.checked);
           break;
       }
       this.$forceUpdate();
