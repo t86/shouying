@@ -406,7 +406,7 @@ export default {
         authValidateVal: this.authValidateVal || "", // 服务码
         phoneNum: this.phoneNum || "", // 手机号
         validateVal: this.validateVal || "", // 验证码
-        customPhoneNum: this.customPhoneNum || "", // 验证码
+        customPhoneNum: this.customPhoneNum || "", // 手机号
         customName: this.customName || "", // 客户姓名
         customPhoneName: this.customPhoneName || "", // 客户中心存酒客户姓名
         superValidate: this.superValidate || "", // 超级授权码
@@ -444,6 +444,18 @@ export default {
           this.tabIndex == 2
             ? (this.customName = res.data.cust_name || "")
             : (this.customPhoneName = res.data.cust_name || "");
+          this.$emit("updateStepInfo", {
+            ...JSON.parse(JSON.stringify(this.stepOneInfo)),
+            orderList: [...this.tableData],
+            tabIndex: this.tabIndex,
+            authValidateVal: this.authValidateVal || "", // 服务码
+            phoneNum: this.phoneNum || "", // 手机号
+            validateVal: this.validateVal || "", // 验证码
+            customPhoneNum: this.customPhoneNum || "", // 手机号
+            customName: this.customName || "", // 客户姓名
+            customPhoneName: this.customPhoneName || "", // 客户中心存酒客户姓名
+            superValidate: this.superValidate || "", // 超级授权码
+          });
         } else {
           this.$message.warning(res.msg);
         }
