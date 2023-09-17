@@ -264,7 +264,7 @@ export default {
         sms_type_ids: this.updateVipInfoObj.messageList
           .filter((item) => item.checked)
           .map((item) => item.id * 1), // []int        //SmsTypeIds 订阅消息列表
-        sales_emp_id: this.updateVipInfoObj.personVal, //
+        sales_emp_id: this.updateVipInfoObj.personVal * 1, //
       };
       try {
         const res = await api_vip.reqUpdateVipCard(params);
