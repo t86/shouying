@@ -76,23 +76,41 @@
         <div class="modal" v-if="confirmEditVipInfo">
           <div class="modal-content">
             <h3 class="m-b-6">提示</h3>
-            <p class="m-b-6">同一个手机号绑定的其他会员卡，这些信息也会同步更改<br/>是否确认修改？</p>
+            <p class="m-b-6">
+              同一个手机号绑定的其他会员卡，这些信息也会同步更改<br />是否确认修改？
+            </p>
             <div class="btn-area">
-              <el-button size="mini" type="" @click="confirmEditVipInfo=false">取消</el-button>
-              <el-button size="mini" type="primary" @click="submitEditVipInfoHandle">确认</el-button>
+              <el-button size="mini" type="" @click="confirmEditVipInfo = false"
+                >取消</el-button
+              >
+              <el-button
+                size="mini"
+                type="primary"
+                @click="submitEditVipInfoHandle"
+                >确认</el-button
+              >
             </div>
           </div>
         </div>
-
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" @click="onCancelDrawer($event, false)">关闭</el-button>
-        <el-button type="primary" v-if="this.optionObj.optionInfo.id!=2 && this.optionObj.optionInfo.id!=6" @click="onSubmit">确定</el-button>
+        <el-button type="info" @click="onCancelDrawer($event, false)"
+          >关闭</el-button
+        >
+        <el-button
+          type="primary"
+          v-if="
+            this.optionObj.optionInfo.id != 2 &&
+            this.optionObj.optionInfo.id != 6
+          "
+          @click="onSubmit"
+          >确定</el-button
+        >
       </div>
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_vip from "@/api/vip";
 import updateVipInfo from "./updateVipInfo.vue";
@@ -113,14 +131,14 @@ export default {
       confirmEditVipInfo: false, // 是否修改会员卡信息确认框的显示或隐藏
       currentItemInfo: {},
       updateVipInfoObj: {}, // 编辑会员卡信息
-      makeCardInfoObj: {},  // 制卡
-      updateVipDeepInfoObj: {},  // 更改会员卡等级
-      updateVipPhoneNumObj: {},  // 更改、绑定手机号
-      enableVipInfoObj: {},  // 挂失、解除挂失
-      changeVipCardInfoObj: {},  // 换卡
-      backVipCardInfoObj: {},  // 退卡
+      makeCardInfoObj: {}, // 制卡
+      updateVipDeepInfoObj: {}, // 更改会员卡等级
+      updateVipPhoneNumObj: {}, // 更改、绑定手机号
+      enableVipInfoObj: {}, // 挂失、解除挂失
+      changeVipCardInfoObj: {}, // 换卡
+      backVipCardInfoObj: {}, // 退卡
       subMoneyVipCardInfoObj: {}, // 扣款
-      deleteVipCardInfoObj: {}  // 注销
+      deleteVipCardInfoObj: {}, // 注销
     };
   },
   methods: {
@@ -152,9 +170,14 @@ export default {
         setTimeout(() => {
           cardNo = atool.getCardNo();
           if (!cardNo) {
-            if (this.show && (this.optionObj.optionInfo.id == 2 || this.optionObj.optionInfo.id == 6)) this.readCard();
+            if (
+              this.show &&
+              (this.optionObj.optionInfo.id == 2 ||
+                this.optionObj.optionInfo.id == 6)
+            )
+              this.readCard();
           } else {
-              // 制卡、换卡
+            // 制卡、换卡
             this.getBeginCardInfo(cardNo);
           }
         }, 1000);
@@ -166,10 +189,13 @@ export default {
     async getBeginCardInfo(cardNo) {
       const params = {
         card_no: cardNo, //  string  卡号,这里是物理卡的卡号
-        mb_card_id: this.currentItemInfo.id * 1 //  int64    虚拟卡Id
+        mb_card_id: this.currentItemInfo.id * 1, //  int64    虚拟卡Id
       };
       try {
-        const res = this.optionObj.optionInfo.id == 2 ? await api_vip.reqMakeVipCardBegin(params) : await api_vip.reqChangeVipCardBegin(params);
+        const res =
+          this.optionObj.optionInfo.id == 2
+            ? await api_vip.reqMakeVipCardBegin(params)
+            : await api_vip.reqChangeVipCardBegin(params);
         if (res.code == 1) {
           try {
             const result = atool.doRegCard(
@@ -180,10 +206,17 @@ export default {
               this.makeCardEnd(cardNo);
             } else {
               this.readCard();
-              this.$message.warning(this.optionObj.optionInfo.id == 2 ? "制卡失败，即将重新制卡" : '换卡失败，即将重新换卡');
+              this.$message.warning(
+                this.optionObj.optionInfo.id == 2
+                  ? "制卡失败，即将重新制卡"
+                  : "换卡失败，即将重新换卡"
+              );
             }
           } catch (e) {
-            console.log(this.optionObj.optionInfo.id == 2 ? "制卡失败" : '换卡失败', e);
+            console.log(
+              this.optionObj.optionInfo.id == 2 ? "制卡失败" : "换卡失败",
+              e
+            );
           }
         } else {
           this.readCard();
@@ -198,12 +231,17 @@ export default {
     async makeCardEnd(cardNo) {
       const params = {
         card_no: cardNo, //    string  卡号
-        mb_card_id: this.currentItemInfo.id * 1 //  int64    虚拟卡Id
+        mb_card_id: this.currentItemInfo.id * 1, //  int64    虚拟卡Id
       };
       try {
-        const res = this.optionObj.optionInfo.id == 2 ? await api_vip.reqMakeVipCardEnd(params) : await api_vip.reqChangeVipCardEnd(params);
+        const res =
+          this.optionObj.optionInfo.id == 2
+            ? await api_vip.reqMakeVipCardEnd(params)
+            : await api_vip.reqChangeVipCardEnd(params);
         if (res.code == 1) {
-          this.$message.success(this.optionObj.optionInfo.id == 2 ? "制卡成功" : '换卡成功');
+          this.$message.success(
+            this.optionObj.optionInfo.id == 2 ? "制卡成功" : "换卡成功"
+          );
           this.onCancelDrawer("", true);
         } else {
           this.readCard();
@@ -214,7 +252,7 @@ export default {
       }
     },
 
-    async submitEditVipInfoHandle(){
+    async submitEditVipInfoHandle() {
       const params = {
         id: this.currentItemInfo.id * 1, //   int64   会员卡Id
         contact_phone: this.updateVipInfoObj.connectPhoneNum, // string  联系手机号
@@ -224,13 +262,14 @@ export default {
         mark: this.updateVipInfoObj.markVal, //       string     //Mark 标签
         expired_type: this.updateVipInfoObj.timeLongVal * 1, // int        //ExpiredType 过期类型
         sms_type_ids: this.updateVipInfoObj.messageList
-          .filter(item => item.checked)
-          .map(item => item.id * 1) // []int        //SmsTypeIds 订阅消息列表
+          .filter((item) => item.checked)
+          .map((item) => item.id * 1), // []int        //SmsTypeIds 订阅消息列表
+        sales_emp_id: this.updateVipInfoObj.personVal, //
       };
       try {
         const res = await api_vip.reqUpdateVipCard(params);
         if (res.code == 1) {
-          this.confirmEditVipInfo = false
+          this.confirmEditVipInfo = false;
           this.$message.success("编辑成功");
           this.onCancelDrawer();
         } else {
@@ -250,13 +289,13 @@ export default {
       switch (this.optionObj.optionInfo.id * 1) {
         case 1:
           // 编辑会员信息
-          this.confirmEditVipInfo = true
+          this.confirmEditVipInfo = true;
           break;
         case 3:
           // 更改会员等级
           params = {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
-            card_level_id: this.updateVipDeepInfoObj.vipDeepVal * 1 // int64  卡等级
+            card_level_id: this.updateVipDeepInfoObj.vipDeepVal * 1, // int64  卡等级
           };
           try {
             const res = await api_vip.reqUpdateVipCardDeep(params);
@@ -274,7 +313,7 @@ export default {
           // 更改/绑定手机号
           params = {
             m: this.updateVipPhoneNumObj.phoneNum, //   string    手机号
-            c: this.updateVipPhoneNumObj.validateVal //    string   验证码
+            c: this.updateVipPhoneNumObj.validateVal, //    string   验证码
           };
 
           if (params.c.length != 5) {
@@ -284,7 +323,7 @@ export default {
           try {
             const res = await api_vip.reqValidatePhoneMsg(params);
             if (res.code == 1) {
-              this.submitUpdatePhoneNumHandle(res.data.c)
+              this.submitUpdatePhoneNumHandle(res.data.c);
             } else {
               this.$message.warning(res.msg);
             }
@@ -299,15 +338,23 @@ export default {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
           };
           try {
-            const res = this.currentItemInfo.rs == 1 ? await api_vip.reqAbleVipCard(params) : await api_vip.reqEnableVipCard(params);
+            const res =
+              this.currentItemInfo.rs == 1
+                ? await api_vip.reqAbleVipCard(params)
+                : await api_vip.reqEnableVipCard(params);
             if (res.code == 1) {
-              this.$message.success(`${this.currentItemInfo.rs == 1 ? '挂失' : '解除挂失'}成功`);
+              this.$message.success(
+                `${this.currentItemInfo.rs == 1 ? "挂失" : "解除挂失"}成功`
+              );
               this.onCancelDrawer();
             } else {
               this.$message.warning(res.msg);
             }
           } catch (error) {
-            console.log(`${this.currentItemInfo.rs == 1 ? '挂失' : '解除挂失'}会员卡失败`, error);
+            console.log(
+              `${this.currentItemInfo.rs == 1 ? "挂失" : "解除挂失"}会员卡失败`,
+              error
+            );
           }
 
           break;
@@ -315,20 +362,20 @@ export default {
           // 退卡
           params = {
             mb_card_id: this.currentItemInfo.id * 1, //   int64   会员卡Id
-            remark: this.backVipCardInfoObj.reason  //   string     //Remark 退卡原因
+            remark: this.backVipCardInfoObj.reason, //   string     //Remark 退卡原因
           };
 
-          if(!params.remark) return this.$message.warning('请输入退卡理由')
+          if (!params.remark) return this.$message.warning("请输入退卡理由");
           try {
             const res = await api_vip.reqBackVipCard(params);
             if (res.code == 1) {
-              this.$message.success('退卡成功');
+              this.$message.success("退卡成功");
               this.onCancelDrawer();
             } else {
               this.$message.warning(res.msg);
             }
           } catch (error) {
-            console.log('退卡失败', error);
+            console.log("退卡失败", error);
           }
 
           break;
@@ -336,14 +383,15 @@ export default {
         case 8:
           // 扣款
           params = {
-            id: this.currentItemInfo.id * 1,    //   int64   会员卡Id
+            id: this.currentItemInfo.id * 1, //   int64   会员卡Id
             val_amt: this.subMoneyVipCardInfoObj.addAmt, //    string  有价金额(最多支持两位小数)
-            free_amt: this.subMoneyVipCardInfoObj.zSAmt || '0', //   string   赠送金额(最多支持两位小数)
+            free_amt: this.subMoneyVipCardInfoObj.zSAmt || "0", //   string   赠送金额(最多支持两位小数)
             oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
             type_id: this.subMoneyVipCardInfoObj.subType * 1, //    int   操作类型, 1业务扣款 2充错扣款
           };
 
-          if (params.val_amt.length <= 0) return this.$message.warning("请输入储值金额");
+          if (params.val_amt.length <= 0)
+            return this.$message.warning("请输入储值金额");
           try {
             const res = await api_vip.reqSubMoneyFromCard(params);
             if (res.code == 1) {
@@ -360,7 +408,7 @@ export default {
         case 9:
           // 注销
           params = {
-            mb_card_id: this.currentItemInfo.id * 1,  // int64   虚拟卡Id
+            mb_card_id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
             val_balance: this.deleteVipCardInfoObj.val_bal, // string  储值余额, 做二次认证用
             free_balance: this.deleteVipCardInfoObj.free_bal, // string   赠送余额, 做二次认证用
           };
@@ -387,7 +435,7 @@ export default {
         const params = {
           id: this.currentItemInfo.id * 1, //   int64   会员卡Id
           bind_phone_auth_code: phoneValidateStr, // string  认证手机授权码
-          bind_phone: this.updateVipPhoneNumObj.phoneNum // string   认证手机
+          bind_phone: this.updateVipPhoneNumObj.phoneNum, // string   认证手机
         };
         try {
           const res = await api_vip.reqUpdateVipCardBindPhoneNum(params);
@@ -407,8 +455,8 @@ export default {
           bind_phone_auth_code: phoneValidateStr, // string  认证手机授权码
           bind_phone: this.updateVipPhoneNumObj.phoneNum, // string     //BindPhone 认证手机
           sms_type_ids: this.updateVipPhoneNumObj.messageList
-            .filter(item => item.checked)
-            .map(item => item.id * 1) //  []int   订阅消息列表
+            .filter((item) => item.checked)
+            .map((item) => item.id * 1), //  []int   订阅消息列表
         };
         try {
           const res = await api_vip.reqBindVipCardPhoneNum(params);
@@ -425,24 +473,24 @@ export default {
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
-    }
+    },
   },
   mounted() {},
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
+      default: false, // 是否显示drawer
     },
     optionObj: {
       default: {
         optionInfo: {},
-        currentInfo: {}
-      }
-    }
+        currentInfo: {},
+      },
+    },
   },
   computed: {
     title() {
       return this.optionObj.optionInfo ? this.optionObj.optionInfo.name : "";
-    }
+    },
   },
   components: {
     updateVipInfo,
@@ -453,7 +501,7 @@ export default {
     changeCard,
     backVipCard,
     subMoneyFromVipCard,
-    destroyVipCard
+    destroyVipCard,
   },
   watch: {
     showDrawer: {
@@ -485,8 +533,7 @@ export default {
                 break;
               case 5:
                 // 挂失/解除挂失
-                this.$refs.enAbledRef &&
-                  this.$refs.enAbledRef.getVipInfo();
+                this.$refs.enAbledRef && this.$refs.enAbledRef.getVipInfo();
                 break;
               case 6:
                 // 换卡
@@ -496,18 +543,15 @@ export default {
                 break;
               case 7:
                 // 退卡
-                this.$refs.backCardRef &&
-                  this.$refs.backCardRef.getVipInfo();
+                this.$refs.backCardRef && this.$refs.backCardRef.getVipInfo();
                 break;
               case 8:
                 // 扣款
-                this.$refs.subMoneyRef &&
-                  this.$refs.subMoneyRef.getVipInfo();
+                this.$refs.subMoneyRef && this.$refs.subMoneyRef.getVipInfo();
                 break;
               case 9:
                 // 扣款
-                this.$refs.destroyRef &&
-                  this.$refs.destroyRef.getVipInfo();
+                this.$refs.destroyRef && this.$refs.destroyRef.getVipInfo();
                 break;
             }
           });
@@ -515,16 +559,16 @@ export default {
           this.$emit("getTableData", true);
         }
       },
-      immediate: true
+      immediate: true,
     },
     optionObj: {
       handler(newVal) {
         this.currentItemInfo = JSON.parse(JSON.stringify(newVal.currentInfo));
       },
       immediate: true,
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 };
 </script>
 

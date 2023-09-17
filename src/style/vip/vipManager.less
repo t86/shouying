@@ -1,7 +1,7 @@
 .vip-manager {
   .search {
     display: grid;
-    grid-template-columns: 300px 400px;
+    grid-template-columns: 350px 300px 300px;
     grid-gap: 10px;
 
     .row {
@@ -21,27 +21,28 @@
       min-width: 1750px;
 
       .thead .th {
-        background-color: #BEC5D5;
+        background-color: #bec5d5;
       }
 
       .tbody .tr {
         &:nth-child(2n) {
           .td {
-            background-color: #BEC5D5;
+            background-color: #bec5d5;
           }
         }
 
         &:nth-child(2n + 1) {
           .td {
-            background-color: #CCD1DC;
+            background-color: #ccd1dc;
           }
         }
       }
 
       .tr {
         position: relative;
-        
-        .th,.td{
+
+        .th,
+        .td {
           height: 100%;
           min-height: 16px;
         }
@@ -135,21 +136,21 @@
         .td:nth-child(16) {
           width: 120px;
 
-          span{
-            color: #2362D5;
+          span {
+            color: #2362d5;
             cursor: pointer;
           }
         }
 
-        .sj{
+        .sj {
           position: absolute;
           top: 50%;
           transform: translate(-50%, -50%);
           width: 0px;
           height: 0px;
           border: 10px solid transparent;
-          border-right-color: #D1D5E0;
-          filter: drop-shadow(2px, 0px, 2px,rgba(26, 26, 33, 0.15););
+          border-right-color: #d1d5e0;
+          filter: drop-shadow(2px, 0px, 2px, rgba(26, 26, 33, 0.15) ;);
           // border-right-color: red;
           z-index: 2;
         }
@@ -158,37 +159,35 @@
           top: 50%;
           transform: translate(-50%, 0px);
           width: 152px;
-          background: #D1D5E0;
+          background: #d1d5e0;
           box-shadow: 0px 12px 20px 0px rgba(26, 26, 33, 0.15);
           z-index: 1;
           border-radius: 10px;
           overflow: hidden;
-          li.item{
+          li.item {
             padding: 0 20px;
             box-sizing: border-box;
             cursor: pointer;
-            &:hover{
-              background-color: #C3C9D8;
+            &:hover {
+              background-color: #c3c9d8;
             }
-            >div{
+            > div {
               padding: 10px 0;
-              border-bottom: 1px solid #DDE0E9;
+              border-bottom: 1px solid #dde0e9;
             }
           }
         }
-
       }
     }
   }
 }
-
 
 /deep/.el-range-input {
   background: #d1d5e0;
 }
 
 /deep/.el-range-input::placeholder {
-  color: #8C8C8C;
+  color: #8c8c8c;
 }
 
 /deep/.el-input__inner {

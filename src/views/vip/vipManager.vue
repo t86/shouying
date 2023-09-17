@@ -50,6 +50,27 @@
           </el-option>
         </el-select>
       </div>
+      <div class="row">
+        <span class="label">开卡推荐人:</span>
+        <el-select
+          style="width: 216px"
+          v-model="form.personVal"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="输入员工姓名或工号可查询"
+          :remote-method="remoteMethod"
+          :loading="remoteLoading"
+          size="small"
+        >
+          <el-option
+            v-for="item in personOptions"
+            :key="item.id"
+            :label="item.name + ' (' + item.code + ')'"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </div>
       <div class="row" layout="row" layout-align="start center">
         <el-input
           class="m-r-2"
@@ -113,6 +134,7 @@
             <div class="th">会员标签</div>
             <div class="th">总余额</div>
             <div class="th">积分</div>
+            <div class="th">开卡推荐人</div>
             <div class="th">最后消费日期</div>
             <div class="th">注册日期</div>
             <div class="th">到期日期</div>
@@ -146,6 +168,7 @@
             <div class="td">{{ item.m }}</div>
             <div class="td fs16-bold">{{ item.ba }}</div>
             <div class="td"></div>
+            <div class="td">{{ item.se }}</div>
             <div class="td">{{ item.lc }}</div>
             <div class="td">{{ item.r }}</div>
             <div class="td">{{ item.e }}</div>
@@ -275,7 +298,9 @@ export default {
         deepVal: "",
         deepOption: [],
         keyword: "",
+        personVal: "",
       },
+      remoteLoading: false,
       tableData: [],
       showAddVipDrawer: false,
       showOptionDrawer: false, // 是否显示table中option相关操作
@@ -318,6 +343,7 @@ export default {
         card_type_id: this.form.typeVal, // int64    卡类型Id
         card_level_id: this.form.deepVal, // int64   卡等级Id
         key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
+        sales_emp_key: this.form.personVal, // string 开卡推荐人关键字
       };
       try {
         const res = await api_vip.reqGetVipCardList(params);
@@ -471,6 +497,19 @@ export default {
           }
           this.modalInfo.modalText = modalText + "，" + count + "秒后将关闭";
         }, 1000);
+      }
+    },
+    remoteMethod(query) {
+      if (query !== "") {
+        this.remoteLoading = true;
+        const result =
+          this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        this.personOptions = result.filter(
+          (item) => item.code.includes(query) || item.name.includes(query)
+        );
+        this.remoteLoading = false;
+      } else {
+        this.options = [];
       }
     },
   },

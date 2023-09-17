@@ -31,7 +31,7 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 export default {
   data() {
@@ -42,56 +42,66 @@ export default {
   methods: {
     validator() {
       if (this.stationName == "") {
-        this.$message.warning("请输入岗位名称")
-        return false
+        this.$message.warning("请输入岗位名称");
+        return false;
       } else if (this.$overall.character(this.stationName) > 20) {
-        this.$message.warning("输入文字长度超过10")
-        return false
+        this.$message.warning("输入文字长度超过10");
+        return false;
       }
-      return true
+      return true;
     },
 
     async onSubmit() {
-      if(!this.validator()) return
+      if (!this.validator()) return;
       const params = {
-        ...this.type == 1 && {name: this.stationName || ''},
-        ...this.type == 2 && {n: this.stationName || ''},
-        ...this.type == 2 && {id : this.currentInfo.id},
+        ...(this.type == 1 && { name: this.stationName || "" }),
+        ...(this.type == 2 && { n: this.stationName || "" }),
+        ...(this.type == 2 && { id: this.currentInfo.id }),
+        ...(this.type == 3 && { name: this.stationName || "" }),
+        ...(this.type == 3 && { from_station_id: this.currentInfo.id || "" }),
       };
       try {
-        const api = this.type == 1 ? 'requestStationNew' : 'requestStationSave'
-        const res = await this.$api.BMS.station[api](params)
-        if(res.code == 1) {
-          this.onCancelDrawer()
-          this.$emit('getTableData')
-          this.$message.success('操作成功')
+        const api = {
+          1: "requestStationNew",
+          2: "requestStationSave",
+          3: "reqCreateNewFrom",
+        };
+        const res = await this.$api.BMS.station[api[this.type]](params);
+        if (res.code == 1) {
+          this.onCancelDrawer();
+          this.$emit("getTableData");
+          this.$message.success("操作成功");
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('新增失败', error);
+        console.log("操作失败", error);
       }
     },
 
     onCancelDrawer() {
       this.show = false;
-    }
+    },
   },
   mounted() {},
   props: {
     value: {
-      default: false // 是否显示drawer
+      default: false, // 是否显示drawer
     },
     type: {
-      default: 1
+      default: 1,
     },
     currentInfo: {
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   computed: {
     title() {
-      return this.type == 1 ? "新增岗位" : "编辑岗位";
+      return this.type == 1
+        ? "新增岗位"
+        : this.type == 2
+        ? "编辑岗位"
+        : "类似岗位";
     },
 
     show: {
@@ -101,23 +111,23 @@ export default {
 
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
   watch: {
     value: {
       handler(newVal) {
         if (newVal) {
-          if (this.type == 1) {
+          if (this.type == 1 || this.type == 3) {
             this.stationName = "";
           } else {
-            this.stationName = this.currentInfo.n || ''
+            this.stationName = this.currentInfo.n || "";
           }
         }
       },
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 };
 </script>
 

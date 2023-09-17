@@ -32,7 +32,12 @@
         </button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
       </div>
-      <div class="row m-t-4" layout="row" layout-align="start center">
+      <div
+        class="row m-t-4"
+        layout="row"
+        layout-align="start center"
+        v-if="$store.getters.vipAuth"
+      >
         <button class="btn primary" @click="showOrHideDrawerHandle">
           新增
         </button>

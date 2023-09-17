@@ -9,10 +9,14 @@
     >
       <div class="content">
         <div class="session m-b-10">
-          <stepOne v-if="status==1" :stepOneInfo="stepOneInfo" @updateStepInfo="updateStepInfo" />
+          <stepOne
+            v-if="status == 1"
+            :stepOneInfo="stepOneInfo"
+            @updateStepInfo="updateStepInfo"
+          />
           <stepTwo
             ref="stepTwo"
-            v-if="status==2"
+            v-if="status == 2"
             :tabIndex="stepOneInfo.tabIndex"
             :customPhoneNum="stepOneInfo.customPhoneNum"
             :stepTwoInfo="stepTwoInfo"
@@ -28,9 +32,16 @@
           />
         </div>
         <!-- 提交按钮 -->
-        <div class="form-btn" v-if="status!=2" layout="row" layout-align="center center">
+        <div
+          class="form-btn"
+          v-if="status != 2"
+          layout="row"
+          layout-align="center center"
+        >
           <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-          <el-button type="primary" @click.stop="onSubmit">{{submitTxt}}</el-button>
+          <el-button type="primary" @click.stop="onSubmit">{{
+            submitTxt
+          }}</el-button>
         </div>
       </div>
     </el-drawer>
@@ -41,6 +52,7 @@
 import api_vip from "@/api/vip";
 import api_money from "@/api/money";
 import api_saveWine from "@/api/saveWine";
+import api_wine from "@/api/wine";
 
 import stepOne from "./stepOne.vue";
 import stepTwo from "./stepTwo.vue";
@@ -59,40 +71,42 @@ export default {
         superValidate: "", // 超级授权码
         needAuthPhoneVal: true, // 是否需要手机号验证码
         orderList: [],
-        phoneValidateStr: "" // 手机号授权认证
+        phoneValidateStr: "", // 手机号授权认证
       },
 
-      stepTwoInfo: {}
+      stepTwoInfo: {},
     };
   },
   methods: {
-    init(){
+    init() {
       this.getStepOneData();
       this.stepOneInfo = {
         tabIndex: 1,
         authValidateVal: "", // 服务码
-        superValidate: '',  // 超级授权码
+        superValidate: "", // 超级授权码
         phoneNum: "", // 手机号
         customName: "", // 手机号
         validateVal: "", // 验证码
-        customPhoneName: '', // 客户中心存酒客户姓名
+        customPhoneName: "", // 客户中心存酒客户姓名
         needAuthPhoneVal: true, // 是否需要手机号验证码
         orderList: [],
-        phoneValidateStr: "" // 手机号授权认证
-      }
+        phoneValidateStr: "", // 手机号授权认证
+      };
     },
     async getStepOneData() {
       const params = {
-        seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1 //    int64   待操作卡台Id
+        seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1, //    int64   待操作卡台Id
       };
       try {
         const res = await api_saveWine.reqGetCustomOrderList(params);
         if (res.code == 1) {
-          this.stepOneInfo.orderList = (res.data.records || []).map((item, index) => ({
-            ...item,
-            checked: index == 0
-          }));
-          this.stepOneInfo.needAuthPhoneVal = res.data.cust_in_need_sms == 1
+          this.stepOneInfo.orderList = (res.data.records || []).map(
+            (item, index) => ({
+              ...item,
+              checked: index == 0,
+            })
+          );
+          this.stepOneInfo.needAuthPhoneVal = res.data.cust_in_need_sms == 1;
         } else {
           this.$message.warning(res.msg);
         }
@@ -105,7 +119,7 @@ export default {
     async validatePhoneInfo() {
       const params = {
         m: this.stepOneInfo.phoneNum, //   string    手机号
-        c: this.stepOneInfo.validateVal //    string   验证码
+        c: this.stepOneInfo.validateVal, //    string   验证码
       };
 
       if (params.c.length != 5) {
@@ -125,10 +139,29 @@ export default {
       }
     },
 
+    // 手机号验证
+    async validateBlackList() {
+      const params = {
+        key: this.stepOneInfo.customPhoneNum, //   string   搜索关键字
+      };
+
+      try {
+        const res = await api_wine.reqGetBlackList(params);
+        if (res.code == 1 && res.data.records && res.data.records.length > 0) {
+          this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
+          return false;
+        }
+      } catch (error) {
+        this.$message.warning("黑名单服务验证异常，稍后重试");
+        return false;
+      }
+      return true;
+    },
+
     // 服务码验证
     async validateValidateInfo() {
       const params = {
-        pay_code: this.stepOneInfo.authValidateVal //    string   付款码
+        pay_code: this.stepOneInfo.authValidateVal, //    string   付款码
       };
       if (params.pay_code.length != 6) {
         this.$message.warning("请输入正确的六位服务码序列号");
@@ -159,17 +192,24 @@ export default {
               this.stepOneInfo.phoneNum.length != 11
             )
               return this.$message.warning("请输入正确的11位手机号码");
-            result = this.stepOneInfo.needAuthPhoneVal ? await this.validatePhoneInfo() : true;
-          } else if (this.stepOneInfo.tabIndex == 3){
+            result = this.stepOneInfo.needAuthPhoneVal
+              ? await this.validatePhoneInfo()
+              : true;
+          } else if (this.stepOneInfo.tabIndex == 3) {
             // 客户中心手机号
             // if(this.stepOneInfo.customPhoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");
-            result = true
+            result = await this.validateBlackList();
           } else if (this.stepOneInfo.tabIndex == 4) {
             // 手机验证码
-            if (!this.stepOneInfo.phoneNum || this.stepOneInfo.phoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");
+            if (
+              !this.stepOneInfo.phoneNum ||
+              this.stepOneInfo.phoneNum.length != 11
+            )
+              return this.$message.warning("请输入正确的11位手机号码");
             // 超级授权码
-            if(this.stepOneInfo.superValidate.length != 7) return this.$message.warning("请输入正确的7位超级授权码");
-            result = true
+            if (this.stepOneInfo.superValidate.length != 7)
+              return this.$message.warning("请输入正确的7位超级授权码");
+            result = true;
           } else {
             // 服务码
             result = await this.validateValidateInfo();
@@ -196,10 +236,10 @@ export default {
     onCancelDrawer(isClose) {
       if (isClose || this.status == 1) this.show = false;
       else this.status -= 1;
-    }
+    },
   },
   props: {
-    value: false
+    value: false,
   },
   computed: {
     show: {
@@ -208,10 +248,10 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
+      },
     },
     checkedOrderInfo() {
-      const find = this.stepOneInfo.orderList.find(item => item.checked);
+      const find = this.stepOneInfo.orderList.find((item) => item.checked);
       return find || {};
     },
     title() {
@@ -244,28 +284,28 @@ export default {
           break;
       }
       return txt;
-    }
+    },
   },
   components: {
     stepOne,
-    stepTwo
+    stepTwo,
   },
   watch: {
     value(newVal) {
       this.show = newVal;
       if (newVal) {
         this.status = 1;
-        this.init()
+        this.init();
       }
     },
     status(newVal) {
-      if(newVal == 2) {
+      if (newVal == 2) {
         this.$nextTick(() => {
-          this.$refs.stepTwo.init()
-        })
+          this.$refs.stepTwo.init();
+        });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -284,4 +284,8 @@ export default {
   // 读取可用会员卡号,用于创建卡
   reqCreateVipCardNo: (params) =>
     axios.post(`${base.htgl}/mb/card/get_next_no`, params),
+
+  // 开卡推荐人列表
+  reqGetRecommnedList: (params) =>
+    axios.post(`${base.htgl}/mb/card/list`, params),
 };
