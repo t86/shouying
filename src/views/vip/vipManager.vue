@@ -343,7 +343,7 @@ export default {
         card_type_id: this.form.typeVal, // int64    卡类型Id
         card_level_id: this.form.deepVal, // int64   卡等级Id
         key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
-        sales_emp_key: this.form.personVal, // string 开卡推荐人关键字
+        sales_emp_id: this.form.personVal * 1, // string 开卡推荐人关键字
       };
       try {
         const res = await api_vip.reqGetVipCardList(params);
