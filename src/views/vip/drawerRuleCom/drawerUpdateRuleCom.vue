@@ -49,7 +49,9 @@ export default {
   methods: {
     async submitHandle() {
       const params = {
-        prd_ids: this.addedSeatListId.map((id) => id * 1),
+        prd_ids: this.addedSeatList
+          .filter((item) => item.checked * 1)
+          .map((item) => item.id),
         type_id: this.ruleValue * 1, //   []int64   待添加商品列表
       };
 
@@ -90,6 +92,7 @@ export default {
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
+      this.ruleValue = "";
     },
   },
 };
