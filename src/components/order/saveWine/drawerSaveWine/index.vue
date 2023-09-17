@@ -172,7 +172,10 @@ export default {
         if (res.code == 1) {
           this.stepOneInfo.phoneNum = res.data.p;
           this.stepOneInfo.phoneValidateStr = res.data.c;
-          return res.data.c;
+          this.stepOneInfo.customPhoneNum = res.data.p;
+          if (await this.validateBlackList()) {
+            return res.data.c;
+          }
         } else {
           this.$message.warning(res.msg);
         }
@@ -192,9 +195,12 @@ export default {
               this.stepOneInfo.phoneNum.length != 11
             )
               return this.$message.warning("请输入正确的11位手机号码");
-            result = this.stepOneInfo.needAuthPhoneVal
-              ? await this.validatePhoneInfo()
-              : true;
+            // if(this.stepOneInfo.customPhoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");
+            if (await this.validateBlackList()) {
+              result = this.stepOneInfo.needAuthPhoneVal
+                ? await this.validatePhoneInfo()
+                : true;
+            }
           } else if (this.stepOneInfo.tabIndex == 3) {
             // 客户中心手机号
             // if(this.stepOneInfo.customPhoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");

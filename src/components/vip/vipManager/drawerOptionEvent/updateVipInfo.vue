@@ -200,6 +200,7 @@ export default {
           return time.getTime() > Date.now();
         },
       },
+      originInfo: {},
     };
   },
   methods: {
@@ -230,6 +231,11 @@ export default {
             ...item,
             checked: reg_sms_types.includes(item.id),
           }));
+          this.originInfo = {
+            userName: card_info.name,
+            sexVal: card_info.sex.toString(),
+            birthdayVal: card_info.birthday,
+          };
         } else {
           this.$message.warning(res.msg);
         }
@@ -259,6 +265,15 @@ export default {
   watch: {
     form: {
       handler(newVal) {
+        if (
+          newVal.userName !== this.originInfo.userName ||
+          newVal.sexVal !== this.originInfo.sexVal ||
+          newVal.birthdayVal !== this.originInfo.birthdayVal
+        ) {
+          newVal.show = true;
+        } else {
+          newVal.show = false;
+        }
         this.$emit("updateInfoHandle", newVal);
       },
       deep: true,

@@ -289,7 +289,11 @@ export default {
       switch (this.optionObj.optionInfo.id * 1) {
         case 1:
           // 编辑会员信息
-          this.confirmEditVipInfo = true;
+          this.confirmEditVipInfo =
+            this[this.optionObj.optionInfo.objName].show;
+          if (!this.confirmEditVipInfo) {
+            this.submitEditVipInfoHandle();
+          }
           break;
         case 3:
           // 更改会员等级
