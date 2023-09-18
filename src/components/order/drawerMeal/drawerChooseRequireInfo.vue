@@ -32,7 +32,7 @@
             >{{item1.name}}</div>
           </div>
         </div>
-        <div class="textarea p-t-1" v-if="isNotAndroid && isShowOther">
+        <div class="textarea p-t-1" v-if="isNotAndroid && requireList.length>0">
           <div style="color:rgba(255,255,255,0.8);margin: 3px 0 6px 0px">其他要求</div>
           <textarea v-model="textareaText" placeholder="请输入自定义要求" maxlength="30"></textarea>
           <div class="tips">{{textareaText.length}} / 30</div>
@@ -201,17 +201,6 @@ export default {
         console.log('获取终端类型失败', error)
       }
       return termType != 'android'
-    },
-    isShowOther(){
-
-      // 判断requireList中是否有选中项
-      let isShow = false
-      this.requireList.forEach(item => {
-        item.requireList.forEach(item1 => {
-          if(item1.checked) isShow = true
-        })
-      })
-      return isShow
     }
   }
 };
