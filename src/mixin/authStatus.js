@@ -15,9 +15,10 @@ export default {
        */
 
       // 所有商品不限点的岗位id(可点商品没有限制的岗位id)
-      const notLimitStationId = this.$store.state.cardPageInfo.resResultDataObj[
+     const jobLimitInfoLis =  this.$store.state.cardPageInfo.resResultDataObj[
         "jobLimitInfo"
-      ].filter(
+      ] || [];
+      const notLimitStationId = jobLimitInfoLis.filter(
         (item) => item.status == 1 && this.authStationId == item.stationId
       );
 
@@ -25,9 +26,10 @@ export default {
         this.authStatusArr = [...new Set([...this.authStatusArr, 1])];
       } else {
         // 所有岗位可点的有效二级分类
-        const secondCategory = this.$store.state.cardPageInfo.resResultDataObj[
+       const jobSecondLimitInfo =  this.$store.state.cardPageInfo.resResultDataObj[
           "jobSecondLimitInfo"
-        ].filter(
+        ] || [];
+        const secondCategory = jobSecondLimitInfo.filter(
           (item) => item.status == 1 && this.authStationId == item.stationId
         );
         if (secondCategory.length > 0)
@@ -55,9 +57,11 @@ export default {
        * 判断是否有花篮/小费权限身份
        */
       // 关联花篮/小费商品
-      const authFlowerPrdList = this.$store.state.cardPageInfo.resResultDataObj[
+      const authFlowerPrd = this.$store.state.cardPageInfo.resResultDataObj[
         "authFlowerPrdList"
-      ].filter(
+      ]|| [];
+      
+     const authFlowerPrdList = authFlowerPrd.filter(
         (item) => item.status == 1 && this.authStationId == item.station_id
       );
       if (authFlowerPrdList.length > 0)
@@ -71,9 +75,9 @@ export default {
 
     // 获取营销身份的可点商品id  参数：type:2:优惠  3：优惠2
     getSealConfigPrdId(type = 2) {
+      const roleLimitConfig = this.$store.state.cardPageInfo.resResultDataObj["roleLimitConfig"] || []
       const limitRoleFreeLimitIdList =
-        this.$store.state.cardPageInfo.resResultDataObj["roleLimitConfig"]
-          .filter(
+      roleLimitConfig.filter(
             (item) =>
               item.status == 1 &&
               item.station_id == this.authStationId &&
@@ -82,10 +86,11 @@ export default {
           .map((item) => item.free_limit_id * 1);
 
       // 商品id
-      const prdList = this.$store.state.cardPageInfo.resResultDataObj[
+      const limitPrdDetail =this.$store.state.cardPageInfo.resResultDataObj[
         "limitPrdDetail"
-      ]
-        .filter(
+      ] || []
+      const prdList = 
+       limitPrdDetail.filter(
           (item) =>
             item.status == 1 &&
             limitRoleFreeLimitIdList.includes(item.free_limit_id * 1)

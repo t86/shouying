@@ -194,6 +194,7 @@ export default {
         messageList: [],
         personVal: "",
       },
+      personOptions:[],
       remoteLoading: false,
       pickerOptions: {
         disabledDate(time) {
