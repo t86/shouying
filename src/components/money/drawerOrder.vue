@@ -10,8 +10,47 @@
     >
       <div class="order-detail">
         <div class="top" layout="row" layout-align="space-between center">
+          <div class="row">
+            <span class="label">商品类型:</span>
+            <el-select
+              v-model="form.prodType"
+              size="small"
+              placeholder="请选择商品类型"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in form.prodOptions"
+                :key="item.id"
+                :label="item.n"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+
+          <div class="row">
+            <span class="label">营业类型:</span>
+            <el-select
+              v-model="form.businessType"
+              size="small"
+              placeholder="请选择营业类型"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in form.businessOptions"
+                :key="item.id"
+                :label="item.n"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+
           <div class="top-left" layout="row" layout-align="start center">
-            <input v-model="keyword" placeholder="订台人/点单人/商品名称" />
+            <input
+              v-model="form.keyword"
+              placeholder="订台人/点单人/商品名称"
+            />
             <el-button
               class="m-l-2"
               type="primary"
@@ -100,7 +139,13 @@ export default {
   data() {
     return {
       show: false,
-      keyword: "",
+      form: {
+        keyword: "",
+        prodType: "",
+        businessType: "",
+        prodOptions: [],
+        businessOptions: [],
+      },
       tableData: [],
     };
   },
@@ -108,7 +153,7 @@ export default {
     // 获取数据
     async getTableData() {
       const params = {
-        key: this.keyword, //  string  查询关键字
+        key: this.form.keyword, //  string  查询关键字
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
@@ -125,7 +170,7 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
-        key: this.keyword, //  string  查询关键字
+        key: this.form.keyword, //  string  查询关键字
       };
 
       try {
@@ -156,7 +201,7 @@ export default {
     },
 
     resetHandle() {
-      this.keyword = "";
+      this.form = {};
       this.getTableData();
     },
   },
