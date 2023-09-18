@@ -6,6 +6,7 @@ import "./style/common/elementDateTimePicker.less";
 
 import { projectName } from "./utils/config/projectConfig";
 import VConsole from "vconsole";
+import { globalError } from "./utils/globalError";
 // if(projectName !== 'store') new VConsole();
 
 import { sessionStorage, localStorage } from "./utils/common/storage";
@@ -15,6 +16,7 @@ import Observer from "./observer";
 Vue.prototype.$observer = Observer;
 Vue.prototype.$sessionStorage = sessionStorage;
 Vue.prototype.$localStorage = localStorage;
+Vue.prototype.$globalError = globalError;
 
 import less from "less";
 Vue.use(less);
