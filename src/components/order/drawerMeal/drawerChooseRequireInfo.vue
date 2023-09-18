@@ -37,9 +37,6 @@
           <textarea v-model="textareaText" placeholder="请输入自定义要求" maxlength="30"></textarea>
           <div class="tips">{{textareaText.length}} / 30</div>
         </div>
-        <div class="white m-t-6 fs16" style="text-align:center" v-if="!showSelectedCount&&requireList.length == 0 && !isNotAndroid ">
-          当前商品暂无可配置要求项
-        </div>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
