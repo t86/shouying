@@ -32,11 +32,14 @@
             >{{item1.name}}</div>
           </div>
         </div>
-        <div class="textarea p-t-1" v-if="isNotAndroid">
+        <div class="textarea p-t-1" v-if="isNotAndroid && isShowOther">
           <div style="color:rgba(255,255,255,0.8);margin: 3px 0 6px 0px">其他要求</div>
           <textarea v-model="textareaText" placeholder="请输入自定义要求" maxlength="30"></textarea>
           <div class="tips">{{textareaText.length}} / 30</div>
         </div>
+      </div>
+      <div class="white m-t-6 fs16" style="text-align:center" v-if="!showSelectedCount&&requireList.length == 0 || !isNotAndroid ">
+          当前商品暂无可配置要求项
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
@@ -61,7 +64,6 @@ export default {
       textareaText: "",
       requireList: [],
       selectedCount: 1, // 可选单品的选中次数
-
       imgSrc: {
         add,
         sub,
@@ -199,6 +201,17 @@ export default {
         console.log('获取终端类型失败', error)
       }
       return termType != 'android'
+    },
+    isShowOther(){
+
+      // 判断requireList中是否有选中项
+      let isShow = false
+      this.requireList.forEach(item => {
+        item.requireList.forEach(item1 => {
+          if(item1.checked) isShow = true
+        })
+      })
+      return isShow
     }
   }
 };
