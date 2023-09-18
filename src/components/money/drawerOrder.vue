@@ -84,6 +84,8 @@
               <div class="th">商品一级分类</div>
               <div class="th">商品二级分类</div>
               <div class="th">商品名称</div>
+              <div class="th">商品类型</div>
+              <div class="th">营业类型</div>
               <div class="th">点单数量</div>
               <div class="th">点单金额</div>
               <div class="th">实收金额</div>
@@ -108,6 +110,8 @@
               <div class="td">{{ item.po }}</div>
               <div class="td">{{ item.pt }}</div>
               <div class="td">{{ item.p }}</div>
+              <div class="td">{{ item.pd }}</div>
+              <div class="td">{{ item.bt }}</div>
               <div class="td">{{ item.c }}</div>
               <div class="td">{{ item.a }}</div>
               <div class="td">{{ item.v }}</div>
@@ -140,8 +144,8 @@ export default {
     return {
       show: false,
       form: {
-        keyword: "",
-        prodType: "",
+        keyword: 0,
+        prodType: 0,
         businessType: "",
         prodOptions: [],
         businessOptions: [],
@@ -154,11 +158,15 @@ export default {
     async getTableData() {
       const params = {
         key: this.form.keyword, //  string  查询关键字
+        prd_type: this.form.prodType, // int 商品类型id
+        biz_type: this.form.businessType, // int 营业类型id
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
         if (res.code == 1) {
           this.tableData = res.data.records || [];
+          this.form.businessOptions = res.data.biz_types;
+          this.form.prodOptions = res.data.prd_type;
         } else {
           this.$message.warning(res.msg);
         }
@@ -171,6 +179,8 @@ export default {
     async exportExcel() {
       const params = {
         key: this.form.keyword, //  string  查询关键字
+        prd_type: this.form.prodType, // int 商品类型id
+        biz_type: this.form.businessType, // int 营业类型id
       };
 
       try {
@@ -226,3 +236,14 @@ export default {
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
 </style>
+
+<style>
+.el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
+  background-color: #2a3959;
+}
+.el-select-dropdown__empty {
+  background-color: #2a3959;
+}
+</style>
+
+<style scoped></style>

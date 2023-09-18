@@ -11,7 +11,8 @@
             v-for="item in dateOptions"
             :key="item.label"
             :label="item.label"
-            :value="item.label">
+            :value="item.label"
+          >
           </el-option>
         </el-select>
       </div>
@@ -22,30 +23,35 @@
         <span class="fs14">卡台流水：</span>
       </div>
       <div class="value">
-        <span class="card fs12 m-r-3" v-if="cardInfo.id && orderInfo.id">{{orderInfo.n}}</span>
-        <span class="primary-link cursor fs14" @click="$emit('changeStatus', 2)">{{cardInfo.id && orderInfo.id ? '更改' : '选择卡台流水'}}</span>
+        <span class="card fs12 m-r-3" v-if="cardInfo.id && orderInfo.id">{{
+          orderInfo.n
+        }}</span>
+        <span
+          class="primary-link cursor fs14"
+          @click="$emit('changeStatus', 2)"
+          >{{ cardInfo.id && orderInfo.id ? "更改" : "选择卡台流水" }}</span
+        >
       </div>
     </div>
   </div>
 </template>
- 
+
 <script>
 export default {
   data() {
-    return {
-    };
+    return {};
   },
   props: {
     cardInfo: {
-      default: () => ({})
+      default: () => ({}),
     },
     orderInfo: {
-      default: () => ({})
+      default: () => ({}),
     },
     dateOptions: {
-      default: []
+      default: [],
     },
-    value: ''
+    value: "",
   },
   computed: {
     dateValue: {
@@ -54,13 +60,13 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 .bj {
   color: rgba(255, 255, 255, 0.8);
 
@@ -85,18 +91,18 @@ export default {
 </style>
 <style>
 /* 下拉框 */
-.el-select-dropdown__empty{
-  background-color: #92a5cf!important;
+.el-select-dropdown__empty {
+  background-color: #92a5cf !important;
 }
-.el-scrollbar .el-scrollbar__view.el-select-dropdown__list{
-  background-color: #92a5cf!important;
-}
-
-.el-picker-panel{
-  background-color: #92a5cf!important;
+.el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
+  background-color: #92a5cf !important;
 }
 
-.el-select-dropdown__item{
+.el-picker-panel {
+  background-color: #92a5cf !important;
+}
+
+.el-select-dropdown__item {
   color: #111;
 }
 </style>
