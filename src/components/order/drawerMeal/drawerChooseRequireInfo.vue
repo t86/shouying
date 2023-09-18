@@ -194,7 +194,7 @@ export default {
     }
   },
   computed: {
-    isAndroid(){
+    isNotAndroid(){
       let termType = ''
       try {
         termType = atool.getTermType();
