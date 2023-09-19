@@ -97,75 +97,6 @@
         </el-switch>
       </div>
     </div>
-    <div class="coll" layout="row" layout-align="start center">
-      <div class="label">存酒小票打印功能：</div>
-      <div class="value" layout="row" layout-align="start center">
-        <el-switch v-model="enableStorePrt" active-color="#2170ff"> </el-switch>
-      </div>
-    </div>
-    <div
-      class="coll"
-      layout="row"
-      layout-align="start center"
-      v-if="enableStorePrt"
-    >
-      <div class="label"></div>
-      <div
-        class="value"
-        layout="row"
-        style="margin-top: -15px"
-        layout-align="start center"
-      >
-        <div>开关开启则需要配置存酒小票打印类型</div>
-      </div>
-    </div>
-
-    <div
-      class="coll"
-      layout="row"
-      layout-align="start center"
-      v-if="enableStorePrt"
-    >
-      <div class="label"></div>
-      <div class="value" layout="row" layout-align="start center">
-        <el-radio v-model="storePrtType" label="1">普通打印</el-radio>
-        <el-radio v-model="storePrtType" label="2">标签打印</el-radio>
-      </div>
-    </div>
-
-    <div
-      class="coll"
-      layout="row"
-      layout-align="start center"
-      v-if="enableStorePrt && storePrtType == '2'"
-    >
-      <div class="label">存酒小票标签打印机：</div>
-      <div class="value" layout="row" layout-align="start center">
-        <el-input
-          v-model="labelStorePrtIp"
-          class="m-r-2"
-          size="small"
-          style="width: 180px"
-          @input="validateIP"
-        ></el-input>
-      </div>
-    </div>
-    <div
-      class="coll"
-      layout="row"
-      layout-align="start center"
-      v-if="enableStorePrt && storePrtType == '2'"
-    >
-      <div class="label"></div>
-      <div
-        class="value"
-        layout="row"
-        style="margin-top: -15px"
-        layout-align="start center"
-      >
-        <div>IP地址格式为：a.b.c.d；其中a,b,c,d均为0-255的数字</div>
-      </div>
-    </div>
 
     <div class="modal" v-if="showModal">
       <div class="modal-content">
@@ -224,9 +155,6 @@ export default {
       wineCode: "", // 超级授权码
       needPhoneValidate: true, // 取酒是否需要验证码
       needAuthValidate: true, // 是否需要取酒授权
-      enableStorePrt: true,
-      storePrtType: "1",
-      labelStorePrtIp: "",
 
       showModal: false, // 是否显示模态框
       status: 1, // 1 修改是否发送验证码  2 修改是否需要授权
@@ -253,9 +181,6 @@ export default {
           this.wineCode = res.data.super_auth_code || "";
           this.needPhoneValidate = res.data.cust_in_need_sms == 1;
           this.needAuthValidate = res.data.need_waiter_auth == 1;
-          this.enableStorePrt = res.data.enable_store_prt == 1;
-          this.storePrtType = res.data.store_prt_type + "";
-          this.labelStorePrtIp = res.data.label_store_prt_ip;
           this.setTimeout(() => {
             this.hadLoaded = true;
           }, 1000);
@@ -268,22 +193,7 @@ export default {
     },
 
     async saveHandle() {
-      if (
-        this.enableStorePrt &&
-        this.storePrtType != "1" &&
-        this.storePrtType != "2"
-      ) {
-        this.$message.warning("请选择存酒小票打印类型");
-        return;
-      }
-      if (
-        this.enableStorePrt &&
-        this.storePrtType == "2" &&
-        !this.isValidIP(this.labelStorePrtIp)
-      ) {
-        this.$message.warning("请输入有效的ip地址");
-        return;
-      }
+      
       const params = {
         end_time_flag: this.radioVal * 1, // int    过期时间 1 中午12点过期, 2 晚上24点过期
         full_expired_day: this.day1Val * 1, // int     整瓶过期天数
@@ -291,13 +201,7 @@ export default {
         super_auth_code: this.wineCode, // string   超级授权码,7位数字,授权各类存取酒操作
         cust_in_need_sms: this.needPhoneValidate ? 1 : 2, // int    客户手机号存酒,是否需要手机验证码 1 需要 2 不需要 (如果选择不需要,需要免责条款)
         need_waiter_auth: this.needAuthValidate ? 1 : 2, // int    服务员存/取酒,参考修改,是否要服务员授权 1 需要 2 不需要(如果选择不需要,需要免责条款)
-        enable_store_prt: this.enableStorePrt ? 1 : 2, // 存酒小票打印功能
-        store_prt_type: this.enableStorePrt
-          ? this.storePrtType == "1"
-            ? 1
-            : 2
-          : 0, // 存酒小票打印机类型 1 普通打印机 2 标签打印机
-        label_store_prt_ip: this.labelStorePrtIp,
+
         wine_sms_list: this.checkboxList
           .filter((item) => item.checked)
           .map((item) => item.id), // []int64    选中的短信项Id列表
