@@ -48,7 +48,12 @@
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.t }}</div>
             <div class="td">{{ item.c }}</div>
-            <div class="td">{{ item.pn || "---" }}</div>
+            <div class="td">
+              <span v-if="item.pn">{{ item.pn}}</span>
+              <span v-if="item.pn&&item.spn">;</span>
+              <span v-if="item.spn">{{ item.spn}}</span>
+              <span v-if="!item.spn&&!item.pn">---</span>
+            </div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.u == 1 ? "已使用" : "未使用" }}</div>
             <div class="td" layout="row" layout-align="start center">
