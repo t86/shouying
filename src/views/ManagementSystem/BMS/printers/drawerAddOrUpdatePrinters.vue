@@ -52,7 +52,7 @@ export default {
     return {
       name: "",
       ip: '',
-      prtType: null,
+      prtType: 1,
     };
   },
   methods: {
@@ -88,14 +88,6 @@ export default {
       if (this.name == "") {
         this.$message.warning("请输入打印机名称");
         return;
-      } 
-      if (this.prtType == null) {
-        this.$message.warning("选择打印机类型");
-        return
-      } 
-      if (this.$overall.character(this.name) > 20) {
-        this.$message.warning("输入文字长度超过10");
-        return
       } 
       if (this.ip == "") {
         this.$message.warning("请输入打印机IP地址");
