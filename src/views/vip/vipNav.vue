@@ -121,6 +121,7 @@ export default {
     const routerParams = {
       vipManager: 21,
       vipType: 22,
+      pointManager: 23,
       onlineMakeMoneyToVip: 31,
       vipNumRules: 32,
       vipBillRules: 33,

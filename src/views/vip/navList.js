@@ -29,6 +29,11 @@ export default [
         name: "会员卡类型",
         routerName: "vipType",
       },
+      {
+        id: 23,
+        name: "积分管理",
+        routerName: "pointManager",
+      },
     ],
   },
   {

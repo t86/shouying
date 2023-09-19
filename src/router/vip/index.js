@@ -20,6 +20,13 @@ export default [
         meta: { title: "会员卡类型" },
         component: () => import("@/views/vip/vipType.vue"),
       },
+      // 积分管理
+      {
+        path: "/pointManager",
+        name: "pointManager",
+        meta: { title: "积分榜管理" },
+        component: () => import("@/views/vip/pointManager.vue"),
+      },
       // 线上充值设置
       {
         path: "/onlineMakeMoneyToVip",
