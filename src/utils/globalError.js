@@ -1,4 +1,5 @@
 import errApi from "@/api/reportErr";
+import { localStorage } from "./utils/common/storage";
 class GlobalError {
   constructor() {
     this.init();
@@ -21,7 +22,13 @@ class GlobalError {
     setInterval(() => {
       if (this.triggerTime < +new Date() && this.queue.length > 0) {
         // 发送错误日志到服务器
-        errApi.reqSendErrMsg(this.queue);
+        errApi.reqSendErrMsg({
+          msg: this.queue,
+          userInfo: localStorage.getItem('userInfo'),
+          client: localStorage.getItem('client'),
+          projectVersion: localStorage.getItem('projectVersion'),
+          refreshAll: localStorage.getItem('refreshAll'),
+        });
         this.triggerTime = +new Date() + 3600000;
         this.queue = [];
       }
