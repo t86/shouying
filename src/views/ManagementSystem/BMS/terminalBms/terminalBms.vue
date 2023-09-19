@@ -115,7 +115,7 @@
               说明：用于清台打印结算单
             </div>
             <div style="color: #ce4153; line-height: 24px" v-if="currentInfo.t == '存酒仓库'">
-              说明：都不配置增存取酒不打印小票
+              说明：都不配置则存取酒不打印小票
             </div>
           </div>
         </el-form>
