@@ -1,5 +1,5 @@
 import errApi from "@/api/reportErr";
-import { localStorage } from "./utils/common/storage";
+import { localStorage } from "./common/storage";
 class GlobalError {
   constructor() {
     this.init();
