@@ -4,12 +4,7 @@
       <div class="label">终端类型：</div>
       <div class="value" style="margin: 0 10px">
         <el-select size="small" v-model="deviceType" placeholder="请选择">
-          <el-option
-            v-for="(item, index) in typeList"
-            :key="index"
-            :label="item.n"
-            :value="item.id"
-          ></el-option>
+          <el-option v-for="(item, index) in typeList" :key="index" :label="item.n" :value="item.id"></el-option>
         </el-select>
       </div>
       <div class="label">状态</div>
@@ -20,18 +15,11 @@
           <el-option label="无效" :value="2"></el-option>
         </el-select>
       </div>
-      <el-button type="primary" size="small" @click="getTableData"
-        >查询</el-button
-      >
+      <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button type="info" size="small" @click="resetHandle">重置</el-button>
     </div>
     <div class="bar">
-      <icon-button
-        @click.native="clearBindHandle"
-        text="批量清除绑定"
-        img="btn_delete.png"
-        colors="#6B2830"
-      ></icon-button>
+      <icon-button @click.native="clearBindHandle" text="批量清除绑定" img="btn_delete.png" colors="#6B2830"></icon-button>
     </div>
     <!-- 表格 -->
     <div class="table-content">
@@ -39,12 +27,8 @@
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
             <div class="th">
-              <el-checkbox
-                v-model="checkedAll"
-                :indeterminate="indeterminate"
-                @change="changeCheckboxHandle('all')"
-                >序号</el-checkbox
-              >
+              <el-checkbox v-model="checkedAll" :indeterminate="indeterminate"
+                @change="changeCheckboxHandle('all')">序号</el-checkbox>
             </div>
             <div class="th">终端名称</div>
             <div class="th">终端类型</div>
@@ -56,20 +40,10 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            :class="{ selected: item.checked, gray: item.s == '无效' }"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
+          <div class="tr" :class="{ selected: item.checked, gray: item.s == '无效' }" layout="row"
+            layout-align="space-between center" v-for="(item, index) in tableData" :key="item.id">
             <div class="td">
-              <el-checkbox
-                v-model="item.checked"
-                @change="changeCheckboxHandle('item')"
-                >{{ index + 1 }}</el-checkbox
-              >
+              <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.t }}</div>
@@ -78,37 +52,17 @@
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.u == 1 ? "已使用" : "未使用" }}</div>
             <div class="td" layout="row" layout-align="start center">
-              <span style="width: 80px" v-if="item.ti != 5">---</span>
-              <el-link
-                style="width: 80px"
-                v-else
-                type="primary"
-                :underline="false"
-                @click="showOrHidePrintConfig($event, item)"
-                >配置打印机</el-link
-              >
-              <el-link
-                style="width: 80px"
-                type="primary"
-                :underline="false"
-                @click="showOrHideQRHandle($event, item)"
-                >授权快捷码</el-link
-              >
-              <el-link
-                style="width: 100px"
-                type="primary"
-                :underline="false"
-                @click="configAreaOrSeatHandle($event, item)"
-                >配置区域/卡台</el-link
-              >
+              <span style="width: 80px" v-if="item.ti == 1">---</span>
+              <el-link style="width: 80px" v-else type="primary" :underline="false"
+                @click="showOrHidePrintConfig($event, item)">配置打印机</el-link>
+              <el-link style="width: 80px" type="primary" :underline="false"
+                @click="showOrHideQRHandle($event, item)">授权快捷码</el-link>
+              <el-link style="width: 100px" type="primary" :underline="false"
+                @click="configAreaOrSeatHandle($event, item)">配置区域/卡台</el-link>
             </div>
           </div>
           <div class="no-data m-b-10" v-if="tableData.length == 0">
-            <img
-              class="p-t-10 m-t-10 m-b-4"
-              src="../../../../assets/img/wu.png"
-              alt
-            />
+            <img class="p-t-10 m-t-10 m-b-4" src="../../../../assets/img/wu.png" alt />
             <div>暂无数据</div>
           </div>
         </div>
@@ -117,50 +71,52 @@
 
     <!-- 配置打印机 -->
     <div class="dialogPrinter" v-show="showDrawer">
-      <el-dialog
-        :title="title"
-        :visible.sync="showDrawer"
-        @close="showDrawer = false"
-        :close-on-click-modal="false"
-      >
+      <el-dialog :title="title" :visible.sync="showDrawer" @close="showDrawer = false" :close-on-click-modal="false">
         <el-form label-position="left">
           <div class="compatibil">
-            <div class="compatibility" layout="row" layout-align="start center">
+            <div class="compatibility" layout="row" layout-align="start center" v-if="currentInfo.t != '存酒仓库'">
               <div class="mandatory m-r-3">
                 <span style="color: #ce4153">*</span>打印机
               </div>
               <el-select v-model="printVal" class="controlling">
                 <el-option label="请选择打印机" value="0"></el-option>
-                <el-option
-                  v-for="item in printOption"
-                  :key="item.id"
-                  :label="item.n"
-                  :value="item.id + ''"
-                ></el-option>
+                <el-option v-for="item in printOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
               </el-select>
             </div>
-            <div
-              style="color: #ce4153; line-height: 24px"
-              v-if="
-                currentInfo.t == '点单机' || currentInfo.t == '点单机和收银台'
-              "
-            >
+            <div v-else>
+              <div class="compatibility" layout="row" layout-align="start center">
+                <div class="mandatory m-r-3">
+                  存酒小票打印机
+                </div>
+                <el-select v-model="saveWinePrintVal" class="controlling">
+                  <el-option label="请选择打印机" value="0"></el-option>
+                  <el-option v-for="item in saveWinePrintOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
+                </el-select>
+              </div>
+              <div class="compatibility" layout="row" layout-align="start center" style="margin-top: 16px;">
+                <div class="mandatory m-r-3">
+                  取酒小票打印机
+                </div>
+                <el-select v-model="printVal" class="controlling">
+                  <el-option label="请选择打印机" value="0"></el-option>
+                  <el-option v-for="item in printOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
+                </el-select>
+              </div>
+            </div>
+            <div style="color: #ce4153; line-height: 24px" v-if="currentInfo.t == '点单机' || currentInfo.t == '点单机和收银台'
+              ">
               用于下单打印消费单
             </div>
-            <div
-              style="color: #ce4153; line-height: 24px"
-              v-if="
-                currentInfo.t == '收银台' || currentInfo.t == '点单机和收银台'
-              "
-            >
+            <div style="color: #ce4153; line-height: 24px" v-if="currentInfo.t == '收银台' || currentInfo.t == '点单机和收银台'
+              ">
               用于收银台打印消费单、结算单、退单小票、班结表、售出日报表等
             </div>
-          </div>
-          <div
-            style="color: #ce4153; line-height: 24px"
-            v-if="currentInfo.t == '咨客台'"
-          >
-            用于清台打印结算单
+            <div style="color: #ce4153; line-height: 24px" v-if="currentInfo.t == '咨客台'">
+              说明：用于清台打印结算单
+            </div>
+            <div style="color: #ce4153; line-height: 24px" v-if="currentInfo.t == '存酒仓库'">
+              说明：都不配置增存取酒不打印小票
+            </div>
           </div>
         </el-form>
         <span slot="footer" style="display: block; text-align: center">
@@ -172,53 +128,32 @@
 
     <!-- 授权快捷码 -->
     <div class="dialogPrinter" v-show="showTerminalCodeDrawer">
-      <el-dialog
-        title="授权快捷码"
-        :visible.sync="showTerminalCodeDrawer"
-        @close="showTerminalCodeDrawer = false"
-        :close-on-click-modal="false"
-      >
-        <div
-          style="
+      <el-dialog title="授权快捷码" :visible.sync="showTerminalCodeDrawer" @close="showTerminalCodeDrawer = false"
+        :close-on-click-modal="false">
+        <div style="
             height: calc(100vh - 200px);
             padding: 60px 30px;
             box-sizing: border-box;
-          "
-          layout="column"
-          layout-align="start start"
-        >
+          " layout="column" layout-align="start start">
           <div layout="row" layout-align="center center">
             <p>快捷码：</p>
             <p class="m-l-3 m-r-3">{{ textValue }}</p>
-            <el-link
-              style="width: 70px"
-              type="primary"
-              :underline="false"
-              v-clipboard:copy="textValue"
-              v-clipboard:success="copySuccessHandle"
-              >复制快捷码</el-link
-            >
+            <el-link style="width: 70px" type="primary" :underline="false" v-clipboard:copy="textValue"
+              v-clipboard:success="copySuccessHandle">复制快捷码</el-link>
           </div>
           <p style="color: red; margin-top: 30px">
             提示：当前快捷码有效期为1小时
           </p>
         </div>
-        <span
-          slot="footer"
-          class="dialog-footer"
-          style="display: block; text-align: center"
-        >
+        <span slot="footer" class="dialog-footer" style="display: block; text-align: center">
           <el-button @click="showTerminalCodeDrawer = false">关闭</el-button>
         </span>
       </el-dialog>
     </div>
 
     <!-- 配置区域/卡台 -->
-    <drawerChooseAreaOrSeat
-      v-model="showChooseAreaOrSeatDrawer"
-      :currentInfo="currentInfo"
-      @getTableData="getTableData"
-    />
+    <drawerChooseAreaOrSeat v-model="showChooseAreaOrSeatDrawer" :currentInfo="currentInfo"
+      @getTableData="getTableData" />
   </div>
 </template>
 
@@ -234,7 +169,9 @@ export default {
       checkedAll: false,
       showDrawer: false,
       printVal: "0",
-      printOption: [],
+      printOption: [], // 普通打印机
+      saveWinePrintVal: "0", // 存酒打印机
+      saveWinePrintOption:[], // 存酒打印机
       currentInfo: {}, // 当前操作的终端单条数据
 
       showTerminalCodeDrawer: false,
@@ -277,6 +214,11 @@ export default {
         res.code == 1
           ? (this.printOption = res.data.records || [])
           : this.$message.warning(res.msg);
+
+        const res1 = await this.$api.BMS.terminal.reqGetTerminalSaveWinePrintList();
+        res1.code == 1
+          ? (this.saveWinePrintOption = res1.data.records || [])
+          : this.$message.warning(res1.msg);
       } catch (error) {
         console.log("获取终端打印机列表失败", error);
       }
@@ -286,6 +228,7 @@ export default {
       this.showDrawer = !this.showDrawer;
       if (itemInfo) {
         this.printVal = itemInfo.pi.toString();
+        this.saveWinePrintVal = itemInfo.spi.toString() || '0';
         this.currentInfo = { ...itemInfo };
         this.getSelectOption();
       }
@@ -295,6 +238,7 @@ export default {
       const params = {
         id: this.currentInfo.id * 1, //   int64    终端Id
         prt_id: this.printVal * 1, //  int64   打印机Id, =0表示删除
+        wine_store_prt_id: this.saveWinePrintVal * 1, //  int64   存酒打印机Id, =0表示删除
       };
       try {
         const res = await this.$api.BMS.terminal.reqSaveTerminalConfig(params);
@@ -409,6 +353,7 @@ export default {
 .terminal {
   padding: 10px 20px;
   font-size: 14px;
+
   .bar {
     width: 100%;
     height: 54px;
@@ -416,24 +361,29 @@ export default {
     display: flex;
     align-items: center;
   }
+
   .table {
     width: 100%;
     max-height: calc(100vh - 220px);
     overflow: auto;
+
     .tr {
       min-width: 1200px;
       line-height: 36px;
       padding: 0 10px;
       box-sizing: border-box;
     }
+
     .thead {
       position: sticky;
       top: 0;
       background-color: #f5f5f5;
       z-index: 999;
+
       .tr {
         background-color: #f5f5f5;
       }
+
       .th {
         font-weight: 600;
       }
@@ -443,6 +393,7 @@ export default {
       .tr:nth-child(2n + 1) {
         background-color: #f9f9f9;
       }
+
       .tr:nth-child(2n) {
         background-color: #f5f5f5;
       }
@@ -451,6 +402,7 @@ export default {
         img {
           width: 60px;
         }
+
         text-align: center;
       }
     }
@@ -464,36 +416,44 @@ export default {
     .td:nth-child(1) {
       width: 6%;
     }
+
     .th:nth-child(2),
     .td:nth-child(2) {
       width: 15%;
     }
+
     .th:nth-child(3),
     .td:nth-child(3) {
       width: 10%;
     }
+
     .th:nth-child(4),
     .td:nth-child(4) {
       width: 20%;
     }
+
     .th:nth-child(5),
     .td:nth-child(5) {
       width: 10%;
     }
+
     .th:nth-child(6),
     .td:nth-child(6) {
       width: 8%;
     }
+
     .th:nth-child(7),
     .td:nth-child(7) {
       width: 8%;
     }
+
     .th:nth-child(8),
     .td:nth-child(8) {
       width: 21%;
     }
   }
 }
+
 /deep/.el-checkbox__label {
   font-weight: 600;
 }

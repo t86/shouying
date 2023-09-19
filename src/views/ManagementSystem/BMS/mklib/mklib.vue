@@ -545,7 +545,8 @@ export default {
         this.$api.BMS.mklib
           .requestmklibnew_printer({
             name: this.printer.printername,
-            ip_addr: this.printer.printerIP
+            ip_addr: this.printer.printerIP,
+            type_id: 1 // 1 普通打印机
           })
           .then(res => {
             console.log(res);
