@@ -283,7 +283,7 @@ export default {
         this.form.openCardPersonOptions = JSON.parse(
           JSON.stringify(this.openCardPersonOptions)
         ).filter(
-          (item) => item.code.includes(query) || item.name.includes(query)
+          (item) => item.code.includes(query) || item.name.includes(query) || item.namePy.includes(query)
         );
         this.remoteLoading = false;
       } else {

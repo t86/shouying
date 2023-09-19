@@ -329,6 +329,7 @@ export default {
         modalText: "新增成功，5秒后将关闭",
         btnArr: ["关闭", "充值", "制卡"],
       },
+      personOptions:[] //开卡推荐人
     };
   },
   methods: {
@@ -505,7 +506,7 @@ export default {
         const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
         this.personOptions = result.filter(
-          (item) => item.code.includes(query) || item.name.includes(query)
+          (item) => item.code.includes(query) || item.name.includes(query) || item.namePy.includes(query)
         );
         this.remoteLoading = false;
       } else {

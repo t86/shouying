@@ -324,7 +324,7 @@ export default {
           this.clientName = clientInfo[res.data.am.toString()];
           this.$store.commit("updateClient", this.clientName);
         } else {
-          this.$message.warning(res.message);
+          this.$message.warning(res.msg);
           this.$router.replace("/register");
         }
       } catch (error) {
