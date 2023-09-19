@@ -194,6 +194,7 @@ export default {
         messageList: [],
         personVal: "",
       },
+      personOptions:[],
       remoteLoading: false,
       pickerOptions: {
         disabledDate(time) {
@@ -249,7 +250,7 @@ export default {
         const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
         this.personOptions = result.filter(
-          (item) => item.code.includes(query) || item.name.includes(query)
+          (item) => item.code.includes(query) || item.name.includes(query) || item.namePy.includes(query)
         );
         this.remoteLoading = false;
       } else {

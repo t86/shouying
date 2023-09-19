@@ -31,7 +31,6 @@ export const projectConfig = {
     password: '',
     development: 'http://nls.server.com/server',
     product: 'http://nls.server.com/server',
-    // onlineBase:'https://ncrm-server-tmp.830clock.com/server',
     onlineBase:'https://ncrmyun.xmsjznwl.com/server',
     wsDevelopment: 'ws://nls.server.com/server',
     wsProduct: 'ws://nls.server.com/server'
