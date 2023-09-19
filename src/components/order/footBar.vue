@@ -5,90 +5,91 @@
     :layout="isRect ? 'row' : isSmallRect ? 'column' : 'row'"
     layout-align="space-between center"
   >
-    <div class="first-layout" layout="row" layout-align="start center">
-      <div class="ul" layout="row" layout-align="start center">
-        <div
-          class="li line"
-          v-for="(item, index) in navList"
-          :key="index"
-          :class="{ active: item.routeName === activeRouteName }"
-          @click="footNavBarClick(item)"
-        >
+    <div :layout="isSmallRect ? 'column' : 'row'" layout-align="center center">
+      <div class="first-layout" layout="row" layout-align="start center">
+        <div class="ul" layout="row" layout-align="start center">
           <div
-            class="shopping-count"
+            class="li line"
+            v-for="(item, index) in navList"
+            :key="index"
+            :class="{ active: item.routeName === activeRouteName }"
+            @click="footNavBarClick(item)"
+          >
+            <div
+              class="shopping-count"
+              v-if="
+                item.id === 3 &&
+                $store.state.orderInfo.shoppingCartInfo.shoppingCount
+              "
+            >
+              {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
+            </div>
+            <img width="20" :src="item.icon" alt />
+            <img
+              class="sanJiao"
+              v-if="item.routeName === activeRouteName"
+              :src="item.icon1"
+              alt
+            />
+            <p>{{ item.name }}</p>
+          </div>
+          <!-- 服务员买单结账按钮 -->
+          <div
             v-if="
-              item.id === 3 &&
-              $store.state.orderInfo.shoppingCartInfo.shoppingCount
+              $store.state.userInfo.authStatus != 4 &&
+              $store.state.userInfo.authStatusArr.includes(1) &&
+              cardInfo.orderAmt - cardInfo.payedAmt > 0
             "
+            class="server-pay-btn"
           >
-            {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
+            <div
+              class="button"
+              layout="row"
+              layout-align="center center"
+              @click="showOrderListDrawerHandle"
+            >
+              <img :src="imgSrc.orderQRPayIcon" alt />
+              <span>买单</span>
+            </div>
           </div>
-          <img width="20" :src="item.icon" alt />
-          <img
-            class="sanJiao"
-            v-if="item.routeName === activeRouteName"
-            :src="item.icon1"
-            alt
-          />
-          <p>{{ item.name }}</p>
-        </div>
-        <!-- 服务员买单结账按钮 -->
-        <div
-          v-if="
-            $store.state.userInfo.authStatus != 4 &&
-            $store.state.userInfo.authStatusArr.includes(1) &&
-            cardInfo.orderAmt - cardInfo.payedAmt > 0
-          "
-          class="server-pay-btn"
-        >
+          <!-- 服务员充值滞留金 -->
           <div
-            class="button"
-            layout="row"
-            layout-align="center center"
-            @click="showOrderListDrawerHandle"
+            v-if="
+              $store.state.userInfo.authStatus != 4 &&
+              $store.state.userInfo.authStatusArr.includes(1)
+            "
+            class="server-pay-btn line"
           >
-            <img :src="imgSrc.orderQRPayIcon" alt />
-            <span>买单</span>
+            <div
+              class="button"
+              layout="row"
+              layout-align="center center"
+              @click="showAddBookDrawer = true"
+            >
+              <img :src="imgSrc.orderQRPayIcon" alt />
+              <span>滞留金</span>
+            </div>
           </div>
-        </div>
-        <!-- 服务员充值滞留金 -->
-        <div
-          v-if="
-            $store.state.userInfo.authStatus != 4 &&
-            $store.state.userInfo.authStatusArr.includes(1)
-          "
-          class="server-pay-btn line"
-        >
+          <!-- 收银系统按钮 -->
           <div
-            class="button"
+            class="pay-btn line"
+            v-if="
+              $store.state.userInfo.authStatus == 4 &&
+              !this.$route.path.startsWith('/orderMeal') &&
+              $store.state.orderInfo.currentCardInfo.bizStatus != 1
+            "
             layout="row"
-            layout-align="center center"
-            @click="showAddBookDrawer = true"
           >
-            <img :src="imgSrc.orderQRPayIcon" alt />
-            <span>滞留金</span>
-          </div>
-        </div>
-        <!-- 收银系统按钮 -->
-        <div
-          class="pay-btn line"
-          v-if="
-            $store.state.userInfo.authStatus == 4 &&
-            !this.$route.path.startsWith('/orderMeal') &&
-            $store.state.orderInfo.currentCardInfo.bizStatus != 1
-          "
-          layout="row"
-        >
-          <div
-            class="button"
-            layout="row"
-            layout-align="center center"
-            @click="$router.push({ name: 'orderMealList' })"
-          >
-            <img :src="imgSrc.shoppingNav" alt />
-            <span>点单</span>
-          </div>
-          <!-- <div
+            <div
+              class="button"
+              layout="row"
+              layout-align="center center"
+              @click="$router.push({ name: 'orderMealList' })"
+            >
+              <img :src="imgSrc.shoppingNav" alt />
+              <span>点单</span>
+            </div>
+            <!-- <div
           class="button"
           @click="$router.push({name:'orderMealList', query:{give:true}})"
           layout="row"
@@ -97,107 +98,114 @@
           <img :src="imgSrc.giveNav" alt />
           <span>优惠2</span>
         </div> -->
+            <div
+              class="button"
+              @click.stop="clearCardHandle"
+              layout="row"
+              layout-align="center center"
+            >
+              <img :src="imgSrc.clearNav" alt />
+              <span>清台</span>
+            </div>
+
+            <div
+              class="button"
+              @click.stop="showMerchantConfig = true"
+              style="width: 140px"
+              layout="row"
+              layout-align="center center"
+            >
+              <img
+                :src="require('@/assets/money-img/merchant-btn-icon.png')"
+                alt
+              />
+              <span style="transform: translateX(-2px)">滞留金管理</span>
+            </div>
+          </div>
+          <!-- 卡台名称 -->
           <div
-            class="button"
-            @click.stop="clearCardHandle"
-            layout="row"
-            layout-align="center center"
+            class="card-name"
+            :class="{
+              line:
+                $store.state.userInfo.authStatus == 4 ||
+                !(
+                  $store.state.userInfo.authStatusArr.length == 1 &&
+                  $store.state.userInfo.authStatusArr[0] == 3
+                ),
+            }"
           >
-            <img :src="imgSrc.clearNav" alt />
-            <span>清台</span>
+            <p>{{ cardInfo.name }}</p>
+            <p>{{ cardInfo.chgSeatInfo }}</p>
           </div>
 
-          <div
-            class="button"
-            @click.stop="showMerchantConfig = true"
-            style="width: 140px"
-            layout="row"
-            layout-align="center center"
-          >
-            <img
-              :src="require('@/assets/money-img/merchant-btn-icon.png')"
-              alt
-            />
-            <span style="transform: translateX(-2px)">滞留金管理</span>
-          </div>
-        </div>
-        <!-- 卡台名称 -->
-        <div
-          class="card-name"
-          :class="{
-            line:
-              $store.state.userInfo.authStatus == 4 ||
-              !(
-                $store.state.userInfo.authStatusArr.length == 1 &&
-                $store.state.userInfo.authStatusArr[0] == 3
-              ),
-          }"
-        >
-          <p>{{ cardInfo.name }}</p>
-          <p>{{ cardInfo.chgSeatInfo }}</p>
-        </div>
-
-        <div class="emp-info">
-          {{ empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId) }}
-        </div>
-      </div>
-      <div layout="row" layout-align="start center">
-        <!-- 消费情况 -->
-        <div
-          class="amt line p-r-6"
-          :class="'noAmount'"
-          v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
-          layout="row"
-          layout-align="start start"
-        >
-          <div class="left m-r-2">
-            <p class="one-txt-cut">
-              <!-- 折前：当太总消费的应收金额（不含赠送） -->
-              <span>折前金额:</span>
-              <span>￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
-            </p>
-            <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span>折后金额:</span>
-              <span
-                >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
-              >
-            </p>
-            <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span>主营点单金额:</span>
-              <span>￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
-            </p>
-          </div>
-          <div class="right">
-            <p class="one-txt-cut">
-              <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
-              <span>已收金额:</span>
-              <span>￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
-            </p>
-            <p class="one-txt-cut">
-              <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
-              <span class="txt-right">当台实收:</span>
-              <span
-                >￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span
-              >
-            </p>
-          </div>
-        </div>
-        <div
-          class="date-time p-l-3"
-          :class="{ 'm-l-6': !isRect }"
-          layout="column"
-          layout-align="center center"
-        >
-          <p class="time">
-            {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
-              authInfo.minute
+          <div class="emp-info">
+            {{
+              empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
             }}
-          </p>
-          <p class="time" :class="{ rect: !isRect }">
-            {{ authTips }}:{{ authInfo.name }}
-          </p>
+          </div>
+        </div>
+        <div layout="row" layout-align="start center">
+          <!-- 消费情况 -->
+          <div
+            class="amt line p-r-6"
+            :class="'noAmount'"
+            v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
+            layout="row"
+            layout-align="start start"
+          >
+            <div class="left m-r-2">
+              <p class="one-txt-cut">
+                <!-- 折前：当太总消费的应收金额（不含赠送） -->
+                <span>折前金额:</span>
+                <span>￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+              </p>
+              <p class="one-txt-cut">
+                <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+                <span>折后金额:</span>
+                <span
+                  >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
+                >
+              </p>
+              <p class="one-txt-cut">
+                <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+                <span>主营点单金额:</span>
+                <span
+                  >￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span
+                >
+              </p>
+            </div>
+            <div class="right">
+              <p class="one-txt-cut">
+                <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
+                <span>已收金额:</span>
+                <span>￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
+              </p>
+              <p class="one-txt-cut">
+                <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
+                <span class="txt-right">当台实收:</span>
+                <span
+                  >￥{{
+                    Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
+                  }}</span
+                >
+              </p>
+            </div>
+          </div>
+          <div
+            class="date-time p-l-3"
+            :class="{ 'm-l-6': !isRect }"
+            layout="column"
+            layout-align="center center"
+          >
+            <p class="time">
+              {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
+                authInfo.minute
+              }}
+            </p>
+            <p class="time" :class="{ rect: !isRect }">
+              {{ authTips }}:{{ authInfo.name }}
+            </p>
+          </div>
         </div>
       </div>
       <!-- 暂不支付倒计时退出 -->
