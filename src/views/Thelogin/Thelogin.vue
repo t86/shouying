@@ -3,9 +3,9 @@
     <div class="terminal-type">
       <div class="exit" @click="exit" v-if="!isWeb">
         <img
-          :src="require('@/assets/card-imgs/loginout.png')"
+          :src="require('@/assets/card-imgs/exit.png')"
           alt
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
         />
         <span>退出</span>
       </div>
@@ -13,7 +13,7 @@
         <img
           :src="require('@/assets/register-login/qinglihuancun.png')"
           alt
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
         />
         <span>清理缓存</span>
       </div>
@@ -23,7 +23,7 @@
         v-if="isAndroidTerminal"
       >
         <img
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
           :src="require('@/assets/register-login/qiehuan.png')"
           alt
         />
