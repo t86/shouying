@@ -21,13 +21,14 @@ class GlobalError {
 
     setInterval(() => {
       if (this.triggerTime < +new Date() && this.queue.length > 0) {
+        let msg = this.queue.map((err) => err.message + ":" + err.stack);
         // 发送错误日志到服务器
         errApi.reqSendErrMsg({
-          msg: this.queue,
-          userInfo: localStorage.getItem('userInfo'),
-          client: localStorage.getItem('client'),
-          projectVersion: localStorage.getItem('projectVersion'),
-          refreshAll: localStorage.getItem('refreshAll'),
+          msg,
+          userInfo: localStorage.getItem("userInfo"),
+          client: localStorage.getItem("client"),
+          projectVersion: localStorage.getItem("projectVersion"),
+          refreshAll: localStorage.getItem("refreshAll"),
         });
         this.triggerTime = +new Date() + 3600000;
         this.queue = [];

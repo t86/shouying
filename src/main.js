@@ -57,6 +57,12 @@ Vue.config.productionTip = false;
 import VueClipboard from "vue-clipboard2";
 Vue.use(VueClipboard);
 
+
+Vue.config.errorHandler = function (err, vm, info) {
+  globalError.handleError(err);
+}
+
+
 router.beforeEach((to, from, next) => {
   const authId = store.state.userInfo.emp_id;
   /* 路由发生变化修改页面title */
