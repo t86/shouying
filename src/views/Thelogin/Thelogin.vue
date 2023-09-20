@@ -1,11 +1,20 @@
 <template>
   <div class="Thelogin">
     <div class="terminal-type">
+
+      <div class="exit" @click="exit" v-if="!isWeb">
+        <img
+          :src="require('@/assets/card-imgs/exit.png')"
+          alt
+          style="width: 18px; height: 18px; margin-right: 4px"
+        />
+        <span>退出</span>
+      </div>
       <div class="clear-cache" @click="clear">
         <img
           :src="require('@/assets/register-login/qinglihuancun.png')"
           alt
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
         />
         <span>清理缓存</span>
       </div>
@@ -15,7 +24,7 @@
         v-if="isAndroidTerminal"
       >
         <img
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
           :src="require('@/assets/register-login/qiehuan.png')"
           alt
         />
@@ -544,6 +553,15 @@ export default {
         console.log("获取终端类型失败", error);
       }
       return termType == "android";
+    },
+    isWeb(){
+      let termType = "";
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log("获取终端类型失败", error);
+      }
+      return termType === "";
     },
     version() {
       const pv = localStorage.getItem("projectVersion");
