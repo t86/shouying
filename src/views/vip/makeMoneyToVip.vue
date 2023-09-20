@@ -88,6 +88,7 @@
               <div class="th">会员卡等级</div>
               <div class="th">充值金额</div>
               <div class="th">赠送金额</div>
+              <div class="th">赠送积分</div>
               <div class="th">充值方式</div>
               <div class="th">充值推荐人</div>
               <div
@@ -119,6 +120,7 @@
               <div class="td">{{ item.cl }}</div>
               <div class="td fs16-bold">{{ item.va }}</div>
               <div class="td fs16-bold">{{ item.fa }}</div>
+              <div class="td fs16-bold">--</div>
               <div class="td">{{ item.c }}</div>
               <div class="td">{{ item.s }}</div>
               <div

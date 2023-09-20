@@ -84,6 +84,7 @@
               <div class="th">会员卡等级</div>
               <div class="th">扣款-储值金额</div>
               <div class="th">扣款-赠送金额</div>
+              <div class="th">赠送积分</div>
               <div class="th">操作人</div>
               <div
                 class="th"
@@ -114,6 +115,7 @@
               <div class="td">{{ item.cl }}</div>
               <div class="td fs16-bold">{{ item.va }}</div>
               <div class="td fs16-bold">{{ item.fa }}</div>
+              <div class="td">---</div>
               <div class="td">{{ item.o }}</div>
               <div
                 class="td"

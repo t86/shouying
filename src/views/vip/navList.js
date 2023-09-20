@@ -31,7 +31,7 @@ export default [
       },
       {
         id: 23,
-        name: "积分管理",
+        name: "积分设置",
         routerName: "pointManager",
       },
     ],
@@ -80,6 +80,17 @@ export default [
         name: "扣款记录",
         routerName: "vipPay",
       },
+      {
+        id: 44,
+        name: "积分扣除记录",
+        routerName: "pointRecords",
+      },
+      {
+        id: 45,
+        name: "会员卡余额汇总表",
+        routerName: "memberBalanceSum",
+      },
+      
     ],
   },
 ];

@@ -422,7 +422,6 @@ export default {
       try {
         if (value && value.code === 0) {
           that.qrResult = value.data;
-          // TODO： 扫码后的操作
           that.qr_pay_state = 0;
           that.getQRcodeUrl();
         } else {

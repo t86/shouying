@@ -26,6 +26,10 @@
         <div class="label">赠送余额：</div>
         <div class="value">{{vipInfo.free_bal}}</div>
       </div>
+      <div class="row">
+        <div class="label">积分余额：</div>
+        <div class="value">{{vipInfo.pt_bal}}</div>
+      </div>
       <!-- <div class="row">
         <div class="label">剩余积分：</div>
         <div class="value">1000</div>

@@ -20,7 +20,7 @@ export default [
         meta: { title: "会员卡类型" },
         component: () => import("@/views/vip/vipType.vue"),
       },
-      // 积分管理
+      // 积分设置
       {
         path: "/pointManager",
         name: "pointManager",
@@ -68,6 +68,20 @@ export default [
         name: "vipPay",
         meta: { title: "会员卡记录" },
         component: () => import("@/views/vip/vipPay.vue"),
+      },
+      // 积分扣除记录
+      {
+        path: "/pointRecords",
+        name: "pointRecords",
+        meta: { title: "积分扣除记录" },
+        component: () => import("@/views/vip/pointRecords.vue"),
+      },
+      // 
+      {
+        path: "/memberBalanceSum",
+        name: "memberBalanceSum",
+        meta: { title: "会员卡余额汇总表" },
+        component: () => import("@/views/vip/memberBalanceSum.vue"),
       },
     ],
   },
