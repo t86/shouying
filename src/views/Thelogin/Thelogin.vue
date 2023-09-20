@@ -57,11 +57,18 @@
     <div class="elasticity">
       <div class="center-type" layout="row" layout-align="center center">
         <div class="slideshow">
-          <!-- <el-carousel style="width:100%;" :height="[isAndroidTerminal?'400px':'500px']">
+          <el-carousel
+            style="width: 100%"
+            :height="[isAndroidTerminal ? '400px' : '500px']"
+          >
             <el-carousel-item v-for="item in 3" :key="item">
-              <img src="@/assets/img/banner_login.png" style="width:100%;height:100%;object-fit:contain" alt />
+              <img
+                src="@/assets/img/banner.png"
+                style="width: 100%; height: 100%; object-fit: contain"
+                alt
+              />
             </el-carousel-item>
-          </el-carousel> -->
+          </el-carousel>
         </div>
         <div class="keyboard-contain">
           <div class="OpenKeyboard" :class="{ android: isAndroidTerminal }">
