@@ -4,7 +4,7 @@
 
 .contain {
   height: calc(100vh - 60px);
-  background:#202C4A;
+  background: #202c4a;
   // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
   overflow-y: auto;
 
@@ -18,16 +18,15 @@
     width: 100%;
     z-index: 10;
     height: 128px;
-    background: #222D47;
+    background: #222d47;
     // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
   }
 
   .contain-top {
-
     // 日期tab
     .scroll-date {
       overflow-x: auto;
-      border-bottom: 1px solid rgba(39, 117, 186, .5);
+      border-bottom: 1px solid rgba(39, 117, 186, 0.5);
 
       .tab-date {
         height: 60px;
@@ -47,8 +46,8 @@
           border-radius: 20px;
           font-size: 17px;
           font-weight: 600;
-          background: #0D172D;
-          box-shadow: inset 0px 1px 1px 0px #2775BA;
+          background: #0d172d;
+          box-shadow: inset 0px 1px 1px 0px #2775ba;
           cursor: pointer;
           text-align: center;
 
@@ -57,29 +56,27 @@
             bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
-            content: '';
+            content: "";
             width: 0;
             height: 0;
             border: 10px solid transparent;
           }
 
           &.active {
-            background: #F8FEFF;
+            background: #f8feff;
             // background: linear-gradient(180deg, #F8FEFF 0%, #A9D1FA 100%);
-            color: #08080A;
+            color: #08080a;
 
             &:after {
-              border-top-color: #A9D1FA;
+              border-top-color: #a9d1fa;
             }
           }
         }
       }
-
     }
 
     .area {
-
-      border-bottom: 1px solid rgba(39, 117, 186, .5);
+      border-bottom: 1px solid rgba(39, 117, 186, 0.5);
 
       // 区域tab
       .tab {
@@ -95,16 +92,16 @@
           height: 36px;
           line-height: 36px;
           background: rgba(0, 0, 0, 0.4);
-          box-shadow: inset 0px 1px 1px 0px #2775BA;
+          box-shadow: inset 0px 1px 1px 0px #2775ba;
           border-radius: 30px;
           font-size: 16px;
           font-family: PingFangSC-Semibold, PingFang SC;
           font-weight: 600;
-          color: #FFFFFF;
+          color: #ffffff;
           margin: 0 10px;
 
           &.active {
-            background: #455EFF!important;
+            background: #455eff !important;
             // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%) !important;
             box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5) !important;
           }
@@ -117,13 +114,13 @@
           width: 100vw;
           display: flex;
           flex-wrap: wrap;
-          background: #11182D;
+          background: #11182d;
           padding-bottom: 10px;
-          border-bottom: 1px solid rgba(39, 117, 186, .5);
+          border-bottom: 1px solid rgba(39, 117, 186, 0.5);
 
-          >.another-item {
+          > .another-item {
             margin-top: 4px;
-            box-shadow: inset 0px 1px 1px 0px #2775BA;
+            box-shadow: inset 0px 1px 1px 0px #2775ba;
             border-radius: 30px;
             width: 80px;
             margin: 10px;
@@ -146,7 +143,7 @@
           outline: none;
 
           &:focus {
-            border: 1px solid #5C9FFF
+            border: 1px solid #5c9fff;
           }
         }
       }
@@ -165,7 +162,7 @@
       position: fixed;
       top: 120px;
       z-index: 1;
-      background-color: #08080A;
+      background-color: #08080a;
       padding: 10px;
       box-sizing: border-box;
 
@@ -176,7 +173,7 @@
         color: #fff;
         cursor: pointer;
         border-radius: 5px;
-        background: #455EFF!important;
+        background: #455eff !important;
         // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%) !important;
       }
     }
@@ -197,7 +194,7 @@
         font-weight: 500;
         font-size: 12px;
         line-height: 16px;
-        color: #FFFFFF;
+        color: #ffffff;
 
         /* 卡台名称 */
         .area-name {
@@ -206,7 +203,7 @@
           line-height: 14px;
 
           .line-tips {
-            background: #3900CD;
+            background: #3900cd;
             border-radius: 4px;
             font-size: 12px;
             padding: 3px;
@@ -215,17 +212,44 @@
           }
         }
 
+        .hui-name {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 14px;
+          .line-tips {
+            // background: #ff3c00;
+            // border-radius: 4px;
+            // font-size: 12px;
+            // padding: 3px;
+            // margin-left: 4px;
+            // line-height: 12px;
+          }
+        }
+
+        .zong-name {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 14px;
+          .line-tips {
+            // background: #4100cd;
+            // border-radius: 4px;
+            // font-size: 12px;
+            // padding: 3px;
+            // margin-left: 4px;
+            // line-height: 12px;
+          }
+        }
         // 卡台标记
-        .mark{
+        .mark {
           display: inline-block;
           width: 18px;
           height: 18px;
           text-align: center;
           line-height: 18px;
           margin-right: 2px;
-          background: #83FC9A;
+          background: #83fc9a;
           border-radius: 4px;
-          color: #000
+          color: #000;
         }
 
         .card-name {
@@ -235,7 +259,7 @@
           overflow: hidden;
         }
 
-        .save-wine-enter{
+        .save-wine-enter {
           margin-top: 14px;
           .enter-item {
             width: 42px;
@@ -247,10 +271,10 @@
             &.border-right {
               position: relative;
               &:after {
-                content: '';
+                content: "";
                 width: 1px;
                 height: 34px;
-                background: rgba(255,255,255,0);
+                background: rgba(255, 255, 255, 0);
                 // background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 53%, rgba(255,255,255,0) 100%);
                 opacity: 0.4;
                 position: absolute;
@@ -263,7 +287,7 @@
               margin: 0 8px;
             }
 
-            &:hover{
+            &:hover {
               background-color: rgba(255, 255, 255, 0.2);
             }
             img {
@@ -271,7 +295,7 @@
             }
             p {
               font-size: 12px;
-              color: rgba(255,255,255,0.8);
+              color: rgba(255, 255, 255, 0.8);
             }
           }
         }
@@ -292,17 +316,15 @@
           margin-right: 4px;
 
           &.yellow {
-            background: #FFBD00;
+            background: #ffbd00;
             // background: linear-gradient(180deg, #FFBD00 0%, #C96E00 100%);
           }
 
           &.green {
-            background: #1DC344;
+            background: #1dc344;
             // background: linear-gradient(180deg, #1DC344 0%, #00763E 100%)
           }
-
         }
-
 
         //  选项三角形
         .sanjiao {
@@ -322,11 +344,10 @@
           }
         }
 
-
         /* 卡台操作选项 */
         .card-options {
           width: 172px;
-          background-color: rgba(0, 0, 0, .9);
+          background-color: rgba(0, 0, 0, 0.9);
           position: absolute;
           font-size: 14px;
           // top: 50%;
@@ -334,16 +355,16 @@
           // transform: translate(0, -50%);
           padding: 0px 0px 10px 16px;
           z-index: 10;
-          background: #08080A;
+          background: #08080a;
           // background: linear-gradient(180deg, #08080A 0%, #11182D 100%);
           box-shadow: 0px 0px 10px 0px rgba(26, 137, 255, 0.8);
-          border: 1px solid #32B9FF;
+          border: 1px solid #32b9ff;
           border-radius: 8px;
 
           // 选项
           .options-item {
             position: relative;
-            color: #AED8FF;
+            color: #aed8ff;
             line-height: 46px;
             cursor: pointer;
 
@@ -352,7 +373,7 @@
               left: 50%;
               top: 0px;
               transform: translateX(-56%);
-              content: '';
+              content: "";
               width: 70%;
               height: 1px;
               background: rgba(174, 216, 255, 0);
@@ -365,7 +386,7 @@
 
             &:hover {
               .options-item-contain {
-                background-image: url('../../../assets/card-imgs/cardOptions/checked.png');
+                background-image: url("../../../assets/card-imgs/cardOptions/checked.png");
                 background-position: 10px center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
@@ -394,7 +415,7 @@
             text-align: center;
             margin-right: 20px;
             margin-top: 10px;
-            color: #AED8FF;
+            color: #aed8ff;
             font-size: 12px;
             cursor: pointer;
 
@@ -429,7 +450,7 @@
     bottom: 0;
     height: 60px;
     font-size: 14px;
-    background: #0D172D;
+    background: #0d172d;
     // background: linear-gradient(180deg, #0D172D 0%, #060A14 100%);
 
     .legend-list {
@@ -446,7 +467,7 @@
           margin: 2px 10px 0 20px;
           width: 84px;
           height: 54px;
-          background: #F8FEFF;
+          background: #f8feff;
           // background: linear-gradient(180deg, #F8FEFF 0%, #A9D1FA 100%);
           border-radius: 12px;
           cursor: pointer;
@@ -459,7 +480,7 @@
           p {
             margin-top: 6px;
             font-weight: 600;
-            color: #08080A;
+            color: #08080a;
           }
         }
 
@@ -487,11 +508,9 @@
             }
           }
 
-
-
           &.active {
             border: 2px solid #fff;
-            box-shadow: 0 4px 15px 10px rgba(69, 94, 255, .5);
+            box-shadow: 0 4px 15px 10px rgba(69, 94, 255, 0.5);
             background: rgba(169, 173, 211, 0.2);
 
             .img-contain {
@@ -524,7 +543,7 @@
             position: absolute;
             left: 0;
             top: 10px;
-            content: '';
+            content: "";
             width: 1px;
             height: 40px;
             background: rgba(174, 216, 255, 0);
@@ -543,14 +562,14 @@
     .dosomething {
       max-width: 34%;
 
-      >.dosomething-item {
+      > .dosomething-item {
         text-align: center;
         cursor: pointer;
-        color: #AED8FFFF;
+        color: #aed8ffff;
         font-weight: 600;
       }
 
-      >.dosomething-item:nth-child(1) {
+      > .dosomething-item:nth-child(1) {
         width: 100px;
         height: 40px;
         margin-right: 14px;
@@ -560,7 +579,7 @@
           height: 100%;
           padding-top: 11px;
           background: rgba(0, 0, 0, 0.4);
-          box-shadow: inset 0px 1px 1px 0px #2775BA;
+          box-shadow: inset 0px 1px 1px 0px #2775ba;
 
           img {
             width: 18px;
@@ -580,14 +599,13 @@
         }
       }
 
-      >.dosomething-item:nth-child(2) {
+      > .dosomething-item:nth-child(2) {
         position: relative;
         width: 96px;
 
         img {
           width: 20px;
           margin-top: 3px;
-          ;
           margin-bottom: 3px;
         }
 
@@ -595,7 +613,7 @@
         &:after {
           position: absolute;
           top: 4px;
-          content: '';
+          content: "";
           width: 1px;
           height: 40px;
           background: rgba(174, 216, 255, 0);
@@ -611,15 +629,15 @@
         }
       }
 
-      >.dosomething-item:nth-child(3) {
+      > .dosomething-item:nth-child(3) {
         width: 96px;
         position: relative;
 
-        >img {
+        > img {
           width: 20px;
           margin-top: 2px;
           margin-bottom: 3px;
-          transition: transform .05s;
+          transition: transform 0.05s;
 
           &.rotate {
             transform: rotate(180deg);
@@ -630,7 +648,6 @@
   }
 }
 
-
 // 操作选项
 .option {
   position: absolute;
@@ -639,10 +656,10 @@
   width: 130px;
   padding: 4px;
   padding-left: 20px;
-  background: #08080A;
+  background: #08080a;
   // background: linear-gradient(180deg, #08080A 0%, #11182D 100%);
   box-shadow: 0px 0px 10px 0px rgba(26, 137, 255, 0.8);
-  border: 1px solid #32B9FF;
+  border: 1px solid #32b9ff;
   border-radius: 8px;
 
   &.more {
@@ -651,7 +668,7 @@
     transform: translateX(50%);
 
     // 小三角
-    >img {
+    > img {
       bottom: -25px;
       right: 50%;
       transform: translateX(50%) rotate(-90deg);
@@ -660,7 +677,7 @@
 
   .option-item {
     position: relative;
-    color: #AED8FF;
+    color: #aed8ff;
     line-height: 40px;
     height: 40px;
     box-sizing: content-box;
@@ -677,12 +694,12 @@
       display: inline-block;
       vertical-align: middle;
     }
-    
+
     &.line:before,
     &.logout:before {
       position: absolute;
       top: 0px;
-      content: '';
+      content: "";
       width: 80%;
       height: 1px;
       background: rgba(174, 216, 255, 0);
@@ -691,7 +708,7 @@
   }
 
   // 小三角
-  >img {
+  > img {
     position: absolute;
     width: 16px;
     bottom: -18px;
@@ -699,7 +716,6 @@
     transform: rotate(-90deg);
   }
 }
-
 
 // 修改密码模态框
 /deep/.el-form-item__label {
