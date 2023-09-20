@@ -72,6 +72,14 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="label ">
+          <span>赠送积分:</span>
+        </div>
+        <div class="value" layout="row" layout-align="start center">
+         {{sendPoint}}
+        </div>
+      </div>
       <div class="row" v-if="form.activeDetailId == makeMoneyList.length - 1">
         <div class="label m-t-2">
           <span>充值金额:</span>
@@ -180,6 +188,7 @@ export default {
         makeAmt: "",
         freeAmt: "",
       },
+      base_amt:0, // 充值赠送积分基数, =0代表不赠送, =10代表充值有价金额每满10元赠送1个积分
     };
   },
   methods: {
@@ -203,6 +212,7 @@ export default {
             { d: "自定义", f: 0 },
           ];
           this.typeOption = res.data.depoist_cnls || [];
+          this.base_amt = res.data.base_amt;
         } else {
           this.$message.warning(res.msg);
         }
@@ -248,6 +258,21 @@ export default {
       immediate: true,
     },
   },
+  computed:{
+    sendPoint(){
+       let point = "";
+       if(this.base_amt == 0){
+        point = '---';
+       }else{
+        if(this.form.activeDetailId == this.makeMoneyList.length - 1){
+         point = Math.floor(this.form.makeAmt * 1 / this.base_amt);
+       }else{
+         point = Math.floor(this.makeMoneyList[this.form.activeDetailId].d * 1 / this.base_amt);
+       }
+       }
+       return point
+    }
+  }
 };
 </script>
 
