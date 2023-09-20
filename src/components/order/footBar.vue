@@ -9,7 +9,7 @@
       :layout="isRect ? 'row' : 'column'"
       :layout-align="isRect ? 'start center' : 'start start'"
     >
-      <div class="first-layout" layout="row" layout-align="start center">
+      <div style="margin-bottom: -2px;" layout="row" layout-align="start center">
         <div class="ul" layout="row" layout-align="start center">
           <div
             class="li line"
