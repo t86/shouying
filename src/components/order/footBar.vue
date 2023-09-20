@@ -2,10 +2,13 @@
   <div
     class="footBar"
     :class="{ rect: !isRect }"
-    :layout="isRect ? 'row' : isSmallRect ? 'column' : 'row'"
-    layout-align="space-between center"
+    :layout="isRect ? 'row' : 'column'"
+    :layout-align="isRect ? 'space-between center' : 'tart center'"
   >
-    <div :layout="isSmallRect ? 'column' : 'row'" layout-align="center center">
+    <div
+      :layout="isRect ? 'row' : 'column'"
+      :layout-align="isRect ? 'start center' : 'start start'"
+    >
       <div class="first-layout" layout="row" layout-align="start center">
         <div class="ul" layout="row" layout-align="start center">
           <div
@@ -147,9 +150,12 @@
         <div layout="row" layout-align="start center">
           <!-- 消费情况 -->
           <div
+            id="aaaa"
             class="amt line p-r-6"
-            :class="'noAmount'"
-            v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
+            v-if="
+              isRect &&
+              ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
+            "
             layout="row"
             layout-align="start start"
           >
@@ -204,6 +210,56 @@
             </p>
             <p class="time" :class="{ rect: !isRect }">
               {{ authTips }}:{{ authInfo.name }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div layout="row" id="bbbb" layout-align="center center" v-if="!isRect">
+        <!-- 消费情况 -->
+        <div
+          class="amt line p-r-6"
+          v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
+          layout="row"
+          layout-align="start start"
+        >
+          <div class="left m-r-2" layout="row">
+            <p class="one-txt-cut">
+              <!-- 折前：当太总消费的应收金额（不含赠送） -->
+              <span>折前金额:</span>
+              <span class="m-r-4"
+                >￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span
+              >
+            </p>
+            <p class="one-txt-cut">
+              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+              <span>折后金额:</span>
+              <span class="m-r-4"
+                >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
+              >
+            </p>
+            <p class="one-txt-cut">
+              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+              <span>主营点单金额:</span>
+              <span class="m-r-4"
+                >￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span
+              >
+            </p>
+          </div>
+          <div class="right" layout="row">
+            <p class="one-txt-cut">
+              <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
+              <span>已收金额:</span>
+              <span class="m-r-4"
+                >￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span
+              >
+            </p>
+            <p class="one-txt-cut">
+              <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
+              <span class="txt-right">当台实收:</span>
+              <span
+                >￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span
+              >
             </p>
           </div>
         </div>
@@ -293,61 +349,6 @@
           <div class="bottom" layout="row" layout-align="center center">
             <div class="button info cursor" @click="onCancelScan">取消</div>
             <div class="button primary cursor" @click="onSubmitScan">确定</div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        layout="row"
-        layout-align="center center"
-        v-if="isRect"
-        class="second-layout"
-      >
-        <!-- 消费情况 -->
-        <div
-          class="amt line p-r-6"
-          v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
-          layout="row"
-          layout-align="start start"
-        >
-          <div class="left m-r-2" layout="row">
-            <p class="one-txt-cut">
-              <!-- 折前：当太总消费的应收金额（不含赠送） -->
-              <span>折前金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span
-              >
-            </p>
-            <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span>折后金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
-              >
-            </p>
-            <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span>主营点单金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span
-              >
-            </p>
-          </div>
-          <div class="right" layout="row">
-            <p class="one-txt-cut">
-              <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
-              <span>已收金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span
-              >
-            </p>
-            <p class="one-txt-cut">
-              <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
-              <span class="txt-right">当台实收:</span>
-              <span
-                >￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span
-              >
-            </p>
           </div>
         </div>
       </div>
@@ -499,8 +500,7 @@ export default {
     return {
       canLookOrderAmt: false,
 
-      isRect: true, // 是否为横屏
-      isSmallRect: window.innerWidth <= 1024,
+      isRect: window.innerWidth > 1024,
 
       activeRouteName: "", // 当前页面的routerName
       navList: [],
@@ -675,15 +675,6 @@ export default {
       // 是否为收银系统查看翻台记录
       if (this.$store.state.orderInfo.currentCardInfo.bizStatus != 1)
         this.getOrderedData(); // 通过后台获取当前当前账号是否有查单权限
-
-      this.getRectVal(); // 检测是否为横屏
-    },
-
-    // 检测是否为横屏
-    getRectVal() {
-      const width = screen.availWidth;
-      const height = screen.availHeight;
-      this.isRect = width >= height;
     },
 
     // 服务员买单
@@ -966,27 +957,4 @@ export default {
 
 <style lang="less">
 @import "../../style/common/elementConfirm.less";
-</style>
-<style scoped>
-.first-layout {
-  height: 100%;
-}
-.second-layout {
-  display: none;
-}
-
-@media (max-width: 1024px) {
-  .amount-display {
-    display: none;
-  }
-  .noAmount {
-    display: none;
-  }
-  .first-layout {
-    height: 45px;
-  }
-  .footBar .ul .li {
-    padding-top: 5px !important;
-  }
-}
 </style>
