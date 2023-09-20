@@ -3,7 +3,7 @@
     class="footBar"
     :class="{ rect: !isRect }"
     :layout="isRect ? 'row' : 'column'"
-    :layout-align="isRect ? 'space-between center' : 'tart center'"
+    :layout-align="isRect ? 'space-between center' : 'start center'"
   >
     <div
       :layout="isRect ? 'row' : 'column'"
