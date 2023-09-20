@@ -32,19 +32,19 @@
             >{{item1.name}}</div>
           </div>
         </div>
-        <div class="textarea p-t-1" v-if="$store.state.userInfo.authStatus == 4">
+        <div class="textarea p-t-1" v-if="isNotAndroid && requireList.length>0">
           <div style="color:rgba(255,255,255,0.8);margin: 3px 0 6px 0px">其他要求</div>
           <textarea v-model="textareaText" placeholder="请输入自定义要求" maxlength="30"></textarea>
           <div class="tips">{{textareaText.length}} / 30</div>
         </div>
-        <div class="white m-t-6 fs16" style="text-align:center" v-if="(!showSelectedCount&&requireList.length == 0) && $store.state.userInfo.authStatus != 4">
+      </div>
+      <div class="white m-t-6 fs16" style="text-align:center" v-if="!showSelectedCount&&requireList.length == 0 || !isNotAndroid ">
           当前商品暂无可配置要求项
-        </div>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button v-if="(!(!showSelectedCount&&requireList.length == 0)) || $store.state.userInfo.authStatus == 4" type="primary" @click="onSubmit">确认</el-button>
+        <el-button v-if="(!(!showSelectedCount&&requireList.length == 0)) || isNotAndroid" type="primary" @click="onSubmit">确认</el-button>
       </div>
     </el-drawer>
   </div>
@@ -64,7 +64,6 @@ export default {
       textareaText: "",
       requireList: [],
       selectedCount: 1, // 可选单品的选中次数
-
       imgSrc: {
         add,
         sub,
@@ -191,6 +190,17 @@ export default {
 
         this.$forceUpdate();
       }
+    }
+  },
+  computed: {
+    isNotAndroid(){
+      let termType = ''
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log('获取终端类型失败', error)
+      }
+      return termType != 'android'
     }
   }
 };
