@@ -50,7 +50,7 @@
             </div>
           </div>
           <!-- 搜索框 -->
-          <div class="search"  v-if="tab.tabList.length>0">
+          <div class="search" v-if="tab.tabList.length > 0">
             <input
               type="text"
               v-model="keyWord"
@@ -587,7 +587,7 @@ export default {
           name: "全部",
         });
       }
-    
+
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
         tabList.push({
@@ -970,7 +970,6 @@ export default {
         // 区域tab
         this.getTabList(resResultDataObj["areaInfo"]);
         // 获取卡台数据
-       
       } catch (error) {
         console.log("全量数据请求失败", error);
       }
@@ -1212,9 +1211,9 @@ export default {
         this.showFullPageTable = true;
       } else {
         this.drawer.showDrawer = true;
-        this.$children[0] &&
-          this.$children[0].cardInfoChange &&
-          this.$children[0].cardInfoChange();
+        // this.$children[0] &&
+        //   this.$children[0].cardInfoChange &&
+        //   this.$children[0].cardInfoChange();
       }
       this.drawer.cardInfo = cardInfo;
       this.drawer.formStatus = optionsInfo.id;
