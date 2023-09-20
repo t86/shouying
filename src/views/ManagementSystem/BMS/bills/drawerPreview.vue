@@ -397,8 +397,11 @@
               <div class="guest_info" style="border: none; margin-top: -4px">
                 <div class="guest_info_l">消后储值余额: ￥2000.00</div>
               </div>
-              <div class="guest_info" style="margin-top: -4px">
+              <div class="guest_info" style="border: none; margin-top: -4px">
                 <div class="guest_info_l">消后赠送余额：￥0.00</div>
+              </div>
+              <div class="guest_info" style="margin-top: -4px">
+                <div class="guest_info_l">消后赠送积分：&nbsp;&nbsp;1000</div>
               </div>
               <div class="order_time">
                 <div class="order_time_li">打印时间：2023-09-09 12:33:32</div>
@@ -703,6 +706,9 @@
                 <div class="guest_info_l">赠送金额：￥1000.00</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">赠送积分：&nbsp;&nbsp;1000</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
                 <div class="guest_info_l">充值方式：现金</div>
               </div>
               <div class="guest_info" style="border: none; margin-top: -4px">
@@ -710,6 +716,42 @@
               </div>
               <div class="guest_info" style="margin-top: -4px">
                 <div class="guest_info_l">充后赠送余额：￥2000.00</div>
+              </div>
+
+              <div class="order_time">
+                <div class="order_time_li">打印时间：2023-09-09 12:33:32</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="NoPaging p-t-1">
+            <div class="title bold">会员卡扣除积分格式:</div>
+            <div class="content">
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">操作人：收银员</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">流水号：129988877777</div>
+              </div>
+              <div class="guest_info" style="margin-top: -4px">
+                <div class="guest_info_l">扣除时间：2023-09-09 12:33:32</div>
+              </div>
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">卡号：00000000000001</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">姓名：会员vip</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">
+                  扣除积分：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1000
+                </div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">扣除前积分余额：2000</div>
+              </div>
+              <div class="guest_info" style="margin-top: -4px">
+                <div class="guest_info_l">扣除后积分余额：1000</div>
               </div>
 
               <div class="order_time">

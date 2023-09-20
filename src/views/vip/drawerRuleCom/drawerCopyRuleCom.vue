@@ -9,28 +9,10 @@
       append-to-body
     >
       <div class="session p-3 fs14">
-        <p class="m-b-2">选择扣款规则</p>
+        <p class="m-b-2">复制结账配置</p>
 
-        <div>
-          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="1"
-            >按比例扣款</el-radio
-          >
-        </div>
-        <div>
-          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="2"
-            >优先用赠送金额</el-radio
-          >
-        </div>
-        <div>
-          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="3"
-            >只能用储值金额</el-radio
-          >
-        </div>
-        <div>
-          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="4"
-            >只能用赠送金额</el-radio
-          >
-        </div>
+        <span class="red">*</span>
+        <span>请选择要复制结账配置的卡类型：</span>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">

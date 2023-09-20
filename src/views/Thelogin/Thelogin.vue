@@ -1,6 +1,14 @@
 <template>
   <div class="Thelogin">
     <div class="terminal-type">
+      <div class="exit" @click="exit" v-if="!isWeb">
+        <img
+          :src="require('@/assets/card-imgs/loginout.png')"
+          alt
+          style="width: 18px; height: 18px; margin-right: 2px"
+        />
+        <span>退出</span>
+      </div>
       <div class="clear-cache" @click="clear">
         <img
           :src="require('@/assets/register-login/qinglihuancun.png')"
@@ -395,6 +403,11 @@ export default {
       });
       this.$router.push({ path: this.url });
     },
+    exit() {
+      try {
+        atool.exit();
+      } catch (e) {}
+    },
     clear() {
       let version = localStorage.getItem("projectVersion");
       sessionStorage.clear();
@@ -545,6 +558,15 @@ export default {
       }
       return termType == "android";
     },
+    isWeb() {
+      let termType = "";
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log("获取终端类型失败", error);
+      }
+      return termType === "";
+    },
     version() {
       const pv = localStorage.getItem("projectVersion");
       const av = localStorage.getItem("refreshAll");
@@ -638,6 +660,27 @@ export default {
     .terminal-type-name {
       text-align: center;
     }
+    .exit {
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #367bd5;
+      width: 60px;
+      height: 30px;
+      cursor: pointer;
+      opacity: 0.6;
+      img {
+        width: 20px;
+        height: 20px;
+      }
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+        opacity: 1;
+      }
+    }
+
     .clear-cache {
       margin-right: 16px;
       display: flex;

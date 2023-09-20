@@ -61,6 +61,13 @@
     </div>
 
     <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">会员扣款小票打印份数：</div>
+      <div class="value">
+        <el-input-number v-model="membersubtractCount" :min="0" :max="9" />
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
       <div class="label">会员充值小票打印份数：</div>
       <div class="value">
         <el-input-number v-model="memberDepositCount" :min="0" :max="9" />
@@ -71,13 +78,6 @@
       <div class="label">会员消费小票打印份数：</div>
       <div class="value">
         <el-input-number v-model="memberConsumeCount" :min="0" :max="9" />
-      </div>
-    </div>
-
-    <div class="coll m-b-3" layout="row" layout-align="start center">
-      <div class="label">会员扣款小票打印份数：</div>
-      <div class="value">
-        <el-input-number v-model="membersubtractCount" :min="0" :max="9" />
       </div>
     </div>
 
@@ -115,7 +115,7 @@ export default {
       memberDepositCount: 0, // 会员充值小票份数
       memberConsumeCount: 0, // 会员消费小票份数
       membersubtractCount: 0, // 会员扣款小票份数
-      memberPointCount:0, // 会员扣除积分小票份数
+      memberPointCount: 0, // 会员扣除积分小票份数
     };
   },
   methods: {

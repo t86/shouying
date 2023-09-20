@@ -52,11 +52,11 @@ export default [
         name: "会员卡号生成规则",
         routerName: "vipNumRules",
       },
-      {
-        id: 33,
-        name: "会员卡结账规则",
-        routerName: "vipBillRules",
-      },
+      // {
+      //   id: 33,
+      //   name: "会员卡结账规则",
+      //   routerName: "vipBillRules",
+      // },
     ],
   },
   {
@@ -90,7 +90,6 @@ export default [
         name: "会员卡余额汇总表",
         routerName: "memberBalanceSum",
       },
-      
     ],
   },
 ];

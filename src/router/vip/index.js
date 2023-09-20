@@ -41,13 +41,13 @@ export default [
         meta: { title: "会员卡号生成规则" },
         component: () => import("@/views/vip/vipNumRules.vue"),
       },
-      // 会员卡结账规则
-      {
-        path: "/vipBillRules",
-        name: "vipBillRules",
-        meta: { title: "会员卡号生成规则" },
-        component: () => import("@/views/vip/vipBillRules.vue"),
-      },
+      // // 会员卡结账规则
+      // {
+      //   path: "/vipBillRules",
+      //   name: "vipBillRules",
+      //   meta: { title: "会员卡号生成规则" },
+      //   component: () => import("@/views/vip/vipBillRules.vue"),
+      // },
       // 充值记录
       {
         path: "/makeMoneyToVip",
@@ -76,7 +76,7 @@ export default [
         meta: { title: "积分扣除记录" },
         component: () => import("@/views/vip/pointRecords.vue"),
       },
-      // 
+      //
       {
         path: "/memberBalanceSum",
         name: "memberBalanceSum",
