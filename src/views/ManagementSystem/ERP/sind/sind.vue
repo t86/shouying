@@ -340,7 +340,6 @@
         :visible.sync="cfdetails"
         @close="cfdetails = false"
         :close-on-click-modal="false"
-        class="aaaaa"
       >
         <!-- <div> -->
         <div id="print">

@@ -17,7 +17,7 @@
       </ul>
     </div>
     <!-- 订单详情 -->
-    <div class="order-content">
+    <div class="order-content" :style="isRect ? 'height: calc(100vh - 140px);' : 'height: calc(100vh - 160px);'">
       <div class="order-content-tab">
         <ul
           ref="payTableRef"
@@ -219,7 +219,7 @@
     </div>
 
     <!-- 底部 -->
-    <div class="bottom-nav">
+    <div class="bottom-nav" :style="isRect ? 'height: 60px' : 'height: 80px'">
       <footBar ref="footBar" :empId="empId" />
     </div>
 
@@ -286,6 +286,7 @@ const ctrlAndShiftCode = [17, 16]
 export default {
   data() {
     return {
+      isRect: window.innerWidth > 1024,
       empId: 0, // 订位人id
       flag: false,  // 递归节流阀（用于请求到订单数据后更新结账前结账后数据）
       turnOverAmtInfo: [], // 已付款翻台记录的相关金额信息（用于展示在页面底部footer的金额）
