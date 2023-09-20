@@ -76,6 +76,7 @@
           <!-- 收银系统按钮 -->
           <div
             class="pay-btn line"
+            :style = "isNarrowWidth && 'padding: 0px 0px'"
             v-if="
               $store.state.userInfo.authStatus == 4 &&
               !this.$route.path.startsWith('/orderMeal') &&
@@ -198,8 +199,8 @@
             </div>
           </div>
           <div
-            class="date-time p-l-3"
-            :class="{ 'm-l-6': !isRect }"
+            class="date-time"
+            :class="{ 'm-l-6': !isRect && !isNarrowWidth, 'p-l-3' : !isNarrowWidth }"
             layout="column"
             layout-align="center center"
           >
@@ -215,7 +216,7 @@
         </div>
       </div>
 
-      <div layout="row" id="bbbb" layout-align="center center" v-if="!isRect">
+      <div layout="row" style="width: 100%" layout-align="center center" v-if="!isRect">
         <!-- 消费情况 -->
         <div
           class="amt line p-r-6"
@@ -501,6 +502,7 @@ export default {
       canLookOrderAmt: false,
 
       isRect: window.innerWidth > 1024,
+      isNarrowWidth : window.innerWidth < 850,
 
       activeRouteName: "", // 当前页面的routerName
       navList: [],
