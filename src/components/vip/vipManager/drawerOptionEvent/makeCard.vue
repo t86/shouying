@@ -30,10 +30,6 @@
         <div class="label">积分余额：</div>
         <div class="value">{{vipInfo.pt_bal}}</div>
       </div>
-      <!-- <div class="row">
-        <div class="label">剩余积分：</div>
-        <div class="value">1000</div>
-      </div> -->
     </div>
     <div class="read-content">
       <p>请将会员卡放到读卡器上！</p>

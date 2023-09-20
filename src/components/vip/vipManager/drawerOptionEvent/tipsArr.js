@@ -40,6 +40,11 @@ export default [
     name: '扣款'
   },
   {
+    id: 10,
+    objName: 'subMoneyVipCardInfoObj',
+    name: '扣除积分'
+  },
+  {
     id: 9,
     objName: 'deleteVipCardInfoObj',
     name: '注销'

@@ -366,8 +366,8 @@ export default {
     },
     // 获取右击菜单列表
     getTipsList(type) {
-      const makedCardList = [1, 3, 4, 5, 6, 7, 8, 9];
-      const notMakedCardList = [1, 2, 3, 4, 8, 9];
+      const makedCardList = [1, 3, 4, 5, 6, 7, 8, 10, 9];
+      const notMakedCardList = [1, 2, 3, 4, 8, 10 ,9];
       return tipsArr.filter((item) =>
         type == 1
           ? makedCardList.includes(item.id)
