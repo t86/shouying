@@ -288,4 +288,12 @@ export default {
   // 开卡推荐人列表
   reqGetRecommnedList: (params) =>
     axios.post(`${base.htgl}/mb/card/list`, params),
+
+    // 充值积分 保存规则
+  reqSavePointRule: (params) =>
+  axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
+
+    // 充值积分 获取规则
+    reqGetPointRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
 };

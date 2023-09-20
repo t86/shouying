@@ -18,6 +18,17 @@
           placeholder="输入整数"
           type="number"
           style="width: 100px"
+          @keyup.native="
+            (e) => {
+              showMessage(e);
+              form.amount = inputLimitPositiveNum(e.target.value);
+            }
+          "
+          @blur="
+            (e) => {
+              form.amount = formatPointNumber(e.target.value);
+            }
+          "
         ></el-input>
         <span>元送1积分</span>
           </div>
@@ -32,20 +43,41 @@
 
 <script>
 import api_vip from "@/api/vip";
-
+import { inputLimitPositiveNum, formatPointNumber } from "@/utils/formatNumber";
 export default {
   data() {
     return {
       form: {
         rechargePointEnabled: false,
         amount: "",
+        inputLimitPositiveNum, 
+        formatPointNumber
       }
     };
   },
   methods: {
-    save(){
-
-    }
+    showMessage(e) {
+      let value = e.target.value;
+      if (value && value.indexOf(".") > -1) {
+        this.$message.warning("请输入正整数");
+      }
+    },
+    async save(){
+      try {
+        const params = {
+          type_id: this.form.rechargePointEnabled? 2 : 1,
+          base_amt: this.form.amount * 1,
+        }
+        const res = await api_vip.reqSavePointRule(params);
+        if (res.code == 1) {
+          this.$message.success('保存成功')
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("保存规则失败", error);
+      }
+    } 
   },
   created() {
 
