@@ -41,7 +41,7 @@ export default [
   },
   {
     id: 10,
-    objName: 'subMoneyVipCardInfoObj',
+    objName: 'deductionPointInfoObj',
     name: '扣除积分'
   },
   {

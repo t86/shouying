@@ -69,10 +69,23 @@ export default {
       } catch (error) {
         console.log("保存规则失败", error);
       }
+    },
+    async getSettingConfig(){
+      try {
+        const res = await api_vip.reqGetPointRule();
+        if (res.code == 1) {
+          this.form.type_id = res.data.type_id;
+          this.form.amount = res.data.base_amt;
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取配置失败", error);
+      }
     }
   },
   created() {
-
+    this.getSettingConfig();
   },
   components: {
 

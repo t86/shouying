@@ -400,7 +400,7 @@ export default {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
             val_amt: this.subMoneyVipCardInfoObj.addAmt, //    string  有价金额(最多支持两位小数)
             free_amt: this.subMoneyVipCardInfoObj.zSAmt || "0", //   string   赠送金额(最多支持两位小数)
-            pt_amt: this.subMoneyVipCardInfoObj.point, //    int 赠送/扣除积分
+            pt_amt: this.subMoneyVipCardInfoObj.point * 1, //    int 赠送/扣除积分
             pt_bal: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
             type_id: this.subMoneyVipCardInfoObj.subType * 1, //    int   操作类型, 1业务扣款 2充错扣款
           };
@@ -444,18 +444,21 @@ export default {
 
         case 10:
           // 扣除积分
+          
           params = {
-            mb_card_id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
-            point:this.deductionPointInfoObj.point * 1 // 积分
+            id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
+            oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
+            pt_amt:this.deductionPointInfoObj.point * 1, // 积分
+            remark:this.deductionPointInfoObj.remark  //Remark 扣款备注
           };
           try {
-            // const res = await api_vip.reqDestroyVipCard(params);
-            // if (res.code == 1) {
+            const res = await api_vip.reqSubPointFromCard(params);
+            if (res.code == 1) {
               this.$message.success("扣除成功");
-            //   this.onCancelDrawer();
-            // } else {
-            //   this.$message.warning(res.msg);
-            // }
+              this.onCancelDrawer();
+            } else {
+              this.$message.warning(res.msg);
+            }
           } catch (error) {
             console.log("扣除失败", error);
           }
