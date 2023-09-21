@@ -663,7 +663,7 @@ export default {
       justify-content: center;
       align-items: center;
       color: #367bd5;
-      width: 100px;
+      width: 80px;
       height: 30px;
       cursor: pointer;
       opacity: 0.6;
