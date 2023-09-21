@@ -1,11 +1,19 @@
 <template>
   <div class="Thelogin">
     <div class="terminal-type">
+      <div class="exit" @click="exit" v-if="!isWeb">
+        <img
+          :src="require('@/assets/card-imgs/exit.png')"
+          alt
+          style="width: 18px; height: 18px; margin-right: 4px"
+        />
+        <span>退出</span>
+      </div>
       <div class="clear-cache" @click="clear">
         <img
           :src="require('@/assets/register-login/qinglihuancun.png')"
           alt
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
         />
         <span>清理缓存</span>
       </div>
@@ -15,7 +23,7 @@
         v-if="isAndroidTerminal"
       >
         <img
-          style="width: 18px; height: 18px; margin-right: 2px"
+          style="width: 18px; height: 18px; margin-right: 4px"
           :src="require('@/assets/register-login/qiehuan.png')"
           alt
         />
@@ -49,11 +57,18 @@
     <div class="elasticity">
       <div class="center-type" layout="row" layout-align="center center">
         <div class="slideshow">
-          <!-- <el-carousel style="width:100%;" :height="[isAndroidTerminal?'400px':'500px']">
+          <el-carousel
+            style="width: 100%"
+            :height="[isAndroidTerminal ? '400px' : '500px']"
+          >
             <el-carousel-item v-for="item in 3" :key="item">
-              <img src="@/assets/img/banner_login.png" style="width:100%;height:100%;object-fit:contain" alt />
+              <img
+                src="@/assets/img/banner.png"
+                style="width: 100%; height: 100%; object-fit: contain"
+                alt
+              />
             </el-carousel-item>
-          </el-carousel> -->
+          </el-carousel>
         </div>
         <div class="keyboard-contain">
           <div class="OpenKeyboard" :class="{ android: isAndroidTerminal }">
@@ -395,6 +410,11 @@ export default {
       });
       this.$router.push({ path: this.url });
     },
+    exit() {
+      try {
+        atool.exit();
+      } catch (e) {}
+    },
     clear() {
       let version = localStorage.getItem("projectVersion");
       sessionStorage.clear();
@@ -545,6 +565,15 @@ export default {
       }
       return termType == "android";
     },
+    isWeb() {
+      let termType = "";
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log("获取终端类型失败", error);
+      }
+      return termType === "";
+    },
     version() {
       const pv = localStorage.getItem("projectVersion");
       const av = localStorage.getItem("refreshAll");
@@ -638,6 +667,27 @@ export default {
     .terminal-type-name {
       text-align: center;
     }
+    .exit {
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #367bd5;
+      width: 60px;
+      height: 30px;
+      cursor: pointer;
+      opacity: 0.6;
+      img {
+        width: 20px;
+        height: 20px;
+      }
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+        opacity: 1;
+      }
+    }
+
     .clear-cache {
       margin-right: 16px;
       display: flex;

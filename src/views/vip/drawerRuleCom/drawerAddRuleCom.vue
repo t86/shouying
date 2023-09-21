@@ -5,7 +5,8 @@
       :visible.sync="show"
       :before-close="closeDrawerHandle"
       direction="rtl"
-      size="80%"
+      size="720px"
+      append-to-body
     >
       <div class="session p-3 fs14">
         <!-- 头部筛选项 -->

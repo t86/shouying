@@ -1,12 +1,32 @@
 <template>
   <div class="mklib">
-    <div class="zsykd" style="display: inline-block;">
-      <table class="zhuixiaoi" style="min-width: 1191px;">
+    <div class="zsykd" style="display: inline-block">
+      <table class="zhuixiaoi" style="min-width: 1191px">
         <div class="mklib-controller">
-          <icon-button @click.native="productionlibrary" text="新增出品库" img="btn_add.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="compileprinter" text="编辑" img="btn_edit.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="noneffective" text="置为无效" img="btn_in_vain.png" colors="#f5f5f5"></icon-button>
-          <icon-button @click.native="effective" text="置为有效" img="btn_effective.png" colors="#f5f5f5"></icon-button>
+          <icon-button
+            @click.native="productionlibrary"
+            text="新增出品库"
+            img="btn_add.png"
+            colors="#f5f5f5"
+          ></icon-button>
+          <icon-button
+            @click.native="compileprinter"
+            text="编辑"
+            img="btn_edit.png"
+            colors="#f5f5f5"
+          ></icon-button>
+          <icon-button
+            @click.native="noneffective"
+            text="置为无效"
+            img="btn_in_vain.png"
+            colors="#f5f5f5"
+          ></icon-button>
+          <icon-button
+            @click.native="effective"
+            text="置为有效"
+            img="btn_effective.png"
+            colors="#f5f5f5"
+          ></icon-button>
           <icon-button
             @click.native="printerdel"
             text="批量删除"
@@ -22,7 +42,8 @@
                 :indeterminate="isIndeterminate"
                 v-model="checkAll"
                 @change="handleCheckAllChange"
-              >全选&ensp;</el-checkbox>
+                >全选&ensp;</el-checkbox
+              >
             </th>
             <th>出品库名称</th>
             <th>存货仓库名称</th>
@@ -37,35 +58,62 @@
         </thead>
         <tbody
           class="limiting"
-          :style="{'border-bottom':Product.length<1?'0px':'',
-                'width':Product.length>MaxNumber?'calc(100% + 6px)':'100%',
-                'max-height':`${MaxHeight}px`}"
+          :style="{
+            'border-bottom': Product.length < 1 ? '0px' : '',
+            width: Product.length > MaxNumber ? 'calc(100% + 6px)' : '100%',
+            'max-height': `${MaxHeight}px`,
+          }"
         >
           <tr
-            v-for="(item,i) in Product"
+            v-for="(item, i) in Product"
             :key="item.id"
             class="drag-list"
-            :class="multipleSelection.includes(item.id)? 'drag-list-check':''"
+            :class="
+              multipleSelection.includes(item.id) ? 'drag-list-check' : ''
+            "
           >
-            <td :style="{'color':item.s=='无效'?'#595959':''}">
-              <el-checkbox-group v-model="multipleSelection" @change="handleCheckedCitiesChange">
-                <el-checkbox :label="item.id">{{i+1}}&emsp;&ensp;</el-checkbox>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              <el-checkbox-group
+                v-model="multipleSelection"
+                @change="handleCheckedCitiesChange"
+              >
+                <el-checkbox :label="item.id"
+                  >{{ i + 1 }}&emsp;&ensp;</el-checkbox
+                >
               </el-checkbox-group>
             </td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.n}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.sn}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.pn}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.pc}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.cn}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.cc || '-'}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.c}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.u}}</td>
-            <td :style="{'color':item.s=='无效'?'#595959':''}">{{item.s}}</td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.n }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.sn }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.pn }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.pc }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.cn }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.cc || "-" }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.c }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.u }}
+            </td>
+            <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
+              {{ item.s }}
+            </td>
           </tr>
         </tbody>
       </table>
-      <div class="drag-list" v-if="Product.length<1">
-        <td class="nodata" :style="{'height':`${MaxHeight}px !important`}">
+      <div class="drag-list" v-if="Product.length < 1">
+        <td class="nodata" :style="{ height: `${MaxHeight}px !important` }">
           <img src="@/assets/img/wu.png" alt />
           <div class="hint">暂无数据</div>
         </td>
@@ -75,7 +123,7 @@
     <!-- 新建出品库 -->
     <div class="dialogPrinter" v-show="dialogPrinter">
       <el-dialog
-        :title="compileprinterss?'新建出品库':'编辑出品库'"
+        :title="compileprinterss ? '新建出品库' : '编辑出品库'"
         :visible.sync="dialogPrinter"
         @close="ManufactureDeselect"
         :close-on-click-modal="false"
@@ -91,10 +139,10 @@
                 ref="selectsse"
                 placeholder="请输入出品库名称"
                 class="controlling"
-                :class="form_rule_msg_name?'error':''"
+                :class="form_rule_msg_name ? 'error' : ''"
                 @blur="validator('name')"
               />
-              <div class="cwts">{{form_rule_msg_name}}</div>
+              <div class="cwts">{{ form_rule_msg_name }}</div>
             </div>
           </div>
           <div class="compatibil">
@@ -102,8 +150,17 @@
               <div class="mandatory">
                 <span class="reqfieldsd">*</span>存货仓库名称：
               </div>
-              <el-select v-model="mklib.stores" placeholder="请选择存货仓库" class="controlling">
-                <el-option v-for="(each,i) in stores" :key="i" :label="each.n" :value="each.id +''"></el-option>
+              <el-select
+                v-model="mklib.stores"
+                placeholder="请选择存货仓库"
+                class="controlling"
+              >
+                <el-option
+                  v-for="(each, i) in stores"
+                  :key="i"
+                  :label="each.n"
+                  :value="each.id + ''"
+                ></el-option>
                 <!-- <el-option label="--新增打印机--" value="新增1"></el-option> -->
               </el-select>
             </div>
@@ -114,12 +171,16 @@
               <div class="mandatory">
                 <span class="reqfieldsd">*</span>出品打印机名称：
               </div>
-              <el-select v-model="mklib.printername" placeholder="请选择打印机" class="controlling">
+              <el-select
+                v-model="mklib.printername"
+                placeholder="请选择打印机"
+                class="controlling"
+              >
                 <el-option
-                  v-for="(each,i) in printernr"
+                  v-for="(each, i) in printernr"
                   :key="i"
                   :label="each.n"
-                  :value="each.id +''"
+                  :value="each.id + ''"
                 ></el-option>
                 <el-option label="--新增打印机--" value="新增1"></el-option>
               </el-select>
@@ -132,10 +193,15 @@
                 <span class="reqfieldsd"></span>出品打印份数：
               </div>
               <el-form-item class="controlling">
-                <el-input-number v-model="mklib.ProducePrintCopies" :disabled="disableds[0]" />
+                <el-input-number
+                  v-model="mklib.ProducePrintCopies"
+                  :disabled="disableds[0]"
+                />
               </el-form-item>
             </div>
-            <div class="layouts">如没有选择选择打印机则不能改份数，打印份数要在[1,3]范围内</div>
+            <div class="layouts">
+              如没有选择选择打印机则不能改份数，打印份数要在[1,3]范围内
+            </div>
           </div>
           <div class="compatibil">
             <div class="compatibility">
@@ -143,10 +209,16 @@
                 <span class="reqfieldsd"></span>单品是否分页打印：
               </div>
               <el-form-item>
-                <el-radio v-model="mklib.WhetherPagingPrint" label="2">否</el-radio>
-                <el-radio v-model="mklib.WhetherPagingPrint" label="1">是</el-radio>
+                <el-radio v-model="mklib.WhetherPagingPrint" label="2"
+                  >否</el-radio
+                >
+                <el-radio v-model="mklib.WhetherPagingPrint" label="1"
+                  >是</el-radio
+                >
               </el-form-item>
-              <span class="preview" @click="PagingPreview = true">查看预览</span>
+              <span class="preview" @click="PagingPreview = true"
+                >查看预览</span
+              >
             </div>
           </div>
           <div class="compatibil">
@@ -155,16 +227,16 @@
                 <span class="reqfieldsd"></span>传菜打印机名称：
               </div>
               <el-select
-                clearable 
+                clearable
                 v-model="mklib.PantryHelperPrinter"
                 placeholder="请选择打印机"
                 class="controlling"
               >
                 <el-option
-                  v-for="(each,i) in printernr"
+                  v-for="(each, i) in printernr"
                   :key="i"
                   :label="each.n"
-                  :value="each.id +''"
+                  :value="each.id + ''"
                 ></el-option>
                 <el-option label="--新增打印机--" value="新增2"></el-option>
               </el-select>
@@ -177,16 +249,31 @@
                 <span class="reqfieldsd"></span>传菜打印份数：
               </div>
               <el-form-item class="controlling">
-                <el-input-number v-model="mklib.PantryHelperCopies" :disabled="disableds[1]" />
+                <el-input-number
+                  v-model="mklib.PantryHelperCopies"
+                  :disabled="disableds[1]"
+                />
               </el-form-item>
             </div>
-            <div class="layouts">如没有选择选择打印机则不能改份数，打印份数要在[1,3]范围内</div>
+            <div class="layouts">
+              如没有选择选择打印机则不能改份数，打印份数要在[1,3]范围内
+            </div>
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="ManufactureDeselect">取消</el-button>
-          <el-button v-show="compileprinterss" type="primary" @click="EstablishMake">确认</el-button>
-          <el-button v-show="!compileprinterss" type="primary" @click="saveprinter">保存</el-button>
+          <el-button
+            v-show="compileprinterss"
+            type="primary"
+            @click="EstablishMake"
+            >确认</el-button
+          >
+          <el-button
+            v-show="!compileprinterss"
+            type="primary"
+            @click="saveprinter"
+            >保存</el-button
+          >
         </span>
       </el-dialog>
     </div>
@@ -214,10 +301,16 @@
             <div class="mandatory">
               <span class="reqfieldsd">*</span>IP地址：
             </div>
-            <el-input v-model="printer.printerIP" placeholder="请输入打印机ID地址" class="controlling" />
+            <el-input
+              v-model="printer.printerIP"
+              placeholder="请输入打印机ID地址"
+              class="controlling"
+            />
           </div>
         </el-form>
-        <div class="layouts">IP地址格式为：a.b.c.d;其中a,b,c,d均为0-254的数字</div>
+        <div class="layouts">
+          IP地址格式为：a.b.c.d;其中a,b,c,d均为0-254的数字
+        </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="PrinterCancel">取消</el-button>
           <el-button type="primary" @click="construction">确认</el-button>
@@ -232,8 +325,8 @@
         @close="dialogFible = false"
         :close-on-click-modal="false"
       >
-        <div class="wwent" v-show="cwsm.cs.length>0">
-          <span>以下对象存在依赖，需同步设置为{{srnr | pand}}</span>
+        <div class="wwent" v-show="cwsm.cs.length > 0">
+          <span>以下对象存在依赖，需同步设置为{{ srnr | pand }}</span>
           <characters-button
             @click.native="synchronizon"
             :disaed="kzsfjy"
@@ -241,7 +334,7 @@
             :wz="`同步${srnr}`"
           ></characters-button>
         </div>
-        <div class="wentlb" v-show="cwsm.cs.length>0">
+        <div class="wentlb" v-show="cwsm.cs.length > 0">
           <table class="zhuixiaoi">
             <thead class="mmodity">
               <tr>
@@ -250,21 +343,34 @@
                 <th>处理结果</th>
               </tr>
             </thead>
-            <tbody class="limiting" :style="{'width':cwsm.cs.length>6?'calc(100% + 6px)':'100%'}">
-              <tr v-for="(item,i) in cwsm.cs" :key="i" class="drag-list">
-                <td>{{i+1}}</td>
+            <tbody
+              class="limiting"
+              :style="{
+                width: cwsm.cs.length > 6 ? 'calc(100% + 6px)' : '100%',
+              }"
+            >
+              <tr v-for="(item, i) in cwsm.cs" :key="i" class="drag-list">
+                <td>{{ i + 1 }}</td>
                 <td>
-                  <ellipsis-tooltip :text="item.r || '-----'"></ellipsis-tooltip>
+                  <ellipsis-tooltip
+                    :text="item.r || '-----'"
+                  ></ellipsis-tooltip>
                 </td>
-                <td v-show="item.jg == '成功'" style="color: #00BC72;">{{item.jg}}</td>
-                <td v-show="item.jg == '---'">{{item.jg}}</td>
-                <td v-show="item.jg == '失败'" style="color: #E13B50;">{{item.jg}}</td>
+                <td v-show="item.jg == '成功'" style="color: #00bc72">
+                  {{ item.jg }}
+                </td>
+                <td v-show="item.jg == '---'">{{ item.jg }}</td>
+                <td v-show="item.jg == '失败'" style="color: #e13b50">
+                  {{ item.jg }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="wwent" v-show="cwsm.ns.length>0">以下对象存在依赖，需人工处理依赖</div>
-        <div class="wentlb danykz" v-show="cwsm.ns.length>0">
+        <div class="wwent" v-show="cwsm.ns.length > 0">
+          以下对象存在依赖，需人工处理依赖
+        </div>
+        <div class="wentlb danykz" v-show="cwsm.ns.length > 0">
           <table class="zhuixiaoi">
             <thead class="mmodity">
               <tr>
@@ -272,9 +378,14 @@
                 <th>说明</th>
               </tr>
             </thead>
-            <tbody class="limiting" :style="{'width':cwsm.ns.length>6?'calc(100% + 6px)':'100%'}">
-              <tr v-for="(item,i) in cwsm.ns" :key="i" class="drag-list">
-                <td>{{i+1}}</td>
+            <tbody
+              class="limiting"
+              :style="{
+                width: cwsm.ns.length > 6 ? 'calc(100% + 6px)' : '100%',
+              }"
+            >
+              <tr v-for="(item, i) in cwsm.ns" :key="i" class="drag-list">
+                <td>{{ i + 1 }}</td>
                 <td>
                   <ellipsis-tooltip :text="item || '-----'"></ellipsis-tooltip>
                 </td>
@@ -290,7 +401,11 @@
 
     <!-- 分页预览 -->
     <div class="Pagingss" v-show="PagingPreview">
-      <el-dialog title="预览" :visible.sync="PagingPreview" :close-on-click-modal="false">
+      <el-dialog
+        title="预览"
+        :visible.sync="PagingPreview"
+        :close-on-click-modal="false"
+      >
         <div class="Pagingll">
           <div class="NoPaging">
             <div class="headline">不分页打印</div>
@@ -302,14 +417,22 @@
                   <span>服务员：000000 系统管理员</span>
                 </div>
               </div>
-              <div class="cuisine" layout="row" layout-align="space-between center">
+              <div
+                class="cuisine"
+                layout="row"
+                layout-align="space-between center"
+              >
                 <div>雪花啤酒</div>
-                <div style="width:150px;text-align:right">¥10.00</div>
+                <div style="width: 150px; text-align: right">¥10.00</div>
                 <div class="bold fs20">1</div>
               </div>
-              <div class="cuisine" layout="row" layout-align="space-between center">
+              <div
+                class="cuisine"
+                layout="row"
+                layout-align="space-between center"
+              >
                 <div>青岛啤酒</div>
-                <div style="width:150px;text-align:right">¥10.00</div>
+                <div style="width: 150px; text-align: right">¥10.00</div>
                 <div class="bold fs20">1</div>
               </div>
               <div class="totalmoney">
@@ -333,9 +456,13 @@
                   <span>服务员：000000 系统管理员</span>
                 </div>
               </div>
-              <div class="cuisine" layout="row" layout-align="space-between center">
+              <div
+                class="cuisine"
+                layout="row"
+                layout-align="space-between center"
+              >
                 <div>雪花啤酒</div>
-                <div style="width:150px;text-align:right">¥10.00</div>
+                <div style="width: 150px; text-align: right">¥10.00</div>
                 <div class="bold fs20">1</div>
               </div>
               <div class="totalmoney">
@@ -356,9 +483,13 @@
                   <span>服务员：000000 系统管理员</span>
                 </div>
               </div>
-              <div class="cuisine" layout="row" layout-align="space-between center">
+              <div
+                class="cuisine"
+                layout="row"
+                layout-align="space-between center"
+              >
                 <div>青岛啤酒</div>
-                <div style="width:150px;text-align:right">¥10.00</div>
+                <div style="width: 150px; text-align: right">¥10.00</div>
                 <div class="bold fs20">1</div>
               </div>
               <div class="totalmoney">
@@ -404,12 +535,12 @@ export default {
         ProducePrintCopies: "1", // 出品打印份数
         WhetherPagingPrint: "2", //是否分页打印
         PantryHelperPrinter: "", //传菜打印机ID
-        PantryHelperCopies: "1" //传菜打印份数
+        PantryHelperCopies: "1", //传菜打印份数
       }, //出品库
       printer: {
         printername: "", //打印机名称
         printerIP: "", //打印机IP
-        printerID: "" //打印机ID
+        printerID: "", //打印机ID
       }, //打印机
       compileprinterss: false, //控制是编辑还是新建
       PagingPreview: false, //分页预览
@@ -425,16 +556,16 @@ export default {
       srnr: "", //文案
       cwsm: {
         ns: [], //不可操作列表
-        cs: [] //可一键操作列表
+        cs: [], //可一键操作列表
       }, //错误2说明
       kzsfjy: false, //控制同步按钮是否禁用
 
       form_rules: ["name"],
-      form_rule_msg_name: ""
+      form_rule_msg_name: "",
     };
   },
   filters: {
-    pand: function(v) {
+    pand: function (v) {
       if (v == "置为无效") {
         return "无效";
       } else if (v == "置为有效") {
@@ -442,12 +573,12 @@ export default {
       } else if (v == "批量删除") {
         return "删除";
       }
-    }
+    },
   },
   components: {
     EllipsisTooltip,
     IconButton,
-    CharactersButton
+    CharactersButton,
   },
   mounted() {
     this.demand();
@@ -501,11 +632,11 @@ export default {
     },
     // 获取打印机出品库内容 标记
     demand() {
-      this.$api.BMS.mklib.requestmkliblist().then(res => {
+      this.$api.BMS.mklib.requestmkliblist().then((res) => {
         console.log(res);
         if (res.code == 1) {
           this.Product = res.data || [];
-          this.$api.BMS.mklib.requestmklibget({ id: 0 }).then(rese => {
+          this.$api.BMS.mklib.requestmklibget({ id: 0 }).then((rese) => {
             console.log(rese);
             if ((rese.code = 1)) {
               console.log(rese.data);
@@ -545,15 +676,15 @@ export default {
         this.$api.BMS.mklib
           .requestmklibnew_printer({
             name: this.printer.printername,
-            ip_addr: this.printer.printerIP
+            ip_addr: this.printer.printerIP,
           })
-          .then(res => {
+          .then((res) => {
             console.log(res);
             if (res.code == 1) {
               this.$message({
                 showClose: true,
                 message: "操作成功",
-                type: "success"
+                type: "success",
               });
               this.demand();
               console.log(this.estimateoneortwo);
@@ -578,7 +709,7 @@ export default {
       this.producezero();
       this.edit();
       this.compileprinterss = true;
-      this.$api.BMS.mklib.requestmklibget({ id: 0 }).then(rese => {
+      this.$api.BMS.mklib.requestmklibget({ id: 0 }).then((rese) => {
         console.log(rese);
         if ((rese.code = 1)) {
           console.log(rese.data);
@@ -605,7 +736,7 @@ export default {
     },
     // 创建出品库
     EstablishMake() {
-      this.form_rules.map(item => this.validator(item));
+      this.form_rules.map((item) => this.validator(item));
       if (this.form_rule_msg_name) return;
       if (this.mklib.name == "" || this.mklib.printername == "") {
         this.$message.warning("必选框不能为空");
@@ -619,23 +750,25 @@ export default {
             cp_prt_cnt: parseInt(this.mklib.ProducePrintCopies),
             cp_prt_split: parseInt(this.mklib.WhetherPagingPrint),
             cc_prt_id: parseInt(this.mklib.PantryHelperPrinter) || "",
-            cc_prt_cnt: parseInt(this.mklib.PantryHelperPrinter) ? parseInt(this.mklib.PantryHelperCopies) : 0,
-            store_id: parseInt(this.mklib.stores)
+            cc_prt_cnt: parseInt(this.mklib.PantryHelperPrinter)
+              ? parseInt(this.mklib.PantryHelperCopies)
+              : 0,
+            store_id: parseInt(this.mklib.stores),
           })
-          .then(res => {
+          .then((res) => {
             console.log(res);
             if (res.code == 1 || res.code == 6) {
-              if (res.msg === '') {
+              if (res.msg === "") {
                 this.$message({
                   showClose: true,
                   message: "操作成功",
-                  type: "success"
+                  type: "success",
                 });
               } else {
                 this.$message({
                   showClose: true,
                   message: res.msg,
-                  type: "warning"
+                  type: "warning",
                 });
               }
               this.demand();
@@ -654,13 +787,14 @@ export default {
       if (this.multipleSelection.length == 1) {
         this.$api.BMS.mklib
           .requestmklibget({ id: this.multipleSelection[0] })
-          .then(res => {
+          .then((res) => {
             console.log(res);
             if (res.code == 1) {
               this.mklib.name = res.data.mklib.name;
               this.mklib.printername = res.data.mklib.cp_prt_id + "";
               this.mklib.ProducePrintCopies = res.data.mklib.cp_prt_cnt;
-              this.mklib.WhetherPagingPrint = res.data.mklib.cp_prt_split.toString();
+              this.mklib.WhetherPagingPrint =
+                res.data.mklib.cp_prt_split.toString();
               this.mklib.PantryHelperPrinter =
                 res.data.mklib.cc_prt_id == 0
                   ? ""
@@ -700,20 +834,20 @@ export default {
             } else {
               this.$message({
                 message: res.msg,
-                type: "warning"
+                type: "warning",
               });
             }
           });
       } else {
         this.$message({
           message: "请选择一个进行编辑",
-          type: "warning"
+          type: "warning",
         });
       }
     },
     // 保存编辑内容
     saveprinter() {
-      this.form_rules.map(item => this.validator(item));
+      this.form_rules.map((item) => this.validator(item));
       if (this.form_rule_msg_name) return;
       this.$api.BMS.mklib
         .requestmklibsave({
@@ -723,16 +857,18 @@ export default {
           cp_prt_cnt: parseInt(this.mklib.ProducePrintCopies),
           cp_prt_split: parseInt(this.mklib.WhetherPagingPrint),
           cc_prt_id: parseInt(this.mklib.PantryHelperPrinter),
-          cc_prt_cnt: parseInt(this.mklib.PantryHelperPrinter) ? parseInt(this.mklib.PantryHelperCopies) : 0,
-          store_id: parseInt(this.mklib.stores)
+          cc_prt_cnt: parseInt(this.mklib.PantryHelperPrinter)
+            ? parseInt(this.mklib.PantryHelperCopies)
+            : 0,
+          store_id: parseInt(this.mklib.stores),
         })
-        .then(res => {
+        .then((res) => {
           console.log(res);
           if (res.code == 1) {
             this.$message({
               showClose: true,
               message: "操作成功",
-              type: "success"
+              type: "success",
             });
             this.demand();
             this.dialogPrinter = false;
@@ -774,9 +910,9 @@ export default {
         .requestMklibOb({
           op_status: Number(s),
           type_ids: tid,
-          ids: id
+          ids: id,
         })
-        .then(res => {
+        .then((res) => {
           if (res.code == 1) {
             for (const key in this.cwsm.cs) {
               this.cwsm.cs[key].jg = "成功";
@@ -806,7 +942,7 @@ export default {
     noneffective() {
       this.$api.BMS.mklib
         .requestmklibdisable({ ids: this.multipleSelection })
-        .then(res => {
+        .then((res) => {
           // console.log(res);
           if (res.code == 1) {
             this.demand();
@@ -815,7 +951,7 @@ export default {
             this.$message({
               showClose: true,
               message: "操作成功",
-              type: "success"
+              type: "success",
             });
           } else if (res.code == 2) {
             this.dialogFible = true;
@@ -835,7 +971,7 @@ export default {
     effective() {
       this.$api.BMS.mklib
         .requestmklibenable({ ids: this.multipleSelection })
-        .then(res => {
+        .then((res) => {
           // console.log(res);
           if (res.code == 1) {
             this.demand();
@@ -844,7 +980,7 @@ export default {
             this.$message({
               showClose: true,
               message: "操作成功",
-              type: "success"
+              type: "success",
             });
           } else if (res.code == 2) {
             this.dialogFible = true;
@@ -866,7 +1002,7 @@ export default {
       if (this.multipleSelection.length > 0) {
         this.$api.BMS.mklib
           .requestmklibdel({ ids: this.multipleSelection })
-          .then(res => {
+          .then((res) => {
             // console.log(res);
             if (res.code == 1) {
               this.demand();
@@ -875,7 +1011,7 @@ export default {
               this.$message({
                 showClose: true,
                 message: "操作成功",
-                type: "success"
+                type: "success",
               });
             } else if (res.code == 2) {
               this.dialogFible = true;
@@ -893,7 +1029,7 @@ export default {
       } else {
         this.$message({
           message: "请先选择出品库",
-          type: "warning"
+          type: "warning",
         });
       }
     },
@@ -920,12 +1056,12 @@ export default {
       this.mklib.PantryHelperPrinter = "";
       this.mklib.PantryHelperCopies = "1";
       this.mklib.stores = "";
-    }
+    },
   },
   computed: {
     Produary() {
       return JSON.parse(JSON.stringify(this.mklib));
-    }
+    },
   },
   watch: {
     windowHeigh(val) {
@@ -940,7 +1076,7 @@ export default {
     // 监听是否选中了新增打印机
     Produary: {
       deep: true,
-      handler: function(after, before) {
+      handler: function (after, before) {
         // 判断选中了没打印机  没有选中则不能改变份数
         // console.log(after.ProducePrintCopies);
         // console.log(after.PantryHelperCopies);
@@ -988,9 +1124,9 @@ export default {
           this.printer.printername = "";
           this.printer.printerIP = "";
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 <style>
@@ -1185,7 +1321,7 @@ export default {
   color: #000;
 }
 
-.mklib .bold{
+.mklib .bold {
   font-weight: 600;
 }
 
@@ -1547,4 +1683,3 @@ export default {
   border-color: #1f2846;
 }
 </style>
-

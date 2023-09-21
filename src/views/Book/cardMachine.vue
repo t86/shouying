@@ -50,7 +50,7 @@
             </div>
           </div>
           <!-- 搜索框 -->
-          <div class="search"  v-if="tab.tabList.length>0">
+          <div class="search" v-if="tab.tabList.length > 0">
             <input
               type="text"
               v-model="keyWord"
@@ -119,6 +119,7 @@
               layout-align="space-between center"
             >
               <span
+                layout="column"
                 v-if="
                   $store.state.cardPageInfo.resResultDataObj.showAmt.find(
                     (item) => item.id == 3
@@ -128,9 +129,21 @@
                       ).param1 == 2
                     : true
                 "
-                >￥{{ item.zengSongAmt }}</span
+                layout-align="center start"
               >
-              <span v-else></span>
+                <span class="hui-name" layout="row" layout-align="center start">
+                  <span class="line-tips">惠</span>
+                  <span>￥{{ item.zengSongAmt }}</span>
+                </span>
+                <span
+                  class="zong-name"
+                  layout="row"
+                  layout-align="start center"
+                >
+                  <span class="line-tips">点</span>
+                  <span>￥{{ item.totalAmt }}</span>
+                </span>
+              </span>
               <span class="card-step">{{ item.diXiaoJindu }}</span>
             </p>
             <p v-else style="height: 17px"></p>
@@ -587,7 +600,7 @@ export default {
           name: "全部",
         });
       }
-    
+
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
         tabList.push({
@@ -816,6 +829,7 @@ export default {
               zengSongAmt: (Number(data.yhAmt) + Number(data.yh2Amt)).toFixed(
                 2
               ),
+              totalAmt: Number(data.orderAmt).toFixed(2),
               // 当前卡台所处状态的小卡片
               tipsArr: this.getTips(data.bizStatus),
               // 低消进度
@@ -970,7 +984,6 @@ export default {
         // 区域tab
         this.getTabList(resResultDataObj["areaInfo"]);
         // 获取卡台数据
-       
       } catch (error) {
         console.log("全量数据请求失败", error);
       }

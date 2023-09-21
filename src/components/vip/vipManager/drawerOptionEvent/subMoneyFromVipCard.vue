@@ -4,32 +4,32 @@
     <div class="form-grid">
       <div class="row">
         <div class="label">会员卡号：</div>
-        <div class="value">{{vipInfo.card_no}}</div>
+        <div class="value">{{ vipInfo.card_no }}</div>
       </div>
       <div class="row">
         <div class="label">姓名：</div>
-        <div class="value">{{vipInfo.name || '---'}}</div>
+        <div class="value">{{ vipInfo.name || '---' }}</div>
       </div>
       <div class="row">
         <div class="label">绑定手机：</div>
-        <div class="value">{{vipInfo.bind_phone || '---'}}</div>
+        <div class="value">{{ vipInfo.bind_phone || '---' }}</div>
       </div>
       <div class="row">
         <div class="label">联系手机：</div>
-        <div class="value">{{vipInfo.contact_phone || '---'}}</div>
+        <div class="value">{{ vipInfo.contact_phone || '---' }}</div>
       </div>
       <div class="row">
         <div class="label">储蓄余额：</div>
-        <div class="value">{{vipInfo.val_bal}}</div>
+        <div class="value">{{ vipInfo.val_bal }}</div>
       </div>
       <div class="row">
         <div class="label">赠送余额：</div>
-        <div class="value">{{vipInfo.free_bal}}</div>
+        <div class="value">{{ vipInfo.free_bal }}</div>
       </div>
-      <!-- <div class="row">
-        <div class="label">剩余积分：</div>
-        <div class="value">1000</div>
-      </div>-->
+      <div class="row">
+        <div class="label">积分余额：</div>
+        <div class="value">{{ vipInfo.pt_bal }}</div>
+      </div>
     </div>
     <div class="content">
       <div class="form">
@@ -38,8 +38,12 @@
             <span>扣款类型:</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <el-radio v-model="form.subType" label="1">业务扣款</el-radio>
-            <el-radio v-model="form.subType" label="2">充错扣款</el-radio>
+
+            <el-radio-group v-model="form.subType" @change="onSubTypeChange"> 
+              <el-radio label="1">业务扣款</el-radio>
+              <el-radio label="2">充错扣款</el-radio>
+            </el-radio-group>
+
           </div>
         </div>
         <div class="row" layout="row" layout-align="start center">
@@ -48,7 +52,8 @@
             <span>储值金额:</span>
           </div>
           <div class="value">
-            <el-input v-model="form.addAmt" size="small" style="width:284px" placeholder="请输入储值金额"></el-input>
+            <el-input v-model="form.addAmt" size="small" style="width:284px" placeholder="请输入储值金额"
+              @change="onAddAmtChange"></el-input>
           </div>
         </div>
         <div class="row" layout="row" layout-align="start center">
@@ -57,6 +62,21 @@
           </div>
           <div class="value">
             <el-input v-model="form.zSAmt" size="small" style="width:284px" placeholder="请输入赠送金额"></el-input>
+          </div>
+        </div>
+        <div class="row" layout="row" layout-align="start center">
+          <div class="label">
+            <span>{{ form.subType == "1" ? '赠送积分:' : '扣除积分' }}</span>
+          </div>
+          <div class="value">
+            <div v-if="form.subType == '1'">
+              {{ vipInfo.consume_base_amt == 0 ? '---' : form.point }}
+            </div>
+            <div v-else>
+              <el-input v-model="form.point" size="small" style="width:284px" placeholder="请输入扣除积分" type="number"
+              @input="onPointChange"></el-input>
+            </div>
+
           </div>
         </div>
       </div>
@@ -73,11 +93,18 @@ export default {
       form: {
         subType: '1',
         addAmt: '',
-        zSAmt: ''
+        zSAmt: '',
+        point: 0,
       }
     };
   },
   methods: {
+    showMessage(e) {
+      let value = e.target.value;
+      if (value && value.indexOf(".") > -1) {
+        this.$message.warning("请输入正整数");
+      }
+    },
     async getVipInfo() {
 
       this.resetHandle()
@@ -86,22 +113,55 @@ export default {
         id: this.currentItemInfo.id * 1 //   int64   会员卡Id
       };
       try {
-          const res = await api_vip.reqVipCardGetVNodeCard(params);
-          if (res.code == 1) {
-            this.vipInfo = res.data || {};
-            this.phoneNum = '';
-          } else {
-            this.$message.warning(res.msg);
-          }
+        const res = await api_vip.reqVipCardGetVNodeCard(params);
+        if (res.code == 1) {
+          this.vipInfo = res.data || {};
+          this.phoneNum = '';
+        } else {
+          this.$message.warning(res.msg);
+        }
       } catch (error) {
         console.log("获取会员信息失败", error);
       }
     },
-    resetHandle(){
+    resetHandle() {
       this.form = {
         subType: '1',
         addAmt: '',
-        zSAmt: ''
+        zSAmt: '',
+        point: 0,
+      }
+    },
+    onAddAmtChange(e) {
+      console.log(e);
+      if (e && e > 0) {
+        if (this.vipInfo.consume_base_amt == 0) {
+          this.form.point = 0;
+        } else {
+          const num = e * 1 / this.vipInfo.consume_base_amt;
+          this.form.point = Math.floor(num);
+          if(this.form.subType == '2'){
+            if(this.form.point > this.vipInfo.pt_bal){
+            this.form.point = this.vipInfo.pt_bal;
+            this.$message.warning("积分余额不足") 
+            }
+          }
+        }
+      }
+    },
+    onSubTypeChange(){
+      this.form.addAmt = '';
+      this.form.zSAmt = '';
+      this.form.point = 0;
+    },
+    onPointChange(value){
+      if(value < 0){
+        this.form.point = 0
+        this.$message.warning("积分最小为0")
+      }
+      if(value> this.vipInfo.pt_bal){
+        this.form.point = this.vipInfo.pt_bal;
+        this.$message.warning("积分余额不足") 
       }
     }
   },

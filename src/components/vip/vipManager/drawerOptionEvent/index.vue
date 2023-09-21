@@ -64,6 +64,7 @@
           :currentItemInfo="currentItemInfo"
           @updateInfoHandle="updateInfoHandle"
         />
+    
         <!-- 注销 -->
         <destroyVipCard
           v-if="optionObj.optionInfo.id == 9"
@@ -71,7 +72,13 @@
           :currentItemInfo="currentItemInfo"
           @updateInfoHandle="updateInfoHandle"
         />
-
+        <!-- 扣除积分 -->
+        <deductionPoint
+          v-if="optionObj.optionInfo.id == 10"
+          ref="deductionPointRef"
+          :currentItemInfo="currentItemInfo"
+          @updateInfoHandle="updateInfoHandle"
+        />
         <!-- 修改会员卡信息提示框 -->
         <div class="modal" v-if="confirmEditVipInfo">
           <div class="modal-content">
@@ -122,6 +129,7 @@ import changeCard from "./changeCard.vue";
 import backVipCard from "./backVipCard.vue";
 
 import subMoneyFromVipCard from "./subMoneyFromVipCard.vue";
+import deductionPoint from "./deductionPoint.vue";
 import destroyVipCard from "./destroyVipCard.vue";
 
 export default {
@@ -139,6 +147,7 @@ export default {
       backVipCardInfoObj: {}, // 退卡
       subMoneyVipCardInfoObj: {}, // 扣款
       deleteVipCardInfoObj: {}, // 注销
+      deductionPointInfoObj:{}, // 扣除积分
     };
   },
   methods: {
@@ -152,6 +161,7 @@ export default {
       this.backVipCardInfoObj = {};
       this.subMoneyVipCardInfoObj = {};
       this.deleteVipCardInfoOb = {};
+      this.deductionPointInfoObj = {};
     },
 
     updateInfoHandle(info) {
@@ -390,7 +400,9 @@ export default {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
             val_amt: this.subMoneyVipCardInfoObj.addAmt, //    string  有价金额(最多支持两位小数)
             free_amt: this.subMoneyVipCardInfoObj.zSAmt || "0", //   string   赠送金额(最多支持两位小数)
-            oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
+            // TODO: 积分字段修改
+            // val_pt: this.subMoneyVipCardInfoObj.point, //    int 赠送/扣除积分
+            pt_bal: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
             type_id: this.subMoneyVipCardInfoObj.subType * 1, //    int   操作类型, 1业务扣款 2充错扣款
           };
 
@@ -427,6 +439,26 @@ export default {
             }
           } catch (error) {
             console.log("注销失败", error);
+          }
+
+          break;
+
+        case 10:
+          // 扣除积分
+          params = {
+            mb_card_id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
+            point:this.deductionPointInfoObj.point * 1 // 积分
+          };
+          try {
+            // const res = await api_vip.reqDestroyVipCard(params);
+            // if (res.code == 1) {
+              this.$message.success("扣除成功");
+            //   this.onCancelDrawer();
+            // } else {
+            //   this.$message.warning(res.msg);
+            // }
+          } catch (error) {
+            console.log("扣除失败", error);
           }
 
           break;
@@ -505,6 +537,7 @@ export default {
     changeCard,
     backVipCard,
     subMoneyFromVipCard,
+    deductionPoint,
     destroyVipCard,
   },
   watch: {
@@ -556,6 +589,11 @@ export default {
               case 9:
                 // 扣款
                 this.$refs.destroyRef && this.$refs.destroyRef.getVipInfo();
+                break;
+              
+              case 10:
+                // 扣除积分
+                this.$refs.deductionPointRef && this.$refs.deductionPointRef.getVipInfo();
                 break;
             }
           });

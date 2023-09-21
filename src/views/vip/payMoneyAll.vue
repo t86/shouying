@@ -68,6 +68,7 @@
               <div class="th">消费-储值金额</div>
               <div class="th">消费-赠送金额</div>
               <div class="th">消费总金额</div>
+              <div class="th">赠送积分</div>
               <div class="th">订位人</div>
               <div class="th">卡台</div>
               <div class="th">消费类型</div>
@@ -100,6 +101,7 @@
               <div class="td fs16-bold">{{ item.va }}</div>
               <div class="td fs16-bold">{{ item.fa }}</div>
               <div class="td fs16-bold">{{ item.a }}</div>
+              <div class="td">---</div>
               <div class="td">{{ item.s }}</div>
               <div class="td">{{ item.st }}</div>
               <div class="td">{{ item.o }}</div>
