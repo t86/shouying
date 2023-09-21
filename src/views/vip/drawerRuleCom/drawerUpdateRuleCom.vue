@@ -59,6 +59,7 @@ export default {
           .filter((item) => item.checked * 1)
           .map((item) => item.id),
         type_id: this.ruleValue * 1, //   []int64   待添加商品列表
+        card_type_id: this.item.id,
       };
 
       try {
@@ -82,6 +83,7 @@ export default {
     showDrawer: {
       default: false,
     },
+    item: {},
     addedSeatList: {
       default: () => [],
     },

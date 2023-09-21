@@ -4,9 +4,9 @@
       :title="title"
       :visible.sync="show"
       :before-close="onCancelDrawer"
-      :item="item"
       direction="rtl"
       size="1024px"
+      append-to-body
     >
       <!-- 会员卡号生成规则 -->
       <div class="vip vip-bill-rules pl-2">
@@ -158,12 +158,14 @@
         </div>
 
         <drawerAddRuleCom
+          :item="item"
           :showDrawer="showAddDrawer"
           :addedSeatList="tableData"
           @showOrHideDrawerHandle="showOrHideDrawerHandle"
           @getTableData="getTableData"
         />
         <drawerUpdateRuleCom
+          :item="item"
           :showDrawer="showUpdateDrawer"
           :addedSeatList="tableData"
           @showOrHideDrawerHandle="showOrHideUpdateDrawerHandle"
@@ -171,6 +173,7 @@
         />
 
         <drawerCopyCom
+          :item="item"
           :showDrawer="showCopyDrawer"
           @showOrHideCopyDrawerHandle="showOrHideCopyDrawerHandle"
           @getTableData="refresh"
@@ -324,6 +327,7 @@ export default {
         prd_ids: this.tableData
           .filter((item) => item.checked)
           .map((item) => item.id * 1), //   []int64  待删除商品列表
+        card_type_id: this.item.id, //CardTypeId 会员卡类型Id
       };
       if (params.prd_ids.length == 0)
         return this.$message.warning("请选择需要删除的商品");

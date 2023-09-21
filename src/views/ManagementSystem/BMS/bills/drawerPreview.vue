@@ -482,6 +482,49 @@
               </div>
             </div>
           </div>
+          <div class="NoPaging">
+            <div class="title bold">修改优惠/优惠2人格式:</div>
+            <div class="content">
+              <div class="bill_info">
+                <div class="bill_info_l">修改优惠人</div>
+              </div>
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">桌号：卡座K001</div>
+                <div class="guest_info_r">单号：K001001</div>
+              </div>
+              <div class="guest_info">
+                <div class="guest_info_l">操作时间：2023-06-15 21:50:21</div>
+                <div class="guest_info_r">操作人：收银员</div>
+              </div>
+
+              <div class="pro_th pro_th_t" style="margin: 8px 0 4px">
+                <div class="pro_th_t_li" style="width: 40%">商品名称</div>
+                <div class="pro_th_t_li" style="">单价</div>
+                <div class="pro_th_t_li" style="width: 15%; text-align: right">
+                  数量
+                </div>
+              </div>
+
+              <div class="totalmoney">
+                <div class="totalmoney_l" style="width: 40%">（惠）绿茶</div>
+                <div class="totalmoney_r">￥10.0</div>
+                <div class="totalmoney_r" style="width: 15%; text-align: right">
+                  10
+                </div>
+              </div>
+
+              <div class="border-b p-b-2"></div>
+              <div class="guest_info" style="border: none; font-weight: bold">
+                <div class="guest_info_l">修改前优惠人：营销小张</div>
+              </div>
+              <div class="guest_info" style="font-weight: bold">
+                <div class="guest_info_l">修改后优惠人：店长</div>
+              </div>
+              <div class="order_time">
+                <div class="order_time_li">打印时间：2023-02-07 21:50:20</div>
+              </div>
+            </div>
+          </div>
           <div class="NoPaging p-t-5">
             <div class="title bold">结算单格式:</div>
             <div class="content">

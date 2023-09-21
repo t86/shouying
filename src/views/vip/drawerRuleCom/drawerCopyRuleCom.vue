@@ -67,6 +67,7 @@ export default {
     addedSeatList: {
       default: () => [],
     },
+    item: {},
   },
   computed: {
     title() {

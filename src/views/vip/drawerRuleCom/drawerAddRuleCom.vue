@@ -110,6 +110,15 @@
 import api_vip from "@/api/vip";
 
 export default {
+  props: {
+    item: {},
+    showDrawer: {
+      default: false,
+    },
+    addedSeatList: {
+      default: () => [],
+    },
+  },
   data() {
     return {
       show: false,
@@ -217,6 +226,8 @@ export default {
         prd_ids: this.tableData
           .filter((item) => item.checked && !item.disabled)
           .map((item) => item.id * 1), //   []int64   待添加商品列表
+        type_id: this.cardType,
+        card_type_id: this.item.id,
       };
 
       if (params.prd_ids.length <= 0)
@@ -242,14 +253,6 @@ export default {
     // 关闭drawer
     closeDrawerHandle() {
       this.$emit("showOrHideDrawerHandle");
-    },
-  },
-  props: {
-    showDrawer: {
-      default: false,
-    },
-    addedSeatList: {
-      default: () => [],
     },
   },
   computed: {
