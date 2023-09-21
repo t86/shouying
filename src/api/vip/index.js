@@ -301,14 +301,20 @@ export default {
   reqGetPointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
 
-      // 读取消费记录
+  // 读取消费记录
   reqGetVipCarXFListReport: (params) =>
-  axios.post(`${base.htgl}/mb/rpt/get_consume_log`, params),
+    axios.post(`${base.htgl}/mb/rpt/get_consume_log`, params),
 
-    // 读取积分扣除记录
-    reqGetDeductionPointListReport: (params) =>
+  // 读取积分扣除记录
+  reqGetDeductionPointListReport: (params) =>
     axios.post(`${base.htgl}/mb/rpt/get_subtract_pt_log`, params),
   // 下载积分扣除记录excel
-    reqExportExcelForDeductionPoint: (params) =>
-      axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_subtract_pt_log`, params),
+  reqExportExcelForDeductionPoint: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_subtract_pt_log`, params),
+  // 读取会员卡余额汇总表
+  reqGetVipBalanceListReport: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_bal_list`, params),
+  // 下载会员卡余额汇总表excel
+  reqExportExcelForVipBalance: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_bal_list`, params),
 };

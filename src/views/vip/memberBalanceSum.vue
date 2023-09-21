@@ -34,14 +34,15 @@
               <div class="tr" layout="row" layout-align="space-between center">
                 <div class="th">序号</div>
                 <div class="th">姓名</div>
-                <div class="th">手机号</div>
+                <div class="th">绑定手机号</div>
+                <div class="th">联系手机</div>
                 <div class="th">会员卡号</div>
                 <div class="th">卡类型</div>
                 <div class="th">会员卡等级</div>
                 <div class="th">充值金额</div>
                 <div class="th">赠送金额</div>
                 <div class="th">总余额</div>
-                <div class="th">剩余积分</div>
+                <div class="th">积分余额</div>
               </div>
             </div>
             <div class="tbody">
@@ -54,14 +55,15 @@
               >
                 <div class="td">{{ index + 1 }}</div>
                 <div class="td">{{ item.n }}</div>
+                <div class="td">{{ item.bp }}</div>
                 <div class="td">{{ item.cp }}</div>
                 <div class="td">{{ item.cn }}</div>
                 <div class="td">{{ item.ct }}</div>
                 <div class="td">{{ item.cl }}</div>
-                <div class="td fs16-bold">{{ item.va }}</div>
-                <div class="td fs16-bold">{{ item.fa }}</div>
-                <div class="td">---</div>
-                <div class="td fs16-bold">{{ item.fa }}</div>
+                <div class="td fs16-bold">{{ item.vb }}</div>
+                <div class="td fs16-bold">{{ item.fb }}</div>
+                <div class="td fs16-bold">{{ item.b }}</div>
+                <div class="td fs16-bold">{{ item.p }}</div>
               </div>
               <div class="no-data" v-if="tableData.length == 0">
                 <img :src="require('@/assets/vip-imgs/empty.png')" alt />
@@ -109,7 +111,7 @@
           key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
         };
         try {
-          const res = await api_vip.reqGetVipCarSubMoneyListReport(params);
+          const res = await api_vip.reqGetVipBalanceListReport(params);
           if (res.code == 1) {
             this.tableData = res.data.datas || [];
             this.pageInfo.total = res.data.row_cnt || 0;
@@ -129,7 +131,7 @@
           key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
         };
         try {
-          const res = await api_vip.reqExportExcelForSubMoney(params);
+          const res = await api_vip.reqExportExcelForVipBalance(params);
           if (!res.msg) {
             const url = window.URL.createObjectURL(
               new Blob([res], {
