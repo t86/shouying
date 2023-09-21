@@ -667,6 +667,7 @@ export default {
     .terminal-type-name {
       text-align: center;
     }
+
     .exit {
       margin-right: 16px;
       display: flex;
