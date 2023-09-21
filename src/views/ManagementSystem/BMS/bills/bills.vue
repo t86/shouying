@@ -134,6 +134,7 @@ export default {
           this.memberDepositCount = res.data.mb_deposit_cnt;
           this.memberConsumeCount = res.data.mb_csm_cnt;
           this.membersubtractCount = res.data.mb_sub_cnt;
+          this.memberPointCount = res.data.mb_sub_pt_cnt;
           this.onlineOrderPrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
@@ -159,6 +160,7 @@ export default {
         mb_deposit_cnt: this.memberDepositCount * 1, // int 会员充值小票份数
         mb_csm_cnt: this.memberConsumeCount * 1, // int       会员扣款小票份数
         mb_sub_cnt: this.membersubtractCount * 1, // int64     会员扣款小票份数
+        mb_sub_pt_cnt: this.memberPointCount * 1 // int64 会员积分打印份数
       };
       try {
         const res = await this.$api.BMS.bill.requestBillSave(params);
