@@ -115,7 +115,7 @@
               <div class="td">{{ item.cl }}</div>
               <div class="td fs16-bold">{{ item.va }}</div>
               <div class="td fs16-bold">{{ item.fa }}</div>
-              <div class="td">---</div>
+              <div class="td">{{ item.p }}</div>
               <div class="td">{{ item.o }}</div>
               <div
                 class="td"

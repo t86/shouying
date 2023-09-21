@@ -296,4 +296,6 @@ export default {
     // 充值积分 获取规则
     reqGetPointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
+
+      
 };
