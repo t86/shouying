@@ -656,6 +656,28 @@ export default {
     .terminal-type-name {
       text-align: center;
     }
+
+    .exit {
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #367bd5;
+      width: 100px;
+      height: 30px;
+      cursor: pointer;
+      opacity: 0.6;
+      img {
+        width: 20px;
+        height: 20px;
+      }
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+        opacity: 1;
+      }
+    }
+
     .clear-cache {
       margin-right: 16px;
       display: flex;
