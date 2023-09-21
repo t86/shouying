@@ -7,6 +7,8 @@ const terminal = {
 
   // 获取终端可用打印机列表
   reqGetTerminalPrintList: params => axios.post(`${base.htgl}/lic/get_prts`, params),
+  // 读取终端存酒打印机列表
+  reqGetTerminalSaveWinePrintList: params => axios.post(`${base.htgl}/lic/get_wine_store_prts`, params),
 
   // 保存终端打印机配置
   reqSaveTerminalConfig: params => axios.post(`${base.htgl}/lic/save_prt`, params),

@@ -23,6 +23,7 @@
               >序号</el-checkbox>
             </div>
             <div class="th">打印机名称</div>
+            <div class="th">打印机类型</div>
             <div class="th">IP地址</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
@@ -42,6 +43,7 @@
               <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             </div>
             <div class="td">{{item.n}}</div>
+            <div class="td">{{item.t}}</div>
             <div class="td">{{item.i}}</div>
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
@@ -233,7 +235,7 @@ export default {
   .table {
     .th,.td {
       &:nth-child(1) ,
-      &:nth-child(6) {
+      &:nth-child(8) {
         width: 30%;
       }
       &:nth-child(2) {

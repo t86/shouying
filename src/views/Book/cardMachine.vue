@@ -1225,9 +1225,9 @@ export default {
         this.showFullPageTable = true;
       } else {
         this.drawer.showDrawer = true;
-        this.$children[0] &&
-          this.$children[0].cardInfoChange &&
-          this.$children[0].cardInfoChange();
+        // this.$children[0] &&
+        //   this.$children[0].cardInfoChange &&
+        //   this.$children[0].cardInfoChange();
       }
       this.drawer.cardInfo = cardInfo;
       this.drawer.formStatus = optionsInfo.id;
