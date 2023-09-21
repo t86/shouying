@@ -27,7 +27,7 @@
             ></el-input>天后过期
           </div>
         </div>
-        <div class="red tips">例如：填写5，则从当前日期开始计算，5天后过期</div>
+        <div class="red tips">例如：填写5，则从当前日期开始计算，5天后过期。填写0，则立即过期</div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
@@ -120,6 +120,6 @@ export default {
 <style lang="less" scoped>
 .red{
   color: red;
-  margin: 10px 0 0 60px;
+  margin: 10px 0 0 10px;
 }
 </style>
