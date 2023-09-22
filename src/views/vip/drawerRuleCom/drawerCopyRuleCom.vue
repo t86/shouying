@@ -54,7 +54,8 @@ export default {
       try {
         const res = await api_vip.reqGetVipTypeList();
         if (res.code == 1) {
-          this.typeOption = res.data.records || [];
+          this.typeOption =
+            res.data.records.filter((e) => e.id !== this.item.id) || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -64,11 +65,8 @@ export default {
     },
     async submitHandle() {
       const params = {
-        prd_ids: this.typeVal
-          .filter((item) => item.checked * 1)
-          .map((item) => item.id),
-        type_id: this.ruleValue * 1, //   []int64   待添加商品列表
-        card_type_id: this.item.id,
+        src_mb_card_type_id: this.typeVal,
+        dest_mb_card_type_id: this.item.id, //   []int64   待添加商品列表
       };
 
       try {
@@ -89,6 +87,7 @@ export default {
     },
   },
   props: {
+    item: {},
     showDrawer: {
       default: false,
     },

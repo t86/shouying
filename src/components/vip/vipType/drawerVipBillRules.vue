@@ -173,6 +173,7 @@
         />
 
         <drawerCopyCom
+          :item="item"
           :showDrawer="showCopyDrawer"
           @showOrHideCopyDrawerHandle="showOrHideCopyDrawerHandle"
           @getTableData="refresh"
@@ -248,6 +249,7 @@ export default {
         pageSize: 20,
         total: 0,
       },
+      init: false,
     };
   },
   methods: {
@@ -339,7 +341,7 @@ export default {
         const res = await api_vip.reqDelVipBillRule(params);
         if (res.code == 1) {
           this.$message.success("删除成功");
-          this.getTableData(this.menuId);
+          this.getTableData();
         } else {
           this.$message.warning(res.msg);
         }
@@ -375,7 +377,8 @@ export default {
       this.showCopyDrawer = !this.showCopyDrawer;
     },
     refresh() {
-      this.getTableData();
+      this.getTableData(!this.init);
+      this.init = true;
       this.checked = false;
       this.changeCheckboxHandle("all");
     },
@@ -384,10 +387,7 @@ export default {
       this.$emit("showOrHideDrawerHandle");
     },
   },
-  mounted() {
-    this.getTableData(true);
-    this.show = false;
-  },
+  mounted() {},
 };
 </script>
 
