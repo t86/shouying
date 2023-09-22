@@ -135,6 +135,12 @@ export default {
   reqDelVipBillRule: (params) =>
     axios.post(`${base.htgl}/mb/card/del_grp_mb_csm_rule`, params),
 
+    
+  // 复制结账配置
+  reqCopyVipBillRule: (params) =>
+  axios.post(`${base.htgl}/mb/card/clone_grp_mb_csm_rule`, params),
+
+
   /**
    * 会员充值
    */

@@ -13,6 +13,19 @@
 
         <span class="red">*</span>
         <span>请选择要复制结账配置的卡类型：</span>
+        <el-select
+            v-model="typeVal"
+            size="small"
+            placeholder="请选择会员卡类型"
+            style="width: 200px"
+          >
+            <el-option
+              v-for="item in typeOption"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
@@ -32,19 +45,34 @@ export default {
     return {
       show: false,
       ruleValue: "1",
+      typeVal:0,
+      typeOption:[],
     };
   },
   methods: {
+    async getTableData() {
+      try {
+        const res = await api_vip.reqGetVipTypeList();
+        if (res.code == 1) {
+          this.typeOption = res.data.records || []
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("会员卡类型列表获取失败", error);
+      }
+    },
     async submitHandle() {
       const params = {
         prd_ids: this.addedSeatList
           .filter((item) => item.checked * 1)
           .map((item) => item.id),
         type_id: this.ruleValue * 1, //   []int64   待添加商品列表
+        card_type_id: this.item.id,
       };
 
       try {
-        const res = await api_vip.reqUpdateVipBillRule(params);
+        const res = await api_vip.reqCopyVipBillRule(params);
         if (res.code == 1) {
           this.closeDrawerHandle();
           this.$emit("getTableData", this.menuId);
@@ -57,25 +85,20 @@ export default {
     },
     // 关闭drawer
     closeDrawerHandle() {
-      this.$emit("showOrHideDrawerHandle");
+      this.$emit("showOrHideCopyDrawerHandle");
     },
   },
   props: {
     showDrawer: {
       default: false,
     },
-    addedSeatList: {
-      default: () => [],
-    },
-    item: {},
+  },
+  mounted() {
+
   },
   computed: {
     title() {
-      return "批量更改扣款规则";
-    },
-
-    addedSeatListId() {
-      return this.addedSeatList.map((item) => item.id * 1);
+      return "复制结账配置";
     },
   },
   watch: {

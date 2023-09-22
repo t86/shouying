@@ -226,7 +226,7 @@ export default {
         prd_ids: this.tableData
           .filter((item) => item.checked && !item.disabled)
           .map((item) => item.id * 1), //   []int64   待添加商品列表
-        type_id: this.cardType,
+        type_id: 1,
         card_type_id: this.item.id,
       };
 

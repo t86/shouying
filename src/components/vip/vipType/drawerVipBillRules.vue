@@ -173,7 +173,6 @@
         />
 
         <drawerCopyCom
-          :item="item"
           :showDrawer="showCopyDrawer"
           @showOrHideCopyDrawerHandle="showOrHideCopyDrawerHandle"
           @getTableData="refresh"
@@ -355,6 +354,7 @@ export default {
     },
     copy() {
       // 点击弹窗选复制的会员卡类型
+      this.showOrHideCopyDrawerHandle();
     },
     changePageHandle(page = 1) {
       this.pageInfo.page = page;
