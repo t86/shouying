@@ -143,12 +143,17 @@
                 }}{{ vipPayInfo.name ? "(" + vipPayInfo.name + ")" : "" }}</span
               >
             </div>
-            <div class="form-item">
-              <span>当前余额:</span>
-              <span class="value"
-                >￥{{ (vipPayInfo.totalAmt * 1).toFixed(2) }}</span
-              >
+            <div class="flex-row-full">
+              <div class="form-item">
+              <span>卡余额:</span>
+              <span>￥0.00</span>
             </div>
+            <div class="form-item">
+              <span>卡可用余额:</span>
+              <span>￥0.00</span>
+            </div>
+            </div>
+           
             <div class="form-item">
               <span>支付金额:</span>
               <span
@@ -183,6 +188,16 @@
                   @click="count = ''"
                 ></i>
               </span>
+            </div>
+            <div class="flex-row-full">
+              <div class="form-item">
+                <span style="width: 140px;">本次使用储值金额:</span>
+                <span >￥0.00</span>
+              </div>
+              <div class="form-item">
+                <span style="width: 140px;">本次使用赠送金额:</span>
+                <span >￥0.00</span>
+              </div>
             </div>
           </div>
 
