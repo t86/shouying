@@ -8,7 +8,32 @@
       size="720px"
       append-to-body
     >
-      <div class="session p-3 fs14">
+      <div v-if="step == 1" class="session p-3 fs14">
+        <p class="m-b-2">选择扣款规则</p>
+
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="1"
+            >按比例扣款</el-radio
+          >
+        </div>
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="2"
+            >优先用赠送金额</el-radio
+          >
+        </div>
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="3"
+            >只能用储值金额</el-radio
+          >
+        </div>
+        <div>
+          <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="4"
+            >只能用赠送金额</el-radio
+          >
+        </div>
+      </div>
+
+      <div v-if="step == 2" class="session p-3 fs14">
         <!-- 头部筛选项 -->
         <div class="select-top" layout="row" layout-align="start center">
           <div class="item" layout="row" layout-align="start center">
@@ -93,14 +118,15 @@
           </div>
         </div>
       </div>
+
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button size="small" type="info" @click.stop="closeDrawerHandle"
           >关闭</el-button
         >
-        <el-button type="primary" size="small" @click="submitHandle"
-          >确定</el-button
-        >
+        <el-button type="primary" size="small" @click="submitHandle">{{
+          step == 1 ? "下一步" : "确定"
+        }}</el-button>
       </div>
     </el-drawer>
   </div>
@@ -115,13 +141,16 @@ export default {
     showDrawer: {
       default: false,
     },
+
     addedSeatList: {
       default: () => [],
     },
   },
   data() {
     return {
+      step: 1,
       show: false,
+      ruleValue: "",
       // 筛选条件
       searchFormData: {
         valueArr: [0, 0],
@@ -214,19 +243,31 @@ export default {
       this.$forceUpdate();
     },
 
-    // 重置
-    restSearchData() {
+    reset() {
       this.searchFormData.valueArr = [0, 0];
       this.searchFormData.keyword = "";
+      this.step = 1;
+    },
+
+    // 重置
+    restSearchData() {
+      this.reset();
       this.getTableData(1);
     },
 
     async submitHandle() {
+      if (this.step == 1) {
+        if (!this.ruleValue) {
+          return this.$message.warning("请选择需要添加的商品");
+        }
+        this.step = 2;
+        return;
+      }
       const params = {
         prd_ids: this.tableData
           .filter((item) => item.checked && !item.disabled)
           .map((item) => item.id * 1), //   []int64   待添加商品列表
-        type_id: 1,
+        type_id: this.ruleValue * 1,
         card_type_id: this.item.id,
       };
 
@@ -252,12 +293,13 @@ export default {
     },
     // 关闭drawer
     closeDrawerHandle() {
+      this.reset();
       this.$emit("showOrHideDrawerHandle");
     },
   },
   computed: {
     title() {
-      return "选择商品";
+      return this.step == 1 ? "选择扣款规则" : "选择商品";
     },
 
     addedSeatListId() {

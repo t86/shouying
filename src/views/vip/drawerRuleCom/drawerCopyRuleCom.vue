@@ -102,6 +102,7 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       this.ruleValue = "";
+      this.typeVal = null;
       if (newVal) {
         this.getTableData();
       }
