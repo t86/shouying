@@ -162,7 +162,7 @@
           :showDrawer="showAddDrawer"
           :addedSeatList="tableData"
           @showOrHideDrawerHandle="showOrHideDrawerHandle"
-          @getTableData="getTableData"
+          @getTableData="refresh"
         />
         <drawerUpdateRuleCom
           :item="item"
@@ -207,6 +207,9 @@ export default {
     showDrawer: {
       handler(newVal) {
         this.show = newVal;
+        if (newVal) {
+          this.refresh();
+        }
       },
       immediate: true,
     },
@@ -257,6 +260,7 @@ export default {
         one_cate_id: this.cateVal[0] || 0, // string   一级分类id =0 代表不限制
         two_cate_id: this.cateVal[1] || 0, // string 二级分类id =0 代表不限制
         name: this.keyword,
+        card_type_id: this.item.id,
       };
       try {
         let res = await api_vip.reqGetVipBillRuleList(params);
@@ -278,7 +282,7 @@ export default {
             this.cateOptions = cateOptions;
           }
 
-          this.pageInfo.total = res.data.row_cnt || 0;
+          this.pageInfo.total = 1;
           this.tableData =
             (res.data.records &&
               res.data.records.map((d) => {
@@ -286,6 +290,7 @@ export default {
                 return d;
               })) ||
             [];
+          this.$forceUpdate();
         } else {
           this.$message.warning(res.msg);
         }
@@ -381,6 +386,7 @@ export default {
   },
   mounted() {
     this.getTableData(true);
+    this.show = false;
   },
 };
 </script>

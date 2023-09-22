@@ -14,18 +14,18 @@
         <span class="red">*</span>
         <span>请选择要复制结账配置的卡类型：</span>
         <el-select
-            v-model="typeVal"
-            size="small"
-            placeholder="请选择会员卡类型"
-            style="width: 200px"
-          >
-            <el-option
-              v-for="item in typeOption"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
+          v-model="typeVal"
+          size="small"
+          placeholder="请选择会员卡类型"
+          style="width: 200px"
+        >
+          <el-option
+            v-for="item in typeOption"
+            :key="item.id"
+            :label="item.n"
+            :value="item.id"
+          ></el-option>
+        </el-select>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
@@ -45,8 +45,8 @@ export default {
     return {
       show: false,
       ruleValue: "1",
-      typeVal:0,
-      typeOption:[],
+      typeVal: null,
+      typeOption: [],
     };
   },
   methods: {
@@ -54,7 +54,7 @@ export default {
       try {
         const res = await api_vip.reqGetVipTypeList();
         if (res.code == 1) {
-          this.typeOption = res.data.records || []
+          this.typeOption = res.data.records || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -64,7 +64,7 @@ export default {
     },
     async submitHandle() {
       const params = {
-        prd_ids: this.addedSeatList
+        prd_ids: this.typeVal
           .filter((item) => item.checked * 1)
           .map((item) => item.id),
         type_id: this.ruleValue * 1, //   []int64   待添加商品列表
@@ -93,9 +93,7 @@ export default {
       default: false,
     },
   },
-  mounted() {
-
-  },
+  mounted() {},
   computed: {
     title() {
       return "复制结账配置";
@@ -105,6 +103,9 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       this.ruleValue = "";
+      if (newVal) {
+        this.getTableData();
+      }
     },
   },
 };
