@@ -185,6 +185,7 @@ import { mapActions, mapState, mapMutations } from "vuex";
 import md5 from "js-md5";
 import { projectConfig, projectName } from "@/utils/config/projectConfig";
 import swipingCard from "@/mixin/swipingCard";
+import errApi from "@/api/reportErr";
 
 const clientInfo = {
   1: "org_mgr",
@@ -416,6 +417,34 @@ export default {
       } catch (e) {}
     },
     clear() {
+      try {
+        // 发送错误日志到服务器
+        errApi.reqSendErrMsg({
+          sync: true,
+          cardList: JSON.parse(localStorage.getItem("cardList")).map((item) => {
+            return {
+              orderAmt: item.orderAmt,
+              id: item.seatId,
+              name: item.name,
+            };
+          }),
+          businessData: JSON.parse(localStorage.getItem("resResultDataObj"))[
+            "businessData"
+          ].map((item) => {
+            return {
+              orderAmt: item.orderAmt,
+              id: item.seatId,
+            };
+          }),
+          refreshAllLocalTime: localStorage.getItem("refreshAllLocalTime"),
+          refreshAllTime: localStorage.getItem("refreshAllTime"),
+          userInfo: localStorage.getItem("userInfo"),
+          client: localStorage.getItem("client"),
+          projectVersion: localStorage.getItem("projectVersion"),
+          refreshAll: localStorage.getItem("refreshAll"),
+        });
+      } catch (e) {}
+
       let version = localStorage.getItem("projectVersion");
       sessionStorage.clear();
       localStorage.clear();
