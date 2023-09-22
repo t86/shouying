@@ -16,7 +16,11 @@
       height: calc(100vh - 360px);
       overflow-y: auto;
       transform: translate(0, 0);
-  
+      .text-ellipsis{
+        white-space: nowrap;
+        text-overflow:ellipsis;
+        overflow:hidden;
+      }
       .table {
         min-width: 1450px;
   
@@ -93,9 +97,17 @@
           .td:nth-child(10) {
             width: 120px;
           }
-      
           .th:nth-child(11),
           .td:nth-child(11) {
+            width: 120px;
+          }
+          .th:nth-child(12),
+          .td:nth-child(12) {
+            width: 120px;
+          }
+      
+          .th:nth-child(13),
+          .td:nth-child(13) {
             width: 80px;
             span{
               color: #2362D5;

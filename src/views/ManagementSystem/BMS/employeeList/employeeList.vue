@@ -5,14 +5,14 @@
     </div>
   </div>
 </template>
- 
+
 <script>
 import menuList from "./employeeListCom/menuList.vue";
 export default {
   data() {
     return {
       tableIndex: 1,
-      orgId: ''
+      orgId: "",
     };
   },
   methods: {
@@ -24,17 +24,20 @@ export default {
   mounted() {},
   props: ["String"],
   components: {
-    menuList
+    menuList,
   },
   filters: {},
   watch: {
     $route() {
       this.orgId = this.$route.query.orgId;
       this.$nextTick(() => {
-        this.$children && this.$children[0] && this.$children[0].init && this.$children[0].init();
+        this.$children &&
+          this.$children[0] &&
+          this.$children[0].init &&
+          this.$children[0].init();
       });
     },
-  }
+  },
 };
 </script>
 

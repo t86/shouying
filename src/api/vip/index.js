@@ -194,6 +194,10 @@ export default {
   reqSubMoneyFromCard: (params) =>
     axios.post(`${base.htgl}/mb/card/subtract`, params),
 
+  // 会员卡 扣除积分
+  reqSubPointFromCard: (params) =>
+    axios.post(`${base.htgl}/mb/card/subtract_pt`, params),
+
   // 会员卡读取虚拟会员卡详情for扣款/修改手机/挂失/解除挂失/退卡/注销扣款
   reqVipCardGetVNodeCard: (params) =>
     axios.post(`${base.htgl}/mb/card/get_mb_card_f_oper`, params),
@@ -289,11 +293,28 @@ export default {
   reqGetRecommnedList: (params) =>
     axios.post(`${base.htgl}/mb/card/list`, params),
 
-    // 充值积分 保存规则
+  // 充值积分 保存规则
   reqSavePointRule: (params) =>
-  axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
+    axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
 
-    // 充值积分 获取规则
-    reqGetPointRule: (params) =>
+  // 充值积分 获取规则
+  reqGetPointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
+
+  // 读取消费记录
+  reqGetVipCarXFListReport: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_consume_log`, params),
+
+  // 读取积分扣除记录
+  reqGetDeductionPointListReport: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_subtract_pt_log`, params),
+  // 下载积分扣除记录excel
+  reqExportExcelForDeductionPoint: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_subtract_pt_log`, params),
+  // 读取会员卡余额汇总表
+  reqGetVipBalanceListReport: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_bal_list`, params),
+  // 下载会员卡余额汇总表excel
+  reqExportExcelForVipBalance: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_bal_list`, params),
 };

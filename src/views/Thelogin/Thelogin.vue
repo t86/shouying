@@ -27,7 +27,7 @@
           :src="require('@/assets/register-login/qiehuan.png')"
           alt
         />
-        <span>切换横竖屏</span>
+        <span>切换屏幕</span>
       </div>
       <div class="terminal-type-name">
         <div>{{ typeName }}</div>

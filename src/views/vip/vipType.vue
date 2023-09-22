@@ -94,7 +94,7 @@
     <drawerVipBillRules
       :showDrawer="showVipBillDrawer"
       @showOrHideDrawerHandle="showOrHideVipBillsDrawerHandle"
-      @item="selectedItem"
+      :item="selectedItem"
     />
   </div>
 </template>

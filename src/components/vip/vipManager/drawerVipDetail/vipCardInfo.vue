@@ -33,10 +33,10 @@
         <div class="label">赠送余额:</div>
         <div class="value">{{item.fb}}</div>
       </div>
-      <!-- <div class="row">
-        <div class="label">剩余积分:</div>
-        <div class="value">132456</div>
-      </div> -->
+      <div class="row">
+        <div class="label">积分余额:</div>
+        <div class="value">{{ item.p }}</div>
+      </div>
     </div>
   </div>
 </template>

@@ -45,12 +45,14 @@
                 <div class="th">序号</div>
                 <div class="th">扣除日期</div>
                 <div class="th">会员姓名</div>
-                <div class="th">手机号</div>
+                <div class="th">绑定手机号</div>
+                <div class="th">联系手机号</div>
                 <div class="th">会员卡号</div>
                 <div class="th">卡类型</div>
                 <div class="th">会员卡等级</div>
                 <div class="th">扣除积分</div>
                 <div class="th">卡内剩余积分</div>
+                <div class="th">备注</div>
                 <div class="th">操作人</div>
                 <div
                   class="th"
@@ -72,13 +74,19 @@
               >
                 <div class="td">{{ index + 1 }}</div>
                 <div class="td">{{ item.d }}</div>
-                <div class="td">{{ item.t }}</div>
                 <div class="td">{{ item.n }}</div>
+                <div class="td">{{ item.bp }}</div>
+                <div class="td">{{ item.cp }}</div>
                 <div class="td">{{ item.cn }}</div>
                 <div class="td">{{ item.ct }}</div>
                 <div class="td">{{ item.cl }}</div>
-                <div class="td fs16-bold">{{ item.va }}</div>
-                <div class="td fs16-bold">{{ item.fa }}</div>
+                <div class="td">{{ item.p }}</div>
+                <div class="td">{{ item.ap }}</div>
+                <div class="td">
+                  <el-tooltip class="item" effect="dark" :content="item.r" placement="top"> 
+                   <div class="text-ellipsis" style="width: 100px;"> {{ item.r }}</div>
+                   </el-tooltip>
+                </div>
                 <div class="td">{{ item.o }}</div>
                 <div
                   class="td"
@@ -148,7 +156,7 @@
           key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
         };
         try {
-          const res = await api_vip.reqGetVipCarSubMoneyListReport(params);
+          const res = await api_vip.reqGetDeductionPointListReport(params);
           if (res.code == 1) {
             this.tableData = res.data.datas || [];
             this.pageInfo.total = res.data.row_cnt || 0;
@@ -184,7 +192,7 @@
           key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
         };
         try {
-          const res = await api_vip.reqExportExcelForSubMoney(params);
+          const res = await api_vip.reqExportExcelForDeductionPoint(params);
           if (!res.msg) {
             const url = window.URL.createObjectURL(
               new Blob([res], {

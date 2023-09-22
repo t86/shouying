@@ -39,7 +39,7 @@
             v-if="isAndroidTerminal"
           >
             <img :src="require('@/assets/register-login/qiehuan.png')" alt />
-            <span>横竖屏切换</span>
+            <span>切换屏幕</span>
           </div>
         </div>
         <div

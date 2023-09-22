@@ -92,6 +92,7 @@ export default {
         id: (this.currentInfo.id || this.vipIdOfSwiper) * 1 , //    int64    会员卡Id
         val_amt: makeAmt ? makeAmt.toString() : "0", //    string   有价金额(最多支持两位小数)
         free_amt: freeAmt ? freeAmt.toString() : "0", //   string  赠送金额(最多支持两位小数)
+        pt_amt: this.stepTwoInfo.sendPoint ? this.stepTwoInfo.sendPoint * 1 : 0, //   string  赠送积分
         m: isCustom ? 2 : 1,//  int   充值模式 1 规则模式, 2 自定义模式
         oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
         deposit_cnl: this.stepTwoInfo.typeVal * 1, // int     充值渠道Id

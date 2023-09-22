@@ -77,7 +77,7 @@
           <span>赠送积分:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-         {{sendPoint}}
+         {{sendPoint == 0?'---':sendPoint}}
         </div>
       </div>
       <div class="row" v-if="form.activeDetailId == makeMoneyList.length - 1">
@@ -248,6 +248,7 @@ export default {
       handler(newVal) {
         this.$emit("updateFormInfo", {
           ...newVal,
+          sendPoint:this.sendPoint,
           makeAmtInfo:
             this.makeMoneyList.length > 0
               ? this.makeMoneyList[this.form.activeDetailId]
@@ -262,7 +263,7 @@ export default {
     sendPoint(){
        let point = "";
        if(this.base_amt == 0){
-        point = '---';
+        point = '0';
        }else{
         if(this.form.activeDetailId == this.makeMoneyList.length - 1){
          point = Math.floor(this.form.makeAmt * 1 / this.base_amt);

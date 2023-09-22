@@ -167,7 +167,7 @@
             <div class="td">{{ item.cl }}</div>
             <div class="td">{{ item.m }}</div>
             <div class="td fs16-bold">{{ item.ba }}</div>
-            <div class="td"></div>
+            <div class="td">{{ item.p }}</div>
             <div class="td">{{ item.se }}</div>
             <div class="td">{{ item.lc }}</div>
             <div class="td">{{ item.r }}</div>

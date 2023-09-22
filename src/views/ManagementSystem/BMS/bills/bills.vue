@@ -36,6 +36,28 @@
     </div>
 
     <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">修改优惠人小票打印份数：</div>
+      <div class="value">
+        <el-input-number
+          v-model="changeDiscountPersonCount"
+          :min="0"
+          :max="9"
+        />
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">修改优惠2人小票打印份数：</div>
+      <div class="value">
+        <el-input-number
+          v-model="changeDiscountPerson2Count"
+          :min="0"
+          :max="9"
+        />
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
       <div class="label">线上结算单小票打印份数：</div>
       <div class="value">
         <el-input-number v-model="onlineOrderCount" :min="0" :max="9" />
@@ -108,6 +130,8 @@ export default {
       clearCardCount: 1, // 清台结算打印份数
       backOrderCount: 1, // 退单小票(出品库)打印份数
       backOrderMoneyCount: 1, // 退单小票(收银)打印份数
+      changeDiscountPersonCount: 0, // 修改优惠人小票打印份数
+      changeDiscountPerson2Count: 0, // 修改优惠2人小票打印份数
       showPreviewDrawer: false,
       onlineOrderCount: 1, // 线上结算单小票打印分书
       onlineOrderPrint: "", // 线上结算单小票打印机
@@ -128,12 +152,15 @@ export default {
           this.orderPayedCount = res.data.sel_sel_syt_cnt;
           this.backOrderCount = res.data.back_mklib_cnt;
           this.backOrderMoneyCount = res.data.back_syt_cnt;
+          //        this.changeDiscountPersonCount = res.data.back_mklib_cnt;
+          //        this.changeDiscountPerson2Count = res.data.back_syt_cnt;
           this.clearCardCount = res.data.clean_stl_cnt;
           this.onlineOrderCount = res.data.ol_out_pay_cnt;
           this.onlineOrderPrint = res.data.ol_out_pay_prt_id || "";
           this.memberDepositCount = res.data.mb_deposit_cnt;
           this.memberConsumeCount = res.data.mb_csm_cnt;
           this.membersubtractCount = res.data.mb_sub_cnt;
+          this.memberPointCount = res.data.mb_sub_pt_cnt;
           this.onlineOrderPrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
@@ -154,11 +181,14 @@ export default {
         back_mklib_cnt: this.backOrderCount * 1, // int    退单,出品库,打印份数(如果是已出品的), 0 表示不自动打印
         back_syt_cnt: this.backOrderMoneyCount * 1, // int    退单,收银台,打印份数(如果是已出品的), 0 表示不自动打印
         clean_stl_cnt: this.clearCardCount * 1, // int 清台,咨客台(会配置到收银打印机),收银台,打印结算单份数
+        //   changeDiscountPersonCount: this.changeDiscountPersonCount * 1, // int 修改优惠人小票打印份数
+        //   changeDiscountPerson2Count: this.changeDiscountPerson2Count * 1, // int 修改优惠2人小票打印份数
         ol_out_pay_cnt: this.onlineOrderCount * 1, // int        //OlOutPayCnt 线上付款,小票打印份数 0表示不打印, 0的时候out_out_pay_prt_id也必须为0
         ol_out_pay_prt_id: this.onlineOrderPrint * 1, // int64      //OlOutPayPrtId 线上付款,出票打印机Id, =0 代表没有配置
         mb_deposit_cnt: this.memberDepositCount * 1, // int 会员充值小票份数
         mb_csm_cnt: this.memberConsumeCount * 1, // int       会员扣款小票份数
         mb_sub_cnt: this.membersubtractCount * 1, // int64     会员扣款小票份数
+        mb_sub_pt_cnt: this.memberPointCount * 1, // int64 会员积分打印份数
       };
       try {
         const res = await this.$api.BMS.bill.requestBillSave(params);
