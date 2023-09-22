@@ -103,7 +103,7 @@
                     <span>
                       ¥{{dataInfo.total_amt?(dataInfo.total_amt*1).toFixed(2):'0.00'}}
                     </span>
-                  <p/>
+                  </p>
                   <p layout="row" layout-align="space-between center"> 
                     <span>
                       优惠合计：
@@ -166,6 +166,14 @@
                     </span>
                     <span>
                       ¥{{dataInfo.value_amt?(dataInfo.value_amt*1).toFixed(2):'0.00'}}
+                    </span>
+                  </p>
+                  <p layout="row" layout-align="space-between center">
+                    <span>
+                      非主营实收合计：
+                    </span>
+                    <span>
+                      ¥{{'0.00'}}
                     </span>
                   </p>
                   <p layout="row" layout-align="space-between center">
