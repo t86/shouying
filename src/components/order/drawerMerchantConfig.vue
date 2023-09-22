@@ -35,7 +35,7 @@
               layout="row"
               layout-align="start center"
               v-for="(item, index) in tableData"
-              :key="item"
+              :key="item.id"
             >
               <div class="td one-txt-cut">{{index + 1}}</div>
               <div class="td">{{item.n}}</div>
@@ -43,6 +43,7 @@
               <div class="td">{{item.t}}</div>
               <div class="td">{{item.r}}</div>
               <div class="td">
+                <span class="primary-link cursor" @click="changeMerchant(item)">转滞留金</span>
                 <span class="primary-link cursor" v-if="item.b == 1" @click="backHandle(item)">退款</span>
                 <span class="primary-link cursor" v-else @click="deleteHandle(item)">删除</span>
               </div>
@@ -58,18 +59,32 @@
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
       </div>
+
+        <!-- 转滞留金 -->
+        <fullPageTable
+          titleText="选择卡台"
+          @showOrHideFullPageHandle="showOrHideChooseCardHandle"
+          @setChoosedCardInfo="setChooseCardInfo"    
+          v-if="isShowChooseCard"
+        />
     </el-drawer>
+
+    
+  
   </div>
 </template>
  
 <script>
 import api_money from "@/api/money";
+import fullPageTable from '@/components/book/machine/fullPageTable'
 export default {
   data() {
     return {
       payTypeList: [],  // 支付渠道（用于新建滞留金）
       tableData: [],
       showAddMerchant: false, // 新增滞留金
+
+      isShowChooseCard: false, // 是否显示选择卡台组件
     };
   },
   methods: {
@@ -147,10 +162,23 @@ export default {
         })
         .catch(e => "");
     },
+   
     
     onCancelDrawer() {
       this.show = false;
     },
+    // 显示或隐藏选择卡台组件
+    showOrHideChooseCardHandle() {
+      this.isShowChooseCard = !this.isShowChooseCard;
+    },
+    changeMerchant(itemInfo){
+      console.log('选择的滞留金项',itemInfo)
+      this.showOrHideChooseCardHandle();
+    },
+    setChooseCardInfo(cardInfo) {
+      console.log("选择的卡台信息", cardInfo);
+    },
+    
   },
   props: {
     value: {
@@ -168,7 +196,8 @@ export default {
     }
   },
   components: {
-    drawerAddMerchantConfig: () => import("./drawerAddMerchantConfig.vue")
+    drawerAddMerchantConfig: () => import("./drawerAddMerchantConfig.vue"),
+    fullPageTable
   },
   watch: {
     value: {
@@ -247,13 +276,15 @@ export default {
       padding: 0 10px;
       box-sizing: border-box;
 
-      &:nth-child(1) ,
-      &:nth-child(6) {
+      &:nth-child(1){
         width: 20%;
       }
 
       &:nth-child(5) {
         width: 60%;
+      }
+      &:nth-child(6){
+        width: 50%;
       }
     }
 
