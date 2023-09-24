@@ -222,7 +222,7 @@
         </div>
         <div class="form-btn" layout="row" layout-align="center center">
           <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-          <el-button type="primary" @click="onSubmit">确定</el-button>
+          <el-button type="primary" @click="onSubmit">返回</el-button>
         </div>
       </div>
     </el-drawer>
@@ -437,33 +437,33 @@ export default {
     },
     // 提交
     async onSubmit() {
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    待操作卡台Id
-        auth_type: 2, //  int       授权类型 1 卡授权 2 手机验证码授权
-        auth_code: this.authCodeStr, //  string    授权串
-        mb_card_ids: this.tableData
-          .filter((item) => item.checked)
-          .map((item) => item.id * 1), // []int64    会员卡Id列表
-        amts: this.tableData
-          .filter((item) => item.checked)
-          .map((item) => item.chooseAmt.toString()), //       []string   使用金额
-        ...(this.payId && { pay_id: this.payId * 1 }),
-      };
-      try {
-        const api = this.payId
-          ? "reqAddVipCardFormPhoneNumInPayAfter"
-          : "reqAddVipCardFormPhoneNumInPayBefore";
-        const res = await api_money[api](params);
-        if (res.code == 1) {
-          this.$message.success("添加成功");
-          this.$emit("nextHandle");
-          this.onCancelDrawer();
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("会员卡选择组合支付失败", error);
-      }
+      // const params = {
+      //   seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    待操作卡台Id
+      //   auth_type: 2, //  int       授权类型 1 卡授权 2 手机验证码授权
+      //   auth_code: this.authCodeStr, //  string    授权串
+      //   mb_card_ids: this.tableData
+      //     .filter((item) => item.checked)
+      //     .map((item) => item.id * 1), // []int64    会员卡Id列表
+      //   amts: this.tableData
+      //     .filter((item) => item.checked)
+      //     .map((item) => item.chooseAmt.toString()), //       []string   使用金额
+      //   ...(this.payId && { pay_id: this.payId * 1 }),
+      // };
+      // try {
+      //   const api = this.payId
+      //     ? "reqAddVipCardFormPhoneNumInPayAfter"
+      //     : "reqAddVipCardFormPhoneNumInPayBefore";
+      //   const res = await api_money[api](params);
+      //   if (res.code == 1) {
+      //     this.$message.success("添加成功");
+      this.$emit("nextHandle");
+      this.onCancelDrawer();
+      //   } else {
+      //     this.$message.warning(res.msg);
+      //   }
+      // } catch (error) {
+      //   console.log("会员卡选择组合支付失败", error);
+      // }
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
