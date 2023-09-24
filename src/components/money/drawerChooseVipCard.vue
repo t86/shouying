@@ -172,15 +172,7 @@
                 >
                   <div class="pay-detail">
                     <!-- 会员卡 -->
-                    <p v-if="item.pid == 500">
-                      {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : ""
-                      }}{{ item.n ? "(" + item.n + ":" : "("
-                      }}{{ item.c + ")" }}:
-                    </p>
-                    <!-- 非会员卡 -->
-                    <p v-else>
-                      {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : "" }}:
-                    </p>
+                    <p>{{ "卡号：" + item.n + " " + item.id }}:</p>
 
                     <!-- 会员卡落单/会员卡 -->
                     <div v-if="item.pid == 5 || item.pid == 500">
@@ -190,7 +182,7 @@
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                        <span style="width: 76px">卡金额:</span>￥{{
+                        <span style="width: 76px">金额:</span>￥{{
                           (item.pa * 1).toFixed(2)
                         }}
                       </p>
