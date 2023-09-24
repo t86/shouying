@@ -145,15 +145,15 @@
             </div>
             <div class="flex-row-full">
               <div class="form-item">
-              <span>卡余额:</span>
-              <span>￥0.00</span>
+                <span>卡余额:</span>
+                <span>￥0.00</span>
+              </div>
+              <div class="form-item">
+                <span>卡可用余额:</span>
+                <span>￥0.00</span>
+              </div>
             </div>
-            <div class="form-item">
-              <span>卡可用余额:</span>
-              <span>￥0.00</span>
-            </div>
-            </div>
-           
+
             <div class="form-item">
               <span>支付金额:</span>
               <span
@@ -191,12 +191,12 @@
             </div>
             <div class="flex-row-full">
               <div class="form-item">
-                <span style="width: 140px;">本次使用储值金额:</span>
-                <span >￥0.00</span>
+                <span style="width: 140px">本次使用储值金额:</span>
+                <span>￥0.00</span>
               </div>
               <div class="form-item">
-                <span style="width: 140px;">本次使用赠送金额:</span>
-                <span >￥0.00</span>
+                <span style="width: 140px">本次使用赠送金额:</span>
+                <span>￥0.00</span>
               </div>
             </div>
           </div>
@@ -438,6 +438,7 @@
       <drawerChooseVipCard
         :showDrawer="showChooseVipCardDrawer"
         :maxPayMoney="notPayAmt"
+        :allAmt="allAmt"
         :type="chooseVipCardType"
         @nextHandle="getChoosePayList"
         @showOrHideDrawer="showOrHideChooseVipCardDrawer"
@@ -516,6 +517,7 @@ export default {
     },
     async init() {
       this.show = this.showDrawer;
+
       // 判断是否有滞留金
       const bookAmtList = (await this.getBookAmtList()) || [];
       // 注：id<200为线下支付方式  >=200为线上支付方式

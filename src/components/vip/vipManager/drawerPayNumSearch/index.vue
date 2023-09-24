@@ -14,7 +14,7 @@
             size="small"
             v-model="keyword"
             placeholder="请输入六位付款序列号"
-            style="width:284px"
+            style="width: 284px"
             @input="getTableData"
           ></el-input>
           <button class="btn primary" @click="getTableData">搜索</button>
@@ -33,20 +33,33 @@
             </div>
           </div>
           <div class="tbody">
-            <div class="tr" v-for="item in tableData" :key="item.id" layout="row" layout-align="space-between center">
+            <div
+              class="tr"
+              v-for="item in tableData"
+              :key="item.id"
+              layout="row"
+              layout-align="space-between center"
+            >
               <div class="td" layout="row" layout-align="start center">
-                <span>{{item.c}}</span>
-                <img v-if="item.r==1" :src="require('@/assets/vip-imgs/vip-manager-icon.png')">
+                <span>{{ item.c }}</span>
+                <img
+                  v-if="item.r == 1"
+                  :src="require('@/assets/vip-imgs/vip-manager-icon.png')"
+                />
               </div>
-              <div class="td">{{item.p}}</div>
-              <div class="td">{{item.n}}</div>
-              <div class="td">{{item.ct}}</div>
-              <div class="td">{{item.cl}}</div>
+              <div class="td">{{ item.p }}</div>
+              <div class="td">{{ item.n }}</div>
+              <div class="td">{{ item.ct }}</div>
+              <div class="td">{{ item.cl }}</div>
               <div class="td">
-                <span :class="{'disabled': item.r == 1}" @click="emitData(item, 2)">制卡</span>
+                <span
+                  :class="{ disabled: item.r == 1 }"
+                  @click="emitData(item, 2)"
+                  >制卡</span
+                >
               </div>
             </div>
-            <div class="no-data" v-if="tableData.length==0">
+            <div class="no-data" v-if="tableData.length == 0">
               <img :src="require('@/assets/vip-imgs/empty.png')" alt />
               <p>暂无数据</p>
             </div>
@@ -59,38 +72,38 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
-import tips from '@/components/vip/vipManager/drawerOptionEvent/tipsArr'
+import tips from "@/components/vip/vipManager/drawerOptionEvent/tipsArr";
 export default {
   data() {
     return {
       show: false,
-      keyword: '',
-      phoneNum: '',
-      authCodeStr: '',
-      tableData: []
+      keyword: "",
+      phoneNum: "",
+      authCodeStr: "",
+      tableData: [],
     };
   },
   methods: {
     async getTableData(e) {
-      const result = await this.validateValidateInfo(e)
+      const result = await this.validateValidateInfo(e);
       if (result) {
         const params = {
           sms_auth_code: result, // string   手机验证码验证授权串
-          phone_num: this.phoneNum //  string   手机号
+          phone_num: this.phoneNum, //  string   手机号
         };
 
         try {
           const res = await api_money.reqGetVipCardFormPhoneNum(params);
           if (res.code == 1) {
-            this.tableData = (res.data.records || []).map(item => ({
+            this.tableData = (res.data.records || []).map((item) => ({
               ...item,
-              p: this.phoneNum
-            }))
+              p: this.phoneNum,
+            }));
           } else {
-            this.$message.warning(res.msg)
+            this.$message.warning(res.msg);
           }
         } catch (error) {
           console.log("通过手机号查询会员卡失败", error);
@@ -99,19 +112,19 @@ export default {
     },
     async validateValidateInfo(e) {
       const params = {
-        pay_code: this.keyword //    string   付款码
+        pay_code: this.keyword, //    string   付款码
       };
-      if (params.pay_code.length != 6 && typeof e == 'object') {
-        this.$message.warning("请输入正确的六位付款码序列号");
+      if (params.pay_code.length != 6 && typeof e == "object") {
+        this.$message.warning("请输入正确的六位服务码序列号");
         return false;
       } else if (params.pay_code.length != 6) {
-        return
+        return;
       }
       try {
         const res = await api_money.reqGetVipCardFormValidate(params);
         if (res.code == 1) {
-          this.phoneNum = res.data.p
-          this.authCodeStr = res.data.c
+          this.phoneNum = res.data.p;
+          this.authCodeStr = res.data.c;
           return res.data.c;
         } else {
           this.$message.warning(res.msg);
@@ -121,37 +134,37 @@ export default {
       }
     },
     emitData(itemInfo, index) {
-      if(itemInfo.r == 1) return
-      const optionInfo = tips.find(item => item.id == index)
-      this.onCancelDrawer()
-      this.$emit('updateCurrentVipInfo', {
+      if (itemInfo.r == 1) return;
+      const optionInfo = tips.find((item) => item.id == index);
+      this.onCancelDrawer();
+      this.$emit("updateCurrentVipInfo", {
         info: itemInfo,
-        optionInfo
-      })
+        optionInfo,
+      });
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
     },
 
     reset() {
-      this.keyword = ''
-      this.phoneNum = ''
-      this.authCodeStr = ''
-      this.tableData = []
-    }
+      this.keyword = "";
+      this.phoneNum = "";
+      this.authCodeStr = "";
+      this.tableData = [];
+    },
   },
   mounted() {},
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
-    }
+      default: false, // 是否显示drawer
+    },
   },
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
-      if(newVal) this.reset()
+      if (newVal) this.reset();
     },
-  }
+  },
 };
 </script>
 
@@ -172,7 +185,7 @@ export default {
     .th:nth-child(1),
     .td:nth-child(1) {
       width: 120px;
-      img{
+      img {
         width: 18px;
         margin-left: 2px;
       }
@@ -196,10 +209,10 @@ export default {
     .th:nth-child(6),
     .td:nth-child(6) {
       width: 60px;
-      span{
-        color: #2362D5;
+      span {
+        color: #2362d5;
         cursor: pointer;
-        &.disabled{
+        &.disabled {
           color: #888;
           cursor: no-drop;
         }

@@ -10,24 +10,39 @@
       </el-radio-group>
     </div>
     <div class="row m-t-4" v-if="form.type_id != 1">
-      <span class="m-r-2">{{form.type_id == 2?'充值':'消费'}}</span>
-      <el-input class="m-r-2" v-model="form.amount" size="small" placeholder="输入整数" type="number" style="width: 100px"
+      <span class="m-r-2">{{ form.type_id == 2 ? "充值" : "消费" }}</span>
+      <el-input
+        class="m-r-2"
+        v-model="form.amount"
+        size="small"
+        placeholder="输入整数"
+        type="number"
+        style="width: 100px"
         @keyup.native="
-        (e) => {
+          (e) => {
             showMessage(e);
             form.amount = inputLimitPositiveNum(e.target.value);
-        }"
+          }
+        "
         @blur="
-        (e) => {
-         form.amount = formatPointNumber(e.target.value);
-        }">
+          (e) => {
+            form.amount = formatPointNumber(e.target.value);
+          }
+        "
+      >
       </el-input>
-      <span>{{form.type_id == 2?'元送1积分':'元储值金额送1积分'}}</span>
+      <span>{{ form.type_id == 2 ? "元送1积分" : "元储值金额送1积分" }}</span>
     </div>
 
     <div class="row m-t-4" v-if="form.type_id != 1">
-      <span v-if="form.type_id == 2" style="color: red">说明: 不足的部分不会赠送，例如设置10元赠送1积分，充值999元则赠送99积分</span>
-      <span v-if="form.type_id == 3"  style="color: red">说明: 不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span>
+      <span v-if="form.type_id == 2" style="color: red"
+        >说明:
+        不足的部分不会赠送，例如设置10元赠送1积分，充值999元则赠送99积分</span
+      >
+      <span v-if="form.type_id == 3" style="color: red"
+        >说明:
+        不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span
+      >
     </div>
     <button class="btn primary m-l-4 m-t-4" @click="save">保存</button>
   </div>
@@ -44,7 +59,7 @@ export default {
       form: {
         type_id: 1,
         amount: "",
-      }
+      },
     };
   },
   methods: {
@@ -58,11 +73,11 @@ export default {
       try {
         const params = {
           type_id: this.form.type_id,
-          base_amt: this.form.amount * 1,
-        }
+          base_amt: this.form.type_id == 1 ? 0 : this.form.amount * 1,
+        };
         const res = await api_vip.reqSavePointRule(params);
         if (res.code == 1) {
-          this.$message.success('保存成功')
+          this.$message.success("保存成功");
         } else {
           this.$message.warning(res.msg);
         }
@@ -70,7 +85,7 @@ export default {
         console.log("保存规则失败", error);
       }
     },
-    async getSettingConfig(){
+    async getSettingConfig() {
       try {
         const res = await api_vip.reqGetPointRule();
         if (res.code == 1) {
@@ -82,17 +97,13 @@ export default {
       } catch (error) {
         console.log("获取配置失败", error);
       }
-    }
+    },
   },
   created() {
     this.getSettingConfig();
   },
-  components: {
-
-  },
-  watch: {
-
-  },
+  components: {},
+  watch: {},
 };
 </script>
 

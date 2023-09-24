@@ -7,6 +7,7 @@
       :before-close="onCancelDrawer"
       direction="rtl"
       size="98%"
+      append-to-body
     >
       <div class="TY-detail">
         <div class="top" layout="row" layout-align="space-between center">
@@ -15,20 +16,23 @@
             <el-button
               class="m-l-2"
               type="primary"
-              style="width:70px;height:30px;line-height:30px;padding:0"
+              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
               @click="getTableData"
-            >查询</el-button>
+              >查询</el-button
+            >
             <el-button
               type="info"
-              style="width:70px;height:30px;line-height:30px;padding:0"
+              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
               @click="resetHandle"
-            >重置</el-button>
+              >重置</el-button
+            >
           </div>
           <el-button
             type="primary"
             @click="exportExcel"
-            style="width:90px;height:30px;line-height:30px;padding:0"
-          >导出Excel</el-button>
+            style="width: 90px; height: 30px; line-height: 30px; padding: 0"
+            >导出Excel</el-button
+          >
         </div>
 
         <div class="table">
@@ -49,7 +53,7 @@
               <div class="th">补交台</div>
               <div class="th">补交营业日</div>
               <div class="th">支付信息描述</div>
-              <div class="th">{{showArrow ? '>>' : ''}}</div>
+              <div class="th">{{ showArrow ? ">>" : "" }}</div>
             </div>
           </div>
           <div class="tbody">
@@ -60,24 +64,30 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
-              <div class="td one-txt-cut">{{index + 1}}</div>
-              <div class="td">{{item.rn}}</div>
-              <div class="td">{{item.s}}</div>
-              <div class="td">{{item.o}}</div>
-              <div class="td">{{item.ae}}</div>
-              <div class="td">{{item.ad}}</div>
-              <div class="td">{{item.on}}</div>
-              <div class="td">{{item.tn}}</div>
-              <div class="td">{{item.n}}</div>
-              <div class="td">{{item.a}}</div>
-              <div class="td">{{item.se}}</div>
-              <div class="td">{{item.sd}}</div>
-              <div class="td">{{item.bs}}</div>
-              <div class="td">{{item.bb}}</div>
-              <div class="td">{{item.p}}</div>
-              <div class="td">{{showArrow ? '>>' : ''}}</div>
+              <div class="td one-txt-cut">{{ index + 1 }}</div>
+              <div class="td">{{ item.rn }}</div>
+              <div class="td">{{ item.s }}</div>
+              <div class="td">{{ item.o }}</div>
+              <div class="td">{{ item.ae }}</div>
+              <div class="td">{{ item.ad }}</div>
+              <div class="td">{{ item.on }}</div>
+              <div class="td">{{ item.tn }}</div>
+              <div class="td">{{ item.n }}</div>
+              <div class="td">{{ item.a }}</div>
+              <div class="td">{{ item.se }}</div>
+              <div class="td">{{ item.sd }}</div>
+              <div class="td">{{ item.bs }}</div>
+              <div class="td">{{ item.bb }}</div>
+              <div class="td">{{ item.p }}</div>
+              <div class="td">{{ showArrow ? ">>" : "" }}</div>
             </div>
-            <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
+            <p
+              v-if="tableData.length == 0"
+              class="m-t-10 fs14"
+              style="text-align: center"
+            >
+              暂无数据
+            </p>
           </div>
         </div>
       </div>
@@ -88,7 +98,7 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
 let originTableData = [];
@@ -105,12 +115,12 @@ export default {
     // 获取数据
     async getTableData() {
       const params = {
-        key: this.keyword //  string  查询关键字 
+        key: this.keyword, //  string  查询关键字
       };
       try {
         const res = await api_money.reqGetTYList(params);
         if (res.code == 1) {
-          this.tableData = res.data.records || []
+          this.tableData = res.data.records || [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -121,9 +131,8 @@ export default {
 
     // 导出excel
     async exportExcel() {
-
       const params = {
-        key: this.keyword //  string  查询关键字 
+        key: this.keyword, //  string  查询关键字
       };
 
       try {
@@ -131,8 +140,7 @@ export default {
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
-              type:
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             })
           );
           const a = document.createElement("a"); //添加a标签
@@ -156,7 +164,9 @@ export default {
       if (this.sortIndex === "") {
         this.tableData = JSON.parse(JSON.stringify(originTableData));
       } else {
-        this.tableData.sort((a, b) => (this.sortIndex == 1 ? a.ca - b.ca : b.ca - a.ca));
+        this.tableData.sort((a, b) =>
+          this.sortIndex == 1 ? a.ca - b.ca : b.ca - a.ca
+        );
       }
     },
 
@@ -168,28 +178,28 @@ export default {
       this.keyword = "";
       this.getTableData();
       setTimeout(() => {
-        const table = document.querySelector('.table')
-        const tableWidth = table.offsetWidth
-        const tbody = document.querySelector('.tbody')
-        const tbodyWidth = tbody.offsetWidth
-        const that = this
-        table.onscroll = function() {
-          that.showArrow = tbodyWidth - (table.scrollLeft + tableWidth) >= 40
-        }
+        const table = document.querySelector(".table");
+        const tableWidth = table.offsetWidth;
+        const tbody = document.querySelector(".tbody");
+        const tbodyWidth = tbody.offsetWidth;
+        const that = this;
+        table.onscroll = function () {
+          that.showArrow = tbodyWidth - (table.scrollLeft + tableWidth) >= 40;
+        };
       }, 1000);
-    }
+    },
   },
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
-    }
+      default: false, // 是否显示drawer
+    },
   },
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
       newVal ? this.resetHandle() : "";
-    }
-  }
+    },
+  },
 };
 </script>
 
