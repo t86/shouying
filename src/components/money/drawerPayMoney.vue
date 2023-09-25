@@ -1012,7 +1012,7 @@ export default {
             pb: res.data.val_balance,
             totalAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡余额
             availableAmt:
-              res.data.usable_free_amt * 1 + res.data.usable_val_am * 1, // 卡可用余额
+              res.data.usable_free_amt * 1 + res.data.usable_val_amt * 1, // 卡可用余额
             authCode: res.data.auth_code || "", // 认证扣款字符串
             name: res.data.name,
             show: true, //
