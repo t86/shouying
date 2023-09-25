@@ -183,7 +183,7 @@
                         style="font-size: 13px"
                       >
                         <span style="width: 76px">金额:</span>￥{{
-                          (item.useAmt * 1).toFixed(2)
+                          (item.pa * 1).toFixed(2)
                         }}
                       </p>
                       <p
@@ -194,8 +194,8 @@
                       >
                         <span style="width: 76px">（储:</span>￥{{
                           (item.pv * 1).toFixed(2)
-                        }}; <span style="width: 76px">赠:</span>￥{{
-                          (item.pv * 1).toFixed(2)
+                        }};&nbsp;&nbsp; <span style="width: 76px">赠:</span>￥{{
+                          (item.pf * 1).toFixed(2)
                         }}<span style="width: 38px">）</span>
                       </p>
                       <p
@@ -204,8 +204,8 @@
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                        <span style="width: 76px">赠送积分:</span>￥{{
-                          item.pf ? (item.pf * 1).toFixed(2) : "---"
+                      <span style="width: 76px">赠送积分:</span>{{
+                          !isNaN(item.p ) ? `￥${item.p}` : item.p
                         }}
                       </p>
                     </div>
@@ -398,8 +398,6 @@ export default {
               mb_card_ids: cardIds,
             };
             const res1 = await api_money.reqGetVipCardAmountInfo(params);
-            console.log("res1", res1);
-            console.log("res", res);
             this.tableData = (res.data.records || []).map((item) => ({
               ...item,
               // checked: (res.data.records || []).length == 1,
@@ -411,7 +409,6 @@ export default {
               const i = res1.data.records.find((a) => a.id == item.id);
               return { ...item, ...i };
             });
-            console.log("table Data: ", this.tableData);
             // if (this.tableData.length == 1) {
             //   this.changeCheckBox(this.tableData[0]);
             // }

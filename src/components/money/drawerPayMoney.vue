@@ -145,11 +145,11 @@
             </div>
             <div class="form-item">
               <span>卡余额:</span>
-              <span class="value">￥0.00(储：￥0.00; 赠：￥0.00)</span>
+              <span class="value">￥{{`${vipPayInfo.totalAmt} (储：￥${vipPayInfo.pb}; 赠：￥${vipPayInfo.fb})`}}</span>
             </div>
             <div class="form-item">
               <span>卡可用余额:</span>
-              <span class="value">￥0.00(储：￥0.00; 赠：￥0.00)</span>
+              <span class="value">￥{{`${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pa}; 赠：￥${vipPayInfo.fa})`}}</span>
             </div>
 
             <div class="form-item">
@@ -336,52 +336,47 @@
                 layout="row"
                 layout-align="space-between center"
               >
-                <div class="pay-detail">
-                  <!-- 会员卡 -->
-                  <p v-if="item.pid == 500">
-                    {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : ""
-                    }}{{ item.n ? "(" + item.n + ":" : "(" }}{{ item.c + ")" }}:
-                  </p>
-                  <!-- 非会员卡 -->
-                  <p v-else>
-                    {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : "" }}:
-                  </p>
+              <div class="pay-detail">
+                    <!-- 会员卡 -->
+                    <p>{{ "卡号：" + item.n + " " + item.id }}:</p>
 
-                  <!-- 会员卡落单/会员卡 -->
-                  <div v-if="item.pid == 5 || item.pid == 500">
-                    <p
-                      class="amt"
-                      layout="row"
-                      layout-align="start center"
-                      style="font-size: 13px"
-                    >
-                      <span style="width: 76px">卡金额:</span>￥{{
-                        (item.pa * 1).toFixed(2)
-                      }}
-                    </p>
-                    <p
-                      class="amt"
-                      layout="row"
-                      layout-align="start center"
-                      style="font-size: 13px"
-                    >
-                      <span style="width: 76px">卡储值金额:</span>￥{{
-                        (item.pv * 1).toFixed(2)
-                      }}
-                    </p>
-                    <p
-                      class="amt"
-                      layout="row"
-                      layout-align="start center"
-                      style="font-size: 13px"
-                    >
-                      <span style="width: 76px">卡折扣金额:</span>￥{{
-                        (item.pf * 1).toFixed(2)
-                      }}
-                    </p>
+                    <!-- 会员卡落单/会员卡 -->
+                    <div v-if="item.pid == 5 || item.pid == 500">
+                      <p
+                        class="amt"
+                        layout="row"
+                        layout-align="start center"
+                        style="font-size: 13px"
+                      >
+                        <span style="width: 76px">金额:</span>￥{{
+                          (item.pa * 1).toFixed(2)
+                        }}
+                      </p>
+                      <p
+                        class="amt"
+                        layout="row"
+                        layout-align="start center"
+                        style="font-size: 13px"
+                      >
+                      <span style="width: 76px">（储:</span>￥{{
+                          (item.pv * 1).toFixed(2)
+                        }};&nbsp;&nbsp; <span style="width: 76px">赠:</span>￥{{
+                          (item.pf * 1).toFixed(2)
+                        }}<span style="width: 38px">）</span>
+                      </p>
+                      <p
+                        class="amt"
+                        layout="row"
+                        layout-align="start center"
+                        style="font-size: 13px"
+                      >
+                        <span style="width: 76px">赠送积分:</span>{{
+                          !isNaN(item.p) ? `￥${item.p}` : item.p
+                        }}
+                      </p>
+                    </div>
+                    <p v-else class="amt">￥{{ item.chooseAmt }}</p>
                   </div>
-                  <p v-else class="amt">￥{{ item.chooseAmt }}</p>
-                </div>
                 <div class="close">
                   <i
                     class="el-icon-error"
@@ -406,6 +401,9 @@
           >
         </div>
         <div class="btn-right" layout="row" layout-align="end center">
+          <el-button class="m-r-6" type="danger" @click="onClose"
+            >退出</el-button
+          >
           <el-button class="m-r-6" type="primary" @click="onSubmit"
             >收款</el-button
           >
@@ -470,7 +468,13 @@ export default {
         id: "", // 会员卡id
         cardNo: "", // 会员卡号
         totalAmt: "0", // 卡余额
+        availableAmt: "0", // 卡可用余额
+        pb:"0", // 有价余额
+        fb:"0", // 无价余额
+        pv:"0", // 有价可用余额
+        fv:"0", // 无价可用余额
         authCode: "", // 认证扣款字符串
+        name: "", // 会员卡名称
       },
       // 挂账
       GZInfo: {
@@ -767,6 +771,10 @@ export default {
         this.count = count == "00" ? 0 : count;
       }
     },
+    // 关闭
+    onClose(){
+      this.closeDrawerHandle();
+    },
     // 结账
     async onSubmit() {
       // 处理待结账订单中退单（如果当前订单全部已经退单，传入退单订单的parentOrderId并去重，并且退单数量为0；如果没有退完，则只需要传入主订单id(待结账id)，数量为待结账数量）
@@ -942,10 +950,21 @@ export default {
           this.vipPayInfo = {
             id: res.data.id, // 会员卡id
             cardNo: res.data.card_no, // 会员卡号
+            fa: res.data.free_balance,
+            pv: res.data.val_balance,
+            fb: res.data.val_balance,
+            pb: res.data.val_balance,
             totalAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡余额
+            availableAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡可用余额
             authCode: res.data.auth_code || "", // 认证扣款字符串
             name: res.data.name,
           };
+          const params = {
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+              mb_card_ids: [res.data.id],
+            };
+          const res1 = await api_money.reqGetVipCardAmountInfo(params);
+          this.vipPayInfo = {...this.vi}
         } else {
           this.readCard();
           this.$message.warning(res.msg);
@@ -1100,6 +1119,8 @@ export default {
             id: "", // 会员卡id
             cardNo: "", // 会员卡号
             totalAmt: "0", // 卡余额
+            pv:"0", // 有价余额
+            fv:"0", // 无价余额
             authCode: "", // 认证扣款字符串
             name: "",
           };
