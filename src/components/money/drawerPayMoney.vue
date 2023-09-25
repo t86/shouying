@@ -921,8 +921,9 @@ export default {
 
       if (!this.showChooseVipCardDrawer) {
         this.chooseVipCardType = "";
+        this.getChoosePayList();
       }
-      this.getChoosePayList();
+
     },
 
     /**
