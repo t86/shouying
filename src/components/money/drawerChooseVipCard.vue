@@ -344,7 +344,7 @@ export default {
         pay_code: this.validateVal, //    string   付款码
       };
       if (params.pay_code.length != 6) {
-        this.$message.warning("请输入正确的六位付款码序列号");
+        this.$message.warning("请输入正确的六位服务码序列号");
         return false;
       }
       try {
