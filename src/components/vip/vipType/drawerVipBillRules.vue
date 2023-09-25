@@ -326,6 +326,7 @@ export default {
       this.productOption = "";
       this.keyword = "";
       this.checked = false;
+      this.cateVal = [];
       this.getTableData(true);
     },
     async batchDelete() {

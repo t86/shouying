@@ -250,6 +250,7 @@ export default {
       this.phoneNumVal = "";
       this.validateVal = "";
       this.tableData = [];
+      this.getChoosePayList();
     },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem(
@@ -443,7 +444,6 @@ export default {
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
-      this.getChoosePayList();
     },
 
     // 获取已选择好的支付渠道（购物车）
