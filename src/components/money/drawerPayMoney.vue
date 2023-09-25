@@ -136,20 +136,23 @@
                 >手机号选择会员卡</span
               >
             </div>
-            <div class="form-item">
+            <div class="form-item" v-if="!vipPayInfo.show">
+              <span>请刷会员卡</span>
+            </div>
+            <div class="form-item" v-if="vipPayInfo.show">
               <span>会员卡卡号:</span>
               <span class="value"
                 >{{ vipPayInfo.cardNo
                 }}{{ vipPayInfo.name ? "(" + vipPayInfo.name + ")" : "" }}</span
               >
             </div>
-            <div class="form-item">
+            <div class="form-item" v-if="vipPayInfo.show">
               <span>卡余额:</span>
               <span class="value">￥{{`${vipPayInfo.totalAmt} (储：￥${vipPayInfo.pb}; 赠：￥${vipPayInfo.fb})`}}</span>
             </div>
-            <div class="form-item">
+            <div class="form-item" v-if="vipPayInfo.show">
               <span>卡可用余额:</span>
-              <span class="value">￥{{`${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pa}; 赠：￥${vipPayInfo.fa})`}}</span>
+              <span class="value">￥{{`${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pv}; 赠：￥${vipPayInfo.fv})`}}</span>
             </div>
 
             <div class="form-item">
@@ -475,6 +478,7 @@ export default {
         fv:"0", // 无价可用余额
         authCode: "", // 认证扣款字符串
         name: "", // 会员卡名称
+        show: false, //
       },
       // 挂账
       GZInfo: {
@@ -692,6 +696,16 @@ export default {
         const res = await api_money.reqAddPayListToShopping(params);
         if (res.code === 1) {
           this.$message.success("加入成功");
+          this.vipPayInfo = {
+            id: "", // 会员卡id
+            cardNo: "", // 会员卡号
+            totalAmt: "0", // 卡余额
+            pv:"0", // 有价余额
+            fv:"0", // 无价余额
+            authCode: "", // 认证扣款字符串
+            name: "",
+            show: false,
+          };
           this.getChoosePayList();
         } else {
           this.$message.warning(res.msg);
@@ -859,7 +873,6 @@ export default {
     onCancelDrawer() {
       this.closeDrawerHandle();
     },
-
     // 显示或隐藏authDrawer
     showOrHideAuthDrawer() {
       this.showAuthDrawer = !this.showAuthDrawer;
@@ -875,6 +888,7 @@ export default {
       if (!this.showChooseVipCardDrawer) {
         this.chooseVipCardType = "";
       }
+      this.getChoosePayList();
     },
 
     /**
@@ -942,6 +956,7 @@ export default {
       const params = {
         card_no: cardNo, //    string   卡号,这里是指实体卡卡号
         dt: md5(cardInfoText).toString().toUpperCase(), //     string    卡验证数据
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1 // 卡台
       };
 
       try {
@@ -950,21 +965,16 @@ export default {
           this.vipPayInfo = {
             id: res.data.id, // 会员卡id
             cardNo: res.data.card_no, // 会员卡号
-            fa: res.data.free_balance,
-            pv: res.data.val_balance,
+            fv: res.data.usable_free_amt,
+            pv: res.data.usable_val_am,
             fb: res.data.val_balance,
             pb: res.data.val_balance,
             totalAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡余额
-            availableAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡可用余额
+            availableAmt: res.data.usable_free_amt * 1 + res.data.usable_val_am * 1, // 卡可用余额
             authCode: res.data.auth_code || "", // 认证扣款字符串
             name: res.data.name,
+            show: true, //
           };
-          const params = {
-              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
-              mb_card_ids: [res.data.id],
-            };
-          const res1 = await api_money.reqGetVipCardAmountInfo(params);
-          this.vipPayInfo = {...this.vi}
         } else {
           this.readCard();
           this.$message.warning(res.msg);
@@ -1123,6 +1133,7 @@ export default {
             fv:"0", // 无价余额
             authCode: "", // 认证扣款字符串
             name: "",
+            show: false,
           };
         }
 

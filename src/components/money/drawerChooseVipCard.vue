@@ -172,7 +172,7 @@
                 >
                   <div class="pay-detail">
                     <!-- 会员卡 -->
-                    <p>{{ "卡号：" + item.n + " " + item.id }}:</p>
+                    <p>{{ "卡号：" + item.n + " " + item.c }}:</p>
 
                     <!-- 会员卡落单/会员卡 -->
                     <div v-if="item.pid == 5 || item.pid == 500">
@@ -187,16 +187,12 @@
                         }}
                       </p>
                       <p
-                        class="amt"
-                        layout="row"
+                        class="amt text-wrap"
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                        <span style="width: 76px">（储:</span>￥{{
-                          (item.pv * 1).toFixed(2)
-                        }};&nbsp;&nbsp; <span style="width: 76px">赠:</span>￥{{
-                          (item.pf * 1).toFixed(2)
-                        }}<span style="width: 38px">）</span>
+                        <span>{{`(储: ￥${(item.pv*1).toFixed(2)}; `}}</span>
+                        <span>{{`赠: ￥${(item.pf*1).toFixed(2)})`}}</span>
                       </p>
                       <p
                         class="amt"
@@ -251,7 +247,6 @@ export default {
   methods: {
     init() {
       this.interValHandle();
-
       this.phoneNumVal = "";
       this.validateVal = "";
       this.tableData = [];
@@ -445,6 +440,7 @@ export default {
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
+      this.getChoosePayList();
     },
 
     // 获取已选择好的支付渠道（购物车）
@@ -703,7 +699,15 @@ export default {
             font-weight: 500;
             line-height: 26px;
           }
+          .text-wrap {
+            display: flex;
+          }
 
+          @media (max-width: 222px) {
+          .text {
+            flex-direction: column;
+          }
+        }
           .all-amt {
             color: #1edaad;
           }
