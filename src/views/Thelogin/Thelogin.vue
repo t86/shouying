@@ -15,7 +15,7 @@
           alt
           style="width: 18px; height: 18px; margin-right: 4px"
         />
-        <span>清理缓存</span>
+        <span>重新加载</span>
       </div>
       <div
         class="change-position"
@@ -451,11 +451,12 @@ export default {
       localStorage.setItem("projectVersion", version);
       this.term();
       this.$websocket.reset();
-      window.location.reload();
       this.$message({
-        message: "缓存已清理",
+        message: "重新加载成功",
         type: "info",
       });
+      window.location.reload();
+
     },
     changePosition() {
       if (window.atool && "changePosition" in window.atool) {
