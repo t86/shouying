@@ -53,7 +53,7 @@
           </div>
           <div class="value">
             <el-input v-model="form.addAmt" size="small" style="width:284px" placeholder="请输入储值金额"
-              @change="onAddAmtChange"></el-input>
+              @input="onAddAmtChange"></el-input>
           </div>
         </div>
         <div class="row" layout="row" layout-align="start center">
@@ -133,7 +133,6 @@ export default {
       }
     },
     onAddAmtChange(e) {
-      console.log(e);
       if (e && e > 0) {
         if (this.vipInfo.consume_base_amt == 0) {
           this.form.point = 0;
@@ -147,6 +146,8 @@ export default {
             }
           }
         }
+      } else {
+        this.form.point = 0;
       }
     },
     onSubTypeChange(){
