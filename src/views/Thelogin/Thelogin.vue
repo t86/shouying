@@ -451,6 +451,7 @@ export default {
       localStorage.setItem("projectVersion", version);
       this.term();
       this.$websocket.reset();
+      window.location.reload();
       this.$message({
         message: "缓存已清理",
         type: "info",
