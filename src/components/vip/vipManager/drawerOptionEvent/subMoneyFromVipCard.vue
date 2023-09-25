@@ -66,7 +66,7 @@
         </div>
         <div class="row" layout="row" layout-align="start center">
           <div class="label">
-            <span>{{ form.subType == "1" ? '赠送积分:' : '扣除积分' }}</span>
+            <span>{{ form.subType == "1" ? '本次消费赠送积分:' : '扣除积分' }}</span>
           </div>
           <div class="value">
             <div v-if="form.subType == '1'">

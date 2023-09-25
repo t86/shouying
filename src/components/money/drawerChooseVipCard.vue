@@ -312,6 +312,7 @@ export default {
       if (res.code == 1) {
         this.$message.success("加入成功");
         this.getChoosePayList();
+        this.cardPayInfo();
       } else {
         this.$message.warning(res.msg);
       }
@@ -387,12 +388,7 @@ export default {
         try {
           const res = await api_money.reqGetVipCardFormPhoneNum(params);
           if (res.code == 1) {
-            const cardIds = res.data.records.map((item) => item.id * 1);
-            const params = {
-              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
-              mb_card_ids: cardIds,
-            };
-            const res1 = await api_money.reqGetVipCardAmountInfo(params);
+
             this.tableData = (res.data.records || []).map((item) => ({
               ...item,
               // checked: (res.data.records || []).length == 1,
@@ -400,13 +396,7 @@ export default {
               // disabled: false,
             }));
 
-            this.tableData = this.tableData.map((item) => {
-              const i = res1.data.records.find((a) => a.id == item.id);
-              return { ...item, ...i };
-            });
-            // if (this.tableData.length == 1) {
-            //   this.changeCheckBox(this.tableData[0]);
-            // }
+            this.cardPayInfo();
           } else {
             this.$message.warning(res.msg);
           }
@@ -414,6 +404,19 @@ export default {
           console.log("通过手机号查询会员卡失败", error);
         }
       }
+    },
+
+    async cardPayInfo(){
+      const cardIds = this.tableData.map((item) => item.id * 1);
+      const params = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+        mb_card_ids: cardIds,
+      };
+      const res = await api_money.reqGetVipCardAmountInfo(params);
+      this.tableData = this.tableData.map((item) => {
+        const i = res.data.records.find((a) => a.id == item.id);
+        return { ...item, ...i };
+      });
     },
 
     changeInput(item) {
