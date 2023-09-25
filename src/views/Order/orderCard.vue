@@ -617,12 +617,13 @@ export default {
 
       if (tabList.length > 0) {
         tabList.unshift({
-          id: 0,
-          name:
-            authStatusArr.length == 1 && authStatusArr.includes(1)
-              ? "我的卡台"
-              : "全部",
+          id: 2001,
+          name:"我的卡台",
         });
+        tabList.unshift({
+          id: 0,
+          name: "全部",
+        })
       }
 
       if (tabList.length > this.tab.tabMaxCount) {
@@ -856,17 +857,8 @@ export default {
       });
 
       const filterArr = targetCardList.filter((item) => item[key] == id);
-      // 登录账号身份筛选
-      if (
-        this.$store.state.userInfo.authStatusArr.length == 1 &&
-        this.$store.state.userInfo.authStatusArr.includes(1)
-      ) {
-        // 单纯只有服务员权限
-        return id == 0 ? this.getMyCardList() : filterArr;
-      } else {
-        // 有除了服务员以外的多个权限
-        return id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr;
-      }
+      return id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr;
+
     },
 
     // 递归获取自己下属卡台数据
