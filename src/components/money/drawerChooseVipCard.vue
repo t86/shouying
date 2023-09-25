@@ -509,7 +509,7 @@ export default {
     },
     // 已收金额
     chooseAmt() {
-      let chooseAmt = this.allAmt * 1 - this.maxPayMoney * 1;
+      let chooseAmt = 0;
       this.hasChoosedListArr.forEach((el) => {
         chooseAmt += el.chooseAmt * 1;
       });
