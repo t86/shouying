@@ -163,7 +163,7 @@
         <!-- 提交按钮 -->
         <div class="form-btn" layout="row" layout-align="center center">
           <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-          <el-button type="primary" @click.stop="onSubmit">确定</el-button>
+          <el-button :disabled="committing||!show" type="primary" @click.stop="onSubmit">确定</el-button>
         </div>
       </div>
     </el-drawer>
@@ -180,6 +180,7 @@ export default {
       focus: 0,
       itemText: "",
       tableData: [],
+      committing: false,
       selectOption: [
         {
           id: 1,
@@ -351,6 +352,10 @@ export default {
     },
 
     async onSubmit() {
+      if(this.committing || !this.show) {
+        return
+      }
+
       if (this.tableData.length > 0) {
         if (this.tableData.every((item) => item.selectVal * 1 == 0))
           return this.$message.warning("请选择商品规格");
@@ -387,6 +392,7 @@ export default {
         };
 
         try {
+          this.committing = true;
           const res = await api_saveWine.reqAddNotAuthWine(params);
           if (res.code == 1) {
             this.$message.success("添加成功");
@@ -402,6 +408,7 @@ export default {
         this.$emit("addAuthWineHandle", resultList);
         this.onCancelDrawer();
       }
+      this.committing = false;
     },
 
     onCancelDrawer(isClose) {
