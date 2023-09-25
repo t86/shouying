@@ -340,12 +340,50 @@
                 layout-align="space-between center"
               >
               <div class="pay-detail">
-                    <!-- 会员卡 -->
-                    <p>{{ "卡号：" + item.n + " " + item.c }}:</p>
-
-                    <!-- 会员卡落单/会员卡 -->
-                    <div v-if="item.pid == 5 || item.pid == 500">
-                      <p
+                  <!-- 会员卡 -->
+                  <p v-if="item.pid == 500">
+                    {{ "卡号：" + item.n + " " + item.c }}:
+                  </p>
+                  <!-- 非会员卡 -->
+                  <p v-else>
+                    {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : "" }}:
+                  </p>
+                  <!-- 会员卡落单/会员卡 -->
+                  <div v-if="item.pid == 5">
+                    <p
+                      class="amt"
+                      layout="row"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span style="width: 76px">卡金额:</span>￥{{
+                        (item.pa * 1).toFixed(2)
+                      }}
+                    </p>
+                    <p
+                      class="amt"
+                      layout="row"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span style="width: 76px">卡储值金额:</span>￥{{
+                        (item.pv * 1).toFixed(2)
+                      }}
+                    </p>
+                    <p
+                      class="amt"
+                      layout="row"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span style="width: 76px">卡折扣金额:</span>￥{{
+                        (item.pf * 1).toFixed(2)
+                      }}
+                    </p>
+                  </div>
+                  <!-- 会员卡 -->
+                  <div v-else-if="item.pid == 500">
+                    <p
                         class="amt"
                         layout="row"
                         layout-align="start center"
@@ -373,8 +411,8 @@
                           !isNaN(item.p) ? `￥${item.p}` : item.p
                         }}
                       </p>
-                    </div>
-                    <p v-else class="amt">￥{{ item.chooseAmt }}</p>
+                  </div>
+                  <p v-else class="amt">￥{{ item.chooseAmt }}</p>
                   </div>
                 <div class="close">
                   <i
