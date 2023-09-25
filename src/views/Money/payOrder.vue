@@ -1361,17 +1361,19 @@ export default {
           ? (amt += 0)
           : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
       });
-      //  结账之前,清理收银结账渠道购物车,并确认本次待结账订单
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64   卡台Id
-        wk_order_ids, // []int64    待结账订单Id组
-        prd_cnts, //  []int  对应待结算订单的商品数量, 时价特饮(3),时价小费(4),赔偿(5)不允许拆分数量,其他都可以拆分数量结账
-        total_amt: amt.toFixed(2), //   //TotalAmt 总待结算金额,做二次验证用
-      };
-      console.log(params);
-      const res = await api_money.reqConfirmBillInfo(params);
-      if (res.code != 1) {
-        return this.$message.warning(res.msg);
+      if(!this.drawer.payDrawer.showDrawer) {
+        //  结账之前,清理收银结账渠道购物车,并确认本次待结账订单
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64   卡台Id
+          wk_order_ids, // []int64    待结账订单Id组
+          prd_cnts, //  []int  对应待结算订单的商品数量, 时价特饮(3),时价小费(4),赔偿(5)不允许拆分数量,其他都可以拆分数量结账
+          total_amt: amt.toFixed(2), //   //TotalAmt 总待结算金额,做二次验证用
+        };
+        console.log(params);
+        const res = await api_money.reqConfirmBillInfo(params);
+        if (res.code != 1) {
+          return this.$message.warning(res.msg);
+        }
       }
 
       // if (this.drawer.payDrawer.showDrawer) this.$router.go(0);

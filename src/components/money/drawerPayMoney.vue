@@ -341,7 +341,7 @@
               >
               <div class="pay-detail">
                     <!-- 会员卡 -->
-                    <p>{{ "卡号：" + item.n + " " + item.id }}:</p>
+                    <p>{{ "卡号：" + item.n + " " + item.c }}:</p>
 
                     <!-- 会员卡落单/会员卡 -->
                     <div v-if="item.pid == 5 || item.pid == 500">
@@ -356,16 +356,12 @@
                         }}
                       </p>
                       <p
-                        class="amt"
-                        layout="row"
+                        class="amt text-wrap"
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                      <span style="width: 76px">（储:</span>￥{{
-                          (item.pv * 1).toFixed(2)
-                        }};&nbsp;&nbsp; <span style="width: 76px">赠:</span>￥{{
-                          (item.pf * 1).toFixed(2)
-                        }}<span style="width: 38px">）</span>
+                        <span>{{`(储: ￥${(item.pv*1).toFixed(2)}; `}}</span>
+                        <span>{{`赠: ￥${(item.pf*1).toFixed(2)})`}}</span>
                       </p>
                       <p
                         class="amt"
