@@ -1033,8 +1033,8 @@ export default {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
         auth_type: 1,
         auth_code: this.vipPayInfo.authCodeStr,
-        mb_card_id: [this.vipPayInfo.id],
-        amt: [this.count.toString()],
+        mb_card_id: this.vipPayInfo.id,
+        amt: this.count.toString(),
       };
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
       if (res.code == 1) {
