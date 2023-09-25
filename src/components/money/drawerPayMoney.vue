@@ -341,7 +341,7 @@
               >
               <div class="pay-detail">
                   <!-- 会员卡 -->
-                  <p v-if="item.pid == 500">
+                  <p v-if="item.pid == 5">
                     {{ "卡号：" + item.n + " " + item.c }}:
                   </p>
                   <!-- 非会员卡 -->
@@ -349,7 +349,7 @@
                     {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : "" }}:
                   </p>
                   <!-- 会员卡落单/会员卡 -->
-                  <div v-if="item.pid == 5">
+                  <div v-if="item.pid == 500">
                     <p
                       class="amt"
                       layout="row"
