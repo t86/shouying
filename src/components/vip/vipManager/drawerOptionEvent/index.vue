@@ -64,7 +64,7 @@
           :currentItemInfo="currentItemInfo"
           @updateInfoHandle="updateInfoHandle"
         />
-    
+
         <!-- 注销 -->
         <destroyVipCard
           v-if="optionObj.optionInfo.id == 9"
@@ -147,7 +147,7 @@ export default {
       backVipCardInfoObj: {}, // 退卡
       subMoneyVipCardInfoObj: {}, // 扣款
       deleteVipCardInfoObj: {}, // 注销
-      deductionPointInfoObj:{}, // 扣除积分
+      deductionPointInfoObj: {}, // 扣除积分
     };
   },
   methods: {
@@ -426,6 +426,7 @@ export default {
             mb_card_id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
             val_balance: this.deleteVipCardInfoObj.val_bal, // string  储值余额, 做二次认证用
             free_balance: this.deleteVipCardInfoObj.free_bal, // string   赠送余额, 做二次认证用
+            pt_amt: this.currentItemInfo.p * 1, //int 积分
           };
 
           try {
@@ -444,12 +445,12 @@ export default {
 
         case 10:
           // 扣除积分
-          
+
           params = {
             id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
             oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
-            pt_amt:this.deductionPointInfoObj.point * 1, // 积分
-            remark:this.deductionPointInfoObj.remark  //Remark 扣款备注
+            pt_amt: this.deductionPointInfoObj.point * 1, // 积分
+            remark: this.deductionPointInfoObj.remark, //Remark 扣款备注
           };
           try {
             const res = await api_vip.reqSubPointFromCard(params);
@@ -592,10 +593,11 @@ export default {
                 // 扣款
                 this.$refs.destroyRef && this.$refs.destroyRef.getVipInfo();
                 break;
-              
+
               case 10:
                 // 扣除积分
-                this.$refs.deductionPointRef && this.$refs.deductionPointRef.getVipInfo();
+                this.$refs.deductionPointRef &&
+                  this.$refs.deductionPointRef.getVipInfo();
                 break;
             }
           });
