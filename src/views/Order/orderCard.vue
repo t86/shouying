@@ -618,12 +618,12 @@ export default {
       if (tabList.length > 0) {
         tabList.unshift({
           id: 2001,
-          name:"我的卡台",
+          name: "我的卡台",
         });
         tabList.unshift({
           id: 0,
           name: "全部",
-        })
+        });
       }
 
       if (tabList.length > this.tab.tabMaxCount) {
@@ -857,8 +857,11 @@ export default {
       });
 
       const filterArr = targetCardList.filter((item) => item[key] == id);
-      return id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr;
-
+      return id == 2001
+        ? this.getMyCardList()
+        : id == 0
+        ? JSON.parse(JSON.stringify(targetCardList))
+        : filterArr;
     },
 
     // 递归获取自己下属卡台数据
