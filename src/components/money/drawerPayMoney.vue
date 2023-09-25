@@ -148,11 +148,19 @@
             </div>
             <div class="form-item" v-if="vipPayInfo.show">
               <span>卡余额:</span>
-              <span class="value">￥{{`${vipPayInfo.totalAmt} (储：￥${vipPayInfo.pb}; 赠：￥${vipPayInfo.fb})`}}</span>
+              <span class="value"
+                >￥{{
+                  `${vipPayInfo.totalAmt} (储：￥${vipPayInfo.pb}; 赠：￥${vipPayInfo.fb})`
+                }}</span
+              >
             </div>
             <div class="form-item" v-if="vipPayInfo.show">
               <span>卡可用余额:</span>
-              <span class="value">￥{{`${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pv}; 赠：￥${vipPayInfo.fv})`}}</span>
+              <span class="value"
+                >￥{{
+                  `${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pv}; 赠：￥${vipPayInfo.fv})`
+                }}</span
+              >
             </div>
 
             <div class="form-item">
@@ -339,7 +347,7 @@
                 layout="row"
                 layout-align="space-between center"
               >
-              <div class="pay-detail">
+                <div class="pay-detail">
                   <!-- 会员卡 -->
                   <p v-if="item.pid == 5">
                     {{ "卡号：" + item.n + " " + item.c }}:
@@ -349,7 +357,7 @@
                     {{ item.cn }}{{ item.l == 1 ? "(" + item.lt + ")" : "" }}:
                   </p>
                   <!-- 会员卡落单/会员卡 -->
-                  <div v-if="item.pid == 500">
+                  <div v-if="item.pid == 5">
                     <p
                       class="amt"
                       layout="row"
@@ -384,36 +392,35 @@
                   <!-- 会员卡 -->
                   <div v-else-if="item.pid == 500">
                     <p
-                        class="amt"
-                        layout="row"
-                        layout-align="start center"
-                        style="font-size: 13px"
-                      >
-                        <span style="width: 76px">金额:</span>￥{{
-                          (item.pa * 1).toFixed(2)
-                        }}
-                      </p>
-                      <p
-                        class="amt text-wrap"
-                        layout-align="start center"
-                        style="font-size: 13px"
-                      >
-                        <span>{{`(储: ￥${(item.pv*1).toFixed(2)}; `}}</span>
-                        <span>{{`赠: ￥${(item.pf*1).toFixed(2)})`}}</span>
-                      </p>
-                      <p
-                        class="amt"
-                        layout="row"
-                        layout-align="start center"
-                        style="font-size: 13px"
-                      >
-                        <span style="width: 76px">赠送积分:</span>{{
-                          !isNaN(item.p) ? `￥${item.p}` : item.p
-                        }}
-                      </p>
+                      class="amt"
+                      layout="row"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span style="width: 76px">金额:</span>￥{{
+                        (item.pa * 1).toFixed(2)
+                      }}
+                    </p>
+                    <p
+                      class="amt text-wrap"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span>{{ `(储: ￥${(item.pv * 1).toFixed(2)}; ` }}</span>
+                      <span>{{ `赠: ￥${(item.pf * 1).toFixed(2)})` }}</span>
+                    </p>
+                    <p
+                      class="amt"
+                      layout="row"
+                      layout-align="start center"
+                      style="font-size: 13px"
+                    >
+                      <span style="width: 76px">赠送积分:</span
+                      >{{ !isNaN(item.p) ? `￥${item.p}` : item.p }}
+                    </p>
                   </div>
                   <p v-else class="amt">￥{{ item.chooseAmt }}</p>
-                  </div>
+                </div>
                 <div class="close">
                   <i
                     class="el-icon-error"
@@ -506,10 +513,10 @@ export default {
         cardNo: "", // 会员卡号
         totalAmt: "0", // 卡余额
         availableAmt: "0", // 卡可用余额
-        pb:"0", // 有价余额
-        fb:"0", // 无价余额
-        pv:"0", // 有价可用余额
-        fv:"0", // 无价可用余额
+        pb: "0", // 有价余额
+        fb: "0", // 无价余额
+        pv: "0", // 有价可用余额
+        fv: "0", // 无价可用余额
         authCode: "", // 认证扣款字符串
         name: "", // 会员卡名称
         show: false, //
@@ -734,8 +741,8 @@ export default {
             id: "", // 会员卡id
             cardNo: "", // 会员卡号
             totalAmt: "0", // 卡余额
-            pv:"0", // 有价余额
-            fv:"0", // 无价余额
+            pv: "0", // 有价余额
+            fv: "0", // 无价余额
             authCode: "", // 认证扣款字符串
             name: "",
             show: false,
@@ -820,7 +827,7 @@ export default {
       }
     },
     // 关闭
-    onClose(){
+    onClose() {
       this.closeDrawerHandle();
     },
     // 结账
@@ -923,7 +930,6 @@ export default {
         this.chooseVipCardType = "";
         this.getChoosePayList();
       }
-
     },
 
     /**
@@ -991,7 +997,7 @@ export default {
       const params = {
         card_no: cardNo, //    string   卡号,这里是指实体卡卡号
         dt: md5(cardInfoText).toString().toUpperCase(), //     string    卡验证数据
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1 // 卡台
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // 卡台
       };
 
       try {
@@ -1000,12 +1006,13 @@ export default {
           this.vipPayInfo = {
             id: res.data.id, // 会员卡id
             cardNo: res.data.card_no, // 会员卡号
-            fv: res.data.usable_free_amt,
-            pv: res.data.usable_val_am,
-            fb: res.data.val_balance,
+            fv: res.data.usable_free_amt, //
+            pv: res.data.usable_val_amt,
+            fb: res.data.free_balance,
             pb: res.data.val_balance,
             totalAmt: res.data.val_balance * 1 + res.data.free_balance * 1, // 卡余额
-            availableAmt: res.data.usable_free_amt * 1 + res.data.usable_val_am * 1, // 卡可用余额
+            availableAmt:
+              res.data.usable_free_amt * 1 + res.data.usable_val_am * 1, // 卡可用余额
             authCode: res.data.auth_code || "", // 认证扣款字符串
             name: res.data.name,
             show: true, //
@@ -1164,8 +1171,8 @@ export default {
             id: "", // 会员卡id
             cardNo: "", // 会员卡号
             totalAmt: "0", // 卡余额
-            pv:"0", // 有价余额
-            fv:"0", // 无价余额
+            pv: "0", // 有价余额
+            fv: "0", // 无价余额
             authCode: "", // 认证扣款字符串
             name: "",
             show: false,
