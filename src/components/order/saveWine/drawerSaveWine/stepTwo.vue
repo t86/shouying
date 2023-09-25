@@ -219,7 +219,7 @@ export default {
 
         const maxCount = this.notAuthWineList.filter(item => item.id == itemInfo.p).reduce((a, b) => a + b.c * 1, 0)
 
-        if(resultWineAllCount > maxCount) {
+        if(resultWineAllCount > maxCount && count > 0) {
           // 超出总量
           return this.$message.warning('当前所修改数量已超过可存最大数量')
         }
