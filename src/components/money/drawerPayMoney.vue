@@ -1014,6 +1014,7 @@ export default {
             availableAmt:
               res.data.usable_free_amt * 1 + res.data.usable_val_amt * 1, // 卡可用余额
             authCode: res.data.auth_code || "", // 认证扣款字符串
+            authCodeStr: res.data.auth_code || "", // 认证扣款字符串
             name: res.data.name,
             show: true, //
           };
