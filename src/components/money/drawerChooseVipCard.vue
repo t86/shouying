@@ -476,6 +476,7 @@ export default {
         if (res.code === 1) {
           this.$message.success("删除成功");
           this.getChoosePayList();
+          this.cardPayInfo();
         } else {
           this.$message.warning(res.msg);
         }
