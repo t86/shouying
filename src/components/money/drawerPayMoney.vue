@@ -1030,7 +1030,7 @@ export default {
     async addVipInfo() {
       const param = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
-        auth_type: 2,
+        auth_type: 1,
         auth_code: this.vipPayInfo.authCodeStr,
         mb_card_id: [this.vipPayInfo.id],
         amt: [this.count.toString()],
