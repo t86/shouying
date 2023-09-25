@@ -104,8 +104,8 @@
                     <div class="td one-txt-cut">{{ item.c }}</div>
                     <div class="td one-txt-cut">{{ item.n }}</div>
                     <div class="td one-txt-cut">{{ item.b }}</div>
-                    <div class="td one-txt-cut">{{ item.fb }}</div>
                     <div class="td one-txt-cut">{{ item.vb }}</div>
+                    <div class="td one-txt-cut">{{ item.fb }}</div>
                     <div class="td one-txt-cut">
                       {{ (item.va * 1 + item.fa * 1).toFixed(2) }}
                     </div>
@@ -183,7 +183,7 @@
                         style="font-size: 13px"
                       >
                         <span style="width: 76px">金额:</span>￥{{
-                          (item.pa * 1).toFixed(2)
+                          (item.useAmt * 1).toFixed(2)
                         }}
                       </p>
                       <p
@@ -192,9 +192,11 @@
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                        <span style="width: 76px">卡储值金额:</span>￥{{
+                        <span style="width: 76px">（储:</span>￥{{
                           (item.pv * 1).toFixed(2)
-                        }}
+                        }}; <span style="width: 76px">赠:</span>￥{{
+                          (item.pv * 1).toFixed(2)
+                        }}<span style="width: 38px">）</span>
                       </p>
                       <p
                         class="amt"
@@ -202,8 +204,8 @@
                         layout-align="start center"
                         style="font-size: 13px"
                       >
-                        <span style="width: 76px">卡折扣金额:</span>￥{{
-                          (item.pf * 1).toFixed(2)
+                        <span style="width: 76px">赠送积分:</span>￥{{
+                          item.pf ? (item.pf * 1).toFixed(2) : "---"
                         }}
                       </p>
                     </div>
@@ -300,6 +302,10 @@ export default {
     },
 
     async intoChannel(item) {
+      if (item.useAmt * 1 <= 0) {
+        this.$message.warning("请输入有效的金额");
+        return;
+      }
       const param = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
         auth_type: 2,
@@ -437,33 +443,8 @@ export default {
     },
     // 提交
     async onSubmit() {
-      // const params = {
-      //   seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    待操作卡台Id
-      //   auth_type: 2, //  int       授权类型 1 卡授权 2 手机验证码授权
-      //   auth_code: this.authCodeStr, //  string    授权串
-      //   mb_card_ids: this.tableData
-      //     .filter((item) => item.checked)
-      //     .map((item) => item.id * 1), // []int64    会员卡Id列表
-      //   amts: this.tableData
-      //     .filter((item) => item.checked)
-      //     .map((item) => item.chooseAmt.toString()), //       []string   使用金额
-      //   ...(this.payId && { pay_id: this.payId * 1 }),
-      // };
-      // try {
-      //   const api = this.payId
-      //     ? "reqAddVipCardFormPhoneNumInPayAfter"
-      //     : "reqAddVipCardFormPhoneNumInPayBefore";
-      //   const res = await api_money[api](params);
-      //   if (res.code == 1) {
-      //     this.$message.success("添加成功");
       this.$emit("nextHandle");
       this.onCancelDrawer();
-      //   } else {
-      //     this.$message.warning(res.msg);
-      //   }
-      // } catch (error) {
-      //   console.log("会员卡选择组合支付失败", error);
-      // }
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");

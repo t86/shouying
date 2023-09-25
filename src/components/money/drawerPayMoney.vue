@@ -143,19 +143,17 @@
                 }}{{ vipPayInfo.name ? "(" + vipPayInfo.name + ")" : "" }}</span
               >
             </div>
-            <div class="flex-row-full">
-              <div class="form-item">
-                <span>卡余额:</span>
-                <span>￥0.00</span>
-              </div>
-              <div class="form-item">
-                <span>卡可用余额:</span>
-                <span>￥0.00</span>
-              </div>
+            <div class="form-item">
+              <span>卡余额:</span>
+              <span class="value">￥0.00(储：￥0.00; 赠：￥0.00)</span>
+            </div>
+            <div class="form-item">
+              <span>卡可用余额:</span>
+              <span class="value">￥0.00(储：￥0.00; 赠：￥0.00)</span>
             </div>
 
             <div class="form-item">
-              <span>支付金额:</span>
+              <span>本次使用金额:</span>
               <span
                 class="count value"
                 layout="row"
@@ -167,7 +165,7 @@
                   ref="moneyCountRef"
                   v-model="count"
                   style="
-                    width: calc(100% - 30px);
+                    width: calc(100% - 50px);
                     height: 100%;
                     border: none;
                     transform: translateY(-8px);
@@ -188,16 +186,6 @@
                   @click="count = ''"
                 ></i>
               </span>
-            </div>
-            <div class="flex-row-full">
-              <div class="form-item">
-                <span style="width: 140px">本次使用储值金额:</span>
-                <span>￥0.00</span>
-              </div>
-              <div class="form-item">
-                <span style="width: 140px">本次使用赠送金额:</span>
-                <span>￥0.00</span>
-              </div>
             </div>
           </div>
 
