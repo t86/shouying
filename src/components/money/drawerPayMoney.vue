@@ -349,7 +349,7 @@
               >
                 <div class="pay-detail">
                   <!-- 会员卡 -->
-                  <p v-if="item.pid == 5">
+                  <p v-if="item.pid == 500">
                     {{ "卡号：" + item.n + " " + item.c }}:
                   </p>
                   <!-- 非会员卡 -->
@@ -1028,25 +1028,19 @@ export default {
 
     // 添加会员卡渠道
     async addVipInfo() {
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    待操作卡台Id
-        auth_type: 1, //  int       授权类型 1 卡授权 2 手机验证码授权
-        auth_code: this.vipPayInfo.authCode, //  string    授权串
-        mb_card_ids: [this.vipPayInfo.id], // []int64    会员卡Id列表
-        amts: [this.count.toString()], //       []string   使用金额
+      const param = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+        auth_type: 2,
+        auth_code: this.vipPayInfo.authCodeStr,
+        mb_card_id: [this.vipPayInfo.id],
+        amt: [this.count.toString()],
       };
-      try {
-        const res = await api_money.reqAddVipCardFormPhoneNumInPayBefore(
-          params
-        );
-        if (res.code == 1) {
-          this.$message.success("加入成功");
-          this.getChoosePayList();
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("会员卡选择组合支付失败", error);
+      const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
+      if (res.code == 1) {
+        this.$message.success("加入成功");
+        this.getChoosePayList();
+      } else {
+        this.$message.warning(res.msg);
       }
     },
 
