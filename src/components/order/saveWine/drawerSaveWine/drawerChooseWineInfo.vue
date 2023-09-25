@@ -439,7 +439,7 @@ export default {
       return (
         this.tableData
           .map((item) => item.count * 1)
-          .reduce((a, b) => a + b, 0) + this.chooseCount
+          .reduce((a, b) => a * 1 + b * 1, 0) + this.chooseCount * 1
       );
     },
   },
