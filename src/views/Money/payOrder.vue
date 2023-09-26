@@ -1361,7 +1361,7 @@ export default {
           ? (amt += 0)
           : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
       });
-      if(!this.drawer.payDrawer.showDrawer) {
+      if (!this.drawer.payDrawer.showDrawer) {
         //  结账之前,清理收银结账渠道购物车,并确认本次待结账订单
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64   卡台Id
