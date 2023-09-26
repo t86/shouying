@@ -3,7 +3,7 @@
     <h3 class="title">积分设置</h3>
     <div class="row">
       <span>赠送积分规则：</span>
-      <el-radio-group v-model="form.type_id">
+      <el-radio-group v-model="form.type_id" disabled="!$store.getters.vipAuth">
         <el-radio :label="1">不赠送积分</el-radio>
         <el-radio :label="2">充值赠送积分</el-radio>
         <el-radio :label="3">消费赠送积分</el-radio>
@@ -12,6 +12,7 @@
     <div class="row m-t-4" v-if="form.type_id != 1">
       <span class="m-r-2">{{ form.type_id == 2 ? "充值" : "消费" }}</span>
       <el-input
+        disabled="$store.getters.vipAuth"
         class="m-r-2"
         v-model="form.amount"
         size="small"
@@ -44,7 +45,7 @@
         不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span
       >
     </div>
-    <button class="btn primary m-l-4 m-t-4" @click="save">保存</button>
+    <button v-if="$store.getters.vipAuth" class="btn primary m-l-4 m-t-4" @click="save">保存</button>
   </div>
 </template>
 

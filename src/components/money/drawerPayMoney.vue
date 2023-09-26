@@ -138,6 +138,14 @@
             </div>
             <div class="form-item" v-if="!vipPayInfo.show">
               <span>请刷会员卡</span>
+              <el-tooltip
+                style="width: 12px;height: 12px;"
+                content="卡可用金额：本次订单可使用当前会员卡的支付的金额；由于某些商品不允许使用会员卡储值金额、赠送金额或不能用会员卡支付，所以可能导致卡余额大于订单金额但卡可用余额小于订单金额"
+                effect="light"
+                placement="top"
+                class="tooltip">
+                <img src="@/assets/img/help.png"/>
+              </el-tooltip>
             </div>
             <div class="form-item" v-if="vipPayInfo.show">
               <span>会员卡卡号:</span>
@@ -156,6 +164,14 @@
             </div>
             <div class="form-item" v-if="vipPayInfo.show">
               <span>卡可用余额:</span>
+              <el-tooltip
+                style="width: 12px;height: 12px;"
+                content="卡可用金额：本次订单可使用当前会员卡的支付的金额；由于某些商品不允许使用会员卡储值金额、赠送金额或不能用会员卡支付，所以可能导致卡余额大于订单金额但卡可用余额小于订单金额"
+                effect="light"
+                placement="top"
+                class="tooltip">
+                <img src="@/assets/img/help.png"/>
+              </el-tooltip>
               <span class="value"
                 >￥{{
                   `${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pv}; 赠：￥${vipPayInfo.fv})`

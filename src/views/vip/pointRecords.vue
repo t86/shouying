@@ -1,12 +1,12 @@
 <template>
     <div>
-      <!-- 积分扣除记录 -->
+      <!-- 积分记录 -->
       <div class="vip pointRecords">
-        <h3 class="title">积分扣除记录</h3>
+        <h3 class="title">积分记录表</h3>
   
         <div class="search m-t-2 m-b-4">
           <div class="row">
-            <span class="label">扣除日期:</span>
+            <span class="label">操作日期:</span>
             <el-date-picker
               v-model="form.dateVal"
               type="daterange"
@@ -36,6 +36,26 @@
               导出
             </button>
           </div>
+          <div class="row">
+            <span class="label">类型:</span>
+            <el-select
+              v-model="typeVal"
+              size="small"
+              placeholder="请选择类型"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in typeOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+          <div class="row">
+
+          </div>
         </div>
 
           <div class="contain">
@@ -43,14 +63,15 @@
             <div class="thead">
               <div class="tr" layout="row" layout-align="space-between center">
                 <div class="th">序号</div>
-                <div class="th">扣除日期</div>
+                <div class="th">操作日期</div>
+                <div class="th">类型</div>
                 <div class="th">会员姓名</div>
                 <div class="th">绑定手机号</div>
                 <div class="th">联系手机号</div>
                 <div class="th">会员卡号</div>
                 <div class="th">卡类型</div>
                 <div class="th">会员卡等级</div>
-                <div class="th">扣除积分</div>
+                <div class="th">操作积分</div>
                 <div class="th">卡内剩余积分</div>
                 <div class="th">备注</div>
                 <div class="th">操作人</div>
@@ -74,6 +95,7 @@
               >
                 <div class="td">{{ index + 1 }}</div>
                 <div class="td">{{ item.d }}</div>
+                <div class="td">{{ item.t }}</div>
                 <div class="td">{{ item.n }}</div>
                 <div class="td">{{ item.bp }}</div>
                 <div class="td">{{ item.cp }}</div>
@@ -129,6 +151,21 @@
           keyword: "",
         },
         tableData: [],
+        typeValue: 0,
+        typeOptions:[
+        {
+          id: 0,
+          name: "全部",
+        },
+        {
+          id: 1,
+          name: "充值",
+        },
+        {
+          id: 2,
+          name: "扣除",
+        },
+        ],
         pageInfo: {
           page: 1,
           pageSize: 20,

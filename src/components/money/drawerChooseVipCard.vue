@@ -68,8 +68,9 @@
                 </template>
               </div>
 
-              <p class="tips red">提示：勾选会员卡后，才可以填写金额</p>
-
+              <p class="tips red m-b-2">提示：勾选会员卡后，才可以填写金额。卡可用金额：本次订单可使用当前会员卡的支付的金额；
+                由于某些商品不允许使用会员卡储值金额、赠送金额或不能用会员卡支付，
+                所以可能导致卡余额大于订单金额但卡可用余额小于订单金额</p>
               <div class="table">
                 <div class="thead">
                   <div
@@ -584,7 +585,7 @@ export default {
   }
 
   .tips {
-    line-height: 60px;
+    line-height: 20px;
   }
 
   .container {

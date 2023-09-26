@@ -61,10 +61,10 @@
           </div>
         </div>
         <!-- table -->
+        <!-- v-infinite-scroll="loadNextPageHandle"
+                  infinite-scroll-distance="1" -->
         <div
           class="table-content"
-          v-infinite-scroll="loadNextPageHandle"
-          infinite-scroll-distance="1"
         >
           <div class="table">
             <div class="thead">
@@ -107,13 +107,13 @@
                 <img src="@/assets/img/wu.png" alt />
                 <p>暂无数据</p>
               </div>
-              <div
+              <!-- <div
                 class="tips p-t-2 fs14"
                 style="text-align: center"
                 v-if="tableData.length > 0"
               >
                 {{ isLoaded ? "没有更多了" : "加载中..." }}
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -171,15 +171,15 @@ export default {
   methods: {
     // 获取表格数据
     async getTableData(init = 2) {
-      if (init == 1) {
-        this.pageInfo.page = 1;
-        this.isLoaded = false;
-      }
-      if (this.isLoaded) return;
+      // if (init == 1) {
+      //   // this.pageInfo.page = 1;
+      //   this.isLoaded = false;
+      // }
+      // if (this.isLoaded) return;
       const params = {
         name: this.searchFormData.keyword || "", //  string   搜索关键字
-        page_num: this.pageInfo.page * 1, //   int        //PageNum 第几页
-        page_size: this.pageInfo.pageSize, //  int        //PageSize 每页多少行
+        // page_num: this.pageInfo.page * 1, //   int        //PageNum 第几页
+        // page_size: this.pageInfo.pageSize, //  int        //PageSize 每页多少行
         init: init, //       int        //Init  初始化标记 1 初始化, 会返回一级分类的结构    2 非初始化, 不返回一级分类结构
         one_cate_id: this.searchFormData.valueArr[0] * 1, // int64    商品一级分类Id =0代表不限制
         two_cate_id: this.searchFormData.valueArr[1] * 1, // int64   商品二级分类Id =0代表不限制
@@ -206,19 +206,19 @@ export default {
 
             this.searchFormData.options = [...options];
           }
-          const tableData = (res.data.prds || []).map((item) => ({
+          this.tableData = (res.data.prds || []).map((item) => ({
             ...item,
             disabled: this.addedSeatListId.includes(item.id * 1),
             checked: this.addedSeatListId.includes(item.id * 1),
           }));
 
-          this.tableData =
-            init == 1 ? [...tableData] : [...this.tableData, ...tableData];
+          // this.tableData =
+          //   init == 1 ? [...tableData] : [...this.tableData, ...tableData];
 
           this.checked = this.tableData.every((item) => item.checked);
 
-          this.isLoaded =
-            this.tableData.length < this.pageInfo.pageSize * this.pageInfo.page;
+          // this.isLoaded =
+          //   this.tableData.length < this.pageInfo.pageSize * this.pageInfo.page;
         } else {
           this.$message.warning(res.msg);
         }
