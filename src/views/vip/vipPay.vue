@@ -47,7 +47,6 @@
           <button
             class="btn info m-l-4"
             @click="exportExcel"
-            v-if="$store.getters.vipAuth"
           >
             导出
           </button>
