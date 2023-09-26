@@ -6,11 +6,21 @@
     :layout-align="isRect ? 'space-between center' : 'start center'"
   >
     <div
+      style="width: 100%"
       :layout="isRect ? 'row' : 'column'"
       :layout-align="isRect ? 'start center' : 'start start'"
     >
-      <div style="margin-bottom: -2px;" layout="row" layout-align="start center">
-        <div class="ul" layout="row" layout-align="start center">
+      <div
+        style="margin-bottom: -2px; width: 100%; display: flex"
+        layout="row"
+        layout-align="start center"
+      >
+        <div
+          style="flex: 1"
+          class="ul"
+          layout="row"
+          layout-align="start center"
+        >
           <div
             class="li line"
             v-for="(item, index) in navList"
@@ -76,7 +86,7 @@
           <!-- 收银系统按钮 -->
           <div
             class="pay-btn line"
-            :style = "isNarrowWidth && 'padding: 0px 0px'"
+            :style="isNarrowWidth && 'padding: 0px 0px'"
             v-if="
               $store.state.userInfo.authStatus == 4 &&
               !this.$route.path.startsWith('/orderMeal') &&
@@ -148,7 +158,7 @@
             }}
           </div>
         </div>
-        <div layout="row" layout-align="start center">
+        <div layout="row" layout-align="end center">
           <!-- 消费情况 -->
           <div
             id="aaaa"
@@ -200,7 +210,10 @@
           </div>
           <div
             class="date-time"
-            :class="{ 'm-l-6': !isRect && !isNarrowWidth, 'p-l-3' : !isNarrowWidth }"
+            :class="{
+              'm-l-6': !isRect && !isNarrowWidth,
+              'p-l-3': !isNarrowWidth,
+            }"
             layout="column"
             layout-align="center center"
           >
@@ -216,7 +229,7 @@
         </div>
       </div>
 
-      <div layout="row" style="width: 100%" layout-align="center center" v-if="!isRect">
+      <div layout="row" layout-align="center center" v-if="!isRect">
         <!-- 消费情况 -->
         <div
           class="amt line p-r-6"
@@ -502,7 +515,7 @@ export default {
       canLookOrderAmt: false,
 
       isRect: window.innerWidth > 1024,
-      isNarrowWidth : window.innerWidth < 850,
+      isNarrowWidth: window.innerWidth < 850,
 
       activeRouteName: "", // 当前页面的routerName
       navList: [],

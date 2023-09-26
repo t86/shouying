@@ -408,6 +408,38 @@
               </div>
             </div>
           </div>
+          <div class="NoPaging p-t-1">
+            <div class="title bold">会员卡充值积分格式:</div>
+            <div class="content">
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">操作人：收银员</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">流水号：129988877777</div>
+              </div>
+              <div class="guest_info" style="margin-top: -4px">
+                <div class="guest_info_l">充值时间：2023-09-09 12:33:32</div>
+              </div>
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">卡号：00000000000001</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">姓名：会员vip</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">充值积分：1000</div>
+              </div>
+              <div class="guest_info" style="border: none; margin-top: -4px">
+                <div class="guest_info_l">充值前积分余额：2000</div>
+              </div>
+              <div class="guest_info" style="margin-top: -4px">
+                <div class="guest_info_l">充值后积分余额: 3000</div>
+              </div>
+              <div class="order_time">
+                <div class="order_time_li">打印时间：2023-09-09 12:33:32</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="item">
           <div class="NoPaging">

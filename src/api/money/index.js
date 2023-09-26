@@ -362,6 +362,10 @@ export default {
   reqUpdateVipCardIntoBillChannel: (params) =>
     axios.post(`${base.htgl}/sel/cart_merge_mb_card_cnl`, params),
 
+  // 滞留金转台
+  reqChangeMerchantMoney: (params) =>
+    axios.post(`${base.htgl}/sel/chg_late_cnl_seat`, params),
+
   /**
    * 其它
    */

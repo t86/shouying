@@ -79,6 +79,13 @@
           :currentItemInfo="currentItemInfo"
           @updateInfoHandle="updateInfoHandle"
         />
+        <!-- 充值积分 -->
+        <rechargePoint
+          v-if="optionObj.optionInfo.id == 11"
+          ref="rechargePointRef"
+          :currentItemInfo="currentItemInfo"
+          @updateInfoHandle="updateInfoHandle"
+        />
         <!-- 修改会员卡信息提示框 -->
         <div class="modal" v-if="confirmEditVipInfo">
           <div class="modal-content">
@@ -130,6 +137,7 @@ import backVipCard from "./backVipCard.vue";
 
 import subMoneyFromVipCard from "./subMoneyFromVipCard.vue";
 import deductionPoint from "./deductionPoint.vue";
+import rechargePoint from "./rechargePoint.vue";
 import destroyVipCard from "./destroyVipCard.vue";
 
 export default {
@@ -148,6 +156,7 @@ export default {
       subMoneyVipCardInfoObj: {}, // 扣款
       deleteVipCardInfoObj: {}, // 注销
       deductionPointInfoObj: {}, // 扣除积分
+      rechargePointInfoObj: {}, // 充值积分
     };
   },
   methods: {
@@ -160,8 +169,9 @@ export default {
       this.changeVipCardInfoObj = {};
       this.backVipCardInfoObj = {};
       this.subMoneyVipCardInfoObj = {};
-      this.deleteVipCardInfoOb = {};
+      this.deleteVipCardInfoObj = {};
       this.deductionPointInfoObj = {};
+      this.rechargePointInfoObj = {};
     },
 
     updateInfoHandle(info) {
@@ -465,6 +475,27 @@ export default {
           }
 
           break;
+        case 11:
+          //充值积分
+          params = {
+            id: this.currentItemInfo.id * 1, // int64   虚拟卡Id
+            oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
+            pt_amt: this.rechargePointInfoObj.point * 1, // 积分
+            remark: this.rechargePointInfoObj.remark, //Remark 充值备注
+          };
+          try {
+            const res = await api_vip.reqAddMemberPoint(params);
+            if (res.code == 1) {
+              this.$message.success("充值成功");
+              this.onCancelDrawer();
+            } else {
+              this.$message.warning(res.msg);
+            }
+          } catch (error) {
+            console.log("充值失败", error);
+          }
+
+          break;
       }
     },
     // 提交更改/绑定手机号
@@ -541,6 +572,7 @@ export default {
     backVipCard,
     subMoneyFromVipCard,
     deductionPoint,
+    rechargePoint,
     destroyVipCard,
   },
   watch: {
@@ -598,6 +630,11 @@ export default {
                 // 扣除积分
                 this.$refs.deductionPointRef &&
                   this.$refs.deductionPointRef.getVipInfo();
+                break;
+              case 11:
+                // 积分充值
+                this.$refs.rechargePointRef &&
+                  this.$refs.rechargePointRef.getVipInfo();
                 break;
             }
           });

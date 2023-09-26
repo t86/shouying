@@ -40,6 +40,24 @@
             </button>
             <button class="btn info m-l-4" @click="resetHandle">重置</button>
           </div>
+          <div class="row" layout="row" layout-align="start center">
+            <span class="label m-r-1">商品规则:</span>
+            <el-select
+              v-model="ruleVal"
+              size="small"
+              placeholder="请选择商品规则"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in ruleOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+          <div></div>
           <div
             class="row m-t-4"
             layout="row"
@@ -250,6 +268,29 @@ export default {
         total: 0,
       },
       init: false,
+      ruleVal: 0,
+      ruleOptions: [
+        {
+          id: 0,
+          name: "全部",
+        },
+        {
+          id: 1,
+          name: "按比例扣款",
+        },
+        {
+          id: 2,
+          name: "先用赠送金额",
+        },
+        {
+          id: 3,
+          name: "只能用值金额",
+        },
+        {
+          id: 4,
+          name: "只用赠送金额",
+        },
+      ],
     };
   },
   methods: {
@@ -263,6 +304,7 @@ export default {
         two_cate_id: this.cateVal[1] || 0, // string 二级分类id =0 代表不限制
         name: this.keyword,
         card_type_id: this.item.id,
+        type_id: this.ruleVal,
       };
       try {
         let res = await api_vip.reqGetVipBillRuleList(params);
@@ -327,6 +369,7 @@ export default {
       this.keyword = "";
       this.checked = false;
       this.cateVal = [];
+      this.ruleVal = 0;
       this.getTableData(true);
     },
     async batchDelete() {

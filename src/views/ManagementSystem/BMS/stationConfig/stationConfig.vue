@@ -81,6 +81,11 @@
         colors="#383943"
         wz="类似创建"
       ></characters-button>
+      <!-- <characters-button
+        @click.native="setConfigHandle(99)"
+        colors="#383943"
+        wz="角色权限"
+      ></characters-button> -->
     </div>
     <div class="table-content">
       <div class="table">

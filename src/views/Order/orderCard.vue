@@ -617,12 +617,12 @@ export default {
 
       if (tabList.length > 0) {
         tabList.unshift({
-          id: 0,
-          name: "全部",
-        });
-        tabList.unshift({
           id: 2001,
           name: "我的卡台",
+        });
+        tabList.unshift({
+          id: 0,
+          name: "全部",
         });
       }
 

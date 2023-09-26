@@ -11,7 +11,7 @@
           <div class="value">{{vipInfo.name || '---'}}</div>
         </div>
         <div class="row">
-          <div class="label">绑定手机：</div>
+          <div class="label">绑定手机号：</div>
           <div class="value">{{vipInfo.bind_phone || '---'}}</div>
         </div>
         <div class="row">
@@ -19,7 +19,7 @@
           <div class="value">{{vipInfo.contact_phone || '---'}}</div>
         </div>
         <div class="row">
-          <div class="label">储蓄余额：</div>
+          <div class="label">储值余额：</div>
           <div class="value">{{vipInfo.val_bal}}</div>
         </div>
         <div class="row">
@@ -36,14 +36,14 @@
           <div class="flex-row">
             <div class="label m-t-2">
               <span style="color:#E0304F">*</span>
-              <span>扣除积分</span>
+              <span>充值积分</span>
             </div>
             <div class="value" style="margin-left: 16px;">
                 <el-input
                 v-model="point"
                 size="small"
                 style="width: 284px"
-                placeholder="请输入扣除的积分"
+                placeholder="请输入整数"
               ></el-input>
             </div>
           </div>
@@ -55,7 +55,7 @@
               <el-input
                 type="textarea"
                 :rows="2"
-                placeholder="请输入备注"
+                placeholder="填写充值积分的原因，不超过30个字"
                 v-model="remark"
                 style="width: 284px"
               >

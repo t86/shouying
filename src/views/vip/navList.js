@@ -82,7 +82,7 @@ export default [
       },
       {
         id: 44,
-        name: "积分扣除记录",
+        name: "积分记录",
         routerName: "pointRecords",
       },
       {

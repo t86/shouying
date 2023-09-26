@@ -69,11 +69,11 @@ export default [
         meta: { title: "会员卡记录" },
         component: () => import("@/views/vip/vipPay.vue"),
       },
-      // 积分扣除记录
+      // 积分记录
       {
         path: "/pointRecords",
         name: "pointRecords",
-        meta: { title: "积分扣除记录" },
+        meta: { title: "积分记录" },
         component: () => import("@/views/vip/pointRecords.vue"),
       },
       //

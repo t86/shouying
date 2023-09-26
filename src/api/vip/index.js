@@ -165,6 +165,10 @@ export default {
   reqMakeMoneyToCard: (params) =>
     axios.post(`${base.htgl}/mb/card/deposit`, params),
 
+  // 充值积分接口
+  reqAddMemberPoint: (params) =>
+  axios.post(`${base.htgl}/mb/card/deposit_pt`, params),
+
   /**
    *  option
    */
@@ -311,12 +315,12 @@ export default {
   reqGetVipCarXFListReport: (params) =>
     axios.post(`${base.htgl}/mb/rpt/get_consume_log`, params),
 
-  // 读取积分扣除记录
+  // 读取积分记录
   reqGetDeductionPointListReport: (params) =>
-    axios.post(`${base.htgl}/mb/rpt/get_subtract_pt_log`, params),
-  // 下载积分扣除记录excel
+    axios.post(`${base.htgl}/mb/rpt/get_pt_log`, params),
+  // 下载积分记录excel
   reqExportExcelForDeductionPoint: (params) =>
-    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_subtract_pt_log`, params),
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_pt_log`, params),
   // 读取会员卡余额汇总表
   reqGetVipBalanceListReport: (params) =>
     axios.post(`${base.htgl}/mb/rpt/get_mb_card_bal_list`, params),
