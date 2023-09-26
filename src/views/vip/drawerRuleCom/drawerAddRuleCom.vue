@@ -52,7 +52,7 @@
             ></el-input>
           </div>
           <div class="item" layout="row" layout-align="start center">
-            <el-button type="primary" size="small" @click.stop="getTableData(1)"
+            <el-button type="primary" size="small" @click.stop="getTableData(2)"
               >查询</el-button
             >
             <el-button type="primary" size="small" @click.stop="restSearchData"
@@ -63,9 +63,7 @@
         <!-- table -->
         <!-- v-infinite-scroll="loadNextPageHandle"
                   infinite-scroll-distance="1" -->
-        <div
-          class="table-content"
-        >
+        <div class="table-content">
           <div class="table">
             <div class="thead">
               <div class="tr" layout="row" layout-align="space-between center">
@@ -193,7 +191,7 @@ export default {
             options.forEach((el) => {
               el.value = el.id;
               el.label = el.n;
-             el.children =
+              el.children =
                 el.ss && el.ss.length > 0
                   ? JSON.parse(JSON.stringify(el.ss))
                   : [];
@@ -207,13 +205,17 @@ export default {
             this.searchFormData.options = [...options];
           }
           this.tableData = (res.data.prds || []).map((item) => {
-            item.on = this.searchFormData.options.find(i => i.value == item.oi).n
-            item.tn = this.searchFormData.options.find(i => i.value == item.oi).children.find(i => i.value == item.ti).n
-            return ({
-            ...item,
-            disabled: this.addedSeatListId.includes(item.id * 1),
-            checked: this.addedSeatListId.includes(item.id * 1),
-            }) 
+            item.on = this.searchFormData.options.find(
+              (i) => i.value == item.oi
+            ).n;
+            item.tn = this.searchFormData.options
+              .find((i) => i.value == item.oi)
+              .children.find((i) => i.value == item.ti).n;
+            return {
+              ...item,
+              disabled: this.addedSeatListId.includes(item.id * 1),
+              checked: this.addedSeatListId.includes(item.id * 1),
+            };
           });
 
           // this.tableData =
