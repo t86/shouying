@@ -31,11 +31,11 @@
         img="btn_delete.png"
         colors="#6B2830"
       ></icon-button>
-      <!-- <characters-button
+      <characters-button
         @click.native="setConfigHandle(1)"
         colors="#383943"
         wz="登录权限"
-      ></characters-button> -->
+      ></characters-button>
       <characters-button
         @click.native="setConfigHandle(2)"
         colors="#383943"
@@ -61,16 +61,16 @@
         colors="#383943"
         wz="特饮小费关联商品"
       ></characters-button>
-      <!-- <characters-button
+      <characters-button
         @click.native="setConfigHandle(7)"
         colors="#383943"
         wz="erp系统权限"
-      ></characters-button> -->
-      <!-- <characters-button
+      ></characters-button>
+      <characters-button
         @click.native="setConfigHandle(8)"
         colors="#383943"
         wz="配置权限"
-      ></characters-button> -->
+      ></characters-button>
       <characters-button
         @click.native="setConfigHandle(9)"
         colors="#383943"
@@ -81,11 +81,11 @@
         colors="#383943"
         wz="类似创建"
       ></characters-button>
-      <characters-button
+      <!-- <characters-button
         @click.native="setConfigHandle(99)"
         colors="#383943"
         wz="角色权限"
-      ></characters-button>
+      ></characters-button> -->
     </div>
     <div class="table-content">
       <div class="table">

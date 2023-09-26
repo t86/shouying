@@ -38,11 +38,11 @@
         colors="#383943"
         wz="批量修改部门"
       ></characters-button>
-      <characters-button
+      <!-- <characters-button
         @click.native="toEditPos"
         colors="#383943"
         wz="批量修改岗位"
-      ></characters-button>
+      ></characters-button> -->
       <characters-button
         @click.native="toEditUpper"
         colors="#383943"

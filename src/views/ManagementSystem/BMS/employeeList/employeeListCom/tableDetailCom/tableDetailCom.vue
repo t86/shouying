@@ -122,11 +122,11 @@
           colors="#383943"
           wz="批量修改部门"
         ></characters-button>
-        <characters-button
+        <!-- <characters-button
           @click.native="anotherEffectHandle(5)"
           colors="#383943"
           wz="批量修改岗位"
-        ></characters-button>
+        ></characters-button> -->
         <characters-button
           @click.native="anotherEffectHandle(2)"
           colors="#383943"
