@@ -630,6 +630,10 @@ export default {
                 // 扣除积分
                 this.$refs.deductionPointRef && this.$refs.deductionPointRef.getVipInfo();
                 break;
+              case 11:
+                // 积分充值
+                this.$refs.rechargePointRef && this.$refs.rechargePointRef.getVipInfo();
+                break;
             }
           });
         } else {

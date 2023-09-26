@@ -83,6 +83,8 @@
           id: this.currentItemInfo.id * 1 //   int64   会员卡Id
         };
         try {
+          this.point = ""
+          this.remark = ""
           const res = await api_vip.reqVipCardGetVNodeCard(params);
           if (res.code == 1) {
             this.vipInfo = res.data || {};
