@@ -369,6 +369,7 @@ export default {
       this.keyword = "";
       this.checked = false;
       this.cateVal = [];
+      this.ruleVal = 0;
       this.getTableData(true);
     },
     async batchDelete() {
