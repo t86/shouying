@@ -114,6 +114,7 @@ export default {
       showAddMerchant: false, // 新增滞留金
 
       isShowChooseCard: false, // 是否显示选择卡台组件
+      itemInfo: {}, //
     };
   },
   methods: {
@@ -203,10 +204,29 @@ export default {
     },
     changeMerchant(itemInfo) {
       console.log("选择的滞留金项", itemInfo);
+      this.itemInfo = itemInfo;
       this.showOrHideChooseCardHandle();
     },
-    setChooseCardInfo(cardInfo) {
+    async setChooseCardInfo(cardInfo) {
       console.log("选择的卡台信息", cardInfo);
+      const params = {
+        seat_id_src: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   卡台Id
+        seat_id_dest: cardInfo.seatId * 1,
+        late_id: this.itemInfo.id * 1, //    int64    滞留金订单Id
+          };
+          try {
+            const res = await api_money.reqChangeMerchantMoney(params);
+            if (res.code == 1) {
+              this.$message.success(
+                "滞留金转台成功"
+              );
+              this.getTableData();
+            } else {
+              this.$message.warning(res.msg);
+            }
+          } catch (error) {
+            console.log("滞留金转台失败", error);
+          }
     },
   },
   props: {
