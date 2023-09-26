@@ -14,7 +14,7 @@ module.exports = {
   publicPath: "/shouyin/",
   outputDir: "dist",
   // 不需要报错信息 如果您不需要生产时的源映射，那么将此设置为false可以加速生产构建
-  productionSourceMap: true,
+  productionSourceMap: false,
   filenameHashing: false, // 打包的时候不使用hash值.因为我们有版本号来确定项目的唯一性了.
   //
   configureWebpack: {
