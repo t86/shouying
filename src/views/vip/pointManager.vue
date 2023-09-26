@@ -8,12 +8,12 @@
         <el-radio :label="2">充值赠送积分</el-radio>
         <el-radio :label="3">消费赠送积分</el-radio>
       </el-radio-group>
-      <span>{{ form.type_id == 1 ? '不赠送积分' : form.type_id == 2 ? '充值赠送积分' : '消费赠送积分' }}</span>
+      <span v-if="!$store.getters.vipAuth">{{ form.type_id == 1 ? '不赠送积分' : form.type_id == 2 ? '充值赠送积分' : '消费赠送积分' }}</span>
     </div>
     <div class="row m-t-4" v-if="form.type_id != 1">
       <span class="m-r-2">{{ form.type_id == 2 ? "充值" : "消费" }}</span>
       <el-input
-        disabled="$store.getters.vipAuth"
+        v-if="$store.getters.vipAuth"
         class="m-r-2"
         v-model="form.amount"
         size="small"
@@ -33,6 +33,7 @@
         "
       >
       </el-input>
+      <span v-if="!$store.getters.vipAuth">{{ form.amount }}</span>
       <span>{{ form.type_id == 2 ? "元送1积分" : "元储值金额送1积分" }}</span>
     </div>
 
