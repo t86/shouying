@@ -1039,7 +1039,7 @@ export default {
               this.orderBackMany(el, 'self', {}, 1, backManyPrdList => {
                 this.$parent.$parent.getOrderInfo();
                 // this.$message.success('退单成功')
-                this.$emit('closeBackDrawer');
+                this.$emit('closeBackDrawer', true);
 
               })
             }, 200 * this.backOrderIndex);

@@ -538,8 +538,9 @@ export default {
     },
 
     // 关闭批量退单drawer
-    closeBackDrawer() {
+    closeBackDrawer(reload = false) {
       this.drawer.showDrawer = false;
+      reload && window.location.reload();
     },
   },
   created() {},
