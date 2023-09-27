@@ -1191,6 +1191,7 @@ export default {
     },
 
     onCancelDrawer(isClose) {
+      this.authorizationInfo = {}
       this.authorizationInfo.userName = "";
       this.authorizationInfo.passWord = "";
       if (this.subStatus > 1 && !isClose) {
