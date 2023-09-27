@@ -54,6 +54,27 @@
             </div>
           </div>
         </div>
+        <div v-if="otherType == 5">
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red-color">*</span>
+              <span>岗位：</span>
+            </div>
+            <div class="value">
+              <el-select
+                v-model="upperStaId"
+                placeholder="选择岗位"
+                :loading="loading">
+                <el-option
+                  v-for="item in upperStaOption"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </div>
+          </div>
+        </div>
         <div v-if="otherType == 4">
           <p class="m-t-6 fs16" style="text-align:center">是否确认将所选员工的密码重置为666666？</p>
         </div>
@@ -82,6 +103,8 @@ export default {
       loading: false,
       upperEmpOption: [],
       upperEmpId: '',
+      upperStaOption: [],
+      upperStaId: '',
     };
   },
   methods: {
@@ -115,6 +138,22 @@ export default {
         }
       } catch (error) {
         console.log('数据请求失败', error);
+      }
+    },
+
+    // 获取岗位列表
+    async remoteStationHandle(){
+      this.loading = true;
+      try {
+        const res = await this.$api.BMS.emp.requestEmpStationList()
+        if(res.code == 1) {
+          this.upperStaOption = res.data.records || []
+          this.loading = false;
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('远程搜索失败', error); 
       }
     },
 
@@ -164,6 +203,29 @@ export default {
       }
     },
 
+    // 批量修改岗位
+    async submitUpStaInfo(){
+      const params = {
+        emp_ids: this.checkedList.map(item => item.id * 1),
+        station_id: this.upperStaId * 1 //
+      }
+      if(params.station_id == '') return this.$message.warning('请选择目标岗位')
+      try {
+        const res = await this.$api.BMS.emp.requestBatchUpdateStationList(params)
+        if(res.code == 1) {
+          this.$message.success('操作成功')
+          this.onCancelDrawer()
+          this.$emit('getTableData')
+        } else {
+          this.message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('批量修改岗位请求失败', error);
+      }
+      this.upperStaOption = []
+      this.upperStaId = ''
+    },
+
     // 批量重置密码 
     async submitResetPwdInfo(){
       const params = {
@@ -190,6 +252,8 @@ export default {
         this.submitUpEmpInfo()
       } else if(this.otherType == 4) {
         this.submitResetPwdInfo()
+      } else if(this.otherType == 5) {
+        this.submitUpStaInfo()
       }
     },
     onCancelDrawer() {
@@ -214,7 +278,8 @@ export default {
         ? "批量修改部门"
         : this.otherType == 2
         ? "批量修改直属上级"
-        : "批量重置密码";
+        : this.otherType == 5 
+        ? "批量修改岗位" : "批量重置密码";
     },
 
     size() {
@@ -237,7 +302,10 @@ export default {
         if (newVal) {
           if(this.otherType == 1) {
             this.getDeptOption()
+          } else if (this.otherType == 5) {
+            this.remoteStationHandle()
           }
+          
         }
       },
       immediate: true

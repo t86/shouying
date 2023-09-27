@@ -271,27 +271,30 @@
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.ot.slice(7) }}
                     </div>
-                    <!-- 只显示未退款套餐中的更改套餐明细 -->
+                    <!-- 只显示未退款套餐中的更改套餐明细 或者是优惠变更-->
                     <div class="td">
                       <img
                         :src="imgSrc.shoppingCarMore"
                         v-if="
-                          item.is == 1 &&
+                          (item.at == 2 || item.at == 3) ||
+                          (item.is == 1 &&
                           turnOverCount ==
-                            $store.state.orderInfo.currentCardInfo.turnoverCnt
+                            $store.state.orderInfo.currentCardInfo.turnoverCnt)
                         "
                         @click.stop="showOrHideList(item)"
                         alt
                       />
                       <img
                         :src="imgSrc.sanJiao"
-                        v-if="item.showList && item.productInfo.prdType == 2"
+                        v-if="item.showList && (item.productInfo.prdType == 2 ||
+                        item.at == 2 || item.at == 3)"
                         class="sanJiao"
                         alt
                       />
                       <ul
                         class="do-list"
-                        v-if="item.showList && item.productInfo.prdType == 2"
+                        v-if="item.showList && (item.productInfo.prdType == 2 ||
+                        item.at == 2 || item.at == 3)"
                       >
                         <div
                           class="li"
@@ -306,6 +309,13 @@
                           @click.stop="showOrHideUpdateDetailDrawer(item, 5)"
                         >
                           查看套餐明细
+                        </div>
+                        <div
+                          class="li"
+                          v-if="item.at == 2 || item.at == 3"
+                          @click.stop="showOrHideUpdateDetailDrawer(item, 9)"
+                        >
+                          修改优惠人
                         </div>
                       </ul>
                     </div>
@@ -471,7 +481,7 @@ export default {
       }
     },
 
-    // 更改已支付套餐明细
+    // 更改已支付套餐明细/更改优惠人 9修改优惠人
     showOrHideUpdateDetailDrawer(objInfo, status) {
       this.showUpdateDetailDrawer = !this.showUpdateDetailDrawer;
       if (objInfo) {

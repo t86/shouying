@@ -39,7 +39,7 @@
       <div class="label">修改优惠人小票打印份数：</div>
       <div class="value">
         <el-input-number
-          v-model="changeDiscountPersonCount"
+          v-model="changeYhRenCount"
           :min="0"
           :max="9"
         />
@@ -50,7 +50,7 @@
       <div class="label">修改优惠2人小票打印份数：</div>
       <div class="value">
         <el-input-number
-          v-model="changeDiscountPerson2Count"
+          v-model="changeYhRen2Count"
           :min="0"
           :max="9"
         />
@@ -137,8 +137,8 @@ export default {
       clearCardCount: 1, // 清台结算打印份数
       backOrderCount: 1, // 退单小票(出品库)打印份数
       backOrderMoneyCount: 1, // 退单小票(收银)打印份数
-      changeDiscountPersonCount: 0, // 修改优惠人小票打印份数
-      changeDiscountPerson2Count: 0, // 修改优惠2人小票打印份数
+      changeYhRenCount: 0, // 修改优惠人小票打印份数
+      changeYhRen2Count: 0, // 修改优惠2人小票打印份数
       showPreviewDrawer: false,
       onlineOrderCount: 1, // 线上结算单小票打印分书
       onlineOrderPrint: "", // 线上结算单小票打印机
@@ -160,8 +160,8 @@ export default {
           this.orderPayedCount = res.data.sel_sel_syt_cnt;
           this.backOrderCount = res.data.back_mklib_cnt;
           this.backOrderMoneyCount = res.data.back_syt_cnt;
-          //        this.changeDiscountPersonCount = res.data.back_mklib_cnt;
-          //        this.changeDiscountPerson2Count = res.data.back_syt_cnt;
+          this.changeYhRenCount = res.data.chg_yh_emp_cnt;
+          this.changeYhRen2Count = res.data.chg_yh2_emp_cnt;
           this.clearCardCount = res.data.clean_stl_cnt;
           this.onlineOrderCount = res.data.ol_out_pay_cnt;
           this.onlineOrderPrint = res.data.ol_out_pay_prt_id || "";
@@ -190,8 +190,8 @@ export default {
         back_mklib_cnt: this.backOrderCount * 1, // int    退单,出品库,打印份数(如果是已出品的), 0 表示不自动打印
         back_syt_cnt: this.backOrderMoneyCount * 1, // int    退单,收银台,打印份数(如果是已出品的), 0 表示不自动打印
         clean_stl_cnt: this.clearCardCount * 1, // int 清台,咨客台(会配置到收银打印机),收银台,打印结算单份数
-        //   changeDiscountPersonCount: this.changeDiscountPersonCount * 1, // int 修改优惠人小票打印份数
-        //   changeDiscountPerson2Count: this.changeDiscountPerson2Count * 1, // int 修改优惠2人小票打印份数
+        chg_yh_emp_cnt: this.changeYhRenCount * 1, // int 修改优惠人小票打印份数
+        chg_yh2_emp_cnt: this.changeYhRen2Count * 1, // int 修改优惠2人小票打印份数
         ol_out_pay_cnt: this.onlineOrderCount * 1, // int        //OlOutPayCnt 线上付款,小票打印份数 0表示不打印, 0的时候out_out_pay_prt_id也必须为0
         ol_out_pay_prt_id: this.onlineOrderPrint * 1, // int64      //OlOutPayPrtId 线上付款,出票打印机Id, =0 代表没有配置
         mb_deposit_cnt: this.memberDepositCount * 1, // int 会员充值小票份数

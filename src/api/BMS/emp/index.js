@@ -57,6 +57,15 @@ const article = {
   requestStationList(data) {
     return axios.post(`${base.htgl}/station/list`, data);
   },
+  // 获取岗位列表
+  requestEmpStationList(data) {
+    return axios.post(`${base.htgl}/emp/get_emp_station_items`, data);
+  },
+  // 批量修改岗位
+  requestBatchUpdateStationList(data) {
+    return axios.post(`${base.htgl}/emp/batch_upd_station`, data);
+  },
+
   // 生成新的员工编号并返回
   requestEmpGencode(data) {
     return axios.post(`${base.htgl}/emp/gen_code`, data);

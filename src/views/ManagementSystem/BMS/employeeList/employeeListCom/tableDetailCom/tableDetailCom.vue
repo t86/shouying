@@ -122,11 +122,11 @@
           colors="#383943"
           wz="批量修改部门"
         ></characters-button>
-        <!-- <characters-button
+        <characters-button
           @click.native="anotherEffectHandle(5)"
           colors="#383943"
           wz="批量修改岗位"
-        ></characters-button> -->
+        ></characters-button>
         <characters-button
           @click.native="anotherEffectHandle(2)"
           colors="#383943"
@@ -353,7 +353,7 @@ export default {
       },
 
       showOtherDrawer: false,
-      otherType: 1, // 1：批量修改部门  2：批量修改直属上级  3：批量导入  4：批量重置密码
+      otherType: 1, // 1：批量修改部门  2：批量修改直属上级  3：批量导入  4：批量重置密码 5：批量修改岗位
       checkedList: [], // 操作前选中的员工信息
 
       showImportDrawer: false, // 批量导入

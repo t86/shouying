@@ -77,21 +77,27 @@
                       <div class="td-td">
                         <img
                           :src="imgSrc.shoppingCarMore"
-                          v-if="!items.back||items.productInfo.prdType==2"
+                          v-if="(items.at == 2 || items.at == 3) || !items.back||items.productInfo.prdType==2"
                           @click.stop="showOrHideList(item,items)"
                           alt
                         />
                         <img
                           :src="imgSrc.sanJiao"
-                          v-if="items.showList&&(!items.back||items.productInfo.prdType==2)"
+                          v-if="items.showList&&((items.at == 2 || items.at == 3) || !items.back||items.productInfo.prdType==2)"
                           class="sanJiao"
                           alt
                         />
                         <div
                           class="do-list"
-                          v-if="items.showList&&(!items.back||items.productInfo.prdType==2)"
+                          v-if="items.showList&&(!items.back|| (items.at == 2 || items.at == 3) || items.productInfo.prdType==2)"
                         >
                           <div class="li" v-if="!items.back" @click.stop="showOrHideDrawer(1,items)">退单</div>
+                          <div
+                          class="li"
+                          v-if="(items.at == 2 || items.at == 3) && !items.back"
+                          @click.stop="showOrHideDrawer(9, items)"
+                          >
+                            修改优惠人</div>
                           <!-- <div class="li"
                             v-if="items.productInfo.prdType!=2&&items.at!=6&&!(items.at==2||items.at==3||items.at==5)&&!items.back"
                             @click.stop="showOrHideDrawer(2,items)"
@@ -203,21 +209,28 @@
                 <div class="td">
                   <img
                     :src="imgSrc.shoppingCarMore"
-                    v-if="!item.back||item.productInfo.prdType==2"
+                    v-if="(item.at == 2 || item.at == 3) || !item.back||item.productInfo.prdType==2"
                     @click.stop="showOrHideList('', item)"
                     alt
                   />
                   <img
                     :src="imgSrc.sanJiao"
-                    v-if="item.showList&&(!item.back||item.productInfo.prdType==2)"
+                    v-if="item.showList&&((item.at == 2 || item.at == 3) || !item.back||item.productInfo.prdType==2)"
                     class="sanJiao"
                     alt
                   />
                   <div
                     class="do-list"
-                    v-if="item.showList&&(!item.back||item.productInfo.prdType==2)"
+                    v-if="item.showList&&((item.at == 2 || item.at == 3) || !item.back||item.productInfo.prdType==2)"
                   >
                     <div class="li" v-if="!item.back" @click.stop="showOrHideDrawer(1,item)">退单</div>
+                    <div
+                      class="li"
+                      v-if="(item.at == 2 || item.at == 3)&& !item.back"
+                      @click.stop="showOrHideDrawer(9,item)"
+                    >
+                      修改优惠人
+                    </div>
                     <!-- <div class="li"
                       v-if="(item.productInfo.prdType == 1||item.productInfo.prdType == 7||item.productInfo.prdType == 6)&&item.at!=6&&!(item.at==2||item.at==3||item.at==5)&&!item.back"
                       @click.stop="showOrHideDrawer(2,item)"
@@ -235,6 +248,7 @@
                       @click.stop="showOrHideDrawer(5,item)"
                     >查看套餐明细</div>
                   </div>
+
                 </div>
               </div>
               <!-- 线下套餐明细 -->
@@ -302,7 +316,7 @@ export default {
 
       drawer: {
         showDrawer: false,
-        status: 1, // 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细
+        status: 1, // 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细 9 修改优惠人
         currentItemInfo: {} // 当前正在操作的商品信息
       },
 
@@ -517,9 +531,10 @@ export default {
     showOrHideDrawer(status, objInfo = {}) {
       this.drawer.showDrawer = !this.drawer.showDrawer;
       if (!objInfo && status < 6) return;
-      // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单
+      // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单 9：修改优惠人
       this.drawer.status = status;
-      if(status < 6) this.drawer.currentItemInfo = {...objInfo};
+      if(status < 6 || status == 9) this.drawer.currentItemInfo = {...objInfo};
+      !this.drawer.showDrawer && status == 9 && window.location.reload();
     },
 
     // 关闭批量退单drawer
