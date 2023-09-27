@@ -59,6 +59,7 @@ Vue.use(VueClipboard);
 
 
 Vue.config.errorHandler = function (err, vm, info) {
+  console.error(err);
   globalError.handleError(err);
 }
 
