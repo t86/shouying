@@ -591,6 +591,10 @@ export default {
                 // 批量优惠
                 this.onSubmit('another', empCardInfo, 2)
               }
+              else if (this.status == 9) {
+                // 修改优惠人
+                this.onSubmit('another', empCardInfo, 2)
+              }
             } else {
               this.$message.warning('当前为输入账号授权，不可刷卡')
             }
@@ -1051,7 +1055,7 @@ export default {
               auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
               auth_emp_passwd: authEmpPasswd, // string  授权员工密码
               seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
-              order_ids: this.currentProductInfo.id * 1, // int64   订单项Id
+              order_id: this.currentProductInfo.id * 1, // int64   订单项Id
               pass_type : type  // 1:账号密码， 2：刷卡
             };
             
