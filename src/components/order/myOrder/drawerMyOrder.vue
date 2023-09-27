@@ -20,7 +20,7 @@
               <div class="authorization-left" layout="col" layout-align="start center">
                 <p class="m-b-5 fs16">优惠商品：{{currentItemInfo.productInfo && currentItemInfo.productInfo.name}}</p>
                 <p class="m-b-5 fs16">优惠数量：{{currentItemInfo.pc}}</p>
-                <p class="m-b-5 fs16">优惠金额：{{(currentItemInfo.pp * 1).toFixed(2)}}</p>
+                <p class="m-b-5 fs16">优惠金额：{{(currentItemInfo.pa * 1).toFixed(2)}}</p>
                 <p class="m-b-5 fs16">原优惠人：{{ currentItemInfo.authInfo && currentItemInfo.authInfo.name }}</p>
               </div>
               <div class="authorization-right">
