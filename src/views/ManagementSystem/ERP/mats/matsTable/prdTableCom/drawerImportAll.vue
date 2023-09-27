@@ -181,7 +181,7 @@ export default {
         const a = document.createElement("a"); //添加a标签
         document.body.appendChild(a);
         a.href = url;
-        a.setAttribute("download", res.fileName); // 下载文件的名称及文件类型后缀
+        a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
         a.click(); //点击标签
         document.body.removeChild(a); // 下载完成移除元素
         window.URL.revokeObjectURL(url); // 释放掉blob对象
