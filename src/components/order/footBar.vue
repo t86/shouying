@@ -563,6 +563,7 @@ export default {
       },
 
       payTypeList, // 支付方式
+      terminalType : '',
     };
   },
   methods: {
@@ -623,7 +624,17 @@ export default {
         .catch((e) => "");
     },
 
+    terminal() {
+      let termType = "";
+      try {
+        termType = atool.getTermType();
+      } catch (error) {
+        console.log("获取终端类型失败", error);
+      }
+      return termType;
+    },
     init() {
+      this.terminalType = this.terminal()
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
@@ -952,15 +963,6 @@ export default {
     },
   },
   computed: {
-    isAndroidTerminal() {
-      let termType = "";
-      try {
-        termType = atool.getTermType();
-      } catch (error) {
-        console.log("获取终端类型失败", error);
-      }
-      return termType == "android";
-    },
     authTips() {
       return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },
