@@ -52,7 +52,7 @@
               (($store.state.userInfo.authStatus != 4 &&
                 $store.state.userInfo.authStatusArr.includes(1)) ||
                 ($store.state.userInfo.authStatus == 4 &&
-                  isAndroidTerminal())) &&
+                terminalType == 'android')) &&
               cardInfo.orderAmt - cardInfo.payedAmt > 0
             "
             class="server-pay-btn"
@@ -72,7 +72,7 @@
             v-if="
               ($store.state.userInfo.authStatus != 4 &&
                 $store.state.userInfo.authStatusArr.includes(1)) ||
-              ($store.state.userInfo.authStatus == 4 && isAndroidTerminal())
+              ($store.state.userInfo.authStatus == 4 && terminalType == 'android')
             "
             class="server-pay-btn line"
           >
