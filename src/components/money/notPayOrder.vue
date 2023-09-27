@@ -534,13 +534,11 @@ export default {
       // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单 9：修改优惠人
       this.drawer.status = status;
       if(status < 6 || status == 9) this.drawer.currentItemInfo = {...objInfo};
-      !this.drawer.showDrawer && status == 9 && window.location.reload();
     },
 
     // 关闭批量退单drawer
-    closeBackDrawer(reload = false) {
+    closeBackDrawer() {
       this.drawer.showDrawer = false;
-      reload && window.location.reload();
     },
   },
   created() {},
