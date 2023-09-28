@@ -38,11 +38,11 @@
         colors="#383943"
         wz="批量修改部门"
       ></characters-button>
-      <!-- <characters-button
+      <characters-button
         @click.native="toEditPos"
         colors="#383943"
         wz="批量修改岗位"
-      ></characters-button> -->
+      ></characters-button>
       <characters-button
         @click.native="toEditUpper"
         colors="#383943"
@@ -1594,7 +1594,7 @@ export default {
         const a = document.createElement("a"); //添加a标签
         document.body.appendChild(a);
         a.href = url;
-        a.setAttribute("download", res.fileName); // 下载文件的名称及文件类型后缀
+        a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
         a.click(); //点击标签
         document.body.removeChild(a); // 下载完成移除元素
         window.URL.revokeObjectURL(url); // 释放掉blob对象

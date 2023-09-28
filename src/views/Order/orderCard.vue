@@ -575,6 +575,7 @@ export default {
       let FUTabList = [];
       let YXTabList = [];
       let HLTabList = [];
+      let QCTabList = [];
       if (authStatusArr.includes(1)) {
         // 有服务员权限
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
@@ -588,6 +589,9 @@ export default {
       if (authStatusArr.includes(3)) {
         HLTabList = [...arr];
       }
+      if (this.$store.state.userInfo.chk_full == 1) {
+        QCTabList = [...arr];
+      }
 
       if (
         !(
@@ -599,7 +603,7 @@ export default {
         // 无任何权限
         arr = [];
       } else {
-        arr = [...FUTabList, ...YXTabList, ...HLTabList].filter(
+        arr = [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
           (item, index, arr) =>
             arr.findIndex((items) => items.id == item.id) == index
         );
@@ -784,7 +788,9 @@ export default {
         cardList = await this.addOwnPayedAmtToCard(cardList);
       }
 
-      if (this.$store.state.userInfo.authStatusArr.length == 0) {
+      // 没有配置任何权限同时不具有全场查单权限
+      if (this.$store.state.userInfo.authStatusArr.length == 0
+        && this.$store.state.userInfo.chk_full != 1) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
@@ -1144,7 +1150,11 @@ export default {
     setLegendCount(regionId = 0) {
       setTimeout(() => {
         let result = {};
-
+        if (this.$store.state.userInfo.authStatusArr.length == 0
+        && this.$store.state.userInfo.chk_full != 1) {
+          this.cardStatusNoInfo = {}
+          return;
+        }
         // 获取设备可操作区域或卡台
         const currentMachineId = this.$localStorage.getItem("machineId");
         const currentAreaAndCardList = (
@@ -1320,9 +1330,8 @@ export default {
             }
           }
         }
-
-        // console.log(result);
-        this.cardStatusNoInfo = result;
+          // console.log(result);
+          this.cardStatusNoInfo = result;
       }, 200);
     },
   },

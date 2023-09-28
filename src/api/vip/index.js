@@ -269,10 +269,6 @@ export default {
   reqExportExcelForSubMoney: (params) =>
     axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_subtract_log`, params),
 
-  // 读取消费记录
-  reqGetVipCarXFListReport: (params) =>
-    axios.post(`${base.htgl}/mb/rpt/get_consume_log`, params),
-
   // 下载消费记录excel
   reqExportExcelForPayMoney: (params) =>
     axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_consume_log`, params),
@@ -310,6 +306,10 @@ export default {
   // 充值积分 获取规则
   reqGetPointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
+
+  // 下载会员信息excel
+  reqExportExcelForVipManager: (params) =>
+  axios.binaryFilePost(`${base.htgl}/mb/card/exp_mb_card_list`, params),
 
   // 读取消费记录
   reqGetVipCarXFListReport: (params) =>

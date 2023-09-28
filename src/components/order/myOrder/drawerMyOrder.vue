@@ -12,6 +12,26 @@
       :before-close="onCancelDrawer"
     >
       <div class="content">
+        <!-- 优惠人 -->
+        <div v-if="status==9" class="my-order-drawer-content">
+           <!-- 授权 -->
+           <div class="authorization">
+            <div layout="row" layout-align="center start">
+              <div class="authorization-left" layout="col" layout-align="start center">
+                <p class="m-b-5 fs16">优惠商品：{{currentItemInfo.productInfo && currentItemInfo.productInfo.name}}</p>
+                <p class="m-b-5 fs16">优惠数量：{{currentItemInfo.pc}}</p>
+                <p class="m-b-5 fs16">优惠金额：{{(currentItemInfo.pa * 1).toFixed(2)}}</p>
+                <p class="m-b-5 fs16">原优惠人：{{ currentItemInfo.authInfo && currentItemInfo.authInfo.name }}</p>
+              </div>
+              <div class="authorization-right">
+                <authorization
+                  :authorizationInfo="authorizationInfo"
+                  @updateAuthorizationInfo="updateAuthorizationInfo"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 退单1 / 优惠 2 / 自用3 -->
         <div v-if="status==1||status==2||status==3" class="my-order-drawer-content">
           <div v-if="subStatus==1">
@@ -344,7 +364,7 @@
         <div class="form-btn" layout="row" layout-align="center center">
           <el-button type="info" @click.stop="onCancelDrawer(false)">{{status==5?'关闭':'取消'}}</el-button>
           <el-button
-            v-if="((status==1 || (status == 2 && currentItemInfo && currentItemInfo.productInfo && currentItemInfo.productInfo.canSeal) || status == 3)&&subStatus==2) || (status == 4 && subStatus == 3) || (status == 6 && subStatus == 2)"
+            v-if="(status== 9 || (status==1 || (status == 2 && currentItemInfo && currentItemInfo.productInfo && currentItemInfo.productInfo.canSeal) || status == 3)&&subStatus==2) || (status == 4 && subStatus == 3) || (status == 6 && subStatus == 2)"
             type="primary"
             @click.stop="onSubmit('self')"
           >自己授权</el-button>
@@ -555,7 +575,6 @@ export default {
     // 刷卡授权
     swipingOrderHandle(empCardInfo){
       if(this.show && this.subStatus == 2) {
-        console.log(111);
         const childrenVNode = this.$children[0].$children || []
         childrenVNode.forEach(el => {
           if(el.$el.className == 'auth') {
@@ -569,6 +588,10 @@ export default {
                 this.onSubmit('another', empCardInfo, 2)
               } else if (this.status == 6) {
                 // 批量优惠
+                this.onSubmit('another', empCardInfo, 2)
+              }
+              else if (this.status == 9) {
+                // 修改优惠人
                 this.onSubmit('another', empCardInfo, 2)
               }
             } else {
@@ -1015,13 +1038,53 @@ export default {
               this.orderBackMany(el, 'self', {}, 1, backManyPrdList => {
                 this.$parent.$parent.getOrderInfo();
                 // this.$message.success('退单成功')
-                this.$emit('closeBackDrawer');
+                this.$emit('closeBackDrawer', true);
 
               })
             }, 200 * this.backOrderIndex);
             this.backOrderIndex += 1
           })
           
+          break
+        case 9:
+          authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
+          authEmpPasswd = this.getCodeAndPwd(personType, empCardInfo, type).authEmpPasswd
+
+          params = {
+              auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
+              auth_emp_passwd: authEmpPasswd, // string  授权员工密码
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+              order_id: this.currentProductInfo.id * 1, // int64   订单项Id
+              pass_type : type  // 1:账号密码， 2：刷卡
+            };
+            
+          if (!params.auth_emp_code && personType != "self") {
+            return this.$message.warning("请输入授权员工号");
+          }
+          if (!params.auth_emp_passwd && personType != "self"){
+            return this.$message.warning("请输入授权密码");
+          }
+          try {
+            const res = await api_order.reqChangeYhRen(params);
+            if (res.code == 1) {
+              this.$message.success('修改优惠/优惠2授权人成功');
+              this.onCancelDrawer(true);
+              switch (this.$route.name) {
+                case "myOrder": // 点单系统，我的订单页面
+                  this.$parent.getOrderedData();
+                  break;
+                case "payOrder": // 收银系统，未支付订单页面
+                  this.$parent.$parent.getOrderInfo();
+                  break;
+              }
+            } else {
+              window.loopReadCard()
+              this.$message.warning(res.msg);
+            }
+          } catch (error) {
+            window.loopReadCard()
+            console.log("修改优惠/优惠2授权人失败", error);
+          }
           break
       }
     },
@@ -1128,6 +1191,7 @@ export default {
     },
 
     onCancelDrawer(isClose) {
+      this.authorizationInfo = {}
       this.authorizationInfo.userName = "";
       this.authorizationInfo.passWord = "";
       if (this.subStatus > 1 && !isClose) {
@@ -1197,6 +1261,9 @@ export default {
         case 8:
           title = '批量退单'
           break
+        case 9:
+          title = '修改优惠人'
+          break
       }
       if (this.status != 4 && this.subStatus != 1) title = "授权";
       return title;
@@ -1239,7 +1306,7 @@ export default {
         this.subStatus = 1;
         this.formData.reason = '';
         
-        if(this.status < 6) {
+        if(this.status < 6 || this.status  == 9) {
           // 优惠 自用  加要求  更改明细
           this.currentProductInfo = this.currentItemInfo.id
             ? this.currentItemInfo

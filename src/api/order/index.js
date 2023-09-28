@@ -163,4 +163,9 @@ export default {
   // 关联台,选择好日期和卡台后,返回可补交的流水列表
   reqGetCanBJSeatOrderList: (params) =>
     axios.post(`${base.htgl}/wo/get_relate_seat_csm_items`, params),
+
+    
+  // 修改优惠/优惠2授权人
+  reqChangeYhRen: (params) =>
+    axios.post(`${base.htgl}/wo/chg_yh_yu2_auth_emp`, params),
 };

@@ -120,14 +120,6 @@
                       ¥{{dataInfo.yh2_amt?(dataInfo.yh2_amt*1).toFixed(2):'0.00'}}
                     </span>
                   </p>
-                  <p layout="row" layout-align="space-between center"> 
-                    <span>
-                      非主营合计：
-                    </span>
-                    <span>
-                      ¥{{dataInfo.not_zy_amt?(dataInfo.not_zy_amt*1).toFixed(2):'0.00'}}
-                    </span>
-                  </p>
                   <p layout="row" layout-align="space-between center">
                     <span>
                       应收合计：
@@ -146,18 +138,18 @@
                   </p>
                   <p layout="row" layout-align="space-between center">
                     <span>
-                      主营未付合计：
-                    </span>
-                    <span>
-                      ¥{{dataInfo.zy_topay_amt?(dataInfo.zy_topay_amt*1).toFixed(2):'0.00'}}
-                    </span>
-                  </p>
-                  <p layout="row" layout-align="space-between center">
-                    <span>
                       非主营未付合计：
                     </span>
                     <span>
                       ¥{{dataInfo.not_zy_topay_amt?(dataInfo.not_zy_topay_amt*1).toFixed(2):'0.00'}}
+                    </span>
+                  </p>
+                  <p layout="row" layout-align="space-between center">
+                    <span>
+                      主营未付合计：
+                    </span>
+                    <span>
+                      ¥{{dataInfo.zy_topay_amt?(dataInfo.zy_topay_amt*1).toFixed(2):'0.00'}}
                     </span>
                   </p>
                   <p layout="row" layout-align="space-between center">
@@ -173,7 +165,7 @@
                       非主营实收合计：
                     </span>
                     <span>
-                      ¥{{'0.00'}}
+                      ¥{{dataInfo.not_zy_amt?(dataInfo.not_zy_amt*1).toFixed(2):'0.00'}}
                     </span>
                   </p>
                   <p layout="row" layout-align="space-between center">

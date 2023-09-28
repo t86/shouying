@@ -197,10 +197,12 @@ export default {
     },
     productInfo: {
       // 授权商品信息
-      default: {}
+      default:  () => ({
+      })
     },
     formData: {
-      default: {}
+      default:  () => ({
+      })
     },
     singleInfo: {
       // 授权商品信息

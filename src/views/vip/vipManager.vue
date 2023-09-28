@@ -81,6 +81,12 @@
         ></el-input>
         <button class="btn primary m-l-4" @click="getTableData">查询</button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
+        <button
+              class="btn info m-l-4"
+              @click="exportExcel"
+            >
+              导出
+            </button>
       </div>
     </div>
 
@@ -364,6 +370,37 @@ export default {
         console.log("会员管理表格数据获取失败", error);
       }
     },
+    async exportExcel() {
+      const params = {
+        begin_birth_day: (this.form.dateVal && this.form.dateVal[0]) || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
+        end_birth_day: (this.form.dateVal && this.form.dateVal[1]) || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
+        card_type_id: this.form.typeVal, // int64    卡类型Id
+        card_level_id: this.form.deepVal, // int64   卡等级Id
+        key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
+        sales_emp_id: this.form.personVal * 1, // string 开卡推荐人关键字
+      };
+        try {
+          const res = await api_vip.reqExportExcelForVipManager(params);
+          if (!res.msg) {
+            const url = window.URL.createObjectURL(
+              new Blob([res], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              })
+            );
+            const a = document.createElement("a"); //添加a标签
+            document.body.appendChild(a);
+            a.href = url;
+            a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+            a.click(); //点击标签
+            document.body.removeChild(a); // 下载完成移除元素
+            window.URL.revokeObjectURL(url); // 释放掉blob对象
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("导出excel失败", error);
+        }
+      },
     // 获取右击菜单列表
     getTipsList(type) {
       const makedCardList = [1, 3, 4, 5, 6, 7, 8, 10, 11, 9];
