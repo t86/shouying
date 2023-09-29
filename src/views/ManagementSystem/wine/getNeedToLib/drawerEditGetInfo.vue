@@ -219,7 +219,7 @@ export default {
         const res = await api_saveWine.reqGetCanGetFromLib(params);
         if (res.code == 1) {
           this.customName = res.data.cust_name || "";
-          this.isBlack = res.data.is_black;
+          this.isBlack = res.data.is_black == 1;
           this.WineList = (res.data.records || []).map(item => ({
             ...item,
             canGet: true

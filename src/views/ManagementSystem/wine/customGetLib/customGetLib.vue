@@ -91,14 +91,14 @@
                       >{{i + 1}}</el-checkbox>
                     </div>
                   </div>
-                  <div class="tr-td" :class="{'is-black': items.b}">{{items.n}}</div>
+                  <div class="tr-td" :class="{'is-black': items.b == 1}">{{items.n}}</div>
                   <div class="tr-td">{{items.u}}</div>
                   <div class="tr-td">{{items.g || '-'}}</div>
                   <div class="tr-td">{{items.c}}</div>
                   <div class="tr-td">{{items.e}}</div>
                   <div class="tr-td">{{items.a}}</div>
-                  <div class="tr-td"  :class="{'is-black': items.b}">{{items.rn}}</div>
-                  <div class="tr-td"  :class="{'is-black': items.b}">{{items.rp}}</div>
+                  <div class="tr-td"  :class="{'is-black': items.b == 1}">{{items.rn}}</div>
+                  <div class="tr-td"  :class="{'is-black': items.b == 1}">{{items.rp}}</div>
                   <div class="tr-td" style="user-select: text;">{{items.id}}</div>
                 </div>
               </div>
