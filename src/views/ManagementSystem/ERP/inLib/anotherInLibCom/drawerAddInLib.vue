@@ -287,7 +287,7 @@ export default {
         try {
           const res = await this.$api.ERP.sin.requestsinmat_items(params)
           if(res.code == 1) {
-            this.mateOptions = res.data || [];
+            this.mateOptions = res.data.records || [];
             this.loading = false;
           } else {
             this.$message.warning(res.msg)
@@ -308,6 +308,8 @@ export default {
           el.oneCate = info.moc;
           el.twoCate = info.mtc;
           el.unit = info.un;
+          el.count = info.c ? info.c : 1
+          el.amt =  info.c ? ((info.a * 1 / info.c) * el.count).toFixed(4) : 0
         }
       });
       this.tableData = [...tableData];

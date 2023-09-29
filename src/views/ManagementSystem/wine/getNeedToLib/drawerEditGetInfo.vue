@@ -154,7 +154,9 @@ export default {
       showAuthDrawer: false,
       WineList: [], // 当前流水可取酒水
       shoppingCartWineList: [], // 存酒购物车酒水
-      authInfo: {}
+      authInfo: {},
+      customName: '',
+      isBlack: false,
     };
   },
   methods: {
@@ -217,6 +219,7 @@ export default {
         const res = await api_saveWine.reqGetCanGetFromLib(params);
         if (res.code == 1) {
           this.customName = res.data.cust_name || "";
+          this.isBlack = res.data.is_black;
           this.WineList = (res.data.records || []).map(item => ({
             ...item,
             canGet: true

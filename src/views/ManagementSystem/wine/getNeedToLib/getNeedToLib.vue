@@ -54,8 +54,8 @@
                 ></i>
               </div>
               <div class="td">{{item.us}}</div>
-              <div class="td">{{item.c}}</div>
-              <div class="td">{{item.p}}</div>
+              <div class="td" :class="{'is-black': item.b}">{{item.c}}</div>
+              <div class="td" :class="{'is-black': item.b}">{{item.p}}</div>
               <div class="td">{{item.s}}</div>
               <div class="td">{{item.e}}</div>
               <div class="td">{{item.w}}</div>
@@ -82,7 +82,7 @@
                   v-for="(items, index) in (item.ss || [])"
                   :key="index"
                 >
-                  <div class="tr-td">{{items.n}}</div>
+                  <div class="tr-td" :class="{'is-black': item.b}">{{items.n}}</div>
                   <div class="tr-td">{{items.u}}</div>
                   <div class="tr-td">{{items.g || '-'}}</div>
                   <div class="tr-td">{{items.c}}</div>
@@ -272,6 +272,9 @@ export default {
 
             }
           }
+          .is-black {
+            color: red;
+          }
         }
         .coll {
           height: 40px;
@@ -323,6 +326,9 @@ export default {
                 &:nth-child(1){
                   padding-left: 20px;
                 }
+              }
+              .is-black {
+                color: red;
               }
             }
           }

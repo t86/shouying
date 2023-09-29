@@ -2,8 +2,8 @@
   <div class="step-two">
     <div class="top" layout="row" layout-align="space-between center">
       <div class="left">
-        <span>{{phoneNum}}</span>
-        <span>{{customName}}</span>
+        <span :class="{'is-black': isBlack}">{{phoneNum}}</span>
+        <span :class="{'is-black': isBlack}">{{customName}}</span>
       </div>
       <div class="right" layout="row" layout-align="start center">
         <div class="card-name">{{$store.state.orderInfo.saveWineCardInfo.name}}</div>
@@ -38,7 +38,7 @@
                 v-for="item in WineList"
                 :key="item.id"
               >
-                <div class="td">{{item.n}}</div>
+                <div class="td" :class="{'is-black': isBlack}">{{item.n}}</div>
                 <div class="td">{{item.u}}</div>
                 <div class="td">{{item.g || '-'}}</div>
                 <div class="td">{{item.i}}</div>
@@ -136,6 +136,7 @@ export default {
   data() {
     return {
       customName: '',
+      isBlack: false,
       WineList: [],  // 当前流水可取酒水
       shoppingCartWineList: [],  // 存酒购物车酒水
     };
@@ -166,6 +167,7 @@ export default {
         const res = await api_saveWine.reqGetCanGetFromLib(params)
         if(res.code == 1) {
           this.customName = res.data.cust_name || ''
+          this.isBlack = res.data.is_black   
           this.WineList = (res.data.records || []).map(item => ({
             ...item,
             canGet: true
@@ -319,6 +321,9 @@ export default {
     }
   }
 
+  .is-black{
+      color: red;
+  }
   // 列表
   .get-list {
     padding: 0 20px;
@@ -327,7 +332,9 @@ export default {
     .left {
       overflow: auto;
       box-sizing: border-box;
+
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
+
       .table {
         width: calc(100% - 100px);
         .tbody {

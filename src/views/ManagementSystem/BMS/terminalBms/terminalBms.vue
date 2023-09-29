@@ -49,10 +49,13 @@
             <div class="td">{{ item.t }}</div>
             <div class="td">{{ item.c }}</div>
             <div class="td">
-              <span v-if="item.pn">{{ item.pn}}</span>
-              <span v-if="item.pn&&item.spn">;</span>
+
               <span v-if="item.spn">{{ item.spn}}</span>
-              <span v-if="!item.spn&&!item.pn">---</span>
+              <span v-if="item.spn&&item.sfpn">;</span>
+              <span v-if="item.sfpn">{{ item.sfpn}}</span>
+              <span v-if="(item.spn || item.sfpn) && item.pn">;</span>
+              <span v-if="item.pn">{{ item.pn}}</span>
+              <span v-if="!item.spn && !item.pn && !item.sfpn">---</span>
             </div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.u == 1 ? "已使用" : "未使用" }}</div>
@@ -91,9 +94,18 @@
             <div v-else>
               <div class="compatibility" layout="row" layout-align="start center">
                 <div class="mandatory m-r-3">
-                  存酒小票打印机
+                  存酒小票打印机(散瓶)
                 </div>
-                <el-select v-model="saveWinePrintVal" class="controlling">
+                <el-select v-model="saveWineSinglePrintVal" class="controlling">
+                  <el-option label="请选择打印机" value="0"></el-option>
+                  <el-option v-for="item in saveWinePrintOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
+                </el-select>
+              </div>
+              <div class="compatibility" layout="row" layout-align="start center" style="margin-top: 16px;">
+                <div class="mandatory m-r-3">
+                  存酒小票打印机(整瓶)
+                </div>
+                <el-select v-model="saveWineWholePrintVal" class="controlling">
                   <el-option label="请选择打印机" value="0"></el-option>
                   <el-option v-for="item in saveWinePrintOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
                 </el-select>
@@ -175,7 +187,8 @@ export default {
       showDrawer: false,
       printVal: "0",
       printOption: [], // 普通打印机
-      saveWinePrintVal: "0", // 存酒打印机
+      saveWineSinglePrintVal: "0", // 存酒打印机（散瓶）
+      saveWineWholePrintVal: "0", // 存酒打印机（整瓶）
       saveWinePrintOption:[], // 存酒打印机
       currentInfo: {}, // 当前操作的终端单条数据
 
@@ -233,7 +246,8 @@ export default {
       this.showDrawer = !this.showDrawer;
       if (itemInfo) {
         this.printVal = itemInfo.pi.toString();
-        this.saveWinePrintVal = itemInfo.spi.toString() || '0';
+        this.saveWineSinglePrintVal = itemInfo.spi.toString() || '0';
+        this.saveWineWholePrintVal = itemInfo.sfpi.toString() || '0';
         this.currentInfo = { ...itemInfo };
         this.getSelectOption();
       }
@@ -243,7 +257,8 @@ export default {
       const params = {
         id: this.currentInfo.id * 1, //   int64    终端Id
         prt_id: this.printVal * 1, //  int64   打印机Id, =0表示删除
-        wine_store_prt_id: this.saveWinePrintVal * 1, //  int64   存酒打印机Id, =0表示删除
+        wine_store_prt_id: this.saveWineSinglePrintVal * 1, //  int64   存酒打印机(散瓶)Id, =0表示删除
+        wine_store_full_prt_id: this.saveWineWholePrintVal * 1, //  int64   存酒打印机(整瓶)Id, =0表示删除
       };
       try {
         const res = await this.$api.BMS.terminal.reqSaveTerminalConfig(params);
