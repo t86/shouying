@@ -179,16 +179,18 @@
                     type="number"
                     min="1"
                     placeholder="请输入入库数量"
+                    @input="countChange(item)"
                     size="mini"
                   />
                 </div>
-                <div class="td">{{form.fpVal==2?(item.amt / 1.13 / item.count).toFixed(4):(item.amt / item.count).toFixed(4)}}</div>
+                <div class="td">{{item.unitPrice}}</div>
                 <div class="td" v-if="form.fpVal==2">{{(item.amt/1.13).toFixed(4)}}</div>
                 <div class="td">
                   <el-input
                     v-model="item.amt"
                     type="number"
                     :placeholder="form.fpVal == 2 ?'请输入入库小计(裸价)':'请输入入库小计'"
+                    @input="amtChange(item)"
                     size="mini"
                   />
                 </div>
@@ -275,6 +277,14 @@ export default {
         console.log('类似创建基础信息获取失败', error);
       }
     },
+    countChange(item){
+      item.amt =  item.count ? (item.itemPrice * item.count).toFixed(2) : 0
+      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(4):(item.itemPrice *1).toFixed(2)
+    },
+    amtChange(item) {
+      item.itemPrice = (item.amt * 1 / item.count).toFixed(4)
+      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(4):(item.itemPrice *1).toFixed(2)
+    },
     // 根据输入的内容模糊查找
     async remoteMethod(query) {
       if (query !== "") {
@@ -308,8 +318,10 @@ export default {
           el.oneCate = info.moc;
           el.twoCate = info.mtc;
           el.unit = info.un;
-          el.count = info.c ? info.c : 1
+          el.count = 1
           el.amt =  info.c ? ((info.a * 1 / info.c) * el.count).toFixed(4) : 0
+          el.itemPrice = (info.a * 1 / info.c).toFixed(4)
+          el.unitPrice = this.form.fpVal==2?(el.itemPrice / 1.13).toFixed(4):(el.itemPrice *1).toFixed(2)
         }
       });
       this.tableData = [...tableData];

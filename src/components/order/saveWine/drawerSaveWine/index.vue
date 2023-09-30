@@ -140,9 +140,9 @@ export default {
     },
 
     // 手机号验证
-    async validateBlackList() {
+    async validateBlackList(phoneNumber) {
       const params = {
-        key: this.stepOneInfo.customPhoneNum, //   string   搜索关键字
+        key: phoneNumber, //   string   搜索关键字
       };
 
       try {
@@ -173,7 +173,7 @@ export default {
           this.stepOneInfo.phoneNum = res.data.p;
           this.stepOneInfo.phoneValidateStr = res.data.c;
           this.stepOneInfo.customPhoneNum = res.data.p;
-          if (await this.validateBlackList()) {
+          if (await this.validateBlackList(res.data.p)) {
             return res.data.c;
           }
         } else {
@@ -195,8 +195,7 @@ export default {
               this.stepOneInfo.phoneNum.length != 11
             )
               return this.$message.warning("请输入正确的11位手机号码");
-            // if(this.stepOneInfo.customPhoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");
-            if (await this.validateBlackList()) {
+            if (await this.validateBlackList(this.stepOneInfo.phoneNum)) {
               result = this.stepOneInfo.needAuthPhoneVal
                 ? await this.validatePhoneInfo()
                 : true;
@@ -204,7 +203,7 @@ export default {
           } else if (this.stepOneInfo.tabIndex == 3) {
             // 客户中心手机号
             // if(this.stepOneInfo.customPhoneNum.length != 11) return this.$message.warning("请输入正确的11位手机号码");
-            result = await this.validateBlackList();
+            result = await this.validateBlackList(this.stepOneInfo.customPhoneNum);
           } else if (this.stepOneInfo.tabIndex == 4) {
             // 手机验证码
             if (

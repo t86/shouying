@@ -375,6 +375,9 @@ export default {
             ]
           : [...this.tableData];
 
+      if (this.currentChooseCount <= 0)
+        return this.$message.warning("存酒整瓶数量和散瓶数量不能都为空");
+
       if (this.type == 1) {
         // 流水存酒
         // 当前选择的总数量
