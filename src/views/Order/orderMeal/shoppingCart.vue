@@ -749,10 +749,8 @@ export default {
       // 卡台状态：4 开台 5 点单未结账 6 部分结账 7 已结账（通过卡台状态判断是否下过单）
       const currentCardAreaId =
         this.$store.state.orderInfo.currentCardInfo.regionId;
-      this.mustOrderPrdId =
-        this.$store.state.cardPageInfo.resResultDataObj.areaInfo.find(
-          (item) => item.id == currentCardAreaId
-        ).mustOrderPrdId;
+      const item = this.$store.state.cardPageInfo.resResultDataObj.areaInfo.find((item) => item.id == currentCardAreaId)
+      this.mustOrderPrdId = item ? item.mustOrderPrdId : 0;
       if (
         this.$store.state.orderInfo.currentCardInfo.bizStatus == 4 &&
         this.$store.state.orderInfo.currentCardInfo.bizType != 3 &&
