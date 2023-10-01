@@ -125,6 +125,16 @@ export default [
     path: '/BMS/sealPrdConfig', name: "sealPrdConfig", meta: { title: '分类渠道统计设置' },
     component: () => import('@/views/ManagementSystem/BMS/sealPrdConfig/sealPrdConfig.vue')
   },
+  // 统计类别配置
+  {
+    path: '/BMS/statisticalGroupConfig', name: "statisticalGroupConfig", meta: { title: '统计类别配置' },
+    component: () => import('@/views/ManagementSystem/BMS/statisticalGroupConfig/statisticalGroupConfig.vue')
+  },
+  // 渠道类别配置
+  {
+    path: '/BMS/channelGroupConfig', name: "channelGroupConfig", meta: { title: '渠道类别配置' },
+    component: () => import('@/views/ManagementSystem/BMS/channelGroupConfig/channelGroupConfig.vue')
+  },
 
   /**
    * 小程序报表配置

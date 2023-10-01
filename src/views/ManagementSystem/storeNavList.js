@@ -208,6 +208,14 @@ export default [
             {
               name: "销售商品统计设置",
               url: "/BMS/sealPrdConfig"
+            },
+            {
+              name: "统计类别配置",
+              url: "/BMS/statisticalGroupConfig"
+            },
+            {
+              name: "渠道类别配置",
+              url: "/BMS/channelGroupConfig"
             }
           ]
         },
