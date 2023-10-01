@@ -85,7 +85,7 @@
                 v-for="item in shoppingCartWineList"
                 :key="item.id"
               >
-                <div class="td">{{item.n}}</div>
+                <div class="td" :class="{'is-black': isBlack}">{{item.n}}</div>
                 <div class="td">{{item.u}}</div>
                 <div class="td">{{item.g || '-'}}</div>
                 <div class="td" layout="row" layout-align="start center">

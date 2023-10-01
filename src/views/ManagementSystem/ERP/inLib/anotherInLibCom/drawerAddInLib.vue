@@ -184,7 +184,7 @@
                   />
                 </div>
                 <div class="td">{{item.unitPrice}}</div>
-                <div class="td" v-if="form.fpVal==2">{{(item.amt/1.13).toFixed(4)}}</div>
+                <div class="td" v-if="form.fpVal==2">{{(item.amt/1.13).toFixed(2)}}</div>
                 <div class="td">
                   <el-input
                     v-model="item.amt"
@@ -279,11 +279,11 @@ export default {
     },
     countChange(item){
       item.amt =  item.count ? (item.itemPrice * item.count).toFixed(2) : 0
-      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(4):(item.itemPrice *1).toFixed(2)
+      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(2):(item.itemPrice *1).toFixed(2)
     },
     amtChange(item) {
       item.itemPrice = (item.amt * 1 / item.count).toFixed(4)
-      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(4):(item.itemPrice *1).toFixed(2)
+      item.unitPrice = this.form.fpVal==2?(item.itemPrice / 1.13).toFixed(2):(item.itemPrice *1).toFixed(2)
     },
     // 根据输入的内容模糊查找
     async remoteMethod(query) {
@@ -319,9 +319,9 @@ export default {
           el.twoCate = info.mtc;
           el.unit = info.un;
           el.count = 1
-          el.amt =  info.c ? ((info.a * 1 / info.c) * el.count).toFixed(4) : 0
+          el.amt =  info.c ? ((info.a * 1 / info.c) * el.count).toFixed(2) : 0
           el.itemPrice = (info.a * 1 / info.c).toFixed(4)
-          el.unitPrice = this.form.fpVal==2?(el.itemPrice / 1.13).toFixed(4):(el.itemPrice *1).toFixed(2)
+          el.unitPrice = this.form.fpVal==2?(el.itemPrice / 1.13).toFixed(2):(el.itemPrice *1).toFixed(2)
         }
       });
       this.tableData = [...tableData];
