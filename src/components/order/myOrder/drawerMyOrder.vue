@@ -222,7 +222,8 @@
                   <div class="th">名称</div>
                   <div class="th">数量</div>
                   <div class="th">{{status==8 ? '退单' : '优惠'}}{{status == 7 ? '2' : ''}}数量</div>
-                  <div class="th" v-if="status == 8" style="width:30%">退单小计</div>
+                  <div class="th" v-if="status == 8" style="width:25%">退单小计</div>
+                  <div class="th" v-if="status == 8" style="width:15%">店单人</div>
                 </div>
               </div>
               <div class="tbody" :class="{give: status==6}">
@@ -232,7 +233,7 @@
                     <div class="td">
                       <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{index + 1}}</el-checkbox>
                     </div>
-                    <div class="td" :style="{'width': status == 8 ? '115%' : ''}">
+                    <div class="td" :style="{'width': status == 8 ? '125%' : ''}">
                       <div class="column p-t-1 p-b-1" v-for="items in item.canBackOrderList" :key="items.id" layout="row" layout-align="space-between center">
                         <div class="td-td" :style="{'width': status == 8 ? '32%' : ''}">{{items.productInfo.name}}</div>
                         <div class="td-td" :style="{'width': status == 8 ? '14%' : ''}">{{items.pc}}</div>
@@ -255,7 +256,8 @@
                             alt
                           />
                         </div>
-                        <div class="td-td" v-if="status == 8" style="width:30%">{{items.allAmt}}</div>
+                        <div class="td-td" v-if="status == 8" style="width:25%">{{items.allAmt}}</div>
+                        <div class="td-td" v-if="status == 8" style="width:15%">{{items.personInfo && items.personInfo.name}}</div>
                       </div>
                     </div>
                   </div>
@@ -285,7 +287,7 @@
                       />
                     </div>
                     
-                    <div class="td" v-if="status == 8" style="width:30%">
+                    <div class="td" v-if="status == 8" style="width:25%">
                       <div v-if="['5','3','8'].indexOf(item.productInfo.prdType)>-1">
                         <input
                           style="width:80%;height:26px;padding: 0 8px"
@@ -300,7 +302,7 @@
                       </div>
                       <div v-else>{{item.pp==0? (item.pa*1).toFixed(2) : (item.pp * item.changeCount).toFixed(2)}}</div>
                     </div>
-                    
+                    <div class="td" v-if="status == 8" style="width:15%">{{item.personInfo && item.personInfo.name}}</div>
                   </div>
                 </div>
               </div>
