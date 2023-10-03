@@ -1272,39 +1272,48 @@ export default {
 
     // 筛选卡台数据
     filterCardList(key, id) {
+      const arr = this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]
+      let a = {}
+      arr.forEach(item => {
+        a[item.id] = item.dsp
+      })
+      cardListInfoArr.forEach(item => {
+        item.rdsp = a[item.regionId]
+      })
+
       // 点击全部卡台按钮
       const notPayCardList = cardListInfoArr
         .filter((item) => item.bizStatus == 5)
-        .sort((a, b) => b.openTime - a.openTime);
+        .sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp);
       const PayOtherCardList = cardListInfoArr
         .filter((item) => item.bizStatus == 6)
-        .sort((a, b) => b.openTime - a.openTime);
+        .sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp);
       const PayedCardList = cardListInfoArr
         .filter((item) => item.bizStatus == 7)
-        .sort((a, b) => b.openTime - a.openTime);
+        .sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp);
       const openCardList = cardListInfoArr
         .filter((item) => item.bizStatus == 4)
-        .sort((a, b) => b.openTime - a.openTime);
+        .sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp);
       const reservedCardList = cardListInfoArr.filter(
         (item) => item.bizStatus == 8
-      );
+      ).sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp);
       // 空台
       const notOpenCardList = [
         ...cardListInfoArr.filter(
           (item) => item.bizStatus == 1 && item.turnoverCnt > 0
-        ),
+        ).sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp),
         ...cardListInfoArr.filter(
           (item) => item.bizStatus == 1 && item.turnoverCnt == 0
-        ),
+        ).sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp),
       ];
       // 锁台
       const clockCardList = [
         ...cardListInfoArr.filter(
           (item) => item.bizStatus == 2 && item.turnoverCnt > 0
-        ),
+        ).sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp),
         ...cardListInfoArr.filter(
           (item) => item.bizStatus == 2 && item.turnoverCnt == 0
-        ),
+        ).sort((a, b) => a.rdsp -b.rdsp || a.dsp - b.dsp),
       ];
 
       const resultCardList = [

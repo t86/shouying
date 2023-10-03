@@ -5,7 +5,7 @@
       :visible.sync="show"
       :before-close="closeDrawerHandle"
       direction="rtl"
-      size="40%"
+      size="60%"
     >
       <div class="session p-3 fs14">
         <!-- 头部筛选项 -->
@@ -17,6 +17,7 @@
           <el-tree 
               ref="treeRef"
               :data="data" 
+              default-expand-all
               show-checkbox 
               node-key="id" 
               :default-checked-keys="selectedKeys"
@@ -58,7 +59,7 @@ export default {
         if(res.code == 1) {
             this.data = res.data.cates.map(item =>  {
               item.ss.forEach(element => {
-                element.disabled = element.ji != 0;
+                element.disabled = element.ji != 0 && this.item.id != element.ji;
                 element.checked = element.ji != 0;
                 element.n = element.n + (element.jc ? "-" + element.jc : "")
                 if(element.checked) {
