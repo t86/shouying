@@ -107,7 +107,7 @@
                 </div>
                 <el-select v-model="saveWineWholePrintVal" class="controlling">
                   <el-option label="请选择打印机" value="0"></el-option>
-                  <el-option v-for="item in printOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
+                  <el-option v-for="item in saveWinePrintOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
                 </el-select>
               </div>
               <div class="compatibility" layout="row" layout-align="start center" style="margin-top: 16px;">
