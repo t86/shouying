@@ -29,7 +29,7 @@
             </div>
             <div  class="m-t-3 m-l-3">
               <el-radio v-model="mode" label="1"
-                >优惠下单<span style="color: red">(特例)</span></el-radio
+                >商品模式<span style="color: red">(特例)</span></el-radio
               >
             </div>
           </div>
