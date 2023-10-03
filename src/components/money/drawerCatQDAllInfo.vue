@@ -57,7 +57,7 @@
             >
               <div class="td one-txt-cut">{{ index + 1 }}</div>
               <div class="td">{{ item.name }}</div>
-              <div class="td" v-for="cnl in cnls" :key="name">
+              <div class="td" v-for="cnl in cnls" :key="cnl.id">
                 <span>{{ item[cnl.id] || "0.00" }} </span>
               </div>
               <div class="td">{{ item.total }}</div>
@@ -140,7 +140,8 @@ export default {
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
-              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             })
           );
           const a = document.createElement("a"); //添加a标签
