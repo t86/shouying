@@ -211,6 +211,8 @@ export default {
     },
     // 关闭drawer
     closeDrawerHandle() {
+      this.cateVal = [0,0]
+      this.name = ""
       this.$emit("showOrHideDrawerHandle");
     },
     resetHandle(){
