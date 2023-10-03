@@ -92,7 +92,7 @@
 
     <div
       class="top"
-      v-if="$store.getters.vipAuth"
+
       layout="row"
       layout-align="start center"
     >
@@ -104,6 +104,7 @@
         bcolor="#8c8c8c"
       ></icon-button>
       <characters-button
+        v-if="$store.getters.vipAuth"
         @click.native="showOrHideAddMoneyToVipDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
@@ -116,6 +117,7 @@
         wz="读取卡信息"
       ></characters-button>
       <characters-button
+        v-if="$store.getters.vipAuth"
         @click.native="showOrHidePayNumSearchDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
@@ -405,7 +407,11 @@ export default {
     getTipsList(type) {
       const makedCardList = [1, 3, 4, 5, 6, 7, 8, 10, 11, 9];
       const notMakedCardList = [1, 2, 3, 4, 8, 10, 11, 9];
-      return tipsArr.filter((item) =>
+      let list = tipsArr;
+      if (!this.$store.getters.vipAuth){
+        list = tipsArr.filter((item) => [1,3,4,5,6,7,9].includes(item.id));
+      }
+      return list.filter((item) =>
         type == 1
           ? makedCardList.includes(item.id)
           : notMakedCardList.includes(item.id)
@@ -413,7 +419,7 @@ export default {
     },
     rightClickHandle(e, itemInfo) {
       // 判断是否是收银系统进入
-      if (!this.$store.getters.vipAuth) return;
+     
 
       const minY = 350;
       const pointerY = e.pageY;
