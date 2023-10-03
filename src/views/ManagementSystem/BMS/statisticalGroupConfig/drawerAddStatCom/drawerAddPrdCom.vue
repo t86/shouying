@@ -5,7 +5,7 @@
       :visible.sync="show"
       :before-close="closeDrawerHandle"
       direction="rtl"
-      size="40%"
+      size="60%"
       append-to-body
     >
       <div class="session p-3 fs14">
@@ -171,6 +171,8 @@ export default {
     },
     // 关闭drawer
     closeDrawerHandle(items = null) {
+      this.cateVal = [0,0]
+      this.name = ""
       this.$emit("showOrHideDrawerHandle", items);
     }
   },
