@@ -188,7 +188,7 @@ export default {
   },
   computed: {
     title() {
-      return this.type == 1 ? "新增卡台抵消组" : "编辑卡台抵消组";
+      return this.type == 1 ? "新增卡台低消组" : "编辑卡台低消组";
     },
 
     show: {
@@ -234,6 +234,7 @@ export default {
 
 <style lang="less" scoped>
 @color: #666;
+
 .coll {
   .label {
     width: 160px;

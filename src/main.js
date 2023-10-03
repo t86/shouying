@@ -28,6 +28,7 @@ import api from "./api"; // 导入api接口
 import overall from "./utils/overallMethod"; // 导入全局方法
 import "./style/base.less";
 import "./style/flex.less";
+import tool from "./utils/tool"; // 导入全局方法
 
 // bms
 import areaMenu from "@/components/bms/cardConfig/areaNav/areaNav.vue";
@@ -50,6 +51,7 @@ import secondMenu from "@/components/erp/mats/secondMenu/secondMenu.vue";
 Vue.component("secondMenu", secondMenu);
 
 Vue.prototype.$overall = overall;
+Vue.prototype.$tool = tool;
 Vue.prototype.$api = api;
 Vue.use(ElementUI);
 Vue.config.productionTip = false;

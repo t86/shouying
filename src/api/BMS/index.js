@@ -30,6 +30,8 @@ import cutPrd from "./cutPrd"           // cutPrd         抽成管理
 import reportConfig from "./reportConfig" // reportConfig   收银报表配置  
 import miniProgressConfig from "./miniProgressConfig" // miniProgressConfig   小程序报表配置
 import messageConfig from "./messageConfig" // messageConfig   短信配置
+import statiscalConfig from "./statistical" // statisticalGroupConfig   统计类别配置
+import channelConfig from "./channel" // channelGroupConfig   渠道类别配置
 // import supplier from "./supplier"       // supplier       供应商
 // import store from "./store"             // store          epr仓库
 // import mocate from "./mocate"           // mocate         物料一级分类
@@ -70,6 +72,8 @@ export default {
   reportConfig,
   miniProgressConfig,
   messageConfig,
+  statiscalConfig,
+  channelConfig,
   // supplier,
   // store,
   // mocate,
