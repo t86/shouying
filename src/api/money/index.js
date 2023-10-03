@@ -377,7 +377,7 @@ export default {
 
   // 导出缴款单
   reqExportJkList: (params) =>
-    axios.post(`${base.htgl}/sel/rpt/exp_jk_list`, params),
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_jk_list`, params,),
 
 
   /**
