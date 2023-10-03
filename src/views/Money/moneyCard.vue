@@ -580,7 +580,7 @@
                 </div>
                 <div
                   class="option-item line"
-                  @click.stop="showOrHideQDAllInfoDrawerHandle('stopAuto')"
+                  @click="showOrHideCatQDAllInfoDrawerHandle()"
                 >
                   <img           
                     :src="require('@/assets/money-img/yh-detail-icon.png')"
@@ -859,7 +859,7 @@
     <!-- 分类渠道汇总表 -->
     <drawerCatQDAllInfo
       :showDrawer="showCatQDAllInfoDrawer"
-      @showOrHideDrawer="showOrHideQDAllInfoDrawerHandle"
+      @showOrHideDrawer="showOrHideCatQDAllInfoDrawerHandle"
     />
 
     <!-- 部门销售汇总表 -->
@@ -1437,7 +1437,7 @@ export default {
       this.showQDAllInfoDrawer = !this.showQDAllInfoDrawer;
     },
 
-    // 显示或隐藏非主营分类渠道汇总表
+    // 分类渠道汇总表
     showOrHideCatQDAllInfoDrawerHandle() {
       this.showCatQDAllInfoDrawer = !this.showCatQDAllInfoDrawer;
     },
@@ -2152,6 +2152,7 @@ export default {
     drawerXCDetail,
     drawerXCAllInfo,
     drawerQDAllInfo,
+    drawerCatQDAllInfo,
     drawerXSDetail,
     drawerXSAllInfo,
   },

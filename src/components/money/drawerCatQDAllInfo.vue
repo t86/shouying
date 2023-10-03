@@ -1,15 +1,15 @@
 <template>
   <div>
-    <!-- 非主营分类渠道汇总表 -->
+    <!-- 分类渠道汇总表 -->
     <el-drawer
-      title="非主营分类渠道汇总表"
+      title="分类渠道汇总表"
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
       size="98%"
     >
       <div class="QD-detail">
-        <div class="top" layout="row" layout-align="space-between center">
+        <div class="top" layout="row" layout-align="start center">
           <div class="top-left" layout="row" layout-align="start center">
             <el-button
               class="m-l-2"
@@ -18,29 +18,33 @@
               @click="getTableData"
               >查询</el-button
             >
-            <el-button
+            <!-- <el-button
               type="info"
               style="width: 70px; height: 30px; line-height: 30px; padding: 0"
               @click="resetHandle"
               >重置</el-button
-            >
-
+            > -->
           </div>
           <el-button
             type="primary"
             @click="exportExcel"
-            style="width:90px;height:30px;line-height:30px;padding:0"
-          >导出Excel</el-button>
+            style="
+              width: 90px;
+              height: 30px;
+              line-height: 30px;
+              padding: 0;
+              margin-left: 10px;
+            "
+            >导出Excel</el-button
+          >
         </div>
-
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
               <div class="th">序号</div>
-              <div class="th">统计类别名称</div>
-              <div class="th">现金</div>
-              <div class="th">支付渠道</div>
-              <div class="th">支付金额</div>
+              <div class="th">类别</div>
+              <div class="th" v-for="cn in cnls" :key="cn.id">{{cn.n}}</div>
+              <div class="th">合计</div>
             </div>
           </div>
           <div class="tbody">
@@ -51,13 +55,26 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
-              <div class="td one-txt-cut">{{index + 1}}</div>
-              <div class="td">{{item.on}}</div>
-              <div class="td">{{item.tn}}</div>
-              <div class="td">{{item.cn}}</div>
-              <div class="td">{{item.a}}</div>
+              <div class="td one-txt-cut">{{ index + 1 }}</div>
+              <div class="td">{{ item.name }}</div>
+              <div class="td" v-for="cnl in cnls" :key="name">
+                <span>{{ item[cnl.id] || "0.00" }} </span>
+              </div>
+              <div class="td">{{ item.total }}</div>
             </div>
-            <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
+            <div
+              class="tr"
+              layout="row"
+              layout-align="end center">
+              <div class="td" style="margin-right: 28px;"> 总合计: {{ all_total }}</div>
+            </div>
+            <p
+              v-if="tableData.length == 0"
+              class="m-t-10 fs14"
+              style="text-align: center"
+            >
+              暂无数据
+            </p>
           </div>
         </div>
       </div>
@@ -68,14 +85,17 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
 export default {
+  name: "drawerCatQDAllInfo",
   data() {
     return {
       show: false,
-      tableData: []
+      tableData: [],
+      cnls: [],
+      all_total: 0,
     };
   },
   methods: {
@@ -84,7 +104,27 @@ export default {
       try {
         const res = await api_money.reqGetJkList();
         if (res.code == 1) {
-          this.tableData = res.data.records || []
+          const records = res.data.records || [];
+          const cnls = res.data.cnls || [];
+          this.all_total = 0;
+          const row = Array.from(new Set([...records.map(item => item.c)]));
+          this.tableData = row.map(d=>{
+            const items = records.filter(item=>item.c == d);
+            const total = items.reduce((total, item) => {
+              return total + Number(item.a);
+            }, 0);
+            this.all_total += total;
+            const res =  {
+              name:d,
+              total:total.toFixed(2),
+            }
+            for(var item in items){
+              res[items[item].l] = items[item].a;
+            }
+            return res;
+          });
+          this.all_total = this.all_total.toFixed(2);
+          this.cnls = cnls;
         } else {
           this.$message.warning(res.msg);
         }
@@ -100,14 +140,13 @@ export default {
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
-              type:
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             })
           );
           const a = document.createElement("a"); //添加a标签
           document.body.appendChild(a);
           a.href = url;
-          a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+          a.setAttribute("download", decodeURIComponent('分类渠道汇总表')); // 下载文件的名称及文件类型后缀
           a.click(); //点击标签
           document.body.removeChild(a); // 下载完成移除元素
           window.URL.revokeObjectURL(url); // 释放掉blob对象
@@ -125,19 +164,19 @@ export default {
 
     resetHandle() {
       this.getTableData();
-    }
+    },
   },
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
-    }
+      default: false, // 是否显示drawer
+    },
   },
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
       newVal ? this.resetHandle() : "";
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -153,7 +192,7 @@ export default {
   padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
-  
+
   .top {
     input {
       width: 180px;
@@ -165,7 +204,7 @@ export default {
       border: 1px solid rgba(255, 255, 255, 0.15);
       font-size: 14px;
 
-      &::placeholder{
+      &::placeholder {
         color: rgba(255, 255, 255, 0.3);
       }
     }
@@ -193,17 +232,16 @@ export default {
       z-index: 10;
       background-color: #131b31;
       width: 100%;
-      color: rgba(255, 255, 255, .5);
+      color: rgba(255, 255, 255, 0.5);
     }
 
-    
     .tbody {
       width: 100%;
       .tr:nth-child(2n) {
         background-color: #2f3342;
       }
       .tr:nth-child(2n + 1) {
-        background-color: #2A3959;
+        background-color: #2a3959;
       }
     }
 
