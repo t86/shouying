@@ -87,7 +87,7 @@ export default {
     async submitHandle() {
       const params = {
         id: this.item ? this.item.id : 0, //   新建
-        name: this.item ? this.item.n : this.name,
+        name: this.name,
         pay_cnl_ids: this.channelInfo.filter(item => item.checked && (!item.isDisabled || (this.item && this.item.id == item.ci))).map(item => item.id)
       };
 
@@ -95,7 +95,7 @@ export default {
         return this.$message.warning("请选择需要添加的渠道");
 
       try {
-        const res = await this.$api.BMS.channelConfig.reqGetPrdConfig(params)
+        const res = await this.$api.BMS.channelConfig.reqNewOrSaveRptJkCnl(params)
         if(res.code == 1) {
           this.closeDrawerHandle();
           this.$emit("getTableData");

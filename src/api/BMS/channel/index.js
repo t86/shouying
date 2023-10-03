@@ -13,7 +13,7 @@ export default {
     reqGetRptJkCnlDtl: params => axios.post(`${base.htgl}/rpt/cfg/get_rpt_jk_cnl_dtl`, params),
   
     // 新建/保存缴款单支付渠道类别,支付渠道详情,内容不多,直接全量更新,id=0表示新建
-    reqGetPrdConfig: params => axios.post(`${base.htgl}/rpt/cfg/new_or_save_rpt_jk_cnl`, params),
+    reqNewOrSaveRptJkCnl: params => axios.post(`${base.htgl}/rpt/cfg/new_or_save_rpt_jk_cnl`, params),
   
     // 移动缴款单渠道类别(调整顺序),使用新的desc dsp模式,新添加的在最上面
     reqGetPrdCateList: params => axios.post(`${base.htgl}/rpt/cfg/move_rpt_jk_cnl_dsp`, params),
