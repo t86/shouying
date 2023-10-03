@@ -367,6 +367,20 @@ export default {
     axios.post(`${base.htgl}/sel/chg_late_cnl_seat`, params),
 
   /**
+   * 
+   * 缴款单
+   * 
+   */
+  // 读取缴款单
+  reqGetJkList: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_jk_list`, params),
+
+  // 导出缴款单
+  reqExportJkList: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/exp_jk_list`, params),
+
+
+  /**
    * 其它
    */
 

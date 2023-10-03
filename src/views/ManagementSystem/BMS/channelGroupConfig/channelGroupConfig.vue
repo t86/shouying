@@ -85,7 +85,7 @@ export default {
   methods: {
     async getTableData() {
       try {
-        const res = await this.$api.BMS.channelConfig.reqDelPrdConfig()
+        const res = await this.$api.BMS.channelConfig.reqGetRptJkCnlList()
         if (res.code == 1) {
           this.tableData = (res.data.records || []).map(item => ({
             ...item,
@@ -125,7 +125,7 @@ export default {
           cancelButtonText: '取消'
         }).then(async () => {
           try {
-            const res = await this.$api.BMS.miniProgressConfig.reqDelMiniData(params)
+            const res = await this.$api.BMS.channelConfig.reqBatchDelRptJkCnl(params)
             if(res.code == 1) {
               this.$message.success('删除成功')
               this.getTableData()
@@ -146,8 +146,11 @@ export default {
           this.$message.warning("请选择且仅选择一个渠道类别")
           return 
         }
+        this.currentInfo = this.tableData.find(item => item.checked)
+      } else {
+        this.currentInfo = null
       }
-      this.currentInfo = this.tableData.find(item => item.checked)
+     
       this.showDrawer = !this.showDrawer
 
     },

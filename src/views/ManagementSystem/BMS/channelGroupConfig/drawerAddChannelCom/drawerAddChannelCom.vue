@@ -59,20 +59,20 @@ export default {
     async getTableData(){
       this.name = this.item?this.item.n : ""
       try {
-        const res = await this.$api.BMS.channelConfig.reqSavePrdConfig()
+        const res = await this.$api.BMS.channelConfig.reqGetRptJkCnlDtl()
         if(res.code == 1) {
           this.channelInfo = res.data.records
           this.channelInfo.forEach(item => {
             if(item.ci > 0){
               item.isCheck = true
-              item.isDisabled = this.item.id != item.ci
+              item.isDisabled = !this.item || (this.item.id != item.ci)
             }
           });
         } else {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log("添加商品失败", error);
+        console.log("获取渠道失败", error);
       }
     },
     // 改变多选框的值
@@ -88,7 +88,7 @@ export default {
       const params = {
         id: this.item ? this.item.id : 0, //   新建
         name: this.item ? this.item.n : this.name,
-        pay_cnl_ids: this.channelInfo.filter(item => item.isCheck && (!item.isDisabled || (this.item && this.item.id == item.ci))).map(item => item.id)
+        pay_cnl_ids: this.channelInfo.filter(item => item.checked && (!item.isDisabled || (this.item && this.item.id == item.ci))).map(item => item.id)
       };
 
       if (params.pay_cnl_ids.length <= 0)
@@ -103,11 +103,14 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log("添加商品失败", error);
+        console.log("添加渠道失败", error);
       }
     },
     // 关闭drawer
     closeDrawerHandle() {
+      this.channelInfo = []
+      this.name = ""
+      this.item = null
       this.$emit("showOrHideDrawerHandle");
     }
   },
@@ -116,12 +119,12 @@ export default {
       default: false
     },
     item: {
-      default: {}
+      default: null
     }
   },
   computed: {
     title() {
-      return "新增类别" 
+      return this.item?'修改类别' : "新增类别" 
     },
 
   },

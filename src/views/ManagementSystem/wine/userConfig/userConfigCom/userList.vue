@@ -207,7 +207,7 @@ export default {
 
           this.checkAll = false;
 
-          this.pageInfo.total = res.data.row_cn || 0;
+          this.pageInfo.total = res.data.row_cnt || 0;
         } else {
           this.$message.warning(res.msg);
         }

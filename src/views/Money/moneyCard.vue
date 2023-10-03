@@ -580,6 +580,15 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click.stop="showOrHideQDAllInfoDrawerHandle('stopAuto')"
+                >
+                  <img           
+                    :src="require('@/assets/money-img/yh-detail-icon.png')"
+                    alt />
+                  <span>分类渠道汇总表</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click="showOrHideXSDetailDrawerHandle()"
                 >
                   <img
@@ -612,6 +621,7 @@
                   <img :src="imgSrc.loginOut" alt />
                   <span>自动结束营业日</span>
                 </div>
+
               </div>
 
               <img
@@ -846,6 +856,12 @@
       @showOrHideDrawer="showOrHideQDAllInfoDrawerHandle"
     />
 
+    <!-- 分类渠道汇总表 -->
+    <drawerCatQDAllInfo
+      :showDrawer="showCatQDAllInfoDrawer"
+      @showOrHideDrawer="showOrHideQDAllInfoDrawerHandle"
+    />
+
     <!-- 部门销售汇总表 -->
     <drawerXSAllInfo
       :showDrawer="showXSAllInfoDrawer"
@@ -943,6 +959,9 @@ import drawerXCAllInfo from "../../components/money/drawerXCAllInfo.vue";
 // 非主营分类渠道汇总表
 import drawerQDAllInfo from "../../components/money/drawerQDAllInfo.vue";
 
+// 分类渠道汇总表
+import drawerCatQDAllInfo from "../../components/money/drawerCatQDAllInfo.vue";
+
 // 部门销售汇总表
 import drawerXSAllInfo from "../../components/money/drawerXSAllInfo.vue";
 
@@ -1004,6 +1023,7 @@ export default {
       showXCDetailDrawer: false, // 现抽明细表
       showXCAllInfoDrawer: false, // 现抽汇总表
       showQDAllInfoDrawer: false, // 非主营分类渠道汇总表
+      showCatQDAllInfoDrawer: false, // 分类渠道汇总表
       showDetailDrawer: false, // 部门销售明细表
       showXSAllInfoDrawer: false, // 部门销售汇总表
       keyWord: "",
@@ -1415,6 +1435,11 @@ export default {
     // 显示或隐藏非主营分类渠道汇总表
     showOrHideQDAllInfoDrawerHandle() {
       this.showQDAllInfoDrawer = !this.showQDAllInfoDrawer;
+    },
+
+    // 显示或隐藏非主营分类渠道汇总表
+    showOrHideCatQDAllInfoDrawerHandle() {
+      this.showCatQDAllInfoDrawer = !this.showCatQDAllInfoDrawer;
     },
 
     // 显示或隐藏部门销售汇总表
