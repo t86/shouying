@@ -82,7 +82,7 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       if (newVal) {
-        this.name = ""
+        this.name = this.item.n
         this.mode = "2"
       }
     }
