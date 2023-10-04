@@ -9,6 +9,7 @@
     <div class="btn-area m-t-4">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">批量延期</el-button>
       <el-button type="primary" size="small" @click="addStoreHandle">批量充公</el-button>
+      <el-button type="primary" size="small" @click="exportExcelHandle">导出</el-button>
     </div>
 
     <div class="table-content m-t-4">
@@ -213,6 +214,34 @@ export default {
     resetHandle() {
       this.keyword = "";
       this.getTableData();
+    },
+    
+    async exportExcelHandle(){
+      const params = {
+        key: this.keyword  //  string   商品名称关键字 
+      }
+      try {
+        const res = await api_wine.reqExportWineInvtExpired(params);
+        if (!res.msg) {
+          const url = window.URL.createObjectURL(
+            new Blob([res], {
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            })
+          );
+          const a = document.createElement("a"); //添加a标签
+          document.body.appendChild(a);
+          a.href = url;
+          a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+          a.click(); //点击标签
+          document.body.removeChild(a); // 下载完成移除元素
+          window.URL.revokeObjectURL(url); // 释放掉blob对象
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("导出excel失败", error);
+      }
     },
   },
   created() {

@@ -47,6 +47,10 @@ export default {
   reqGetPassTimeNeedToLib: (params) =>
     axios.post(`${base.htgl}/wine/get_wine_invt_expired`, params),
 
+  // 导出存酒库过期待处理列表
+  reqExportWineInvtExpired: (params) =>
+    axios.binaryFilePost(`${base.htgl}/wine/rpt/exp_wine_invt_expired`, params),
+
   // 过期库存充公
   reqPassPrdToStore: (params) =>
     axios.post(`${base.htgl}/wine/cg_expired_wine_invt`, params),
