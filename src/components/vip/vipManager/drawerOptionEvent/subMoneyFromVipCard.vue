@@ -95,6 +95,7 @@ export default {
         addAmt: '',
         zSAmt: '',
         point: 0,
+        kkAmt: 0,
       }
     };
   },
@@ -108,6 +109,16 @@ export default {
     async getVipInfo() {
 
       this.resetHandle()
+
+      const res = await api_vip.reqGetPointRule();
+      if (res.code == 1) {
+        // 充值赠送积分
+        if(res.data.type_id == 2) {
+          this.form.kkAmt = res.data.base_amt
+        }
+      } else {
+        this.$message.warning(res.msg);
+      }
 
       const params = {
         id: this.currentItemInfo.id * 1 //   int64   会员卡Id
@@ -130,20 +141,28 @@ export default {
         addAmt: '',
         zSAmt: '',
         point: 0,
+        kkAmt: 0
       }
     },
     onAddAmtChange(e) {
       if (e && e > 0) {
-        if (this.vipInfo.consume_base_amt == 0) {
-          this.form.point = 0;
-        } else {
-          const num = e * 1 / this.vipInfo.consume_base_amt;
-          this.form.point = Math.floor(num);
-          if(this.form.subType == '2'){
-            if(this.form.point > this.vipInfo.pt_bal){
-            this.form.point = this.vipInfo.pt_bal;
-            this.$message.warning("积分余额不足") 
-            }
+        if (this.form.subType == '1') {
+          if (this.vipInfo.consume_base_amt == 0) {
+            this.form.point = 0;
+          } else {
+            const num = e * 1 / this.vipInfo.consume_base_amt;
+            this.form.point = Math.floor(num);
+          }
+        } else if (this.form.subType == '2') {
+          if (this.form.kkAmt == 0) {
+            this.form.point = 0;
+          } else {
+            const num = e * 1 / this.form.kkAmt;
+            this.form.point = Math.floor(num);
+          }
+          if(this.form.point > this.vipInfo.pt_bal){
+              this.form.point = this.vipInfo.pt_bal;
+              this.$message.warning("积分余额不足") 
           }
         }
       } else {
