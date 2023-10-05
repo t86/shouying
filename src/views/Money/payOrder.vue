@@ -1418,7 +1418,7 @@ export default {
           }
 
           this.$nextTick(() => {
-            if (downKeyCode[0] == 17 && downKeyCode[1] == 81) {
+            if (downKeyCode[0] == 0 && downKeyCode[1] == 27) {
               //  ctrl + q  // 返回首页
               e.preventDefault();
               this.$router.replace({ name: "moneyCard" });
