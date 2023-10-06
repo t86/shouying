@@ -2,7 +2,7 @@
   <!-- 基于element-ui2.x版本input写的input模糊查询组件 -->
   <div>
     <div ref="selectOption">
-      <el-input v-model="selectInputVal" :type="inputType" :placeholder="placeholder" min="0" @input="inputHandle"></el-input>
+      <el-input v-model="selectInputVal" :type="inputType" ref="selectInput" :placeholder="placeholder" min="0" @input="inputHandle"></el-input>
       <ul class="options" ref="optionRef" v-if="optionsList.length && selectInputVal.length > 0"
         :style="'width:' + selectOptionWidth + 'px;top:' + selectOptionTop + 'px'">
         <li v-for="(item, index) in optionsList" :key="item.id" :class="{'active': index == activeIndex}" @click="clickOption(item)">
@@ -24,6 +24,13 @@
       };
     },
     methods: {
+      inputFocusHandle() {
+        if(this.autoFocus){
+          this.$nextTick(() => {
+            this.$refs.selectInput.focus()
+          }, 1);
+        }
+      },
       getOptionsOffset() {
         this.selectOptionWidth = this.$refs.selectOption.children[0].offsetWidth;
         this.selectOptionTop = this.$refs.selectOption.children[0].offsetHeight;
@@ -59,10 +66,14 @@
       }
     },
     created() { },
+    updated() {
+      this.inputFocusHandle()
+    },
     mounted() {
       this.getOptionsOffset();
       document.addEventListener("click", this.inputBlurHandle);
-      document.onkeydown = this.keyHandle
+      document.onkeydown = this.keyHandle      
+      this.inputFocusHandle()
     },
     props: {
       value: {
@@ -79,6 +90,10 @@
         type: Array,
         default: () => [],
       },
+      autoFocus: {
+        type: Boolean,
+        default: false,
+      },
     },
     watch: {
       value(val) {
@@ -90,7 +105,7 @@
         },
         deep: true,
         immediate: true
-      }
+      },
     },
     beforeDestroy() {
       document.removeEventListener("click", this.inputBlurHandle);

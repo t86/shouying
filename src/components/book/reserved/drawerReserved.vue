@@ -78,6 +78,8 @@
         </el-form-item>
         <el-form-item label="订位人">
           <input-select
+           v-if="show"
+            :autoFocus="this.bookId?false:true"
             style="width: 80%"
             :value="formData.sales.sales_name"
             placeholder="请输入姓名或工号"

@@ -19,6 +19,8 @@
         <div v-if="formData.sales.sales_status_arr.indexOf(formStatus) > -1">
           <el-form-item label="订位人">
             <input-select
+              v-if="show"
+              :autoFocus="true"
               style="width: 80%"
               :value="formData.sales.sales_name"
               placeholder="请输入姓名或工号"
@@ -1144,6 +1146,9 @@ export default {
       const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20]; // 展示form表单的formStatus
       const tableType = [3, 4]; // 展示table表格的formStatus  3：查看卡台消费  4：修改翻台订位人
       if (formType.indexOf(this.formStatus) > -1) {
+        this.$nextTick(() => {
+         this.$refs.sealNameRef && this.$refs.sealNameRef.focus();
+        })
         return "form";
       } else if (tableType.indexOf(this.formStatus) > -1) {
         return "table";
