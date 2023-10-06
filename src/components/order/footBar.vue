@@ -160,7 +160,7 @@
               empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
             }}
           </div>
-          <div class="open-time">
+          <div class="open-time" v-if="isMoneyClient" >
             <p>{{ openTime }}</p>
           </div>
         </div>
@@ -567,6 +567,8 @@ export default {
 
       payTypeList, // 支付方式
       terminalType : '',
+      // 是否收银系统
+      isMoneyClient: false,
     };
   },
   methods: {
@@ -637,6 +639,7 @@ export default {
       return termType;
     },
     init() {
+      this.isMoneyClient = sessionStorage.getItem("client") == "money"
       this.terminalType = this.terminal()
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
