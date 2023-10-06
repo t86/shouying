@@ -327,4 +327,18 @@ export default {
   // 下载会员卡余额汇总表excel
   reqExportExcelForVipBalance: (params) =>
     axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_bal_list`, params),
+
+  // 读取会员消费排名
+  reqGetMbCardTopConsume: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_top_consume`, params),
+  // 导出会员消费排名
+  reqExportMbCardTopConsume: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_top_consume`, params),
+
+  // 读取客户关系维护
+  reqGetMbCardConsumeList: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_consume_list`, params),
+  // 导出客户关系维护
+  reqExportMbCardConsumeList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_consume_list`, params),
 };

@@ -90,6 +90,16 @@ export default [
         name: "会员卡余额汇总表",
         routerName: "memberBalanceSum",
       },
+      {
+        id: 46,
+        name: "会员消费排名表",
+        routerName: "memberConsumeRank",
+      },
+      {
+        id: 47,
+        name: "客户关系维护表",
+        routerName: "customerRelationShipMaintence",
+      },
     ],
   },
 ];

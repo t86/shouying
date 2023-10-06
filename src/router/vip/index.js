@@ -76,12 +76,26 @@ export default [
         meta: { title: "积分记录" },
         component: () => import("@/views/vip/pointRecords.vue"),
       },
-      //
+      // 会员卡余额汇总表
       {
         path: "/memberBalanceSum",
         name: "memberBalanceSum",
         meta: { title: "会员卡余额汇总表" },
         component: () => import("@/views/vip/memberBalanceSum.vue"),
+      },
+      // 会员消费排名表
+      {
+        path: "/memberConsumeRank",
+        name: "memberConsumeRank",
+        meta: { title: "会员消费排名表" },
+        component: () => import("@/views/vip/memberConsumeRank.vue"),
+      },
+      // 客户关系维护表
+      {
+        path: "/customerRelationShipMaintence",
+        name: "customerRelationShipMaintence",
+        meta: { title: "客户关系维护表" },
+        component: () => import("@/views/vip/customerRelationShipMaintence.vue"),
       },
     ],
   },
