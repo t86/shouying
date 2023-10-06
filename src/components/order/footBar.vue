@@ -160,6 +160,9 @@
               empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
             }}
           </div>
+          <div class="open-time">
+            <p>{{ openTime }}</p>
+          </div>
         </div>
         <div layout="row" layout-align="end center">
           <!-- 消费情况 -->
@@ -966,6 +969,16 @@ export default {
     authTips() {
       return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },
+    openTime(){
+      let time = this.cardInfo.openTime || '';
+       // 20231004223952 转换时间格式
+      if(time.length == 14){
+        time = time.slice(0,4) + '-' + time.slice(4,6) + '-' + time.slice(6,8) + ' ' + time.slice(8,10) + ':' + time.slice(10,12) + ':' + time.slice(12,14)
+      }else{
+        time = ''
+      }
+      return  time
+    }
   },
   components: {
     drawerPayQR,
