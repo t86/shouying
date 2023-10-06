@@ -35,6 +35,7 @@
     </div>
     <div class="btn-area m-t-4">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">延期</el-button>
+      <el-button type="primary" size="small" @click="exportDetailHandle">明细导出</el-button>
     </div>
 
     <div class="table-content m-t-4">
@@ -195,7 +196,36 @@ export default {
       if(this.ids.length <=0) return this.$message.warning('请选择需要延期的商品')
       this.showLongDrawer = true
     },
-
+    async exportDetailHandle(){
+      try {
+        const params = {
+        start_bef_in_day: this.dateVal[0], //  string  开始日期,格式 yyyy-mm-dd
+        end_bef_in_day: this.dateVal[1], // string  结束日期,格式 yyyy-mm-dd
+        expired_day: this.dayVal * 1, // int   多少天内过期
+        key: this.keyword || "" //  string     //Key 搜索关键字
+      };
+        const res = await api_wine.reqExportWineDetailList(params);
+        if (!res.msg) {
+          const url = window.URL.createObjectURL(
+            new Blob([res], {
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            })
+          );
+          const a = document.createElement("a"); //添加a标签
+          document.body.appendChild(a);
+          a.href = url;
+          a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+          a.click(); //点击标签
+          document.body.removeChild(a); // 下载完成移除元素
+          window.URL.revokeObjectURL(url); // 释放掉blob对象
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("导出excel失败", error);
+      }
+    },
     changeCheckboxHandle(type, itemInfo) {
       switch (type) {
         case "all":

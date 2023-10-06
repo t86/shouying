@@ -681,12 +681,22 @@ export default {
   background-color: #ccc;
   border: 1px solid #ccc;
   color: #40404e;
+  &:hover {
+    background-color: #DCDFE6;
+    border: 1px solid #DCDFE6;
+    color: #40404e;
+  }
 }
 
 .ManagementSystem .el-button.el-button--primary {
   background-color: #2170ff;
   border: 1px solid #2170ff;
   color: #fff;
+  &:hover {
+    background-color: #4e87f1;
+    border: 1px solid #4e87f1;
+    color: #fff;
+  }
 }
 
 .error .el-input__inner {

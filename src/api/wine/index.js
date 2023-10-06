@@ -30,7 +30,9 @@ export default {
   // 读取存酒库列表
   reqGetSaveLibList: (params) =>
     axios.post(`${base.htgl}/wine/get_wine_invt`, params),
-
+  // 存酒库导出明细表
+  reqExportWineDetailList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/wine/rpt/exp_wine_invt`, params),
   // 过期库存延期
   reqAddLongTime: (params) =>
     axios.post(`${base.htgl}/wine/delay_wine_invt2`, params),
