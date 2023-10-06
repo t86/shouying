@@ -367,6 +367,15 @@
                   />
                   <span>低消进度统计表</span>
                 </div>
+                <div 
+                  v-if="hasOutSomething"
+                  class="option-item line"
+                  @click="showOrHideOutSomethingHandle(true)"
+                >
+                  <img :src="require('@/assets/money-img/guqing.png')" alt />
+                  <span>估清商品</span>
+                </div>
+
               </div>
               <img
                 class="sj"
@@ -438,6 +447,15 @@
       @showOrHideDrawer="showOrHideMinDetailDrawerHandle"
     />
 
+   <!-- 估清 -->
+    <div class="out-something" v-if="showOrHideOutSomething">
+      <outSomething
+        ref="outSomething"
+        @showOrHideOutSomethingHandle="showOrHideOutSomethingHandle"
+      />
+    </div>
+
+
     <!-- 存酒 -->
     <drawerSaveWine v-model="saveWineInfo.show" />
 
@@ -484,6 +502,8 @@ let mySelfAndMyStaffCardList = []; // 自己及下属员工卡台列表
 
 // 低消进度统计表
 import drawerMinDetail from "@/components/money/drawerMinDetail.vue";
+// 估清弹框
+import outSomething from "../Order/orderMeal/orderMealList.vue";
 
 import updatePassword from "@/components/common/updatePassword.vue";
 import updateAuthPassword from "@/components/common/updateAuthPassword.vue";
@@ -499,6 +519,7 @@ export default {
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
+      showOrHideOutSomething: false, // 是否显示估清商品
       typeModule: 1, // 1:点单模式  2：存酒模式
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -1102,6 +1123,10 @@ export default {
     showOrHideMinDetailDrawerHandle() {
       this.showMinDetailDrawer = !this.showMinDetailDrawer;
     },
+    // 显示或隐藏估清商品
+    showOrHideOutSomethingHandle(value) {
+      this.showOrHideOutSomething = !this.showOrHideOutSomething;
+    },
 
     /*
     存酒相关
@@ -1137,8 +1162,30 @@ export default {
           } else if (this.legendOptions.showAuthPwdModel) {
             // 授权密码
             this.$refs.updateAuthPassword.onSubmit();
-          }
+          }else if (this.showOrHideOutSomething) {
+                // 估清
+                const com = this.$refs.outSomething.$children.find(
+                  (item) => item.$el.className == "product-list-GQ"
+                );
+                if (com.drawer.showDrawer) {
+                  com &&
+                    com.$refs.mealDrawer &&
+                    com.$refs.mealDrawer.$refs.singleProductRef &&
+                    com.$refs.mealDrawer.$refs.singleProductRef.onSubmit();
+                } else {
+                  com && com.$emit("showOrHideOutSomethingHandle");
+                }
+          } 
         });
+      }else if (e.keyCode == 27) {
+        // esc
+        if (this.showOrHideOutSomething) {
+           // 估清
+            const com = this.$refs.outSomething.$children.find(
+                (item) => item.$el.className == "product-list-GQ"
+            );
+            com && com.$emit("showOrHideOutSomethingHandle");
+        }      
       }
     },
 
@@ -1350,6 +1397,7 @@ export default {
     drawerGetWine,
     drawerPayToStore,
     drawerMinDetail,
+    outSomething,
   },
 
   watch: {
@@ -1366,6 +1414,12 @@ export default {
         this.setLegendCount(regionId);
       },
       immediate: true,
+    },
+  },
+  computed:{
+    // 是否有沽清权限
+    hasOutSomething() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(2)
     },
   },
 
@@ -1422,4 +1476,15 @@ export default {
 
 <style lang="less">
 @import "../../style/common/elementConfirm.less";
+.out-something {
+  position: fixed;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+}
+.v-modal {
+  z-index: 1 !important;
+}
 </style>

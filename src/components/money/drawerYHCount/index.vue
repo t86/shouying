@@ -29,6 +29,7 @@ import eventVue from '@/utils/eventVue';
 import authorization from '../../order/shoppingCart/authorization.vue'
 import tableDetail from './tableDetail.vue'
 export default {
+  name: "drawerYHCount",
   data() {
     return {
       show: false,

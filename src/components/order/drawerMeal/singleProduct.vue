@@ -223,14 +223,14 @@ export default {
       this.getAuthTypeList();
       // 小费类型4商品数量默认为1 赔偿商品数量只能为 1  切不可修改
       if (this.productInfo.prdType == 4) {
-        this.count = this.$route.name != "moneyCard" ? "" : 0;
+        this.count = this.$route.name != "moneyCard"&&this.$route.name != "orderCard"  ? "" : 0;
       }
       // this.focus = this.$store.state.userInfo.authStatus == 4 ? 1 : 2;
-      this.isGQ = this.$route.name == "moneyCard";
+      this.isGQ = this.$route.name == "moneyCard" ||  this.$route.name == 'orderCard';
     },
 
     onCancelDrawer() {
-      this.count = this.$route.name != "moneyCard" ? "" : 0;
+      this.count = this.$route.name != "moneyCard"&&this.$route.name != "orderCard" ? "" : 0;
       this.requestInfoArr = [];
       this.$emit("closeDrawerHandle");
     },
@@ -280,7 +280,7 @@ export default {
     resetSingleForm() {
       this.focus = 1;
       this.amt = "";
-      this.count = this.$route.name != "moneyCard" ? "" : 0;
+      this.count = this.$route.name != "moneyCard"&&this.$route.name != "orderCard" ? "" : 0;
       this.requestInfoArr = [];
 
       this.authType = "2"; // 赠送类型
@@ -307,12 +307,12 @@ export default {
         this.count.toString().indexOf(".") < this.count.toString().length - 1
       )
         return this.$message.warning("商品数量必须为整数");
-      if (this.$route.name != "moneyCard" && !this.count)
+      if (this.$route.name != "moneyCard"&&this.$route.name != "orderCard" && !this.count)
         return this.$message.warning("请输入商品数量！");
       if (isNaN(this.count * 1)) return this.$message.warning("请输入数字！");
 
       // 判断是否为估清
-      if (this.$route.name == "moneyCard") {
+      if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
         const params = {
           prd_id: this.productInfo.id * 1, //     int64    商品Id
           cnt: this.count * 1, //   int  数量
@@ -590,7 +590,7 @@ export default {
       handler(newVal) {
         this.$nextTick(() => {
           if (newVal) {
-            if (this.$store.state.userInfo.authStatus != 4) {
+            if (this.$store.state.userInfo.authStatus != 4 && !this.isGQ) {
               setTimeout(() => {
                 const resultOrderMealStatusArr = this.getOrderMealStatus();
                 this.showModal = resultOrderMealStatusArr.length > 1;

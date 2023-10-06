@@ -51,8 +51,8 @@ export default {
     }
   },
   mounted() {
-    this.isYH2 = this.$route.query.give;
-    this.isGQ = this.$route.name == 'moneyCard'
+    this.isYH2 = this.$route.query.give
+    this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
   },
   props: ["String"],
   components: {

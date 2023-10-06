@@ -113,9 +113,7 @@ export default {
 
       // 当前卡台区域下可点商品(用于筛选区域下可点商品（每个身份都需要筛选）)
       let currentAreaAllProduct = [];
-      if (
-        this.$route.name == "moneyCard" &&
-        this.$store.state.userInfo.authStatus == 4
+      if ((this.$route.name == "moneyCard" && this.$store.state.userInfo.authStatus == 4) || (this.$route.name == 'orderCard' && this.$store.state.userInfo.authStatus == 2) 
       ) {
         // 估清
         currentAreaAllProduct = this.$store.state.cardPageInfo.resResultDataObj[
@@ -553,7 +551,7 @@ export default {
         const { mustOrderPrdId } = this.$route.query;
         if (mustOrderPrdId) this.getMustPrdInfo();
         else this.changeFirstCategory();
-      } else if (this.$route.name == "moneyCard") {
+      } else if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard' ) {
         // 沽清(默认选中第一个一级菜单)
         this.changeFirstCategory();
       }

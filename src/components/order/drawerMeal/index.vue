@@ -155,7 +155,7 @@ export default {
           singleDom && singleDom.resetSingleForm();
         });
 
-        if (this.$route.name == "moneyCard") this.changeType(4);
+        if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {this.changeType(4)};
       }
     }
   }
