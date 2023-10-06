@@ -607,8 +607,9 @@ export default {
         YXTabList = [...arr];
       }
 
+      // 特饮，也需要判断可点区域
       if (authStatusArr.includes(3)) {
-        HLTabList = [...arr];
+        HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
       if (this.$store.state.userInfo.chk_full == 1) {
         QCTabList = [...arr];
@@ -797,6 +798,7 @@ export default {
         }
       });
 
+
       // 初始化图例中显示的抵达数量
       this.setLegendCount(this.tab.activeIndex);
 
@@ -805,7 +807,7 @@ export default {
           this.$store.state.userInfo.authStatusArr.includes(2)) &&
         !this.modelVisible
       ) {
-        // 服务员/营销  且已开启营业日
+        // 服务员/营销/特饮  且已开启营业日
         cardList = await this.addOwnPayedAmtToCard(cardList);
       }
 
@@ -818,6 +820,14 @@ export default {
         cardListInfoArr = JSON.parse(JSON.stringify(cardList)); // 首次更改，为了给获取自己及下属员工卡台提供数据
       }
 
+      await this.getTabList(resResultDataObj["areaInfo"]);
+
+      // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
+      if (this.$store.state.userInfo.authStatusArr.includes(1) ||
+          this.$store.state.userInfo.authStatusArr.includes(3)) {
+            cardListInfoArr = cardList.filter(item => this.tab.tabList.findIndex(i => i.id == item.regionId) > 0);
+      }
+
       try {
         // 此处为了解决点单系统websocket数据更新后页面不更新问题
         const index = this.tab.tabList.findIndex(
@@ -828,7 +838,7 @@ export default {
         console.log("websocket数据更新了，但是此处报错了", error);
       }
 
-      this.$store.commit("updateCardList", cardList);
+      // this.$store.commit("updateCardList", cardList);
     },
 
     getCardOptions(bizStatus, turnoverCnt) {
@@ -1045,13 +1055,13 @@ export default {
         )
           return;
 
+
         // console.log("inOrder", resResultDataObj);
         // 获取卡台数据
         await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]
         );
-        await this.getTabList(resResultDataObj["areaInfo"]);
 
         // 获取自己及下属员工卡台列表
         if (this.$store.state.userInfo.authStatusArr.includes(2)) {
