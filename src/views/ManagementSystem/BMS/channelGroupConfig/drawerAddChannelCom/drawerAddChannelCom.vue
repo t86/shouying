@@ -17,6 +17,7 @@
               v-model="name"
               style="width: 200px"
               placeholder="1-10个字符"
+              @input="validator"
             ></el-input>
           </div>
           <div class="item" layout="row" layout-align="start center">
@@ -56,6 +57,16 @@ export default {
     };
   },
   methods: {
+    validator() {
+      if (this.name == "") {
+        this.$message.warning("请输入类别名称")
+        return false
+      } else if (this.$overall.character(this.name) > 20) {
+        this.$message.warning("输入文字长度超过10")
+        return false
+      }
+      return true
+    },
     async getTableData(){
       this.name = this.item?this.item.n : ""
       try {
@@ -85,6 +96,7 @@ export default {
       this.$forceUpdate();
     },
     async submitHandle() {
+      if(!this.validator()) return
       const params = {
         id: this.item ? this.item.id : 0, //   新建
         name: this.name,

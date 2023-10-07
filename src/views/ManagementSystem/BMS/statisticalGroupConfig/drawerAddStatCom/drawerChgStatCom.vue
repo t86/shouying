@@ -17,6 +17,7 @@
               v-model="name"
               style="width: 200px"
               placeholder="1-10个字符"
+              @input="validator"
             ></el-input>
           </div>
         </div>
@@ -42,7 +43,18 @@ export default {
     };
   },
   methods: {
+    validator() {
+      if (this.name == "") {
+        this.$message.warning("请输入类别名称")
+        return false
+      } else if (this.$overall.character(this.name) > 20) {
+        this.$message.warning("输入文字长度超过10")
+        return false
+      }
+      return true
+    },
     async submitHandle() {
+      if(!this.validator()) return
       const params = {
         name: this.name,//   []int64   待添加商品列表
         id: this.item.id * 1,
