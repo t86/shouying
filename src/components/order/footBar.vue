@@ -976,7 +976,7 @@ export default {
       let time = this.cardInfo.openTime || '';
        // 20231004223952 转换时间格式
       if(time.length == 14){
-        time = time.slice(0,4) + '-' + time.slice(4,6) + '-' + time.slice(6,8) + ' ' + time.slice(8,10) + ':' + time.slice(10,12) + ':' + time.slice(12,14)
+        time = time.slice(8,10) + ':' + time.slice(10,12)
       }else{
         time = ''
       }
