@@ -3,7 +3,7 @@
   <div>
     <!-- 优惠2 -->
     <div v-if="isYH2" class="order-meal-list-yh2">
-      <mealNav @updateProductsList="updateProductsList" />
+      <mealNav @updateProductsList="updateProductsList" :isGQ="isGQ"/>
       <productListYH
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
@@ -12,7 +12,7 @@
 
     <!-- 估清 -->
     <div v-else-if="isGQ" class="order-meal-list-gq">
-      <mealNav @updateProductsList="updateProductsList" />
+      <mealNav @updateProductsList="updateProductsList" :isGQ="true"/>
       <productListGQ
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
@@ -22,7 +22,7 @@
 
     <!-- 正常点单 -->
     <div v-else class="order-meal-list">
-      <mealNav @updateProductsList="updateProductsList" />
+      <mealNav @updateProductsList="updateProductsList"/>
       <productList
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"

@@ -53,6 +53,7 @@ export default {
       try {
         const res = await this.$api.BMS.statiscalConfig.reqSaveRptJkCateName(params)
         if(res.code == 1) {
+          this.$message.success("修改成功！")
           this.closeDrawerHandle();
         } else {
           this.$message.warning(res.msg)

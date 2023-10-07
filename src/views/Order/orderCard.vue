@@ -1222,6 +1222,10 @@ export default {
         const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
+        // 区域下部分卡台
+        const cardStatusNo =
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => this.tab.tabList.findIndex(i => i.id == item.region_id) > 0) ||
+                [];
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
           if (regionId == 0) {
@@ -1230,10 +1234,7 @@ export default {
               this.$store.state.userInfo.authStatusArr.length == 1 &&
               this.$store.state.userInfo.authStatusArr[0] == 1
             ) {
-              // 区域下部分卡台
-              const cardStatusNo =
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
-                [];
+
               // 累计卡台数
               const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);
               // 累计抵达数
@@ -1260,10 +1261,7 @@ export default {
               });
             } else {
               // 显示的全部
-              (
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
-                []
-              ).forEach((el) => {
+              cardStatusNo.forEach((el) => {
                 if (result[el.id] != undefined) {
                   result[el.id] = result[el.id] * 1 + el.cnt * 1;
                 } else {
@@ -1272,8 +1270,7 @@ export default {
               });
             }
           } else {
-            (this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo || [])
-              .filter((item) => item.region_id == regionId)
+            cardStatusNo.filter((item) => item.region_id == regionId)
               .forEach((el) => {
                 if (result[el.id] != undefined) {
                   result[el.id] = result[el.id] * 1 + el.cnt * 1;
@@ -1289,10 +1286,7 @@ export default {
             this.tab.tabListOrigin.forEach((el) => {
               if (el.isAllCard) {
                 // 区域下所有卡台
-                const currentAreaData = (
-                  this.$store.state.cardPageInfo.resResultDataObj
-                    .cardStatusNo || []
-                ).filter((item) => item.region_id == el.id);
+                const currentAreaData = cardStatusNo.filter((item) => item.region_id == el.id);
                 // 当前区域下所有卡台都展示
                 currentAreaData.forEach((el) => {
                   if (result[el.id] != undefined) {
@@ -1302,10 +1296,6 @@ export default {
                   }
                 });
               } else {
-                // 区域下部分卡台
-                const cardStatusNo =
-                  this.$store.state.cardPageInfo.resResultDataObj
-                    .cardStatusNo || [];
                 // 累计卡台数
                 const allOpenInfo = cardStatusNo.filter(
                   (item) => item.id == 30
@@ -1343,10 +1333,7 @@ export default {
                 (item) => item.id == this.tab.activeIndex
               ) || {};
             if (currentAreaInfo.isAllCard) {
-              const currentAreaData = (
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
-                []
-              ).filter((item) => item.region_id == regionId);
+              const currentAreaData = cardStatusNo.filter((item) => item.region_id == regionId);
               // 当前区域下所有卡台都展示
               currentAreaData.forEach((el) => {
                 if (result[el.id] != undefined) {
@@ -1357,10 +1344,6 @@ export default {
               });
             } else {
               // 展示的是当前区域下部分卡台的信息，需要重新计算卡台的数量
-
-              const cardStatusNo =
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo ||
-                [];
               // 累计卡台数
               const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);
               // 累计抵达数

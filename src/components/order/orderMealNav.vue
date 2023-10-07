@@ -126,19 +126,36 @@ export default {
       this.secondCategoryActiveId = prdInfo.twoCateId;
     }
   },
-  created() {},
+  created() {
+
+
+  },
   mounted() {
-    this.getMenuInfo();
+    this.getMenuInfo(this.isGQ);
     this.getRectVal();
   },
   mixins: [navPrdList],
-  props: ["cardInfo"],
+  props: {
+    cardInfo:{
+      default: {}
+    },
+    isGQ: {
+      default: false
+    }
+  },
   watch: {
     secondCategoryActiveId(newVal) {
+      console.log('gq', this.isGQ)
       this.$emit("updateProductsList", {
         key: "currentCategoryProductList",
         value: this.getCurrentProductList()
       });
+    },
+    isGQ(newValue) {
+      if (newValue) {
+        this.isGQ = true
+        this.getMenuInfo(newValue) 
+      }
     }
   }
 };

@@ -1,6 +1,7 @@
 export default {
   methods: {
-    getMenuInfo() {
+    getMenuInfo(isGQ) {
+      console.log('getMenuInfo', isGQ);
       // 当前用户岗位id
       const authStationId = this.$store.state.userInfo.station_id;
 
@@ -32,7 +33,7 @@ export default {
 
       let YH2PrdListId = []; // 优惠2可优惠商品id
 
-      if (this.$store.state.userInfo.authStatus == 4) {
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
         // 当前岗位可点商品没有限制
         // 此时此刻不需要进行岗位限制的筛选
         // 只需要获取所有的商品二级分类即可
@@ -113,7 +114,9 @@ export default {
 
       // 当前卡台区域下可点商品(用于筛选区域下可点商品（每个身份都需要筛选）)
       let currentAreaAllProduct = [];
-      if ((this.$route.name == "moneyCard" && this.$store.state.userInfo.authStatus == 4) || (this.$route.name == 'orderCard' && this.$store.state.userInfo.authStatus == 2) 
+      if ((this.$route.name == "moneyCard" && this.$store.state.userInfo.authStatus == 4) 
+      || (this.$route.name == 'orderCard' && this.$store.state.userInfo.authStatus == 2)
+      || isGQ
       ) {
         // 估清
         currentAreaAllProduct = this.$store.state.cardPageInfo.resResultDataObj[
@@ -314,7 +317,7 @@ export default {
       let resultSYProductArr = []; // 收银点单的可点商品
       let resultDDProductArr = []; // 点单系统（服务员、营销、花篮）的可点商品
 
-      if (this.$store.state.userInfo.authStatus == 4) {
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
         // 收银员
         const SYResultProductArrList = [];
         stationAllProduct.forEach((el) => {
@@ -453,7 +456,7 @@ export default {
       }
 
       // 给收银系统的所以商品匹配自己在点单系统的身份权限
-      if (this.$store.state.userInfo.authStatus == 4) {
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
         // 收银系统
         resultSYProductArr.forEach((el) => {
           const find = resultDDProductArr.find((item) => item.id == el.id);
