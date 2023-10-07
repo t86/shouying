@@ -1,7 +1,21 @@
-.memberBalanceSum {
+.amt-info {
+  font-size: 0;
+  span {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f51f4b;
+    line-height: 30px;
+    &.label {
+      color: #1a1a21;
+      font-size: 18px;
+    }
+  }
+}
+
+.member-consume {
     .search {
       display: grid;
-      grid-template-columns: 360px 400px;
+      grid-template-columns: 360px 500px;
       grid-gap: 10px;
   
       .row {
@@ -11,6 +25,8 @@
       }
     }
   
+
+
     .contain {
       width: 100%;
       height: calc(100vh - 360px);

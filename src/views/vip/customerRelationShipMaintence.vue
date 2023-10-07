@@ -1,11 +1,11 @@
 <template>
     <div>
       <!-- 客户关系维护 -->
-      <div class="vip memberConsumeRank">
+      <div class="vip ">
         <h3 class="title">客户关系维护</h3>
   
         <div class="search m-t-2 m-b-4">
-          <div class="row another" layout="row" layout-align="start center">
+          <div class="row" layout="row" layout-align="start center">
             <span class="label">操作日期:</span>
             <el-date-picker
               v-model="form.dateVal"
@@ -53,6 +53,31 @@
             </button>
           </div>
         </div>
+
+        
+        <div class="amt-info" layout="row" layout-align="start center">
+          <div class="m-r-6">
+            <span class="label">新增会员人数:</span>
+            <span>{{ amtInfo.cnt }}</span>
+          </div>
+          <div class="m-r-6">
+            <span class="label">累计消费次数:</span>
+            <span>{{ amtInfo.cc }}</span>
+          </div>
+          <div class="m-r-6">
+            <span class="label">累计消费总额:</span>
+            <span>¥{{ amtInfo.a.toFixed(2) }}</span>
+          </div>
+          <div class="m-r-6">
+            <span class="label">累计消费金额（赠送）:</span>
+            <span>¥{{ amtInfo.fa.toFixed(2) }}</span>
+          </div>
+          <div class="m-r-6">
+            <span class="label">累计消费金额（储值）:</span>
+            <span>¥{{ amtInfo.va.toFixed(2) }}</span>
+          </div>
+        </div>
+
         <div class="contain">
           <div class="table">
             <div class="thead">
@@ -117,6 +142,13 @@
           dateVal:[],
           personVal: ""
         },
+        amtInfo: {
+          a:0,
+          cc:0,
+          fa:0,
+          va:0,
+          cnt:0
+        },
         remoteLoading: false,
         tableData: [],
         personOptions: [], // 开卡推荐人
@@ -144,6 +176,25 @@
           const res = await api_vip.reqGetMbCardConsumeList(params);
           if (res.code == 1) {
             this.tableData = res.data.records || [];
+            this.amtInfo = {cnt: res.data.new_mb_cnt }
+            this.tableData.forEach(item => {
+              if (!this.amtInfo.cc) {
+                this.amtInfo.cc = 0
+              }
+              this.amtInfo.cc = item.cc * 1 +  this.amtInfo.cc;
+              if (!this.amtInfo.a) {
+                this.amtInfo.a = 0
+              }
+              this.amtInfo.a = item.a * 1 +  this.amtInfo.a;
+              if (!this.amtInfo.fa) {
+                this.amtInfo.fa = 0
+              }
+              this.amtInfo.fa = item.fa * 1 +  this.amtInfo.fa;
+              if (!this.amtInfo.va) {
+                this.amtInfo.va = 0
+              }
+              this.amtInfo.va = item.va * 1 +  this.amtInfo.va;
+            })
           } else {
             this.$message.warning(res.msg);
           }
