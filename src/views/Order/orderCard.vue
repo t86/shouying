@@ -524,6 +524,7 @@ export default {
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
         tabList: [],
+        allTabList: [],
         activeIndex: 0,
         tabMaxCount: 0,
         anotherInfo: [],
@@ -638,6 +639,7 @@ export default {
         (e) => this.filterCardList("regionId", e.id).length > 0,
         tabList
       );
+      this.allTabList = [...tabList];
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
@@ -825,7 +827,7 @@ export default {
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (this.$store.state.userInfo.authStatusArr.includes(1) ||
           this.$store.state.userInfo.authStatusArr.includes(3)) {
-            cardListInfoArr = cardList.filter(item => this.tab.tabList.findIndex(i => i.id == item.regionId) > 0);
+            cardListInfoArr = cardList.filter(item => this.allTabList.findIndex(i => i.id == item.regionId) > 0);
       }
 
       try {
@@ -1224,7 +1226,7 @@ export default {
         );
         // 区域下部分卡台
         const cardStatusNo =
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => this.tab.tabList.findIndex(i => i.id == item.region_id) > 0) ||
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => this.allTabList.findIndex(i => i.id == item.region_id) > 0) ||
                 [];
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
@@ -1329,7 +1331,7 @@ export default {
             });
           } else {
             const currentAreaInfo =
-              this.tab.tabList.find(
+            this.allTabList.find(
                 (item) => item.id == this.tab.activeIndex
               ) || {};
             if (currentAreaInfo.isAllCard) {
