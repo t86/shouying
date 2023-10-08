@@ -2121,6 +2121,8 @@ export default {
 
       window.onkeydown = this.keyHandle;
       window.onkeyup = this.keyHandle;
+
+      this.$refs.searchInputRef && this.$refs.searchInputRef.focus();
     }, 1000);
   },
 
