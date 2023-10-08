@@ -524,8 +524,7 @@ export default {
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
         tabList: [],
-        allTabList: [],
-        activeIndex: 0,
+        activeIndex: 2001,
         tabMaxCount: 0,
         anotherInfo: [],
         showAnotherInfo: false,
@@ -639,18 +638,17 @@ export default {
         (e) => this.filterCardList("regionId", e.id).length > 0,
         tabList
       );
-      this.allTabList = [...tabList];
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
       if (tabList.length > 0) {
         tabList.unshift({
-          id: 2001,
-          name: "我的卡台",
-        });
-        tabList.unshift({
           id: 0,
           name: "全部",
+        });
+        tabList.unshift({
+          id: 2001,
+          name: "我的卡台",
         });
       }
 
@@ -711,6 +709,7 @@ export default {
       const isNoLimit = currentAreaAndCardList.filter(
         (item) => item.type_id == 3
       );
+
       if (isNoLimit.length <= 0) {
         // 有限制
         const areaList = currentAreaAndCardList.filter(
@@ -754,6 +753,7 @@ export default {
       }
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
+ 
       cardInfo.forEach((item, index) => {
         if (item.status == "1") {
           // 查找对应的业务数据
@@ -796,6 +796,7 @@ export default {
                 cardListInfoArr[index] && cardListInfoArr[index].showOption,
               isLeftArrow: false, // 操作选项列表是否显示在左边
             });
+
           }
         }
       });
@@ -827,7 +828,8 @@ export default {
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (this.$store.state.userInfo.authStatusArr.includes(1) ||
           this.$store.state.userInfo.authStatusArr.includes(3)) {
-            cardListInfoArr = cardList.filter(item => this.allTabList.findIndex(i => i.id == item.regionId) > 0);
+            cardListInfoArr = cardList.filter(item => 
+            this.tab.tabListOrigin.findIndex(i => i.id == item.regionId) >= 0);
       }
 
       try {
@@ -1226,7 +1228,8 @@ export default {
         );
         // 区域下部分卡台
         const cardStatusNo =
-                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => this.allTabList.findIndex(i => i.id == item.region_id) > 0) ||
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo
+                .filter(item => this.tab.tabListOrigin.findIndex(i => i.id == item.region_id) > 0) ||
                 [];
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
@@ -1331,9 +1334,9 @@ export default {
             });
           } else {
             const currentAreaInfo =
-            this.allTabList.find(
+            (this.tab.tabListOrigin.find(
                 (item) => item.id == this.tab.activeIndex
-              ) || {};
+              )) || {};
             if (currentAreaInfo.isAllCard) {
               const currentAreaData = cardStatusNo.filter((item) => item.region_id == regionId);
               // 当前区域下所有卡台都展示
