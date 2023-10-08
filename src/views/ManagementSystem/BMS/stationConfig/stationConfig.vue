@@ -32,10 +32,15 @@
         colors="#6B2830"
       ></icon-button>
       <characters-button
+        @click.native="setConfigHandle(10)"
+        colors="#383943"
+        wz="角色权限"
+      ></characters-button>
+      <!-- <characters-button
         @click.native="setConfigHandle(1)"
         colors="#383943"
         wz="登录权限"
-      ></characters-button>
+      ></characters-button> -->
       <characters-button
         @click.native="setConfigHandle(2)"
         colors="#383943"
@@ -66,7 +71,7 @@
         colors="#383943"
         wz="erp系统权限"
       ></characters-button>
-      <characters-button
+      <!-- <characters-button
         @click.native="setConfigHandle(8)"
         colors="#383943"
         wz="配置权限"
@@ -75,17 +80,13 @@
         @click.native="setConfigHandle(9)"
         colors="#383943"
         wz="查单权限"
-      ></characters-button>
+      ></characters-button> -->
       <characters-button
         @click.native="addOrUpdateHandle(3)"
         colors="#383943"
         wz="类似创建"
       ></characters-button>
-      <!-- <characters-button
-        @click.native="setConfigHandle(99)"
-        colors="#383943"
-        wz="角色权限"
-      ></characters-button> -->
+     
     </div>
     <div class="table-content">
       <div class="table">
@@ -201,6 +202,14 @@
           :checkedList="checkedList"
           @getTableData="getTableData"
         />
+        <!-- 角色权限 -->
+        <drawerRoleAuth
+          v-model="showRoleAuthDrawer"
+          :checkedList="checkedList"
+          @getTableData="getTableData"
+        />
+    
+
       </div>
     </div>
   </div>
@@ -230,6 +239,7 @@ export default {
       showErpDrawer: false, // erp管理
       showSetConfigDrawer: false, // 配置权限
       showLookOrderDrawer: false, // 查单权限
+      showRoleAuthDrawer: false, // 角色权限
       nexDrawerInfo: {
         ns: [],
         cs: [],
@@ -333,7 +343,6 @@ export default {
           this.yhType = type == 4 ? 1 : 2;
           this.showCanYHPrdDrawer = true;
           break;
-          break;
         case 6:
           // 特饮小费关联商品
           this.showTYPrdDrawer = true;
@@ -349,6 +358,10 @@ export default {
         case 9:
           // 查单权限
           this.showLookOrderDrawer = true;
+          break;
+        case 10:
+          // 角色权限
+          this.showRoleAuthDrawer = true;
           break;
       }
     },
@@ -390,6 +403,7 @@ export default {
     drawerErpConfig: () => import("./stationConfigCom/drawerErpConfig.vue"),
     drawerSetConfig: () => import("./stationConfigCom/drawerSetConfig.vue"),
     drawerLookOrder: () => import("./stationConfigCom/drawerLookOrder.vue"),
+    drawerRoleAuth:() => import("./stationConfigCom/drawerRoleAuth.vue"),
   },
   watch: {
     $route: {
