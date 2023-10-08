@@ -66,9 +66,9 @@
       }
     },
     created() { },
-    updated() {
-      this.inputFocusHandle()
-    },
+    // updated() {
+    //   this.inputFocusHandle()
+    // },
     mounted() {
       this.getOptionsOffset();
       document.addEventListener("click", this.inputBlurHandle);
