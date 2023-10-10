@@ -11,7 +11,7 @@
       <div class="session p-5 erp-lib-detail fs14">
         <!-- 请选择角色 -->
         <div class="coll">
-          <div class="label">请选择角色</div>
+          <div class="label text-blue-500 p-4">请选择角色</div>
           <div class="value m-t-3 m-l-10">
             <el-checkbox
               v-for="item in erpList"
@@ -24,122 +24,154 @@
             >
           </div>
         </div>
-        <!-- 营销权限 -->
-        <div class="coll p-t-3">
-          <div class="label">营销权限</div>
-          <div class="value m-t-3 m-l-10">
-            <div class="m-t-2 m-b-2">
-              <el-checkbox
-                :indeterminate="originConfig.bookInfo[0].isIndeterminate"
-                v-model="originConfig.bookInfo[0].checked"
-                :disabled="originConfig.bookInfo[0].disabled"
-                @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"
-                >不允许查看下属订位消费</el-checkbox
-              >
-              <p class="red-color fs12 m-t-2">
-                勾选后订位人只能查看自己订位卡台的消费，不能查看下属订位卡台的消费
-              </p>
+
+        <div class="coll p-t-3" v-for="items in subList">
+            <div class="label">{{ items.t }}</div>
+            <div layout="row" class="row value m-t-3 m-l-10" v-if="items.val.findIndex(i => !i.row) >= 0">
+              <div class="m-t-2 m-b-2 m-l-2" v-for="item in items.val">
+                <el-checkbox v-if="!item.row"
+                  :indeterminate="originConfig.bookInfo[0].isIndeterminate"
+                  v-model="item.checked"
+                  :disabled="item.disabled"
+                  @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"
+                  >{{ item.n }}</el-checkbox
+                >
+                <p class="red-color fs12 m-t-2" v-if="item.w && !item.row">
+                  {{ item.w }}
+                </p>
+              </div>
             </div>
-            <div>
-              <el-checkbox
-                :indeterminate="originConfig.bookInfo[1].isIndeterminate"
-                v-model="originConfig.bookInfo[1].checked"
-                :disabled="originConfig.bookInfo[1].disabled"
-                @change="changeCheckbox('bookInfo', originConfig.bookInfo[1])"
-                >查看同组订位消费</el-checkbox
-              >
-              <p class="red-color fs12 m-t-2">
-                勾选后订位人可查看同组人员订位卡台的消费
-              </p>
-            </div>
-          </div>
-        </div>
-        <!-- 服务员权限 -->
-        <div class="coll">
-          <div class="label">服务员权限</div>
-          <div class="value m-t-3 m-l-10">
-            <el-checkbox
-              v-for="item in erpList"
-              :key="item.id"
-              :indeterminate="item.st == 3"
-              v-model="item.checked"
-              @change="changeLoginConfigCheckboxHandle($event, item)"
-              class="m-b-2"
+          <div layout="row" class="row value m-t-3 m-l-10" v-for="item in items.val.filter(i => i.row)">
+            <div class="m-t-2 m-b-2 m-l-2">
+              <el-checkbox v-if="item.row"
+                           :indeterminate="originConfig.bookInfo[0].isIndeterminate"
+                           v-model="item.checked"
+                           :disabled="item.disabled"
+                           @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"
               >{{ item.n }}</el-checkbox
-            >
-          </div>
-          <div class="value m-t-3 m-l-10">
-            <div class="m-t-2 m-b-2">
-              <el-checkbox
-                :indeterminate="originConfig.orderInfo[0].isIndeterminate"
-                v-model="originConfig.orderInfo[0].checked"
-                :disabled="originConfig.orderInfo[0].disabled"
-                @change="changeCheckbox('orderInfo', originConfig.orderInfo[0])"
-                >不允许查看下属点单消费</el-checkbox
               >
-              <p class="red-color fs12 m-t-2">
-                勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费
-              </p>
-            </div>
-            <div>
-              <el-checkbox
-                :indeterminate="originConfig.orderInfo[1].isIndeterminate"
-                v-model="originConfig.orderInfo[1].checked"
-                :disabled="originConfig.orderInfo[1].disabled"
-                @change="changeCheckbox('orderInfo', originConfig.orderInfo[1])"
-                >查看同组消费</el-checkbox
-              >
-              <p class="red-color fs12 m-t-2">
-                勾选后点单人可查看同组人员点单卡台的消费
+              <p class="red-color fs12 m-t-2" v-if="item.w && item.row">
+                {{ item.w }}
               </p>
             </div>
           </div>
         </div>
-        <!-- 收银员权限 -->
-        <div class="coll">
-          <div class="label">收银员权限</div>
-          <div class="value m-t-3 m-l-10">
-            <el-checkbox
-              v-for="item in erpList"
-              :key="item.id"
-              :indeterminate="item.st == 3"
-              v-model="item.checked"
-              @change="changeLoginConfigCheckboxHandle($event, item)"
-              class="m-b-2"
-              >{{ item.n }}</el-checkbox
-            >
-          </div>
-        </div>
-        <!-- 仓库管理员权限 -->
-        <div class="coll">
-          <div class="label">仓库管理员权限</div>
-          <div class="value m-t-3 m-l-10">
-            <el-checkbox
-              v-for="item in erpList"
-              :key="item.id"
-              :indeterminate="item.st == 3"
-              v-model="item.checked"
-              @change="changeLoginConfigCheckboxHandle($event, item)"
-              class="m-b-2"
-              >{{ item.n }}</el-checkbox
-            >
-          </div>
-        </div>
-        <!-- 会员中心权限 -->
-        <div class="coll">
-          <div class="label">会员中心权限</div>
-          <div class="value m-t-3 m-l-10">
-            <el-checkbox
-              v-for="item in erpList"
-              :key="item.id"
-              :indeterminate="item.st == 3"
-              v-model="item.checked"
-              @change="changeLoginConfigCheckboxHandle($event, item)"
-              class="m-b-2"
-              >{{ item.n }}</el-checkbox
-            >
-          </div>
-        </div>
+<!--        &lt;!&ndash; 营销权限 &ndash;&gt;-->
+<!--        <div class="coll p-t-3">-->
+<!--          <div class="label">营销权限</div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <div class="m-t-2 m-b-2">-->
+<!--              <el-checkbox-->
+<!--                :indeterminate="originConfig.bookInfo[0].isIndeterminate"-->
+<!--                v-model="originConfig.bookInfo[0].checked"-->
+<!--                :disabled="originConfig.bookInfo[0].disabled"-->
+<!--                @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"-->
+<!--                >不允许查看下属订位消费</el-checkbox-->
+<!--              >-->
+<!--              <p class="red-color fs12 m-t-2">-->
+<!--                勾选后订位人只能查看自己订位卡台的消费，不能查看下属订位卡台的消费-->
+<!--              </p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <el-checkbox-->
+<!--                :indeterminate="originConfig.bookInfo[1].isIndeterminate"-->
+<!--                v-model="originConfig.bookInfo[1].checked"-->
+<!--                :disabled="originConfig.bookInfo[1].disabled"-->
+<!--                @change="changeCheckbox('bookInfo', originConfig.bookInfo[1])"-->
+<!--                >查看同组订位消费</el-checkbox-->
+<!--              >-->
+<!--              <p class="red-color fs12 m-t-2">-->
+<!--                勾选后订位人可查看同组人员订位卡台的消费-->
+<!--              </p>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 服务员权限 &ndash;&gt;-->
+<!--        <div class="coll">-->
+<!--          <div class="label">服务员权限</div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <el-checkbox-->
+<!--              v-for="item in erpList"-->
+<!--              :key="item.id"-->
+<!--              :indeterminate="item.st == 3"-->
+<!--              v-model="item.checked"-->
+<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
+<!--              class="m-b-2"-->
+<!--              >{{ item.n }}</el-checkbox-->
+<!--            >-->
+<!--          </div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <div class="m-t-2 m-b-2">-->
+<!--              <el-checkbox-->
+<!--                :indeterminate="originConfig.orderInfo[0].isIndeterminate"-->
+<!--                v-model="originConfig.orderInfo[0].checked"-->
+<!--                :disabled="originConfig.orderInfo[0].disabled"-->
+<!--                @change="changeCheckbox('orderInfo', originConfig.orderInfo[0])"-->
+<!--                >不允许查看下属点单消费</el-checkbox-->
+<!--              >-->
+<!--              <p class="red-color fs12 m-t-2">-->
+<!--                勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费-->
+<!--              </p>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <el-checkbox-->
+<!--                :indeterminate="originConfig.orderInfo[1].isIndeterminate"-->
+<!--                v-model="originConfig.orderInfo[1].checked"-->
+<!--                :disabled="originConfig.orderInfo[1].disabled"-->
+<!--                @change="changeCheckbox('orderInfo', originConfig.orderInfo[1])"-->
+<!--                >查看同组消费</el-checkbox-->
+<!--              >-->
+<!--              <p class="red-color fs12 m-t-2">-->
+<!--                勾选后点单人可查看同组人员点单卡台的消费-->
+<!--              </p>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 收银员权限 &ndash;&gt;-->
+<!--        <div class="coll">-->
+<!--          <div class="label">收银员权限</div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <el-checkbox-->
+<!--              v-for="item in erpList"-->
+<!--              :key="item.id"-->
+<!--              :indeterminate="item.st == 3"-->
+<!--              v-model="item.checked"-->
+<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
+<!--              class="m-b-2"-->
+<!--              >{{ item.n }}</el-checkbox-->
+<!--            >-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 仓库管理员权限 &ndash;&gt;-->
+<!--        <div class="coll">-->
+<!--          <div class="label">仓库管理员权限</div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <el-checkbox-->
+<!--              v-for="item in erpList"-->
+<!--              :key="item.id"-->
+<!--              :indeterminate="item.st == 3"-->
+<!--              v-model="item.checked"-->
+<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
+<!--              class="m-b-2"-->
+<!--              >{{ item.n }}</el-checkbox-->
+<!--            >-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 会员中心权限 &ndash;&gt;-->
+<!--        <div class="coll">-->
+<!--          <div class="label">会员中心权限</div>-->
+<!--          <div class="value m-t-3 m-l-10">-->
+<!--            <el-checkbox-->
+<!--              v-for="item in erpList"-->
+<!--              :key="item.id"-->
+<!--              :indeterminate="item.st == 3"-->
+<!--              v-model="item.checked"-->
+<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
+<!--              class="m-b-2"-->
+<!--              >{{ item.n }}</el-checkbox-->
+<!--            >-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
@@ -153,26 +185,72 @@
 export default {
   data() {
     return {
+      subList: [],
       erpList: [
         {
           id: 231590937409810,
-          n: "总仓",
+          n: "咨客",
           st: 1,
         },
         {
           id: 231590939409812,
-          n: "大厅仓",
-          st: 1,
+          n: "服务员",
+          st: 2,
+          subList: {
+            t: '服务员权限',
+            val: [
+              {
+                id: 23159093740981201,
+                n: "存取酒操作权限",
+                st: 201,
+              },
+              {
+                id: 23159093740981202,
+                n: "存酒超额权限",
+                st: 202,
+              },
+              {
+                id: 23159093740981203,
+                n: "服务员退单",
+                st: 203,
+              },
+              {
+                id: 23159093740981211,
+                n: "不允许查看下属点单消费",
+                st: 211,
+                row: true,
+                w: '勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费'
+              },
+            ]
+          }
         },
         {
           id: 231590939409814,
-          n: "包厢仓",
-          st: 1,
+          n: "营销",
+          st: 3,
+          subList: {
+            t: '营销权限',
+            val: [
+              {
+                id: 23159093940981401,
+                n: "不允许查看下属点单消费",
+                st: 301,
+                row: true,
+              },
+              {
+                id: 23159093940981402,
+                n: "查看同组点单消费",
+                st: 302,
+                row: true,
+                w: '勾选后点单人可查看同组人员点单卡台的消费'
+              },
+            ]
+          }
         },
         {
           id: 231731521431462,
-          n: "zwj-test仓库",
-          st: 2,
+          n: "特饮",
+          st: 4,
         },
       ],
       checkAll: false,
@@ -344,6 +422,10 @@ export default {
     onCancelDrawer() {
       this.show = false;
     },
+    changeLoginConfigCheckboxHandle(event, item) {
+      this.subList = this.erpList.filter(e => item.id == e.id && item.checked && e.subList).map(e => e.subList)
+      console.log(this.subList)
+    }
   },
   mounted() {},
   props: {
@@ -390,6 +472,10 @@ export default {
 @import "../../../../../style/common/elementFormBtnWine.less";
 @import "../../../../../style/erp/form.less";
 @import "../../../../../style/erp/table.less";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 </style>
 
 <style lang="less" scoped>
