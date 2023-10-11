@@ -182,7 +182,7 @@ export default {
 
           this.erpList = roles;
 
-          const haveSub = this.erpList.filter((e) => e.subList);
+          const haveSub = this.erpList.filter((e) => (e.st == 1 || e.st == 3) && e.subList);
           this.subList = haveSub.map((e) => e.subList);
         } else {
           this.$message.warning(res.msg);
@@ -222,7 +222,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("查单权限设置失败", error);
+        console.log("设置失败", error);
       }
     },
 
@@ -246,6 +246,8 @@ export default {
           return e;
         });
       }
+      const haveSub = this.erpList.filter((e) => (e.st == 1 || e.st == 3) && e.subList);
+      this.subList = haveSub.map((e) => e.subList);
     },
     subCheckboxHandle(item) {
       // rId
