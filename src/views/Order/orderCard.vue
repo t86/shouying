@@ -1227,14 +1227,19 @@ export default {
           (item) => item.type_id == 3
         );
         // 区域下部分卡台
-        const cardStatusNo =
+        let cardStatusNo = regionId == 2001 ? 
                 this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo
-                .filter(item => this.tab.tabListOrigin.findIndex(i => i.id == item.region_id) > 0) ||
+                .filter(item => this.card.cardList.findIndex(i => i.id == item.region_id) >= 0) ||
+                []
+                : 
+                this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo
+                .filter(item => this.tab.tabListOrigin.findIndex(i => i.id == item.region_id) >= 0) ||
                 [];
+
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
-          if (regionId == 0) {
-            // 选择的'全部'
+          if (regionId == 0 || regionId == 2001) {
+            // 选择的'全部' 或我的卡台
             if (
               this.$store.state.userInfo.authStatusArr.length == 1 &&
               this.$store.state.userInfo.authStatusArr[0] == 1
@@ -1264,15 +1269,42 @@ export default {
                 result["20"] =
                   (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
               });
-            } else {
-              // 显示的全部
-              cardStatusNo.forEach((el) => {
-                if (result[el.id] != undefined) {
-                  result[el.id] = result[el.id] * 1 + el.cnt * 1;
-                } else {
-                  result[el.id] = el.cnt * 1;
-                }
-              });
+            }else {
+              if (regionId == 2001) {
+                     // 累计卡台数
+                const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);
+                // 累计抵达数
+                const allArriveInfo = cardStatusNo.filter(
+                  (item) => item.id == 31
+                );
+                // 服务员，显示的我的卡台
+                this.card.cardList.forEach((el) => {
+                  if (el.bizStatus != 4 && el.bizStatus != 20) {
+                    // 除了开台数和抵达数以外的状态
+                    result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1;
+                  }
+                  // 开台数、抵达数
+                  const currentSeatOpenInfo = allOpenInfo.find(
+                    (items) => items.region_id == el.id
+                  ) || { cnt: 0 };
+                  const currentSeatArriveInfo = allArriveInfo.find(
+                    (items) => items.region_id == el.id
+                  ) || { cnt: 0 };
+                  result["10"] =
+                    (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
+                  result["20"] =
+                    (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
+                });
+              } else {
+                // 显示的全部
+                cardStatusNo.forEach((el) => {
+                  if (result[el.id] != undefined) {
+                    result[el.id] = result[el.id] * 1 + el.cnt * 1;
+                  } else {
+                    result[el.id] = el.cnt * 1;
+                  }
+                });
+              }
             }
           } else {
             cardStatusNo.filter((item) => item.region_id == regionId)
@@ -1286,7 +1318,7 @@ export default {
           }
         } else {
           // 对设备进行了卡台区域配置
-          if (regionId == 0) {
+          if (regionId == 0 || regionId == 2001) {
             // 选择的'全部'
             this.tab.tabListOrigin.forEach((el) => {
               if (el.isAllCard) {
@@ -1376,6 +1408,8 @@ export default {
           }
         }
           // console.log(result);
+          // 合并点单和半结
+          result['5'] = result['6'] || 0 + result['5'] || 0;
           this.cardStatusNoInfo = result;
       }, 200);
     },

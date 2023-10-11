@@ -90,12 +90,8 @@ export const legendList = [{
   name: '开台',
   allRight
 }, {
-  id: 5,
+  id: 5, // 6 半结 并入点单
   name: '点单',
-  allRight
-}, {
-  id: 6,
-  name: '半结',
   allRight
 }, {
   id: 7,
