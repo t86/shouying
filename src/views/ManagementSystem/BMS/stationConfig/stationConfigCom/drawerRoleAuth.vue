@@ -205,7 +205,7 @@ export default {
       const unchange_modules = modules.filter((e) => e.st == 3);
 
       const params = {
-        station_id: this.checkedList.map((item) => item.id * 1), // []int64  角色Id列表
+        station_ids: this.checkedList.map((item) => item.id * 1), // []int64  角色Id列表
         sel_sys_roles: sel_roles.map((e) => e.id * 1), // 全选中的系统角色列表
         unchange_sys_roles: unchange_roles.map((e) => e.id * 1), // 部分选中的系统角色列表(就是没有修改的部分选中的列表)
         sel_sys_modules: sel_modules.map((e) => e.id * 1), // 全选中的系统角色模块明细模块项
