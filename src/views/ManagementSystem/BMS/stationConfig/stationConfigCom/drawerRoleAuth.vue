@@ -18,160 +18,54 @@
               :key="item.id"
               :indeterminate="item.st == 3"
               v-model="item.checked"
-              @change="changeLoginConfigCheckboxHandle($event, item)"
               class="m-b-2"
+              @change="checkboxHandle(item)"
               >{{ item.n }}</el-checkbox
             >
           </div>
         </div>
 
-        <div class="coll p-t-3" v-for="items in subList">
-            <div class="label">{{ items.t }}</div>
-            <div layout="row" class="row value m-t-3 m-l-10" v-if="items.val.findIndex(i => !i.row) >= 0">
-              <div class="m-t-2 m-b-2 m-l-2" v-for="item in items.val">
-                <el-checkbox v-if="!item.row"
-                  :indeterminate="originConfig.bookInfo[0].isIndeterminate"
-                  v-model="item.checked"
-                  :disabled="item.disabled"
-                  @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"
-                  >{{ item.n }}</el-checkbox
-                >
-                <p class="red-color fs12 m-t-2" v-if="item.w && !item.row">
-                  {{ item.w }}
-                </p>
-              </div>
-            </div>
-          <div layout="row" class="row value m-t-3 m-l-10" v-for="item in items.val.filter(i => i.row)">
-            <div class="m-t-2 m-b-2 m-l-2">
-              <el-checkbox v-if="item.row"
-                           :indeterminate="originConfig.bookInfo[0].isIndeterminate"
-                           v-model="item.checked"
-                           :disabled="item.disabled"
-                           @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"
-              >{{ item.n }}</el-checkbox
+        <div class="coll p-t-3" v-for="items in subList" :key="items.id">
+          <div class="label">{{ items.t }}</div>
+          <div
+            layout="row"
+            class="row value m-t-3 m-l-10"
+            v-if="items.val.findIndex((i) => !i.row) >= 0"
+          >
+            <div class="m-t-2 m-b-2 m-l-2" v-for="item in items.val">
+              <el-checkbox
+                v-if="!item.row"
+                v-model="item.checked"
+                :disabled="item.disabled"
+                :indeterminate="item.st == 3"
+                @change="subCheckboxHandle(item)"
+                >{{ item.n }}</el-checkbox
               >
-              <p class="red-color fs12 m-t-2" v-if="item.w && item.row">
-                {{ item.w }}
+              <p class="red-color fs12 m-t-2" v-if="item.m && !item.row">
+                {{ item.m }}
+              </p>
+            </div>
+          </div>
+          <div
+            layout="row"
+            class="row value m-t-3 m-l-10"
+            v-for="item in items.val.filter((i) => i.row)"
+          >
+            <div class="m-t-2 m-b-2 m-l-2">
+              <el-checkbox
+                v-if="item.row"
+                v-model="item.checked"
+                :indeterminate="item.st == 3"
+                :disabled="item.disabled"
+                @change="subCheckboxHandle(item)"
+                >{{ item.n }}</el-checkbox
+              >
+              <p class="red-color fs12 m-t-2" v-if="item.m && item.row">
+                {{ item.m }}
               </p>
             </div>
           </div>
         </div>
-<!--        &lt;!&ndash; 营销权限 &ndash;&gt;-->
-<!--        <div class="coll p-t-3">-->
-<!--          <div class="label">营销权限</div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <div class="m-t-2 m-b-2">-->
-<!--              <el-checkbox-->
-<!--                :indeterminate="originConfig.bookInfo[0].isIndeterminate"-->
-<!--                v-model="originConfig.bookInfo[0].checked"-->
-<!--                :disabled="originConfig.bookInfo[0].disabled"-->
-<!--                @change="changeCheckbox('bookInfo', originConfig.bookInfo[0])"-->
-<!--                >不允许查看下属订位消费</el-checkbox-->
-<!--              >-->
-<!--              <p class="red-color fs12 m-t-2">-->
-<!--                勾选后订位人只能查看自己订位卡台的消费，不能查看下属订位卡台的消费-->
-<!--              </p>-->
-<!--            </div>-->
-<!--            <div>-->
-<!--              <el-checkbox-->
-<!--                :indeterminate="originConfig.bookInfo[1].isIndeterminate"-->
-<!--                v-model="originConfig.bookInfo[1].checked"-->
-<!--                :disabled="originConfig.bookInfo[1].disabled"-->
-<!--                @change="changeCheckbox('bookInfo', originConfig.bookInfo[1])"-->
-<!--                >查看同组订位消费</el-checkbox-->
-<!--              >-->
-<!--              <p class="red-color fs12 m-t-2">-->
-<!--                勾选后订位人可查看同组人员订位卡台的消费-->
-<!--              </p>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 服务员权限 &ndash;&gt;-->
-<!--        <div class="coll">-->
-<!--          <div class="label">服务员权限</div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <el-checkbox-->
-<!--              v-for="item in erpList"-->
-<!--              :key="item.id"-->
-<!--              :indeterminate="item.st == 3"-->
-<!--              v-model="item.checked"-->
-<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
-<!--              class="m-b-2"-->
-<!--              >{{ item.n }}</el-checkbox-->
-<!--            >-->
-<!--          </div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <div class="m-t-2 m-b-2">-->
-<!--              <el-checkbox-->
-<!--                :indeterminate="originConfig.orderInfo[0].isIndeterminate"-->
-<!--                v-model="originConfig.orderInfo[0].checked"-->
-<!--                :disabled="originConfig.orderInfo[0].disabled"-->
-<!--                @change="changeCheckbox('orderInfo', originConfig.orderInfo[0])"-->
-<!--                >不允许查看下属点单消费</el-checkbox-->
-<!--              >-->
-<!--              <p class="red-color fs12 m-t-2">-->
-<!--                勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费-->
-<!--              </p>-->
-<!--            </div>-->
-<!--            <div>-->
-<!--              <el-checkbox-->
-<!--                :indeterminate="originConfig.orderInfo[1].isIndeterminate"-->
-<!--                v-model="originConfig.orderInfo[1].checked"-->
-<!--                :disabled="originConfig.orderInfo[1].disabled"-->
-<!--                @change="changeCheckbox('orderInfo', originConfig.orderInfo[1])"-->
-<!--                >查看同组消费</el-checkbox-->
-<!--              >-->
-<!--              <p class="red-color fs12 m-t-2">-->
-<!--                勾选后点单人可查看同组人员点单卡台的消费-->
-<!--              </p>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 收银员权限 &ndash;&gt;-->
-<!--        <div class="coll">-->
-<!--          <div class="label">收银员权限</div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <el-checkbox-->
-<!--              v-for="item in erpList"-->
-<!--              :key="item.id"-->
-<!--              :indeterminate="item.st == 3"-->
-<!--              v-model="item.checked"-->
-<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
-<!--              class="m-b-2"-->
-<!--              >{{ item.n }}</el-checkbox-->
-<!--            >-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 仓库管理员权限 &ndash;&gt;-->
-<!--        <div class="coll">-->
-<!--          <div class="label">仓库管理员权限</div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <el-checkbox-->
-<!--              v-for="item in erpList"-->
-<!--              :key="item.id"-->
-<!--              :indeterminate="item.st == 3"-->
-<!--              v-model="item.checked"-->
-<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
-<!--              class="m-b-2"-->
-<!--              >{{ item.n }}</el-checkbox-->
-<!--            >-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; 会员中心权限 &ndash;&gt;-->
-<!--        <div class="coll">-->
-<!--          <div class="label">会员中心权限</div>-->
-<!--          <div class="value m-t-3 m-l-10">-->
-<!--            <el-checkbox-->
-<!--              v-for="item in erpList"-->
-<!--              :key="item.id"-->
-<!--              :indeterminate="item.st == 3"-->
-<!--              v-model="item.checked"-->
-<!--              @change="changeLoginConfigCheckboxHandle($event, item)"-->
-<!--              class="m-b-2"-->
-<!--              >{{ item.n }}</el-checkbox-->
-<!--            >-->
-<!--          </div>-->
-<!--        </div>-->
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
@@ -197,7 +91,7 @@ export default {
           n: "服务员",
           st: 2,
           subList: {
-            t: '服务员权限',
+            t: "服务员权限",
             val: [
               {
                 id: 23159093740981201,
@@ -219,17 +113,17 @@ export default {
                 n: "不允许查看下属点单消费",
                 st: 211,
                 row: true,
-                w: '勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费'
+                w: "勾选后点单人只能查看自己点单的卡台消费，不能查看下属点单卡台的消费",
               },
-            ]
-          }
+            ],
+          },
         },
         {
           id: 231590939409814,
           n: "营销",
           st: 3,
           subList: {
-            t: '营销权限',
+            t: "营销权限",
             val: [
               {
                 id: 23159093940981401,
@@ -242,10 +136,10 @@ export default {
                 n: "查看同组点单消费",
                 st: 302,
                 row: true,
-                w: '勾选后点单人可查看同组人员点单卡台的消费'
+                w: "勾选后点单人可查看同组人员点单卡台的消费",
               },
-            ]
-          }
+            ],
+          },
         },
         {
           id: 231731521431462,
@@ -253,34 +147,6 @@ export default {
           st: 4,
         },
       ],
-      checkAll: false,
-      indeterminate: false,
-      originConfig: {
-        bookInfo: [
-          {
-            checked: false,
-            disabled: false,
-            indeterminate: false,
-          },
-          {
-            checked: false,
-            disabled: false,
-            indeterminate: false,
-          },
-        ],
-        orderInfo: [
-          {
-            checked: false,
-            disabled: false,
-            indeterminate: false,
-          },
-          {
-            checked: false,
-            disabled: false,
-            indeterminate: false,
-          },
-        ],
-      },
     };
   },
   methods: {
@@ -289,40 +155,35 @@ export default {
         station_ids: this.checkedList.map((item) => item.id),
       };
       try {
-        const res = await this.$api.BMS.station.reqGetLookOrderConfig(params);
+        const res = await this.$api.BMS.station.reGetSysRolesAndAuthModule(
+          params
+        );
         if (res.code == 1) {
-          this.checkAll = res.data.full_check_sel_type == 1;
-          this.indeterminate = res.data.full_check_sel_type == 3;
-          this.originConfig = {
-            bookInfo: [
-              {
-                id: 1,
-                checked: res.data.sales_self_sel_type == 1,
-                disabled: this.checkAll,
-                indeterminate: res.data.sales_self_sel_type == 3,
-              },
-              {
-                id: 2,
-                checked: res.data.sales_dept_sel_type == 1,
-                disabled: this.checkAll,
-                indeterminate: res.data.sales_dept_sel_type == 3,
-              },
-            ],
-            orderInfo: [
-              {
-                id: 1,
-                checked: res.data.order_self_sel_type == 1,
-                disabled: this.checkAll,
-                indeterminate: res.data.order_self_sel_type == 3,
-              },
-              {
-                id: 2,
-                checked: res.data.order_dept_sel_type == 1,
-                disabled: this.checkAll,
-                indeterminate: res.data.order_dept_sel_type == 3,
-              },
-            ],
-          };
+          const role_module = res.data.sys_role_modules;
+          const roles = res.data.sys_roles.map((d) => {
+            const sub_module = role_module.filter((e) => e.r == d.n);
+            if (sub_module.length > 0) {
+              d.subList = {
+                id: d.id,
+                t: d.n + "权限",
+                val: sub_module.map((m) => {
+                  return {
+                    ...m,
+                    rId: d.id,
+                    row: m.m && m.m.length > 0,
+                    checked: m.st == 1,
+                  };
+                }),
+              };
+            }
+            d.checked = d.st == 1;
+            return d;
+          });
+
+          this.erpList = roles;
+
+          const haveSub = this.erpList.filter((e) => e.subList);
+          this.subList = haveSub.map((e) => e.subList);
         } else {
           this.$message.warning(res.msg);
         }
@@ -331,82 +192,28 @@ export default {
       }
     },
 
-    lookOrderCheckBoxChange() {
-      this.indeterminate = false;
-      this.originConfig = {
-        bookInfo: [
-          {
-            id: 1,
-            checked: false,
-            disabled: this.checkAll,
-            indeterminate: false,
-          },
-          {
-            id: 2,
-            checked: false,
-            disabled: this.checkAll,
-            indeterminate: false,
-          },
-        ],
-        orderInfo: [
-          {
-            id: 1,
-            checked: false,
-            disabled: this.checkAll,
-            indeterminate: false,
-          },
-          {
-            id: 2,
-            checked: false,
-            disabled: this.checkAll,
-            indeterminate: false,
-          },
-        ],
-      };
-    },
-
-    changeCheckbox(type, itemInfo) {
-      this.originConfig[type].forEach((el) => {
-        if (el.id == itemInfo.id) {
-        } else {
-          el.checked = false;
-        }
-        el.indeterminate = false;
-      });
-      console.log(this.originConfig);
-      this.$forceUpdate();
-    },
-
     async onSubmit() {
-      const { bookInfo, orderInfo } = this.originConfig;
+      const sel_roles = this.erpList.filter((e) => e.st == 1);
+      const unchange_roles = this.erpList.filter((e) => e.st == 3);
+
+      let modules = [];
+      this.subList.forEach((e) => {
+        modules = [...modules, ...e.val];
+      });
+
+      const sel_modules = modules.filter((e) => e.st == 1);
+      const unchange_modules = modules.filter((e) => e.st == 3);
 
       const params = {
-        station_id: this.checkedList.map((item) => item.id * 1), // []int64  岗位Id列表
-        full_check_sel_type: this.checkAll ? 1 : this.indeterminate ? 3 : 2, // int   全场查单权限配置类型 1 全选 2 全不选 3 部分选中
-        sales_self_sel_type: bookInfo[0].checked
-          ? 1
-          : bookInfo[0].indeterminate
-          ? 3
-          : 2, // int   订位人组织,仅查看自己订位消费配置类型 1 全选 2 全不选 3 部分选中
-        sales_dept_sel_type: bookInfo[1].checked
-          ? 1
-          : bookInfo[1].indeterminate
-          ? 3
-          : 2, // int   订位人组织,查看同组订位消费 1 全选 2 全不选 3 部分选中
-        order_self_sel_type: orderInfo[0].checked
-          ? 1
-          : orderInfo[0].indeterminate
-          ? 3
-          : 2, // int  点单人组织,仅查看自己点单消费配置类型 1 全选 2 全不选 3 部分选中
-        order_dept_sel_type: orderInfo[1].checked
-          ? 1
-          : orderInfo[1].indeterminate
-          ? 3
-          : 2, // int   点单人组织,查看同组点单消费配置类型 1 全选 2 全不选 3 部分选中
+        station_id: this.checkedList.map((item) => item.id * 1), // []int64  角色Id列表
+        sel_sys_roles: sel_roles.map((e) => e.id * 1), // 全选中的系统角色列表
+        unchange_sys_roles: unchange_roles.map((e) => e.id * 1), // 部分选中的系统角色列表(就是没有修改的部分选中的列表)
+        sel_sys_modules: sel_modules.map((e) => e.id * 1), // 全选中的系统角色模块明细模块项
+        unchange_sys_modules: unchange_modules.map((e) => e.id * 1), // 部分选中的系统角色模块项
       };
 
       try {
-        const res = await this.$api.BMS.station.reqSetLookOrderConfig(params);
+        const res = await this.$api.BMS.station.reSetSysRolesAuthModule(params);
         if (res.code == 1) {
           this.$message.success("设置成功");
           this.onCancelDrawer();
@@ -422,10 +229,76 @@ export default {
     onCancelDrawer() {
       this.show = false;
     },
-    changeLoginConfigCheckboxHandle(event, item) {
-      this.subList = this.erpList.filter(e => item.id == e.id && item.checked && e.subList).map(e => e.subList)
-      console.log(this.subList)
-    }
+    checkboxHandle(item) {
+      if (item.st == 3) {
+        this.erpList = this.erpList.map((e) => {
+          if (e.id == item.id) {
+            e.checked = true;
+            e.st = 1;
+          }
+          return e;
+        });
+      } else {
+        this.erpList = this.erpList.map((e) => {
+          if (e.id == item.id) {
+            e.st = e.checked ? 1 : 2;
+          }
+          return e;
+        });
+      }
+    },
+    subCheckboxHandle(item) {
+      // rId
+      const erpItem = this.erpList.find((e) => e.id == item.rId);
+
+      if (erpItem.st == 3) {
+        // 角色 st == 3 只能取消
+        if (item.st != 3) {
+          this.$message.warning("该角色权限未全部包含,只能取消权限");
+        }
+        this.subList = this.subList.map((e) => {
+          if (e.id == item.rId) {
+            e.val = e.val.map((m) => {
+              if (m.id == item.id) {
+                m.checked = false;
+                m.st = 2;
+              }
+              return m;
+            });
+          }
+          return e;
+        });
+      } else if (erpItem.st == 1) {
+        this.subList = this.subList.map((e) => {
+          if (e.id == item.rId) {
+            e.val = e.val.map((m) => {
+              if (m.id == item.id) {
+                m.st = m.checked ? 1 : 2;
+              }
+              return m;
+            });
+          }
+          return e;
+        });
+      } else if (erpItem.st == 2) {
+        if (item.checked && item.st == 2) {
+          this.$message.warning("该角色权限未选,不能选中");
+        }
+        // 未选角色不能编辑 取消选中
+        this.subList = this.subList.map((e) => {
+          if (e.id == item.rId) {
+            e.val = e.val.map((m) => {
+              if (m.id == item.id) {
+                m.checked = false;
+                m.st = 2;
+              }
+              return m;
+            });
+          }
+          return e;
+        });
+      }
+    },
   },
   mounted() {},
   props: {
@@ -473,9 +346,9 @@ export default {
 @import "../../../../../style/erp/form.less";
 @import "../../../../../style/erp/table.less";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
 </style>
 
 <style lang="less" scoped>
@@ -483,6 +356,9 @@ export default {
   .label {
     width: 100%;
     text-align: left;
+  }
+  .value {
+    flex-wrap: wrap;
   }
 }
 </style>
