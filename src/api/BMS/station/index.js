@@ -137,5 +137,12 @@ const article = {
   // 岗位类似创建
   reqCreateNewFrom: (params) =>
     axios.post(`${base.htgl}/station/new_from`, params),
+
+  //读取岗位系统角色列表,及系统角色内明细模块权限列表
+  reGetSysRolesAndAuthModule: (params) =>
+    axios.post(`${base.htgl}/station/get_sys_roles`, params),
+  // 设置岗位系统角色权限
+  reSetSysRolesAuthModule: (params) =>
+    axios.post(`${base.htgl}/station/set_sys_roles`, params),
 };
 export default article;
