@@ -405,7 +405,7 @@ export default {
         );
       }
       if (!this.hasAddOrEditAuth) {
-        list = list.filter((item) => ![1,2,3, 4].includes(item.id));
+        list = list.filter((item) => ![1,2,3,4,5,6,7,9].includes(item.id));
       }
       if (!this.hasDeductAuth) {
         list = list.filter((item) => item.id != 8);
