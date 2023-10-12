@@ -1254,6 +1254,8 @@ export default {
 
       if (!this.keyWord) {
         this.card.cardList = resultCardList;
+      } else {
+        this.card.cardList = this.card.cardList.map(item => resultCardList.find(i => i.id == item.id))
       }
 
       // console.log(
