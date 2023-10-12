@@ -155,6 +155,10 @@ export default {
     this.initNavBarActive();
   },
   computed: {
+     // 是否有空瓶仓权限
+     hasEmptyManage(){
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
+    },
     ...mapState(["name"])
   },
   methods: {
@@ -320,7 +324,7 @@ export default {
           for (let p = 0; p < this.Thelistof[i].auth.length; p++) {
               if(this.Thelistof[i].needAuth && this.Thelistof[i].auth[p] == sessionStorage.getItem("client")) {
                  // 需要授权的权限（erp管理员有权限，但是erp仓库管理员通过配置确认是否有权限）
-                 if(this.$store.state.userInfo.rtn_bt_priv == 1) {
+                 if(this.hasEmptyManage) {
                    s.push(this.Thelistof[i]);
                  }
               }

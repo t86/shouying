@@ -611,7 +611,7 @@ export default {
       if (authStatusArr.includes(3)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
-      if (this.$store.state.userInfo.chk_full == 1) {
+      if (this.hasLookOrder) {
         QCTabList = [...arr];
       }
 
@@ -816,7 +816,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (this.$store.state.userInfo.authStatusArr.length == 0
-        && this.$store.state.userInfo.chk_full != 1) {
+        && !this.hasLookOrder) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
@@ -1119,7 +1119,7 @@ export default {
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
       // 是否具有全场查单权限
-      const isLookAll = this.$store.state.userInfo.chk_full == 1;
+      const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
       const isBooker =
         cardItemInfo.salesEmpId * 1 == this.$store.state.userInfo.emp_id * 1;
@@ -1212,7 +1212,7 @@ export default {
       setTimeout(() => {
         let result = {};
         if (this.$store.state.userInfo.authStatusArr.length == 0
-        && this.$store.state.userInfo.chk_full != 1) {
+        && !this.hasLookOrder) {
           this.cardStatusNoInfo = {}
           return;
         }
@@ -1451,8 +1451,12 @@ export default {
   computed:{
     // 是否有沽清权限
     hasOutSomething() {
-      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(2)
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(5)
     },
+    // 是否有查单权限
+    hasLookOrder() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(64)
+    }
   },
 
   beforeDestroy() {
