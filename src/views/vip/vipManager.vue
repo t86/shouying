@@ -95,7 +95,6 @@
         bcolor="#8c8c8c"
       ></icon-button>
       <characters-button
-        v-if="$store.getters.vipAuth&&hasTopUpAuth"
         @click.native="showOrHideAddMoneyToVipDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
@@ -407,15 +406,6 @@ export default {
       if (!this.hasAddOrEditAuth) {
         list = list.filter((item) => ![1,2,3,4,5,6,7,9].includes(item.id));
       }
-      if (!this.hasDeductAuth) {
-        list = list.filter((item) => item.id != 8);
-      }
-      if (!this.hasDeductPointAuth) {
-        list = list.filter((item) => item.id != 10);
-      }
-      if (!this.hasTopUpPointAuth) {
-        list = list.filter((item) => item.id != 11);
-      }
       return list.filter((item) =>
         type == 1
           ? makedCardList.includes(item.id)
@@ -593,34 +583,6 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(30)
-      );
-    },
-    // 是否充值会员权限
-    hasTopUpAuth() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(31)
-      );
-    },
-    // 是否扣款会员权限
-    hasDeductAuth() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(33)
-      );
-    },
-    // 是否充值积分
-    hasTopUpPointAuth() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(34)
-      );
-    },
-    // 是否扣除积分
-    hasDeductPointAuth() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(36)
       );
     },
   },
