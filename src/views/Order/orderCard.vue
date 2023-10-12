@@ -268,8 +268,7 @@
             <div
               class="dosomething-item checkout-btn"
               v-show="
-                $store.state.userInfo.sys_modules &&
-                $store.state.userInfo.sys_modules.includes(1)
+                hasWineAuth
               "
               layout="column"
               layout-align="center center"
@@ -1411,6 +1410,10 @@ export default {
     // 是否有查单权限
     hasLookOrder() {
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(64)
+    },
+    // 是否有存取酒
+    hasWineAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(1)
     }
   },
 

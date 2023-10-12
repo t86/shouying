@@ -138,10 +138,34 @@ export default {
   },
   computed: {
     navList() {
-      return navList.map((item) => ({
+      let list =  navList.map((item) => {
+        if(item.children){
+          item.children = item.children.filter((child) => {
+            if(child.id == 31){
+              return this.hasTopUpSettingAuth
+            }else if(child.id == 23){
+              return this.hasSettingPointAuth
+            }else{
+              return true
+            }
+          })
+        }
+        return {
         ...item,
         hover: false,
-      }));
+        }
+      });
+      return list;
+    },
+      // 是否有积分设置权限
+      hasSettingPointAuth() {
+        return this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(35)
+    },
+     // 是否有积分设置权限
+     hasTopUpSettingAuth() {
+        return this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(32)
     },
   },
 };

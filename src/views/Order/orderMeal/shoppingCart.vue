@@ -94,7 +94,7 @@
                   <div
                     class="li"
                     @click.stop="showOrHideDrawer(4, item)"
-                    v-if="item.is == 1"
+                    v-if="item.is == 1 && hasChangeDetailAuth"
                   >
                     更改明细
                   </div>
@@ -759,6 +759,11 @@ export default {
         return true;
       }
     },
+
+     // 是否有替换商品明细权限
+   hasChangeDetailAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(4)
+    }
   },
   beforeDestroy() {
     document.onkeydown = null;
