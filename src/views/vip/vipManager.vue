@@ -81,22 +81,13 @@
         ></el-input>
         <button class="btn primary m-l-4" @click="getTableData">查询</button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
-        <button
-              class="btn info m-l-4"
-              @click="exportExcel"
-            >
-              导出
-            </button>
+        <button class="btn info m-l-4" @click="exportExcel">导出</button>
       </div>
     </div>
 
-    <div
-      class="top"
-
-      layout="row"
-      layout-align="start center"
-    >
+    <div class="top" layout="row" layout-align="start center">
       <icon-button
+        v-if="hasAddOrEditAuth"
         @click.native="showOrHideAddVipDrawerHandle"
         text="新增"
         img="btn_add.png"
@@ -117,7 +108,7 @@
         wz="读取卡信息"
       ></characters-button>
       <characters-button
-        v-if="$store.getters.vipAuth"
+        v-if="$store.getters.vipAuth && hasAddOrEditAuth"
         @click.native="showOrHidePayNumSearchDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
@@ -337,7 +328,7 @@ export default {
         modalText: "新增成功，5秒后将关闭",
         btnArr: ["关闭", "充值", "制卡"],
       },
-      personOptions:[] //开卡推荐人
+      personOptions: [], //开卡推荐人
     };
   },
   methods: {
@@ -381,35 +372,40 @@ export default {
         key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
         sales_emp_id: this.form.personVal * 1, // string 开卡推荐人关键字
       };
-        try {
-          const res = await api_vip.reqExportExcelForVipManager(params);
-          if (!res.msg) {
-            const url = window.URL.createObjectURL(
-              new Blob([res], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-              })
-            );
-            const a = document.createElement("a"); //添加a标签
-            document.body.appendChild(a);
-            a.href = url;
-            a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
-            a.click(); //点击标签
-            document.body.removeChild(a); // 下载完成移除元素
-            window.URL.revokeObjectURL(url); // 释放掉blob对象
-          } else {
-            this.$message.warning(res.msg);
-          }
-        } catch (error) {
-          console.log("导出excel失败", error);
+      try {
+        const res = await api_vip.reqExportExcelForVipManager(params);
+        if (!res.msg) {
+          const url = window.URL.createObjectURL(
+            new Blob([res], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            })
+          );
+          const a = document.createElement("a"); //添加a标签
+          document.body.appendChild(a);
+          a.href = url;
+          a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+          a.click(); //点击标签
+          document.body.removeChild(a); // 下载完成移除元素
+          window.URL.revokeObjectURL(url); // 释放掉blob对象
+        } else {
+          this.$message.warning(res.msg);
         }
-      },
+      } catch (error) {
+        console.log("导出excel失败", error);
+      }
+    },
     // 获取右击菜单列表
     getTipsList(type) {
       const makedCardList = [1, 3, 4, 5, 6, 7, 8, 10, 11, 9];
       const notMakedCardList = [1, 2, 3, 4, 8, 10, 11, 9];
       let list = tipsArr;
-      if (!this.$store.getters.vipAuth){
-        list = tipsArr.filter((item) => [1,3,4,5,6,7,9].includes(item.id));
+      if (!this.$store.getters.vipAuth) {
+        list = tipsArr.filter((item) =>
+          [1, 3, 4, 5, 6, 7, 9].includes(item.id)
+        );
+      }
+      if (!this.hasAddOrEditAuth) {
+        list = list.filter((item) => ![1,2,3,4,5,6,7,9].includes(item.id));
       }
       return list.filter((item) =>
         type == 1
@@ -419,7 +415,6 @@ export default {
     },
     rightClickHandle(e, itemInfo) {
       // 判断是否是收银系统进入
-     
 
       const minY = 350;
       const pointerY = e.pageY;
@@ -549,7 +544,10 @@ export default {
         const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
         this.personOptions = result.filter(
-          (item) => item.code.includes(query) || item.name.includes(query) || item.namePy.includes(query)
+          (item) =>
+            item.code.includes(query) ||
+            item.name.includes(query) ||
+            item.namePy.includes(query)
         );
         this.remoteLoading = false;
       } else {
@@ -578,6 +576,15 @@ export default {
       const currentTypeInfo =
         this.form.typeOption.find((item) => item.id == newVal) || {};
       this.form.deepOption = currentTypeInfo.ls || [];
+    },
+  },
+  computed: {
+    // 是否添加/修改会员权限
+    hasAddOrEditAuth() {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(30)
+      );
     },
   },
 };

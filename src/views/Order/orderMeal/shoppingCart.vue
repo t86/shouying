@@ -94,15 +94,10 @@
                   <div
                     class="li"
                     @click.stop="showOrHideDrawer(4, item)"
-                    v-if="item.is == 1"
+                    v-if="item.is == 1 && hasChangeDetailAuth"
                   >
                     更改明细
                   </div>
-                  <!-- <div
-                    class="li"
-                    @click.stop="showOrHideDrawer(1,item)"
-                    v-if="(item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6) && ((((($store.state.userInfo.authStatusArr.includes(1) || $store.state.userInfo.authStatusArr.includes(3)) && item.at == 0) || ($store.state.userInfo.authStatusArr.includes(2) && (item.at != 2 && item.at != 3))) && item.productInfo.canSeal) || ($store.state.userInfo.authStatus == 4))"
-                  >优惠</div> -->
                 </div>
               </div>
             </div>
@@ -764,6 +759,11 @@ export default {
         return true;
       }
     },
+
+     // 是否有替换商品明细权限
+   hasChangeDetailAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(4)
+    }
   },
   beforeDestroy() {
     document.onkeydown = null;

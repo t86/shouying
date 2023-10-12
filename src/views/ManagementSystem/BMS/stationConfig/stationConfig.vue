@@ -66,11 +66,11 @@
         colors="#383943"
         wz="特饮小费关联商品"
       ></characters-button>
-      <characters-button
+      <!-- <characters-button
         @click.native="setConfigHandle(7)"
         colors="#383943"
         wz="erp系统权限"
-      ></characters-button>
+      ></characters-button> -->
       <!-- <characters-button
         @click.native="setConfigHandle(8)"
         colors="#383943"

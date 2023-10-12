@@ -104,52 +104,7 @@
                 "
                 layout-align="space-between center"
               >
-                <!-- ------------------------ 点单金额 start ----------------------------- -->
-                <!-- 服务员 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(1)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 营销 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(2) && item.isOwnBookedCard">￥{{item.orderAmt}}</span> -->
-
-                <!-- 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(3)">￥{{item.orderAmt}}</span> -->
-
-                <!-- 服务员 + 营销 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(2)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder || item.isOwnBookedCard">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 服务员 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 营销 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(2) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 营销自己或自己下属预定的卡台 -->
-                <!-- <span v-if="item.isOwnBookedCard">点:￥{{item.orderAmt}}</span> -->
-                <!-- 非自己或自己下属预定的卡台 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 服务员 + 营销 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length >= 3 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(2) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder || item.isOwnBookedCard">点:2￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:2￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
+                
                 <span>
                   <!-- 有查单权限 -->
                   <span v-if="item.canLookOrder">点:￥{{ item.orderAmt }}</span>
@@ -313,8 +268,7 @@
             <div
               class="dosomething-item checkout-btn"
               v-show="
-                $store.state.userInfo.sys_modules &&
-                $store.state.userInfo.sys_modules.includes(1)
+                hasWineAuth
               "
               layout="column"
               layout-align="center center"
@@ -611,7 +565,7 @@ export default {
       if (authStatusArr.includes(3)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
-      if (this.$store.state.userInfo.chk_full == 1) {
+      if (this.hasLookOrder) {
         QCTabList = [...arr];
       }
 
@@ -816,7 +770,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (this.$store.state.userInfo.authStatusArr.length == 0
-        && this.$store.state.userInfo.chk_full != 1) {
+        && !this.hasLookOrder) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
@@ -1119,7 +1073,7 @@ export default {
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
       // 是否具有全场查单权限
-      const isLookAll = this.$store.state.userInfo.chk_full == 1;
+      const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
       const isBooker =
         cardItemInfo.salesEmpId * 1 == this.$store.state.userInfo.emp_id * 1;
@@ -1212,7 +1166,7 @@ export default {
       setTimeout(() => {
         let result = {};
         if (this.$store.state.userInfo.authStatusArr.length == 0
-        && this.$store.state.userInfo.chk_full != 1) {
+        && !this.hasLookOrder) {
           this.cardStatusNoInfo = {}
           return;
         }
@@ -1451,8 +1405,16 @@ export default {
   computed:{
     // 是否有沽清权限
     hasOutSomething() {
-      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(2)
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(5)
     },
+    // 是否有查单权限
+    hasLookOrder() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(64)
+    },
+    // 是否有存取酒
+    hasWineAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(1)
+    }
   },
 
   beforeDestroy() {

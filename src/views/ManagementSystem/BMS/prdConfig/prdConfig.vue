@@ -277,6 +277,11 @@ export default {
         this.searchMenu.prdList = [];
         this.showMenuList = true;
       } else {
+        this.$router.push(
+          "/BMS/prdConfig?prd=" +
+            itemInfo.id +
+            "&search=true"
+        );
         // 打开物料商品
         this.prdId = itemInfo.id;
         if (itemInfo.t == 3) {

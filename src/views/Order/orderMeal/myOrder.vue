@@ -53,18 +53,10 @@
                   alt
                 />
                 <div class="do-list" v-if="item.showList&&(!item.back||item.productInfo.prdType==2)">
-                  <div class="li" v-if="item.s!=5&&!item.back" @click.stop="showOrHideDrawer(1,item)">退单</div>
-                  <!-- <li
-                    v-if="item.s!=5&&(item.productInfo.prdType == 1||item.productInfo.prdType == 7||item.productInfo.prdType == 6)&&item.at!=6&&!(item.at==2||item.at==3)&&!item.back&&(($store.state.userInfo.authStatusArr.includes(1) && item.productInfo.canSeal) || $store.state.userInfo.authStatus == 4)"
-                    @click.stop="showOrHideDrawer(2,item)"
-                  >优惠</li> -->
-                  <!-- <li
-                    v-if="item.s!=5&&item.productInfo.prdType!=2&&item.at!=6&&!(item.at==2||item.at==3)&&!item.back"
-                    @click.stop="showOrHideDrawer(3,item)"
-                  >自用</li> -->
+                  <div class="li" v-if="item.s!=5&&!item.back&&hasOrderBackAuth" @click.stop="showOrHideDrawer(1,item)">退单</div>
                   <div 
                     class="li"
-                    v-if="item.productInfo.prdType==2&&!item.back"
+                    v-if="item.productInfo.prdType==2&&!item.back&&hasChangeDetailAuth"
                     @click.stop="showOrHideDrawer(4,item)"
                   >更改套餐明细</div>
                   <div 
@@ -390,7 +382,17 @@ export default {
     document.onkeydown = null
     document.onkeyup = null
     downKeyCode = [0, 0]
-  }
+  },
+  computed:{
+   // 是否退单权限
+   hasOrderBackAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(3)
+    },
+    // 是否有替换商品明细权限
+   hasChangeDetailAuth() {
+      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(4)
+    }
+ } 
 };
 </script>
 
