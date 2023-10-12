@@ -902,7 +902,13 @@ export default {
       cardListInfoArr.forEach((el) => {
         el.showOption = false;
       });
-      if (key === "keyword")
+      if (key === "keyword"){
+        const result = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        let orderPersons = result.filter(
+          (item) => item.code.includes(this.keyWord) || 
+          item.name.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) || 
+          item.namePy.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase())
+        );
         return cardListInfoArr.filter(
           (item) =>
             item.customerName
@@ -914,8 +920,11 @@ export default {
               .includes(this.keyWord.toLocaleUpperCase()) ||
             item.name
               .toLocaleUpperCase()
-              .includes(this.keyWord.toLocaleUpperCase())
+              .includes(this.keyWord.toLocaleUpperCase()) ||
+              orderPersons.filter(p => p.id && p.id * 1 > 0 && p.id == item.salesEmpId).length > 0
         );
+      }
+
       if (key === "regionId" && id === 0) return cardListInfoArr; // 点击全部按钮
       return cardListInfoArr.filter((item) => item[key] == id);
     },

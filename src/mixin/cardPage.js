@@ -14,6 +14,7 @@ export const cardPageMixins = {
         // 点击的是其它这个按钮本身
         this.tab.showAnotherInfo = !this.tab.showAnotherInfo;
       } else {
+        this.keyWord = "";
         // 点击了其它按钮的兄弟元素
         this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("regionId", id);
