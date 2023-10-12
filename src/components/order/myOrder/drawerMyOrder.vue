@@ -576,7 +576,7 @@ export default {
 
     // 刷卡授权
     swipingOrderHandle(empCardInfo){
-      if(this.show && this.subStatus == 2) {
+      if(this.show && (this.subStatus == 2 || this.status == 9)) {
         const childrenVNode = this.$children[0].$children || []
         childrenVNode.forEach(el => {
           if(el.$el.className == 'auth') {
@@ -1309,7 +1309,7 @@ export default {
         this.formData.reason = '';
         
         if(this.status < 6 || this.status  == 9) {
-          // 优惠 自用  加要求  更改明细
+          // 优惠 自用  加要求  更改明细 修改优惠人
           this.currentProductInfo = this.currentItemInfo.id
             ? this.currentItemInfo
             : {

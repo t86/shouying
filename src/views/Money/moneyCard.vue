@@ -1252,18 +1252,22 @@ export default {
       //   return
       // }
 
-      this.card.cardList = resultCardList;
+      if (!this.keyWord) {
+        this.card.cardList = resultCardList;
+      } else {
+        this.card.cardList = this.card.cardList.map(item => resultCardList.find(i => i.id == item.id))
+      }
 
-      console.log(
-        "comingCount",
-        comingCount,
-        "pushComingCount",
-        pushComingCount
-      );
-      console.log(
-        "cardList",
-        this.card.cardList.map((items) => items.name)
-      );
+      // console.log(
+      //   "comingCount",
+      //   comingCount,
+      //   "pushComingCount",
+      //   pushComingCount
+      // );
+      // console.log(
+      //   "cardList",
+      //   this.card.cardList.map((items) => items.name)
+      // );
 
       hasNotify ? "" : this.cardNotifyHandle(); // 卡台闪烁提醒检测
 
@@ -1348,7 +1352,7 @@ export default {
         return resultCardList;
       }
 
-      if (key === "keyword")
+      if (key === "keyword") {
         return resultCardList.filter(
           (item) =>
             item.customerName
@@ -1362,7 +1366,7 @@ export default {
               .toLocaleUpperCase()
               .includes(this.keyWord.toLocaleUpperCase())
         );
-
+      }
       return resultCardList.filter((item) => item[key] == id);
     },
 
