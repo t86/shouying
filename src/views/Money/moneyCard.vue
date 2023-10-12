@@ -470,6 +470,16 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click="showOrHideTYHZDrawer()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/ty-detail-icon.png')"
+                    alt
+                  />
+                  <span>特饮汇总表</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click="showOrHideGZDetailDrawer()"
                 >
                   <img
@@ -777,6 +787,12 @@
       @showOrHideTYDetailDrawer="showOrHideTYDetailDrawer"
     />
 
+    <!-- 特饮汇总表 -->
+    <drawerTYHZ
+      :showDrawer="showOrHideTYHZ"
+      @showOrHideTYHZDrawer="showOrHideTYHZDrawer"
+    />
+
     <!-- 挂账详情 -->
     <drawerGZDetail
       :showDrawer="showOrHideGZDetail"
@@ -914,6 +930,9 @@ import drawerYHDetail from "../../components/money/drawerYHDetail.vue";
 // 特饮小费明细表
 import drawerTYDetail from "../../components/money/drawerTYDetail.vue";
 
+// 特饮汇总表
+import drawerTYHZ from "../../components/money/drawerTYHZ.vue";
+
 // 挂账详情
 import drawerGZDetail from "../../components/money/drawerGZDetail/index.vue";
 
@@ -1010,6 +1029,7 @@ export default {
       showOrHideOnlineBooking: false, // 线上预定记录
       showOrHideYHDetail: false, // 优惠明细表
       showOrHideTYDetail: false, // 特饮小费明细表
+      showOrHideTYHZ: false, // 特饮汇总表
       showOrHideGZDetail: false, // 挂账详情
       showOrHideTurnOverDetail: false, // 翻台记录
       showOrHideOrderDetail: false, // 点单记录
@@ -1519,6 +1539,11 @@ export default {
     // 特饮小费明细表
     showOrHideTYDetailDrawer() {
       this.showOrHideTYDetail = !this.showOrHideTYDetail;
+    },
+
+    // 特饮汇总表
+    showOrHideTYHZDrawer() {
+      this.showOrHideTYHZ = !this.showOrHideTYHZ;
     },
 
     // 挂账详情
@@ -2149,6 +2174,7 @@ export default {
     drawerOnlineBooking,
     drawerYHDetail,
     drawerTYDetail,
+    drawerTYHZ,
     drawerGZDetail,
     drawerTurnOverDetail,
     drawerOrderDetail,
