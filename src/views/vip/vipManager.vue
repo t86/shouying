@@ -95,6 +95,7 @@
         bcolor="#8c8c8c"
       ></icon-button>
       <characters-button
+        v-if="$store.getters.vipAuth"
         @click.native="showOrHideAddMoneyToVipDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
