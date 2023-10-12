@@ -55,7 +55,7 @@
               type="text"
               v-model="keyWord"
               @input="inputSearchHandle"
-              placeholder="卡台名称/客人姓名/手机尾号后四位"
+              placeholder="卡台名称/客人/手机/订位人"
             />
           </div>
         </div>
