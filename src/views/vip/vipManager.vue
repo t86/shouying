@@ -108,7 +108,7 @@
         wz="读取卡信息"
       ></characters-button>
       <characters-button
-        v-if="$store.getters.vipAuth"
+        v-if="$store.getters.vipAuth && hasAddOrEditAuth"
         @click.native="showOrHidePayNumSearchDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
@@ -405,7 +405,7 @@ export default {
         );
       }
       if (!this.hasAddOrEditAuth) {
-        list = list.filter((item) => ![1, 3, 4].includes(item.id));
+        list = list.filter((item) => ![1,2,3, 4].includes(item.id));
       }
       if (!this.hasDeductAuth) {
         list = list.filter((item) => item.id != 8);
