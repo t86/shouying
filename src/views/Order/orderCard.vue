@@ -104,52 +104,7 @@
                 "
                 layout-align="space-between center"
               >
-                <!-- ------------------------ 点单金额 start ----------------------------- -->
-                <!-- 服务员 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(1)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 营销 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(2) && item.isOwnBookedCard">￥{{item.orderAmt}}</span> -->
-
-                <!-- 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 1 && $store.state.userInfo.authStatusArr.includes(3)">￥{{item.orderAmt}}</span> -->
-
-                <!-- 服务员 + 营销 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(2)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder || item.isOwnBookedCard">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 服务员 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder">点:￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 营销 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length == 2 && $store.state.userInfo.authStatusArr.includes(2) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 营销自己或自己下属预定的卡台 -->
-                <!-- <span v-if="item.isOwnBookedCard">点:￥{{item.orderAmt}}</span> -->
-                <!-- 非自己或自己下属预定的卡台 -->
-                <!-- <span v-else>点:￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
-
-                <!-- 服务员 + 营销 + 花篮 -->
-                <!-- <span v-if="$store.state.userInfo.authStatusArr.length >= 3 && $store.state.userInfo.authStatusArr.includes(1) && $store.state.userInfo.authStatusArr.includes(2) && $store.state.userInfo.authStatusArr.includes(3)"> -->
-                <!-- 有查单权限 -->
-                <!-- <span v-if="item.canLookOrder || item.isOwnBookedCard">点:2￥{{item.orderAmt}}</span> -->
-                <!-- 无查单权限 -->
-                <!-- <span v-else>点:2￥{{item.ownPayedAmt || '0.00'}}</span> -->
-                <!-- </span> -->
+                
                 <span>
                   <!-- 有查单权限 -->
                   <span v-if="item.canLookOrder">点:￥{{ item.orderAmt }}</span>

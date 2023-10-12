@@ -98,11 +98,6 @@
                   >
                     更改明细
                   </div>
-                  <!-- <div
-                    class="li"
-                    @click.stop="showOrHideDrawer(1,item)"
-                    v-if="(item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6) && ((((($store.state.userInfo.authStatusArr.includes(1) || $store.state.userInfo.authStatusArr.includes(3)) && item.at == 0) || ($store.state.userInfo.authStatusArr.includes(2) && (item.at != 2 && item.at != 3))) && item.productInfo.canSeal) || ($store.state.userInfo.authStatus == 4))"
-                  >优惠</div> -->
                 </div>
               </div>
             </div>
