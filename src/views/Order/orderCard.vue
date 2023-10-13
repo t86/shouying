@@ -128,7 +128,7 @@
                   item.bizStatus != 1 &&
                   item.bizStatus != 2 &&
                   item.bizStatus != 8 &&
-                  $store.state.userInfo.authStatusArr.includes(2)
+                  $store.state.userInfo.roleIds.includes(3)
                 "
               >
                 <span>惠:￥{{ item.zengSongAmt }}</span>
@@ -175,8 +175,8 @@
                 <span
                   v-if="
                     item.turnoverCnt > 0 &&
-                    ($store.state.userInfo.authStatusArr.includes(1) ||
-                      $store.state.userInfo.authStatusArr.includes(2))
+                    ($store.state.userInfo.roleIds.includes(2) ||
+                      $store.state.userInfo.roleIds.includes(3))
                   "
                 >
                   翻{{ item.turnoverCnt }}
@@ -541,23 +541,23 @@ export default {
     // 获取tab数据
     getTabList(arr = []) {
       // 判断当前登录身份 1：服务员  2：营销  3：特饮/花篮
-      const authStatusArr = this.$store.state.userInfo.authStatusArr;
+      const roleIds = this.$store.state.userInfo.roleIds;
       let FUTabList = [];
       let YXTabList = [];
       let HLTabList = [];
       let QCTabList = [];
-      if (authStatusArr.includes(1)) {
+      if (roleIds.includes(2)) {
         // 有服务员权限
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
 
-      if (authStatusArr.includes(2)) {
+      if (roleIds.includes(3) || roleIds.includes(4)) {
         // 有营销/花篮权限
         YXTabList = [...arr];
       }
 
       // 特饮，也需要判断可点区域
-      if (authStatusArr.includes(3)) {
+      if (roleIds.includes(4)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
       if (this.hasLookOrder) {
@@ -566,9 +566,9 @@ export default {
 
       if (
         !(
-          authStatusArr.includes(1) ||
-          authStatusArr.includes(2) ||
-          authStatusArr.includes(3)
+          roleIds.includes(2) ||
+          roleIds.includes(3) ||
+          roleIds.includes(4)
         )
       ) {
         // 无任何权限
@@ -777,8 +777,8 @@ export default {
       this.setLegendCount(this.tab.activeIndex);
 
       if (
-        (this.$store.state.userInfo.authStatusArr.includes(1) ||
-          this.$store.state.userInfo.authStatusArr.includes(2)) &&
+        (this.$store.state.userInfo.roleIds.includes(2) ||
+          this.$store.state.userInfo.roleIds.includes(3)) &&
         !this.modelVisible
       ) {
         // 服务员/营销/特饮  且已开启营业日
@@ -787,7 +787,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (
-        this.$store.state.userInfo.authStatusArr.length == 0 &&
+        this.$store.state.userInfo.roleIds.length == 0 &&
         !this.hasLookOrder
       ) {
         cardListInfoArr = [];
@@ -800,8 +800,8 @@ export default {
 
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (
-        this.$store.state.userInfo.authStatusArr.includes(1) ||
-        this.$store.state.userInfo.authStatusArr.includes(3)
+        this.$store.state.userInfo.roleIds.includes(2) ||
+        this.$store.state.userInfo.roleIds.includes(4)
       ) {
         cardListInfoArr = cardList.filter(
           (item) =>
@@ -1044,7 +1044,7 @@ export default {
         );
 
         // 获取自己及下属员工卡台列表
-        if (this.$store.state.userInfo.authStatusArr.includes(2)) {
+        if (this.$store.state.userInfo.roleIds.includes(3)) {
           this.getSelfAndSelfStaffCardList();
         }
 
@@ -1194,7 +1194,7 @@ export default {
       setTimeout(() => {
         let result = {};
         if (
-          this.$store.state.userInfo.authStatusArr.length == 0 &&
+          this.$store.state.userInfo.roleIds.length == 0 &&
           !this.hasLookOrder
         ) {
           this.cardStatusNoInfo = {};
@@ -1230,8 +1230,8 @@ export default {
           if (regionId == 0 || regionId == 2001) {
             // 选择的'全部' 或我的卡台
             if (
-              this.$store.state.userInfo.authStatusArr.length == 1 &&
-              this.$store.state.userInfo.authStatusArr[0] == 1
+              this.$store.state.userInfo.roleIds.length == 1 &&
+              this.$store.state.userInfo.roleIds[0] == 2
             ) {
               // 累计卡台数
               const allOpenInfo = cardStatusNo.filter((item) => item.id == 30);

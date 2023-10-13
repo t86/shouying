@@ -4,6 +4,8 @@ export default {
       authStationId: "",
       authStatusArr: [], // 1:服务员  2：营销  3：花篮  5：优惠2
     };
+     // authStatusArr 改为 roleIds
+    // 系统角色 1 咨客 2服务员 3营销 4特饮/花篮 5收银员 6系统管理员 7会员中心 8ERP管理员 9仓库管理员 10 存酒管理员 11 督查
   },
   methods: {
     getAuthStatus() {
@@ -46,13 +48,18 @@ export default {
         this.authStatusArr = [...new Set([...this.authStatusArr, 2])];
 
       /**
-       * 判断是否有优惠2权限身份(优惠2)
+       *  判断是否有优惠2权限身份(优惠2) 
+       *  权限身份：暂时特殊处理  roleIds 添加1000
        */
       const prdListOfYH2 = this.getSealConfigPrdId(3);
 
-      if (prdListOfYH2.length > 0)
-        this.authStatusArr = [...new Set([...this.authStatusArr, 5])];
+      let roleIds = this.$store.state.userInfo.roleIds;
+      if (prdListOfYH2.length > 0){
+        // this.authStatusArr = [...new Set([...this.authStatusArr, 5])];
+        roleIds = [...new Set([...roleIds, 1000])];
 
+      }
+      
       /**
        * 判断是否有花篮/小费权限身份
        */
@@ -70,6 +77,7 @@ export default {
       this.$store.commit("updateUserInfo", {
         ...this.$store.state.userInfo,
         authStatusArr: this.authStatusArr, // 1:服务员  2：营销   3：花篮/小费  5:优惠2
+        roleIds: roleIds
       });
     },
 

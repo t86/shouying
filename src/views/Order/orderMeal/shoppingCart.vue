@@ -154,7 +154,7 @@
           <button
             style="width: 100px"
             v-if="
-              $store.state.userInfo.authStatusArr.includes(1) &&
+              $store.state.userInfo.roleIds.includes(2) &&
               $store.state.userInfo.authStatus != 4
             "
             @click.stop="submitShoppingCartAndPayHandle"
