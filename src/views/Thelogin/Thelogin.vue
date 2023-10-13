@@ -482,89 +482,106 @@ export default {
           })
           .then(async (res) => {
             if (res.code == 1) {
-              res.data.sys_priv = res.data.sys_priv
-                ? res.data.sys_priv.toString()
-                : "";
-              if (res.data.sys_priv) {
-                var s = [];
-                for (const i in this.clients) {
-                  s[i] = this.clientName == this.clients[i].name;
+              var s = [];
+              for (const i in this.clients) {
+                s[i] = this.clientName == this.clients[i].name;
                   if (this.clientName == this.clients[i].name) {
-                    if (
-                      ((this.$localStorage.getItem("am") * 1) &
-                        (res.data.sys_priv * 1)) >
-                      0
-                    ) {
-                      // 存储
-                      this.$localStorage.setItem("priv", res.data.sys_priv);
-                      this.$localStorage.setItem(
+                    // 保存岗位id
+                    this.$localStorage.setItem(
                         "station_id",
                         res.data.station_id.toString()
                       ); // 用户岗位id
-                      this.$localStorage.setItem(
-                        "navigation",
-                        [0, 0, this.clients[i].url].join(",")
-                      );
-                      this.$localStorage.setItem(
-                        "client",
-                        this.clients[i].name
-                      );
-
-                      this.$store.commit("gaibian", res.data.name);
-
-                      // 判断登录身份
-                      this.url = this.clients[i]["url"];
-                      this.originInfo = res.data;
-                      switch (this.clientName) {
-                        case "order":
-                          this.routerGo({ authStatus: 1, authName: "点单人" });
-                          break;
-                        case "money":
-                          this.warningText = res.data.login_msg;
-                          if (this.warningText) {
-                            this.warningText = this.warningText
-                              .replaceAll(
-                                "<warn>",
-                                '<span class="red-color fs18 m-l-1 m-r-1">'
-                              )
-                              .replaceAll("</warn>", "</span>");
-                            this.showWarning = true;
-                          } else {
-                            this.routerGo({
-                              authStatus: 4,
-                              authName: "收银人",
-                            });
-                          }
-                          break;
-                        default:
-                          this.routerGo();
-                          break;
-                      }
-                    } else {
-                      this.$api.UtilAuth.auth
-                        .requestauthlogout()
-                        .then((ress) => {
-                          if (ress.code == 1) {
-                            this.$message({
-                              message:
-                                "没有权限登录" +
-                                this.clients[i].systemName +
-                                ",请查看你的账号密码是否正确",
-                              type: "info",
-                            });
-                          }
-                        });
-                      window.loopReadCard();
-                    }
+                    // TODO 根据岗位id匹配权限信息
+                    
+                    this.url = this.clients[i]["url"];
+                    this.routerGo();
+                    return
                   }
-                }
-              } else {
-                this.$message({
-                  message: "没有权限登录",
-                  type: "info",
-                });
-                window.loopReadCard();
               }
+
+              // res.data.sys_priv = res.data.sys_priv
+              //   ? res.data.sys_priv.toString()
+              //   : "";
+              // if (res.data.sys_priv) {
+              //   var s = [];
+              //   for (const i in this.clients) {
+              //     s[i] = this.clientName == this.clients[i].name;
+              //     if (this.clientName == this.clients[i].name) {
+              //       if (
+              //         ((this.$localStorage.getItem("am") * 1) &
+              //           (res.data.sys_priv * 1)) >
+              //         0
+              //       ) {
+              //         // 存储
+              //         this.$localStorage.setItem("priv", res.data.sys_priv);
+              //         this.$localStorage.setItem(
+              //           "station_id",
+              //           res.data.station_id.toString()
+              //         ); // 用户岗位id
+              //         this.$localStorage.setItem(
+              //           "navigation",
+              //           [0, 0, this.clients[i].url].join(",")
+              //         );
+              //         this.$localStorage.setItem(
+              //           "client",
+              //           this.clients[i].name
+              //         );
+
+              //         this.$store.commit("gaibian", res.data.name);
+
+              //         // 判断登录身份
+              //         this.url = this.clients[i]["url"];
+              //         this.originInfo = res.data;
+              //         switch (this.clientName) {
+              //           case "order":
+              //             this.routerGo({ authStatus: 1, authName: "点单人" });
+              //             break;
+              //           case "money":
+              //             this.warningText = res.data.login_msg;
+              //             if (this.warningText) {
+              //               this.warningText = this.warningText
+              //                 .replaceAll(
+              //                   "<warn>",
+              //                   '<span class="red-color fs18 m-l-1 m-r-1">'
+              //                 )
+              //                 .replaceAll("</warn>", "</span>");
+              //               this.showWarning = true;
+              //             } else {
+              //               this.routerGo({
+              //                 authStatus: 4,
+              //                 authName: "收银人",
+              //               });
+              //             }
+              //             break;
+              //           default:
+              //             this.routerGo();
+              //             break;
+              //         }
+              //       } else {
+              //         this.$api.UtilAuth.auth
+              //           .requestauthlogout()
+              //           .then((ress) => {
+              //             if (ress.code == 1) {
+              //               this.$message({
+              //                 message:
+              //                   "没有权限登录" +
+              //                   this.clients[i].systemName +
+              //                   ",请查看你的账号密码是否正确",
+              //                 type: "info",
+              //               });
+              //             }
+              //           });
+              //         window.loopReadCard();
+              //       }
+              //     }
+              //   }
+              // } else {
+              //   this.$message({
+              //     message: "没有权限登录",
+              //     type: "info",
+              //   });
+              //   window.loopReadCard();
+              // }
             } else {
               if (res.code == 12 || res.code == 11) {
                 this.term();

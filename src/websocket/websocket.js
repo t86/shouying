@@ -630,7 +630,7 @@ export default class WebSocketClient {
 
       const token = localStorage.getItem("tk") || "";
       if (token && token.length > 0) {
-        // 不是订单，收银，预定系统，不需要websocket
+        // 不是订单，收银，预定系统，会员，不需要websocket
         if (
           sessionStorage.getItem("client") == "money" ||
           sessionStorage.getItem("client") == "order" ||
