@@ -491,6 +491,11 @@ export default class WebSocketClient {
               } else if (Number(key) == 39) {
                 // 卡台状态数量统计
                 return ele.id == el.id && ele.region_id == el.region_id;
+              }else if (Number(key) == 39) {
+                // 卡台状态数量统计
+                return ele.id == el.id && ele.region_id == el.region_id;
+              }else if(Number(key) == 41){
+                return ele.station_id == el.station_id;
               }
             }
           );
