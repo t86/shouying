@@ -561,6 +561,11 @@ export default class WebSocketClient {
     }
 
     this.vue.$store.commit("updateResResultDataObj", this.resResultDataObj);
+    // 如果是权限字段更新 则刷新用户信息
+    if (Object.keys(dataObj).some((item) => item == 13 || item == 41)) {
+      const userInfo = this.vue.$store.state.userInfo;
+      this.vue.$store.commit("updateUserInfo", userInfo);
+    }
     if (
       this.vue.$route.name == "cardMachine" ||
       this.vue.$route.name == "orderCard" ||

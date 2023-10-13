@@ -492,21 +492,11 @@ export default {
                         "station_id",
                         station_id
                       ); //
-                    //  根据岗位id匹配权限信息
-                    const sysRole = this.$store.state.cardPageInfo.resResultDataObj['sysRole'] ||[];
-                    const sysRoleDetail = this.$store.state.cardPageInfo.resResultDataObj['sysRoleDetail'] ||[];
-                    // 获取角色ids
-                    const roles = sysRole.filter(item => item.station_id == station_id && item.status == 1);
-                    const roleIds = roles.map(d=>d.sys_role_id * 1);
-                    // 获取岗位对应的权限
-                    const sys_modules = sysRoleDetail.filter(item => item.station_id == station_id && item.status == 1);
-                    // 获取权限id
-                    const sys_module_ids = sys_modules.map(d=> d.sys_module_id * 1);
+                    
 
                     this.url = this.clients[i]["url"];
                     this.originInfo = res.data;
-                    this.originInfo.roleIds = roleIds
-                    this.originInfo.sys_modules = sys_module_ids
+                    
                     this.$localStorage.setItem(
                         "client",
                         this.clients[i].name
