@@ -955,6 +955,10 @@ export default {
 
     // 点击卡台
     cardClickHandle(info) {
+      if(!info.canLookOrder){
+        this.$message.warning("当前卡台无权限查单！");
+        return 
+      }
       // 存酒模式
       if (this.typeModule == 2) return;
       // 点单模式
