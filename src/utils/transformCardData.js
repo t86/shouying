@@ -150,12 +150,12 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
-    case 13:  // 岗位系统权限关系  
+    case 13:  // 角色  
       arr.forEach(el => {
         resultArr.push({
           station_id: el[0],  // 岗位系统权限关系岗位Id
-          status: el[1],  // 配置状态: 1有效 3 删除
-          priv_type: el[2],  // 权限项:1 后台管理员 2 erp管理员 3 仓库管理员 5 服务员 6 收银员 7 营销员 8 花篮
+          sys_role_id: el[1],  // 系统角色
+          status: el[2],  // 状态 1有效
         })
       })
       break
@@ -465,6 +465,15 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           type_id: el[1], // 类型 1 区域 2 卡台
           status: el[2], // 1 有效(其他无效)
           region_o_seat_id: el[3]  // 根据type_id对应卡台或区域
+        })
+      })
+      break
+    case 41:  // 角色明细
+      arr.forEach(el => {  
+        resultArr.push({
+          station_id: el[0], // 岗位id
+          sys_module_id: el[1], // 模块id
+          status: el[2], // 状态 1 有效
         })
       })
       break
