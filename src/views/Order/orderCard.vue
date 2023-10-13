@@ -568,7 +568,8 @@ export default {
         !(
           roleIds.includes(2) ||
           roleIds.includes(3) ||
-          roleIds.includes(4)
+          roleIds.includes(4)||
+          this.hasLookOrder
         )
       ) {
         // 无任何权限
@@ -787,8 +788,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (
-        this.$store.state.userInfo.roleIds.length == 0 &&
-        !this.hasLookOrder
+        this.$store.state.userInfo.roleIds.length == 0 
       ) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
@@ -1194,8 +1194,7 @@ export default {
       setTimeout(() => {
         let result = {};
         if (
-          this.$store.state.userInfo.roleIds.length == 0 &&
-          !this.hasLookOrder
+          this.$store.state.userInfo.roleIds.length == 0 
         ) {
           this.cardStatusNoInfo = {};
           return;
