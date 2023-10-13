@@ -115,7 +115,7 @@
             <!-- 金额 -->
             <p
               layout="row"
-              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)"
+              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)&&((item.sales_emp_dept_id == loginUserInfo.dept_id && hasCanLookDept) || (item.salesEmpId == loginUserInfo.emp_id) || hasOnlyLookSelf && loginUserSubordinateIds.includes(item.salesEmpId))"
               layout-align="space-between center"
             >
               <span
@@ -147,7 +147,6 @@
               <span class="card-step">{{ item.diXiaoJindu }}</span>
             </p>
             <p v-else style="height: 17px"></p>
-
             <!-- 订位人 -->
             <p
               class="one-txt-cut"
@@ -698,6 +697,12 @@ export default {
       }
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
+      const orderPersonInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+        [];
+      const departmentInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["departmentInfo"] || [];
+
       cardInfo.forEach((item, index) => {
         if (item.status == "1") {
           const cardOnlineStatus =
@@ -741,8 +746,8 @@ export default {
                 el.book_day_value ==
                   this.dateTab.dateTabList[this.dateTab.activeIndex].id
             );
-
             if (currentDayInfo) {
+              
               // 有预定的
               const _data = {
                 showOnlineText:
@@ -818,6 +823,21 @@ export default {
             }
           }
           if (data.bizStatus != "22" && data.bizStatus != "33") {
+
+                 // 订位人部门id
+             function getDeptId() {
+                const sealPersonInfo = orderPersonInfo.find(
+                  (el) => data.salesEmpId === el.id
+                );
+                if (sealPersonInfo) {
+                  // 非散客（有定位人）
+                  const result = departmentInfo.find(
+                    (el) => el.id === sealPersonInfo.deptId
+                  );
+                  return (result && result.id) || "";
+                }
+              }
+              const deptId = getDeptId();
             cardList.push({
               // 卡台数据
               ...item,
@@ -859,6 +879,9 @@ export default {
               showOption:
                 cardListInfoArr[index] && cardListInfoArr[index].showOption,
               isLeftArrow: false, // 操作选项列表是否显示在左边
+
+              // 订位人部门id
+              sales_emp_dept_id: deptId || "",
             });
           }
         }
@@ -868,7 +891,6 @@ export default {
       this.setLegendCount(this.tab.activeIndex);
 
       cardList = cardList.sort((a, b) => b.topNum - a.topNum);
-
       cardListInfoArr = cardList;
       this.card.cardListInfoArr = JSON.parse(JSON.stringify(cardList));
       this.$store.commit("updateCardList", this.card.cardListInfoArr);
@@ -902,12 +924,18 @@ export default {
       cardListInfoArr.forEach((el) => {
         el.showOption = false;
       });
-      if (key === "keyword"){
-        const result = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      if (key === "keyword") {
+        const result =
+          this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
         let orderPersons = result.filter(
-          (item) => item.code.includes(this.keyWord) || 
-          item.name.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) || 
-          item.namePy.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase())
+          (item) =>
+            item.code.includes(this.keyWord) ||
+            item.name
+              .toLocaleUpperCase()
+              .includes(this.keyWord.toLocaleUpperCase()) ||
+            item.namePy
+              .toLocaleUpperCase()
+              .includes(this.keyWord.toLocaleUpperCase())
         );
         return cardListInfoArr.filter(
           (item) =>
@@ -921,7 +949,9 @@ export default {
             item.name
               .toLocaleUpperCase()
               .includes(this.keyWord.toLocaleUpperCase()) ||
-              orderPersons.filter(p => p.id && p.id * 1 > 0 && p.id == item.salesEmpId).length > 0
+            orderPersons.filter(
+              (p) => p.id && p.id * 1 > 0 && p.id == item.salesEmpId
+            ).length > 0
         );
       }
 
@@ -1608,7 +1638,7 @@ export default {
 
         // console.log(result);
         // 合并点单和半结
-        result['5'] = result['6'] || 0 + result['5'] || 0;
+        result["5"] = result["6"] || 0 + result["5"] || 0;
         this.cardStatusNoInfo = result;
       }, 200);
     },
@@ -1633,6 +1663,38 @@ export default {
     // 是否为中午12点之前
     isMorning() {
       return new Date().getHours() < 12;
+    },
+
+    // 不允许查看下属订位消费  只能看自己
+    hasOnlyLookSelf() {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(10)
+      );
+    },
+    
+    //能查看同组订位消费
+    hasCanLookDept() {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(11)
+      );
+    },
+
+    // 当前用户信息
+    loginUserInfo() {
+      return this.$store.state.userInfo;
+    },
+    // loginUser 下属列表
+    loginUserSubordinateIds() {
+      const orderPersonInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+        [];
+      const subordinateList = orderPersonInfo.filter(
+        (item) => item.upper_emp_id == this.loginUserInfo.emp_id
+      );
+      const ids = subordinateList.map(d=>d.id);
+      return ids
     },
   },
 
