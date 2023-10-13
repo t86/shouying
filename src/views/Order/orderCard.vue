@@ -1468,7 +1468,7 @@ export default {
     hasOnlyLookSelf() {
       return (
         this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(6)
+        this.$store.state.userInfo.sys_modules.includes(6) || this.$store.state.userInfo.sys_modules.includes(10)
       );
     },
 
@@ -1476,7 +1476,7 @@ export default {
     hasCanLookDept() {
       return (
         this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(7)
+        (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
       );
     },
 
