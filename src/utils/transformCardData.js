@@ -154,7 +154,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       arr.forEach(el => {
         resultArr.push({
           station_id: el[0],  // 岗位系统权限关系岗位Id
-          sys_role_id: el[1],  // 系统角色
+          sys_role_id: el[1],  // 系统角色 1 咨客 2服务员 3营销 4特饮 5收银员 6系统管理员 7会员中心 8ERP管理员 9仓库管理员 10 存酒管理员 11 督查
           status: el[2],  // 状态 1有效
         })
       })
