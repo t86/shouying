@@ -315,9 +315,14 @@ export default {
               resultData.push(el);
             }
           });
+          console.log("未权限过滤的信息",resultData)
           const authList = [];
           for(let i = 0;i<resultData.length;i++){
             let el = resultData[i]
+            if(this.hasLookOrder){
+              authList.push(el);
+              continue
+            }
             // 自己的 先添加
             if (el.wei == this.$store.state.userInfo.emp_id) {
               authList.push(el);
@@ -338,12 +343,11 @@ export default {
             
             // // 能看同组的 非同组的返回
             const deptId =el.personInfo&&el.personInfo.deptId || ''
-            if (
+            if ( this.hasCanLookDept &&
               this.loginUserInfo.dept_id == deptId ){
                 authList.push(el);
             } 
           }
-         
           this.orderList = authList;
         } else if (res.code == 2) {
           console.log("当前人员未参与当前卡台点单");
@@ -498,7 +502,13 @@ export default {
         this.$store.state.userInfo.sys_modules.includes(4)
       );
     },
-
+  // 是否有查单权限
+    hasLookOrder() {
+      return (
+        this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(11)
+      );
+    },
     // 不允许查看下属点单消费  只能看自己
     hasOnlyLookSelf() {
       return (
@@ -510,12 +520,11 @@ export default {
 
     //能查看同组点单消费
     hasCanLookDept() {
-      // return (
-      //   this.$store.state.userInfo.sys_modules &&
-      //   (this.$store.state.userInfo.sys_modules.includes(7) ||
-      //     this.$store.state.userInfo.sys_modules.includes(11))
-      // );
-      return   
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        (this.$store.state.userInfo.sys_modules.includes(7) ||
+          this.$store.state.userInfo.sys_modules.includes(11))
+      );
     },
 
     // 当前用户信息
