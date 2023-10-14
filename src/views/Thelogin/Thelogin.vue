@@ -59,7 +59,7 @@
         <div class="slideshow">
           <el-carousel
             style="width: 100%"
-            :height="[isAndroidTerminal ? '400px' : '500px']"
+            :height="isAndroidTerminal ? '400' : '500'"
           >
             <el-carousel-item v-for="item in 3" :key="item">
               <img

@@ -115,7 +115,7 @@
             <!-- 金额 -->
             <p
               layout="row"
-              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)&&((item.sales_emp_dept_id == loginUserInfo.dept_id && hasCanLookDept) || (item.salesEmpId == loginUserInfo.emp_id) || hasOnlyLookSelf && loginUserSubordinateIds.includes(item.salesEmpId))"
+              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)&&((item.sales_emp_dept_id == loginUserInfo.dept_id && hasCanLookDept) || (item.salesEmpId == loginUserInfo.emp_id) || !hasOnlyLookSelf && loginUserSubordinateIds.includes(item.salesEmpId))"
               layout-align="space-between center"
             >
               <span
