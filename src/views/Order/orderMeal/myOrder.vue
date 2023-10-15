@@ -316,39 +316,40 @@ export default {
             }
           });
           console.log("未权限过滤的信息",resultData)
-          const authList = [];
-          for(let i = 0;i<resultData.length;i++){
-            let el = resultData[i]
-            if(this.hasLookOrder){
-              authList.push(el);
-              continue
-            }
-            // 自己的 先添加
-            if (el.wei == this.$store.state.userInfo.emp_id) {
-              authList.push(el);
-              continue
-            }
-            // 权限限制只能看自己的 非自己的返回
-            if (this.hasOnlyLookSelf) {
-              continue;
-            }
-            // 下属的
-            if (
-              !this.hasOnlyLookSelf &&
-              this.loginUserSubordinateIds.includes(el.wei)
-            ) {
-              authList.push(el);
-              continue;
-            }
+          // const authList = [];
+          // for(let i = 0;i<resultData.length;i++){
+          //   let el = resultData[i]
+          //   if(this.hasLookOrder){
+          //     authList.push(el);
+          //     continue
+          //   }
+          //   // 自己的 先添加
+          //   if (el.wei == this.$store.state.userInfo.emp_id) {
+          //     authList.push(el);
+          //     continue
+          //   }
+          //   // 权限限制只能看自己的 非自己的返回
+          //   if (this.hasOnlyLookSelf) {
+          //     continue;
+          //   }
+          //   // 下属的
+          //   if (
+          //     !this.hasOnlyLookSelf &&
+          //     this.loginUserSubordinateIds.includes(el.wei)
+          //   ) {
+          //     authList.push(el);
+          //     continue;
+          //   }
             
-            // 能看同组的 非同组的返回
-            const upper_emp_id = el.personInfo&&el.personInfo.upper_emp_id || ''
-            if ( this.hasCanLookDept &&
-              this.loginUserInfo.upper_emp_id == upper_emp_id ){
-                authList.push(el);
-            } 
-          }
-          this.orderList = authList;
+          //   // 能看同组的 非同组的返回
+          //   const upper_emp_id = el.personInfo&&el.personInfo.upper_emp_id || ''
+          //   if ( this.hasCanLookDept &&
+          //     this.loginUserInfo.upper_emp_id == upper_emp_id ){
+          //       authList.push(el);
+          //   } 
+          // }
+          // this.orderList = authList;
+          this.orderList = resultData;
         } else if (res.code == 2) {
           console.log("当前人员未参与当前卡台点单");
           this.orderList = [];
@@ -503,45 +504,45 @@ export default {
       );
     },
   // 是否有查单权限
-    hasLookOrder() {
-      return (
-        this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(11)
-      );
-    },
-    // 不允许查看下属点单消费  只能看自己
-    hasOnlyLookSelf() {
-      return (
-        (this.$store.state.userInfo.sys_modules &&
-          this.$store.state.userInfo.sys_modules.includes(6)) ||
-        this.$store.state.userInfo.sys_modules.includes(10)
-      );
-    },
+    // hasLookOrder() {
+    //   return (
+    //     this.$store.state.userInfo.roleIds &&
+    //     this.$store.state.userInfo.roleIds.includes(11)
+    //   );
+    // },
+    // // 不允许查看下属点单消费  只能看自己
+    // hasOnlyLookSelf() {
+    //   return (
+    //     (this.$store.state.userInfo.sys_modules &&
+    //       this.$store.state.userInfo.sys_modules.includes(6)) ||
+    //     this.$store.state.userInfo.sys_modules.includes(10)
+    //   );
+    // },
 
-    //能查看同组点单消费
-    hasCanLookDept() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        (this.$store.state.userInfo.sys_modules.includes(7) ||
-          this.$store.state.userInfo.sys_modules.includes(11))
-      );
-    },
+    // //能查看同组点单消费
+    // hasCanLookDept() {
+    //   return (
+    //     this.$store.state.userInfo.sys_modules &&
+    //     (this.$store.state.userInfo.sys_modules.includes(7) ||
+    //       this.$store.state.userInfo.sys_modules.includes(11))
+    //   );
+    // },
 
-    // 当前用户信息
-    loginUserInfo() {
-      return this.$store.state.userInfo;
-    },
-    // loginUser 下属列表
-    loginUserSubordinateIds() {
-      const orderPersonInfo =
-        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
-        [];
-      const subordinateList = orderPersonInfo.filter(
-        (item) => item.upper_emp_id == this.loginUserInfo.emp_id
-      );
-      const ids = subordinateList.map((d) => d.id);
-      return ids;
-    },
+    // // 当前用户信息
+    // loginUserInfo() {
+    //   return this.$store.state.userInfo;
+    // },
+    // // loginUser 下属列表
+    // loginUserSubordinateIds() {
+    //   const orderPersonInfo =
+    //     this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+    //     [];
+    //   const subordinateList = orderPersonInfo.filter(
+    //     (item) => item.upper_emp_id == this.loginUserInfo.emp_id
+    //   );
+    //   const ids = subordinateList.map((d) => d.id);
+    //   return ids;
+    // },
   },
 };
 </script>
