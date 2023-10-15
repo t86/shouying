@@ -952,8 +952,10 @@ export default {
       // 存酒模式
       if (this.typeModule == 2) return;
       // 点单模式
-      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8)
+      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8){
         return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
+      }
+      
       this.$store.commit("updateOrderInfo", {
         key: "currentCardInfo",
         value: info,

@@ -516,7 +516,8 @@ export default {
       if (this.productInfo.canOrderMeal) {
         status.push(1);
       }
-      if (this.productInfo.canSeal) {
+      // prd_type=1的普通单品 才可以优惠
+      if (this.productInfo.canSeal && this.productInfo.prdType == 1) {
         status.push(2);
       }
       if (this.productInfo.canHL) {
