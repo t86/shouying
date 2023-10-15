@@ -1101,7 +1101,7 @@ export default {
         !!cardItemInfo.waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
-      let  isLookDept = this.hasCanLookDept&&cardItemInfo&&cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
+      let  isLookDept = this.hasCanLookDept&&cardItemInfo&& cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
       
 
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);

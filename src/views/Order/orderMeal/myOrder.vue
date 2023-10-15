@@ -344,7 +344,7 @@ export default {
           //   // 能看同组的 非同组的返回
           //   const upper_emp_id = el.personInfo&&el.personInfo.upper_emp_id || ''
           //   if ( this.hasCanLookDept &&
-          //     this.loginUserInfo.upper_emp_id == upper_emp_id ){
+          //     this.loginUserInfo.upper_emp_id == upper_emp_id && upper_emp_id != 0 ){
           //       authList.push(el);
           //   } 
           // }
