@@ -492,8 +492,6 @@ export default {
                         "station_id",
                         station_id
                       ); //
-                    
-
                     this.url = this.clients[i]["url"];
                     this.originInfo = res.data;
                     

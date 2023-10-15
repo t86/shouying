@@ -716,21 +716,15 @@ export default {
           // 查找对应的业务数据
           const data = businessData.find((el) => el.seatId === item.id) || {};
           if (data.bizStatus != "22" && data.bizStatus != "33") {
-            // 订位人部门id
-            function getDeptId() {
+            // 订位人upper_emp_id
+            function get_upper_emp_id() {
               const sealPersonInfo = orderPersonInfo.find(
                 (el) => data.salesEmpId === el.id
               );
-              if (sealPersonInfo) {
-                // 非散客（有定位人）
-                const result = departmentInfo.find(
-                  (el) => el.id === sealPersonInfo.deptId
-                );
-                return (result && result.id) || "";
-              }
+              return sealPersonInfo ? sealPersonInfo.upper_emp_id : ''
             }
-            const deptId = getDeptId();
-            data.sales_emp_dept_id = deptId || "";
+            const upper_emp_id = get_upper_emp_id()
+            data.upper_emp_id = upper_emp_id
             cardList.push({
               // 卡台数据
               ...item,
@@ -767,8 +761,8 @@ export default {
               showOption:
                 cardListInfoArr[index] && cardListInfoArr[index].showOption,
               isLeftArrow: false, // 操作选项列表是否显示在左边
-              // 订位人部门id
-              sales_emp_dept_id: deptId || "",
+              // 订位人upper_emp_id
+              upper_emp_id: upper_emp_id,
             });
           }
         }
@@ -1105,7 +1099,7 @@ export default {
         !!cardItemInfo.waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
-      const isLookDept = cardItemInfo&&cardItemInfo.sales_emp_dept_id == this.loginUserInfo.dept_id && this.hasCanLookDept;
+      const isLookDept = cardItemInfo&&cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id && this.hasCanLookDept;
       
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
       

@@ -115,7 +115,7 @@
             <!-- 金额 -->
             <p
               layout="row"
-              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)&&((item.sales_emp_dept_id == loginUserInfo.dept_id && hasCanLookDept) || (item.salesEmpId == loginUserInfo.emp_id) || !hasOnlyLookSelf && loginUserSubordinateIds.includes(item.salesEmpId))"
+              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)&&((item.upper_emp_id == loginUserInfo.upper_emp_id && hasCanLookDept) || (item.salesEmpId == loginUserInfo.emp_id) || !hasOnlyLookSelf && loginUserSubordinateIds.includes(item.salesEmpId))"
               layout-align="space-between center"
             >
               <span
@@ -824,20 +824,14 @@ export default {
           }
           if (data.bizStatus != "22" && data.bizStatus != "33") {
 
-                 // 订位人部门id
-             function getDeptId() {
-                const sealPersonInfo = orderPersonInfo.find(
-                  (el) => data.salesEmpId === el.id
-                );
-                if (sealPersonInfo) {
-                  // 非散客（有定位人）
-                  const result = departmentInfo.find(
-                    (el) => el.id === sealPersonInfo.deptId
-                  );
-                  return (result && result.id) || "";
-                }
-              }
-              const deptId = getDeptId();
+              // 订位人upper_emp_id
+            function get_upper_emp_id() {
+              const sealPersonInfo = orderPersonInfo.find(
+                (el) => data.salesEmpId === el.id
+              );
+              return sealPersonInfo ? sealPersonInfo.upper_emp_id : ''
+            }
+              const upper_emp_id = get_upper_emp_id();
             cardList.push({
               // 卡台数据
               ...item,
@@ -880,8 +874,8 @@ export default {
                 cardListInfoArr[index] && cardListInfoArr[index].showOption,
               isLeftArrow: false, // 操作选项列表是否显示在左边
 
-              // 订位人部门id
-              sales_emp_dept_id: deptId || "",
+              // 订位人upper_emp_id
+              upper_emp_id: upper_emp_id || "",
             });
           }
         }

@@ -82,6 +82,12 @@ export default new Vuex.Store({
       const sys_modules = sysRoleDetail.filter(item => item.station_id == station_id && item.status == 1);
       // 获取权限id
       const sys_module_ids = [...new Set(sys_modules.map(d=> d.sys_module_id * 1))];
+      // 当前用户的upper_emp_id 从元数据里边获取
+      const orderPersonInfo = state.cardPageInfo.resResultDataObj['orderPersonInfo'] ||[];
+      const loginUser =  orderPersonInfo.find(
+          (item) => item.id == info.emp_id
+        );
+      info["upper_emp_id"] = loginUser.upper_emp_id || '';
       info["roleIds"] = roleIds;
       info['sys_modules']=sys_module_ids;
      }
