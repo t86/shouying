@@ -1101,8 +1101,9 @@ export default {
         !!cardItemInfo.waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
-      const isLookDept = cardItemInfo&&cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id && this.hasCanLookDept;
+      let  isLookDept = this.hasCanLookDept&&cardItemInfo&&cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
       
+
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
       
       if(this.hasOnlyLookSelf){
@@ -1464,7 +1465,7 @@ export default {
     hasOnlyLookSelf() {
       return (
         this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(6) && this.$store.state.userInfo.sys_modules.includes(10)
+        (this.$store.state.userInfo.sys_modules.includes(6) || this.$store.state.userInfo.sys_modules.includes(10))
       );
     },
 
@@ -1472,7 +1473,7 @@ export default {
     hasCanLookDept() {
       return (
         this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(7) && this.$store.state.userInfo.sys_modules.includes(11)
+        (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
       );
     },
 
