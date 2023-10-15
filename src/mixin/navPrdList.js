@@ -196,11 +196,11 @@ export default {
         // 营销在当前区域下可点商品
         const YXAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
-          const find = stationAllProduct.find((item) => item.id == el.prd_id);
+          const find = stationAllProduct.find((item) => item.id == el.prd_id && item.prdType == 1);
           if (find)
             YXAreaPrdList.push({
               ...find,
-              canSeal: true,
+              canSeal:true,
             });
         });
 
