@@ -10,6 +10,7 @@ import { CODE_INVALID } from "@/observer";
 let keys = {
   9: ["prdId", "grpId", "seqId"],
   12: ["stationId", "authType", "twoCateId"],
+  13: ["station_id", "sys_role_id"],
   15: ["station_id", "region_id"],
   16: ["region_id", "prd_id"],
   21: ["two_cate_id", "rqm_type_id"],
@@ -18,6 +19,7 @@ let keys = {
   37: ["free_limit_id", "prd_id"],
   39: ["id", "region_id"],
   40: ["license_id", "type_id", "region_o_seat_id"],
+  41: ["station_id", "sys_role_module_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {
