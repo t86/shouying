@@ -851,11 +851,12 @@ export default {
     getMyCardList() {
       const authEmpId =
         this.$store.state.userInfo && this.$store.state.userInfo.emp_id;
-
-      return cardListInfoArr.filter((item) => {
+      
+      const list =  cardListInfoArr.filter((item) => {
         item.waiter_emp_ids_arr = item.waiter_emp_ids_arr || [];
         return item.waiter_emp_ids_arr.includes(authEmpId.toString());
       });
+      return list;
     },
 
     // 筛选卡台数据
@@ -1096,20 +1097,33 @@ export default {
       const isBooker =
         cardItemInfo.salesEmpId * 1 == this.$store.state.userInfo.emp_id * 1;
       // 是否是当前卡台点单服务员
+      const waiter_emp_ids_arr = "waiter_emp_ids_arr" in cardItemInfo && cardItemInfo.waiter_emp_ids_arr || [];
       const isSealer =
-        "waiter_emp_ids_arr" in cardItemInfo &&
-        !!cardItemInfo.waiter_emp_ids_arr.find(
+      waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
       let  isLookDept = this.hasCanLookDept&&cardItemInfo&& cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
       
 
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
+
+      // 服务员下属 
+      let isWaiterSealer = false;
+      for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
+        const element = waiter_emp_ids_arr[i];
+        if(this.loginUserSubordinateIds.includes(element)){
+          isWaiterSealer = true;
+          break;
+        }
+      }
       
       if(this.hasOnlyLookSelf){
         isLookSubordinate = false
       }
-      return isLookAll || isBooker || isSealer || isLookDept || isLookSubordinate;
+      if (this.hasWaitOnlyLookSelf){
+         isWaiterSealer = false
+      }
+      return isLookAll || isBooker || isSealer || isLookDept || isLookSubordinate || isWaiterSealer;
     },
 
     // 显示或隐藏低消进度统计表
@@ -1463,12 +1477,14 @@ export default {
     },
     // 不允许查看下属点单消费  只能看自己
     hasOnlyLookSelf() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        (this.$store.state.userInfo.sys_modules.includes(6) || this.$store.state.userInfo.sys_modules.includes(10))
-      );
+       
+      return this.$store.state.userInfo.sys_modules &&
+         this.$store.state.userInfo.sys_modules.includes(10)
     },
-
+    hasWaitOnlyLookSelf(){
+      return this.$store.state.userInfo.sys_modules &&
+         this.$store.state.userInfo.sys_modules.includes(6)
+    },
     //能查看同组点单消费
     hasCanLookDept() {
       return (
