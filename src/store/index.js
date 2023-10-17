@@ -87,7 +87,7 @@ export default new Vuex.Store({
       const loginUser =  orderPersonInfo.find(
           (item) => item.id == info.emp_id
         );
-      info["upper_emp_id"] = loginUser?.upper_emp_id || '';
+      info["upper_emp_id"] = loginUser? loginUser.upper_emp_id : '';
       info["roleIds"] = roleIds;
       info['sys_modules']=sys_module_ids;
      }
