@@ -723,6 +723,7 @@ export default {
               );
               return sealPersonInfo ? sealPersonInfo.upper_emp_id : ''
             }
+            // 订位人的上级id
             const upper_emp_id = get_upper_emp_id()
             data.upper_emp_id = upper_emp_id
             cardList.push({
@@ -1102,12 +1103,33 @@ export default {
       waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
-      let  isLookDept = this.hasCanLookDept&&cardItemInfo&& cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
-      
+      // 是否是当前卡台订位人的同组人员
+      let  isLookDept = this.hasCanLookDept&&cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
 
+       // 下过单的服务员 也属于同组 
+      let isWaiterDept = false;
+      const orderPersonInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+        [];
+      for(let i =0; i< waiter_emp_ids_arr.length; i++){
+        const element = waiter_emp_ids_arr[i];
+        if(element){
+          const waiter = orderPersonInfo.find(
+         (item) => item.id == element);
+         if(waiter && waiter.upper_emp_id == this.loginUserInfo.upper_emp_id && this.loginUserInfo.upper_emp_id != 0){
+          isWaiterDept = true;
+          break
+         }
+        }
+      }
+      // 不允许查看同组
+      if(!this.hasCanLookDept){
+        isWaiterDept = false;
+      }
+  
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
 
-      // 服务员下属 
+      // 服务员的下属 
       let isWaiterSealer = false;
       for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
@@ -1116,6 +1138,8 @@ export default {
           break;
         }
       }
+  
+      
       
       if(this.hasOnlyLookSelf){
         isLookSubordinate = false
@@ -1123,7 +1147,7 @@ export default {
       if (this.hasWaitOnlyLookSelf){
          isWaiterSealer = false
       }
-      return isLookAll || isBooker || isSealer || isLookDept || isLookSubordinate || isWaiterSealer;
+      return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
 
     // 显示或隐藏低消进度统计表
