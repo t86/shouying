@@ -87,7 +87,7 @@
 
     <div class="top" layout="row" layout-align="start center">
       <icon-button
-        v-if="hasAddOrEditAuth"
+        v-if="$store.getters.vipAuth ||hasAddOrEditAuth"
         @click.native="showOrHideAddVipDrawerHandle"
         text="新增"
         img="btn_add.png"
@@ -108,7 +108,7 @@
         wz="读取卡信息"
       ></characters-button>
       <characters-button
-        v-if="$store.getters.vipAuth && hasAddOrEditAuth"
+        v-if="$store.getters.vipAuth || hasAddOrEditAuth"
         @click.native="showOrHidePayNumSearchDrawerHandle"
         bjcolors="#DDE0E9"
         bcolor="#8c8c8c"
