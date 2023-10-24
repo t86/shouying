@@ -24,6 +24,10 @@ export default {
     // 修改缴款单统计类别名称
     reqSaveRptJkCateName: params => axios.post(`${base.htgl}/rpt/cfg/save_rpt_jk_cate_name`, params),
 
+    // 修改缴款单分类营业类型
+    reqSaveRptJkCateBizType: params => axios.post(`${base.htgl}/rpt/cfg/save_rpt_jk_cate_biztype`, params),
+
+
     // 读缴款单统计类别待配置商品列表
     reqGetRptJkCatePrdItems: params => axios.post(`${base.htgl}/rpt/cfg/get_rpt_jk_cate_prd_items`, params),
 

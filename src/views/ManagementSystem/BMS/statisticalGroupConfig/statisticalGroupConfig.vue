@@ -23,6 +23,7 @@
               >序号</el-checkbox>
             </div>
             <div class="th">统计类别名称</div>
+            <div class="th">营业类型</div>
             <div class="th">类型</div>
             <div class="th">包含二级分类/商品</div>
             <div class="th">创建时间</div>
@@ -48,11 +49,14 @@
               <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             </div>
             <div class="td">{{item.n}}</div>
+            <div class="td">{{item.b}}</div>
             <div class="td">{{item.tn}}</div>
             <div class="td">{{item.ct}}</div>
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
             <div class="td" layout="row" layout-align="start center">
+              <el-link style="width: 100px" type="primary" :underline="false"
+                @click="changeBizType($event, item)">更改营业类型</el-link>
               <el-link style="width: 100px" type="primary" :underline="false"
                 @click="changeConfig($event, item)">更改类别名称</el-link>
               <el-link style="width: 60px" type="primary" :underline="false"
@@ -71,7 +75,11 @@
       :showDrawer="showDrawer"
       @showOrHideDrawerHandle="showOrHideDrawerHandle"
     />
-
+    <drawerChgBizCom
+      :showDrawer="showBizDrawer"
+      :item="selectedItem"
+      @showOrHideDrawerHandle="showOrHideChgBizDrawerHandle"
+    />
     <drawerChgPrdCom
       :showDrawer="showChgDrawer"
       :item="selectedItem"
@@ -101,6 +109,7 @@ export default {
       indeterminate: false,
       tableData: [],
       showDrawer: false,
+      showBizDrawer: false,
       showChgDrawer: false,
       showCfgDrawer: false,
       showPrdCfgDrawer: false,
@@ -144,6 +153,10 @@ export default {
       } catch (error) {
         console.log("表格数据获取失败", error);
       }
+    },
+    changeBizType(event, item){
+      this.selectedItem = item
+      this.showBizDrawer = true
     },
     changeConfig(event, item){
       this.selectedItem = item
@@ -200,6 +213,12 @@ export default {
     showOrHideDrawerHandle(){
       this.showDrawer = !this.showDrawer
       if(!this.showDrawer) {
+        this.resetHandle();
+      }
+    },
+    showOrHideChgBizDrawerHandle(){
+      this.showBizDrawer = !this.showBizDrawer
+      if(!this.showBizDrawer) {
         this.resetHandle();
       }
     },
@@ -277,6 +296,7 @@ export default {
     drawerAddPrdCom: () => import('./drawerAddStatCom/drawerAddStatCom.vue'),
     drawerCfgPrdCom: () => import('./drawerAddStatCom/drawerCfgStatCom.vue'),
     drawerChgPrdCom: () => import('./drawerAddStatCom/drawerChgStatCom.vue'),
+    drawerChgBizCom: () => import('./drawerAddStatCom/drawerChgBizCom.vue'),
     drawerPrdCfgPrdCom: () => import('./drawerAddStatCom/drawerPrdCfgStatCom.vue')
   },
   filters: {}
@@ -319,15 +339,18 @@ export default {
         width: 10%;
       }
       &:nth-child(4) {
-        width: 30%;
+        width: 10%;
       }
       &:nth-child(5) {
-        width: 10%;
+        width: 30%;
       }
       &:nth-child(6) {
         width: 10%;
       }
       &:nth-child(7) {
+        width: 10%;
+      }
+      &:nth-child(8) {
         width: 20%;
       }
     }
