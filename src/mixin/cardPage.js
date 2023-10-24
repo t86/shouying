@@ -224,7 +224,7 @@ export const cardPageMixins = {
     // 卡台名称放大倍数
     getScaleCardName(cardName) {
       const cardNameLength = this.$overall.character(cardName);
-      return Math.min(1, 8 / cardNameLength);
+      return Math.min(1, 6 / cardNameLength);
     },
   },
 
