@@ -49,7 +49,7 @@
               <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             </div>
             <div class="td">{{item.n}}</div>
-            <div class="td">{{item.b}}</div>
+            <div class="td">{{item.b == 1 ? "主营" : item.b == 2 ? "非主营" : "全部" }}</div>
             <div class="td">{{item.tn}}</div>
             <div class="td">{{item.ct}}</div>
             <div class="td">{{item.c}}</div>
