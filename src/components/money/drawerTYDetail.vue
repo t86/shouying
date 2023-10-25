@@ -28,6 +28,7 @@
             >
           </div>
           <el-button
+            v-if="!isOrder()"
             type="primary"
             @click="exportExcel"
             style="width: 90px; height: 30px; line-height: 30px; padding: 0"
@@ -64,7 +65,7 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
-              <div class="td one-txt-cut">{{ index + 1 }}</div>
+              <div class="td one-txt-cut">{{ item.rn == '合计' ? '' : index + 1 }}</div>
               <div class="td">{{ item.rn }}</div>
               <div class="td">{{ item.s }}</div>
               <div class="td">{{ item.o }}</div>
@@ -101,6 +102,7 @@
 
 <script>
 import api_money from "@/api/money";
+import api_order from "@/api/order";
 let originTableData = [];
 export default {
   data() {
@@ -118,9 +120,23 @@ export default {
         key: this.keyword, //  string  查询关键字
       };
       try {
-        const res = await api_money.reqGetTYList(params);
+        let res = null;
+        if(this.isOrder()) {
+          console.log("order")
+          res = await api_order.reqGetYHListByord(params);
+        } else {
+          console.log("money")
+          res = await api_money.reqGetTYList(params);
+        }
+         
         if (res.code == 1) {
           this.tableData = res.data.records || [];
+          if(this.isOrder()) {
+            this.tableData.push({
+              rn: '合计',
+              a: (this.tableData.reduce((total, item) => total + item.a * 1, 0)).toFixed(2)
+            })
+          }
         } else {
           this.$message.warning(res.msg);
         }
@@ -188,6 +204,9 @@ export default {
         };
       }, 1000);
     },
+    isOrder(){
+      return sessionStorage.getItem("client") == "order"
+    }
   },
   props: {
     showDrawer: {

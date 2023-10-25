@@ -265,8 +265,12 @@ export default {
     // 获取已下单列表数据
     async getOrderedData() {
       try {
+        let bizData = this.$store.state.cardPageInfo.resResultDataObj["businessData"];
+        let biz = bizData.find(item => item.seatId == this.$store.state.orderInfo.currentCardInfo.seatId)
+       console.log('biz', biz)
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+          turnover_cnt: biz.turnoverCnt * 1
         };
         const res = await api_order.reqGetOrderList(params);
         if (res.code === 1) {

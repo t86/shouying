@@ -173,6 +173,7 @@
 
                 <!-- 翻台数 -->
                 <span
+                  style="word-break: keep-all;"
                   v-if="
                     item.turnoverCnt > 0 &&
                     ($store.state.userInfo.roleIds.includes(2) ||
@@ -319,6 +320,16 @@
                   <span>低消进度统计表</span>
                 </div>
                 <div
+                  class="option-item"
+                  @click="showOrHideTYDetailDrawer()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/ty-detail-icon.png')"
+                    alt
+                  />
+                  <span>特饮小费明细表</span>
+                </div>
+                <div
                   v-if="hasOutSomething"
                   class="option-item line"
                   @click="showOrHideOutSomethingHandle(true)"
@@ -397,6 +408,12 @@
       @showOrHideDrawer="showOrHideMinDetailDrawerHandle"
     />
 
+    <!-- 特饮小费明细表 -->
+      <drawerTYDetail
+      :showDrawer="showOrHideTYDetail"
+      @showOrHideTYDetailDrawer="showOrHideTYDetailDrawer"
+    />
+
     <!-- 估清 -->
     <div class="out-something" v-if="showOrHideOutSomething">
       <outSomething
@@ -451,6 +468,9 @@ let mySelfAndMyStaffCardList = []; // 自己及下属员工卡台列表
 
 // 低消进度统计表
 import drawerMinDetail from "@/components/money/drawerMinDetail.vue";
+// 特饮小费明细表
+import drawerTYDetail from "@/components/money/drawerTYDetail.vue";
+
 // 估清弹框
 import outSomething from "../Order/orderMeal/orderMealList.vue";
 
@@ -459,6 +479,7 @@ import updateAuthPassword from "@/components/common/updateAuthPassword.vue";
 import drawerSaveWine from "@/components/order/saveWine/drawerSaveWine/index.vue";
 import drawerGetWine from "@/components/order/saveWine/drawerGetWine/index.vue";
 import drawerPayToStore from "@/components/order/saveWine/drawerPayToStore/index.vue";
+
 
 export default {
   data() {
@@ -469,6 +490,7 @@ export default {
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
       showOrHideOutSomething: false, // 是否显示估清商品
+      showOrHideTYDetail: false, // 特饮小费明细表
       typeModule: 1, // 1:点单模式  2：存酒模式
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -1158,6 +1180,10 @@ export default {
     showOrHideOutSomethingHandle(value) {
       this.showOrHideOutSomething = !this.showOrHideOutSomething;
     },
+    // 特饮小费明细表
+    showOrHideTYDetailDrawer() {
+      this.showOrHideTYDetail = !this.showOrHideTYDetail;
+    },
 
     /*
     存酒相关
@@ -1458,6 +1484,7 @@ export default {
     drawerGetWine,
     drawerPayToStore,
     drawerMinDetail,
+    drawerTYDetail,
     outSomething,
   },
 

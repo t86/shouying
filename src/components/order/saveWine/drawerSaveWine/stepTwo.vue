@@ -145,7 +145,6 @@
       <div class="left" layout="row" layout-align="end center">
         <el-button
           type="primary"
-          v-if="hasAuthSaveWine"
           @click="showChooseWineParamsOfAuthDrawer = true"
           >授权存酒</el-button
         >
@@ -362,15 +361,6 @@ export default {
       handler(newVal) {},
       deep: true,
       immediate: true,
-    },
-  },
-  computed: {
-    // 是否添加/修改会员权限
-    hasAuthSaveWine() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(2)
-      );
     },
   },
 };
