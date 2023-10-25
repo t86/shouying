@@ -70,6 +70,14 @@
       </div>
     </div>
 
+    <h4 class="m-b-2 m-t-3">下单出品配置</h4>
+    <div class="fs14">
+      <div>
+        <span class="m-l-4">下单自动出品：</span>
+        <el-switch v-model="orderAutoMake"></el-switch>
+      </div>
+    </div>
+
     <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle">保存</el-button>
   </div>
 </template>
@@ -82,6 +90,7 @@ export default {
       timeLine: 0,
       radio: "1", // 是否开启自动结束营业日 1：是  2：否
       canClearCard: true, // 咨客是否可清台  true禁止  false不禁止
+      orderAutoMake: true, // 下单自动出品 true自动 false不自动
       notShowAmt: false,  // 是否不显示金额
       chooseTime: {
         hour: "",
@@ -134,6 +143,7 @@ export default {
             .padStart(2, 0);
           this.notShowAmt = res.data.limit_book_csm_amt == 1
           this.canClearCard = res.data.book_no_clean_seat == 1
+          this.orderAutoMake = res.data.order_auto_mk == 1
         } else {
           this.$message.warning(res.msg);
         }
@@ -152,6 +162,7 @@ export default {
         auto_close_minute: this.chooseTime.minute * 1, // int    自动结束分钟 >=0 <=59 如果开关是关闭的话返还0
         limit_book_csm_amt: this.notShowAmt ? 1 : 2,  // int 限制预定系统显示消费金额 1 限制 2 不限制
         book_no_clean_seat: this.canClearCard ? 1 : 2, // int   是否禁止预订系统清台 1 禁止 2 不禁止
+        order_auto_mk: this.orderAutoMake ? 1 : 2, // int   是否下单自动开启 1 开启 2 关闭
       };
 
       try {
