@@ -487,6 +487,16 @@ export default {
   watch: {
     stepOneInfo: {
       handler(newVal) {
+        if (
+            window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            if(this.tabIndex == 3) {
+              atool.showSoftInput();
+            } else {
+              atool.hideSoftInput();
+            }
+          }
         this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
         this.selectedInfo = this.tableData.find((item) => item.checked) || {};
