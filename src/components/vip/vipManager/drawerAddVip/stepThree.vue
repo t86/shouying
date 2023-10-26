@@ -149,7 +149,6 @@
         </div>
       </div>
       <div
-        v-if="stepOneInfo.radioVal != 2"
         class="row"
         layout="row"
         layout-align="start center"

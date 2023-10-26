@@ -130,7 +130,6 @@
         </div>
       </div>
       <div
-        v-if="currentItemInfo.bp"
         class="row"
         layout="row"
         layout-align="start center"
