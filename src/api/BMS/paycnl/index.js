@@ -30,5 +30,9 @@ const article = {
     requestpaycnlmove_dsp(data) {     
         return axios.post(`${base.htgl}/paycnl/move_dsp`, data);    
     },
+    // 移动位置
+    requestpaycnlmove(data) {     
+        return axios.post(`${base.htgl}/paycnl/move`, data);    
+    },
 }
 export default article;
