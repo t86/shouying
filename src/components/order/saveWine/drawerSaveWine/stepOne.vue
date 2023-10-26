@@ -495,6 +495,9 @@ export default {
               atool.showSoftInput();
             } else {
               atool.hideSoftInput();
+              setTimeout(()=>{
+                atool.restart();
+              },10);
             }
           }
         this.getRectVal();

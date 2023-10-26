@@ -313,12 +313,6 @@ export default {
     },
 
     async saveWineHandle() {
-      if (
-            window.atool.getTermType() == "android" &&
-            ("hideSoftInput" in window.atool) 
-          ) {
-          atool.hideSoftInput();
-        }
       const params = {
         sc_ids: this.shoppingCartWineList.map((item) => item.id * 1), //   []int64    购物车Id列表
         phone_num_auth_code:

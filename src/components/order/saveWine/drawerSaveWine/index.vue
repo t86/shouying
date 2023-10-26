@@ -220,6 +220,15 @@ export default {
             result = await this.validateValidateInfo();
           }
           if (result) {
+            // 隐藏键盘
+            if (
+            window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)) {
+              atool.hideSoftInput();
+              setTimeout(()=>{
+                atool.restart();
+              },10);
+            }
             this.changeStatus(2);
           }
           break;
@@ -239,6 +248,15 @@ export default {
     },
 
     onCancelDrawer(isClose) {
+      // 隐藏键盘
+      if (
+        window.atool.getTermType() == "android" &&
+        ("hideSoftInput" in window.atool)) {
+          atool.hideSoftInput();
+          setTimeout(()=>{
+            atool.restart();
+          },10);
+      }
       if (isClose || this.status == 1) this.show = false;
       else this.status -= 1;
     },
