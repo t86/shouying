@@ -322,9 +322,7 @@ export default {
     },
 
     keyboardShow(focusIndex, refString){
-      console.log('in')
       this.focus = focusIndex
-
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -336,7 +334,6 @@ export default {
           }
     },
     keyboardLeave(){
-      console.log('leave')
       setTimeout(()=> {
         if (
         window.atool

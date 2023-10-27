@@ -3,10 +3,10 @@
   <div class="product-list" ref="productListRef">
     <div class="search" layout="row" layout-align="start center" >
       <span>全局搜索：</span>
-      <input type="text" ref="searchInputRef" :style="{'width': isRect ? '220px' : '190px'}" @input="getPageData(1)" v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
+      <input @blur="keyboardLeave" 
+      @click="keyboardShow('searchInputRef')"  type="text" ref="searchInputRef" :style="{'width': isRect ? '220px' : '190px'}" @input="getPageData(1)" v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord=''" />
       <img class="icon" :src="imgSrc.search" alt />
-      <simpleKeyBoard v-if="isTerminal" :size="isRect ? 'big' : 'small'" @addInputHandle="addInputHandle" @subInputHandle="subInputHandle" />
     </div>
     <div class="card-list" ref="cardListRef">
       <div
@@ -56,7 +56,6 @@ import mealDrawer from "@/components/order/drawerMeal";
 
 import common_order from "@/utils/common/order";
 
-import simpleKeyBoard from '@/components/common/simpleKeyBoard.vue'
 import { cloneDeep } from "lodash-es";
 
 // 键盘码 keycode
@@ -93,6 +92,31 @@ export default {
     };
   },
   methods: {
+    keyboardShow(focusIndex, refString){
+      this.focus = focusIndex
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+
+          }
+    },
+    keyboardLeave(){
+      setTimeout(()=> {
+        if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)
+          ) {
+            atool.hideSoftInput();
+            atool.restart();
+          }
+      }, 10)
+    },
+
     getCenterType() {
       const containWidth = this.$refs.cardListRef.offsetWidth;
       oneLineCount = Math.floor(containWidth / cardWidth);
@@ -345,8 +369,7 @@ export default {
     }
   },
   components: {
-    mealDrawer,
-    simpleKeyBoard
+    mealDrawer
   },
   watch: {
     currentCategoryProductList(newVal) {
