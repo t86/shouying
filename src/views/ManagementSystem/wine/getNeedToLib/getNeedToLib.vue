@@ -267,7 +267,7 @@ export default {
           margin-top: 2px;
           .td {
             background-color: #ddd!important;
-            margin: 10px 0px;
+            margin: 10px 10px;
           }
           &:hover{
             .td {
