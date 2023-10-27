@@ -70,6 +70,27 @@ export default new Vuex.Store({
       state.cardPageInfo.storeStatusId = value;
     },
     updateUserInfo(state, info = {}) {
+      if(info && info.station_id){
+      const station_id = info.station_id * 1;
+      //  根据岗位id匹配权限信息
+      const sysRole = state.cardPageInfo.resResultDataObj['sysRole'] ||[];
+      const sysRoleDetail = state.cardPageInfo.resResultDataObj['sysRoleDetail'] ||[];
+      // 获取角色ids
+      const roles = sysRole.filter(item => item.station_id == station_id && item.status == 1);
+      const roleIds = [...new Set(roles.map(d=>d.sys_role_id * 1))];
+      // 获取岗位对应的权限
+      const sys_modules = sysRoleDetail.filter(item => item.station_id == station_id && item.status == 1);
+      // 获取权限id
+      const sys_module_ids = [...new Set(sys_modules.map(d=> d.sys_module_id * 1))];
+      // 当前用户的upper_emp_id 从元数据里边获取
+      const orderPersonInfo = state.cardPageInfo.resResultDataObj['orderPersonInfo'] ||[];
+      const loginUser =  orderPersonInfo.find(
+          (item) => item.id == info.emp_id
+        );
+      info["upper_emp_id"] = loginUser? loginUser.upper_emp_id : '';
+      info["roleIds"] = roleIds;
+      info['sys_modules']=sys_module_ids;
+     }
       sessionStorage.setItem("userInfo", JSON.stringify(info));
       state.userInfo = info;
     },
@@ -155,6 +176,7 @@ export default new Vuex.Store({
         console.log("获取营业信息失败", error);
       }
     },
+ 
   },
   getters: {
     vipAuth(state) {

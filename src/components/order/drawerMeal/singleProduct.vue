@@ -225,7 +225,6 @@ export default {
       if (this.productInfo.prdType == 4) {
         this.count = this.$route.name != "moneyCard"&&this.$route.name != "orderCard"  ? "" : 0;
       }
-      // this.focus = this.$store.state.userInfo.authStatus == 4 ? 1 : 2;
       this.isGQ = this.$route.name == "moneyCard" ||  this.$route.name == 'orderCard';
     },
 
@@ -517,7 +516,8 @@ export default {
       if (this.productInfo.canOrderMeal) {
         status.push(1);
       }
-      if (this.productInfo.canSeal) {
+      // prd_type=1的普通单品 才可以优惠
+      if (this.productInfo.canSeal && this.productInfo.prdType == 1) {
         status.push(2);
       }
       if (this.productInfo.canHL) {

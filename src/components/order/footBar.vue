@@ -50,7 +50,7 @@
           <div
             v-if="
               (($store.state.userInfo.authStatus != 4 &&
-                $store.state.userInfo.authStatusArr.includes(1)) ||
+                $store.state.userInfo.roleIds.includes(2)) ||
                 ($store.state.userInfo.authStatus == 4 &&
                 terminalType == 'android')) &&
               cardInfo.orderAmt - cardInfo.payedAmt > 0
@@ -71,7 +71,7 @@
           <div
             v-if="
               ($store.state.userInfo.authStatus != 4 &&
-                $store.state.userInfo.authStatusArr.includes(1)) ||
+                $store.state.userInfo.roleIds.includes(2)) ||
               ($store.state.userInfo.authStatus == 4 && terminalType == 'android')
             "
             class="server-pay-btn line"
@@ -146,8 +146,8 @@
               line:
                 $store.state.userInfo.authStatus == 4 ||
                 !(
-                  $store.state.userInfo.authStatusArr.length == 1 &&
-                  $store.state.userInfo.authStatusArr[0] == 3
+                  $store.state.userInfo.roleIds.length == 1 &&
+                  $store.state.userInfo.roleIds[0] == 4
                 ),
             }"
           >

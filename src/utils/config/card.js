@@ -40,7 +40,7 @@ export const resResultDataArr = [
   'inventoryWarnInfo',   // 10-库存预警
   'jobLimitInfo',        // 11-岗位不限可点商品权限
   'jobSecondLimitInfo',  // 12-岗位可点二级分类商品权限
-  'jobRelationInfo',     // 13-岗位系统权限关系
+  'sysRole',             // 13-系统角色
   'businessData',        // 14-业务数据
   'stationArea',         // 15-岗位(服务员)可点区域
   'areaProduct',         // 16-区域可点商品 
@@ -68,6 +68,7 @@ export const resResultDataArr = [
   'merchantInfo',        // 38-商户号收款金额汇总
   'cardStatusNo',        // 39-卡台状态数量统计
   'machineArea',         // 40-设备可操作区域或卡台
+  'sysRoleDetail',       // 41-系统角色明细
 ]
 
 // 图例列表
@@ -90,12 +91,8 @@ export const legendList = [{
   name: '开台',
   allRight
 }, {
-  id: 5,
+  id: 5, // 6 半结 并入点单
   name: '点单',
-  allRight
-}, {
-  id: 6,
-  name: '半结',
   allRight
 }, {
   id: 7,

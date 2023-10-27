@@ -127,8 +127,6 @@ export default {
     }
   },
   created() {
-
-
   },
   mounted() {
     this.getMenuInfo(this.isGQ);
@@ -136,8 +134,8 @@ export default {
   },
   mixins: [navPrdList],
   props: {
-    cardInfo:{
-      default: {}
+    cardInfo: {
+      default: () => {}
     },
     isGQ: {
       default: false

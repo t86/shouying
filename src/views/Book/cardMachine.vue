@@ -1607,6 +1607,8 @@ export default {
         }
 
         // console.log(result);
+        // 合并点单和半结
+        result['5'] = result['6'] || 0 + result['5'] || 0;
         this.cardStatusNoInfo = result;
       }, 200);
     },

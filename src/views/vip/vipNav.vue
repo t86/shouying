@@ -138,10 +138,13 @@ export default {
   },
   computed: {
     navList() {
-      return navList.map((item) => ({
+      let list =  navList.map((item) => {
+        return {
         ...item,
         hover: false,
-      }));
+        }
+      });
+      return list;
     },
   },
 };

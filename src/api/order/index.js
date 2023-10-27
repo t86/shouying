@@ -57,6 +57,7 @@ export default {
   reqCanLookMyOrderData: (params) =>
     axios.post(`${base.htgl}/wo/chk_order_can_see`, params),
 
+
   /**
    * 订单相关
    */
@@ -168,4 +169,9 @@ export default {
   // 修改优惠/优惠2授权人
   reqChangeYhRen: (params) =>
     axios.post(`${base.htgl}/wo/chg_yh_yu2_auth_emp`, params),
+
+
+  // 点单读取特饮/小费记录
+  reqGetYHListByord: (params) =>
+  axios.post(`${base.htgl}/sel/rpt/get_hl_list_byord`, params),
 };

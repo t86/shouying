@@ -6,10 +6,12 @@ import { localStorage } from "@/utils/common/storage";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
 import { CODE_INVALID } from "@/observer";
+import { globalError } from "../utils/globalError";
 
 let keys = {
   9: ["prdId", "grpId", "seqId"],
   12: ["stationId", "authType", "twoCateId"],
+  13: ["station_id", "sys_role_id"],
   15: ["station_id", "region_id"],
   16: ["region_id", "prd_id"],
   21: ["two_cate_id", "rqm_type_id"],
@@ -18,6 +20,7 @@ let keys = {
   37: ["free_limit_id", "prd_id"],
   39: ["id", "region_id"],
   40: ["license_id", "type_id", "region_o_seat_id"],
+  41: ["station_id", "sys_role_module_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {
@@ -355,8 +358,10 @@ export default class WebSocketClient {
   getUpdateData = async () => {
     this.websocketTimeMessageTime =
       localStorage.getItem("websocketTimeMessageTime") || "";
-    if (!this.websocketTimeMessageTime || this.websocketTimeMessageTime == "")
+    if (!this.websocketTimeMessageTime || this.websocketTimeMessageTime == "") {
+      this.getAllData();
       return;
+    }
     const params = {
       // '20220902171731'//
       last_sync_time: this.websocketTimeMessageTime, // string     //LastSyncTime 上次完成同步时间,建议往回走个30秒, 格式 yyyymmddhh24miss
@@ -386,194 +391,210 @@ export default class WebSocketClient {
 
   // websocket数据更新
   updateCardList = (dataObj = {}, time = "") => {
-    for (let key in dataObj) {
-      // 开启营业日的时候，业务数据为空，需要重新赋值业务数据
-      if (
-        key == 14 &&
-        !this.resResultDataObj[resResultDataArr[key]] || this.resResultDataObj[resResultDataArr[key]].length == 0
-      ) {
-        console.log(1, "key", key);
-        return this.getAllData(true, false);
-      } else if (key == 18) {
-        // 判断营业日id状态是否发生变化，变化的话重新获取业务数据
-        try {
-          this.vue.$store.commit("updateStoreStatusId", dataObj[key][0][0]);
-        } catch (e) {}
-        console.log(2, "key", key);
-        eventVue.$emit("reloadData");
-        return this.getAllData(true, true);
-      } else if (key == 22) {
-        // 收银系统卡台页面小红点数量发生变化
-        this.vue.$store.commit(
-          "updateMoneyCardNeedBackOrderCount",
-          dataObj[key][0][0]
-        );
-      } else if (key == 23) {
-        console.log(3, "key", key);
-        let version = localStorage.getItem("refreshAll");
-        if (version && version != dataObj[key][0] * 1) {
-          localStorage.setItem("refreshAll", ...dataObj[key]);
-          // 页面需要从新获取最新全量数据
+
+    try {
+      for (let key in dataObj) {
+        // 开启营业日的时候，业务数据为空，需要重新赋值业务数据
+        if (
+          key == 14 &&
+          !this.resResultDataObj[resResultDataArr[key]] || this.resResultDataObj[resResultDataArr[key]].length == 0
+        ) {
+          console.log(1, "key", key);
+          return this.getAllData(true, false);
+        } else if (key == 18) {
+          // 判断营业日id状态是否发生变化，变化的话重新获取业务数据
+          try {
+            this.vue.$store.commit("updateStoreStatusId", dataObj[key][0][0]);
+          } catch (e) {}
+          console.log(2, "key", key);
+          eventVue.$emit("reloadData");
           return this.getAllData(true, true);
-        }
-      } else {
-        dataObj[key] = transformCardDataHandle(dataObj[key], key);
-        dataObj[key].forEach((el) => {
-          if (!this.resResultDataObj[resResultDataArr[key]]) {
-            this.resResultDataObj[resResultDataArr[key]] = []
-          }
-          // console.log(`websocket改变详情:`, el);  // TODO:
-          // 查找当前改变的数据下标索引值
-          const index = this.resResultDataObj[resResultDataArr[key]].findIndex(
-            (ele) => {
-              if (key in keys) {
-                let match = true;
-                let values = keys[key];
-                for (let i = 0; i < values.length; i++) {
-                  if (ele[values[i]] !== el[values[i]]) {
-                    match = false;
-                    break;
-                  }
-                }
-                return match;
-              }
-
-              if (Number(key) <= 8) {
-                // 数据id字段名称为id
-                return ele.id == el.id;
-              } else if (Number(key) <= 10) {
-                // 数据id字段为prdId
-                return ele.prdId == el.prdId;
-              } else if (Number(key) <= 12) {
-                // 数据id字段为stationId
-                return ele.stationId == el.stationId;
-              } else if (Number(key) == 13) {
-                // 数据字段为station_id
-                return ele.station_id == el.station_id;
-              } else if (Number(key) == 14) {
-                // 数据id字段为seatId
-                return ele.seatId == el.seatId;
-              } else if (Number(key) == 15) {
-                // 数据id字段为station_id
-                return ele.station_id == el.station_id;
-              } else if (Number(key) == 16) {
-                // 数据id字段为region_id
-                return ele.region_id == el.region_id;
-              } else if (Number(key) <= 20) {
-                // 数据id字段为id
-                return ele.id == el.id;
-              } else if (Number(key) == 21) {
-                // 数据id字段为rqm_type_id
-                return ele.rqm_type_id == el.rqm_type_id;
-              } else if (Number(key) == 24) {
-                //  咨客可操作日期列表
-                return ele.id == el.id;
-              } else if (Number(key) == 25) {
-                //  未来(当日以后的)预留业务数据
-                return (
-                  ele.seat_id == el.seat_id &&
-                  ele.book_day_value == el.book_day_value
-                );
-              } else if (Number(key) == 26) {
-                // 线上卡台标记
-                return ele.seat_id == el.seat_id;
-              } else if (Number(key) == 27) {
-                // 角色关联花篮,小费商品权限
-                return ele.station_id == el.station_id;
-              } else if (Number(key) <= 29) {
-                return ele.seat_id == el.seat_id;
-              } else if (Number(key) <= 35) {
-                return ele.id == el.id;
-              } else if (Number(key) == 36) {
-                return ele.station_id == el.station_id;
-              } else if (Number(key) == 37) {
-                return ele.free_limit_id == el.free_limit_id;
-              } else if (Number(key) == 39) {
-                // 卡台状态数量统计
-                return ele.id == el.id && ele.region_id == el.region_id;
-              }
-            }
+        } else if (key == 22) {
+          // 收银系统卡台页面小红点数量发生变化
+          this.vue.$store.commit(
+            "updateMoneyCardNeedBackOrderCount",
+            dataObj[key][0][0]
           );
-
-          if (key == 38) {
-            // 商户号收款金额汇总
-            this.resResultDataObj[resResultDataArr[key]][0] = el;
+        } else if (key == 23) {
+          console.log(3, "key", key);
+          let version = localStorage.getItem("refreshAll");
+          if (version && version != dataObj[key][0] * 1) {
+            localStorage.setItem("refreshAll", ...dataObj[key]);
+            // 页面需要从新获取最新全量数据
+            return this.getAllData(true, true);
           }
-
-          if (index < 0 && (key == 39 || key == 35)) {
-            // 新增卡台状态数量统计
-            console.log("5", key, el);
-            // return this.getAllData(true, true)
-          }
-
-          if (index < 0) {
-            this.resResultDataObj[resResultDataArr[key]][
-              this.resResultDataObj[resResultDataArr[key]].length
-            ] = el;
-          } else {
-            if (key in keys) {
-              let stId = this.resResultDataObj[resResultDataArr[key]][index];
-              let elements = this.resResultDataObj[
-                resResultDataArr[key]
-              ].filter((e) => {
-                let match = true;
-                let values = keys[key];
-                for (let i = 0; i < values.length; i++) {
-                  if (e[values[i]] !== stId[values[i]]) {
-                    match = false;
-                    break;
-                  }
-                }
-                return match;
-              });
-              if (elements.length > 0) {
-                Object.assign(elements[0], el); // 拷贝属性到目标对象
-              } else {
-                this.resResultDataObj[resResultDataArr[key]][
-                  this.resResultDataObj[resResultDataArr[key]].length
-                ] = el;
-              }
-            } else {
-              this.resResultDataObj[resResultDataArr[key]][index] = el;
+        } else {
+          dataObj[key] = transformCardDataHandle(dataObj[key], key);
+          dataObj[key].forEach((el) => {
+            if (!this.resResultDataObj[resResultDataArr[key]]) {
+              this.resResultDataObj[resResultDataArr[key]] = []
             }
-          }
+            // console.log(`websocket改变详情:`, el);  // TODO:
+            // 查找当前改变的数据下标索引值
+            const index = this.resResultDataObj[resResultDataArr[key]].findIndex(
+              (ele) => {
+                if (key in keys) {
+                  let match = true;
+                  let values = keys[key];
+                  for (let i = 0; i < values.length; i++) {
+                    if (ele[values[i]] !== el[values[i]]) {
+                      match = false;
+                      break;
+                    }
+                  }
+                  return match;
+                }
 
-          // 刷新收银系统订单数据
-          if (
-            this.vue.$route.name == "payOrder" &&
-            key * 1 == 14 &&
-            this.vue.$store.state.orderInfo.currentCardInfo &&
-            dataObj[key].some(
-              (item) =>
-                item.seatId ==
-                this.vue.$store.state.orderInfo.currentCardInfo.seatId
-            )
-          ) {
-            eventVue.$emit("reloadPayOrderList");
-          }
-        });
+                if (Number(key) <= 8) {
+                  // 数据id字段名称为id
+                  return ele.id == el.id;
+                } else if (Number(key) <= 10) {
+                  // 数据id字段为prdId
+                  return ele.prdId == el.prdId;
+                } else if (Number(key) <= 12) {
+                  // 数据id字段为stationId
+                  return ele.stationId == el.stationId;
+                } else if (Number(key) == 13) {
+                  // 数据字段为station_id
+                  return ele.station_id == el.station_id;
+                } else if (Number(key) == 14) {
+                  // 数据id字段为seatId
+                  return ele.seatId == el.seatId;
+                } else if (Number(key) == 15) {
+                  // 数据id字段为station_id
+                  return ele.station_id == el.station_id;
+                } else if (Number(key) == 16) {
+                  // 数据id字段为region_id
+                  return ele.region_id == el.region_id;
+                } else if (Number(key) <= 20) {
+                  // 数据id字段为id
+                  return ele.id == el.id;
+                } else if (Number(key) == 21) {
+                  // 数据id字段为rqm_type_id
+                  return ele.rqm_type_id == el.rqm_type_id;
+                } else if (Number(key) == 24) {
+                  //  咨客可操作日期列表
+                  return ele.id == el.id;
+                } else if (Number(key) == 25) {
+                  //  未来(当日以后的)预留业务数据
+                  return (
+                    ele.seat_id == el.seat_id &&
+                    ele.book_day_value == el.book_day_value
+                  );
+                } else if (Number(key) == 26) {
+                  // 线上卡台标记
+                  return ele.seat_id == el.seat_id;
+                } else if (Number(key) == 27) {
+                  // 角色关联花篮,小费商品权限
+                  return ele.station_id == el.station_id;
+                } else if (Number(key) <= 29) {
+                  return ele.seat_id == el.seat_id;
+                } else if (Number(key) <= 35) {
+                  return ele.id == el.id;
+                } else if (Number(key) == 36) {
+                  return ele.station_id == el.station_id;
+                } else if (Number(key) == 37) {
+                  return ele.free_limit_id == el.free_limit_id;
+                } else if (Number(key) == 39) {
+                  // 卡台状态数量统计
+                  return ele.id == el.id && ele.region_id == el.region_id;
+                }else if (Number(key) == 39) {
+                  // 卡台状态数量统计
+                  return ele.id == el.id && ele.region_id == el.region_id;
+                }else if(Number(key) == 41){
+                  return ele.station_id == el.station_id;
+                }
+              }
+            );
+
+            if (key == 38) {
+              // 商户号收款金额汇总
+              this.resResultDataObj[resResultDataArr[key]][0] = el;
+            }
+
+            if (index < 0 && (key == 39 || key == 35)) {
+              // 新增卡台状态数量统计
+              console.log("5", key, el);
+              // return this.getAllData(true, true)
+            }
+
+            if (index < 0) {
+              this.resResultDataObj[resResultDataArr[key]][
+                this.resResultDataObj[resResultDataArr[key]].length
+              ] = el;
+            } else {
+              if (key in keys) {
+                let stId = this.resResultDataObj[resResultDataArr[key]][index];
+                let elements = this.resResultDataObj[
+                  resResultDataArr[key]
+                ].filter((e) => {
+                  let match = true;
+                  let values = keys[key];
+                  for (let i = 0; i < values.length; i++) {
+                    if (e[values[i]] !== stId[values[i]]) {
+                      match = false;
+                      break;
+                    }
+                  }
+                  return match;
+                });
+                if (elements.length > 0) {
+                  Object.assign(elements[0], el); // 拷贝属性到目标对象
+                } else {
+                  this.resResultDataObj[resResultDataArr[key]][
+                    this.resResultDataObj[resResultDataArr[key]].length
+                  ] = el;
+                }
+              } else {
+                this.resResultDataObj[resResultDataArr[key]][index] = el;
+              }
+            }
+
+            // 刷新收银系统订单数据
+            if (
+              this.vue.$route.name == "payOrder" &&
+              key * 1 == 14 &&
+              this.vue.$store.state.orderInfo.currentCardInfo &&
+              dataObj[key].some(
+                (item) =>
+                  item.seatId ==
+                  this.vue.$store.state.orderInfo.currentCardInfo.seatId
+              )
+            ) {
+              eventVue.$emit("reloadPayOrderList");
+            }
+          });
+        }
       }
+
+      this.vue.$store.commit("updateResResultDataObj", this.resResultDataObj);
+      // 如果是权限字段更新 则刷新用户信息
+      if (Object.keys(dataObj).some((item) => item == 13 || item == 41)) {
+        const userInfo = this.vue.$store.state.userInfo;
+        this.vue.$store.commit("updateUserInfo", userInfo);
+      }
+      if (
+        this.vue.$route.name == "cardMachine" ||
+        this.vue.$route.name == "orderCard" ||
+        this.vue.$route.name == "moneyCard"
+      ) {
+        eventVue.$emit("reloadData");
+        // this.vue.$children[0] && this.vue.$children[0].getTabList && this.vue.$children[0].getTabList(this.resResultDataObj['areaInfo'])
+        // this.vue.$children[0] && this.vue.$children[0].getCardList && this.vue.$children[0].getCardList(this.resResultDataObj['cardInfo'], this.resResultDataObj['businessData'])
+      } else {
+        // 更新本地store和sessionStorage中存储的卡台信息
+        this.updateTabListData(this.resResultDataObj["areaInfo"]);
+        this.updateCardListData(
+          this.resResultDataObj["cardInfo"],
+          this.resResultDataObj["businessData"]
+        );
+      }
+      if (time) localStorage.setItem("websocketTimeMessageTime", time);
+    } catch (e) {
+      globalError.handleError(err);
+      this.getUpdateData();
     }
 
-    this.vue.$store.commit("updateResResultDataObj", this.resResultDataObj);
-    if (
-      this.vue.$route.name == "cardMachine" ||
-      this.vue.$route.name == "orderCard" ||
-      this.vue.$route.name == "moneyCard"
-    ) {
-      eventVue.$emit("reloadData");
-      // this.vue.$children[0] && this.vue.$children[0].getTabList && this.vue.$children[0].getTabList(this.resResultDataObj['areaInfo'])
-      // this.vue.$children[0] && this.vue.$children[0].getCardList && this.vue.$children[0].getCardList(this.resResultDataObj['cardInfo'], this.resResultDataObj['businessData'])
-    } else {
-      // 更新本地store和sessionStorage中存储的卡台信息
-      this.updateTabListData(this.resResultDataObj["areaInfo"]);
-      this.updateCardListData(
-        this.resResultDataObj["cardInfo"],
-        this.resResultDataObj["businessData"]
-      );
-    }
-
-    if (time) localStorage.setItem("websocketTimeMessageTime", time);
   };
 
   // 更新修改后的tab数据
@@ -630,7 +651,7 @@ export default class WebSocketClient {
 
       const token = localStorage.getItem("tk") || "";
       if (token && token.length > 0) {
-        // 不是订单，收银，预定系统，不需要websocket
+        // 不是订单，收银，预定系统，会员，不需要websocket
         if (
           sessionStorage.getItem("client") == "money" ||
           sessionStorage.getItem("client") == "order" ||

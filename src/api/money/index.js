@@ -169,6 +169,15 @@ export default {
   reqExportTYListReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_hl_list`, params),
 
+  // 收银读取特饮/小费汇总表
+  reqGetTYHZList: (params) =>
+  axios.post(`${base.htgl}/sel/rpt/get_hl_rpt_sum_list`, params),
+
+  //  收银导出特饮/小费汇总表
+  reqExportTYHZListReport: (params) =>
+  axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_hl_rpt_sum_list`, params),
+
+
   // 收银读取翻台记录
   reqGetTurnOverList: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_turnover_csm_list`, params),

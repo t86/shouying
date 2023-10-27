@@ -15,7 +15,7 @@
       <characters-button @click.native="toEditCates(3)" colors="#383943" wz="优惠2"></characters-button>
       <!-- <characters-button @click.native="toEditCates(6)" colors="#383943" wz='自用'></characters-button> -->
       <characters-button @click.native="toEditCates(8)" colors="#383943" wz="特饮小费关联商品"></characters-button>
-      <characters-button @click.native="toEditStoreAdmins" colors="#383943" wz="erp系统权限"></characters-button>
+      <!-- <characters-button @click.native="toEditStoreAdmins" colors="#383943" wz="erp系统权限"></characters-button> -->
       <characters-button @click.native="setAuthLimitHandle" colors="#383943" wz="配置权限"></characters-button>
       <characters-button @click.native="setLookOrderHandle" colors="#383943" wz="查单权限"></characters-button>
     </div>
