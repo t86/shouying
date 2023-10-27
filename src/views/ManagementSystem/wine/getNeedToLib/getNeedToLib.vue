@@ -35,6 +35,7 @@
             <div class="th">订台人</div>
             <div class="th">服务员</div>
             <div class="th">取酒时间</div>
+            <div class="th">备注</div>
             <div class="th">操作</div>
           </div>
         </div>
@@ -60,6 +61,7 @@
               <div class="td">{{item.e}}</div>
               <div class="td">{{item.w}}</div>
               <div class="td">{{item.t}}</div>
+              <div class="td" style="color: red;">{{item.i}}</div>
               <div class="td">
                 <span @click="showEditDrawerHandle(item)">编辑</span>
               </div>
@@ -265,6 +267,7 @@ export default {
           margin-top: 2px;
           .td {
             background-color: #ddd!important;
+            margin: 10px 10px;
           }
           &:hover{
             .td {
@@ -277,7 +280,7 @@ export default {
           }
         }
         .coll {
-          height: 40px;
+          padding: 15px auto;
           font-size: 15px;          
           .td {
             font-weight: 600;
