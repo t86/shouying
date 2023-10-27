@@ -1,4 +1,5 @@
 export const CODE_INVALID = "code-invaid";
+export const SCROLL_BOTTOM = "scroll-bottom";
 
 class Observer {
   constructor() {

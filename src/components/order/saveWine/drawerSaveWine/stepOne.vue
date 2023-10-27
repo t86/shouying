@@ -161,8 +161,10 @@
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label" style="width: 70px">客人姓名</div>
-                  <div class="value">
+                  <div class="value" @click="keyboardShow(11, 'customName')">
                     <input
+                      @blur="keyboardLeave"
+                      ref="customName"
                       v-model="customName"
                       :class="{ focus: focus == 10 }"
                       @click="focus = 10"
@@ -194,11 +196,12 @@
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label" style="width: 70px">客人姓名</div>
-                  <div class="value">
+                  <div class="value" @click="keyboardShow(11, 'customPhoneName')">
                     <input
+                      @blur="keyboardLeave"
+                      ref="customPhoneName"
                       v-model="customPhoneName"
                       :class="{ focus: focus == 11 }"
-                      @click="focus = 11"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入客户姓名"
                     />
@@ -239,13 +242,7 @@
           </div>
 
           <div style="width: 280px">
-            <simpleKeyBoard
-              v-if="focus == 10 || focus == 11"
-              size="small"
-              @addInputHandle="addInputHandle"
-              @subInputHandle="subInputHandle"
-            />
-            <keyBoard v-else @changeNum="changeNumHandle" />
+            <keyBoard v-if="focus != 10 && focus != 11" @changeNum="changeNumHandle" />
           </div>
         </div>
       </div>
@@ -257,7 +254,6 @@
 import api_vip from "@/api/vip";
 import api_saveWine from "@/api/saveWine";
 import keyBoard from "@/components/common/keyBoard.vue";
-import simpleKeyBoard from "@/components/common/simpleKeyBoard.vue";
 export default {
   data() {
     return {
@@ -325,6 +321,33 @@ export default {
       }
     },
 
+    keyboardShow(focusIndex, refString){
+      console.log('in')
+      this.focus = focusIndex
+
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+
+          }
+    },
+    keyboardLeave(){
+      console.log('leave')
+      setTimeout(()=> {
+        if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)
+          ) {
+            atool.hideSoftInput();
+            atool.restart();
+          }
+      }, 10)
+    },
     // 倒计时
     loopSecond() {
       if (this.timer) clearInterval(this.timer);
@@ -477,7 +500,6 @@ export default {
   },
   components: {
     keyBoard,
-    simpleKeyBoard,
   },
   computed: {
     btnText() {
@@ -487,19 +509,19 @@ export default {
   watch: {
     stepOneInfo: {
       handler(newVal) {
-        if (
-            window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            if(this.tabIndex == 3) {
-              atool.showSoftInput();
-            } else {
-              atool.hideSoftInput();
-              setTimeout(()=>{
-                atool.restart();
-              },10);
-            }
-          }
+        // if (
+        //   window.atool && window.atool.getTermType() == "android" &&
+        //     ("showSoftInput" in window.atool)
+        //   ) {
+        //     if(this.tabIndex == 3 || this.tabIndex == 2) {
+        //       atool.showSoftInput();
+        //     } else {
+        //       atool.hideSoftInput();
+        //       setTimeout(()=>{
+        //         atool.restart();
+        //       },10);
+        //     }
+        //   }
         this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
         this.selectedInfo = this.tableData.find((item) => item.checked) || {};
