@@ -20,7 +20,7 @@ let keys = {
   37: ["free_limit_id", "prd_id"],
   39: ["id", "region_id"],
   40: ["license_id", "type_id", "region_o_seat_id"],
-  41: ["station_id", "sys_role_module_id"],
+  41: ["station_id", "sys_module_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {

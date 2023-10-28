@@ -153,8 +153,10 @@ export default {
     // 防止页面分辨率太小，导致输入框显示在页面可视区域以外
     getPageHeight() {
       const pageHeight = document.body.offsetHeight;
-      if (pageHeight - formHeight < 60) {
+      if (pageHeight - formHeight < 60 && pageHeight - formHeight > 0) {
         this.scale = formHeight / pageHeight - 0.1;
+      } else {
+        this.scale = 0.8
       }
     },
     changePosition() {

@@ -32,19 +32,19 @@
             >{{item1.name}}</div>
           </div>
         </div>
-        <div class="textarea p-t-1" v-if="isNotAndroid && requireList.length>0">
+        <div class="textarea p-t-1" v-if="requireList.length>0">
           <div style="color:rgba(255,255,255,0.8);margin: 3px 0 6px 0px">其他要求</div>
-          <textarea v-model="textareaText" placeholder="请输入自定义要求" maxlength="30"></textarea>
+          <textarea v-model="textareaText" @blur="keyboardLeave"  @click="keyboardShow('otherReqInput')" ref="otherReqInput" placeholder="请输入自定义要求" maxlength="30"></textarea>
           <div class="tips">{{textareaText.length}} / 30</div>
         </div>
       </div>
-      <div class="white m-t-6 fs16" style="text-align:center" v-if="!showSelectedCount&&requireList.length == 0 || !isNotAndroid ">
+      <div class="white m-t-6 fs16" style="text-align:center" v-if="!showSelectedCount&&requireList.length == 0">
           当前商品暂无可配置要求项
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button v-if="(!(!showSelectedCount&&requireList.length == 0)) || isNotAndroid" type="primary" @click="onSubmit">确认</el-button>
+        <el-button v-if="(!(!showSelectedCount&&requireList.length == 0))" type="primary" @click="onSubmit">确认</el-button>
       </div>
     </el-drawer>
   </div>
@@ -73,6 +73,30 @@ export default {
     };
   },
   methods: {
+    keyboardShow(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+
+          }
+    },
+    keyboardLeave(){
+      setTimeout(()=> {
+        if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)
+          ) {
+            atool.hideSoftInput();
+            atool.restart();
+          }
+      }, 10)
+    },
+    
     closeDrawerHandle() {
       this.$emit("showOrHideDrawer");
     },

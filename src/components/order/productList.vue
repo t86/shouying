@@ -92,8 +92,7 @@ export default {
     };
   },
   methods: {
-    keyboardShow(focusIndex, refString){
-      this.focus = focusIndex
+    keyboardShow(refString){
       if (
         window.atool
         && window.atool.getTermType() == "android" &&

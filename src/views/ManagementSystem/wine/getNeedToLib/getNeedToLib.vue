@@ -35,7 +35,6 @@
             <div class="th">订台人</div>
             <div class="th">服务员</div>
             <div class="th">取酒时间</div>
-            <div class="th">备注</div>
             <div class="th">操作</div>
           </div>
         </div>
@@ -61,7 +60,6 @@
               <div class="td">{{item.e}}</div>
               <div class="td">{{item.w}}</div>
               <div class="td">{{item.t}}</div>
-              <div class="td" style="color: red;">{{item.i}}</div>
               <div class="td">
                 <span @click="showEditDrawerHandle(item)">编辑</span>
               </div>
@@ -74,6 +72,7 @@
                 <div class="tr-th">数量</div>
                 <div class="tr-th">过期时间</div>
                 <div class="tr-th">授权人</div>
+                <div class="th">备注</div>
                 <div class="tr-th">库存id</div>
               </div>
               <div class="tr-tbody">
@@ -90,6 +89,7 @@
                   <div class="tr-td">{{items.c}}</div>
                   <div class="tr-td">{{items.e}}</div>
                   <div class="tr-td">{{items.a}}</div>
+                  <div class="tr-td" style="color: red;">{{items.w}}</div>
                   <div class="tr-td">{{items.i}}</div>
                 </div>
               </div>
