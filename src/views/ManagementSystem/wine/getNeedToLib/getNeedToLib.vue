@@ -70,7 +70,7 @@
                 <div class="tr-th">规格</div>
                 <div class="tr-th">每瓶克数</div>
                 <div class="tr-th">数量</div>
-                <div class="tr-th">存酒定位人</div>
+                <div class="tr-th">存酒订位人</div>
                 <div class="tr-th">过期时间</div>
                 <div class="tr-th">授权人</div>
                 <div class="th">备注</div>
