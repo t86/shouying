@@ -397,7 +397,7 @@ export default class WebSocketClient {
         // 开启营业日的时候，业务数据为空，需要重新赋值业务数据
         if (
           key == 14 &&
-          !this.resResultDataObj[resResultDataArr[key]] || this.resResultDataObj[resResultDataArr[key]].length == 0
+          (!this.resResultDataObj[resResultDataArr[key]] || this.resResultDataObj[resResultDataArr[key]].length == 0)
         ) {
           console.log(1, "key", key);
           return this.getAllData(true, false);
