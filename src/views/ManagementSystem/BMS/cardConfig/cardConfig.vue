@@ -94,7 +94,7 @@ export default {
       searchVal: "",
       menuIndex: 0,  // 0:选中的是全部（表格中是区域） 1:选中的是区域（表格中是卡台列表）
       menuList: [],
-      showMenuList: false,
+      showMenuList: true,
       searchMenu: {
         areaList: [],
         cardList: [],

@@ -238,7 +238,7 @@
 
           <div
             class="button"
-            v-if="payTabInfo.activePayId == -1"
+            v-if="payTabInfo.activePayId != 0"
             @click="printOrderPayedList"
           >
             {{ isOldOrder ? "补打" : "打印" }}结算单
@@ -290,7 +290,7 @@
           </div>
           <div
             class="button"
-            v-if="payTabInfo.activePayId == -1"
+            v-if="payTabInfo.activePayId != 0"
             @click="printOrderPayedList"
           >
             {{ isOldOrder ? "补打" : "打印" }}结算单
@@ -1006,7 +1006,7 @@ export default {
         return this.$message.warning("存在未结账订单，不可打印结算单");
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
-        pay_id: 0,
+        pay_id: this.payTabInfo.activePayId == -1 ? 0 : this.payTabInfo.activePayId,
         turnover_cnt: this.turnOverInfo.activeTurnOverCount,
       };
       try {

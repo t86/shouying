@@ -106,7 +106,7 @@ export default {
       navWidth: menuWidth,
       searchVal: "",
       menuList: [],
-      showMenuList: false,
+      showMenuList: true,
       searchMenu: {
         groupList: [],
         employeeList: [],

@@ -147,7 +147,7 @@ export default {
       searchVal: "",
       menuIndex: 0, // 0:选中的是全部（表格中是一级分类） 1:选中的是一级分类（表格中是二级分类） 2:选中的是二级分类（表格中是商品列表）
       menuList: [],
-      showMenuList: false,
+      showMenuList: true,
       searchMenu: {
         oneCateList: [],
         twoCateList: [],
