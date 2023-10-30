@@ -591,7 +591,14 @@
         @close="dialogiblecl = false"
         :close-on-click-modal="false"
       >
-        <div class="fandjc">是否确认将所选员工的密码重置为666666？</div>
+        <el-input
+              v-model="resetPwd"
+              @blur="limitingRule(4)"
+              placeholder="请输入重置密码"
+              ref="selectsse"
+              class="controlling"
+            />
+        <div class="cwts">{{ mistakepwdNum }}</div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogiblecl = false">取消</el-button>
           <el-button type="primary" @click="batchResetPwd">确认</el-button>
@@ -832,6 +839,7 @@ export default {
       currentBindPersonInfo: {}, // 当前所绑定员工信息
       QRBindImgSrc: "", // 绑定员工二维码
       materialStair: "", //员工名字
+      resetPwd: "", //重置密码
       stationId: "", //岗位id
       code: "", //员工工号
       sex: "1", //员工性别
@@ -887,6 +895,7 @@ export default {
       codeRefMistake: "", //弹窗内错误提示
       stationRefMistake: "", //弹窗内错误提示
       mistakephoneNum: "", //弹窗内错误提示
+      mistakepwdNum: "", //弹窗内错误提示
       windowWidt: document.documentElement.clientWidth, //实时屏幕宽度
       windowHeigh: document.documentElement.clientHeight, //实时屏幕高度
       MaxHeight: 0, //滚动高度
@@ -1041,6 +1050,7 @@ export default {
       this.$api.BMS.emp
         .requestEmpBatchResetPwd({
           ids: this.multipleSelection,
+          new_passwd: this.resetPwd,
         })
         .then((res) => {
           this.demand();
@@ -1153,6 +1163,13 @@ export default {
             this.mistakephoneNum = "请输入11位手机号码";
           } else {
             this.mistakephoneNum = "";
+          }
+          break;
+        case 4:
+          if (this.resetPwd && this.resetPwd.length < 6) {
+            this.mistakepwdNum = "请输入至少6位数字";
+          } else {
+            this.mistakepwdNum = "";
           }
           break;
       }

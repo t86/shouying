@@ -59,6 +59,7 @@
                 <div class="tr-th">规格</div>
                 <div class="tr-th">每瓶克数</div>
                 <div class="tr-th">数量</div>
+                <div class="tr-th">延期次数</div>
                 <div class="tr-th">过期天数</div>
                 <div class="tr-th">过期时间</div>
                 <div class="tr-th">授权人</div>
@@ -86,6 +87,7 @@
                   <div class="tr-td">{{items.u}}</div>
                   <div class="tr-td">{{items.g}}</div>
                   <div class="tr-td">{{items.c}}</div>
+                  <div class="tr-td">{{items.dc}}</div>
                   <div class="tr-td">{{items.ed}}</div>
                   <div class="tr-td">{{items.e}}</div>
                   <div class="tr-td">{{items.a}}</div>

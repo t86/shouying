@@ -76,7 +76,11 @@
           </div>
         </div>
         <div v-if="otherType == 4">
-          <p class="m-t-6 fs16" style="text-align:center">是否确认将所选员工的密码重置为666666？</p>
+          <el-input
+              v-model="resetPwd"
+              placeholder="请输入重置密码"
+              class="controlling"
+            />
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
@@ -105,6 +109,7 @@ export default {
       upperEmpId: '',
       upperStaOption: [],
       upperStaId: '',
+      resetPwd: '',
     };
   },
   methods: {
@@ -228,8 +233,15 @@ export default {
 
     // 批量重置密码 
     async submitResetPwdInfo(){
+
+      if(!this.resetPwd) {
+        this.message.warning('请输入重置密码')
+        return
+      }
+
       const params = {
         ids: this.checkedList.map(item => item.id * 1),
+        new_passwd: this.resetPwd,
       }
       try {
         const res = await this.$api.BMS.emp.requestEmpBatchResetPwd(params)
@@ -328,5 +340,10 @@ export default {
   .label {
     width: 120px;
   }
+}
+
+.controlling {
+  width: 230px !important;
+  line-height: 34px;
 }
 </style>
