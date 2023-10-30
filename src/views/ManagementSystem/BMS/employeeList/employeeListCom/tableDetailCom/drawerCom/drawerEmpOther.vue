@@ -250,7 +250,7 @@ export default {
           this.onCancelDrawer()
           this.$emit('onCancelDrawer')
         } else {
-          this.message.warning(res.msg)
+          this.$message.warning(res.msg)
         }
       } catch (error) {
         console.log('批量重置密码请求失败', error);

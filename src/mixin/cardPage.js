@@ -172,6 +172,8 @@ export const cardPageMixins = {
             this.legendOptions.updatePwdModel = false;
             this.legendOptionHandle("logout");
           }, 1000);
+        } else {
+          this.$message.warning(res.msg);
         }
       } catch (error) {
         console.log("修改密码失败", error);
