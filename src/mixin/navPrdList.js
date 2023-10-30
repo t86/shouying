@@ -181,6 +181,9 @@ export default {
           FWYSecondCategoryPrdList.push(...newList);
         });
 
+        // 添加设置的特饮和消费
+        // 
+
         FWYAreaPrdList.forEach((el) => {
           const find = FWYSecondCategoryPrdList.find(
             (item) => item.id == el.id
@@ -493,6 +496,10 @@ export default {
         }));
       }
 
+      resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
+        "authFlowerPrdList"
+      ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0), ...resultProductArr]
+
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
       secondCategoryAll.forEach((el) => {
@@ -531,6 +538,8 @@ export default {
       this.secondCategoryListAll = resultSecondCategoryInfoArr.sort(
         (a, b) => a.dsp - b.dsp
       );
+
+ 
       this.productListAll = resultProductArr.sort((a, b) => a.dsp - b.dsp);
 
       this.$emit("updateProductsList", {

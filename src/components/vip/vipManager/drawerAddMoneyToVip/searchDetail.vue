@@ -211,6 +211,12 @@ export default {
             ...(res.data.deposit_rules || []),
             { d: "自定义", f: 0 },
           ];
+          const result =
+          this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+          this.personOptions = result.filter(
+            (item) => this.vipInfo.sales_emp_id != 0 && item.id.includes(this.vipInfo.sales_emp_id) 
+          );
+          this.form.personVal = this.personOptions.length > 0 && this.personOptions[0].id || ''
           this.typeOption = res.data.depoist_cnls || [];
           this.base_amt = res.data.base_amt;
         } else {
