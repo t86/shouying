@@ -552,6 +552,10 @@ export default {
   },
   methods: {
     fontSize(item,index) {
+      if (item && this.$refs.cardRef && this.$refs.cardRef[index] &&
+        item.name != this.$refs.cardRef[index].innerText) {
+          this.$refs.cardRef[index].innerText = item.name;
+      }
       if (item.fontSize) return item.fontSize;
       if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
       let fontSize = 30
