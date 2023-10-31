@@ -53,7 +53,7 @@
                   :class="[item.show ? 'el-icon-minus' : 'el-icon-plus']"
                 ></i>
               </div>
-              <div class="td">{{item.us}}</div>
+              <div class="td" :class="{'is-black': item.us == '是'}">{{item.us}}</div>
               <div class="td" :class="{'is-black': item.b == 1}">{{item.c}}</div>
               <div class="td" :class="{'is-black': item.b == 1}">{{item.p}}</div>
               <div class="td">{{item.s}}</div>

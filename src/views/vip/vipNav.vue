@@ -32,7 +32,7 @@
           <span>{{ $store.state.userInfo.name }}</span>
           <el-icon class="el-icon-arrow-down cursor m-r-10"></el-icon>
           <ul class="m-r-10 cursor" v-if="showOption">
-            <!-- <li class="cursor" @click="showOrHideDrawer">修改密码</li> -->
+            <li class="cursor" @click="showChangePwd">修改密码</li>
             <li class="cursor" @click="logOutHandle">退出登录</li>
           </ul>
         </div>
@@ -55,6 +55,49 @@
       <div class="content">
         <router-view></router-view>
       </div>
+
+       <!-- 修改密码框 -->
+       <div v-show="dialogFormVisible" class="Thepassword">
+          <el-dialog
+            title="修改密码"
+            :visible.sync="dialogFormVisible"
+            @close="dialogFormVisible = false"
+            :close-on-click-modal="false"
+          >
+            <el-form label-position="left">
+              <div class="compatibility">
+                <div class="mandatory">
+                  <span class="reqfieldsd">*</span>旧密码：
+                </div>
+                <el-input
+                  v-model="Theoldpassword"
+                  ref="selectsse"
+                  placeholder="请输入旧密码"
+                  class="controlling"
+                  clearable
+                  show-password
+                />
+              </div>
+              <div class="compatibility">
+                <div class="mandatory">
+                  <span class="reqfieldsd">*</span>新密码：
+                </div>
+                <el-input
+                  v-model="Thenewpassword"
+                  ref="selectsse"
+                  placeholder="请输入新密码"
+                  class="controlling"
+                  clearable
+                  show-password
+                />
+              </div>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="changepassword ">确认修改</el-button>
+            </span>
+          </el-dialog>
+        </div>
     </div>
   </div>
 </template>
@@ -62,15 +105,58 @@
 <script>
 import navList from "./navList";
 import api_auth from "@/api/UtilAuth";
+import md5 from "js-md5";
 export default {
   data() {
     return {
       firstCateId: 2,
       secondCateId: 1,
       showOption: false,
+      dialogFormVisible: false,
+      Theoldpassword: "", // 旧密码
+      Thenewpassword: "", // 新密码
     };
   },
   methods: {
+    // 显示修改密码框
+    showChangePwd(){
+      this.dialogFormVisible = true;
+      this.Theoldpassword = "";
+      this.Thenewpassword = "";
+    },
+     // 修改密码
+     changepassword() {
+      if (this.Theoldpassword || this.Thenewpassword) {
+        this.$api.BMS.emp
+          .requestempchg_pwd({
+            old_password: md5(this.Theoldpassword)
+              .toString()
+              .toUpperCase(),
+            new_password: md5(this.Thenewpassword)
+              .toString()
+              .toUpperCase()
+          })
+          .then(res => {
+            if (res.code == 1) {
+              this.$message({
+                showClose: true,
+                message: "成功修改密码",
+                type: "success"
+              });
+              this.Theoldpassword = "";
+              this.Thenewpassword = "";
+              this.dialogFormVisible = false;
+            } else {
+              this.$message.warning(res.msg);
+            }
+          });
+      } else {
+        this.$message({
+          message: "新旧密码不能为空",
+          type: "warning"
+        });
+      }
+    },
     mouseHandle(itemInfo, type) {
       itemInfo.hover = type === 1;
       this.$forceUpdate();
@@ -265,6 +351,41 @@ export default {
       padding: 10px 15px;
       box-sizing: border-box;
     }
+
+        
+    /* 密码 */
+    .Thepassword .mandatory {
+      color: #40404e;
+      width: 140px;
+      text-align: right;
+      /* padding-top: 10px; */
+    }
+
+    .Thepassword .controlling {
+      width: 230px !important;
+    }
+
+    .Thepassword .reqfieldsd {
+      font-size: 16px;
+      padding-right: 4px;
+      color: #ce4153;
+      /* 文字不可选中 */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .Thepassword .compatibility {
+      display: flex;
+      /* align-items: center; */
+      margin-bottom: 10px;
+    }
+
+    .Thepassword .el-dialog {
+      width: 500px !important;
+    }
+
   }
 }
 </style>
