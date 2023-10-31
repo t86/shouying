@@ -83,8 +83,9 @@
 
               <h3 class="card-name" layout="row" layout-align="start center">
                 <div
+                  ref="cardRef"
                   style="white-space: nowrap; transform-origin: left center"
-                  :style="{ transform: 'scale(' + item.cardNameScale + ')' }"
+                  :style="{fontSize: fontSize(item, index) + 'px'}"
                 >
                   {{ item.name }}
                 </div>

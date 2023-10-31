@@ -32,6 +32,26 @@ export const cardPageMixins = {
       this.legendActive = 0;
     },
 
+
+    // 卡台名称动态计算字体大小
+    fontSize(item,index) {
+      if (item && this.$refs.cardRef && this.$refs.cardRef[index] &&
+        item.name != this.$refs.cardRef[index].innerText) {
+          this.$refs.cardRef[index].innerText = item.name;
+      }
+      if (item.fontSize) return item.fontSize;
+      if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
+      let fontSize = 30
+      this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
+      while (this.$refs.cardRef[index].scrollWidth > 130) {
+        fontSize *= 0.95;
+        this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
+      }
+      item.fontSize = fontSize;
+      // 根据当前宽度和基准宽度比例缩放
+      return item.fontSize;
+    },
+
     // 获取当前卡台的不同颜色提示小字
     /**
      * @params{
