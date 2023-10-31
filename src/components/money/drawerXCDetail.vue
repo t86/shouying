@@ -44,6 +44,7 @@
               <div class="th">点单金额</div>
               <div class="th">下单时间</div>
               <div class="th">抽成金额</div>
+              <div class="th">支付信息描述</div>
             </div>
           </div>
           <div class="tbody">
@@ -64,6 +65,7 @@
               <div class="td">{{item.a}}</div>
               <div class="td">{{item.t}}</div>
               <div class="td">{{item.ca}}</div>
+              <div class="td">{{item.pi}}</div>
             </div>
             <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
           </div>
@@ -229,45 +231,40 @@ export default {
       padding: 0 10px;
       box-sizing: border-box;
     }
-
     .th:nth-child(1),
     .td:nth-child(1) {
-      width: 8%;
+      width: 6%;
     }
-
     .th:nth-child(2),
     .td:nth-child(2) {
       width: 16%;
     }
-
     .th:nth-child(3),
     .td:nth-child(3) {
-      width: 10%;
+      width: 8%;
     }
-
     .th:nth-child(4),
     .td:nth-child(4) {
-      width: 10%;
+      width: 8%;
     }
-
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 14%;
+      width: 10%;
     }
 
     .th:nth-child(6),
     .td:nth-child(6) {
-      width: 20%;
+      width: 16%;
     }
 
     .th:nth-child(7),
     .td:nth-child(7) {
-      width: 10%;
+      width: 8%;
     }
 
     .th:nth-child(8),
     .td:nth-child(8) {
-      width: 16%;
+      width: 8%;
     }
 
     .th:nth-child(9),
@@ -277,7 +274,12 @@ export default {
 
     .th:nth-child(10),
     .td:nth-child(10) {
-      width: 13%;
+      width: 10%;
+    }
+
+    .th:nth-child(11),
+    .td:nth-child(11) {
+      width: 20%;
     }
   }
 }
