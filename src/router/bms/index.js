@@ -320,7 +320,7 @@ export default [
   // 后台管理系统 >>>> 工号生成规则
   {
     path: '/BMS/genRule', name: "genRule", meta: { title: '工号生成规则' },
-    component: () => {import('@/views/ManagementSystem/BMS/genRule/genRule.vue')
+    component: () => import('@/views/ManagementSystem/BMS/genRule/genRule.vue')
   },
   // 后台管理系统 >>>> 岗位管理
   {
