@@ -527,6 +527,10 @@ export default {
       if (this.productInfo.canSealYH2) {
         status.push(5);
       }
+      // 这是认为只配置了特饮,设置花篮
+      if(status.length == 0) {
+        status.push(3);
+      }
       return status;
     },
 
