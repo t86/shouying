@@ -191,7 +191,7 @@ export default {
               .card-name {
                 font-size: 16px;
                 line-height: 26px;
-                word-break: keep-all;
+                word-break:break-all;
                 overflow: hidden;
                 transform-origin: left center;
               }

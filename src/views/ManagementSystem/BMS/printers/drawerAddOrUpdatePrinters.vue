@@ -109,6 +109,7 @@ export default {
           this.name = res.data.name;
           this.ip = res.data.ip_addr;
           this.prtType = res.data.type_id; // 1 普通打印 2 标签打印
+          this.monopoly = res.data.exclude_mode;
         } else {
           this.$message.warning(res.msg);
         }
@@ -130,6 +131,7 @@ export default {
         name: this.name,
         ip_addr: this.ip,
         type_id: this.prtType * 1,
+        exclude_mode: this.monopoly ? 1 : 2,
         ...(this.type == 2 && { id: this.currentInfo.id * 1 }),
       };
       try {
