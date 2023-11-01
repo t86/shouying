@@ -29,7 +29,7 @@ export default {
       let prdListId = []; // 营销商品可优惠商品id
       let FWYSecondCategory = []; // 服务员可点二级分类
       let YXSecondCategory = []; // 营销可点二级分类
-      let HLSecondCategory = []; // 花篮可点二级分类
+      // let HLSecondCategory = []; // 花篮可点二级分类
 
       let YH2PrdListId = []; // 优惠2可优惠商品id
 
@@ -78,9 +78,9 @@ export default {
           prdListId = getSealConfigPrdId(this);
         }
 
-        if (this.$store.state.userInfo.roleIds.includes(4)) {
-          // 花篮  // 特饮/花篮权限绑定在商品上，需要在绑定的商品上做筛选
-        }
+        // if (this.$store.state.userInfo.roleIds.includes(4)) {
+        //   // 花篮  // 特饮/花篮权限绑定在商品上，需要在绑定的商品上做筛选
+        // }
 
         if (this.$store.state.userInfo.roleIds.includes(1000)) {
           // 优惠2
@@ -140,7 +140,7 @@ export default {
 
       let FWYAllProductList = []; // 服务员可点商品
       let YXAllProductList = []; // 营销可优惠商品
-      let HLAllProductList = []; // 花篮可点商品
+      // let HLAllProductList = []; // 花篮可点商品
       let YH2AllProductList = []; // 优惠2可优惠商品
 
       /**
@@ -269,49 +269,49 @@ export default {
       /**
        * 花篮
        */
-      if (this.$store.state.userInfo.roleIds.includes(4)) {
-        // 花篮在当前区域下可点商品
-        const HLAreaPrdList = [];
-        currentAreaAllProduct.forEach((el) => {
-          const find = stationAllProduct.find(
-            (item) => item.id == el.prd_id && item.useType != 2
-          );
-          if (find)
-            HLAreaPrdList.push({
-              ...find,
-              canHL: true,
-            });
-        });
+      // if (this.$store.state.userInfo.roleIds.includes(4)) {
+      //   // 花篮在当前区域下可点商品
+      //   const HLAreaPrdList = [];
+      //   currentAreaAllProduct.forEach((el) => {
+      //     const find = stationAllProduct.find(
+      //       (item) => item.id == el.prd_id && item.useType != 2
+      //     );
+      //     if (find)
+      //       HLAreaPrdList.push({
+      //         ...find,
+      //         canHL: true,
+      //       });
+      //   });
 
-        // 花篮绑定在商品上，通过商品岗位筛选可点商品
-        const authFlowerPrdList =
-          this.$store.state.cardPageInfo.resResultDataObj[
-            "authFlowerPrdList"
-          ].filter(
-            (item) =>
-              item.status == 1 &&
-              item.station_id == this.$store.state.userInfo.station_id
-          );
+      //   // 花篮绑定在商品上，通过商品岗位筛选可点商品
+      //   const authFlowerPrdList =
+      //     this.$store.state.cardPageInfo.resResultDataObj[
+      //       "authFlowerPrdList"
+      //     ].filter(
+      //       (item) =>
+      //         item.status == 1 &&
+      //         item.station_id == this.$store.state.userInfo.station_id
+      //     );
 
-        // 商品配置过花篮的商品
-        let HLCanHLPrdList = [];
-        stationAllProduct.forEach((el) => {
-          const findProduct = authFlowerPrdList.find(
-            (ele) => ele.prd_id == el.id
-          );
-          if (findProduct)
-            HLCanHLPrdList.push({
-              ...el,
-              canHL: true,
-            });
-        });
+      //   // 商品配置过花篮的商品
+      //   let HLCanHLPrdList = [];
+      //   stationAllProduct.forEach((el) => {
+      //     const findProduct = authFlowerPrdList.find(
+      //       (ele) => ele.prd_id == el.id
+      //     );
+      //     if (findProduct)
+      //       HLCanHLPrdList.push({
+      //         ...el,
+      //         canHL: true,
+      //       });
+      //   });
 
-        // 当前区域下商品 与 花篮商品求 交集
-        HLCanHLPrdList.forEach((el) => {
-          const find = HLAreaPrdList.find((item) => item.id == el.id);
-          if (find) HLAllProductList.push({...find});
-        });
-      }
+      //   // 当前区域下商品 与 花篮商品求 交集
+      //   HLCanHLPrdList.forEach((el) => {
+      //     const find = HLAreaPrdList.find((item) => item.id == el.id);
+      //     if (find) HLAllProductList.push({...find});
+      //   });
+      // }
 
       // 最终展示在页面上的商品列表
       let resultProductArr = [];
@@ -413,47 +413,47 @@ export default {
 
         //  在原合并基础上  再次  合并  花篮/消费/赔偿
         //  花篮/消费/赔偿 商品需要授权，因此如果与之前合并的商品发生冲突，则全部视为花篮花篮/消费/赔偿 商品处理
-        const mergePrdList3 = [];
-        tempResultProductArrList2.forEach((el) => {
-          const find = HLAllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList3.push({...find});
-        });
+        // const mergePrdList3 = [];
+        // tempResultProductArrList2.forEach((el) => {
+        //   const find = HLAllProductList.find((item) => item.id == el.id);
+        //   if (find) mergePrdList3.push({...find});
+        // });
 
-        const tempResultProductArrList3 = [
-          ...tempResultProductArrList2,
-          ...HLAllProductList,
-        ].filter(
-          (item, index, arr) =>
-            arr.findIndex((items) => item.id == items.id) == index
-        );
-        mergePrdList3.forEach((el) => {
-          const findMergePrd = tempResultProductArrList2.find(
-            (item) => item.id == el.id
-          );
-          const findHLPrd = HLAllProductList.find((item) => item.id == el.id);
-          if (findMergePrd && findHLPrd) {
-            // el.canOrderMeal = false  // findMergePrd.canOrderMeal,
-            // el.canSeal = false  //  findMergePrd.canSeal
-            // el.canSealYH2 = false  // findMergePrd.canSealYH2
-            (el.canOrderMeal = findMergePrd.canOrderMeal),
-              (el.canSeal = findMergePrd.canSeal);
-            el.canSealYH2 = findMergePrd.canSealYH2;
-            el.canHL = findHLPrd.canHL;
-          }
-        });
+        // const tempResultProductArrList3 = [
+        //   ...tempResultProductArrList2,
+        //   ...HLAllProductList,
+        // ].filter(
+        //   (item, index, arr) =>
+        //     arr.findIndex((items) => item.id == items.id) == index
+        // );
+        // mergePrdList3.forEach((el) => {
+        //   const findMergePrd = tempResultProductArrList2.find(
+        //     (item) => item.id == el.id
+        //   );
+        //   const findHLPrd = HLAllProductList.find((item) => item.id == el.id);
+        //   if (findMergePrd && findHLPrd) {
+        //     // el.canOrderMeal = false  // findMergePrd.canOrderMeal,
+        //     // el.canSeal = false  //  findMergePrd.canSeal
+        //     // el.canSealYH2 = false  // findMergePrd.canSealYH2
+        //     (el.canOrderMeal = findMergePrd.canOrderMeal),
+        //       (el.canSeal = findMergePrd.canSeal);
+        //     el.canSealYH2 = findMergePrd.canSealYH2;
+        //     el.canHL = findHLPrd.canHL;
+        //   }
+        // });
 
-        tempResultProductArrList3.forEach((el) => {
-          const find = mergePrdList3.find((item) => item.id == el.id);
-          if (find) {
-            el.canOrderMeal = find.canOrderMeal;
-            el.canSeal = find.canSeal;
-            el.canSealYH2 = find.canSealYH2;
-            el.canHL = find.canHL;
-          }
-        });
+        // tempResultProductArrList3.forEach((el) => {
+        //   const find = mergePrdList3.find((item) => item.id == el.id);
+        //   if (find) {
+        //     el.canOrderMeal = find.canOrderMeal;
+        //     el.canSeal = find.canSeal;
+        //     el.canSealYH2 = find.canSealYH2;
+        //     el.canHL = find.canHL;
+        //   }
+        // });
 
         // 点单系统中的人员权限
-        resultDDProductArr = [...tempResultProductArrList3];
+        resultDDProductArr = [...tempResultProductArrList2];
 
         // console.log('resultDDProductArr', resultDDProductArr)
       }
@@ -496,9 +496,9 @@ export default {
         }));
       }
 
-      // resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
-      //   "authFlowerPrdList"
-      // ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0), ...resultProductArr]
+      resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
+        "authFlowerPrdList"
+      ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0), ...resultProductArr]
 
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];

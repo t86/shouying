@@ -217,7 +217,7 @@ export default {
       saveTime: '',
       showAuthDrawer: false,
       cardOrder: 0,
-      cardName: '',
+            cardName: '',
       businessDate: '',
       options: [
         { id: 1, label: "0.1" },
@@ -372,6 +372,7 @@ export default {
           this.tableData = JSON.parse(
             JSON.stringify(this.currentSaveInfo.ss || [])
           );
+          console.log(this.currentSaveInfo);
           this.remarkName = "";
           this.remarkPhone = "";
           this.saveTime = this.currentSaveInfo.t

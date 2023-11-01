@@ -399,6 +399,7 @@ export default {
       if (this.orderMealStatus == 5) {
         return this.showOrHideYH2Drawer();
       }
+      this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
     // 服务员/收银加入购物车

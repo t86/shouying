@@ -320,23 +320,67 @@ export default [
   // 后台管理系统 >>>> 工号生成规则
   {
     path: '/BMS/genRule', name: "genRule", meta: { title: '工号生成规则' },
-    component: () => import('@/views/ManagementSystem/BMS/genRule/genRule.vue')
+    component: () => {
+      let time = 10
+      while(time > 0) {
+        try {
+          import('@/views/ManagementSystem/BMS/genRule/genRule.vue')
+          time = 0
+        } catch (e) {
+          time--;
+          import('@/views/ManagementSystem/BMS/genRule/genRule.vue')
+        }
+      }
+    }
   },
   // 后台管理系统 >>>> 岗位管理
   {
     path: '/BMS/station', name: "station", meta: { title: '岗位管理' },
-    component: () => import('@/views/ManagementSystem/BMS/station/station.vue')
+    component: () => {
+      let time = 10
+      while(time > 0) {
+        try {
+          import('@/views/ManagementSystem/BMS/station/station.vue')
+          time = 0
+        } catch (e) {
+          time--;
+          import('@/views/ManagementSystem/BMS/station/station.vue')
+        }
+      }
+    }
   },
   // 后台管理系统 >>>> 部门员工管理
   {
     path: '/BMS/dept', name: "dept", meta: { title: '部门员工管理' },
-    component: () => import('@/views/ManagementSystem/BMS/dept/dept.vue'),
+    component: () => {
+      let time = 10
+      while(time > 0) {
+        try {
+          import('@/views/ManagementSystem/BMS/dept/dept.vue')
+          time = 0
+        } catch (e) {
+          time--;
+          import('@/views/ManagementSystem/BMS/dept/dept.vue')
+        }
+      }
+    },
     redirect: "/BMS/dept/emp/0",
     children: [
       // 后台管理系统 >>>> 部门员工管理
       {
         path: '/BMS/dept/emp/:id', name: "emp", meta: { title: '部门员工管理' },
-        component: () => import('@/views/ManagementSystem/BMS/dept/emp/emp.vue')
+        component: () => {
+          let time = 10
+          while(time > 0) {
+            try {
+              import('@/views/ManagementSystem/BMS/dept/emp/emp.vue')
+              time = 0
+            } catch (e) {
+              time--;
+              import('@/views/ManagementSystem/BMS/dept/emp/emp.vue')
+            }
+          }
+        }
       }
     ]
   },

@@ -33,7 +33,6 @@
 </template>
  
 <script>
-import { TimeSelect } from 'element-ui';
 
 export default {
   data() {
