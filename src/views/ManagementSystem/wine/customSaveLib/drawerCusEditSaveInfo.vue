@@ -70,8 +70,7 @@
               >
                 <div class="td">{{ item.n }}</div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{ item.u }}</div>
-                  <div v-else>
+                  <div>
                     <el-select
                       v-model="item.u"
                       size="mini"
@@ -88,7 +87,7 @@
                   </div>
                 </div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{ item.g || "-" }}</div>
+                  <div v-if="item.u == '整瓶'">-</div>
                   <div v-else>
                     <el-input
                       v-model="item.g"
@@ -229,6 +228,7 @@ export default {
         { id: 7, label: "0.7" },
         { id: 8, label: "0.8" },
         { id: 9, label: "0.9" },
+        { id: '整瓶', label: "整瓶" },
       ],
       authInfo: {},
     };
