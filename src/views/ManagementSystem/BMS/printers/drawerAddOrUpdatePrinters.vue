@@ -109,7 +109,7 @@ export default {
           this.name = res.data.name;
           this.ip = res.data.ip_addr;
           this.prtType = res.data.type_id; // 1 普通打印 2 标签打印
-          this.monopoly = res.data.exclude_mode;
+          this.monopoly = res.data.exclude_mode == 1 ? true : false;
         } else {
           this.$message.warning(res.msg);
         }
