@@ -28,24 +28,30 @@
         @onSubmit="onSaveTimeSubmit"
         />
         <div class="top grid" layout="row" layout-align="start center">
-            <div class="title">存酒详情</div>
+            <div class="title">营业日和卡台</div>
             <div
-              class="name"
-            >{{ currentSaveInfo.c }}</div>
+            >{{ businessDate }}</div>
             <div
-              class="phone"
-            >{{ currentSaveInfo.p }}</div>
-            <el-button type="primary" @click="changeCustomerInfo"
-            >更改客人信息</el-button>
+            >{{ cardName }}</div>
             <el-button type="primary" @click="changeCardOrder"
             >更改卡台流水</el-button>
-            <el-button type="primary" @click="changeSaveTime"
-            >更改存酒时间</el-button>
+
+
+            <div class="title">客人信息</div>
+            <div
+            >{{ custName }}</div>
+            <div
+            >{{ custPhone }}</div>
+            <el-button type="primary" @click="changeCustomerInfo"
+            >更改客人信息</el-button>
+
 
             <div class="title">存酒时间</div>
             <div
               style="grid-column: 2 / 4;"
             >{{ saveTime }}</div>
+            <el-button type="primary" @click="changeSaveTime"
+            >更改存酒时间</el-button>
         </div>
         <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
@@ -193,6 +199,8 @@ export default {
       custPhone: '',
       custName: '',
       cardOrder: 0,
+      cardName: '',
+      businessDate: '',
       options: [
         { id: 1, label: "0.1" },
         { id: 2, label: "0.2" },
@@ -293,6 +301,8 @@ export default {
     onCardOrderSubmit(data){
       console.log(data);
       this.cardOrder = data.orderInfo.id;
+      this.cardName = data.cardInfo.n;
+      this.businessDate = data.date;
       this.showCardOrderDrawer = false;
     },
     onCustomerInfoSubmit(data){
@@ -348,6 +358,8 @@ export default {
           this.custName = this.currentSaveInfo.c
           this.custPhone = this.currentSaveInfo.p
           this.cardOrder = this.currentSaveInfo.m
+          this.cardName = this.currentSaveInfo.s
+          this.businessDate = this.currentSaveInfo.d
         } else {
         }
       },
@@ -369,7 +381,7 @@ export default {
 .grid {
   margin-top: 20px;
   display: grid;
-  grid-template-columns:1fr 80px 100px 1fr 1fr 1fr;
+  grid-template-columns:150px 100px 150px 1fr;
   grid-row-gap: 20px;
   justify-items: start;
   align-items:center
@@ -382,9 +394,6 @@ export default {
     .title {
       font-size: 20px;
       font-weight: 600;
-    }
-    .name {
-      margin: 0 20px;
     }
   }
   .red {

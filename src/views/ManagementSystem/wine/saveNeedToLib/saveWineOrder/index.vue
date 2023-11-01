@@ -56,7 +56,8 @@ export default {
         if(!this.cardInfo.id || !this.orderInfo.id) return this.$message.warning('请选择卡台及流水')
         this.$emit("onSubmit", {
           cardInfo: this.cardInfo,
-          orderInfo: this.orderInfo
+          orderInfo: this.orderInfo,
+          date: this.dateVal,
         });
       } else if(this.status == 2) {
         if(!this.cardTempInfo.id) return this.$message.warning("请选择卡台")
