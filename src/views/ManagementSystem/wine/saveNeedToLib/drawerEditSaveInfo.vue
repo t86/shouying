@@ -9,10 +9,43 @@
       size="800px"
     >
       <div class="session edit-save-info p-5">
-        <div class="top" layout="row" layout-align="start center">
-          <div class="title">存酒详情</div>
-          <div class="name">{{ currentSaveInfo.c }}</div>
-          <div class="phone">{{ currentSaveInfo.p }}</div>
+
+        <drawerCardOrder 
+          v-model="showCardOrderDrawer" 
+          :productInfo="currentSaveInfo"
+          @onSubmit="onCardOrderSubmit"
+        />
+        <drawerChgCustomerInfo
+        :showDrawer="showChgCustomerInfoDrawer"
+        :item="currentSaveInfo"
+        @showOrHideDrawerHandle="showOrHideChgCustomerInfoHandle"
+        @onSubmit="onCustomerInfoSubmit"
+        />
+        <drawerChgSaveTime
+        :showDrawer="showChgSaveTimeDrawer"
+        :item="currentSaveInfo"
+        @showOrHideDrawerHandle="showOrHideChgSaveTimeHandle"
+        @onSubmit="onSaveTimeSubmit"
+        />
+        <div class="top grid" layout="row" layout-align="start center">
+            <div class="title">存酒详情</div>
+            <div
+              class="name"
+            >{{ currentSaveInfo.c }}</div>
+            <div
+              class="phone"
+            >{{ currentSaveInfo.p }}</div>
+            <el-button type="primary" @click="changeCustomerInfo"
+            >更改客人信息</el-button>
+            <el-button type="primary" @click="changeCardOrder"
+            >更改卡台流水</el-button>
+            <el-button type="primary" @click="changeSaveTime"
+            >更改存酒时间</el-button>
+
+            <div class="title">存酒时间</div>
+            <div
+              style="grid-column: 2 / 4;"
+            >{{ saveTime }}</div>
         </div>
         <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
@@ -38,8 +71,7 @@
               >
                 <div class="td">{{ item.n }}</div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{ item.u }}</div>
-                  <div v-else>
+                  <div >
                     <el-select
                       v-model="item.u"
                       size="mini"
@@ -56,7 +88,7 @@
                   </div>
                 </div>
                 <div class="td">
-                  <div v-if="item.u == '整瓶'">{{ item.g || "-" }}</div>
+                  <div v-if="item.u == '整瓶'">-</div>
                   <div v-else>
                     <el-input
                       v-model="item.g"
@@ -145,12 +177,22 @@
 <script>
 import api_wine from "@/api/wine";
 import authCom from "../commonCom/auth.vue";
+import drawerCardOrder from './saveWineOrder/index.vue'
+import drawerChgCustomerInfo from './drawerChgCustomerInfo.vue'
+import drawerChgSaveTime from './drawerChgSaveTime.vue'
 export default {
   data() {
     return {
+      showCardOrderDrawer: false,
+      showChgCustomerInfoDrawer: false,
+      showChgSaveTimeDrawer: false,
       dialogVisible: false,
       tableData: [],
       showAuthDrawer: false,
+      saveTime: '',
+      custPhone: '',
+      custName: '',
+      cardOrder: 0,
       options: [
         { id: 1, label: "0.1" },
         { id: 2, label: "0.2" },
@@ -161,11 +203,27 @@ export default {
         { id: 7, label: "0.7" },
         { id: 8, label: "0.8" },
         { id: 9, label: "0.9" },
+        { id: '整瓶', label: "整瓶" },
       ],
       authInfo: {},
     };
   },
   methods: {
+    changeCustomerInfo(){
+      this.showChgCustomerInfoDrawer = true;
+    },
+    changeCardOrder(){
+      this.showCardOrderDrawer = true;
+    },
+    changeSaveTime(){
+      this.showChgSaveTimeDrawer = true;
+    },
+    showOrHideChgCustomerInfoHandle(){
+      this.showChgCustomerInfoDrawer = !this.showChgCustomerInfoDrawer;
+    },
+    showOrHideChgSaveTimeHandle(){
+      this.showChgSaveTimeDrawer = !this.showChgSaveTimeDrawer;
+    },
     async onSubmit() {
       const { userName, passWord, type } = this.authInfo;
       const params = {
@@ -179,11 +237,13 @@ export default {
         ), //  []string   对应子定单修改后的规格
         prd_cnts: this.tableData.map((item) => item.c * 1), //   []int   对应子订单修改后的商品数量
         g_cnts: this.tableData.map((item) => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
-        remark_cust_phone: "", // string   客户中心存酒,备注客人手机号
-        remark_cust_name: "", // string   客户中心存酒,备注客人姓名
+        cust_phone: this.custPhone, // string   客人手机号
+        cust_name: this.custName, // string   客人姓名
+        csm_id: this.cardOrder, // int64 待入库存酒对应的流水
+        store_time: this.saveTime, // string 存酒时间
       };
       try {
-        const res = await api_wine.reqAuthSureToLib(params);
+        const res = await api_wine.reqAuthSureToLibNew(params);
         if (res.code == 1) {
           this.$message.success("入库成功");
           this.showAuthDrawer = false;
@@ -227,6 +287,25 @@ export default {
     onCancelDrawer() {
       this.show = false;
     },
+    onCancelCardOrderDrawer(){
+      this.showCardOrderDrawer = false
+    },
+    onCardOrderSubmit(data){
+      console.log(data);
+      this.cardOrder = data.orderInfo.id;
+      this.showCardOrderDrawer = false;
+    },
+    onCustomerInfoSubmit(data){
+      console.log(data);
+      this.custPhone = data.phone
+      this.custName = data.name
+      this.showChgCustomerInfoDrawer = false;
+    },
+    onSaveTimeSubmit(data){
+      console.log(data);
+      this.saveTime = data.time
+      this.showChgSaveTimeDrawer = false;
+    },
   },
   mounted() {},
   props: {
@@ -253,6 +332,9 @@ export default {
   },
   components: {
     authCom,
+    drawerCardOrder,
+    drawerChgCustomerInfo,
+    drawerChgSaveTime
   },
   watch: {
     value: {
@@ -261,6 +343,11 @@ export default {
           this.tableData = JSON.parse(
             JSON.stringify(this.currentSaveInfo.ss || [])
           );
+          console.log(this.currentSaveInfo);
+          this.saveTime = this.currentSaveInfo.t
+          this.custName = this.currentSaveInfo.c
+          this.custPhone = this.currentSaveInfo.p
+          this.cardOrder = this.currentSaveInfo.m
         } else {
         }
       },
@@ -278,6 +365,18 @@ export default {
 </style>
 
 <style lang="less" scoped>
+
+.grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns:1fr 80px 100px 1fr 1fr 1fr;
+  grid-row-gap: 20px;
+  justify-items: start;
+  align-items:center
+
+}
+
+
 .edit-save-info {
   .top {
     .title {

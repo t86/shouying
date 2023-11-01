@@ -19,6 +19,10 @@ export default {
   reqAuthSureToLib: (params) =>
     axios.post(`${base.htgl}/wine/confirm_auth_cj_bef_in`, params),
 
+  //  授权确认待入库单 新 // do
+  reqAuthSureToLibNew: (params) =>
+  axios.post(`${base.htgl}/wine/confirm_auth_cj_bef_in2`, params),
+
   // 读取存酒待入库列表 // do
   reqGetSaveNeedToLib: (params) =>
     axios.post(`${base.htgl}/wine/get_cj_bef_in`, params),
