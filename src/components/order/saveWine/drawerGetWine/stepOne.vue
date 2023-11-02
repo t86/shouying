@@ -11,14 +11,15 @@
             <div class="tab" layout="row" layout-align="start center">
               <div
                 class="tab-item m-r-3"
-                :class="{active: tabIndex == 1}"
-                @click="tabIndex = 1;focus = 0"
-              >服务码</div>
-              <div
-                class="tab-item m-r-3"
                 :class="{active: tabIndex == 2}"
                 @click="tabIndex = 2;focus = 0"
               >手机号</div>
+              <div
+                class="tab-item m-r-3"
+                :class="{active: tabIndex == 1}"
+                @click="tabIndex = 1;focus = 0"
+              >服务码</div>
+             
               <div
                 class="tab-item"
                 :class="{active: tabIndex == 3}"
