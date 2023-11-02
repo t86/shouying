@@ -58,6 +58,7 @@ export default {
       if (selected > current) {
         this.datetime = this.formatDate(new Date()); // 重新格式化当前时间
       }
+      console.log("this time:", this.datetime);
     },
     validator() {
       if (this.datetime == "") {
