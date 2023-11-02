@@ -17,6 +17,7 @@
             <el-date-picker
               v-model="datetime"
               type="datetime"
+              :picker-options="pickerOptions"
               format="yyyy/MM/dd HH:mm:ss"
               value-format="yyyy/MM/dd HH:mm:ss">
             </el-date-picker>
@@ -40,6 +41,11 @@ export default {
       show: false,
       // 筛选条件
       datetime: "",
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now();
+        }
+      },
     };
   },
   methods: {
