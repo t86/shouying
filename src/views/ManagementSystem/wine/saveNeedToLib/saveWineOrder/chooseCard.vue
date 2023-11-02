@@ -77,6 +77,8 @@ export default {
               bizStatus: (businessData.find(ite => ite.seatId == items.id) || {}).bizStatus || '1'
             })),
           }));
+        } else {
+          this.$message.warning(res.msg)
         }
       } catch (error) {
         console.log("卡台信息获取失败", error);
