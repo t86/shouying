@@ -101,7 +101,7 @@ export default {
           name: '未结订单'
         },
         {
-          id: 2,
+          id: 5,
           name: '已结订单'
         },
       ]
@@ -173,7 +173,7 @@ export default {
         });
       }
 
-      const status = this.orgOrderList.filter(item => item.name == this.orderType).id
+      const status = this.orgOrderList.find(item => item.name == this.orderType).id
 
       // 读取可打印二级分类和套餐项
       const params = {
@@ -205,7 +205,7 @@ export default {
         });
       }
 
-      const status = this.orgOrderList.filter(item => item.name == this.orderType).id
+      const status = this.orgOrderList.find(item => item.name == this.orderType).id
 
       // 打印二级分类和套餐项
       const params = {
