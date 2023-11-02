@@ -190,7 +190,7 @@
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
         <el-button type="primary" @click="showAuthHandle">{{
-          needWaiterAuth ? "服务员授权" : "确认入库"
+          needWaiterAuth ? "服务员授权" : "确认修改信息"
         }}</el-button>
       </div>
     </el-drawer>

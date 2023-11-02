@@ -18,7 +18,6 @@
               v-model="phone"
               style="width: 200px"
               placeholder="1-10个字符"
-              @input="validator"
             ></el-input>
           </div>
           <div class="item" layout="row" layout-align="start center">
@@ -28,7 +27,6 @@
               v-model="name"
               style="width: 200px"
               placeholder="1-10个字符"
-              @input="validator"
             ></el-input>
           </div>
         </div>
