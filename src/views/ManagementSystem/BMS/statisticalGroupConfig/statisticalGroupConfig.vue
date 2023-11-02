@@ -133,7 +133,7 @@ export default {
 
         const res1 = await this.$api.BMS.statiscalConfig.reqGetRptJkCateCatesItems();
         const secondCates = []
-        res1.data.cates.forEach(e => {
+        res1.data.cates.filter(e => e.ss).forEach(e => {
           e.ss.forEach(element => {
             secondCates.push({
               id: element.id,

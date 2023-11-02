@@ -161,16 +161,14 @@ export default {
         if(res.code == 1) {
           if(init == 1) {
             const cateOptions = res.data.cates || [];
-            cateOptions.forEach(el => {
+            cateOptions.filter(el => el.ss).forEach(el => {
               el.value = el.id;
               el.label = el.n;
-              if (el.ss) {
-                el.ss.forEach(ele => {
-                  ele.value = ele.id;
-                  ele.label = ele.n;
-                });
-                el.children = el.ss;
-              }
+              el.ss.forEach(ele => {
+                ele.value = ele.id;
+                ele.label = ele.n;
+              });
+              el.children = el.ss;
             });
 
             this.cateOptions = cateOptions;     
@@ -180,7 +178,7 @@ export default {
               (i) => i.value == item.oc
             ).n;
             item.tn = this.cateOptions
-              .find((i) => i.value == item.oc)
+              .find((i) => i.value == item.oc && i.children)
               .children.find((i) => i.value == item.tc).n;
             return {
               ...item

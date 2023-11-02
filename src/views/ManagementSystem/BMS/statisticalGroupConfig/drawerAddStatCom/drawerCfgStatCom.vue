@@ -57,7 +57,7 @@ export default {
       try {
         const res = await this.$api.BMS.statiscalConfig.reqGetRptJkCateCatesItems()
         if(res.code == 1) {
-            this.data = res.data.cates.map(item =>  {
+            this.data = res.data.cates.filter(item => item.ss).map(item =>  {
               item.ss.forEach(element => {
                 element.disabled = element.ji != 0 && this.item.id != element.ji;
                 element.checked = element.ji != 0;
