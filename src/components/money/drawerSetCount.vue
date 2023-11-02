@@ -159,46 +159,9 @@ export default {
 
     // 获取二级分类及出品库
     async getTableData() {
-      try {
-
-        let all = 2;
-        let prd_ids = this.selectedCats;
-        let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
-        if (two_cate_ids.length == this.catData.length){
-          all = 1
-          two_cate_ids = []
-          prd_ids = []
-        } else {
-          two_cate_ids.forEach(id => {
-            const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
-            prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
-          });
-        }
-
-        const status = this.orgOrderList.filter(item => item.name == this.orderType).id
-
-        // 读取可打印二级分类和套餐项
-        const params = {
-          all: all,  //IsAll 1 全部分类 2 指定二级或套餐
-          two_cate_ids: two_cate_ids,  //TwoCateIds 指定的二级分类Id(下面全选的套餐, 不需要传)
-          prd_ids: prd_ids, //PrdIds 指定的套餐Id列表(单选套餐的部分)
-          status: status //Status 订单状态 0 全部订单 1 未结订单 5 已结订单
-        }
-        const res = await api_money.reqGetSetCntRpt(params);
-        if (res.code == 1) {
-          this.catData = res.data.two_cate_ids || []
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("获取表格数据失败", error);
-      }
-    },
-
-    async printTableData() {
       let all = 2;
-      let prd_ids = selectedObj.checkedKeys;
-      let two_cate_ids = this.catData.filter(item => selectedObj.checkedKeys.includes(item.id)).map(item => item.id)
+      let prd_ids = this.selectedCats;
+      let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
       if (two_cate_ids.length == this.catData.length){
         all = 1
         two_cate_ids = []
@@ -206,15 +169,12 @@ export default {
       } else {
         two_cate_ids.forEach(id => {
           const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
-          prd_ids = prd_ids.filter(i => i.id != id).filter(i => !ids.includes(i.id))
+          prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
         });
       }
 
-      const status = this.orderList.filter(item => item.name == this.orderType).id
+      const status = this.orgOrderList.filter(item => item.name == this.orderType).id
 
-      if (all == 2 && two_cate_ids.length == 0 && prd_ids.length == 0) {
-        return this.$message.warning("请至少选择一个二级分类筛选条件");
-      }
       // 读取可打印二级分类和套餐项
       const params = {
         all: all,  //IsAll 1 全部分类 2 指定二级或套餐
@@ -222,16 +182,43 @@ export default {
         prd_ids: prd_ids, //PrdIds 指定的套餐Id列表(单选套餐的部分)
         status: status //Status 订单状态 0 全部订单 1 未结订单 5 已结订单
       }
+      const res = await api_money.reqGetSetCntRpt(params);
+      if (res.code == 1) {
+        this.tableData = res.data.records || []
+      } else {
+        this.$message.warning(res.msg);
+      }
+    },
 
-      try {
-        const res = await api_money.reqPrtSetCntRpt(params);
-        if (res.code == 1) {
-          this.$message.success('打印成功');
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("打印套餐统计表失败", error);
+    async printTableData() {
+      let all = 2;
+      let prd_ids = this.selectedCats;
+      let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
+      if (two_cate_ids.length == this.catData.length){
+        all = 1
+        two_cate_ids = []
+        prd_ids = []
+      } else {
+        two_cate_ids.forEach(id => {
+          const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
+          prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
+        });
+      }
+
+      const status = this.orgOrderList.filter(item => item.name == this.orderType).id
+
+      // 打印二级分类和套餐项
+      const params = {
+        all: all,  //IsAll 1 全部分类 2 指定二级或套餐
+        two_cate_ids: two_cate_ids,  //TwoCateIds 指定的二级分类Id(下面全选的套餐, 不需要传)
+        prd_ids: prd_ids, //PrdIds 指定的套餐Id列表(单选套餐的部分)
+        status: status //Status 订单状态 0 全部订单 1 未结订单 5 已结订单
+      }
+      const res = await api_money.reqPrtSetCntRpt(params);
+      if (res.code == 1) {
+        this.$message.success("打印成功");
+      } else {
+        this.$message.warning(res.msg);
       }
 
     },
