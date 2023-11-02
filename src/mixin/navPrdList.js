@@ -496,11 +496,14 @@ export default {
         }));
       }
 
-      resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
-        "authFlowerPrdList"
-      ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
-        return {...item, canHL: true}
-      }), ...resultProductArr]
+      // 点单系统
+      if (sessionStorage.getItem("client") == "order"){
+        resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
+          "authFlowerPrdList"
+        ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
+          return {...item, canHL: true}
+        }), ...resultProductArr]
+      }
 
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
