@@ -82,7 +82,7 @@ export default {
     init() {
       this.getStepOneData();
       this.stepOneInfo = {
-        tabIndex: 1,
+        tabIndex: 2,
         authValidateVal: "", // 服务码
         superValidate: "", // 超级授权码
         phoneNum: "", // 手机号
