@@ -620,6 +620,16 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click="showOrHideSetCountDrawerHandle()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/yh-detail-icon.png')"
+                    alt
+                  />
+                  <span>套餐统计表</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click.stop="endStoreHandle('stop')"
                 >
                   <img :src="imgSrc.updatepwd" alt />
@@ -890,6 +900,19 @@
       :showDrawer="showDetailDrawer"
       @showOrHideDrawer="showOrHideXSDetailDrawerHandle"
     />
+
+    <!-- 套餐统计表 -->
+    <div class="day-report" v-if="showSetCountDrawer">
+      <drawerSetCount
+        @showOrHideSetCountDrawerHandle="showOrHideSetCountDrawerHandle"
+      />
+    </div>
+
+    <!-- 部门销售汇总表 -->
+    <drawerXSAllInfo
+      :showDrawer="showXSAllInfoDrawer"
+      @showOrHideDrawer="showOrHideXSAllInfoDrawerHandle"
+    />
   </div>
 </template>
 
@@ -985,6 +1008,10 @@ import drawerCatQDAllInfo from "../../components/money/drawerCatQDAllInfo.vue";
 // 部门销售汇总表
 import drawerXSAllInfo from "../../components/money/drawerXSAllInfo.vue";
 
+// 套餐统计表
+import drawerSetCount from "../../components/money/drawerSetCount.vue";
+
+
 // 部门销售明细表
 import drawerXSDetail from "../../components/money/drawerXSDetail.vue";
 
@@ -1046,6 +1073,7 @@ export default {
       showQDAllInfoDrawer: false, // 非主营分类渠道汇总表
       showCatQDAllInfoDrawer: false, // 分类渠道汇总表
       showDetailDrawer: false, // 部门销售明细表
+      showSetCountDrawer: false, // 套餐统计表
       showXSAllInfoDrawer: false, // 部门销售汇总表
       keyWord: "",
       tab: {
@@ -1484,6 +1512,11 @@ export default {
     // 显示或隐藏部门销售明细表
     showOrHideXSDetailDrawerHandle() {
       this.showDetailDrawer = !this.showDetailDrawer;
+    },
+
+    // 显示或隐藏套餐统计表
+    showOrHideSetCountDrawerHandle() {
+      this.showSetCountDrawer = !this.showSetCountDrawer;
     },
 
     // 更多功能
@@ -2198,6 +2231,7 @@ export default {
     drawerCatQDAllInfo,
     drawerXSDetail,
     drawerXSAllInfo,
+    drawerSetCount,
   },
 
   watch: {

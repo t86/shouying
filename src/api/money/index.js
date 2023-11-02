@@ -390,6 +390,23 @@ export default {
 
 
   /**
+   * 
+   * 套餐统计表
+   */
+  // 读取可打印二级分类和套餐项
+  reqGetSetCntItems: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_set_cnt_items`, params),
+
+  // 读取二级分类套餐数量统计报表
+  reqGetSetCntRpt: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_set_cnt_rpt`, params),
+
+  // 打印二级分类套餐数量统计报表
+  reqPrtSetCntRpt: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/prt_set_cnt_rpt`, params),
+
+
+  /**
    * 其它
    */
 
