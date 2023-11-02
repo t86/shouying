@@ -15,6 +15,7 @@
               default-expand-all
               show-checkbox 
               node-key="id" 
+              @check="handleCatClick"
               :default-checked-keys="selectedKeys"
               :props="defaultProps"
               multiple
@@ -84,6 +85,7 @@ export default {
         label: 'n',
         children: 'ss'
       },
+      selectedCats: [],
       tableData: [],
       catData: [],
       selectedKeys: [],
@@ -110,6 +112,18 @@ export default {
     onClose(){
       this.$emit('showOrHideSetCountDrawerHandle')
     },
+
+    handleCatClick(node, selectedObj){
+      console.log(selectedObj.checkedKeys)   // 这是选中的节点的key数组 
+      this.selectedCats = []
+      for (const iterator of selectedObj.checkedKeys) {
+        if (iterator != undefined) {
+          this.selectedCats.push(iterator)
+        }
+      }
+      console.log('selected: ', this.selectedCats)   // 这是选中的节点的key数组
+    },
+
     /*
     筛选下拉框相关 start
     */
@@ -127,10 +141,7 @@ export default {
     /*
     筛选下拉框相关 end
     */
-
-
-    // 获取二级分类及出品库
-    async getTableData() {
+    async getCatData() {
       try {
         // 读取可打印二级分类和套餐项
         const res = await api_money.reqGetSetCntItems();
@@ -146,37 +157,81 @@ export default {
       console.log(this.catData)
     },
 
-    async printTableData() {
-      const params = {
-        two_cate_ids: this.secondCategoryInfo.checkedAll
-          ? [0]
-          : this.secondCategoryInfo.list
-              .filter(item => item.checked)
-              .map(item => item.id * 1), // []int64   二级分类列表,如果是全部,传一个元素为0的数组
-        mklib_ids: this.outLibraryInfo.checkedAll
-          ? [0]
-          : this.outLibraryInfo.list
-              .filter(item => item.checked)
-              .map(item => item.id * 1), //  []int64   出品库列表,如果是全部,传一个元素为0的数组
-        settle_type: this.selectInfo.originSelectOption.find(
-          item => item.name == this.selectInfo.selectVal
-        ).id // int     订单类型, 0 全部 1 已结账 2 未结账
-      };
+    // 获取二级分类及出品库
+    async getTableData() {
+      try {
 
-      if (params.two_cate_ids.length == 0)
-        return this.$message.warning("请选择二级分类筛选条件");
-      if (params.mklib_ids.length == 0)
-        return this.$message.warning("请选择出品库筛选条件");
+        let all = 2;
+        let prd_ids = this.selectedCats;
+        let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
+        if (two_cate_ids.length == this.catData.length){
+          all = 1
+          two_cate_ids = []
+          prd_ids = []
+        } else {
+          two_cate_ids.forEach(id => {
+            const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
+            prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
+          });
+        }
+
+        const status = this.orgOrderList.filter(item => item.name == this.orderType).id
+
+        // 读取可打印二级分类和套餐项
+        const params = {
+          all: all,  //IsAll 1 全部分类 2 指定二级或套餐
+          two_cate_ids: two_cate_ids,  //TwoCateIds 指定的二级分类Id(下面全选的套餐, 不需要传)
+          prd_ids: prd_ids, //PrdIds 指定的套餐Id列表(单选套餐的部分)
+          status: status //Status 订单状态 0 全部订单 1 未结订单 5 已结订单
+        }
+        const res = await api_money.reqGetSetCntRpt(params);
+        if (res.code == 1) {
+          this.catData = res.data.two_cate_ids || []
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取表格数据失败", error);
+      }
+    },
+
+    async printTableData() {
+      let all = 2;
+      let prd_ids = selectedObj.checkedKeys;
+      let two_cate_ids = this.catData.filter(item => selectedObj.checkedKeys.includes(item.id)).map(item => item.id)
+      if (two_cate_ids.length == this.catData.length){
+        all = 1
+        two_cate_ids = []
+        prd_ids = []
+      } else {
+        two_cate_ids.forEach(id => {
+          const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
+          prd_ids = prd_ids.filter(i => i.id != id).filter(i => !ids.includes(i.id))
+        });
+      }
+
+      const status = this.orderList.filter(item => item.name == this.orderType).id
+
+      if (all == 2 && two_cate_ids.length == 0 && prd_ids.length == 0) {
+        return this.$message.warning("请至少选择一个二级分类筛选条件");
+      }
+      // 读取可打印二级分类和套餐项
+      const params = {
+        all: all,  //IsAll 1 全部分类 2 指定二级或套餐
+        two_cate_ids: two_cate_ids,  //TwoCateIds 指定的二级分类Id(下面全选的套餐, 不需要传)
+        prd_ids: prd_ids, //PrdIds 指定的套餐Id列表(单选套餐的部分)
+        status: status //Status 订单状态 0 全部订单 1 未结订单 5 已结订单
+      }
 
       try {
-        const res = await api_money.reqPrintDayReport(params);
+        const res = await api_money.reqPrtSetCntRpt(params);
         if (res.code == 1) {
           this.$message.success('打印成功');
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("打印售出报表失败", error);
+        console.log("打印套餐统计表失败", error);
       }
 
     },
@@ -196,7 +251,7 @@ export default {
     }
   },
   async mounted() {
-    await this.getTableData();
+    await this.getCatData();
   },
   components: {
     mySelect
