@@ -18,6 +18,7 @@
               v-model="datetime"
               type="datetime"
               :picker-options="pickerOptions"
+              @change="limitTime"
               format="yyyy/MM/dd HH:mm:ss"
               value-format="yyyy/MM/dd HH:mm:ss">
             </el-date-picker>
@@ -49,6 +50,15 @@ export default {
     };
   },
   methods: {
+    limitTime() {
+
+      const current = Date.now();
+      const selected = Date.parse(this.datetime);
+      console.log("Limit time changed:", current, selected);
+      if (selected > current) {
+        this.datetime = this.formatDate(new Date()); // 重新格式化当前时间
+      }
+    },
     validator() {
       if (this.datetime == "") {
         this.$message.warning("请输入存酒时间")
@@ -65,6 +75,17 @@ export default {
     // 关闭drawer
     closeDrawerHandle() {
       this.$emit("showOrHideDrawerHandle");
+    },
+    formatDate(date){
+      const pad = n => n < 10 ? '0' + n : n;
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hour = pad(date.getHours());
+      const minute = pad(date.getMinutes());
+      const second = pad(date.getSeconds());
+
+      return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
     }
   },
   props: {
