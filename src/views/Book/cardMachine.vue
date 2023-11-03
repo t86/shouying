@@ -1239,7 +1239,7 @@ export default {
         //   this.$children[0].cardInfoChange &&
         //   this.$children[0].cardInfoChange();
       }
-      this.drawer.cardInfo = cardInfo;
+      this.drawer.cardInfo = {...cardInfo};
       this.drawer.formStatus = optionsInfo.id;
       this.drawer.cardId = cardInfo.id;
       this.drawer.bookId = cardInfo.wkBookId;

@@ -378,7 +378,7 @@ export default {
     return {
       show: false, // 是否显示drawer
       showMinAmtOpenTypeArr: [1, 5, 6], // 显示最低消费输入框的openType列表
-      oldSalesEmpId: '',
+
       // 查看卡台详情
       cardDetailInfo: {
         saleName: "",
@@ -794,9 +794,7 @@ export default {
           this.formData.sales.sales_emp_id = res.data.sales_emp_id
             ? res.data.sales_emp_id.toString()
             : ""; // 订位人id
-          this.oldSalesEmpId = res.data.sales_emp_id
-            ? res.data.sales_emp_id.toString()
-            : ""; // 订位人id
+
           this.formData.sales.sales_phone =
             sealInfoArr.find((el) => el.id == res.data.sales_emp_id) &&
             sealInfoArr.find((el) => el.id == res.data.sales_emp_id).phoneNum; // 订位人电话
@@ -1039,8 +1037,6 @@ export default {
       this.formData.remarkInfo.remark = ""; // 备注
 
       this.formData.markInfo.value = ""; // 卡台标签
-
-      this.oldSalesEmpId = '';
     },
 
     formResponseHandle(res, successTips = "操作成功！", isResetForm = true) {
@@ -1216,7 +1212,6 @@ export default {
             : 0, // int 最低消费
         remark: formData.remarkInfo.remark, // string  备注信息
         mark: formData.markInfo.value, //  string   卡台标签
-        old_sales_emp_id: Number(this.oldSalesEmpId), // int64 元订位人Id
       };
     },
 
@@ -1327,4 +1322,5 @@ export default {
 <style scoped lang="less">
 @import "../../../style/common/elementDrawer.less";
 @import "../../../style/book/machine/cardDrawer.less";
+
 </style>

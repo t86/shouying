@@ -8,6 +8,9 @@ import { projectName } from "./utils/config/projectConfig";
 import VConsole from "vconsole";
 import { globalError } from "./utils/globalError";
 // if(projectName !== 'store') new VConsole();
+import './style/autocomplete.less' // 导入 CSS 文件
+import "./style/base.less";
+import "./style/flex.less";
 
 import { sessionStorage, localStorage } from "./utils/common/storage";
 import WebSocketClient from "./websocket/websocket";
@@ -26,8 +29,6 @@ import store from "./store"; // 导入vuex文件
 import api from "./api"; // 导入api接口
 
 import overall from "./utils/overallMethod"; // 导入全局方法
-import "./style/base.less";
-import "./style/flex.less";
 import tool from "./utils/tool"; // 导入全局方法
 
 // bms
