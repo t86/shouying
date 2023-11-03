@@ -1161,12 +1161,12 @@ export default {
         }
       }
   
-      
-      
+       // 营销 不能看下属
       if(this.hasOnlyLookSelf){
         isLookSubordinate = false
       }
-      if (this.hasWaitOnlyLookSelf){
+      // 下单服务员包括营销 所以都要判断
+      if (this.hasWaitOnlyLookSelf || this.hasOnlyLookSelf){
          isWaiterSealer = false
       }
       return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
@@ -1528,7 +1528,6 @@ export default {
     },
     // 不允许查看下属点单消费  只能看自己
     hasOnlyLookSelf() {
-       
       return this.$store.state.userInfo.sys_modules &&
          this.$store.state.userInfo.sys_modules.includes(10)
     },
