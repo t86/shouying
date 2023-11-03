@@ -376,6 +376,7 @@ const drawerBigWidth = "80%";
 export default {
   data() {
     return {
+      oldSalesEmpId: '',
       show: false, // 是否显示drawer
       showMinAmtOpenTypeArr: [1, 5, 6], // 显示最低消费输入框的openType列表
 
@@ -794,6 +795,7 @@ export default {
           this.formData.sales.sales_emp_id = res.data.sales_emp_id
             ? res.data.sales_emp_id.toString()
             : ""; // 订位人id
+          this.oldSalesEmpId = res.data.sales_emp_id ? res.data.sales_emp_id.toString() : ""; // 订位人id
 
           this.formData.sales.sales_phone =
             sealInfoArr.find((el) => el.id == res.data.sales_emp_id) &&
@@ -1037,6 +1039,7 @@ export default {
       this.formData.remarkInfo.remark = ""; // 备注
 
       this.formData.markInfo.value = ""; // 卡台标签
+      this.oldSalesEmpId = '';
     },
 
     formResponseHandle(res, successTips = "操作成功！", isResetForm = true) {
@@ -1188,6 +1191,7 @@ export default {
       };
     },
 
+
     /*
      * 空台或预定开台
      */
@@ -1212,6 +1216,7 @@ export default {
             : 0, // int 最低消费
         remark: formData.remarkInfo.remark, // string  备注信息
         mark: formData.markInfo.value, //  string   卡台标签
+        old_sales_emp_id: Number(this.oldSalesEmpId), // int64 元订位人Id
       };
     },
 
