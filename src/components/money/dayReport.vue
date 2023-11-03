@@ -45,8 +45,19 @@
       </div>
       <div class="session-center" layout="row" layout-align="center center">
         <div class="session-center-contain">
-          <div layout="row" layout-align="center center">
-            <span class="m-r-2">订单类型</span>
+          <div layout="row" layout-align="start center">
+            <span class="m-r-2" style="width: 80px;">打印出品库</span>
+            <mySelect
+              style="width:50%"
+              :value="prtSelectInfo.selectVal"
+              :optionsList="prtSelectInfo.selectOption"
+              @selectOptionItem="setSelectPrtValHandle"
+              @selectBlurHandle="selectPrtBlurHandle"
+              @getOption="getPrtOptionHandle"
+            />
+          </div>
+          <div class="m-t-4" layout="row" layout-align="start center">
+            <span class="m-r-2" style="width: 80px;">订单类型</span>
             <mySelect
               style="width:50%"
               :value="selectInfo.selectVal"
@@ -110,6 +121,11 @@ export default {
         checkedAll: true,
         indeterminate: false
       },
+      prtSelectInfo: {
+        selectVal: "",
+        selectOption: [],
+        originSelectOption: []
+      },
       selectInfo: {
         selectVal: "全部订单",
         selectOption: [],
@@ -119,11 +135,11 @@ export default {
             name: "全部订单"
           },
           {
-            id: 1,
+            id: 5,
             name: "已结订单"
           },
           {
-            id: 2,
+            id: 1,
             name: "未结订单"
           }
         ]
@@ -135,7 +151,7 @@ export default {
     // 获取二级分类及出品库
     async getParams() {
       try {
-        const res = await api_money.reqGetDayReportPayedParams();
+        const res = await api_money.reqGetSoldOutRptItems();
         if (res.code == 1) {
           res.data.two_cates = res.data.two_cates || [];
           res.data.mklibs = res.data.mklibs || [];
@@ -147,6 +163,10 @@ export default {
             ...item,
             checked: true
           }));
+          this.prtSelectInfo.originSelectOption = res.data.prt_mk_libs.map(item => {
+            return {name: item.n, id: item.id}
+          } )
+          this.prtSelectInfo.selectVal = this.prtSelectInfo.originSelectOption.length > 0 ? this.prtSelectInfo.originSelectOption[0].name : ''
         } else {
           this.$message.warning(res.msg);
         }
@@ -155,6 +175,20 @@ export default {
       }
     },
 
+        /*
+     打印出品筛选下拉框相关 start
+    */
+    setSelectPrtValHandle(info) {
+      this.prtSelectInfo.selectVal = info.name;
+    },
+    selectPrtBlurHandle() {
+      this.prtSelectInfo.selectOption = [];
+    },
+    getPrtOptionHandle() {
+      this.prtSelectInfo.selectOption = JSON.parse(
+        JSON.stringify(this.prtSelectInfo.originSelectOption)
+      );
+    },
     /*
     筛选下拉框相关 start
     */
@@ -175,28 +209,30 @@ export default {
 
     async getTableData() {
       const params = {
+        is_all_cate: this.secondCategoryInfo.checkedAll ? 1: 2,
+        is_all_mklib: this.outLibraryInfo.checkedAll ? 1 : 2,
         two_cate_ids: this.secondCategoryInfo.checkedAll
-          ? [0]
+          ? []
           : this.secondCategoryInfo.list
               .filter(item => item.checked)
               .map(item => item.id * 1), // []int64   二级分类列表,如果是全部,传一个元素为0的数组
         mklib_ids: this.outLibraryInfo.checkedAll
-          ? [0]
+          ? []
           : this.outLibraryInfo.list
               .filter(item => item.checked)
               .map(item => item.id * 1), //  []int64   出品库列表,如果是全部,传一个元素为0的数组
-        settle_type: this.selectInfo.originSelectOption.find(
+        status: this.selectInfo.originSelectOption.find(
           item => item.name == this.selectInfo.selectVal
-        ).id // int     订单类型, 0 全部 1 已结账 2 未结账
+        ).id, // int     订单类型, 0 全部 1 已结账 2 未结账
+        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id
       };
 
-      if (params.two_cate_ids.length == 0)
+      if (params.two_cate_ids.length == 0 && !params.is_all_cate)
         return this.$message.warning("请选择二级分类筛选条件");
-      if (params.mklib_ids.length == 0)
+      if (params.mklib_ids.length == 0 && !params.is_all_mklib)
         return this.$message.warning("请选择出品库筛选条件");
-
       try {
-        const res = await api_money.reqGetDayReportPayedList(params);
+        const res = await api_money.reqGetSoldOutRpt(params);
         if (res.code == 1) {
           this.tableData = res.data.records || [];
         } else {
@@ -209,28 +245,31 @@ export default {
 
     async printTableData() {
       const params = {
+        is_all_cate: this.secondCategoryInfo.checkedAll ? 1: 2,
+        is_all_mklib: this.outLibraryInfo.checkedAll ? 1 : 2,
         two_cate_ids: this.secondCategoryInfo.checkedAll
-          ? [0]
+          ? []
           : this.secondCategoryInfo.list
               .filter(item => item.checked)
               .map(item => item.id * 1), // []int64   二级分类列表,如果是全部,传一个元素为0的数组
         mklib_ids: this.outLibraryInfo.checkedAll
-          ? [0]
+          ? []
           : this.outLibraryInfo.list
               .filter(item => item.checked)
               .map(item => item.id * 1), //  []int64   出品库列表,如果是全部,传一个元素为0的数组
-        settle_type: this.selectInfo.originSelectOption.find(
+        status: this.selectInfo.originSelectOption.find(
           item => item.name == this.selectInfo.selectVal
-        ).id // int     订单类型, 0 全部 1 已结账 2 未结账
+        ).id, // int     订单类型, 0 全部 1 已结账 2 未结账
+        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id
       };
 
-      if (params.two_cate_ids.length == 0)
+      if (params.two_cate_ids.length == 0 && !params.is_all_cate)
         return this.$message.warning("请选择二级分类筛选条件");
-      if (params.mklib_ids.length == 0)
+      if (params.mklib_ids.length == 0 && !params.is_all_mklib)
         return this.$message.warning("请选择出品库筛选条件");
 
       try {
-        const res = await api_money.reqPrintDayReport(params);
+        const res = await api_money.reqPrtSoldOutRpt(params);
         if (res.code == 1) {
           this.$message.success('打印成功');
         } else {

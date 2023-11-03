@@ -105,6 +105,17 @@ export default {
   reqGetDayReportPayedParams: (params) =>
     axios.post(`${base.htgl}/sel/get_sold_prd_rpt_params`, params),
 
+  // 读取售出日报表参数(新)
+  reqGetSoldOutRptItems: (params) =>
+  axios.post(`${base.htgl}/sel/rpt/get_sold_out_rpt_items`, params),
+
+  // 读取售出日报表(新)
+  reqGetSoldOutRpt: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_sold_out_rpt`, params),
+  // 打印售出日报表(新)
+  reqPrtSoldOutRpt: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/prt_sold_out_rpt`, params),
+
   // 读取售出汇总表
   reqGetDayReportPayedList: (params) =>
     axios.post(`${base.htgl}/sel/get_sold_prd_rpt`, params),
