@@ -154,12 +154,12 @@ export default {
         const res = await api_money.reqGetSoldOutRptItems();
         if (res.code == 1) {
           res.data.two_cates = res.data.two_cates || [];
-          res.data.mklibs = res.data.mklibs || [];
+          res.data.mklibs = res.data.mk_libs || [];
           this.secondCategoryInfo.list = res.data.two_cates.map(item => ({
             ...item,
             checked: true
           }));
-          this.outLibraryInfo.list = res.data.mklibs.map(item => ({
+          this.outLibraryInfo.list = res.data.mk_libs.map(item => ({
             ...item,
             checked: true
           }));
