@@ -41,7 +41,7 @@
               <span>姓名：</span>
             </div>
             <div class="value">
-              <el-input v-model="empName"  @input="limitingRule('empName')" size="small" placeholder="请输入姓名"></el-input>
+              <el-input v-model="empName" autocomplete="off" @input="limitingRule('empName')" size="small" placeholder="请输入姓名"></el-input>
             </div>
           </div>
           <div class="coll" layout="row" layout-align="start center">
@@ -87,6 +87,7 @@
             </div>
             <div class="value">
               <el-select
+                autocomplete="off"
                 v-model="upperEmpId"
                 filterable
                 remote
