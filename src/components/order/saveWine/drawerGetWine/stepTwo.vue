@@ -14,6 +14,7 @@
       </div>
     </div>
 
+
     <!-- 剩余取酒详情 -->
     <div class="get-list">
       <div class="left">
@@ -82,7 +83,7 @@
                 class="tr"
                 layout="row"
                 layout-align="space-between center"
-                v-for="item in shoppingCartWineList"
+                v-for="(item, index) in shoppingCartWineList"
                 :key="item.id"
               >
                 <div class="td" :class="{'is-black': isBlack}">{{item.n}}</div>
@@ -91,7 +92,7 @@
                 <div class="td" layout="row" layout-align="start center">
                   <img :src="item.c > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')" @click="changeShoppingCartCount(item, Math.max((item.c * 1 - 1), 1))"
                   />
-                  <input type="number" :min="1" v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c, 1))" />
+                  <input type="number" @click="focus = index;" :min="1" v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c, 1))" />
                   <img :src="item.c < item.maxCount ? require('@/assets/order-img/order_add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeShoppingCartCount(item, (item.c * 1 + 1))" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
@@ -110,6 +111,10 @@
               </div>
             </div>
           </div>
+
+          <div class="keyboard" @click.stop="">
+              <keyBoard @changeNum="changeNumHandle" />
+            </div>
         </div>
         
       </div> 
@@ -132,6 +137,7 @@
  
 <script>
 import api_saveWine from "@/api/saveWine";
+import keyBoard from "@/components/common/keyBoard.vue";
 export default {
   data() {
     return {
@@ -139,12 +145,39 @@ export default {
       isBlack: false,
       WineList: [],  // 当前流水可取酒水
       shoppingCartWineList: [],  // 存酒购物车酒水
+      focus: -1,
     };
   },
   methods: {
     init(){
       this.shoppingCartWineList = []
       this.getOrderCanGetWine()
+    },
+
+    
+    // 键盘
+    changeNumHandle(value) {
+        if(this.focus == -1) {
+           return;
+        }
+        let currentInfo = this.shoppingCartWineList[this.focus];
+        if (!currentInfo) return;
+          switch (value) {
+            case 10: // 清空
+              currentInfo.c = 0;
+              break;
+            case 12: // 回退(
+              currentInfo.c =
+                currentInfo.c
+                  .toString()
+                  .slice(0, currentInfo.c.toString().length - 1) * 1;
+              break;
+            default:
+              currentInfo.c =
+                currentInfo.c == 0 ? value * 1 : currentInfo.c.toString() + value * 1;
+              break;
+      }
+      this.$forceUpdate();
     },
 
     
@@ -263,7 +296,10 @@ export default {
     phoneNum: '',
     superValidate: '',
     phoneValidateStr: ''
-  }
+  },
+  components: {
+    keyBoard,
+  },
 };
 </script>
 <style lang="less" scoped>
@@ -363,7 +399,7 @@ export default {
       overflow: auto;
       box-sizing: border-box;
       .table {
-        width: calc(100% - 100px);
+        width: calc(100% - 400px);
         .tbody {
           height: calc(50vh - 200px);
           overflow: auto;
@@ -394,6 +430,9 @@ export default {
               }
             }
           }
+      }
+      .arrow {
+        right: 300px;
       }
     }
 
