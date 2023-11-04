@@ -52,6 +52,7 @@
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
+              <div class="th">套餐编号</div>
               <div class="th">商品名称</div>
               <div class="th">售出数量</div>
             </div>
@@ -64,6 +65,7 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
+              <div class="td">{{item.id}}</div>
               <div class="td">{{item.n}}</div>
               <div class="td">{{item.c}}</div>
             </div>
@@ -88,7 +90,7 @@ export default {
       selectedCats: [],
       tableData: [],
       catData: [],
-      selectedKeys: [],
+      selectedKeys: [0],
       orderType: '全部订单',
       orderList: [],
       orgOrderList:[
@@ -146,7 +148,9 @@ export default {
         // 读取可打印二级分类和套餐项
         const res = await api_money.reqGetSetCntItems();
         if (res.code == 1) {
-          this.catData = res.data.two_cates || []
+          this.catData = [{n: '全部', ss: [], id: 0}]
+          this.catData[0].ss = res.data.two_cates || []
+          this.selectedCats = this.catData[0].ss.map(item => item.id)
         } else {
           this.$message.warning(res.msg);
         }
@@ -161,17 +165,21 @@ export default {
     async getTableData() {
       let all = 2;
       let prd_ids = this.selectedCats;
-      let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
-      if (two_cate_ids.length == this.catData.length){
-        all = 1
-        two_cate_ids = []
-        prd_ids = []
-      } else {
-        two_cate_ids.forEach(id => {
-          const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
-          prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
-        });
+      let two_cate_ids = []
+      if(this.catData.length == 1) {
+        two_cate_ids = this.catData[0].ss.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
+        if (two_cate_ids.length == this.catData[0].ss.length){
+          all = 1
+          two_cate_ids = []
+          prd_ids = []
+        } else {
+          two_cate_ids.forEach(id => {
+            const ids = this.catData[0].ss.find(i => i.id == id).ss.map(i => i.id);
+            prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
+          });
+        }
       }
+
 
       const status = this.orgOrderList.find(item => item.name == this.orderType).id
 
@@ -184,7 +192,13 @@ export default {
       }
       const res = await api_money.reqGetSetCntRpt(params);
       if (res.code == 1) {
-        this.tableData = res.data.records || []
+        let tmp = res.data.prd_sets || []
+        this.tableData = []
+        tmp.forEach(item => {
+          this.tableData.push({id: item.id, n: item.n, c: item.c})
+          item.ss.forEach(i => this.tableData.push({n: i.n, c: i.c}))
+        })
+
       } else {
         this.$message.warning(res.msg);
       }
@@ -193,16 +207,19 @@ export default {
     async printTableData() {
       let all = 2;
       let prd_ids = this.selectedCats;
-      let two_cate_ids = this.catData.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
-      if (two_cate_ids.length == this.catData.length){
-        all = 1
-        two_cate_ids = []
-        prd_ids = []
-      } else {
-        two_cate_ids.forEach(id => {
-          const ids = this.catData.find(i => i.id == id).ss.map(i => i.id);
-          prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
-        });
+      let two_cate_ids = []
+      if(this.catData.length == 1) {
+        two_cate_ids = this.catData[0].ss.filter(item => this.selectedCats.includes(item.id)).map(item => item.id)
+        if (two_cate_ids.length == this.catData[0].ss.length){
+          all = 1
+          two_cate_ids = []
+          prd_ids = []
+        } else {
+          two_cate_ids.forEach(id => {
+            const ids = this.catData[0].ss.find(i => i.id == id).ss.map(i => i.id);
+            prd_ids = prd_ids.filter(i => i != id).filter(i => !ids.includes(i))
+          });
+        }
       }
 
       const status = this.orgOrderList.find(item => item.name == this.orderType).id
@@ -340,10 +357,14 @@ export default {
         }
 
         .th:nth-child(1), .td:nth-child(1){
-          width: 70%;
+          width: 40%;
         }
         .th:nth-child(2), .td:nth-child(2){
-          width: 30%;
+          width: 40%;
+        }
+
+        .th:nth-child(3), .td:nth-child(3){
+          width: 20%;
         }
       }
     }
