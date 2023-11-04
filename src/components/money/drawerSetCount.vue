@@ -52,7 +52,7 @@
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
-              <div class="th">套餐编号</div>
+              <div class="th">套餐</div>
               <div class="th">商品名称</div>
               <div class="th">售出数量</div>
             </div>
@@ -65,7 +65,7 @@
               v-for="(item, index) in tableData"
               :key="index"
             >
-              <div class="td">{{item.id}}</div>
+              <div class="td">{{item.nn}}</div>
               <div class="td">{{item.n}}</div>
               <div class="td">{{item.c}}</div>
             </div>
@@ -195,7 +195,7 @@ export default {
         let tmp = res.data.prd_sets || []
         this.tableData = []
         tmp.forEach(item => {
-          this.tableData.push({id: item.id, n: item.n, c: item.c})
+          this.tableData.push({nn: item.n, c: item.c})
           item.ss.forEach(i => this.tableData.push({n: i.n, c: i.c}))
         })
 
@@ -357,10 +357,15 @@ export default {
         }
 
         .th:nth-child(1), .td:nth-child(1){
-          width: 40%;
+          width: 60px;
         }
+        .td:nth-child(1){
+          word-break: keep-all;
+          white-space: nowrap; 
+        }
+
         .th:nth-child(2), .td:nth-child(2){
-          width: 40%;
+          width: 70%;
         }
 
         .th:nth-child(3), .td:nth-child(3){
