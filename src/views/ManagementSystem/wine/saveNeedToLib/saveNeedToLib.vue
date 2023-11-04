@@ -2,7 +2,7 @@
 <!-- 存酒待入库 -->
   <div class="save-lib">
     <div class="top">
-      <el-input v-model="keyword" style="width:260px" class="m-r-2" size="small" placeholder="输入客人手姓名/手机号/商品/卡台"></el-input>
+      <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
