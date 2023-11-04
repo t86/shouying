@@ -905,23 +905,26 @@ export default {
   }
 }
 
-.Thelogin .AccountNumber input {
-  width: calc(100% - 37px);
-  border: none !important;
-  background-color: rgba(0, 0, 0, 0);
-  color: #d9d9d9;
-  font-size: 16px;
-  height: 44px;
-  cursor: pointer;
+.Thelogin {
+  .AccountNumber {
+    input {
+    width: calc(100% - 37px);
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0);
+    color: #d9d9d9;
+    font-size: 16px;
+    height: 44px;
+    cursor: pointer;
+  } 
+  input[type="text"]:focus, input[type="password"]:focus {
+      border: 0px solid #eb7350;
+      background: rgba(255, 255, 255, 0);
+      outline: none;
+      caret-color: rgba(0, 0, 0, 0);
+    }
+  }
 }
 
-.Thelogin .AccountNumber input[type="text"]:focus,
-input[type="password"]:focus {
-  border: 0px solid #eb7350;
-  background: rgba(255, 255, 255, 0);
-  outline: none;
-  caret-color: rgba(0, 0, 0, 0);
-}
 
 .Thelogin .el-input__inner::placeholder {
   color: #b6b5b5;
