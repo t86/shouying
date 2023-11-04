@@ -394,6 +394,7 @@ export default class WebSocketClient {
 
     try {
       for (let key in dataObj) {
+
         // 开启营业日的时候，业务数据为空，需要重新赋值业务数据
         if (
           key == 14 &&
@@ -591,8 +592,8 @@ export default class WebSocketClient {
       }
       if (time) localStorage.setItem("websocketTimeMessageTime", time);
     } catch (e) {
-      globalError.handleError(err);
       this.getUpdateData();
+      globalError.handleError(e);
     }
 
   };
