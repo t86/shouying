@@ -277,7 +277,7 @@ export default {
   .session {
 
     &-left {
-      width: 20%;
+      width: 25%;
 
       &-contain {
         width: 100%;
@@ -298,7 +298,7 @@ export default {
     }
 
     &-center {
-      width: 20%;
+      width: 25%;
       padding-bottom: 5%;
 
       &-contain {
@@ -327,7 +327,7 @@ export default {
     }
 
     &-right {
-      width: 60%;
+      width: 50%;
       padding: 20px;
       box-sizing: border-box;
       .table{
