@@ -57,6 +57,8 @@
               <div class="th w120">订位人工号</div>
               <div class="th w170">开台时间</div>
               <div class="th w170">清台时间</div>
+              <div class="th w170">联合订位人</div>
+              <div class="th w170">联合订位人部门</div>
               <div class="th w200">备注</div>
             </div>
           </div>
@@ -86,6 +88,8 @@
                   <div class="td w120">{{item.sc}}</div>
                   <div class="td w170">{{item.ot}}</div>
                   <div class="td w170">{{item.tt}}</div>
+                  <div class="td w170">{{item.s}}</div>
+                  <div class="td w170">{{item.d}}</div>
                   <div class="td w200">{{item.r}}</div>
                 </div>
               </div>
