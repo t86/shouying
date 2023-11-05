@@ -29,17 +29,17 @@
           </div>
           <div class="total">
 
-              <div>当天充值储值额:<span style="color: red;">{{totalInfo.dept_val / 100.0}}</span></div>
-              <div>当天充值赠送额:<span style="color: red;">{{totalInfo.dept_free / 100.0}}</span></div>
-              <div>当天充值汇总:<span style="color: red;">{{(totalInfo.dept_val + totalInfo.dept_free) / 100}}</span></div>
-              <div>当天充值积分:<span style="color: red;">{{totalInfo.dept_pt / 100.0}}</span></div>
-              <div>当天消费储值额:<span style="color: red;">{{totalInfo.csm_val / 100.0}}</span></div>
-              <div>当天消费赠送额:<span style="color: red;">{{totalInfo.csm_free / 100.0}}</span></div>
-              <div>当天消费汇总:<span style="color: red;">{{(totalInfo.csm_val + totalInfo.csm_free) / 100.0 }}</span></div>
+              <div>当天充值储值额:<span style="color: red;">{{format(totalInfo.dept_val)}}</span></div>
+              <div>当天充值赠送额:<span style="color: red;">{{format(totalInfo.dept_free)}}</span></div>
+              <div>当天充值汇总:<span style="color: red;">{{format(totalInfo.dept_val + totalInfo.dept_free)}}</span></div>
+              <div>当天充值积分:<span style="color: red;">{{totalInfo.dept_pt}}</span></div>
+              <div>当天消费储值额:<span style="color: red;">{{format(totalInfo.csm_val)}}</span></div>
+              <div>当天消费赠送额:<span style="color: red;">{{format(totalInfo.csm_free)}}</span></div>
+              <div>当天消费汇总:<span style="color: red;">{{format(totalInfo.csm_val + totalInfo.csm_free)}}</span></div>
               <div>当天消费积分:<span style="color: red;">{{totalInfo.csm_pt}}</span></div>
-              <div>储值余额:<span style="color: red;">{{totalInfo.free_bal / 100.0}}</span></div>
-              <div>赠送余额:<span style="color: red;">{{totalInfo.val_bal / 100.0}}</span></div>
-              <div>全部余额汇总:<span style="color: red;">{{(totalInfo.val_bal + totalInfo.free_bal) / 100.0}}</span></div>
+              <div>储值余额:<span style="color: red;">{{format(totalInfo.free_bal)}}</span></div>
+              <div>赠送余额:<span style="color: red;">{{format(totalInfo.val_bal)}}</span></div>
+              <div>全部余额汇总:<span style="color: red;">{{format(totalInfo.val_bal + totalInfo.free_bal)}}</span></div>
               <div>积分余额:<span style="color: red;">{{totalInfo.pt_bal}}</span></div>
           </div>
         </div>
@@ -122,6 +122,13 @@
       };
     },
     methods: {
+      format(number) {
+        if(number == 0) return number.toString();
+        number = number.toString();
+
+        let decimalIndex = number.length - 2; 
+        return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
+      },
       async getTableData() {
         const params = {
           page_num: this.pageInfo.page * 1, //    int    第几页
