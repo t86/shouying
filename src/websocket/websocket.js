@@ -106,9 +106,10 @@ export default class WebSocketClient {
   messageHandle = async (e) => {
     console.log(e);
     const { p: code, t: time, d: data } = JSON.parse(e.data);
-    // 更新接收到消息的时间
-    this.websocketTimeStart = +new Date(); // code: 1:数据更新  2：无更新，保持连接不断  3：错误信息
+
     if (code == 1) {
+      // 更新接收到消息的时间
+      this.websocketTimeStart = +new Date(); // code: 1:数据更新  2：无更新，保持连接不断  3：错误信息
       this.updateCardList(data, time);
     } else if (code == 3) {
       let message = typeof data == "string" ? data : "websocket返回数据出错";
@@ -122,6 +123,8 @@ export default class WebSocketClient {
       }
       this.vue.$message.warning(message);
     } else {
+      // 更新接收到消息的时间
+      this.websocketTimeStart = +new Date(); // code: 1:数据更新  2：无更新，保持连接不断  3：错误信息
       localStorage.setItem("websocketTimeMessageTime", time);
     }
   };
