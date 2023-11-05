@@ -4,29 +4,48 @@
       <div class="vip memberBalanceSum">
         <h3 class="title">会员卡余额汇总表</h3>
   
-        <div class="search m-t-2 m-b-4">
-          <div class="row another" layout="row" layout-align="start center">
-            <el-input
-              class="m-r-2"
-              v-model="form.keyword"
-              size="small"
-              placeholder="姓名/手机号/会员卡号"
-              style="width: 200px"
-            ></el-input>
-            <button class="btn primary m-l-4" @click="getTableData">查询</button>
-            <button class="btn info m-l-4" @click="resetHandle">重置</button>
-            <button
-              class="btn info m-l-4"
-              @click="exportExcel"
-            >
-              导出
-            </button>
+        <div class="title m-t-2">
+          <div class="search">
+            <div class="row another" layout="row" layout-align="start center">
+              <el-input
+                class="m-r-2"
+                v-model="form.keyword"
+                size="small"
+                placeholder="姓名/手机号/会员卡号"
+                style="width: 200px"
+              ></el-input>
+              <button class="btn primary m-l-4" @click="getTableData">查询</button>
+              <button class="btn info m-l-4" @click="resetHandle">重置</button>
+              <button
+                class="btn info m-l-4"
+                @click="exportExcel"
+              >
+                导出
+              </button>
+            </div>
+            <div style="color: red;margin-top: 10px;">
+            该列表包含不记名会员卡余额
+            </div>
+          </div>
+          <div class="total">
+              <div>当天充值汇总:<span style="color: red;">{{(totalInfo.dept_val + totalInfo.dept_free) / 100}}</span></div>
+              <div>当天消费汇总:<span style="color: red;">{{(totalInfo.csm_val + totalInfo.csm_free) / 100.0 }}</span></div>
+              <div>全部余额汇总:<span style="color: red;">{{(totalInfo.val_bal + totalInfo.free_bal) / 100.0}}</span></div>
+              <div>当天充值储值额:<span style="color: red;">{{totalInfo.dept_val / 100.0}}</span></div>
+              <div>当天充值赠送额:<span style="color: red;">{{totalInfo.dept_free / 100.0}}</span></div>
+              <!-- <div>当天充值额:<span style="color: red;">{{totalInfo.dept_val}}</span></div> -->
+              <div>当天充值积分:<span style="color: red;">{{totalInfo.dept_pt / 100.0}}</span></div>
+              <div>当天消费储值额:<span style="color: red;">{{totalInfo.csm_val / 100.0}}</span></div>
+              <div>当天消费赠送额:<span style="color: red;">{{totalInfo.csm_free / 100.0}}</span></div>
+              <div>当天消费积分:<span style="color: red;">{{totalInfo.csm_pt}}</span></div>
+              <!-- <div>当天消费额:<span style="color: red;">111</span></div> -->
+              <div>赠送余额:<span style="color: red;">{{totalInfo.val_bal / 100.0}}</span></div>
+              <div>储值余额:<span style="color: red;">{{totalInfo.free_bal / 100.0}}</span></div>
+              <div>积分余额:<span style="color: red;">{{totalInfo.pt_bal}}</span></div>
           </div>
         </div>
   
-        <div style="color: red;">
-          该列表包含不记名会员卡余额
-        </div>
+
         <div class="contain">
           <div class="table">
             <div class="thead">
@@ -95,6 +114,7 @@
           keyword: "",
         },
         tableData: [],
+        totalInfo:{},
         pageInfo: {
           page: 1,
           pageSize: 20,
@@ -113,6 +133,7 @@
           const res = await api_vip.reqGetVipBalanceListReport(params);
           if (res.code == 1) {
             this.tableData = res.data.datas || [];
+            this.totalInfo = res.data.total_info || {};
             this.pageInfo.total = res.data.row_cnt || 0;
           } else {
             this.$message.warning(res.msg);
