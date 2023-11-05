@@ -92,7 +92,7 @@
                 <div class="td" layout="row" layout-align="start center">
                   <img :src="item.c > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')" @click="changeShoppingCartCount(item, Math.max((item.c * 1 - 1), 1))"
                   />
-                  <input type="number" @click="focus = index;" :min="1" v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c, 1))" />
+                  <input type="number" :class="{ onFocus: focus == index}" @click="focus = index;" :min="1" v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c, 1))" />
                   <img :src="item.c < item.maxCount ? require('@/assets/order-img/order_add.png') : require('@/assets/order-img/add-disabled.png')" @click="changeShoppingCartCount(item, (item.c * 1 + 1))" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
@@ -112,9 +112,7 @@
             </div>
           </div>
 
-          <div class="keyboard" @click.stop="">
-              <keyBoard @changeNum="changeNumHandle" />
-            </div>
+          <keyBoard @changeNum="changeNumHandle" />
         </div>
         
       </div> 
@@ -398,6 +396,7 @@ export default {
     .right {
       overflow: auto;
       box-sizing: border-box;
+      height: 100%;
       .table {
         width: calc(100% - 400px);
         .tbody {
@@ -421,6 +420,9 @@ export default {
                 font-size: 14px;
                 text-align: center;
                 box-sizing: border-box;
+              }
+              .onFocus {
+                border: 1px solid #32B9FF;
               }
             }
             &:nth-child(5) {
