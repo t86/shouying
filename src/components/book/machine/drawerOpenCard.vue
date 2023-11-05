@@ -28,6 +28,7 @@
             placeholder="订位人姓名/订位人工号"
             ></el-cascader>
         </div>
+        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/定位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
         <button class="reset" @click="resetSearchVal">重置</button>
         </div>
@@ -116,7 +117,8 @@ export default {
       selectOption: [],
       personVal: [-1, -1],
       personOptions: [],
-      tableData: []
+      tableData: [],
+      keyword: ''
     };
   },
   methods: {
@@ -151,6 +153,7 @@ export default {
       const params = {
         region_id: (originSelectOption.find(item => item.name == this.selectVal) || {id: 0}).id * 1, //  int64   区域,0表示全部
         sales_emps: [this.personVal[1] * 1], // []int64   订位人列表, 如果全部, 传1个原始的数组,值-1;   散客对应 id=0,如果有需要在列表中体现
+        key: this.keyword,
       }
 
       try {
