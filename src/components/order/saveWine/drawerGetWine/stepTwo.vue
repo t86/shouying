@@ -599,7 +599,7 @@ export default {
       overflow: auto;
       box-sizing: border-box;
       height: 100%;
-      margin-left: 30px;
+      margin-left: 10px;
       flex: 1;
       .table {
         width: calc(100% - 250px);
@@ -653,9 +653,9 @@ export default {
         position: relative;
         flex-wrap: nowrap;
         flex-shrink: 0;
-        width: 320px;
+        width: 120px;
         input {
-          width: 268px;
+          width: 108px;
           height: 36px;
           background: rgba(0, 0, 0, 0.2);
           border-radius: 8px;
