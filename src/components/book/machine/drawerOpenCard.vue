@@ -28,7 +28,7 @@
             placeholder="订位人姓名/订位人工号"
             ></el-cascader>
         </div>
-        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/定位人/客户姓名/电话" />
+        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/订位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
         <button class="reset" @click="resetSearchVal">重置</button>
         </div>

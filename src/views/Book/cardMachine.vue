@@ -141,8 +141,8 @@
                   layout="row"
                   layout-align="start center"
                 >
-                  <span class="line-tips">点</span>
-                  <span>￥{{ item.totalAmt }}</span>
+                  <span class="line-tips">主</span>
+                  <span>￥{{ item.order_zy_amt * 1 - item.payed_zy_free_amt * 1 }}</span>
                 </span>
               </span>
               <span class="card-step">{{ item.diXiaoJindu }}</span>

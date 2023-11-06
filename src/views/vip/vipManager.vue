@@ -151,8 +151,8 @@
           >
             <div class="td">{{ index + 1 }}</div>
             <div class="td">{{ item.n }}</div>
-            <div class="td">{{ item.bp }}</div>
-            <div class="td">{{ item.cp }}</div>
+            <div class="td" @click.stop="copyText(item.bp)">{{ item.bp }}</div>
+            <div class="td" @click.stop="copyText(item.cp)">{{ item.cp }}</div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.b }}</div>
             <div class="td" layout="row" layout-align="start center">
@@ -331,7 +331,26 @@ export default {
       personOptions: [], //开卡推荐人
     };
   },
+  mounted() {
+    document.onkeydown = this.keyHandle      
+  },
+  beforeDestroy () {
+    document.onkeydown = null
+  },
   methods: {
+
+    keyHandle(e){
+      if(e.keyCode == 13){
+        this.getTableData(true)
+      }
+    },
+    copyText(text) {
+      if(!text) return
+      // 复制文本
+      navigator.clipboard.writeText(text)
+      // 弹出提示
+      this.$message.success('文本已复制')
+    },
     async getTableData(rest = false) {
       if (rest) this.pageInfo.page = 1;
       const params = {
