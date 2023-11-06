@@ -10,15 +10,6 @@
     >
       <div class="kpi-report">
         <div class="top" layout="row" layout-align="start center">
-          <span>类型：</span>
-            <mySelect
-              style="width:150px"
-              :value="selectInfo.selectVal"
-              :optionsList="selectInfo.selectOption"
-              @selectOptionItem="setSelectValHandle"
-              @selectBlurHandle="selectBlurHandle"
-              @getOption="getOptionHandle"
-            />
           <el-button
             type="primary"
             class="m-l-3"
@@ -30,13 +21,13 @@
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
               <div class="th">序号</div>
+              <div class="th">订位部门/订位人</div>
               <div class="th">区域</div>
               <div class="th">卡台</div>
-              <div class="th">订位人</div>
-              <div class="th">订位人部门</div>
               <div class="th">开台时间</div>
               <div class="th">折前(含未结金额)</div>
               <div class="th">折后(含未结金额)</div>
+              <div class="th">可计业绩</div>
               <div class="th">未结金额</div>
               <div class="th">优惠金额</div>
             </div>
@@ -50,15 +41,16 @@
               :key="i"
             >
               <div class="td one-txt-cut">{{i + 1}}</div>
-              <div class="td one-txt-cut">{{item.rn}}</div>
-              <div class="td one-txt-cut">{{item.sn}}</div>
-              <div class="td one-txt-cut">{{item.en}}</div>
-              <div class="td one-txt-cut">{{item.sd}}</div>
-              <div class="td one-txt-cut">{{item.o}}</div>
-              <div class="td one-txt-cut">{{item.oza}}</div>
-              <div class="td one-txt-cut">{{item.ozva}}</div>
-              <div class="td one-txt-cut">{{item.uza}}</div>
-              <div class="td one-txt-cut">{{item.ya}}</div>
+              <div class="td one-txt-cut">{{item.n}}</div>
+              <div class="td one-txt-cut">{{item.r || '-'}}</div>
+              <div class="td one-txt-cut">{{item.s || '-'}}</div>
+              <div class="td one-txt-cut">{{item.o || '-'}}</div>
+              <div class="td one-txt-cut">{{item.z || '-'}}</div>
+              <div class="td one-txt-cut">{{item.v || '-'}}</div>
+              <div class="td one-txt-cut">{{item.y || '-'}}</div>
+              <div class="td one-txt-cut">{{item.u || '-'}}</div>
+              <div class="td one-txt-cut">{{item.h || '-'}}</div>
+             
             </div>
           </div>
           <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
@@ -79,33 +71,13 @@ export default {
   data() {
     return {
       show: false,
-      selectInfo: {
-        selectVal: "不分组",
-        selectOption: [],
-        originSelectOption: [
-          {
-            id: 1,
-            name: "不分组"
-          },
-          {
-            id: 2,
-            name: "按部门分组"
-          },
-          {
-            id: 3,
-            name: "按区域分组"
-          }
-        ]
-      },
       tableData: []
     };
   },
   methods: {
     // 获取数据
     async getTableData() {
-      const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int   查询类型:1 不分组 2 按部门分组 3 按区域分组
-      }
+      const params = {};
       try {
         const res = await api_money.reqGetKpiReportInfo(params);
         if (res.code == 1) {
@@ -121,7 +93,6 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int   查询类型:1 不分组 2 按部门分组 3 按区域分组
       }
       try {
         const res = await api_money.reqExportExcelOfKpiReport(params);
@@ -150,22 +121,6 @@ export default {
     onCancelDrawer() {
       this.$emit("showOrHideKpiReportHandle");
     },
-
-    /*
-    筛选下拉框相关 start
-    */
-    setSelectValHandle(info) {
-      this.selectInfo.selectVal = info.name;
-      this.getTableData()
-    },
-    selectBlurHandle() {
-      this.selectInfo.selectOption = [];
-    },
-    getOptionHandle() {
-      this.selectInfo.selectOption = JSON.parse(
-        JSON.stringify(this.selectInfo.originSelectOption)
-      );
-    }
   },
   props: {
     showDrawer: {

@@ -150,11 +150,11 @@ export default {
 
   // 获取业绩日报
   reqGetKpiReportInfo: (params) =>
-    axios.post(`${base.htgl}/sel/get_yl_list`, params),
+    axios.post(`${base.htgl}/sel/rpt/get_yj_rpt`, params),
 
   // 导出业绩日报表excel
   reqExportExcelOfKpiReport: (params) =>
-    axios.binaryFilePost(`${base.htgl}/sel/exp_yeji_list`, params),
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_yj_rpt`, params),
 
   // 收银读取线上预定记录
   reqGetBookingList: (params) =>

@@ -49,30 +49,13 @@
                       v-model="phoneNum"
                       :class="{focus: focus == 2}"
                       @click="focus=2"
+                      :maxlength="11"
                       @input="emitStepOneInfoHandle"
                       placeholder="请输入手机号"
                     />
-                    <el-button
-                      style="position:absolute;left:280px"
-                      :type="count == 60 ? 'primary' : 'info'"
-                      :disabled="count != 60"
-                      size="small"
-                      @click="sendPhoneMessage"
-                    >{{btnText}}</el-button>
                   </div>
                 </div>
-                <div class="coll" layout="row" layout-align="start center">
-                  <div class="label">验证码</div>
-                  <div class="value">
-                    <input
-                      v-model="validateVal"
-                      :class="{focus: focus == 3}"
-                      @click="focus=3"
-                      @input="emitStepOneInfoHandle"
-                      placeholder="请输入验证码"
-                    />
-                  </div>
-                </div>
+               
               </div>
               <div v-if="tabIndex == 3" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
@@ -111,15 +94,13 @@
 </template>
  
 <script>
-import api_vip from "@/api/vip";
 import keyBoard from "@/components/common/keyBoard.vue";
 export default {
   data() {
     return {
       isRect: true,  // 是否为横屏
       focus: 1,
-      timer: null,
-      count: 60, // 验证码倒计时
+     
       tabIndex: 1,
       authValidateVal: "", // 服务码
       superValidate: '',  // 超级授权码
@@ -139,41 +120,6 @@ export default {
       } else {
         this.count = 60;
       }
-    },
-    // 发送验证码
-    async sendPhoneMessage() {
-      if (this.count != 60) return;
-      const params = {
-        t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
-        m: this.phoneNum //  string   手机号
-      };
-      if (params.m.length != 11)
-        return this.$message.warning("请输入正确的11位手机号");
-      try {
-        const res = await api_vip.reqSendPhoneMsg(params);
-        if (res.code == 1) {
-          this.$message.success("验证码发送成功");
-          this.count--;
-          this.loopSecond();
-          this.$sessionStorage.setItem("secondGetWineCount", (+new Date()).toString());
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("发送验证码失败", error);
-      }
-    },
-
-    // 倒计时
-    loopSecond() {
-      if (this.timer) clearInterval(this.timer);
-      this.timer = setInterval(() => {
-        this.count--;
-        if (this.count == 0) {
-          clearInterval(this.timer);
-          this.count = 60;
-        }
-      }, 1000);
     },
 
     blueHandle() {
@@ -228,11 +174,7 @@ export default {
   components: {
     keyBoard
   },
-  computed: {
-    btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
-    }
-  },
+
   watch: {
     stepOneInfo: {
       handler(newVal) {

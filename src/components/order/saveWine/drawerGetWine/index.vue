@@ -67,30 +67,6 @@ export default {
       }
     },
 
-    // 手机号验证
-    async validatePhoneInfo() {
-      const params = {
-        m: this.stepOneInfo.phoneNum, //   string    手机号
-        c: this.stepOneInfo.validateVal //    string   验证码
-      };
-
-      if (params.c.length != 5) {
-        this.$message.warning("请输入正确的五位验证码");
-        return false;
-      }
-      try {
-        const res = await api_vip.reqValidatePhoneMsg(params);
-        if (res.code == 1) {
-          this.stepOneInfo.phoneValidateStr = res.data.c;
-          return res.data.c;
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("验证手机验证码失败", error);
-      }
-    },
-
     // 服务码验证
     async validateValidateInfo() {
       const params = {
@@ -123,9 +99,10 @@ export default {
             if (
               !this.stepOneInfo.phoneNum ||
               this.stepOneInfo.phoneNum.length != 11
-            )
+            ){
               return this.$message.warning("请输入11位手机号码");
-            result = await this.validatePhoneInfo();
+            }
+            result = true;
           } else if (this.stepOneInfo.tabIndex == 3) {
             // 手机验证码
             if (!this.stepOneInfo.phoneNum || this.stepOneInfo.phoneNum.length != 11) return this.$message.warning("请输入11位手机号码");
