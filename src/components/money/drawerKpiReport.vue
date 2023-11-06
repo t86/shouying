@@ -42,15 +42,15 @@
             >
               <div class="td one-txt-cut">{{i + 1}}</div>
               <div class="td one-txt-cut"><div :style="{
-                paddingLeft: item.f != 1?'20px':''}">{{item.n}}</div></div>
+                paddingLeft: (item.b* 5) + 'px'}">{{item.n}}</div></div>
               <div class="td one-txt-cut">{{item.r || '-'}}</div>
               <div class="td one-txt-cut">{{item.s || '-'}}</div>
               <div class="td one-txt-cut">{{item.o || '-'}}</div>
-              <div class="td one-txt-cut">{{item.z || '-'}}</div>
-              <div class="td one-txt-cut">{{item.v || '-'}}</div>
-              <div class="td one-txt-cut">{{item.y || '-'}}</div>
-              <div class="td one-txt-cut">{{item.u || '-'}}</div>
-              <div class="td one-txt-cut">{{item.h || '-'}}</div>
+              <div class="td one-txt-cut">{{format(item.z)}}</div>
+              <div class="td one-txt-cut">{{format(item.v)}}</div>
+              <div class="td one-txt-cut">{{format(item.y)}}</div>
+              <div class="td one-txt-cut">{{format(item.u)}}</div>
+              <div class="td one-txt-cut">{{format(item.h)}}</div>
              
             </div>
           </div>
@@ -76,6 +76,17 @@ export default {
     };
   },
   methods: {
+    countStartingSpaces(str) {
+      const spaces = str.match(/^\s*/)[0].length;
+      return spaces;
+    },
+    format(number) {
+        if(number == 0 || !number) return '-';
+        number = number.toString();
+
+        let decimalIndex = number.length - 2; 
+        return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
+      },
     // 获取数据
     async getTableData() {
       const params = {};
@@ -83,6 +94,10 @@ export default {
         const res = await api_money.reqGetKpiReportInfo(params);
         if (res.code == 1) {
           this.tableData = res.data.records || []
+          this.tableData = this.tableData.map(item => {
+            return {...item, 
+              b: this.countStartingSpaces(item.n)}
+          })
         } else {
           this.$message.warning(res.msg);
         }
