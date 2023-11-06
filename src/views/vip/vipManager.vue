@@ -287,6 +287,7 @@ import drawerOptionEvent from "@/components/vip/vipManager/drawerOptionEvent/ind
 import modalCom from "@/components/vip/common/modal.vue";
 
 import tipsArr from "@/components/vip/vipManager/drawerOptionEvent/tipsArr";
+import { copyToClipboard } from "@/utils/copy" 
 export default {
   data() {
     return {
@@ -346,10 +347,8 @@ export default {
     },
     copyText(text) {
       if(!text) return
-      // 复制文本
-      navigator.clipboard.writeText(text)
-      // 弹出提示
-      this.$message.success('文本已复制')
+      copyToClipboard(text)
+
     },
     async getTableData(rest = false) {
       if (rest) this.pageInfo.page = 1;
