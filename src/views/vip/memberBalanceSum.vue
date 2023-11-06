@@ -37,8 +37,8 @@
               <div>当天消费赠送额:<span style="color: red;">{{format(totalInfo.csm_free)}}</span></div>
               <div>当天消费汇总:<span style="color: red;">{{format(totalInfo.csm_val + totalInfo.csm_free)}}</span></div>
               <div>当天消费积分:<span style="color: red;">{{totalInfo.csm_pt}}</span></div>
-              <div>储值余额:<span style="color: red;">{{format(totalInfo.free_bal)}}</span></div>
-              <div>赠送余额:<span style="color: red;">{{format(totalInfo.val_bal)}}</span></div>
+              <div>储值余额:<span style="color: red;">{{format(totalInfo.val_bal)}}</span></div>
+              <div>赠送余额:<span style="color: red;">{{format(totalInfo.free_bal)}}</span></div>
               <div>全部余额汇总:<span style="color: red;">{{format(totalInfo.val_bal + totalInfo.free_bal)}}</span></div>
               <div>积分余额:<span style="color: red;">{{totalInfo.pt_bal}}</span></div>
           </div>
