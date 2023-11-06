@@ -41,7 +41,8 @@
               :key="i"
             >
               <div class="td one-txt-cut">{{i + 1}}</div>
-              <div class="td one-txt-cut">{{item.n}}</div>
+              <div class="td one-txt-cut"><div :style="{
+                paddingLeft: item.f != 1?'20px':''}">{{item.n}}</div></div>
               <div class="td one-txt-cut">{{item.r || '-'}}</div>
               <div class="td one-txt-cut">{{item.s || '-'}}</div>
               <div class="td one-txt-cut">{{item.o || '-'}}</div>
