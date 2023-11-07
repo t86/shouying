@@ -11,22 +11,15 @@
       <div class="search white p-l-6 p-b-4" layout="row" layout-align="space-between center">
         <div layout="row" layout-align="start center">
           <div class="search-item m-r-4" layout="row" layout-align="start center">
-          <span>区域：</span>
+          <span>排序：</span>
           <mySelect
             style="width:150px;height:30px;line-height:30px"
-            :value="selectVal"
-            :optionsList="selectOption"
+            :value="typeName"
+            :optionsList="typeList"
             @selectOptionItem="setSelectValHandle"
             @selectBlurHandle="selectBlurHandle"
             @getOption="getOptionHandle"
           />
-        </div>
-        <div class="search-item">
-          <el-cascader
-            v-model="personVal"
-            :options="personOptions"
-            placeholder="订位人姓名/订位人工号"
-            ></el-cascader>
         </div>
         <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/订位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
@@ -42,6 +35,8 @@
               <div class="th">序号</div>
               <div class="th w80">区域</div>
               <div class="th w150">卡台名称</div>
+              <div class="th w120">订位人部门</div>
+              <div class="th w120">订位人</div>
               <div class="th w80">卡台标记</div>
               <div class="th w80">低消进度</div>
               <div class="th w120" 
@@ -51,8 +46,7 @@
               <div class="th w120">客人电话</div>
               <div class="th w90">客人姓名</div>
               <div class="th w90">客人人数</div>
-              <div class="th w120">订位人部门</div>
-              <div class="th w120">订位人</div>
+
               <div class="th w120">订位人电话</div>
               <div class="th w120">订位人工号</div>
               <div class="th w170">开台时间</div>
@@ -73,17 +67,17 @@
                   <div class="td">{{i+1}}</div>
                   <div class="td w80">{{item.rn}}</div>
                   <div class="td w150">{{item.sn}}</div>
+                  <div class="td w120">{{item.sd}}</div>
+                  <div class="td w120">{{item.sen}}</div>
                   <div class="td w80">{{item.m}}</div>
-                  <div class="td w80">{{item.mp}}</div>
+                  <div class="td w80">{{item.mp + '%'}}</div>
                   <div class="td w120" 
                     v-if="$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ?
                     $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true"
-                    >{{item.om}}</div>
+                    >{{format(item.om)}}</div>
                   <div class="td w120">{{item.cp}}</div>
                   <div class="td w90">{{item.cn}}</div>
                   <div class="td w90">{{item.cc}}</div>
-                  <div class="td w120">{{item.sd}}</div>
-                  <div class="td w120">{{item.sen}}</div>
                   <div class="td w120">{{item.sp}}</div>
                   <div class="td w120">{{item.sc}}</div>
                   <div class="td w170">{{item.ot}}</div>
@@ -117,6 +111,22 @@ export default {
     return {
       show: false,
       loadTime: '',
+      typeName: '按开台时间排序',
+      typeOriginList: [
+        {
+          id: 1,
+          name: '按开台时间排序'
+        },
+        {
+          id: 2,
+          name: '按部门员工排序'
+        },
+        {
+          id: 3,
+          name: '按区域排序'
+        }
+      ],
+      typeList: [],
       selectVal: "全部",
       selectOption: [],
       personVal: [-1, -1],
@@ -126,6 +136,13 @@ export default {
     };
   },
   methods: {
+    format(number) {
+      if(number == 0) return number.toString();
+      number = number.toString();
+
+      let decimalIndex = number.length - 2; 
+      return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
+    },
     getReloadTime(){
       const date = new Date();
       const Y = date.getFullYear();
@@ -138,28 +155,15 @@ export default {
     },
 
     async getSelectOption(){
-      try {
-        const res = await api_book.reqOpenCardListParams();
-        if (res.code == 1) {
-          this.initSelectOption(res.data.region_ids);
-          originPersonList = res.data.sales_emps || [];
-          this.getPersonSelectOption(res.data.sales_emps)
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log('筛选参数获取失败', error);
-      }
+      this.typeList = [...this.typeOriginList]
     },
 
     async getTableData() {
       this.getReloadTime();
       const params = {
-        region_id: (originSelectOption.find(item => item.name == this.selectVal) || {id: 0}).id * 1, //  int64   区域,0表示全部
-        sales_emps: [this.personVal[1] * 1], // []int64   订位人列表, 如果全部, 传1个原始的数组,值-1;   散客对应 id=0,如果有需要在列表中体现
-        key: this.keyword,
+        key: this.keyword,//Key 模糊查询关键字,卡台标记,订位人,客人电话,客人姓名
+        type_id: this.typeOriginList.find(item => item.name == this.typeName).id  //typeId 1 按开台时间排序   2 按部门员工排序  3 按区域排序}
       }
-
       try {
         const res = await api_book.reqOpenCardListData(params);
         if (res.code == 1) {
@@ -181,8 +185,8 @@ export default {
 
     async exportExcelHandle(){
       const params = {
-        region_id: originSelectOption.find(item => item.name == this.selectVal).id * 1, //  int64   区域,0表示全部
-        sales_emps: [this.personVal[1] * 1], // []int64   订位人列表, 如果全部, 传1个原始的数组,值-1;   散客对应 id=0,如果有需要在列表中体现
+        key: this.key, //
+        type_id: this.typeOriginList.find(item => item.name == this.typeName).id
       }
 
       try {
@@ -272,14 +276,13 @@ export default {
       originSelectOption = [...areaList];
     },
     setSelectValHandle(info) {
-      this.selectVal = info.name;
+      this.typeName = info.name;
     },
     selectBlurHandle() {
-      this.selectOption = [];
+      this.typeList = [];
     },
     getOptionHandle() {
-      if (originSelectOption.length == 0) this.initSelectOption();
-      this.selectOption = JSON.parse(JSON.stringify(originSelectOption));
+      this.typeList = [...this.typeOriginList];
     }
   },
   props: {
