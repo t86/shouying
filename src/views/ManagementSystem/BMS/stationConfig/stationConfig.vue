@@ -90,7 +90,7 @@
     </div>
 
     <div layout="row" layout-align="start center" style="margin:12px 0;">
-      <el-input v-model="searchKey" placeholder="岗位名称"  clearable  style="width:200px" ></el-input>
+      <el-input v-model="searchKey" placeholder="岗位名称"  clearable  style="width:200px" @change="getTableData"></el-input>
       <el-button type="primary" size="small" @click="getTableData" style="margin-left: 15px;">查询</el-button>
       <el-button type="info" @click.stop="restSearchData">重置</el-button>
     </div>

@@ -144,7 +144,7 @@
         ></characters-button>
       </div>
      <div layout="row" layout-align="start center" style="margin:12px 0;">
-      <el-input v-model="searchKey" placeholder="姓名/公号/岗位"  clearable  style="width:200px" ></el-input>
+      <el-input v-model="searchKey" placeholder="姓名/工号/岗位"  clearable  style="width:200px" @change="getEmpTableList"></el-input>
       <el-button type="primary" size="small" @click="getEmpTableList" style="margin-left: 15px;">查询</el-button>
     </div>
       <div class="table-content table2">
@@ -359,6 +359,7 @@ export default {
   },
   methods: {
     getTableData() {
+      this.searchKey = ''
       this.getGroupTableList();
       this.getEmpTableList();
     },
@@ -391,7 +392,6 @@ export default {
       };
       if (!params.dept_id) {
         this.employeeTableData = [];
-        this.$message.warning("请选择部门");
         return;
       }
       try {
