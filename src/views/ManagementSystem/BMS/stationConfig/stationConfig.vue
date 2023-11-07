@@ -88,6 +88,12 @@
       ></characters-button>
      
     </div>
+
+    <div layout="row" layout-align="start center" style="margin:12px 0;">
+      <el-input v-model="searchKey" placeholder="岗位名称"  clearable  style="width:200px" ></el-input>
+      <el-button type="primary" size="small" @click="getTableData" style="margin-left: 15px;">查询</el-button>
+      <el-button type="info" @click.stop="restSearchData">重置</el-button>
+    </div>
     <div class="table-content">
       <div class="table">
         <div class="thead">
@@ -223,6 +229,7 @@ import drawerNextDrawer from "./stationConfigCom/drawerNextDrawer.vue";
 export default {
   data() {
     return {
+      searchKey: "", // 搜索关键字
       tableData: [],
       checkAll: false,
       type: 1, // 1:新增  2：修改
@@ -252,7 +259,10 @@ export default {
   methods: {
     async getTableData() {
       try {
-        const res = await this.$api.BMS.station.requestStationList();
+        const params = {
+          key: this.searchKey,
+        };
+        const res = await this.$api.BMS.station.requestStationList(params);
         if (res.code == 1) {
           this.tableData = (res.data || []).map((item) => ({
             ...item,
@@ -379,6 +389,11 @@ export default {
           break;
       }
     },
+      // 重置
+      restSearchData() {
+        this.searchKey = ""
+        this.getTableData();
+      },
   },
   created() {
     this.getTableData();
