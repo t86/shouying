@@ -202,7 +202,7 @@ export default [
           img: "report_manage1.png",
           content: [
             {
-              name: "特饮小费导出配置",
+              name: "鸡尾酒导出配置",
               url: "/BMS/reportTYConfig"
             },
             {

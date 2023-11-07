@@ -115,9 +115,9 @@ export default [
   /**
    * 收银报表配置
    */
-  // 特饮小费导出配置
+  // 鸡尾酒导出配置
   {
-    path: '/BMS/reportTYConfig', name: "reportTYConfig", meta: { title: '特饮小费导出配置' },
+    path: '/BMS/reportTYConfig', name: "reportTYConfig", meta: { title: '鸡尾酒导出配置' },
     component: () => import('@/views/ManagementSystem/BMS/reportTYConfig/reportTYConfig.vue')
   },
   // 销售商品统计设置

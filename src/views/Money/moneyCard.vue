@@ -518,7 +518,7 @@
                     alt
                   />
                   <span style="width: 100px; line-height: 20px"
-                    >非特饮小费类补交报表</span
+                    >非鸡尾酒类补交报表</span
                   >
                 </div>
                 <div
@@ -822,7 +822,7 @@
       @showOrHideOrderDetailDrawer="showOrHideOrderDetailDrawer"
     />
 
-    <!-- 非特饮小费类补交报表 -->
+    <!-- 非鸡尾酒类补交报表 -->
     <drawerNotTYOrXF
       :showDrawer="showOrHideNotTYOrXF"
       @showOrHideNotTYOrXFDrawer="showOrHideNotTYOrXFDrawer"
@@ -1061,7 +1061,7 @@ export default {
       showOrHideGZDetail: false, // 挂账详情
       showOrHideTurnOverDetail: false, // 翻台记录
       showOrHideOrderDetail: false, // 点单记录
-      showOrHideNotTYOrXF: false, // 非特饮小费类补交报表
+      showOrHideNotTYOrXF: false, // 非鸡尾酒类补交报表
       showOrHideUpdateEmp: false, // 修改订位人操作记录
       showTurnOverDrawer: false, // 转台记录
       showYHCountDrawer: false, // 查询优惠额度
@@ -1599,7 +1599,7 @@ export default {
       this.showOrHideOrderDetail = !this.showOrHideOrderDetail;
     },
 
-    // 非特饮小费类补交报表
+    // 非鸡尾酒类补交报表
     showOrHideNotTYOrXFDrawer() {
       this.showOrHideNotTYOrXF = !this.showOrHideNotTYOrXF;
     },

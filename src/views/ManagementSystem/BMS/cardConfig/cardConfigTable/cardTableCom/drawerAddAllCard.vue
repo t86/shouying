@@ -153,7 +153,7 @@ export default {
         name_prefix: this.prefix,
         capacity: this.personCount * 1, // int  座位数,人数
         seat_type: this.cardType * 1, // int   卡台类型   1 散台   2  吧台  3 卡座 4 包厢
-        biz_type: this.businessType * 1, // int   业务类型 1 实体台  2 虚拟台  3 (特饮小费)补交台
+        biz_type: this.businessType * 1, // int   业务类型 1 实体台  2 虚拟台  3 (鸡尾酒)补交台
       }
       try {
         const res = await this.$api.BMS.seat.requestseatbatch_new(params)

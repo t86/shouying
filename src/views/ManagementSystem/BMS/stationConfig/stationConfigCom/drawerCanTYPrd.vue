@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 特饮小费关联商品 -->
+    <!-- 鸡尾酒关联商品 -->
     <el-drawer
       :title="title"
       :visible.sync="show"
@@ -80,7 +80,7 @@ export default {
       }
     },
 
-    //监测特饮小费商品数据变化
+    //监测鸡尾酒商品数据变化
     treeChange(data) {
       this.selCates = data;
     },
@@ -130,7 +130,7 @@ export default {
   },
   computed: {
     title() {
-      return "特饮小费关联商品";
+      return "鸡尾酒关联商品";
     },
 
     show: {

@@ -64,7 +64,7 @@
       <characters-button
         @click.native="setConfigHandle(6)"
         colors="#383943"
-        wz="特饮小费关联商品"
+        wz="鸡尾酒关联商品"
       ></characters-button>
       <!-- <characters-button
         @click.native="setConfigHandle(7)"
@@ -184,7 +184,7 @@
           :checkedList="checkedList"
           @getTableData="getTableData"
         />
-        <!-- 特饮小费 -->
+        <!-- 鸡尾酒 -->
         <drawerTYPrd
           v-model="showTYPrdDrawer"
           :checkedList="checkedList"
@@ -242,7 +242,7 @@ export default {
       showCanOrderAreaDrawer: false, // 可点区域
       showCanOrderPrdDrawer: false, // 可点商品
       showCanYHPrdDrawer: false, // 优惠/优惠2
-      showTYPrdDrawer: false, // 特饮小费
+      showTYPrdDrawer: false, // 鸡尾酒
       showErpDrawer: false, // erp管理
       showSetConfigDrawer: false, // 配置权限
       showLookOrderDrawer: false, // 查单权限
@@ -354,7 +354,7 @@ export default {
           this.showCanYHPrdDrawer = true;
           break;
         case 6:
-          // 特饮小费关联商品
+          // 鸡尾酒关联商品
           this.showTYPrdDrawer = true;
           break;
         case 7:

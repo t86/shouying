@@ -15,7 +15,7 @@
         <div class="form">
               <el-form label-position="right" label-width="200px" @submit.native.prevent>
                 <!-- 商品名称 -->
-                <el-form-item label="是否包含特饮小费类商品:">
+                <el-form-item label="是否包含鸡尾酒类商品:">
                   <el-radio v-model="radio" label="2">不包含</el-radio>
                   <el-radio v-model="radio" label="1">包含</el-radio>
                 </el-form-item>
