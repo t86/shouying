@@ -192,6 +192,7 @@
           <keyBoard
             class="kebBoard"
             :itemWidth="66"
+            :width="204"
             @changeNum="changeNumHandle"
           />
         </div>
@@ -260,11 +261,9 @@ export default {
           break;
         case 12: // 回退(
           if (this.focus == "validateVal") {
-            this.validateVal = "";
-            this.validateVal =
-              this.validateVal
-                .toString()
-                .slice(0, this.validateVal.toString().length - 1) * 1;
+            this.validateVal = this.validateVal
+            .toString()
+            .slice(0, this.validateVal.toString().length - 1);
           } else {
             currentInfo.c =
               currentInfo.c

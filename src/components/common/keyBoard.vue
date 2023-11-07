@@ -1,11 +1,10 @@
 <template>
   <div class="keyboard">
-    <div class="ul">
+    <div class="ul" :style="{width:width+'px'}">
       <div class="li" v-for="item in keyBoardData" :key="item.id" layout="row" layout-align="center center">
         <div class="item" :class="{'active': items.click}" v-for="items in item" :key="items.id" @click.stop="clickKeyBoardHandle(items)" :style="{
           width: itemWidth + 'px',
           height: itemWidth + 'px',
-          lineHeight: itemWidth + 'px'
         }">
           <img v-if="items.icon" :src="items.icon" alt="">
           <span :class="{'hasIcon': items.icon}">{{items.name}}</span>
@@ -72,6 +71,9 @@
       },
       itemWidth: {
         default: '88'  // 每个item的宽度
+      },
+      width:{
+        default: 270  // 整个键盘的宽度
       }
     },
     components: {
