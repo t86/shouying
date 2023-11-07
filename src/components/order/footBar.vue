@@ -46,14 +46,10 @@
             />
             <p>{{ item.name }}</p>
           </div>
-          <!-- 服务员买单结账按钮 -->
+          <!-- 督查 特饮 服务员买单结账按钮 -->
           <div
             v-if="
-              (($store.state.userInfo.authStatus != 4 &&
-                $store.state.userInfo.roleIds.includes(2)) ||
-                ($store.state.userInfo.authStatus == 4 &&
-                terminalType == 'android')) &&
-              cardInfo.orderAmt - cardInfo.payedAmt > 0
+              isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
             "
             class="server-pay-btn"
           >
@@ -70,9 +66,7 @@
           <!-- 服务员充值滞留金 -->
           <div
             v-if="
-              ($store.state.userInfo.authStatus != 4 &&
-                $store.state.userInfo.roleIds.includes(2)) ||
-              ($store.state.userInfo.authStatus == 4 && terminalType == 'android')
+              isShowPayBtn 
             "
             class="server-pay-btn line"
           >
@@ -969,6 +963,21 @@ export default {
     },
   },
   computed: {
+    isShowPayBtn(){
+      let isHaveAuth = false;
+        if(this.$store.state.userInfo.authStatus != 4){
+          // 服务员 特饮 督查
+          if(this.$store.state.userInfo.roleIds.includes(2)|| this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11))
+          {
+            isHaveAuth = true
+          }
+        }
+        if(this.$store.state.userInfo.authStatus == 4 &&
+        this.terminalType == 'android'){
+          isHaveAuth = true
+        }   
+      return isHaveAuth;
+    },
     authTips() {
       return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },

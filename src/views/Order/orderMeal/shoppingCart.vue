@@ -154,9 +154,7 @@
           <button
             style="width: 100px"
             v-if="
-              $store.state.userInfo.roleIds.includes(2) &&
-              $store.state.userInfo.authStatus != 4
-            "
+              isShowPayBtn            "
             @click.stop="submitShoppingCartAndPayHandle"
           >
             下单并买单
@@ -720,6 +718,16 @@ export default {
     drawerChooseRequireInfo,
   },
   computed: {
+    isShowPayBtn() {
+      let isHaveAuth = false;
+        if(this.$store.state.userInfo.authStatus != 4){
+          // 服务员 特饮 督查
+          if(this.$store.state.userInfo.roleIds.includes(2)|| this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11)){
+            isHaveAuth = true
+          }
+        }
+      return isHaveAuth;
+    },
     amt() {
       let allAmt = 0;
       let giveAmt = 0;
