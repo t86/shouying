@@ -10,6 +10,15 @@
     >
       <div class="kpi-report">
         <div class="top" layout="row" layout-align="start center">
+          <span>类型：</span>
+            <mySelect
+             style="width:150px"
+             :value="selectInfo.selectVal"
+             :optionsList="selectInfo.selectOption"
+             @selectOptionItem="setSelectValHandle"
+             @selectBlurHandle="selectBlurHandle"
+             @getOption="getOptionHandle"
+             />
           <el-button
             type="primary"
             class="m-l-3"
@@ -17,6 +26,7 @@
             style="width:90px;height:30px;line-height:30px;padding:0"
           >导出Excel</el-button>
         </div>
+
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
@@ -72,6 +82,24 @@ export default {
   data() {
     return {
       show: false,
+      selectInfo: {
+        selectVal: "不分组",
+        selectOption: [],
+        originSelectOption: [
+          {
+            id: 1,
+            name: "不分组"
+          },
+          {
+            id: 2,
+            name: "按部门分组"
+          },
+          {
+            id: 3,
+            name: "按区域分组"
+          }
+       ]
+     },
       tableData: []
     };
   },
@@ -89,7 +117,9 @@ export default {
       },
     // 获取数据
     async getTableData() {
-      const params = {};
+      const params = {
+        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组
+      };
       try {
         const res = await api_money.reqGetKpiReportInfo(params);
         if (res.code == 1) {
@@ -109,6 +139,7 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
+        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组
       }
       try {
         const res = await api_money.reqExportExcelOfKpiReport(params);
@@ -137,6 +168,21 @@ export default {
     onCancelDrawer() {
       this.$emit("showOrHideKpiReportHandle");
     },
+   /*
+   筛选下拉框相关 start
+   */
+   setSelectValHandle(info) {
+     this.selectInfo.selectVal = info.name;
+     this.getTableData()
+   },
+   selectBlurHandle() {
+     this.selectInfo.selectOption = [];
+   },
+   getOptionHandle() {
+     this.selectInfo.selectOption = JSON.parse(
+       JSON.stringify(this.selectInfo.originSelectOption)
+     );
+   }
   },
   props: {
     showDrawer: {
