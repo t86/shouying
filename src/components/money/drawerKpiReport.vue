@@ -30,16 +30,19 @@
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
-              <div class="th">序号</div>
-              <div class="th">订位部门/订位人</div>
-              <div class="th">区域</div>
-              <div class="th">卡台</div>
-              <div class="th">开台时间</div>
-              <div class="th">折前(含未结金额)</div>
-              <div class="th">折后(含未结金额)</div>
-              <div class="th">可计业绩</div>
-              <div class="th">未结金额</div>
-              <div class="th">优惠金额</div>
+              <div class="th" style="width: 8%">序号</div>
+              <div class="th" v-if="selectInfo.selectVal == '按部门分组'" style=" width: 20%">订位部门/订位人</div>
+              <div class="th" style=" width: 10%">区域</div>
+              <div class="th" style="width: 10%">卡台</div>
+              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 15%">订位人</div>
+              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 15%">订位人部门</div>
+
+              <div class="th" style="width: 10%">开台时间</div>
+              <div class="th" style="width: 10%">折前(含未结金额)</div>
+              <div class="th" style="width: 10%">折后(含未结金额)</div>
+              <div class="th" style="width: 10%">可计业绩</div>
+              <div class="th" style="width: 10%">未结金额</div>
+              <div class="th" style="width: 10%">优惠金额</div>
             </div>
           </div>
           <div class="tbody">
@@ -50,17 +53,19 @@
               v-for="(item, i) in tableData"
               :key="i"
             >
-              <div class="td one-txt-cut">{{i + 1}}</div>
-              <div class="td one-txt-cut"><div :style="{
+              <div class="td one-txt-cut" style="width: 8%">{{i + 1}}</div>
+              <div class="td one-txt-cut" v-if="selectInfo.selectVal == '按部门分组'" style=" width: 20%"><div :style="{
                 paddingLeft: (item.b* 5) + 'px'}">{{item.n}}</div></div>
-              <div class="td one-txt-cut">{{item.r || '-'}}</div>
-              <div class="td one-txt-cut">{{item.s || '-'}}</div>
-              <div class="td one-txt-cut">{{item.o || '-'}}</div>
-              <div class="td one-txt-cut">{{format(item.z)}}</div>
-              <div class="td one-txt-cut">{{format(item.v)}}</div>
-              <div class="td one-txt-cut">{{format(item.y)}}</div>
-              <div class="td one-txt-cut">{{format(item.u)}}</div>
-              <div class="td one-txt-cut">{{format(item.h)}}</div>
+              <div class="td one-txt-cut" style=" width: 10%">{{item.r || '-'}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{item.s || '-'}}</div>
+              <div class="td one-txt-cut"  v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%"> {{item.e || '-'}}</div>
+              <div class="td one-txt-cut" v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%">{{item.n || '-'}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{item.o || '-'}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format(item.z)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format(item.v)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format(item.y)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format(item.u)}}</div>
+              <div class="td one-txt-cut" style="width: 10%;padding-right: 0;">{{format(item.h)}}</div>
              
             </div>
           </div>
