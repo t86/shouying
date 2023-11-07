@@ -129,9 +129,7 @@ export default {
     demand(){
       console.log(this.dept_code);
       console.log(this.station_code);
-      this.$api.BMS.emp.requestemplist({
-        page_num: Number(this.page_num),
-        page_size: Number(this.page_size),
+      this.$api.BMS.emp.requestEmpList({
         is_init: Number(this.is_init),
         dept_id: this.dept_code[this.dept_code.length - 1] || '',
         station_id: this.station_code || '',

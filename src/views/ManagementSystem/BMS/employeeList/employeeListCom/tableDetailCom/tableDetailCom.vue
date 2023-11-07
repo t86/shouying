@@ -143,6 +143,10 @@
           wz="批量重置密码"
         ></characters-button>
       </div>
+     <div layout="row" layout-align="start center" style="margin:12px 0;">
+      <el-input v-model="searchKey" placeholder="姓名/公号/岗位"  clearable  style="width:200px" ></el-input>
+      <el-button type="primary" size="small" @click="getEmpTableList" style="margin-left: 15px;">查询</el-button>
+    </div>
       <div class="table-content table2">
         <div class="table">
           <div class="thead">
@@ -158,6 +162,7 @@
               <div class="th">姓名</div>
               <div class="th">岗位</div>
               <div class="th">工号</div>
+              <div class="th">直属上级</div>
               <div class="th">性别</div>
               <div class="th">状态</div>
               <div class="th">联系方式</div>
@@ -185,6 +190,7 @@
               <div class="td">{{ item.n }}</div>
               <div class="td">{{ item.sn }}</div>
               <div class="td">{{ item.cd }}</div>
+              <div class="td">{{ item.u || '-'}}</div>
               <div class="td">{{ item.sx }}</div>
               <div class="td">{{ item.s }}</div>
               <div class="td">{{ item.pn }}</div>
@@ -222,16 +228,7 @@
           </div>
         </div>
       </div>
-      <div class="pagination m-t-2">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfoEmp.pageTotal"
-          :page-size="pageInfoEmp.pageSize"
-          :current-page="pageInfoEmp.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
-      </div>
+
 
       <!-- 新增或修改部门/员工 -->
       <drawerAddOrUpdate
@@ -332,13 +329,9 @@ export default {
   data() {
     return {
       type: 1, // 11：新增部门  12：编辑部门   21：新增员工   22：编辑员工
+      searchKey: "", // 搜索关键字
       groupCheckAll: false,
       groupTableData: [],
-      pageInfoEmp: {
-        page: 1,
-        pageSize: 20,
-        pageTotal: 0,
-      },
       empCheckAll: false,
       employeeTableData: [],
 
@@ -391,15 +384,14 @@ export default {
     },
 
     async getEmpTableList() {
+
       const params = {
-        page_num: this.pageInfoEmp.page * 1,
-        page_size: this.pageInfoEmp.pageSize,
+        key:this.searchKey,
         dept_id: this.$route.query.menuId * 1,
       };
       if (!params.dept_id) {
         this.employeeTableData = [];
-        this.pageInfoEmp.page = 1;
-        this.pageInfoEmp.pageTotal = 0;
+        this.$message.warning("请选择部门");
         return;
       }
       try {
@@ -410,7 +402,6 @@ export default {
             checked: false,
           }));
           this.empCheckAll = false;
-          this.pageInfoEmp.pageTotal = res.data.row_cnt || 0;
         } else {
           this.$message.warning(res.msg);
         }
@@ -739,11 +730,6 @@ export default {
         console.log("作废失败", error);
       }
     },
-
-    changePageHandle(page) {
-      this.pageInfoEmp.page = page;
-      this.getEmpTableList();
-    },
   },
 
   props: {
@@ -777,7 +763,6 @@ export default {
 
   watch: {
     $route(newVal) {
-      this.pageInfoEmp.page = 1;
       this.getTableData();
     },
   },
@@ -832,15 +817,17 @@ export default {
       .th,
       .td {
         &:nth-child(1),
-        &:nth-child(5),
-        &:nth-child(6) {
+        &:nth-child(6),
+        &:nth-child(7) {
           width: 30%;
         }
-
-        &:nth-child(4),
-        &:nth-child(7),
-        &:nth-child(8) {
-          width: 40%;
+        &:nth-child(4){
+          width: 25%;
+        }
+        &:nth-child(5),
+        &:nth-child(8),
+        &:nth-child(9) {
+          width: 35%;
         }
 
         &:nth-child(1) {

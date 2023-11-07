@@ -186,16 +186,6 @@
       </div>
     </div>
 
-    <div class="Pagination">
-      <el-pagination
-        background
-        layout="total, prev, pager, next"
-        @current-change="handleCurrentChange"
-        :page-size="page_size"
-        :total="rowcnt"
-      >
-      </el-pagination>
-    </div>
     <!-- 绑定员工-->
     <div v-show="dialogBindVisible" class="dialogFormVisible">
       <el-dialog
@@ -885,12 +875,7 @@ export default {
         cs: [], //可一键操作列表
       }, //错误2说明
       kzsfjy: false, //控制同步按钮是否禁用
-
-      page_num: 1, //第几页
-      page_size: 10, //每页行数
-      pagecnt: 1, //总页数
-      rowcnt: 1, //总行数
-
+      
       mistake: "", //弹窗内错误提示
       codeRefMistake: "", //弹窗内错误提示
       stationRefMistake: "", //弹窗内错误提示
@@ -1174,12 +1159,6 @@ export default {
           break;
       }
     },
-    // 当前是多少页
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
-      this.page_num = val;
-      this.demand();
-    },
     // 重置规则样式
     czyangs() {
       this.$nextTick(() => {
@@ -1220,25 +1199,16 @@ export default {
     // 获取员工内容  标记
     demand() {
       if (this.propsId == 0) {
-        this.page_num = 1;
-        this.page_size = 10;
-        this.pagecnt = 1;
-        this.rowcnt = 1;
         this.tableDatas = [];
         this.dept_items = [];
         return;
       }
       this.$api.BMS.emp
         .requestEmpList({
-          page_num: Number(this.page_num),
-          page_size: Number(this.page_size),
           dept_id: Number(this.propsId),
         })
         .then((res) => {
           if (res.code == 1) {
-            this.pagecnt = res.data.page_cnt;
-            this.rowcnt = res.data.row_cnt;
-            this.page_num = res.data.page_num;
             this.tableDatas = res.data.emps || [];
             this.dept_items = res.data.dept_items || [];
 

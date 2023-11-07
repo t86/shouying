@@ -8,10 +8,6 @@ const article = {
   requestempchg_pwd(data) {
       return axios.post(`${base.htgl}/emp/chg_pwd`, data);
   },
-  // 获取员工内管理列表, 根据传入的员工
-  requestemplist(data) {
-    return axios.post(`${base.htgl}/emp/list`, data);
-  },
   // 批量重置密码
   requestempbatch_reset_pwd(data) {
     return axios.post(`${base.htgl}/emp/batch_reset_pwd`, data);
