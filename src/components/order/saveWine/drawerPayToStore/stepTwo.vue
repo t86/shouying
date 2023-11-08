@@ -421,13 +421,67 @@ export default {
     .nav {
       height: 100%;
       .nav-left {
-        .first-menu {
+        ul.first-menu {
           height: calc(100vh - 240px);
+          overflow-y: auto;
+          color: #fff;
+          scroll-behavior: smooth;
+
+          li {
+            position: relative;
+            height: 56px;
+            text-align: center;
+            font-size: 15px;
+            color: #aed8ff;
+            cursor: pointer;
+
+            span {
+              width: 70%;
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+            }
+
+            &.active {
+              background: url("../../../../assets/order-img/navBarBgi.png");
+              background-size: 100% 100%;
+              color: #6a9eff;
+            }
+          }
         }
       }
       .nav-right {
-        .second-menu {
+        ul.second-menu {
           height: calc(100vh - 240px);
+          overflow-y: auto;
+          color: #fff;
+          scroll-behavior: smooth;
+          li {
+            position: relative;
+            height: 56px;
+            text-align: center;
+            font-size: 15px;
+            color: #fff;
+            cursor: pointer;
+
+            .item {
+              width: 72px;
+              height: 50px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+            &.active {
+              .item {
+                background: #455eff;
+                // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%);
+                box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+                border-radius: 20px;
+              }
+            }
+          }
         }
       }
     }
