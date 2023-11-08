@@ -49,7 +49,7 @@
               <div class="th">部门名称</div>
               <div class="th">人员数量</div>
               <div class="th">状态</div>
-              <div class="th">更新时间</div>
+              <div class="th">创建时间</div>
               <div class="th">更新时间</div>
             </div>
           </div>
