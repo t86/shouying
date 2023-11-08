@@ -76,10 +76,7 @@
               <th>姓名</th>
               <th>岗位</th>
               <th>工号</th>
-              <th>性别</th>
               <th>状态</th>
-              <th>联系方式</th>
-              <th style="width: 60px">简写</th>
               <th>创建时间</th>
               <th style="width: 150px">操作</th>
             </tr>
@@ -122,19 +119,7 @@
                 <ellipsis-tooltip :text="item.cd || '-----'"></ellipsis-tooltip>
               </td>
               <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
-                <ellipsis-tooltip :text="item.sx || '-----'"></ellipsis-tooltip>
-              </td>
-              <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
                 <ellipsis-tooltip :text="item.s || '-----'"></ellipsis-tooltip>
-              </td>
-              <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
-                <ellipsis-tooltip :text="item.pn || '-----'"></ellipsis-tooltip>
-              </td>
-              <td
-                style="width: 60px"
-                :style="{ color: item.s == '无效' ? '#595959' : '' }"
-              >
-                <ellipsis-tooltip :text="item.np || '-----'"></ellipsis-tooltip>
               </td>
               <td :style="{ color: item.s == '无效' ? '#595959' : '' }">
                 <ellipsis-tooltip :text="item.c || '-----'"></ellipsis-tooltip>

@@ -163,10 +163,7 @@
               <div class="th">岗位</div>
               <div class="th">工号</div>
               <div class="th">直属上级</div>
-              <div class="th">性别</div>
               <div class="th">状态</div>
-              <div class="th">联系方式</div>
-              <div class="th">简写</div>
               <div class="th">创建时间</div>
               <div class="th">操作</div>
             </div>
@@ -191,10 +188,7 @@
               <div class="td">{{ item.sn }}</div>
               <div class="td">{{ item.cd }}</div>
               <div class="td">{{ item.u || '-'}}</div>
-              <div class="td">{{ item.sx }}</div>
               <div class="td">{{ item.s }}</div>
-              <div class="td">{{ item.pn }}</div>
-              <div class="td">{{ item.np }}</div>
               <div class="td">{{ item.c }}</div>
               <div class="td">
                 <span
