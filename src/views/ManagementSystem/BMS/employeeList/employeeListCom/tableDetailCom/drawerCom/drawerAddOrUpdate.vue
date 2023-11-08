@@ -253,14 +253,16 @@ export default {
             this.currentEmpInfo = res.data.emp || {}
             this.parentName = res.data.emp.dept_name || ""
             this.parentId = res.data.emp.dept_id || ''
-            this.empName = this.type == 23 ? '' : res.data.emp.name || ''
-            this.pyName = this.type == 23 ? '' : res.data.emp.name_py || ''
+            
             this.stationVal = res.data.emp.station_id || ''
             this.stationOption = res.data.stations || []
             if (this.type != 23) {
               this.code = res.data.emp.code
+              this.sex = res.data.emp.sex
+              this.empName = res.data.emp.name || ''
+              this.pyName = res.data.emp.name_py || ''
+              this.phoneNum = res.data.emp.phone_num
             }
-            this.sex = res.data.emp.sex
             this.upperEmpId = res.data.emp.upper_emp_id ? res.data.emp.upper_emp_id + "" : ""
             this.upperEmpOption = res.data.emp.upper_emp_id ? [{
               id: res.data.emp.upper_emp_id + "", 
@@ -271,7 +273,7 @@ export default {
               id: res.data.emp.clone_emp_id + "", 
               n: res.data.emp.clone_emp_name
             }] : []
-            this.phoneNum = this.type == 23 ? '' : res.data.emp.phone_num
+
           }
 
         } else {
@@ -619,7 +621,7 @@ export default {
         }
         method = 'dept'
         api = 'requestdeptSave'
-      } else if(this.type == 21) {
+      } else if(this.type == 21 || this.type == 23) {
         // 新建员工
         if(this.empName == '') return this.$message.warning('请输入员工名称')
         if(this.stationVal == '') return this.$message.warning('请选择岗位')
@@ -637,7 +639,7 @@ export default {
         }
         method = 'emp'
         api = 'requestEmpNew'
-      } else if(this.type == 22 || this.type == 23) {
+      } else if(this.type == 22) {
         // 修改员工 类似创建
         if(this.empName == '') return this.$message.warning('请输入员工名称')
         if(this.stationVal == '') return this.$message.warning('请选择岗位')
@@ -668,7 +670,7 @@ export default {
             this.$emit('getTableData')
             this.$emit('getMenuList')
           }
-        } else if(this.type == 21 && res.code == 2) {
+        } else if((this.type == 21 || this.type == 23) && res.code == 2) {
           this.reloadModelText = res.msg
           this.showReloadEmpCodeModal = true
         } else if (res.code == 6) {
