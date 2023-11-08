@@ -27,8 +27,8 @@
             </div>
           </div>
         </div>
-        <!-- 新增或编辑员工 -->
-        <div v-if="type == 21 || type == 22">
+        <!-- 新增或编辑或类似创建员工 -->
+        <div v-if="type == 21 || type == 22 || type == 23">
           <div class="coll" layout="row" layout-align="start center">
             <div class="label">
               <span>上级部门：</span>
@@ -253,11 +253,13 @@ export default {
             this.currentEmpInfo = res.data.emp || {}
             this.parentName = res.data.emp.dept_name || ""
             this.parentId = res.data.emp.dept_id || ''
-            this.empName = res.data.emp.name || ''
-            this.pyName = res.data.emp.name_py || ''
+            this.empName = this.type == 23 ? '' : res.data.emp.name || ''
+            this.pyName = this.type == 23 ? '' : res.data.emp.name_py || ''
             this.stationVal = res.data.emp.station_id || ''
             this.stationOption = res.data.stations || []
-            this.code = res.data.emp.code
+            if (this.type != 23) {
+              this.code = res.data.emp.code
+            }
             this.sex = res.data.emp.sex
             this.upperEmpId = res.data.emp.upper_emp_id ? res.data.emp.upper_emp_id + "" : ""
             this.upperEmpOption = res.data.emp.upper_emp_id ? [{
@@ -269,7 +271,7 @@ export default {
               id: res.data.emp.clone_emp_id + "", 
               n: res.data.emp.clone_emp_name
             }] : []
-            this.phoneNum = res.data.emp.phone_num
+            this.phoneNum = this.type == 23 ? '' : res.data.emp.phone_num
           }
 
         } else {
@@ -635,8 +637,8 @@ export default {
         }
         method = 'emp'
         api = 'requestEmpNew'
-      } else if(this.type == 22) {
-        // 修改员工
+      } else if(this.type == 22 || this.type == 23) {
+        // 修改员工 类似创建
         if(this.empName == '') return this.$message.warning('请输入员工名称')
         if(this.stationVal == '') return this.$message.warning('请选择岗位')
         if(this.code == '') return this.$message.warning('请输入工号名称')
@@ -709,7 +711,7 @@ export default {
       default: false // 是否显示drawer
     },
     currentInfo: {
-      default: () => ({}) // 当前被修改的部门/员工
+      default: () => ({}) // 当前被修改的部门/员工/ 类似创建
     },
     type: {
       default: 1  // 11：新增部门  12：修改部门  21：新增员工  22：修改员工
@@ -735,6 +737,8 @@ export default {
           break
         case 22:
           title = '编辑员工'
+        case 23:
+          title = '类似创建员工'
           break
       }
       return title
@@ -782,6 +786,11 @@ export default {
             this.getDetail()
           } else if(this.type == 21) {
             // 新建员工
+            this.getEmpCode()
+            this.getStationOption()
+          } else if(this.type == 23) {
+            // 类似创建员工
+            this.getDetail()
             this.getEmpCode()
             this.getStationOption()
           } else {

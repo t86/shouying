@@ -142,6 +142,11 @@
           colors="#383943"
           wz="批量重置密码"
         ></characters-button>
+        <characters-button
+          @click.native="addOrUpdateHandle(23)"
+          colors="#383943"
+          wz="类似创建"
+        ></characters-button>
       </div>
      <div layout="row" layout-align="start center" style="margin:12px 0;">
       <el-input v-model="searchKey" placeholder="姓名/工号/岗位"  clearable  style="width:200px" @change="getEmpTableList"></el-input>
@@ -411,7 +416,8 @@ export default {
         case 12: // 编辑部门
         case 21: // 新增员工
         case 22: // 编辑员工
-          if (type == 12 || type == 22) {
+        case 23: // 类似创建
+          if (type == 12 || type == 22 || type == 23) {
             const api = type == 12 ? "groupTableData" : "employeeTableData";
             const checkedList = this[api].filter((item) => item.checked);
             if (checkedList.length != 1)
@@ -425,6 +431,7 @@ export default {
           }
           this.showAddOrUpdateDrawer = true;
           break;
+
       }
     },
 
