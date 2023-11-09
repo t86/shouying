@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="right">
+      <div class="middle">
         <div class="title fs16 m-t-3 m-b-3">取酒详情</div>
         <div class="table-content" layout="column">
           <div class="table">
@@ -188,15 +188,14 @@
               >{{ btnText }}</el-button
             >
           </div>
-
-          <keyBoard
-            class="kebBoard"
-            :itemWidth="66"
-            :width="204"
-            @changeNum="changeNumHandle"
-          />
         </div>
       </div>
+      <keyBoard
+          class="kebBoard right"
+          :itemWidth="66"
+          :width="204"
+          @changeNum="changeNumHandle"
+        />
     </div>
 
     <!-- 底部按钮 -->
@@ -563,17 +562,20 @@ export default {
     padding: 0 20px;
     height: calc(100vh - 178px);
     display: flex;
+    flex-wrap: wrap;  
     // 左侧
     .left {
       overflow: auto;
       box-sizing: border-box;
-      width: 40%;
+ 
+      flex-basis: 350px;
+      flex-grow: 1;
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
 
       .table {
         width: 100%;
         .tbody {
-          height: calc(70vh - 200px);
+          height: 300px;
           overflow: auto;
           scroll-behavior: smooth;
           .get-icon {
@@ -593,17 +595,18 @@ export default {
         }
       }
     }
-    // 右侧
-    .right {
+    // 取酒侧
+    .middle {
       overflow: auto;
       box-sizing: border-box;
-      height: 100%;
+      height: 400px;
       margin-left: 10px;
-      flex: 1;
+      flex-basis: 300px;
+      flex-grow: 1;
       .table {
-        width: calc(100% - 250px);
+        width: 100%;
         .tbody {
-          height: calc(50vh - 200px);
+          height: 200px;
           overflow: auto;
           scroll-behavior: smooth;
         }
@@ -639,11 +642,6 @@ export default {
       }
       .arrow {
         right: 300px;
-      }
-      .kebBoard {
-        position: absolute;
-        right: 0;
-        top: 0;
       }
       .label {
         width: 50px;
@@ -681,7 +679,12 @@ export default {
         box-shadow: 0px 0px 8px 0px rgba(26, 137, 255, 0.8);
       }
     }
-
+    .right {
+      margin-top: 50px;
+      margin-left: 10px;
+      flex-basis: 200px;
+      flex-grow: 0;
+    }
     //  箭头
     .arrow {
       width: 120px;

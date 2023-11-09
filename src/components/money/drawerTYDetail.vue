@@ -1,8 +1,8 @@
 <template>
   <div>
-    <!-- 鸡尾酒记录表 -->
+    <!-- 鸡尾酒明细表 -->
     <el-drawer
-      title="鸡尾酒记录表"
+      title="鸡尾酒明细表"
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"

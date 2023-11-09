@@ -467,7 +467,7 @@
                     :src="require('@/assets/money-img/ty-detail-icon.png')"
                     alt
                   />
-                  <span>鸡尾酒记录表</span>
+                  <span>鸡尾酒明细表</span>
                 </div>
                 <div
                   class="option-item line"
@@ -792,7 +792,7 @@
       @showOrHideYHDetailDrawer="showOrHideYHDetailDrawer"
     />
 
-    <!-- 鸡尾酒记录表 -->
+    <!-- 鸡尾酒明细表 -->
     <drawerTYDetail
       :showDrawer="showOrHideTYDetail"
       @showOrHideTYDetailDrawer="showOrHideTYDetailDrawer"
@@ -951,7 +951,7 @@ import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue"
 // 优惠明细表
 import drawerYHDetail from "../../components/money/drawerYHDetail.vue";
 
-// 鸡尾酒记录表
+// 鸡尾酒明细表
 import drawerTYDetail from "../../components/money/drawerTYDetail.vue";
 
 // 鸡尾酒汇总表
@@ -1056,7 +1056,7 @@ export default {
       showOrHideKpiReport: false, // 业绩日报表
       showOrHideOnlineBooking: false, // 线上预定记录
       showOrHideYHDetail: false, // 优惠明细表
-      showOrHideTYDetail: false, // 鸡尾酒记录表
+      showOrHideTYDetail: false, // 鸡尾酒明细表
       showOrHideTYHZ: false, // 鸡尾酒汇总表
       showOrHideGZDetail: false, // 挂账详情
       showOrHideTurnOverDetail: false, // 翻台记录
@@ -1574,7 +1574,7 @@ export default {
       this.showOrHideYHDetail = !this.showOrHideYHDetail;
     },
 
-    // 鸡尾酒记录表
+    // 鸡尾酒明细表
     showOrHideTYDetailDrawer() {
       this.showOrHideTYDetail = !this.showOrHideTYDetail;
     },

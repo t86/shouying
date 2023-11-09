@@ -327,7 +327,7 @@
                     :src="require('@/assets/money-img/ty-detail-icon.png')"
                     alt
                   />
-                  <span>鸡尾酒记录表</span>
+                  <span>鸡尾酒明细表</span>
                 </div>
                 <div
                   v-if="hasOutSomething"
@@ -408,7 +408,7 @@
       @showOrHideDrawer="showOrHideMinDetailDrawerHandle"
     />
 
-    <!-- 鸡尾酒记录表 -->
+    <!-- 鸡尾酒明细表 -->
       <drawerTYDetail
       :showDrawer="showOrHideTYDetail"
       @showOrHideTYDetailDrawer="showOrHideTYDetailDrawer"
@@ -468,7 +468,7 @@ let mySelfAndMyStaffCardList = []; // 自己及下属员工卡台列表
 
 // 低消进度统计表
 import drawerMinDetail from "@/components/money/drawerMinDetail.vue";
-// 鸡尾酒记录表
+// 鸡尾酒明细表
 import drawerTYDetail from "@/components/money/drawerTYDetail.vue";
 
 // 估清弹框
@@ -490,7 +490,7 @@ export default {
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
       showOrHideOutSomething: false, // 是否显示估清商品
-      showOrHideTYDetail: false, // 鸡尾酒记录表
+      showOrHideTYDetail: false, // 鸡尾酒明细表
       typeModule: 1, // 1:点单模式  2：存酒模式
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -1180,7 +1180,7 @@ export default {
     showOrHideOutSomethingHandle(value) {
       this.showOrHideOutSomething = !this.showOrHideOutSomething;
     },
-    // 鸡尾酒记录表
+    // 鸡尾酒明细表
     showOrHideTYDetailDrawer() {
       this.showOrHideTYDetail = !this.showOrHideTYDetail;
     },
