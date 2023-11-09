@@ -57,6 +57,7 @@ export default {
           }))
         } else {
           this.$message.warning(res.msg);
+          this.onCancelDrawer()
         }
       } catch (error) {
         console.log("数据请求失败", error);

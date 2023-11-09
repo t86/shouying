@@ -354,6 +354,8 @@ export default {
           this.showCanYHPrdDrawer = true;
           break;
         case 6:
+        if (checkedList.length != 1)
+            return this.$message.warning("请选择一个岗位进行配置");
           // 鸡尾酒关联商品
           this.showTYPrdDrawer = true;
           break;
