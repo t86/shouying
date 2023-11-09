@@ -1181,7 +1181,7 @@ export default {
     },
 
     // 获取全量数据
-    getCardList(cardInfo = [], businessData = []) {
+    getCardList(cardInfo = [], businessData = [], resort) {
       // // 获取设备可操作区域或卡台
       const currentMachineId = this.$localStorage.getItem("machineId");
       const currentAreaAndCardList = (
@@ -1304,7 +1304,11 @@ export default {
       if (!this.keyWord) {
         this.card.cardList = resultCardList;
       } else {
-        this.card.cardList = this.card.cardList.map(item => resultCardList.find(i => i.id == item.id))
+        if(resort) {
+          this.card.cardList = resultCardList;
+        } else {
+          this.card.cardList = this.card.cardList.map(item => resultCardList.find(i => i.id == item.i))
+        }
       }
 
       // console.log(
@@ -1684,7 +1688,7 @@ export default {
     },
 
     // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
-    async getAllData() {
+    async getAllData(resort = true) {
       this.getAuthStatus();
       // const loading = this.$loading({
       //   lock: true,
@@ -1705,7 +1709,8 @@ export default {
         // console.log("inMoney", resResultDataObj);
         await this.getCardList(
           resResultDataObj["cardInfo"],
-          resResultDataObj["businessData"]
+          resResultDataObj["businessData"],
+          resort
         );
         await this.getTabList(resResultDataObj["areaInfo"]);
         // 获取卡台数据

@@ -253,7 +253,7 @@ export const cardPageMixins = {
   mounted() {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadData", (e) => {
-      this.getAllData();
+      this.getAllData(false);
       if (e && e.func) {
         this.getTabShowCount(e.func);
       }
