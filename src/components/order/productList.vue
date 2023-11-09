@@ -2,7 +2,6 @@
   <!-- 点单商品/套餐列表 -->
   <div class="product-list" ref="productListRef">
     <div class="search" layout="row" layout-align="start center" >
-      <span>全局搜索：</span>
       <input @blur="keyboardLeave" 
       @click="keyboardShow('searchInputRef')"  type="text" ref="searchInputRef" :style="{'width': isRect ? '220px' : '190px'}" @input="getPageData(1)" v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord=''" />

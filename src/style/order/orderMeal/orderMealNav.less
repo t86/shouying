@@ -2,16 +2,15 @@
   position: fixed;
   left: 0;
   top: 0;
-  width: 168px;
+  width: 200px;
   height: calc(100vh - 60px);
-
+  color: #08080A;
   .nav-left {
-    background: #08080a;
-    // background: linear-gradient(to bottom, #08080a, #091121);
+    background:  #ECEFF4;
   }
 
   .nav-right {
-    background: #182031;
+    background: #989FAF;
   }
 
   .nav-left,
@@ -19,23 +18,21 @@
     height: 100%;
     position: relative;
     width: 50%;
+    padding: 0 5px;
 
     .ul {
       height: calc(100vh - 120px);
       overflow-y: auto;
-      color: #fff;
       scroll-behavior: smooth;
-
       .li {
         position: relative;
-        height: 56px;
+        height: 64px;
         text-align: center;
-        font-size: 15px;
-        color: #AED8FF;
+        font-size: 22px;
         cursor: pointer;
 
         span {
-          width: 70%;
+          width: 90%;
           position: absolute;
           left: 50%;
           top: 50%;
@@ -45,28 +42,25 @@
       }
 
       &.first-menu {
+        background: #FAFAFC;
         .li {
+          box-shadow: 0px 2px 4px 0px #C4CBD7;
+          border-radius: 8px;
+          margin-bottom: 4px;
           &.active {
-            background: url('../../../assets/order-img/navBarBgi.png');
-            background-size: 100% 100%;
-            color: #6a9eff;
+            color: #fff;
+            background: #989FAF;
+            border-radius: 8px;
           }
         }
       }
 
       &.second-menu {
-
         .li {
-          color: #fff;
-
-          .item {
-            width: 72px;
-            height: 50px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-          }
+          background: #FAFAFC;
+          box-shadow: 0px 2px 4px 0px #C4CBD7;
+          border-radius: 8px;
+          margin-bottom: 4px;
 
           &.active {
             .item {
