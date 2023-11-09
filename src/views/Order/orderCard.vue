@@ -215,6 +215,7 @@
                 class="btn"
                 v-if="item.id != 20"
                 :class="{ active: legendActive === item.id }"
+                @click.stop="changeCardStatus(item.id)"
               >
                 <div
                   class="img-contain"
@@ -668,6 +669,21 @@ export default {
         (item, i, array) => array.findIndex((items) => items.id == item.id) == i
       );
     },
+
+      // 手动切换卡台订单状态
+      changeCardStatus(cardStatusId) {
+        if (cardStatusId === this.legendActive) {
+          // 点击的同状态一个按钮
+          this.legendActive = 0;
+          this.card.cardList = cardListInfoArr;
+          return;
+        }
+        this.legendActive = cardStatusId;
+        this.tab.anotherInfoActiveId = 0;
+        this.tab.activeIndex = 0;
+        this.tab.showAnotherInfo = false;
+        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+      },
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
