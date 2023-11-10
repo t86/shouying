@@ -7,47 +7,24 @@
       <div class="search m-t-2 m-b-4">
         <div class="row">
           <span class="label">扣款日期:</span>
-          <el-date-picker
-            v-model="form.dateVal"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            size="small"
-            value-format="yyyy-MM-dd"
-            style="width: 280px"
-          ></el-date-picker>
+          <el-date-picker style="width:130px" v-model="form.begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:130px" v-model="form.end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <div class="row">
           <span class="label">扣款类型:</span>
-          <el-select
-            v-model="form.typeVal"
-            size="small"
-            placeholder="请选择扣款类型"
-            style="width: 200px"
-          >
-            <el-option
-              v-for="item in form.typeOption"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
+          <el-select v-model="form.typeVal" size="small" placeholder="请选择扣款类型" style="width: 200px">
+            <el-option v-for="item in form.typeOption" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </div>
         <div class="row another" layout="row" layout-align="start center">
-          <el-input
-            class="m-r-2"
-            v-model="form.keyword"
-            size="small"
-            placeholder="姓名/手机号/会员卡号"
-            style="width: 200px"
-          ></el-input>
+          <el-input class="m-r-2" v-model="form.keyword" size="small" placeholder="姓名/手机号/会员卡号"
+            style="width: 200px"></el-input>
           <button class="btn primary m-l-4" @click="getTableData">查询</button>
           <button class="btn info m-l-4" @click="resetHandle">重置</button>
-          <button
-            class="btn info m-l-4"
-            @click="exportExcel"
-          >
+          <button class="btn info m-l-4" @click="exportExcel">
             导出
           </button>
         </div>
@@ -85,24 +62,16 @@
               <div class="th">扣款-赠送金额</div>
               <div class="th">赠送积分</div>
               <div class="th">操作人</div>
-              <div
-                class="th"
-                :style="{
-                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-                }"
-              >
+              <div class="th" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
                 操作
               </div>
             </div>
           </div>
           <div class="tbody">
-            <div
-              class="tr"
-              v-for="(item, index) in tableData"
-              :key="index"
-              layout="row"
-              layout-align="space-between center"
-            >
+            <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row"
+              layout-align="space-between center">
               <div class="td">{{ index + 1 }}</div>
               <div class="td">{{ item.d }}</div>
               <div class="td">{{ item.t }}</div>
@@ -116,12 +85,9 @@
               <div class="td fs16-bold">{{ item.fa }}</div>
               <div class="td">{{ item.p }}</div>
               <div class="td">{{ item.o }}</div>
-              <div
-                class="td"
-                :style="{
-                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-                }"
-              >
+              <div class="td" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
                 <span @click="printHandle(item)">重打小票</span>
               </div>
             </div>
@@ -134,14 +100,8 @@
       </div>
 
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
   </div>
@@ -153,7 +113,8 @@ export default {
   data() {
     return {
       form: {
-        dateVal: [],
+        begin_day: "",
+        end_day: "",
         typeVal: 0,
         typeOption: [
           {
@@ -189,14 +150,15 @@ export default {
       const month = (date.getMonth() + 1).toString().padStart(2, 0);
       const day = date.getDate().toString().padStart(2, 0);
       const result = year + "-" + month + "-" + day;
-      this.form.dateVal = [result, result];
+      this.form.begin_day = result;
+      this.form.end_day = result;
     },
     async getTableData() {
       const params = {
         page_num: this.pageInfo.page * 1, //    int    第几页
         page_size: this.pageInfo.pageSize * 1, //   int     每页行数
-        begin_day: this.form.dateVal[0], //   string  扣款开始日期 格式  yyyy-mm-dd
-        end_day: this.form.dateVal[1], //     string   扣款结束日期 格式 yyyy-mm-dd
+        begin_day: this.form.begin_day, //   string  扣款开始日期 格式  yyyy-mm-dd
+        end_day: this.form.end_day, //     string   扣款结束日期 格式 yyyy-mm-dd
         type_id: this.form.typeVal * 1, //     int     扣款类型 0 代表不限制  1 业务扣款  2  充错扣款
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
       };
@@ -238,8 +200,8 @@ export default {
     },
     async exportExcel() {
       const params = {
-        begin_day: this.form.dateVal[0], //   string  扣款开始日期 格式  yyyy-mm-dd
-        end_day: this.form.dateVal[1], //     string   扣款结束日期 格式 yyyy-mm-dd
+        begin_day: this.form.begin_day, //   string  扣款开始日期 格式  yyyy-mm-dd
+        end_day: this.form.end_day, //     string   扣款结束日期 格式 yyyy-mm-dd
         type_id: this.form.typeVal * 1, //     int     扣款类型 0 代表不限制  1 业务扣款  2  充错扣款
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
       };
@@ -287,6 +249,7 @@ export default {
 .el-select-dropdown__empty {
   background-color: #bec5d5 !important;
 }
+
 .el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
   background-color: #bec5d5 !important;
 }
@@ -299,6 +262,7 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
@@ -309,6 +273,7 @@ export default {
   color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
 }
+
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
   background-color: rgba(90, 90, 90, 0.5) !important;
