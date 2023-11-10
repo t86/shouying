@@ -3,9 +3,9 @@
     <div class="top">
       <div class="status m-b-2" layout="row" layout-align="start center">
         <span class="label fs14">状态：</span>
-        <div class="status-item fs14" @click="status = 0" :class="{active: status == 0}">全部</div>
-        <div class="status-item fs14" @click="status = 1" :class="{active: status == 1}">待入库</div>
-        <div class="status-item fs14" @click="status = 5" :class="{active: status == 5}">已出库</div>
+        <div class="status-item fs14" @click="status = 0" :class="{ active: status == 0 }">全部</div>
+        <div class="status-item fs14" @click="status = 1" :class="{ active: status == 1 }">待入库</div>
+        <div class="status-item fs14" @click="status = 5" :class="{ active: status == 5 }">已出库</div>
       </div>
       <div layout="row" layout-align="start center">
         <span class="label fs14">日期：</span>
@@ -13,37 +13,28 @@
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
               :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 1}">近7天</span>
+              alt />
+            <span :class="{ active: activeTime == 1 }">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
               :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 2}">近30天</span>
+              alt />
+            <span :class="{ active: activeTime == 2 }">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
               :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 3}">近90天</span>
+              alt />
+            <span :class="{ active: activeTime == 3 }">近90天</span>
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <el-button type="primary" size="small" @click="getTableData">查询</el-button>
         <el-button size="small" @click="resetHandle">重置</el-button>
@@ -59,11 +50,8 @@
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
             <div class="th">
-              <el-checkbox
-                v-model="checkAll"
-                :indeterminate="isIndeterminate"
-                @change="changeCheckboxHandle('all')"
-              >全选</el-checkbox>
+              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate"
+                @change="changeCheckboxHandle('all')">全选</el-checkbox>
             </div>
             <div class="th">单号</div>
             <div class="th">状态</div>
@@ -73,29 +61,20 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            :class="{'selected': item.checked}"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
+          <div class="tr" :class="{ 'selected': item.checked }" layout="row" layout-align="space-between center"
+            v-for="(item, index) in tableData" :key="item.id">
             <div class="td" layout="row" layout-align="start center">
-              <el-checkbox
-                v-model="item.checked"
-                @change="changeCheckboxHandle('item')"
-              >{{index + 1}}</el-checkbox>
+              <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">
-              <span class="link" @click="showOrderDetailHandle(item)">{{item.id}}</span>
+              <span class="link" @click="showOrderDetailHandle(item)">{{ item.id }}</span>
             </div>
-            <div class="td">{{item.s}}</div>
-            <div class="td">{{item.it}}</div>
-            <div class="td">{{item.o}}</div>
-            <div class="td">{{item.c}}</div>
+            <div class="td">{{ item.s }}</div>
+            <div class="td">{{ item.it }}</div>
+            <div class="td">{{ item.o }}</div>
+            <div class="td">{{ item.c }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
@@ -105,14 +84,8 @@
         <drawerDetail v-model="showODetailDrawer" :currentInfo="currentInfo" />
       </div>
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
   </div>
@@ -127,7 +100,8 @@ export default {
     return {
       status: 0,
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       checkAll: false,
       tableData: [],
 
@@ -145,8 +119,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        begin_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        begin_day: this.begin_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         page_num: this.pageInfo.page * 1, //   int  指定第几页
         page_size: this.pageInfo.pageSize, //  int  每页行数
         status: this.status * 1 //  int   状态 0 全部 1 待入 5 已入
@@ -207,7 +181,7 @@ export default {
 
     // 查看详情
     showOrderDetailHandle(itemInfo) {
-      this.currentInfo = {...itemInfo}
+      this.currentInfo = { ...itemInfo }
       this.showODetailDrawer = true
     },
 
@@ -232,7 +206,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 
@@ -264,6 +239,7 @@ export default {
 <style scoped lang="less">
 .empty-lib-order {
   padding: 20px;
+
   .top {
     .status {
       .status-item {
@@ -275,16 +251,19 @@ export default {
         border-radius: 4px;
         margin-right: 10px;
         cursor: pointer;
+
         &.active {
           color: #2170ff;
           border: 1px solid #2170ff;
         }
       }
     }
+
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -298,6 +277,7 @@ export default {
       }
     }
   }
+
   .table {
     .tbody {
       height: calc(100vh - 310px);
@@ -317,10 +297,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

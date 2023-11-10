@@ -1,5 +1,5 @@
 <template>
-<!-- 其他入库 -->
+  <!-- 其他入库 -->
   <div class="empty-lib-order">
     <div class="top">
       <div layout="row" layout-align="start center">
@@ -8,37 +8,28 @@
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
               :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 1}">近7天</span>
+              alt />
+            <span :class="{ active: activeTime == 1 }">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
               :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 2}">近30天</span>
+              alt />
+            <span :class="{ active: activeTime == 2 }">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
               :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 3}">近90天</span>
+              alt />
+            <span :class="{ active: activeTime == 3 }">近90天</span>
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
       </div>
       <div class="m-t-2" layout="row" layout-align="start center">
@@ -68,11 +59,8 @@
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
             <div class="th">
-              <el-checkbox
-                v-model="checkAll"
-                :indeterminate="isIndeterminate"
-                @change="changeCheckboxHandle('all')"
-              >全选</el-checkbox>
+              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate"
+                @change="changeCheckboxHandle('all')">全选</el-checkbox>
             </div>
             <div class="th">单号</div>
             <div class="th">入库类型</div>
@@ -85,49 +73,34 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            :class="{'selected': item.checked}"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
+          <div class="tr" :class="{ 'selected': item.checked }" layout="row" layout-align="space-between center"
+            v-for="(item, index) in tableData" :key="item.id">
             <div class="td" layout="row" layout-align="start center">
-              <el-checkbox
-                v-model="item.checked"
-                @change="changeCheckboxHandle('item')"
-              >{{index + 1}}</el-checkbox>
+              <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">
-              <span class="primary-link cursor" @click="showOrderDetailHandle(item)">{{item.cd}}</span>
+              <span class="primary-link cursor" @click="showOrderDetailHandle(item)">{{ item.cd }}</span>
             </div>
-            <div class="td">{{item.rt}}</div>
-            <div class="td">{{item.sn}}</div>
-            <div class="td">{{item.f}}</div>
-            <div class="td">{{item.ta}}</div>
-            <div class="td">{{item.r}}</div>
-            <div class="td">{{item.st}}</div>
-            <div class="td">{{item.en}}</div>
+            <div class="td">{{ item.rt }}</div>
+            <div class="td">{{ item.sn }}</div>
+            <div class="td">{{ item.f }}</div>
+            <div class="td">{{ item.ta }}</div>
+            <div class="td">{{ item.r }}</div>
+            <div class="td">{{ item.st }}</div>
+            <div class="td">{{ item.en }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
         </div>
-        <drawerAdd v-model="showDrawerAdd" :type="addType" :currentInfo="currentInfo" @getTableData="getTableData" /> 
+        <drawerAdd v-model="showDrawerAdd" :type="addType" :currentInfo="currentInfo" @getTableData="getTableData" />
         <drawerHC v-model="showDrawerHc" :currentInfo="currentInfo" @getTableData="getTableData" />
         <drawerDetail v-model="showDrawerDetail" :currentInfo="currentInfo" @emitHandle="emitHandle" />
       </div>
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
   </div>
@@ -143,7 +116,8 @@ export default {
   data() {
     return {
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       inLibType: 0,  // 入库类型
       keyword: '', // 备注模糊查询
       checkAll: false,
@@ -170,8 +144,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        begin_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        begin_day: this.begin_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         remark: this.keyword || '',
         record_type: this.inLibType * 1,
         page_num: this.pageInfo.page * 1, //   int  指定第几页
@@ -212,10 +186,10 @@ export default {
     // 创建/类似创建
     addHandle(type) {
       // type: 1:新增  2：类似创建
-      if(type == 2) {
+      if (type == 2) {
         const checkedList = this.tableData.filter(item => item.checked)
-        if(checkedList.length != 1) return this.$message.warning('请选择一个进行操作')
-        this.currentInfo = {...checkedList[0]}
+        if (checkedList.length != 1) return this.$message.warning('请选择一个进行操作')
+        this.currentInfo = { ...checkedList[0] }
       }
       this.showDrawerAdd = true
       this.addType = type
@@ -224,26 +198,26 @@ export default {
     hcHandle(type) {
       // type:1:红冲  2：整单红冲
       const checkList = this.tableData.filter(item => item.checked)
-      if(checkList.length != 1) return this.$message.warning("请选择一个进行操作");
-      if(type == 2) {
+      if (checkList.length != 1) return this.$message.warning("请选择一个进行操作");
+      if (type == 2) {
         return this.hcAllOrder(checkList)
       }
-      this.currentInfo = {...checkList[0]}
+      this.currentInfo = { ...checkList[0] }
       this.showDrawerHc = true
     },
 
     // 用于详情中类似创建/红冲/红冲整单
     emitHandle(type) {
       switch (type) {
-        case 1: 
+        case 1:
           // 类似创建
           this.addHandle(2)
           break
-        case 2: 
+        case 2:
           // 红冲
           this.hcHandle(1)
           break
-        case 3: 
+        case 3:
           // 红冲整单
           this.hcHandle(2)
           break
@@ -255,7 +229,7 @@ export default {
         ...item,
         checked: item.id == itemInfo.id
       }))
-      this.currentInfo = {...itemInfo}
+      this.currentInfo = { ...itemInfo }
       this.showDrawerDetail = true
     },
 
@@ -265,7 +239,7 @@ export default {
       }
       try {
         const res = await this.$api.ERP.sin.requestsincs(params)
-        if(res.code == 1) {
+        if (res.code == 1) {
           this.$message.success('红冲整单成功')
           this.getTableData()
         } else {
@@ -302,7 +276,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 
@@ -337,11 +312,13 @@ export default {
 <style scoped lang="less">
 .empty-lib-order {
   padding: 20px;
+
   .top {
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -355,18 +332,23 @@ export default {
       }
     }
   }
+
   .btn-area {
     background-color: #eee;
   }
+
   .table {
     .tbody {
       height: calc(100vh - 330px);
       overflow: auto;
     }
-    .th,.td {
+
+    .th,
+    .td {
       &:nth-child(1) {
         width: 30%;
       }
+
       &:nth-child(8) {
         width: 70%;
       }
@@ -380,10 +362,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

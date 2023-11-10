@@ -39,17 +39,11 @@
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
       </div>
       <div class="m-t-2" layout="row" layout-align="start center">
@@ -155,7 +149,8 @@ export default {
     return {
       orderStatus: 0,
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       libType: 0,  // 出库仓库：
       libOption: [], // 出库仓库option
       remark: '',
@@ -190,8 +185,8 @@ export default {
         page_num: this.pageInfo.page * 1, //   int     第几页
         page_size: this.pageInfo.pageSize * 1, //  int    每页行数
         status: this.orderStatus * 1, //     int    状态 0 全部 5 已完成 2 红冲 6 待入库 7 异议已处理 9 异议待处理
-        begin_day: this.dateVal[0], //  string  开始日期 格式  yyyy-mm-dd
-        end_day: this.dateVal[1],  //    string  结束日期 格式 yyyy-mm-dd
+        begin_day: this.begin_day, //  string   查询开始日期
+        end_day: this.end_day, //    string  结束日期 格式 yyyy-mm-dd
         is_init: isInit, //     int   1 初始化,会返回仓库列表 2 非初始化
         in_store_id: this.libType * 1, // int   出库仓库id, 0 表示不限制
         remark: this.remark || ''
@@ -324,7 +319,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData(1);
     },
 
