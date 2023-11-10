@@ -28,30 +28,37 @@
         @onSubmit="onSaveTimeSubmit"
         />
         <div class="top grid" layout="row" layout-align="start center">
-            <div class="title">营业日和卡台</div>
+            <div class="title">营业日</div>
             <div
             >{{ businessDate }}</div>
-            <div
-            >{{ cardName }}</div>
             <el-button type="primary" @click="changeCardOrder"
             >更改卡台流水</el-button>
+            <el-button type="primary" @click="changeRelatedBill"
+            >转为非关联卡台流水</el-button>
 
+            <div class="title">卡台</div>
+            <div>{{ cardName }}</div>
+            <el-button type="primary" v-if="!isCardBillRelated" @click="">更改卡台</el-button>
+            <div v-else></div>
+            <div></div>
+
+            <div class="title">订位人</div>
+            <div>{{ custName }}</div>
+            <el-button type="primary" v-if="!isCardBillRelated" @click="">更改订位人</el-button>
+            <div v-else></div>
+            <div></div>
 
             <div class="title">客人信息</div>
-            <div
-            >{{ custName }}</div>
-            <div
-            >{{ custPhone }}</div>
+            <div>{{ custName + "  " + custPhone }}</div>
             <el-button type="primary" @click="changeCustomerInfo"
             >更改客人信息</el-button>
-
+            <div></div>
 
             <div class="title">存酒时间</div>
-            <div
-              style="grid-column: 2 / 4;"
-            >{{ saveTime }}</div>
-            <el-button type="primary" @click="changeSaveTime"
-            >更改存酒时间</el-button>
+            <div>{{ saveTime }}</div>
+            <el-button type="primary" @click="changeSaveTime">更改存酒时间</el-button>
+
+
         </div>
         <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
@@ -64,7 +71,7 @@
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
                 <div class="th">授权人</div>
-                <div class="th" style="width: 120px">操作</div>
+                <div class="th" style="width: 220px">操作</div>
               </div>
             </div>
             <div class="tbody">
@@ -137,7 +144,12 @@
                   ></el-button>
                 </div>
                 <div class="td">{{ item.a }}</div>
-                <div class="td" style="width: 120px">
+                <div class="td" style="width: 220px">
+                  <span
+                    style="color: #2170ff; cursor: pointer"
+                    @click="deleteHandle(item)"
+                    >复制</span
+                  >
                   <span
                     style="color: #2170ff; cursor: pointer"
                     @click="deleteHandle(item)"
@@ -189,6 +201,7 @@ import drawerChgSaveTime from './drawerChgSaveTime.vue'
 export default {
   data() {
     return {
+      isCardBillRelated: true,
       showCardOrderDrawer: false,
       showChgCustomerInfoDrawer: false,
       showChgSaveTimeDrawer: false,
@@ -217,6 +230,9 @@ export default {
     };
   },
   methods: {
+    changeRelatedBill(){
+      this.isCardBillRelated = !this.isCardBillRelated;
+    },
     changeCustomerInfo(){
       this.showChgCustomerInfoDrawer = true;
     },
@@ -381,7 +397,7 @@ export default {
 .grid {
   margin-top: 20px;
   display: grid;
-  grid-template-columns:150px 100px 150px 1fr;
+  grid-template-columns:150px 200px 150px 1fr;
   grid-row-gap: 20px;
   justify-items: start;
   align-items:center
@@ -394,6 +410,7 @@ export default {
     .title {
       font-size: 20px;
       font-weight: 600;
+      line-height: 35px;
     }
   }
   .red {
@@ -402,7 +419,7 @@ export default {
 
   .table {
     .tbody {
-      height: calc(100vh - 250px);
+      height: calc(100vh - 500px);
       overflow: auto;
     }
   }
