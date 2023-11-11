@@ -42,15 +42,34 @@ export default {
   },
   methods: {
     init() {
-      console.log("productinfo", this.productInfo);
-      this.getDate()
-      this.status = 1
-      this.cardTempInfo = {}
-      this.cardInfo = {}
-      this.tempOrderInfo = {}
-      this.orderInfo = {}
+      if (this.isFreeEditCard) {
+        this.dateVal = ''
+        this.status = 2
+        this.cardInfo = {}
+        this.cardTempInfo = {}
+        this.$nextTick(() => {
+          this.$refs.chooseCard.init()
+        });
+      } else {
+        console.log("productinfo", this.productInfo);
+        this.getDate()
+        this.status = 1
+        this.cardTempInfo = {}
+        this.cardInfo = {}
+        this.tempOrderInfo = {}
+        this.orderInfo = {}
+      }
+
     },
     async onSubmit() {
+      if(!this.dateVal) {
+        this.$emit("onSubmit", {
+          cardInfo: {...this.cardTempInfo},
+          orderInfo: {},
+          date: this.dateVal,
+        });
+        return
+      }
       if(this.status == 1) {
         if(this.dateVal == '') return this.$message.warning('请选择日期')
         if(!this.cardInfo.id || !this.orderInfo.id) return this.$message.warning('请选择卡台及流水')
@@ -135,7 +154,7 @@ export default {
     },
 
     onCancelDrawer() {
-      if(this.status > 1) {
+      if(this.status > 1 && this.dateVal) {
         return this.status -= 1
       }
      this.show = false;
@@ -148,6 +167,9 @@ export default {
     productInfo: {
       default: () => {}
     },
+    isFreeEditCard: {
+      default: false
+    }
   },
   computed: {
     show: {
@@ -187,7 +209,7 @@ export default {
     },
     submitTxt() {
       let txt = "确认";
-      if(this.status == 2) {
+      if(this.status == 2 && this.dateVal) {
         txt = '下一步'
       }
       return txt;

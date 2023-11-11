@@ -56,7 +56,6 @@
                 <div class="th">规格</div>
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
-                <div class="th">授权人</div>
                 <div class="th" style="width: 120px">操作</div>
               </div>
             </div>
@@ -129,7 +128,6 @@
                     @click="item.c++"
                   ></el-button>
                 </div>
-                <div class="td">{{ item.a }}</div>
                 <div class="td" style="width: 120px">
                   <span
                     style="color: #2170ff; cursor: pointer"

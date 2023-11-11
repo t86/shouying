@@ -123,10 +123,11 @@
     </div>
 
     <!-- 编辑存酒单 -->
-    <drawerCusEditSaveInfo
+    <drawerEditSaveInfo
       v-model="showEditDrawer"
       :currentSaveInfo="currentSaveInfo"
       :needWaiterAuth="needWaiterAuth"
+      :isCustomer="true"
       @getTableData="getTableData"
     />
 
@@ -142,7 +143,7 @@
 
 <script>
 import api_wine from "@/api/wine";
-import drawerCusEditSaveInfo from "./drawerCusEditSaveInfo.vue";
+import drawerEditSaveInfo from "../saveNeedToLib/drawerEditSaveInfo.vue";
 export default {
   data() {
     return {
@@ -265,7 +266,7 @@ export default {
     this.getTableData();
   },
   components: {
-    drawerCusEditSaveInfo,
+    drawerEditSaveInfo,
   },
   computed: {
     isIndeterminate() {

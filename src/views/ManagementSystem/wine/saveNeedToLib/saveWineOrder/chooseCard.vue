@@ -13,7 +13,7 @@
               >
                 <img :class="{'active': items.id === activeId}" :src="require('@/assets/card-imgs/zhuantaiduigou.png')" alt />
                 <div
-                  :class="['bgc' + items.bizStatus]"
+                  :class="[dateVal ? 'bgc' + items.bizStatus : 'bgc2']"
                   @click.stop="chooseCard(items)"
                   layout="column"
                   layout-align="center start"
@@ -25,6 +25,9 @@
           </li>
         </ul>
       </div>
+    </div>
+    <div class="card-info">
+      当前选中卡台：{{selectedInfo.n}}
     </div>
     <!-- 箭头 -->
     <div class="arrow">
@@ -38,14 +41,12 @@
       </div>
     </div>
 
-    <div class="card-info">
-      当前选中卡台：{{selectedInfo.n}}
-    </div>
   </div>
 </template>
  
 <script>
 import api_order from "@/api/order";
+import api_wine from '@/api/wine'
 export default {
   data() {
     return {
@@ -63,33 +64,54 @@ export default {
     },
 
     async getCardList() {
-      const params = {
-        biz_day: this.dateVal //    string  营业日期,格式: yyyy-mm-dd
-      };
-      try {
-        const res = await api_order.reqGetCanBJSeatList(params);
-        if (res.code == 1) {
-          const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
-          this.cardList = (res.data.regions || []).map(item => ({
-            ...item,
-            ss: (item.ss || []).map(items => ({
-              ...items,
-              bizStatus: (businessData.find(ite => ite.seatId == items.id) || {}).bizStatus || '1'
-            })),
-          }));
-        } else {
-          this.$message.warning(res.msg)
+
+      // 关联营业日
+      if(this.dateVal) {
+        const params = {
+          biz_day: this.dateVal //    string  营业日期,格式: yyyy-mm-dd
+        };
+        try {
+          const res = await api_order.reqGetCanBJSeatList(params);
+          if (res.code == 1) {
+            const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+            this.cardList = (res.data.regions || []).map(item => ({
+              ...item,
+              ss: (item.ss || []).map(items => ({
+                ...items,
+                bizStatus: (businessData.find(ite => ite.seatId == items.id) || {}).bizStatus || '1'
+              })),
+            }));
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log("卡台信息获取失败", error);
         }
-      } catch (error) {
-        console.log("卡台信息获取失败", error);
+        //
+      } else {
+        try {
+          const res = await api_wine.reqGetCustomCenterSeatList()
+          if(res.code == 1) {
+            const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+            this.cardList = (res.data.regions || []).map(item => ({
+              ...item,
+              ss: (res.data.seats || []).filter(items => (items.r == item.id)).map(items => { return {...items, n: items.s} }),
+            }));
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log('卡台列表信息获取失败', error)
+        }
       }
     },
 
     chooseCard(cardInfo) {
-      if(cardInfo.b == 2) return 
+      if(this.dateVal && cardInfo.b == 2) return
       this.selectedInfo = cardInfo;
       this.activeId = cardInfo.id;
       this.$emit('chooseCardHandle', this.selectedInfo)
+   
     },
 
     scrollHandle(direction) {
@@ -252,7 +274,7 @@ export default {
   }
 
   .card-info {
-    color: rgba(255, 255, 255, .8);
+    color: rgba(0, 0, 0, .8);
     padding: 20px 60px;
     text-align: right;
   }
