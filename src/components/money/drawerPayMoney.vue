@@ -240,15 +240,34 @@
           <!-- 挂账 -->
           <div v-else-if="payActiveInfo.id == 6" class="center-center m-t-3">
             <p layout="row" layout-align="start center">
-              <span>挂账账户:</span>
-              <mySelect
+              <span>挂账账户: </span>
+              <span v-if="GZInfo.selectInfo.orderVal">{{ GZInfo.selectInfo.orderVal }}</span>
+              <!-- <mySelect
                 style="width: 210px"
                 :value="GZInfo.selectInfo.selectVal"
                 :optionsList="GZInfo.selectInfo.selectOption"
                 @selectOptionItem="setSelectValHandle"
                 @selectBlurHandle="selectBlurHandle"
                 @getOption="getOptionHandle"
-              />
+              /> -->
+              <el-select
+              v-else="!GZInfo.selectInfo.orderVal"
+              v-model="GZInfo.selectInfo.selectVal"
+              :disabled="isOrderGZ"
+              placeholder="请选择或输入账号"
+              style="width: 210px"
+              filterable
+              allow-create
+              default-first-option
+            >
+              <el-option
+                v-for="item in this.GZInfo.originOption"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
             </p>
             <p class="m-t-3" layout="row" layout-align="start center">
               <span>{{ payActiveInfo.name }}金额:</span>
@@ -503,6 +522,7 @@ import arrowBottom from "@/assets/card-imgs/arrow-bottom.png";
 export default {
   data() {
     return {
+      isOrderGZ: false, // 是否订位人挂账
       flag: false, // 点击付款按钮的节流阀
       show: false,
       showAuthDrawer: false, // 显示授权
@@ -538,6 +558,7 @@ export default {
         selectInfo: {
           selectVal: "",
           selectOption: [],
+          orderVal: ""
         },
       },
       hasChoosedListArr: [], // 选择好支付方式的列表（购物车）
@@ -734,14 +755,14 @@ export default {
 
         // 挂账
         if (this.payActiveInfo.id == 6) {
-          if (this.GZInfo.selectInfo.selectVal == "")
+          if (!this.GZInfo.selectInfo.selectVal && !this.GZInfo.selectInfo.orderVal)
             return this.$message.warning("请选择挂账账户");
+            
+          let bizItem = this.GZInfo.originOption.find((item) => item.name == this.GZInfo.selectInfo.selectVal)
           params = {
             ...params,
-            biz_id:
-              this.GZInfo.originOption.find(
-                (item) => item.name == this.GZInfo.selectInfo.selectVal
-              ).id * 1,
+            biz_id: this.isOrderGZ ? 0 : bizItem ? bizItem.id * 1 : 0,
+            card_no: this.isOrderGZ ?  this.GZInfo.selectInfo.orderVal : bizItem ? '' : this.GZInfo.selectInfo.selectVal
           };
         }
 
@@ -1144,14 +1165,20 @@ export default {
       this.show = newVal;
       this.showAuth = false;
 
-      if (newVal)
-        setTimeout(() => {
-          this.count = (this.allAmt - this.chooseAmt).toFixed(2) * 1;
-          this.$refs.moneyCountRef && this.$refs.moneyCountRef.focus();
-          this.init();
-        }, 200);
+      if (newVal){
+          this.isOrderGZ = this.$store.state.orderInfo.currentCardInfo.salesEmpId != '0'
+          if(this.isOrderGZ) {
+            let employee = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.find(item => item.id == this.$store.state.orderInfo.currentCardInfo.salesEmpId)
+            this.GZInfo.selectInfo.orderVal = '订位-' + (employee ? employee.name : this.$store.state.orderInfo.currentCardInfo.salesEmpId)
+          }
+          setTimeout(() => {
+            this.count = (this.allAmt - this.chooseAmt).toFixed(2) * 1;
+            this.$refs.moneyCountRef && this.$refs.moneyCountRef.focus();
+            this.init();
+          }, 200);
 
-      this.getChoosePayList();
+        this.getChoosePayList();
+      }
     },
     notPayAmt() {
       this.count = (this.allAmt - this.chooseAmt).toFixed(2) * 1;
