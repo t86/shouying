@@ -69,6 +69,7 @@ export const resResultDataArr = [
   'cardStatusNo',        // 39-卡台状态数量统计
   'machineArea',         // 40-设备可操作区域或卡台
   'sysRoleDetail',       // 41-系统角色明细
+  'orderPrdList',       // 42-可点商品配置
 ]
 
 // 图例列表

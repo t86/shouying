@@ -60,6 +60,7 @@
               >
                 <div class="td">
                   <el-checkbox
+                    :disabled="item.disabled"
                     v-model="item.checked"
                     @change="changeCheckbox('item')"
                   >{{ index + 1 }}</el-checkbox>
@@ -99,8 +100,8 @@ export default {
       checkAll: false,
       tableData: [],
       loadText: '',
-      pageSize: 20,
-      page: 1
+      pageSize: 50,
+      page: 1,
     };
   },
   methods: {
@@ -116,7 +117,12 @@ export default {
         two_cate_id: this.searchFormData.valueArr[1],
       };
       try {
-        const res = await this.$api.BMS.pgrp.requestpgrpprd_items(params);
+        let res = null
+        if(this.prdType == "1") {
+          res = await this.$api.BMS.pgrp.requestpgrpprd_items(params);
+        }else {
+          res = await this.$api.BMS.station.reqGetOrdExclPrdItems(params);
+        }
         if (res.code == 1) {
           if (init == 1) {
             const options = res.data.cates || [];
@@ -135,10 +141,15 @@ export default {
             });
             this.searchFormData.options = [...options];
           }
-          const tableData = (res.data.prds || []).map(item => ({
-            ...item,
-            checked: false
-          }))
+          const tableData = (res.data.prds || []).map(item =>
+            { 
+              let matched = this.checkedPrdList.findIndex(i => i.id == item.id) >= 0;
+              return {
+                ...item,
+                checked: matched,
+                disabled: matched
+              }
+          })
           this.loadText = tableData.length == this.pageSize ? '加载中...' : '没有更多了'
           this.tableData = init == 1 ? [...tableData] : [...this.tableData, ...tableData]
           this.checkAll = this.tableData.every(item => item.checked)
@@ -186,6 +197,12 @@ export default {
   props: {
     value: {
       default: false // 是否显示drawer
+    },
+    prdType: {
+      default: "1" // 1.商品组配置， 2：不可点商品配置
+    },
+    checkedPrdList: {
+      default: []
     },
   },
   computed: {

@@ -417,7 +417,7 @@
       </div>
 
       <!-- 添加单品 -->
-      <drawerAddPrd v-model="showChoosePrd" @changePrdList="changePrdList" />
+      <drawerAddPrd v-model="showChoosePrd" @changePrdList="changePrdList" prdType="1"/>
 
       <div
         class="form-btn"

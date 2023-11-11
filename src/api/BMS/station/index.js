@@ -141,8 +141,25 @@ const article = {
   //读取岗位系统角色列表,及系统角色内明细模块权限列表
   reGetSysRolesAndAuthModule: (params) =>
     axios.post(`${base.htgl}/station/get_sys_roles`, params),
+
   // 设置岗位系统角色权限
   reSetSysRolesAuthModule: (params) =>
     axios.post(`${base.htgl}/station/set_sys_roles`, params),
+
+  //读取服务员不可点单商品配置项,部分已配置项需要做已选标记
+  reqGetOrdExclPrdItems: (params) =>
+    axios.post(`${base.htgl}/station/get_ord_excl_prd_items`, params),  
+
+  //读取岗位服务员不可点单商品列表
+  reqGetOrdExclList: (params) =>
+  axios.post(`${base.htgl}/station/get_ord_excl_list`, params),  
+
+  //批量添加岗位服务员不可点单商品
+  reqAddOrdExclPrd: (params) =>
+    axios.post(`${base.htgl}/station/add_ord_excl_prd`, params),  
+ 
+  //批量删除岗位服务员不可点单商品
+  reqDelOrdExclPrd: (params) =>
+    axios.post(`${base.htgl}/station/del_ord_excl_prd`, params),  
 };
 export default article;
