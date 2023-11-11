@@ -7,31 +7,18 @@
       <div class="search m-t-2 m-b-4">
         <div class="row">
           <span class="label">消费日期:</span>
-          <el-date-picker
-            v-model="form.dateVal"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            size="small"
-            value-format="yyyy-MM-dd"
-            style="width: 280px"
-          ></el-date-picker>
+          <el-date-picker style="width:130px" v-model="form.begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:130px" v-model="form.end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <div class="row" layout="row" layout-align="start center">
-          <el-input
-            class="m-r-2"
-            v-model="form.keyword"
-            size="small"
-            placeholder="姓名/手机号/会员卡号"
-            style="width: 200px"
-          ></el-input>
+          <el-input class="m-r-2" v-model="form.keyword" size="small" placeholder="姓名/手机号/会员卡号"
+            style="width: 200px"></el-input>
           <button class="btn primary m-l-4" @click="getTableData">查询</button>
           <button class="btn info m-l-4" @click="resetHandle">重置</button>
-          <button
-            class="btn info m-l-4"
-            @click="exportExcel"
-          >
+          <button class="btn info m-l-4" @click="exportExcel">
             导出
           </button>
         </div>
@@ -71,24 +58,16 @@
               <div class="th">订位人</div>
               <div class="th">卡台</div>
               <div class="th">消费类型</div>
-              <div
-                class="th"
-                :style="{
-                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-                }"
-              >
+              <div class="th" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
                 操作
               </div>
             </div>
           </div>
           <div class="tbody">
-            <div
-              class="tr"
-              v-for="(item, index) in tableData"
-              :key="index"
-              layout="row"
-              layout-align="space-between center"
-            >
+            <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row"
+              layout-align="space-between center">
               <div class="td">{{ index + 1 }}</div>
               <div class="td">{{ item.d }}</div>
               <div class="td">{{ item.n }}</div>
@@ -104,12 +83,9 @@
               <div class="td">{{ item.s }}</div>
               <div class="td">{{ item.st }}</div>
               <div class="td">{{ item.o }}</div>
-              <div
-                class="td"
-                :style="{
-                  visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-                }"
-              >
+              <div class="td" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
                 <span @click="printHandle(item)">重打小票</span>
               </div>
             </div>
@@ -122,14 +98,8 @@
       </div>
 
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
   </div>
@@ -141,7 +111,8 @@ export default {
   data() {
     return {
       form: {
-        dateVal: [],
+        begin_day: "",
+end_day: "",
         keyword: "",
       },
       tableData: [],
@@ -162,14 +133,16 @@ export default {
       const month = (date.getMonth() + 1).toString().padStart(2, 0);
       const day = date.getDate().toString().padStart(2, 0);
       const result = year + "-" + month + "-" + day;
-      this.form.dateVal = [result, result];
+      this.form.begin_day = result;
+      this.form.end_day = result;
+
     },
     async getTableData() {
       const params = {
         page_num: this.pageInfo.page * 1, //    int    第几页
         page_size: this.pageInfo.pageSize * 1, //   int     每页行数
-        begin_day: this.form.dateVal[0], //   string  消费开始日期 格式  yyyy-mm-dd
-        end_day: this.form.dateVal[1], //     string   消费结束日期 格式 yyyy-mm-dd
+        begin_day: this.form.begin_day, //   string  消费开始日期 格式  yyyy-mm-dd
+        end_day: this.form.end_day, //     string   消费结束日期 格式 yyyy-mm-dd
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
       };
       try {
@@ -209,8 +182,8 @@ export default {
     },
     async exportExcel() {
       const params = {
-        begin_day: this.form.dateVal[0], //   string  消费开始日期 格式  yyyy-mm-dd
-        end_day: this.form.dateVal[1], //     string   消费结束日期 格式 yyyy-mm-dd
+        begin_day: this.form.begin_day, //   string  消费开始日期 格式  yyyy-mm-dd
+        end_day: this.form.end_day, //     string   消费结束日期 格式 yyyy-mm-dd
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
       };
       try {
@@ -257,6 +230,7 @@ export default {
 .el-select-dropdown__empty {
   background-color: #bec5d5 !important;
 }
+
 .el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
   background-color: #bec5d5 !important;
 }
@@ -269,6 +243,7 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
@@ -279,6 +254,7 @@ export default {
   color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
 }
+
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
   background-color: rgba(90, 90, 90, 0.5) !important;

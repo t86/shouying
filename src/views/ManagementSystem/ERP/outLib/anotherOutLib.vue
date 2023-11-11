@@ -28,17 +28,11 @@
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
       </div>
       <div class="m-t-2" layout="row" layout-align="start center">
@@ -144,7 +138,8 @@ export default {
   data() {
     return {
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       outLibType: 0,  // 入库类型
       keyword: '', // 备注模糊查询
       checkAll: false,
@@ -171,8 +166,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        begin_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        begin_day: this.begin_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         remark: this.keyword || '',
         record_type: this.outLibType * 1,
         page_num: this.pageInfo.page * 1, //   int  指定第几页
@@ -303,7 +298,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 

@@ -3,68 +3,45 @@
   <div class="to-store-detail">
     <div class="top" layout="row" layout-align="start center">
       <span class="label fs14">出库日期：</span>
-      <ul
-        class="time-select fs14 m-r-1"
-        layout="row"
-        layout-align="start center"
-      >
+      <ul class="time-select fs14 m-r-1" layout="row" layout-align="start center">
         <li layout="row" layout-align="start center" @click="setDateVal(1)">
-          <img
-            :src="
-              activeTime == 1
-                ? require('@/assets/img/date_label_selete.png')
-                : require('@/assets/img/date_label_grey.png')
-            "
-            alt
-          />
+          <img :src="
+            activeTime == 1
+              ? require('@/assets/img/date_label_selete.png')
+              : require('@/assets/img/date_label_grey.png')
+          " alt />
           <span :class="{ active: activeTime == 1 }"> 近7天 </span>
         </li>
         <li layout="row" layout-align="start center" @click="setDateVal(2)">
-          <img
-            :src="
-              activeTime == 2
-                ? require('@/assets/img/date_label_selete.png')
-                : require('@/assets/img/date_label_grey.png')
-            "
-            alt
-          />
+          <img :src="
+            activeTime == 2
+              ? require('@/assets/img/date_label_selete.png')
+              : require('@/assets/img/date_label_grey.png')
+          " alt />
           <span :class="{ active: activeTime == 2 }">近30天</span>
         </li>
         <li layout="row" layout-align="start center" @click="setDateVal(3)">
-          <img
-            :src="
-              activeTime == 3
-                ? require('@/assets/img/date_label_selete.png')
-                : require('@/assets/img/date_label_grey.png')
-            "
-            alt
-          />
+          <img :src="
+            activeTime == 3
+              ? require('@/assets/img/date_label_selete.png')
+              : require('@/assets/img/date_label_grey.png')
+          " alt />
           <span :class="{ active: activeTime == 3 }">近90天</span>
         </li>
       </ul>
       <div class="value m-r-2">
-        <el-date-picker
-          style="width: 260px"
-          v-model="dateVal"
-          type="daterange"
-          :clearable="false"
-          size="small"
-          value-format="yyyy-MM-dd"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+        <el-date-picker style="width:140px" v-model="start_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+        <span>至</span>
+        <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
       </div>
-      <el-button type="primary" size="small" @click="getTableData"
-        >查询</el-button
-      >
+      <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
 
     <div class="btn-area m-t-4">
-      <el-button type="primary" size="small" @click="showHcDrawerHandle"
-        >红冲</el-button
-      >
+      <el-button type="primary" size="small" @click="showHcDrawerHandle">红冲</el-button>
     </div>
 
     <div class="table-content m-t-4">
@@ -78,20 +55,11 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
+          <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in tableData"
+            :key="item.id">
             <div class="td" layout="row" layout-align="center center">
               <div style="width: 60px; text-align: left">
-                <el-checkbox
-                  v-model="item.checked"
-                  @change="changeCheckboxHandle(item)"
-                  >{{ index + 1 }}</el-checkbox
-                >
+                <el-checkbox v-model="item.checked" @change="changeCheckboxHandle(item)">{{ index + 1 }}</el-checkbox>
               </div>
             </div>
             <div class="td">
@@ -109,22 +77,12 @@
         </div>
       </div>
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
 
-    <drawerHc
-      v-model="showHcDrawer"
-      :currentInfo="currentInfo"
-      @getTableData="getTableData"
-    />
+    <drawerHc v-model="showHcDrawer" :currentInfo="currentInfo" @getTableData="getTableData" />
 
     <drawerDetail v-model="showDetailDrawer" :currentInfo="currentInfo" />
   </div>
@@ -138,7 +96,8 @@ export default {
   data() {
     return {
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      start_day: "",
+      end_day: "",
       tableData: [],
       pageInfo: {
         page: 1,
@@ -154,8 +113,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        start_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        start_day: this.start_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         page_num: this.pageInfo.page * 1, //   int  指定第几页
         page_size: this.pageInfo.pageSize, //  int  每页行数
       };
@@ -205,9 +164,7 @@ export default {
     },
 
     getDate(dateNum = +new Date()) {
-      const oneHour =
-        +new Date("2023/07/22 12:00:00") - +new Date("2023/07/22 11:00:00");
-      const date = new Date(+new Date() - 8 * oneHour);
+      const date = new Date(dateNum);
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, 0);
       const day = date.getDate().toString().padStart(2, 0);
@@ -224,7 +181,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.start_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 
@@ -248,12 +206,15 @@ export default {
 <style scoped lang="less">
 .to-store-detail {
   padding: 20px;
+
   .top {
     flex-wrap: wrap;
+
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -287,10 +248,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

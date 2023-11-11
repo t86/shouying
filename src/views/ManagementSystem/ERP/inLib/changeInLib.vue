@@ -1,16 +1,22 @@
 <template>
-<!-- 调拨入库 -->
+  <!-- 调拨入库 -->
   <div class="empty-lib-order">
     <div class="top">
       <div class="m-b-3" layout="row" layout-align="start center">
         <span class="label fs14">状态：</span>
         <ul class="fs14 order-status" layout="row" layout-align="start center">
-          <li @click="orderStatus = 0;getTableData()" :class="[orderStatus == 0 ? 'active cursor primary-link' : 'cursor']">全部</li>
-          <li @click="orderStatus = 2;getTableData()" :class="[orderStatus == 2 ? 'active cursor primary-link' : 'cursor']">整单红冲</li>
-          <li @click="orderStatus = 6;getTableData()" :class="[orderStatus == 6 ? 'active cursor primary-link' : 'cursor']">待入库</li>
-          <li @click="orderStatus = 9;getTableData()" :class="[orderStatus == 9 ? 'active cursor primary-link' : 'cursor']">异议中</li>
-          <li @click="orderStatus = 7;getTableData()" :class="[orderStatus == 7 ? 'active cursor primary-link' : 'cursor']">异议已处理</li>
-          <li @click="orderStatus = 5;getTableData()" :class="[orderStatus == 5 ? 'active cursor primary-link' : 'cursor']">已完成</li>
+          <li @click="orderStatus = 0; getTableData()"
+            :class="[orderStatus == 0 ? 'active cursor primary-link' : 'cursor']">全部</li>
+          <li @click="orderStatus = 2; getTableData()"
+            :class="[orderStatus == 2 ? 'active cursor primary-link' : 'cursor']">整单红冲</li>
+          <li @click="orderStatus = 6; getTableData()"
+            :class="[orderStatus == 6 ? 'active cursor primary-link' : 'cursor']">待入库</li>
+          <li @click="orderStatus = 9; getTableData()"
+            :class="[orderStatus == 9 ? 'active cursor primary-link' : 'cursor']">异议中</li>
+          <li @click="orderStatus = 7; getTableData()"
+            :class="[orderStatus == 7 ? 'active cursor primary-link' : 'cursor']">异议已处理</li>
+          <li @click="orderStatus = 5; getTableData()"
+            :class="[orderStatus == 5 ? 'active cursor primary-link' : 'cursor']">已完成</li>
         </ul>
       </div>
       <div layout="row" layout-align="start center">
@@ -19,42 +25,33 @@
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
               :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 1}">近7天</span>
+              alt />
+            <span :class="{ active: activeTime == 1 }">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
               :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 2}">近30天</span>
+              alt />
+            <span :class="{ active: activeTime == 2 }">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
               :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 3}">近90天</span>
+              alt />
+            <span :class="{ active: activeTime == 3 }">近90天</span>
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <span class="label fs14">出库仓库：</span>
         <el-select v-model="libType" size="small">
           <el-option label="全部" :value='0'></el-option>
-          <el-option v-for="(item,i) in libOption" :key="i" :label="item.n" :value="item.id"></el-option>
+          <el-option v-for="(item, i) in libOption" :key="i" :label="item.n" :value="item.id"></el-option>
         </el-select>
 
         <el-button class="m-l-4" type="primary" size="small" @click="getTableData(2)">查询</el-button>
@@ -72,11 +69,8 @@
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
             <div class="th">
-              <el-checkbox
-                v-model="checkAll"
-                :indeterminate="isIndeterminate"
-                @change="changeCheckboxHandle('all')"
-              >全选</el-checkbox>
+              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate"
+                @change="changeCheckboxHandle('all')">全选</el-checkbox>
             </div>
             <div class="th">单号</div>
             <div class="th">入库仓库</div>
@@ -90,33 +84,24 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            :class="{'selected': item.checked}"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
+          <div class="tr" :class="{ 'selected': item.checked }" layout="row" layout-align="space-between center"
+            v-for="(item, index) in tableData" :key="item.id">
             <div class="td" layout="row" layout-align="start center">
-              <el-checkbox
-                v-model="item.checked"
-                @change="changeCheckboxHandle('item')"
-              >{{index + 1}}</el-checkbox>
+              <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">
-              <span class="primary-link cursor" @click="showOrderDetailHandle(item)">{{item.cd}}</span>
+              <span class="primary-link cursor" @click="showOrderDetailHandle(item)">{{ item.cd }}</span>
             </div>
-            <div class="td">{{item.isn}}</div>
-            <div class="td">{{item.osn}}</div>
-            <div class="td">{{item.ta}}</div>
-            <div class="td">{{item.ist}}</div>
-            <div class="td">{{item.ien}}</div>
-            <div class="td">{{item.ost}}</div>
-            <div class="td">{{item.oen}}</div>
-            <div class="td">{{item.s}}</div>
+            <div class="td">{{ item.isn }}</div>
+            <div class="td">{{ item.osn }}</div>
+            <div class="td">{{ item.ta }}</div>
+            <div class="td">{{ item.ist }}</div>
+            <div class="td">{{ item.ien }}</div>
+            <div class="td">{{ item.ost }}</div>
+            <div class="td">{{ item.oen }}</div>
+            <div class="td">{{ item.s }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
@@ -128,14 +113,8 @@
         <drawerDetail v-model="showDrawerDetail" :currentInfo="currentInfo" @emitHandle="emitHandle" />
       </div>
       <div class="pagination">
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-        ></el-pagination>
+        <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+          :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
     </div>
   </div>
@@ -151,7 +130,8 @@ export default {
     return {
       orderStatus: 0,
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       libType: 0,  // 出库仓库：
       libOption: [], // 出库仓库option
       checkAll: false,
@@ -180,8 +160,8 @@ export default {
         page_num: this.pageInfo.page * 1, //   int     第几页
         page_size: this.pageInfo.pageSize * 1, //  int    每页行数
         status: this.orderStatus * 1, //     int    状态 0 全部 5 已完成 2 红冲 6 待入库 7 异议已处理 9 异议待处理
-        begin_day: this.dateVal[0], //  string  开始日期 格式  yyyy-mm-dd
-        end_day: this.dateVal[1],  //    string  结束日期 格式 yyyy-mm-dd
+        begin_day: this.begin_day, //  string  开始日期 格式  yyyy-mm-dd
+        end_day: this.end_day,  //    string  结束日期 格式 yyyy-mm-dd
         is_init: isInit, //     int   1 初始化,会返回仓库列表 2 非初始化
         out_store_id: this.libType * 1, // int   出库仓库id, 0 表示不限制
       };
@@ -194,7 +174,7 @@ export default {
             checked: false
           }));
           this.checkAll = false;
-          if(isInit == 1) this.libOption = res.data.stores || []
+          if (isInit == 1) this.libOption = res.data.stores || []
           this.pageInfo.total = res.data.row_cnt || 0;
         } else {
           this.$message.warning(res.msg);
@@ -218,23 +198,23 @@ export default {
       }
     },
     // 申请售后
-    applyForHandle(){
+    applyForHandle() {
       const checkList = this.tableData.filter(item => item.checked)
-      if(checkList.length != 1) return this.$message.warning('请选择一个订单')
-      if(checkList[0].s != '已完成') return this.$message.warning('申请售后只可操作已完成订单')
-      this.currentInfo = {...checkList[0]}
+      if (checkList.length != 1) return this.$message.warning('请选择一个订单')
+      if (checkList[0].s != '已完成') return this.$message.warning('申请售后只可操作已完成订单')
+      this.currentInfo = { ...checkList[0] }
       this.showDrawerApplyFor = true
     },
     // 确认入库
-    async allOrderInLibHandle(){
+    async allOrderInLibHandle() {
       const checkList = this.tableData.filter(item => item.checked)
-      if(checkList.length <= 0) return this.$message.warning('请选择需要入库的订单')
+      if (checkList.length <= 0) return this.$message.warning('请选择需要入库的订单')
       const params = {
         ids: checkList.map(item => item.id * 1)
       }
       try {
         const res = await this.$api.ERP.sind.requestsindbatch_in(params)
-        if(res.code == 1){
+        if (res.code == 1) {
           this.$message.success('操作成功')
           this.showDrawerDetail = false
           this.getTableData()
@@ -246,37 +226,37 @@ export default {
       }
     },
     // 部分入库
-    someOrderInLibHandle(){
+    someOrderInLibHandle() {
       const checkList = this.tableData.filter(item => item.checked)
-      if(checkList.length != 1) return this.$message.warning('请选择一个需要入库的订单')
-      this.currentInfo = {...checkList[0]}
+      if (checkList.length != 1) return this.$message.warning('请选择一个需要入库的订单')
+      this.currentInfo = { ...checkList[0] }
       this.showDrawerSomeOrderInLib = true
     },
 
-    emitHandle(type){
+    emitHandle(type) {
       switch (type) {
-        case 1: 
+        case 1:
           // 申请售后
           this.applyForHandle()
           break
-        case 2: 
+        case 2:
           // 2：确认入库
           this.allOrderInLibHandle()
           break
-        case 3: 
+        case 3:
           // 3：部分入库
           this.someOrderInLibHandle()
           break
       }
     },
 
-    
+
     showOrderDetailHandle(itemInfo) {
       this.tableData = this.tableData.map(item => ({
         ...item,
         checked: item.id == itemInfo.id
       }))
-      this.currentInfo = {...itemInfo}
+      this.currentInfo = { ...itemInfo }
       this.showDrawerDetail = true
     },
 
@@ -306,7 +286,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData(1);
     },
 
@@ -340,22 +321,26 @@ export default {
 <style scoped lang="less">
 .empty-lib-order {
   padding: 20px;
+
   .top {
-    .order-status{
+    .order-status {
       li {
         padding: 6px 12px;
         border-radius: 6px;
         margin-right: 6px;
         border: 1px solid transparent;
+
         &.active {
           border: 1px solid #2170ff;
         }
       }
     }
+
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -369,22 +354,28 @@ export default {
       }
     }
   }
+
   .btn-area {
     background-color: #eee;
   }
+
   .table {
     .tbody {
       height: calc(100vh - 330px);
       overflow: auto;
     }
-    .th,.td {
+
+    .th,
+    .td {
       &:nth-child(1) {
         width: 30%;
       }
+
       &:nth-child(6),
       &:nth-child(8) {
         width: 70%;
       }
+
       &:nth-last-child(1) {
         width: 40%;
       }
@@ -398,10 +389,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

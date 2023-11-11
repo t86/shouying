@@ -4,17 +4,11 @@
     <div class="top" layout="row" layout-align="start center">
       <div class="label fs14">存取日期：</div>
       <div class="value m-r-2">
-        <el-date-picker
-          style="width:260px"
-          v-model="dateVal"
-          type="daterange"
-          :clearable="false"
-          size="small"
-          value-format="yyyy-MM-dd"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+        <el-date-picker style="width:140px" v-model="start_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+        <span>至</span>
+        <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
       </div>
       <el-select v-model="selectVal" size="small" style="width:100px" placeholder="请选择">
         <el-option
@@ -136,7 +130,8 @@ export default {
   data() {
     return {
       keyword: "",
-      dateVal: [],
+      start_day: "",
+      end_day: "",
       selectVal: 0,
       checkAll: false,
       options:[{
@@ -155,8 +150,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        start_day: this.dateVal[0], //  string  存取开始日期
-        end_day: this.dateVal[1], // string  存取结束日期
+        start_day: this.start_day, //  string  存取开始日期
+        end_day: this.end_day, // string  存取结束日期
         type_id: this.selectVal * 1, //  int    类型 0 全部 1 存酒 2 取酒
         key: this.keyword || "" //  string   模糊查询关键字
       };
@@ -204,8 +199,8 @@ export default {
 
     async exportExcelHandle(){
       const params = {
-        start_day: this.dateVal[0], //  string  存取开始日期
-        end_day: this.dateVal[1], // string  存取结束日期
+        start_day: this.start_day, //  string  存取开始日期
+        end_day: this.end_day, // string  存取结束日期
         type_id: this.selectVal * 1, //  int    类型 0 全部 1 存酒 2 取酒
         key: this.keyword || "" //  string   模糊查询关键字
       }
@@ -257,7 +252,8 @@ export default {
         .toString()
         .padStart(2, 0);
       const now = year + "-" + month + "-" + day;
-      this.dateVal = [now, now];
+      this.start_day = now;
+      this.end_day = now;
       this.selectVal = 0
       this.keyword = "";
       this.getTableData();

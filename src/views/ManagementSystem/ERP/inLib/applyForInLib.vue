@@ -37,17 +37,11 @@
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         
         <el-button class="m-l-4" type="primary" size="small" @click="getTableData(2)">查询</el-button>
@@ -130,7 +124,8 @@ export default {
   data() {
     return {
       orderStatus: 3,
-      dateVal: [],
+      begin_day : "",
+      end_day:"",
       tableData: [],
       pageInfo: {
         page: 1,
@@ -150,8 +145,8 @@ export default {
         page_num: this.pageInfo.page * 1,
         page_size: this.pageInfo.pageSize * 1, 
         status: this.orderStatus * 1, 
-        begin_day: this.dateVal[0], 
-        end_day: this.dateVal[1] 
+        begin_day: this.begin_day, 
+        end_day: this.end_day
       };
 
       try {
@@ -198,7 +193,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData(1);
     },
 
