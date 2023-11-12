@@ -236,9 +236,8 @@ export default {
 
     getDepTree () {
 
-      let departmentList = cloneDeep(this.$store.state.cardPageInfo.resResultDataObj.departmentInfo);
+      let departmentList = cloneDeep([{id: '0', name:'不限', parentId: 0 }, ...this.$store.state.cardPageInfo.resResultDataObj.departmentInfo]);
       this.depTree = this.listToTree(departmentList); // list为原始列表数据
-      // this.depTree = departmentList.map(item => {return  {...item, value: item.id, label: item.name}})
     },
 
     listToTree (newList) {
