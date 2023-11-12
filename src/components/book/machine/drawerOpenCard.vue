@@ -13,7 +13,7 @@
           <div class="search-item m-r-4" layout="row" layout-align="start center">
           <span>排序：</span>
           <mySelect
-            style="width:150px;height:30px;line-height:30px"
+            style="width:140px;height:30px;line-height:30px"
             :value="typeName"
             :optionsList="typeList"
             @selectOptionItem="setSelectValHandle"
@@ -30,7 +30,7 @@
             size="mini"
             clearable
           ></el-cascader>
-        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/订位人/客户姓名/电话" />
+        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/台位/订位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
         <button class="reset" @click="resetSearchVal">重置</button>
         </div>
@@ -112,6 +112,7 @@
 <script>
 import api_book from "@/api/Book";
 import mySelect from "@/components/book/select";
+import { cloneDeep } from "lodash-es";
 
 let originSelectOption = [];
 let originPersonList = [];  // 原始的所有有效订位人id
@@ -142,7 +143,7 @@ export default {
       personOptions: [],
       tableData: [],
       keyword: '',
-      deptId: 0,
+      selDepValue: ['0'],
       depTree: []
     };
   },
@@ -173,7 +174,7 @@ export default {
       this.getReloadTime();
       const params = {
         key: this.keyword,//Key 模糊查询关键字,卡台标记,订位人,客人电话,客人姓名
-        dept_id: this.deptId,
+        dept_id: (this.selDepValue[0] || '0') * 1,
         type_id: this.typeOriginList.find(item => item.name == this.typeName).id  //typeId 1 按开台时间排序   2 按部门员工排序  3 按区域排序}
       }
       try {
@@ -234,26 +235,28 @@ export default {
     },
 
     getDepTree () {
-      let departmentList = this.$store.state.cardPageInfo.resResultDataObj.departmentInfo;
-      const tree = listToTree(list); // list为原始列表数据
+
+      let departmentList = cloneDeep(this.$store.state.cardPageInfo.resResultDataObj.departmentInfo);
+      this.depTree = this.listToTree(departmentList); // list为原始列表数据
+      // this.depTree = departmentList.map(item => {return  {...item, value: item.id, label: item.name}})
     },
 
-    listToTree (list) {
+    listToTree (newList) {
       const map = {};
-      const node = [];
-      for (let i = 0; i < list.length; i++) {
-        map[list[i].id] = i; // 生成map键值对
+      let node = [];
+      for (let i = 0; i < newList.length; i++) {
+        map[newList[i].id] = i; 
       }
 
-      for (let i = 0; i < list.length; i++) {
-        const cur = list[i];
-        if (cur.parentId === '0') {
+      for (let i = 0; i < newList.length; i++) {
+        const cur = {...newList[i], label: newList[i].name, value: newList[i].id};
+        if (cur.parentId * 1 == 0) {
           node.push(cur);
         } else {
-          if (!list[map[cur.parentId]].children) {
-            list[map[cur.parentId]].children = [];
+          if (newList[map[cur.parentId]] && !newList[map[cur.parentId]].children) {
+            newList[map[cur.parentId]].children = [];
           }
-          list[map[cur.parentId]].children.push(cur);
+          newList[map[cur.parentId]].children.push(cur);
         }
       }
 
@@ -337,6 +340,7 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.getSelectOption();
+        this.getDepTree();
         this.resetSearchVal();
       };
     }
