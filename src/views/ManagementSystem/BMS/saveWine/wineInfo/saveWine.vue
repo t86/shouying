@@ -1,10 +1,10 @@
 <template>
     <div class="wine-info">
         <div class="top" layout="row" layout-align="start center">
-        <characters-button @click.native="showCatDrawerHandle" colors="transparent" wz='新增存酒分类'></characters-button>
-        <characters-button @click.native="showDrawerOfPassTime" colors="transparent" wz='编辑'></characters-button>
+        <characters-button @click.native="showCatDrawerHandle" colors="transparent" wz='新增商品'></characters-button>
         <characters-button @click.native="deleteHandle" colors="transparent" wz='批量删除'></characters-button>
-        </div>
+        <characters-button @click.native="showDrawerOfPassTime" colors="transparent" wz='批量更改存酒分类'></characters-button>
+      </div>
 
         <!-- table -->
         
@@ -22,8 +22,6 @@
                 <div class="th">商品名称</div>
                 <div class="th">一级分类</div>
                 <div class="th">二级分类</div>
-                <div class="th">整瓶有效期</div>
-                <div class="th">散瓶有效期</div>
             </div>
             </div>
             <div class="tbody">
@@ -41,8 +39,6 @@
                 <div class="td">{{item.n}}</div>
                 <div class="td">{{item.on}}</div>
                 <div class="td">{{item.tn}}</div>
-                <div class="td">{{item.f}}</div>
-                <div class="td">{{item.l}}</div>
             </div>
             <div class="no-data" v-if="tableData.length==0">
                 <img src="@/assets/img/wu.png" alt />
@@ -52,8 +48,8 @@
           </div>
         </div>
         <drawerAddWine
-        :showDrawer="showDrawer"
-        @showDrawerHandle="showDrawerHandle"
+        :showDrawer="showCatDrawer"
+        @showDrawerHandle="showCatDrawerHandle"
         @getTableData="getTableData"
         />
         <drawerPassTime
@@ -89,12 +85,12 @@
       };
     },
     methods: {
-      async getCatTableData() {
-  
-      },
       async getTableData() {
+        console.log(this.$route.query.menuId)
         try {
-          const res = await this.$api.BMS.saveWine.reqGetWineList();
+          const res = await this.$api.BMS.saveWine.reqGetWineList({
+            wine_cate_id: this.$route.query.menuId * 1 || 0,
+          });
           if (res.code == 1) {
             this.tableData = (res.data.records || []).map(item => ({
               ...item,
@@ -127,10 +123,6 @@
       showCatDrawerHandle() {
         this.showCatDrawer = !this.showCatDrawer;
       },
-      showDrawerHandle() {
-        this.showDrawer = !this.showDrawer;
-      },
-  
       showDrawerOfPassTime(){
         if(!this.showPassTimeDrawer && this.ids.length == 0) return this.$message.warning('请选择商品')
         this.showPassTimeDrawer = !this.showPassTimeDrawer
@@ -157,7 +149,7 @@
       }
     },
     created() {
-      this.getCatTableData()
+      this.getTableData()
     },
     components: {
       IconButton,
@@ -169,7 +161,14 @@
       ids(){
         return this.tableData.filter(item => item.checked).map(item => item.id * 1)
       }
+    },
+    watch: {
+    '$route': {
+      handler() {
+        this.getTableData()
+      }
     }
+  }
   };
   </script>
   

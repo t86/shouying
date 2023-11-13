@@ -93,7 +93,7 @@
     </div>
     <!-- 菜单对应内容 -->
     <div class="nav-content">
-        <wineCat v-if="menuIndex == 0" @getMenuList="getMenuList" />
+        <wineCat v-if="menuIndex == 0" @getMenuList="getMenuList"/>
         <saveWine v-if="menuIndex == 1" :menuList="menuList" @getMenuList="getMenuList"/>
         <!-- 新增或编辑 -->
         <!-- <addOrUpdateCard v-model="showDrawer" type="2" :menuList="menuList" :currentInfo="{id: cardId}" search="true" @getTableData="initSearchValHandle" /> -->

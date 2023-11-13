@@ -5,31 +5,27 @@
         <!-- 头部筛选项 -->
         <div class="select-top" layout="Column" layout-align="start center">
           <div class="item" layout="row" layout-align="start center">
-            <div class="label">存酒分类名称：</div>
-            <el-input
-              v-model="searchFormData.keyword"
-              style="width: 250px"
-              size="small"
-              placeholder="请输入存酒分类名称(1-10个字)"
-            ></el-input>
+            <div class="label">
+              <span class="red">*</span>
+              <span>存酒分类名称：</span>
+            </div>
+            <el-input v-model="name" style="width: 250px" size="small" placeholder="请输入存酒分类名称(1-10个字)"></el-input>
           </div>
           <div class="item" layout="row" layout-align="start center">
-            <div class="label">整瓶有效期：</div>
-            <el-input
-              v-model="searchFormData.keyword"
-              style="width: 250px"
-              size="small"
-              placeholder="请输入数字"
-            ></el-input>
+            <div class="label">
+              <span class="red">*</span>
+              <span>整瓶有效期：</span>
+            </div>
+            <el-input v-model="full_expired_day" style="width: 250px" size="small" placeholder="请输入数字"></el-input>
+            <span>天</span>
           </div>
           <div class="item" layout="row" layout-align="start center">
-            <div class="label">散瓶有效期：</div>
-            <el-input
-              v-model="searchFormData.keyword"
-              style="width: 250px"
-              size="small"
-              placeholder="请输入数字"
-            ></el-input>
+            <div class="label">
+              <span class="red">*</span>
+              <span>散瓶有效期：</span>
+            </div>
+            <el-input v-model="loose_expired_day" style="width: 250px" size="small" placeholder="请输入数字"></el-input>
+            <span>天</span>
           </div>
         </div>
       </div>
@@ -48,102 +44,55 @@ export default {
     return {
       show: false,
       // 筛选条件
-      searchFormData: {
-        valueArr: [0, 0],
-        options: [],
-        keyword: ""
-      },
-      tableData: [],
-      checked: false
+      name: "",
+      full_expired_day: "",
+      loose_expired_day: "",
     };
   },
   methods: {
-    // 获取表格数据
-    async getTableData(init = 2) {
-      const params = {
-        name: this.searchFormData.keyword, //  string   搜索关键字
-        page_num: 1, // int
-        page_size: 100000, //  int
-        is_init: init == 1 ? 1 : 2, //    int
-        one_cate_id: this.searchFormData.valueArr[0] * 1, // int64
-        two_cate_id: this.searchFormData.valueArr[1] * 1 // int64
-      };
-
-      try {
-        const res = await this.$api.BMS.saveWine.reqGetAllWineLine(params);
-        if (res.code == 1) {
-          if (init == 1) {
-            const options = res.data.cates || [];
-            options.forEach(el => {
-              el.value = el.id;
-              el.label = el.n;
-              el.children =
-                el.ss && el.ss.length > 0
-                  ? JSON.parse(JSON.stringify(el.ss))
-                  : [];
-
-              el.children.forEach(ele => {
-                ele.value = ele.id;
-                ele.label = ele.n;
-              });
-            });
-
-            this.searchFormData.options = [...options];
-          }
-          this.tableData = (res.data.items || []).map(item => ({
-            ...item,
-            checked: false
-          }));
-          this.checked = false;
-        }
-      } catch (error) {
-        console.log("获取商品列表失败", error);
+    validator() {
+      if (this.name == "") {
+        this.$message.warning("请输入存酒分类名称")
+        return false
+      } else if (this.$overall.character(this.name) > 10) {
+        this.$message.warning("存酒分类长度超过10")
+        return false
+      } else if (this.full_expired_day == "" || this.loose_expired_day == "") {
+        this.$message.warning("请输入有效期")
+        return false
+      } else if (isNaN(this.full_expired_day) || isNaN(this.loose_expired_day)) {
+        this.$message.warning("有效期为数字")
+        return false
       }
-    },
-    // 改变多选框的值
-    changeCheckboxHandle(type) {
-      switch (type) {
-        case "all":
-          this.tableData.forEach(el => {
-            if (!el.disabled) el.checked = this.checked;
-          });
-          break;
-        case "item":
-          this.checked = this.tableData
-            .filter(item => !item.disabled)
-            .every(item => item.checked);
-          break;
-      }
-      this.$forceUpdate();
+      return true
     },
 
     // 重置
     restSearchData() {
-      this.searchFormData.valueArr = [0, 0];
-      this.searchFormData.keyword = "";
-      this.getTableData(1);
+      console.log(this.currentInfo,'??')
+      this.name = this.status==2 ? this.currentInfo.n: "";
+      this.full_expired_day = this.status==2 ? this.currentInfo.f: "";
+      this.loose_expired_day =this.status==2 ? this.currentInfo.l: "";
     },
     async submitHandle() {
+      if (!this.validator()) return
       const params = {
-        prd_ids: this.tableData
-          .filter(item => item.checked)
-          .map(item => item.id * 1) //   []int64   待添加商品列表
+        name: this.name,
+        full_expired_day: Number(this.full_expired_day),
+        loose_expired_day: Number(this.loose_expired_day),
       };
-
-      if (params.prd_ids.length <= 0)
-        return this.$message.warning("请选择需要添加的商品");
-
       try {
-        const res =  await this.$api.BMS.saveWine.reqAddWine(params);
-        if(res.code == 1) {
+        const res = await this.$api.BMS.saveWine.reqNewWineCate(params);
+        if (res.code == 1) {
           this.$message.success('添加成功')
           this.closeDrawerHandle();
           this.$emit("getTableData");
+          this.$emit('getMenuList');
         } else {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log("添加商品失败", error);
+        console.log("添加失败", error);
       }
     },
     // 关闭drawer
@@ -157,6 +106,9 @@ export default {
     },
     status: {
       default: 1 // 新增存酒分类   编辑存酒分类
+    },
+    currentInfo: {
+      default: {}
     }
   },
   computed: {
@@ -192,9 +144,14 @@ export default {
 </style>
 
 <style lang='less' scoped>
+.red {
+  color: #D9001B;
+}
+
 .label {
   width: 120px;
 }
+
 .el-icon-arrow-right:before {
   color: #606266;
 }
@@ -213,7 +170,7 @@ export default {
   overflow: auto;
 }
 
-/deep/.el-dialog__footer{
+/deep/.el-dialog__footer {
   text-align: center;
 }
 </style>
