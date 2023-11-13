@@ -202,6 +202,7 @@ export default {
         .filter(el => el.grpId == 1)
         .sort((a, b) => a.seqId - b.seqId);
 
+      this.groupCanSelectArr = JSON.parse(JSON.stringify(this.groupCanSelectArr))
       this.groupCanSelectArr.forEach(el => {
         el.productInfo = common_order.getProductInfoFromGroup(el.dtlPrdId);
         el.requireText = "";

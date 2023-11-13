@@ -105,7 +105,7 @@ export const cardPageMixins = {
     windowResizeHandle() {
       this.getTabShowCount();
       this.getTabList(
-        this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]
+        JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]))
       );
       // 此延时器为了解决苹果iPad中，竖向使用时，scrollTop达到最大，突然转到横向，横向无法滚动到超出自己最大的scrollTop位置的问题，而出现白屏问题
       setTimeout(() => {

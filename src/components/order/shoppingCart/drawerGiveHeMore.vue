@@ -509,7 +509,7 @@ export default {
       );
 
       // 排序
-      const groupCanSelectArr = groupDetailArr
+      const groupCanSelectArr = JSON.parse(JSON.stringify(groupDetailArr))
         .filter(el => el.grpId != 1)
         .sort((a, b) => a.seqId - b.seqId);
 

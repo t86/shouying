@@ -829,17 +829,17 @@ export default {
         cardListInfoArr = JSON.parse(JSON.stringify(cardList)); // 首次更改，为了给获取自己及下属员工卡台提供数据
       }
 
-      await this.getTabList(resResultDataObj["areaInfo"]);
+      await this.getTabList(JSON.parse(JSON.stringify(resResultDataObj["areaInfo"])));
 
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (
         this.$store.state.userInfo.roleIds.includes(2) ||
         this.$store.state.userInfo.roleIds.includes(4)
       ) {
-        cardListInfoArr = cardList.filter(
+        cardListInfoArr = JSON.parse(JSON.stringify(cardList.filter(
           (item) =>
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
-        );
+        )));
       }
 
       try {
