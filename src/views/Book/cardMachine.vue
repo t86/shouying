@@ -986,7 +986,7 @@ export default {
           return;
 
         // 日期tab
-        this.getTimeTabData(resResultDataObj["canDoList"]);
+        this.getTimeTabData(JSON.parse(JSON.stringify(resResultDataObj["canDoList"])));
         await this.getCardList(
           resResultDataObj["cardInfo"],
           resResultDataObj["businessData"]

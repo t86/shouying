@@ -2,19 +2,27 @@
   <!-- 待充公 -->
   <div class="to-store">
     <div class="top" layout="row" layout-align="start center">
-      <div class="label fs14">存酒日期：</div>
+      <div class="label fs14">待充公日期：</div>
       <div class="value m-r-2">
         <el-date-picker
-          style="width: 260px"
-          v-model="dateVal"
-          type="daterange"
-          :clearable="false"
-          size="small"
-          value-format="yyyy-MM-dd"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+            style="width:140px"
+            v-model="start_cg_day"
+            type="date"
+            :clearable="false"
+            size="small"
+            value-format="yyyy-MM-dd"
+            placeholder="开始日期"
+          ></el-date-picker>
+          <span>至</span>
+          <el-date-picker
+            style="width:140px"
+            v-model="end_cg_day"
+            type="date"
+            :clearable="false"
+            size="small"
+            value-format="yyyy-MM-dd"
+            placeholder="结束日期"
+          ></el-date-picker>
       </div>
       <el-input
         v-model="keyword"
@@ -52,7 +60,7 @@
             <div class="th">充公操作人</div>
             <div class="th">卡台</div>
             <div class="th">订台人</div>
-            <div class="th">充公时间</div>
+            <div class="th">待充公时间</div>
             <div class="th">操作</div>
           </div>
         </div>
@@ -137,7 +145,8 @@ export default {
     return {
       ids: [], // 选中的id列表
       keyword: "",
-      dateVal: [],
+      start_cg_day: "", // 充公开始日期
+      end_cg_day: "", // 充公结束日期
       checkAll: false,
       tableData: [],
       showEditDrawer: false,
@@ -147,8 +156,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        start_cg_day: this.dateVal[0], // string   开始充公日期
-        end_cg_day: this.dateVal[1], // string    结束充公日期
+        start_cg_day: this.start_cg_day, //  string  开始日期,格式 yyyy-mm-dd
+        end_cg_day: this.end_cg_day, // string  结束日期,格式 yyyy-mm-dd
         key: this.keyword || "", //  string  搜索关键字
       };
 
@@ -240,7 +249,8 @@ export default {
       const month = (date.getMonth() + 1).toString().padStart(2, 0);
       const day = date.getDate().toString().padStart(2, 0);
       const now = year + "-" + month + "-" + day;
-      this.dateVal = [now, now];
+      this.start_cg_day = now;
+      this.end_cg_day = now;
       this.keyword = "";
       this.checkAll = false;
       this.getTableData();

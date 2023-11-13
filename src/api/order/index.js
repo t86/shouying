@@ -174,4 +174,9 @@ export default {
   // 点单读取特饮/小费记录
   reqGetYHListByord: (params) =>
   axios.post(`${base.htgl}/sel/rpt/get_hl_list_byord`, params),
+
+  // 取消优惠 
+  reqCancelDiscount: (params) =>
+    axios.post(`${base.htgl}/sel/cancel_yh`, params),
+
 };

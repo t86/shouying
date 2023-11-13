@@ -35,6 +35,9 @@ import tool from "./utils/tool"; // 导入全局方法
 import areaMenu from "@/components/bms/cardConfig/areaNav/areaNav.vue";
 Vue.component("areaMenu", areaMenu);
 
+import wineMenu from "@/components/bms/wineInfo/wineNav/wineNav.vue";
+Vue.component("wineMenu", wineMenu);
+
 import requireMenu from "@/components/bms/requireConfig/requireMenu.vue";
 Vue.component("requireMenu", requireMenu);
 

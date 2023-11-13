@@ -15,13 +15,22 @@ export default {
   reqManySureToLib: (params) =>
     axios.post(`${base.htgl}/wine/confirm_cj_bef_in`, params),
 
-  //  授权确认待入库单 // do
+  //  授权确认待入库单 // do 废弃
   reqAuthSureToLib: (params) =>
     axios.post(`${base.htgl}/wine/confirm_auth_cj_bef_in`, params),
 
-  //  授权确认待入库单 新 // do
+  //  授权确认待入库单 新 // do 废弃
   reqAuthSureToLibNew: (params) =>
-  axios.post(`${base.htgl}/wine/confirm_auth_cj_bef_in2`, params),
+    axios.post(`${base.htgl}/wine/confirm_auth_cj_bef_in2`, params),
+
+  //仓库修改存酒入库单
+  reqChgCjBefIn: (params) =>
+    axios.post(`${base.htgl}/wine/chg_cj_bef_in`, params),
+
+  //读取待修改订位人
+  reqGetChgSalesEmpList: (params) =>
+    axios.post(`${base.htgl}/wine/get_chg_sales_emp_list  `, params),
+
 
   // 读取存酒待入库列表 // do
   reqGetSaveNeedToLib: (params) =>

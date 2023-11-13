@@ -102,6 +102,10 @@ export default {
           {
             id: 3,
             name: "按区域分组"
+          },
+          {
+            id: 4,
+            name: "按直属部门分组"
           }
        ]
      },
@@ -123,7 +127,7 @@ export default {
     // 获取数据
     async getTableData() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组
+        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组 4 直属部门分组
       };
       try {
         const res = await api_money.reqGetKpiReportInfo(params);

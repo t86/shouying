@@ -181,9 +181,6 @@ export default {
           FWYSecondCategoryPrdList.push(...newList);
         });
 
-        // 添加设置的特饮和消费
-        // 
-
         FWYAreaPrdList.forEach((el) => {
           const find = FWYSecondCategoryPrdList.find(
             (item) => item.id == el.id
@@ -191,6 +188,10 @@ export default {
           if (find) FWYAllProductList.push({...find});
         });
       }
+      // 去掉元数据42中所有服务员的不可点商品
+      let noOrderPrdList = this.$store.state.cardPageInfo.resResultDataObj["orderPrdList"]
+      .filter(item => item.station_id == authStationId && item.status == 1).map(item => item.prd_id)
+      FWYAllProductList = FWYAllProductList.filter(item => !noOrderPrdList.includes(item.id))
 
       /**
        * 营销

@@ -7,37 +7,28 @@
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
               :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 1}">近7天</span>
+              alt />
+            <span :class="{ active: activeTime == 1 }">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
               :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 2}">近30天</span>
+              alt />
+            <span :class="{ active: activeTime == 2 }">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
               :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 3}">近90天</span>
+              alt />
+            <span :class="{ active: activeTime == 3 }">近90天</span>
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="start_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
 
       </div>
@@ -62,21 +53,15 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item) in tableData"
-            :key="item.id"
-          >
-            <div class="td">{{item.t}}</div>
-            <div class="td">{{item.id}}</div>
-            <div class="td">{{item.m}}</div>
-            <div class="td">{{item.n}}</div>
-            <div class="td">{{item.c}}</div>
-            <div class="td">{{item.o}}</div>
+          <div class="tr" layout="row" layout-align="space-between center" v-for="(item) in tableData" :key="item.id">
+            <div class="td">{{ item.t }}</div>
+            <div class="td">{{ item.id }}</div>
+            <div class="td">{{ item.m }}</div>
+            <div class="td">{{ item.n }}</div>
+            <div class="td">{{ item.c }}</div>
+            <div class="td">{{ item.o }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
@@ -92,7 +77,8 @@ export default {
     return {
       keyword: '', // 物料搜索关键字
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      start_day: "",
+      end_day: "",
       checkAll: false,
       tableData: [],
     };
@@ -100,8 +86,8 @@ export default {
   methods: {
     async getTableData() {
       const params = {
-        start_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        start_day: this.start_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         mat_key: this.keyword  // string   物料模糊查询关键字
       };
 
@@ -117,10 +103,10 @@ export default {
       }
     },
 
-    async exportExcelHandle(){
+    async exportExcelHandle() {
       const params = {
-        start_day: this.dateVal[0], //  string   查询开始日期
-        end_day: this.dateVal[1], //    string   查询结束日期
+        start_day: this.start_day, //  string   查询开始日期
+        end_day: this.end_day, //    string   查询结束日期
         mat_key: this.keyword  // string   物料模糊查询关键字
       };
       try {
@@ -168,7 +154,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.start_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 
@@ -189,11 +176,13 @@ export default {
 <style scoped lang="less">
 .empty-out-lib {
   padding: 20px;
+
   .top {
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -207,6 +196,7 @@ export default {
       }
     }
   }
+
   .table {
     .tbody {
       height: calc(100vh - 250px);
@@ -221,10 +211,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

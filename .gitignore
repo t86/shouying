@@ -3,3 +3,4 @@ dist
 node_modules
 .svn
 .idea
+.history/

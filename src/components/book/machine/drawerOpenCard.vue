@@ -13,7 +13,7 @@
           <div class="search-item m-r-4" layout="row" layout-align="start center">
           <span>排序：</span>
           <mySelect
-            style="width:150px;height:30px;line-height:30px"
+            style="width:140px;height:30px;line-height:30px"
             :value="typeName"
             :optionsList="typeList"
             @selectOptionItem="setSelectValHandle"
@@ -21,7 +21,16 @@
             @getOption="getOptionHandle"
           />
         </div>
-        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/订位人/客户姓名/电话" />
+        <el-cascader
+            style="width:150px"
+            v-model="selDepValue"
+            :options="depTree"
+            collapse-tags
+            :props="{checkStrictly: true}"
+            size="mini"
+            clearable
+          ></el-cascader>
+        <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/台位/订位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
         <button class="reset" @click="resetSearchVal">重置</button>
         </div>
@@ -103,11 +112,12 @@
 <script>
 import api_book from "@/api/Book";
 import mySelect from "@/components/book/select";
+import { cloneDeep } from "lodash-es";
 
 let originSelectOption = [];
 let originPersonList = [];  // 原始的所有有效订位人id
 export default {
-  data() {
+  data () {
     return {
       show: false,
       loadTime: '',
@@ -132,18 +142,20 @@ export default {
       personVal: [-1, -1],
       personOptions: [],
       tableData: [],
-      keyword: ''
+      keyword: '',
+      selDepValue: ['0'],
+      depTree: []
     };
   },
   methods: {
-    format(number) {
-      if(number == 0) return number.toString();
+    format (number) {
+      if (number == 0) return number.toString();
       number = number.toString();
 
-      let decimalIndex = number.length - 2; 
+      let decimalIndex = number.length - 2;
       return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
     },
-    getReloadTime(){
+    getReloadTime () {
       const date = new Date();
       const Y = date.getFullYear();
       const M = (date.getMonth() + 1).toString().padStart(2, 0);
@@ -154,14 +166,15 @@ export default {
       this.loadTime = `${Y}-${M}-${D} ${hour}:${minute}:${second}`
     },
 
-    async getSelectOption(){
+    async getSelectOption () {
       this.typeList = [...this.typeOriginList]
     },
 
-    async getTableData() {
+    async getTableData () {
       this.getReloadTime();
       const params = {
         key: this.keyword,//Key 模糊查询关键字,卡台标记,订位人,客人电话,客人姓名
+        dept_id: (this.selDepValue[0] || '0') * 1,
         type_id: this.typeOriginList.find(item => item.name == this.typeName).id  //typeId 1 按开台时间排序   2 按部门员工排序  3 按区域排序}
       }
       try {
@@ -173,17 +186,17 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        
+
       }
     },
 
-    resetSearchVal() {
+    resetSearchVal () {
       this.selectVal = "全部";
       this.personVal = [-1, -1];
       this.getTableData();
     },
 
-    async exportExcelHandle(){
+    async exportExcelHandle () {
       const params = {
         key: this.key, //
         type_id: this.typeOriginList.find(item => item.name == this.typeName).id
@@ -213,38 +226,66 @@ export default {
       }
     },
 
-    closeDrawerHandle() {
+    closeDrawerHandle () {
       this.$emit("showOrHideDrawer", false);
     },
 
-    onCancelDrawer() {
+    onCancelDrawer () {
       this.closeDrawerHandle();
     },
 
+    getDepTree () {
+
+      let departmentList = cloneDeep([{id: '0', name:'不限', parentId: 0 }, ...this.$store.state.cardPageInfo.resResultDataObj.departmentInfo]);
+      this.depTree = this.listToTree(departmentList); // list为原始列表数据
+    },
+
+    listToTree (newList) {
+      const map = {};
+      let node = [];
+      for (let i = 0; i < newList.length; i++) {
+        map[newList[i].id] = i; 
+      }
+
+      for (let i = 0; i < newList.length; i++) {
+        const cur = {...newList[i], label: newList[i].name, value: newList[i].id};
+        if (cur.parentId * 1 == 0) {
+          node.push(cur);
+        } else {
+          if (newList[map[cur.parentId]] && !newList[map[cur.parentId]].children) {
+            newList[map[cur.parentId]].children = [];
+          }
+          newList[map[cur.parentId]].children.push(cur);
+        }
+      }
+
+      return node;
+    },
+
     // 生成部门-员工option
-    getPersonSelectOption(personList = []){
+    getPersonSelectOption (personList = []) {
       const personOption = [{
+        value: -1,
+        label: '全部',
+        namePy: 'qb',
+        children: [{
           value: -1,
+          code: -1,
           label: '全部',
-          namePy: 'qb',
-          children: [{
-              value: -1,
-              code: -1,
-              label: '全部',
-              namePy: 'qb'
-            }]
-        }];
-      if(personList.includes(0)){
+          namePy: 'qb'
+        }]
+      }];
+      if (personList.includes(0)) {
         personOption.push({
           value: 0,
           label: '散客',
           namePy: 'sk',
           children: [{
-              value: 0,
-              code: 0,
-              label: '散客',
-              namePy: 'sk'
-            }]
+            value: 0,
+            code: 0,
+            label: '散客',
+            namePy: 'sk'
+          }]
         })
       }
       const personListResult = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(item => personList.includes(item.id * 1));
@@ -252,7 +293,7 @@ export default {
       const departmentListResult = []  // 有效部门列表
       personListResult.forEach(el => {
         const department = this.$store.state.cardPageInfo.resResultDataObj.departmentInfo.find(item => item.id == el.deptId)
-        if(department && !departmentListResult.find(item => item.id == department.id)) departmentListResult.push(department)
+        if (department && !departmentListResult.find(item => item.id == department.id)) departmentListResult.push(department)
       });
 
       // 给部门添加有效员工
@@ -270,18 +311,18 @@ export default {
       this.personOptions = [...personOption, ...departmentListResult]
     },
 
-    initSelectOption(areaIdList = []) {
+    initSelectOption (areaIdList = []) {
       const areaList = this.$store.state.cardPageInfo.resResultDataObj.areaInfo.filter(item => areaIdList.includes(item.id * 1));
-      if(!areaList.find(item => item.id === 0)) areaList.unshift({ id: 0, name: "全部" });
+      if (!areaList.find(item => item.id === 0)) areaList.unshift({ id: 0, name: "全部" });
       originSelectOption = [...areaList];
     },
-    setSelectValHandle(info) {
+    setSelectValHandle (info) {
       this.typeName = info.name;
     },
-    selectBlurHandle() {
+    selectBlurHandle () {
       this.typeList = [];
     },
-    getOptionHandle() {
+    getOptionHandle () {
       this.typeList = [...this.typeOriginList];
     }
   },
@@ -294,10 +335,11 @@ export default {
     mySelect
   },
   watch: {
-    showDrawer(newVal) {
+    showDrawer (newVal) {
       this.show = newVal;
       if (newVal) {
         this.getSelectOption();
+        this.getDepTree();
         this.resetSearchVal();
       };
     }
@@ -314,7 +356,6 @@ export default {
 </style>
 
 <style scoped lang="less">
-
 /deep/.select-com {
   font-size: 14px;
 }
@@ -325,22 +366,22 @@ export default {
 </style>
 
 <style>
-
-.el-cascader__dropdown{
-  background-color: #202C4A;
-  color: rgba(255, 255, 255, .8);
+.el-cascader__dropdown {
+  background-color: #202c4a;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.el-cascader-node{
-  color: rgba(255, 255, 255, .8);
+.el-cascader-node {
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
 }
 
-.el-cascader-node:not(.is-disabled):focus, .el-cascader-node:not(.is-disabled):hover{
+.el-cascader-node:not(.is-disabled):focus,
+.el-cascader-node:not(.is-disabled):hover {
   background-color: rgba(90, 90, 90, 0.5);
 }
 
-.el-cascader-panel{
+.el-cascader-panel {
   border: none;
 }
 </style>

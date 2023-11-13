@@ -5,9 +5,11 @@
             <div class="item m-b-2" layout="row" layout-align="start center">
                 <div class="label fs14">存酒日期：</div>
                 <div class="value">
-                    <el-date-picker style="width: 260px" v-model="dateVal" type="daterange" :clearable="false" size="small"
-                        value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期"
-                        end-placeholder="结束日期"></el-date-picker>
+                    <el-date-picker style="width:140px" v-model="start_bef_in_day" type="date" :clearable="false"
+                        size="small" value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+                    <span>至</span>
+                    <el-date-picker style="width:140px" v-model="end_bef_in_day" type="date" :clearable="false" size="small"
+                        value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
                 </div>
             </div>
             <el-input v-model="keyword" style="width: 360px" class="m-r-2" size="small"
@@ -37,8 +39,7 @@
                     </div>
                 </div>
                 <div class="tbody">
-                    <div class="tr" layout="row" layout-align="space-between center" 
-                    v-for="(item,index) in tableData"
+                    <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in tableData"
                         :key="item.id">
                         <div class="td" layout="row" layout-align="start center">
                             <span>{{ index + 1 }}</span>
@@ -74,7 +75,8 @@ import api_wine from "@/api/wine";
 export default {
     data() {
         return {
-            dateVal: ["", ""], // 存酒日期
+            start_bef_in_day: "", // 存酒开始日期
+            end_bef_in_day: "", // 存酒结束日期
             keyword: "",
             tableData: [],
         };
@@ -82,8 +84,8 @@ export default {
     methods: {
         async getTableData() {
             const params = {
-                start_bef_in_day: this.dateVal[0], //  string  开始日期,格式 yyyy-mm-dd
-                end_bef_in_day: this.dateVal[1], // string  结束日期,格式 yyyy-mm-dd
+                start_bef_in_day: this.start_bef_in_day, //  string  开始日期,格式 yyyy-mm-dd
+                end_bef_in_day: this.end_bef_in_day, // string  结束日期,格式 yyyy-mm-dd
                 key: this.keyword || "", //  string     //Key 搜索关键字
             };
 
@@ -123,7 +125,8 @@ export default {
             const month = (date.getMonth() + 1).toString().padStart(2, 0);
             const day = date.getDate().toString().padStart(2, 0);
             const now = year + "-" + month + "-" + day;
-            this.dateVal = [now, now];
+            this.start_bef_in_day = now;
+            this.end_bef_in_day = now;
             this.keyword = "";
             this.getTableData();
         },
@@ -153,26 +156,28 @@ export default {
                 overflow-y: auto;
             }
 
-            .th,.td{
+            .th,
+            .td {
 
-                &:nth-child(1){
+                &:nth-child(1) {
                     width: 30%;
                 }
+
                 &:nth-child(3),
                 &:nth-child(4),
-                &:nth-child(5){
+                &:nth-child(5) {
                     width: 30%;
                 }
+
                 &:nth-child(6),
-                &:nth-child(7)
-                {
+                &:nth-child(7) {
                     max-width: 88px;
                 }
-                &:nth-child(8)
-                {
+
+                &:nth-child(8) {
                     min-width: 150px;
                 }
-              
+
             }
         }
     }

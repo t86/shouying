@@ -8,7 +8,11 @@
       direction="rtl"
       size="720px"
     >
-      <div class="session p-5 erp-lib-detail fs14">
+      <div class="session p-5 erp-lib-detail fs14 tab">
+        <div class="item item-left" :class="{isActive: isCanOrder}" @click.stop="onChangeTab(1)">配置可点分类</div>
+        <div class="item item-right" :class="{isActive: !isCanOrder}" @click.stop="onChangeTab(2)">配置不可点分类</div>
+      </div>
+      <div class="session p-5 erp-lib-detail fs14" v-if="isCanOrder">
         <p class="red-color">
           说明：勾选“全部”后，如果有新增分类，该新增的分类默认选中
         </p>
@@ -41,6 +45,61 @@
           </div>
         </div>
       </div>
+      
+      <div class="session p-5 erp-lib-detail fs14" v-if="!isCanOrder">
+        <div class="coll p-b-3 border-bottom">
+          <div class="value m-t-3 m-l-8">
+            <el-button type="primary" size="small" @click.native="showAddPrdDrawer = true">新增商品</el-button>
+            <el-button type="primary" size="small" @click.native="deleteHandle">批量删除</el-button>
+          </div>
+        </div>
+        <div class="table-content m-t-3">
+          <div class="table">
+            <div class="thead">
+              <div class="tr" layout="row" layout-align="space-between center">
+                <div class="th">
+                  <el-checkbox
+                    v-model="checkAll"
+                    :indeterminate="isIndeterminate"
+                    @change="changeCheckboxHandle('all')"
+                  >全选</el-checkbox>
+                </div>
+                <div class="th">单品</div>
+                <div class="th">分类</div>
+                <div class="th">单价</div>
+              </div>
+            </div>
+            <div class="tbody">
+              <div
+                class="tr"
+                v-for="(item, index) in tableData"
+                :key="item.id"
+                layout="row"
+                layout-align="space-between center"
+              >
+                <div class="td">
+                  <el-checkbox
+                    v-model="item.checked"
+                    @change="changeCheckboxHandle('item')"
+                  >{{index + 1}}</el-checkbox>
+                </div>
+                <div class="td">{{item.n}}</div>
+                <div class="td">{{item.tn}}</div>
+                <div class="td">{{item.p}}</div>
+              </div>
+              <div class="no-data" v-if="tableData.length==0">
+                <img :src="require('@/assets/img/wu.png')" alt />
+                <p>暂无数据</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 添加商品 -->
+      <drawerAddPrd v-model="showAddPrdDrawer" @getChoosedPrdList="getChoosedPrdList" prdType="2" :checkedPrdList="tableData" />
+
+
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -53,13 +112,75 @@
 export default {
   data() {
     return {
+      isCanOrder: true,
       checkAll: false,
       indeterminate: false,
       resetStatus: false,
       waiterCates: [], // 树形结构
+      showAddPrdDrawer: false,
+      tableData: [],
     };
   },
   methods: {
+    getChoosedPrdList(prdList){
+      this.tableData = [...this.tableData, ...prdList].filter((item, index, arr) => arr.findIndex(items => items.id == item.id) == index)
+      this.checkAll = this.tableData.every(item => item.checked)
+    },
+    // 删除
+    async deleteHandle() {
+      const checkedIdList = this.tableData.filter(item => item.checked).map(item => item.id)
+
+      const res = await this.$api.BMS.station.reqDelOrdExclPrd({
+        station_id: this.checkedList.map((item) => item.id * 1)[0],
+        prd_ids: checkedIdList
+      });
+      if (res.code == 1) {
+        this.$message.success("批量删除成功");
+        const tableData = []
+        this.tableData.forEach(el => {
+          if(!checkedIdList.find(item => item == el.id)) tableData.push(el)
+        })
+        this.tableData = [...tableData]
+        this.checkAll = false
+      } else {
+        this.$message.warning(res.msg);
+      }
+    },
+    changeCheckboxHandle(type) {
+      switch (type) {
+        case "all":
+          this.tableData = this.tableData.map(item => ({
+            ...item,
+            checked: this.checkAll
+          }));
+          break;
+        case "item":
+          this.checkAll = this.tableData.every(item => item.checked);
+          break;
+      }
+    },
+    async onChangeTab(type) {
+      if(type === 2){
+        if(this.checkedList.map((item) => item.id * 1).length > 1) {
+          this.$message.warning('不可点商品暂不支持批量设置');
+          return
+        }
+        const res = await this.$api.BMS.station.reqGetOrdExclList({station_id: this.checkedList.map((item) => item.id * 1)[0]})
+        if (res.code == 1) {
+          if (res.data.records && res.data.records.length > 0) {
+            this.tableData = res.data.records.map(item => ({
+              ...item,
+              checked: true
+            }))
+          } else {
+            this.tableData = []
+          }
+        } else {
+          this.$message.warning(res.msg);
+        }
+      }
+      this.isCanOrder = type === 1
+    },
     async getDetail() {
       const params = {
         station_ids: this.checkedList.map((item) => item.id * 1),
@@ -118,52 +239,74 @@ export default {
     },
 
     async onSubmit() {
-      let selCates = [];
-      let unChangeCates = [];
-      let selected = [];
-      let allPrdMode = 2;
-      this.waiterCates.forEach((el) => {
-        (el.subs || []).forEach((ele) => {
-          if (ele.ost == ele.st && ele.st != 2) {
-            unChangeCates.push(ele.id);
+      if(this.isCanOrder) {
+        let selCates = [];
+        let unChangeCates = [];
+        let selected = [];
+        let allPrdMode = 2;
+        this.waiterCates.forEach((el) => {
+          (el.subs || []).forEach((ele) => {
+            if (ele.ost == ele.st && ele.st != 2) {
+              unChangeCates.push(ele.id);
           }
           if (ele.ost != ele.st && ele.st == 1) {
-            selCates.push(ele.id);
+                selCates.push(ele.id);
           }
           if (ele.st != 2) {
-            selected.push(ele.id);
-          }
+                selected.push(ele.id);
+            }
+          });
         });
-      });
 
-      if (this.checkAll) {
-        allPrdMode = 1;
-      } else if (!this.indeterminate && !this.checkAll) {
-        allPrdMode = 2;
-      } else {
-        allPrdMode = 3;
-      }
-
-      const params = {
-        station_ids: this.checkedList.map((item) => item.id * 1),
-        all_prd_mode: allPrdMode,
-        sel_cates: selCates,
-        unchange_cates: unChangeCates,
-      };
-      try {
-        const res = await this.$api.BMS.station.requestStationSaveWaitCates(
-          params
-        );
-        if (res.code == 1) {
-          this.$message.success("操作成功");
-          this.onCancelDrawer();
-          this.$emit("getTableData");
+        if (this.checkAll) {
+          allPrdMode = 1;
+        } else if (!this.indeterminate && !this.checkAll) {
+          allPrdMode = 2;
         } else {
-          this.$message.warning(res.msg);
+          allPrdMode = 3;      }
+
+        const params = {
+          station_ids: this.checkedList.map((item) => item.id * 1),        
+          all_prd_mode: allPrdMode,
+          sel_cates: selCates,        
+          unchange_cates: unChangeCates,
+        };
+        try {
+          const res = await this.$api.BMS.station.requestStationSaveWaitCates(
+          params
+          );
+          if (res.code == 1) {
+            this.$message.success("操作成功");
+            this.onCancelDrawer();
+            this.$emit("getTableData");
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("数据请求失败", error);
         }
-      } catch (error) {
-        console.log("数据请求失败", error);
+      } else {
+        const params = {
+          station_id: this.checkedList.map((item) => item.id * 1)[0],
+          prd_ids: this.tableData.filter(item => item.checked).map(item => item.id)
+        };
+        try {
+          const res = await this.$api.BMS.station.reqAddOrdExclPrd(
+            params
+          );
+          if (res.code == 1) {
+            this.$message.success("操作成功");
+            this.onCancelDrawer();
+            this.$emit("getTableData");
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("数据请求失败", error);
+        }
       }
+      this.isCanOrder = true
+      this.tableData = []
     },
 
     onCancelDrawer() {
@@ -193,10 +336,14 @@ export default {
         this.$emit("input", val);
       },
     },
+    isIndeterminate() {
+      return !this.checkAll && this.tableData.some(item => item.checked);
+    }
   },
 
   components: {
     classifyTree: () => import("./ClassifyTree.vue"),
+    drawerAddPrd: () => import('../../prdGroupConfig/prdGroupCom/drawerAddPrd.vue')
   },
 
   watch: {
@@ -221,6 +368,33 @@ export default {
 </style>
 
 <style lang="less" scoped>
+
+.tab {
+  display: flex;
+  justify-content: start;
+  padding-left: 200px;
+  width: 90%;
+  .item {
+    padding: 10px;
+    border: 1px solid #5c5c5c;
+    background-color: white;
+    align-items: center;
+    text-align: center;
+    &-left {
+      width: 120px;
+      border-radius: 20px 0px 0px 20px;
+
+    }
+    &-right {
+      width: 120px;
+      border-radius: 0px 20px 20px 0px;
+    }
+  }
+
+  .isActive {
+    background-color: #c3c3c3;
+  }
+}
 .coll {
   .label {
     width: 120px;

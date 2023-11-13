@@ -87,7 +87,12 @@
     </div>
 
     <!-- 编辑存酒单 -->
-    <drawerEditSaveInfo v-model="showEditDrawer" :currentSaveInfo="currentSaveInfo" :needWaiterAuth="needWaiterAuth" @getTableData="getTableData" />
+    <drawerEditSaveInfo 
+    v-model="showEditDrawer" 
+    :currentSaveInfo="currentSaveInfo" 
+    :needWaiterAuth="needWaiterAuth" 
+    :isCustomer="false"
+    @getTableData="getTableData" />
 
     <el-dialog
       title="提示"

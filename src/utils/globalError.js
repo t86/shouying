@@ -12,6 +12,10 @@ class GlobalError {
     // 处理 onerror
     window.onerror = (message, source, lineno, colno, error) => {
       this.handleError(error);
+      if(error && error.message && error.message.includes('Loading chunk')) {
+        window.location.reload();
+      }
+ 
     };
 
     // 处理 unhandledrejection

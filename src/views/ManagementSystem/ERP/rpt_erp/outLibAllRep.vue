@@ -1,5 +1,5 @@
 <template>
-<!-- 调拨入库 -->
+  <!-- 调拨入库 -->
   <div class="empty-lib-order">
     <div class="top">
       <div layout="row" layout-align="start center">
@@ -8,42 +8,33 @@
           <li layout="row" layout-align="start center" @click="setDateVal(1)">
             <img
               :src="activeTime == 1 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 1}">近7天</span>
+              alt />
+            <span :class="{ active: activeTime == 1 }">近7天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(2)">
             <img
               :src="activeTime == 2 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 2}">近30天</span>
+              alt />
+            <span :class="{ active: activeTime == 2 }">近30天</span>
           </li>
           <li layout="row" layout-align="start center" @click="setDateVal(3)">
             <img
               :src="activeTime == 3 ? require('@/assets/img/date_label_selete.png') : require('@/assets/img/date_label_grey.png')"
-              alt
-            />
-            <span :class="{active:activeTime == 3}">近90天</span>
+              alt />
+            <span :class="{ active: activeTime == 3 }">近90天</span>
           </li>
         </ul>
         <div class="value m-r-2">
-          <el-date-picker
-            style="width:260px"
-            v-model="dateVal"
-            type="daterange"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+          <el-date-picker style="width:140px" v-model="begin_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <span class="label fs14 m-l-2">入库仓库：</span>
         <el-select v-model="inLibVal" size="small" style="width:120px">
           <el-option label="全部" :value='0'></el-option>
-          <el-option v-for="(item,i) in inLibOption" :key="i" :label="item.n" :value="item.id"></el-option>
+          <el-option v-for="(item, i) in inLibOption" :key="i" :label="item.n" :value="item.id"></el-option>
         </el-select>
         <span class="label fs14 m-l-2">订单类型：</span>
         <el-select v-model="orderVal" size="small" style="width:120px">
@@ -58,12 +49,12 @@
         <span class="label fs14 m-l-2">一级分类：</span>
         <el-select v-model="oneCateVal" size="small" style="width:120px">
           <el-option label="全部" :value='0'></el-option>
-          <el-option v-for="(item,i) in oneCateOption" :key="i" :label="item.n" :value="item.id"></el-option>
+          <el-option v-for="(item, i) in oneCateOption" :key="i" :label="item.n" :value="item.id"></el-option>
         </el-select>
         <span class="label fs14 m-l-2">二级分类：</span>
         <el-select v-model="twoCateVal" size="small" style="width:120px">
           <el-option label="全部" :value='0'></el-option>
-          <el-option v-for="(item,i) in twoCateOption" :key="i" :label="item.n" :value="item.id"></el-option>
+          <el-option v-for="(item, i) in twoCateOption" :key="i" :label="item.n" :value="item.id"></el-option>
         </el-select>
 
         <span class="label fs14 m-l-3">备注：</span>
@@ -92,25 +83,20 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
-            <div class="td">{{index + 1}}</div>
-            <div class="td">{{item.rt}}</div>
-            <div class="td">{{item.osn}}</div>
-            <div class="td">{{item.n}}</div>
-            <div class="td">{{item.moc}}</div>
-            <div class="td">{{item.mtc}}</div>
-            <div class="td">{{item.un}}</div>
-            <div class="td">{{item.oc}}</div>
-            <div class="td">{{item.oa}}</div>
-            <div class="td">{{item.sa}}</div>
+          <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in tableData"
+            :key="item.id">
+            <div class="td">{{ index + 1 }}</div>
+            <div class="td">{{ item.rt }}</div>
+            <div class="td">{{ item.osn }}</div>
+            <div class="td">{{ item.n }}</div>
+            <div class="td">{{ item.moc }}</div>
+            <div class="td">{{ item.mtc }}</div>
+            <div class="td">{{ item.un }}</div>
+            <div class="td">{{ item.oc }}</div>
+            <div class="td">{{ item.oa }}</div>
+            <div class="td">{{ item.sa }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
@@ -125,7 +111,8 @@ export default {
   data() {
     return {
       activeTime: 1, // 1：近7天  2：近30天  3：近3个月
-      dateVal: [],
+      begin_day: "",
+      end_day: "",
       inLibVal: 0,  // 入库仓库
       inLibOption: [], // 出库仓库option
       orderVal: 0,
@@ -140,10 +127,10 @@ export default {
     };
   },
   methods: {
-    async getOptions(){
+    async getOptions() {
       try {
         const res = await this.$api.ERP.rpt_erp.requestrpt_erpparam_items()
-        if(res.code == 1) {
+        if (res.code == 1) {
           this.inLibOption = res.data.stores || []
           this.oneCateOption = res.data.cates || []
         } else {
@@ -155,8 +142,8 @@ export default {
     },
     async getTableData() {
       const params = {
-        begin_day: this.dateVal[0], //  string  入库开始日期 格式  yyyy-mm-dd
-        end_day: this.dateVal[1], //    string  入库结束日期 格式 yyyy-mm-dd
+        begin_day: this.begin_day, //  string  入库开始日期 格式  yyyy-mm-dd
+        end_day: this.end_day, //    string  入库结束日期 格式 yyyy-mm-dd
         out_store_id: this.inLibVal * 1, //   int64   入库仓库 ,0 表示不限制
         record_type: this.orderVal * 1, // int  订单类型 0 代表不限制  1 采购入库  7  其他入库  3 调拨入库
         mat_one_cate_id: this.oneCateVal * 1, // int64  物料一级分类id , 0 代表不限制
@@ -175,11 +162,11 @@ export default {
         console.log("表格数据获取失败", error);
       }
     },
-        
-    async exportExcelHandle(){
+
+    async exportExcelHandle() {
       const params = {
-        begin_day: this.dateVal[0], //  string  入库开始日期 格式  yyyy-mm-dd
-        end_day: this.dateVal[1], //    string  入库结束日期 格式 yyyy-mm-dd
+        begin_day: this.begin_day, //  string  入库开始日期 格式  yyyy-mm-dd
+        end_day: this.end_day, //    string  入库结束日期 格式 yyyy-mm-dd
         out_store_id: this.inLibVal * 1, //   int64   入库仓库 ,0 表示不限制
         record_type: this.orderVal * 1, // int  订单类型 0 代表不限制  1 采购入库  7  其他入库  3 调拨入库
         mat_one_cate_id: this.oneCateVal * 1, // int64  物料一级分类id , 0 代表不限制
@@ -231,7 +218,8 @@ export default {
       const oneDay = +new Date("2023/05/24") - +new Date("2023/05/23");
       const begin = this.getDate(+new Date() - oneDay * dayInfo[activeTime]);
       const end = this.getDate();
-      this.dateVal = [begin, end];
+      this.begin_day = begin;
+      this.end_day = end;
       this.getTableData();
     },
 
@@ -251,7 +239,7 @@ export default {
   watch: {
     oneCateVal(newVal) {
       const oneCateInfo = this.oneCateOption.find(item => item.id == newVal)
-      if(find) {
+      if (find) {
         this.twoCateOption = oneCateInfo.ss || []
       } else {
         this.twoCateOption = []
@@ -268,22 +256,26 @@ export default {
 <style scoped lang="less">
 .empty-lib-order {
   padding: 20px;
+
   .top {
-    .order-status{
+    .order-status {
       li {
         padding: 6px 12px;
         border-radius: 6px;
         margin-right: 6px;
         border: 1px solid transparent;
+
         &.active {
           border: 1px solid #2170ff;
         }
       }
     }
+
     .time-select {
       li {
         cursor: pointer;
         margin-right: 16px;
+
         img {
           width: 12px;
           margin-right: 6px;
@@ -297,12 +289,16 @@ export default {
       }
     }
   }
+
   .table-content {
     width: 100%;
     height: calc(100vh - 220px);
     overflow: auto;
+
     .table {
-      .th,.td {
+
+      .th,
+      .td {
         &:nth-child(1) {
           width: 30%;
         }
@@ -317,10 +313,12 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
 }
+
 .el-range-editor--small .el-range-input {
   background-color: transparent;
 }

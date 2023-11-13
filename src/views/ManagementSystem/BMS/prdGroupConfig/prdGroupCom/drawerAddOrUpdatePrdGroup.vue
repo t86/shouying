@@ -7,6 +7,7 @@
       :before-close="onCancelDrawer"
       direction="rtl"
       size="720px"
+      append-to-body
     >
       <div class="session p-5 fs14">
         <div class="coll p-b-3 border-bottom" layout="row" layout-align="start center">

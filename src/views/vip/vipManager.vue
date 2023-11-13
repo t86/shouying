@@ -5,80 +5,37 @@
     <div class="search m-t-2 m-b-4">
       <div class="row">
         <span class="label">出生月份:</span>
-        <el-date-picker
-          v-model="form.dateVal"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          size="small"
-          value-format="MM-dd"
-          style="width: 230px"
-        ></el-date-picker>
+        <el-date-picker style="width:130px" v-model="form.begin_birth_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+        <span>至</span>
+        <el-date-picker style="width:130px" v-model="form.end_birth_day" type="date" :clearable="false" size="small"
+          value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
       </div>
       <div class="row">
         <span class="label">卡类型:</span>
-        <el-select
-          v-model="form.typeVal"
-          size="small"
-          placeholder="请选择卡类型"
-          style="width: 200px"
-        >
-          <el-option
-            v-for="item in form.typeOption"
-            :key="item.id"
-            :label="item.n"
-            :value="item.id"
-          >
+        <el-select v-model="form.typeVal" size="small" placeholder="请选择卡类型" style="width: 200px">
+          <el-option v-for="item in form.typeOption" :key="item.id" :label="item.n" :value="item.id">
           </el-option>
         </el-select>
       </div>
       <div class="row">
         <span class="label">等&nbsp;&nbsp;&nbsp;&nbsp;级:</span>
-        <el-select
-          v-model="form.deepVal"
-          size="small"
-          placeholder="请选择等级"
-          style="width: 200px"
-        >
-          <el-option
-            v-for="item in form.deepOption"
-            :key="item.id"
-            :label="item.n"
-            :value="item.id"
-          >
+        <el-select v-model="form.deepVal" size="small" placeholder="请选择等级" style="width: 200px">
+          <el-option v-for="item in form.deepOption" :key="item.id" :label="item.n" :value="item.id">
           </el-option>
         </el-select>
       </div>
       <div class="row">
         <span class="label">开卡推荐人:</span>
-        <el-select
-          style="width: 216px"
-          v-model="form.personVal"
-          filterable
-          remote
-          reserve-keyword
-          placeholder="输入员工姓名或工号可查询"
-          :remote-method="remoteMethod"
-          :loading="remoteLoading"
-          size="small"
-        >
-          <el-option
-            v-for="item in personOptions"
-            :key="item.id"
-            :label="item.name + ' (' + item.code + ')'"
-            :value="item.id"
-          ></el-option>
+        <el-select style="width: 216px" v-model="form.personVal" filterable remote reserve-keyword
+          placeholder="输入员工姓名或工号可查询" :remote-method="remoteMethod" :loading="remoteLoading" size="small">
+          <el-option v-for="item in personOptions" :key="item.id" :label="item.name + ' (' + item.code + ')'"
+            :value="item.id"></el-option>
         </el-select>
       </div>
       <div class="row" layout="row" layout-align="start center">
-        <el-input
-          class="m-r-2"
-          v-model="form.keyword"
-          size="small"
-          placeholder="姓名/手机号/会员卡号"
-          style="width: 200px"
-        ></el-input>
+        <el-input class="m-r-2" v-model="form.keyword" size="small" placeholder="姓名/手机号/会员卡号"
+          style="width: 200px"></el-input>
         <button class="btn primary m-l-4" @click="getTableData">查询</button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
         <button class="btn info m-l-4" @click="exportExcel">导出</button>
@@ -86,34 +43,14 @@
     </div>
 
     <div class="top" layout="row" layout-align="start center">
-      <icon-button
-        v-if="hasAddOrEditAuth"
-        @click.native="showOrHideAddVipDrawerHandle"
-        text="新增"
-        img="btn_add.png"
-        bjcolors="#DDE0E9"
-        bcolor="#8c8c8c"
-      ></icon-button>
-      <characters-button
-        v-if="$store.getters.vipAuth"
-        @click.native="showOrHideAddMoneyToVipDrawerHandle"
-        bjcolors="#DDE0E9"
-        bcolor="#8c8c8c"
-        wz="充值"
-      ></characters-button>
-      <characters-button
-        @click.native="showOrHideReadCardDrawerHandle"
-        bjcolors="#DDE0E9"
-        bcolor="#8c8c8c"
-        wz="读取卡信息"
-      ></characters-button>
-      <characters-button
-        v-if="hasAddOrEditAuth"
-        @click.native="showOrHidePayNumSearchDrawerHandle"
-        bjcolors="#DDE0E9"
-        bcolor="#8c8c8c"
-        wz="付款序列号制卡"
-      ></characters-button>
+      <icon-button v-if="hasAddOrEditAuth" @click.native="showOrHideAddVipDrawerHandle" text="新增" img="btn_add.png"
+        bjcolors="#DDE0E9" bcolor="#8c8c8c"></icon-button>
+      <characters-button v-if="$store.getters.vipAuth" @click.native="showOrHideAddMoneyToVipDrawerHandle"
+        bjcolors="#DDE0E9" bcolor="#8c8c8c" wz="充值"></characters-button>
+      <characters-button @click.native="showOrHideReadCardDrawerHandle" bjcolors="#DDE0E9" bcolor="#8c8c8c"
+        wz="读取卡信息"></characters-button>
+      <characters-button v-if="hasAddOrEditAuth" @click.native="showOrHidePayNumSearchDrawerHandle" bjcolors="#DDE0E9"
+        bcolor="#8c8c8c" wz="付款序列号制卡"></characters-button>
     </div>
 
     <!-- table -->
@@ -141,14 +78,8 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            v-for="(item, index) in tableData"
-            :key="index"
-            layout="row"
-            layout-align="space-between center"
-            @click.right.prevent.stop="rightClickHandle($event, item)"
-          >
+          <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row" layout-align="space-between center"
+            @click.right.prevent.stop="rightClickHandle($event, item)">
             <div class="td">{{ index + 1 }}</div>
             <div class="td">{{ item.n }}</div>
             <div class="td" @click.stop="copyText(item.bp)">{{ item.bp }}</div>
@@ -157,10 +88,7 @@
             <div class="td">{{ item.b }}</div>
             <div class="td" layout="row" layout-align="start center">
               <span>{{ item.cn }}</span>
-              <img
-                v-if="item.h == 1"
-                :src="require('@/assets/vip-imgs/vip-manager-icon.png')"
-              />
+              <img v-if="item.h == 1" :src="require('@/assets/vip-imgs/vip-manager-icon.png')" />
             </div>
             <div class="td">{{ item.ct }}</div>
             <div class="td">{{ item.cl }}</div>
@@ -175,25 +103,12 @@
               <span @click="preVipDetail(item)">查看详情</span>
             </div>
 
-            <div
-              class="sj"
-              v-if="item.showTips"
-              :style="{ left: item.pointerX - 20 + 'px' }"
-            ></div>
-            <ul
-              class="tips"
-              v-if="item.showTips"
-              :style="{
-                left: item.pointerX + 65 + 'px',
-                transform: 'translate(-50%,' + item.disY * -1 + 'px)',
-              }"
-            >
-              <li
-                class="item"
-                v-for="items in item.tipsList"
-                :key="items.id"
-                @click="clickOptionHandle(item, items)"
-              >
+            <div class="sj" v-if="item.showTips" :style="{ left: item.pointerX - 20 + 'px' }"></div>
+            <ul class="tips" v-if="item.showTips" :style="{
+              left: item.pointerX + 65 + 'px',
+              transform: 'translate(-50%,' + item.disY * -1 + 'px)',
+            }">
+              <li class="item" v-for="items in item.tipsList" :key="items.id" @click="clickOptionHandle(item, items)">
                 <div>{{ items.name }}</div>
               </li>
             </ul>
@@ -206,71 +121,34 @@
       </div>
     </div>
     <div class="pagination">
-      <el-pagination
-        background
-        layout="prev, pager, next"
-        :total="pageInfo.total"
-        :page-size="pageInfo.pageSize"
-        :current-page="pageInfo.page"
-        @current-change="changePageHandle"
-      >
+      <el-pagination background layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.pageSize"
+        :current-page="pageInfo.page" @current-change="changePageHandle">
       </el-pagination>
     </div>
 
     <!-- 添加会员 -->
-    <drawerAddVip
-      :showDrawer="showAddVipDrawer"
-      :initStep="initStep"
-      :initVipId="currentVipId"
-      @showOrHideDrawer="showOrHideAddVipDrawerHandle"
-      @showOrHideModalHandle="showOrHideModalHandle"
-      @changeInitStep="changeInitStep"
-      @updateVipIdHandle="updateVipIdHandle"
-      @getTableData="getTableData"
-    />
+    <drawerAddVip :showDrawer="showAddVipDrawer" :initStep="initStep" :initVipId="currentVipId"
+      @showOrHideDrawer="showOrHideAddVipDrawerHandle" @showOrHideModalHandle="showOrHideModalHandle"
+      @changeInitStep="changeInitStep" @updateVipIdHandle="updateVipIdHandle" @getTableData="getTableData" />
     <!-- 修改表格中的会员相关option信息操作 -->
-    <drawerOptionEvent
-      :showDrawer="showOptionDrawer"
-      :optionObj="optionObj"
-      @getTableData="getTableData"
-      @showOrHideDrawer="showOrHideOptionDrawerHandle"
-    />
+    <drawerOptionEvent :showDrawer="showOptionDrawer" :optionObj="optionObj" @getTableData="getTableData"
+      @showOrHideDrawer="showOrHideOptionDrawerHandle" />
     <!-- 会员充值 -->
-    <drawerAddMoneyToVip
-      :showDrawer="showAddMoneyToVipDrawer"
-      :currentVipId="currentVipId"
-      @getTableData="getTableData"
-      @showOrHideDrawer="showOrHideAddMoneyToVipDrawerHandle"
-    />
+    <drawerAddMoneyToVip :showDrawer="showAddMoneyToVipDrawer" :currentVipId="currentVipId" @getTableData="getTableData"
+      @showOrHideDrawer="showOrHideAddMoneyToVipDrawerHandle" />
     <!-- 会员卡识别 -->
-    <drawerReadCard
-      :showDrawer="showReadCardDrawer"
-      @showOrHideDrawer="showOrHideReadCardDrawerHandle"
-      @updateVipDetailHandle="preVipDetail"
-    />
+    <drawerReadCard :showDrawer="showReadCardDrawer" @showOrHideDrawer="showOrHideReadCardDrawerHandle"
+      @updateVipDetailHandle="preVipDetail" />
     <!-- 付款序列号搜索制卡 -->
-    <drawerPayNumSearch
-      :showDrawer="showPayNumDrawer"
-      @showOrHideDrawer="showOrHidePayNumSearchDrawerHandle"
-      @updateCurrentVipInfo="updateCurrentVipInfo"
-    />
+    <drawerPayNumSearch :showDrawer="showPayNumDrawer" @showOrHideDrawer="showOrHidePayNumSearchDrawerHandle"
+      @updateCurrentVipInfo="updateCurrentVipInfo" />
     <!-- 会员详情 -->
-    <drawerVipDetail
-      :showDrawer="showVipDetailDrawer"
-      :preVipInfo="preVipInfo"
-      @showOrHideDrawer="showOrHideVipDetailDrawerHandle"
-    />
+    <drawerVipDetail :showDrawer="showVipDetailDrawer" :preVipInfo="preVipInfo"
+      @showOrHideDrawer="showOrHideVipDetailDrawerHandle" />
     <!-- 提示框 -->
-    <modalCom
-      :showModal="modalInfo.showModal"
-      :modalText="modalInfo.modalText"
-      :iconText="modalInfo.iconText"
-      :btnText="modalInfo.btnArr"
-      @showOrHideModal="showOrHideModalHandle"
-      @centerBtnClick="addMoneyToVipCardHandle"
-      @submitBtnClick="modelSubmitHandle"
-      @getData="getTableData"
-    />
+    <modalCom :showModal="modalInfo.showModal" :modalText="modalInfo.modalText" :iconText="modalInfo.iconText"
+      :btnText="modalInfo.btnArr" @showOrHideModal="showOrHideModalHandle" @centerBtnClick="addMoneyToVipCardHandle"
+      @submitBtnClick="modelSubmitHandle" @getData="getTableData" />
   </div>
 </template>
 
@@ -287,12 +165,13 @@ import drawerOptionEvent from "@/components/vip/vipManager/drawerOptionEvent/ind
 import modalCom from "@/components/vip/common/modal.vue";
 
 import tipsArr from "@/components/vip/vipManager/drawerOptionEvent/tipsArr";
-import { copyToClip } from "@/utils/copy" 
+import { copyToClip } from "@/utils/copy"
 export default {
   data() {
     return {
       form: {
-        dateVal: [],
+        begin_birth_day: "",
+        end_birth_day: "",
         typeVal: "",
         typeOption: [],
         deepVal: "",
@@ -333,27 +212,27 @@ export default {
     };
   },
   mounted() {
-    document.onkeydown = this.keyHandle      
+    document.onkeydown = this.keyHandle
   },
-  beforeDestroy () {
+  beforeDestroy() {
     document.onkeydown = null
   },
   methods: {
 
-    keyHandle(e){
-      if(e.keyCode == 13){
+    keyHandle(e) {
+      if (e.keyCode == 13) {
         this.getTableData(true)
       }
     },
     copyText(text) {
-      if(!text) return
-      try{
+      if (!text) return
+      try {
         copyToClip(text);
         this.$message.success('复制成功')
-      }catch{
+      } catch {
         this.$message.success('复制失败')
       }
-      
+
 
     },
     async getTableData(rest = false) {
@@ -362,8 +241,8 @@ export default {
         page_num: this.pageInfo.page, //   int   第几页
         page_size: this.pageInfo.pageSize, //  int     每页行数
         is_init: rest ? 1 : 2, //    int    1 初始化,会返回会员类型及会员等级列表 2 非初始化
-        begin_birth_day: (this.form.dateVal && this.form.dateVal[0]) || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
-        end_birth_day: (this.form.dateVal && this.form.dateVal[1]) || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
+        begin_birth_day: this.form.begin_birth_day || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
+        end_birth_day: this.form.end_birth_day || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
         card_type_id: this.form.typeVal, // int64    卡类型Id
         card_level_id: this.form.deepVal, // int64   卡等级Id
         key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
@@ -389,8 +268,8 @@ export default {
     },
     async exportExcel() {
       const params = {
-        begin_birth_day: (this.form.dateVal && this.form.dateVal[0]) || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
-        end_birth_day: (this.form.dateVal && this.form.dateVal[1]) || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
+        begin_birth_day: this.form.begin_birth_day || "", // string   生日月份与日期(开始),格式 mm-dd 不过滤,传空
+        end_birth_day: this.form.end_birth_day || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
         card_type_id: this.form.typeVal, // int64    卡类型Id
         card_level_id: this.form.deepVal, // int64   卡等级Id
         key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
@@ -429,7 +308,7 @@ export default {
         );
       }
       if (!this.hasAddOrEditAuth) {
-        list = list.filter((item) => ![1,2,3,4,5,6,7,9].includes(item.id));
+        list = list.filter((item) => ![1, 2, 3, 4, 5, 6, 7, 9].includes(item.id));
       }
       return list.filter((item) =>
         type == 1
@@ -456,7 +335,8 @@ export default {
     },
     resetHandle() {
       this.form = {
-        dateVal: [],
+        begin_birth_day: "",
+        end_birth_day: "",
         typeVal: "",
         typeOption: [],
         deepVal: "",
@@ -608,7 +488,7 @@ export default {
       return (
         this.$store.getters.vipAuth ||
         (this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(30))
+          this.$store.state.userInfo.sys_modules.includes(30))
       );
     },
   },
@@ -626,6 +506,7 @@ export default {
 .el-select-dropdown__empty {
   background-color: #bec5d5 !important;
 }
+
 .el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
   background-color: #bec5d5 !important;
 }
@@ -638,6 +519,7 @@ export default {
 .el-date-picker__header-label {
   color: #1a1a21;
 }
+
 .el-date-table th,
 .el-picker-panel__content {
   color: #1a1a21;
@@ -648,6 +530,7 @@ export default {
   color: #1a1a21;
   font-size: 14px;
 }
+
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
   background-color: rgba(90, 90, 90, 0.5) !important;

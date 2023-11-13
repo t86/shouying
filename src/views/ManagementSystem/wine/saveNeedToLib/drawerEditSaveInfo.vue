@@ -13,6 +13,7 @@
         <drawerCardOrder 
           v-model="showCardOrderDrawer" 
           :productInfo="currentSaveInfo"
+          :isFreeEditCard="!isCardBillRelated"
           @onSubmit="onCardOrderSubmit"
         />
         <drawerChgCustomerInfo
@@ -21,6 +22,12 @@
         @showOrHideDrawerHandle="showOrHideChgCustomerInfoHandle"
         @onSubmit="onCustomerInfoSubmit"
         />
+        <drawerChgOrderPerson
+        :showDrawer="showChgOrderPersonDrawer"
+        :item="currentSaveInfo"
+        @showOrHideDrawerHandle="showOrHideChgOrderPersonHandle"
+        @onSubmit="onSaveOrderPersonSubmit"
+        />
         <drawerChgSaveTime
         :showDrawer="showChgSaveTimeDrawer"
         :item="currentSaveInfo"
@@ -28,30 +35,42 @@
         @onSubmit="onSaveTimeSubmit"
         />
         <div class="top grid" layout="row" layout-align="start center">
-            <div class="title">营业日和卡台</div>
+            <div class="title">营业日</div>
             <div
-            >{{ businessDate }}</div>
-            <div
-            >{{ cardName }}</div>
-            <el-button type="primary" @click="changeCardOrder"
+            >{{ isCardBillRelated ? businessDate : '————' }}</div>
+            <el-button v-if="isCardBillRelated" type="primary" @click="changeCardOrder"
             >更改卡台流水</el-button>
+            <el-button type="primary" v-if="isCardBillRelated" @click="changeRelatedBill"
+            >转为非关联卡台流水</el-button>
+            <el-button type="primary" v-else @click="changeRelatedBill"
+            >转为关联卡台流水</el-button>
+            <div v-if="!isCardBillRelated"></div>
 
+            <div class="title">卡台</div>
+            <div>{{ seat.n }}</div>
+            <el-button type="primary" v-if="!isCardBillRelated" @click="changeCardOrder">更改卡台</el-button>
+            <div v-else></div>
+            <div></div>
+
+            <div class="title">订位人</div>
+            <div>{{ employee.n }}</div>
+            <el-button type="primary" v-if="!isCardBillRelated" @click="changeOrderPerson">更改订位人</el-button>
+            <div v-else></div>
+            <div></div>
 
             <div class="title">客人信息</div>
-            <div
-            >{{ custName }}</div>
-            <div
-            >{{ custPhone }}</div>
-            <el-button type="primary" @click="changeCustomerInfo"
+            <div class="name" v-if="isCustomer">{{ custName || ' ' }}</div>
+            <div v-else>{{ custName + "  " + custPhone }}</div>
+            <div class="phone" v-if="isCustomer">{{ custPhone || ' ' }}</div>
+            <el-button type="primary" @click="changeCustomerInfo" v-else
             >更改客人信息</el-button>
-
+            <div></div>
 
             <div class="title">存酒时间</div>
-            <div
-              style="grid-column: 2 / 4;"
-            >{{ saveTime }}</div>
-            <el-button type="primary" @click="changeSaveTime"
-            >更改存酒时间</el-button>
+            <div>{{ saveTime }}</div>
+            <el-button type="primary" @click="changeSaveTime">更改存酒时间</el-button>
+
+
         </div>
         <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
@@ -63,8 +82,7 @@
                 <div class="th">规格</div>
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
-                <div class="th">授权人</div>
-                <div class="th" style="width: 120px">操作</div>
+                <div class="th" style="width: 220px">操作</div>
               </div>
             </div>
             <div class="tbody">
@@ -136,8 +154,12 @@
                     @click="item.c++"
                   ></el-button>
                 </div>
-                <div class="td">{{ item.a }}</div>
-                <div class="td" style="width: 120px">
+                <div class="td" style="width: 220px">
+                  <span
+                    style="color: #2170ff; cursor: pointer"
+                    @click="deleteHandle(item)"
+                    >复制</span
+                  >
                   <span
                     style="color: #2170ff; cursor: pointer"
                     @click="deleteHandle(item)"
@@ -146,6 +168,30 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center" v-if="isCustomer">
+          <div class="label">备注姓名：</div>
+          <div class="value">
+            <el-input
+              type="primary"
+              size="small"
+              style="width: 260px"
+              v-model="remarkName"
+              placeholder="请输入备注姓名"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center" v-if="isCustomer">
+          <div class="label">备注手机号：</div>
+          <div class="value">
+            <el-input
+              type="primary"
+              size="small"
+              style="width: 260px"
+              v-model="remarkPhone"
+              placeholder="请输入备注手机号"
+            ></el-input>
           </div>
         </div>
       </div>
@@ -186,20 +232,26 @@ import authCom from "../commonCom/auth.vue";
 import drawerCardOrder from './saveWineOrder/index.vue'
 import drawerChgCustomerInfo from './drawerChgCustomerInfo.vue'
 import drawerChgSaveTime from './drawerChgSaveTime.vue'
+import drawerChgOrderPerson from "./drawerChgOrderPerson.vue";
 export default {
   data() {
     return {
+      isCardBillRelated: true,
       showCardOrderDrawer: false,
       showChgCustomerInfoDrawer: false,
       showChgSaveTimeDrawer: false,
+      showChgOrderPersonDrawer: false,
       dialogVisible: false,
       tableData: [],
       showAuthDrawer: false,
       saveTime: '',
       custPhone: '',
       custName: '',
+      remarkName: "",
+      remarkPhone: "",
+      employee: {},
       cardOrder: 0,
-      cardName: '',
+      seat: {},
       businessDate: '',
       options: [
         { id: 1, label: "0.1" },
@@ -217,6 +269,9 @@ export default {
     };
   },
   methods: {
+    changeRelatedBill(){
+      this.isCardBillRelated = !this.isCardBillRelated;
+    },
     changeCustomerInfo(){
       this.showChgCustomerInfoDrawer = true;
     },
@@ -226,45 +281,51 @@ export default {
     changeSaveTime(){
       this.showChgSaveTimeDrawer = true;
     },
+    changeOrderPerson(){
+      this.showChgOrderPersonDrawer = true;
+    },
     showOrHideChgCustomerInfoHandle(){
       this.showChgCustomerInfoDrawer = !this.showChgCustomerInfoDrawer;
     },
     showOrHideChgSaveTimeHandle(){
       this.showChgSaveTimeDrawer = !this.showChgSaveTimeDrawer;
     },
+    showOrHideChgOrderPersonHandle(){
+      this.showChgOrderPersonDrawer = !this.showChgOrderPersonDrawer
+    },
     async onSubmit() {
       const { userName, passWord, type } = this.authInfo;
       const params = {
-        auth_emp_code: userName, // string   授权人工号
-        auth_emp_passwd: passWord, //  string   授权人密码
-        pass_type: type, //  int   1 验证 员工号/密码  2 验证卡号/卡数据 为兼容之前的账号密码认证, 当=2的时候验证卡号和卡密, 共用emp_code,password
         bef_in_id: this.currentSaveInfo.o * 1, //  int64      //BefInId 待入库订单Id
+        mode_type: this.isCardBillRelated ? 1: 2,        //ModeType 1 关联流水模式  2  非关联流水模式
         bef_in_dtl_ids: this.tableData.map((item) => item.id * 1), //  []int64   待入库子订单Id
         unit_types: this.tableData.map((item) =>
           item.u == "整瓶" ? "1" : item.u
         ), //  []string   对应子定单修改后的规格
         prd_cnts: this.tableData.map((item) => item.c * 1), //   []int   对应子订单修改后的商品数量
         g_cnts: this.tableData.map((item) => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
-        cust_phone: this.custPhone, // string   客人手机号
-        cust_name: this.custName, // string   客人姓名
-        csm_id: this.cardOrder, // int64 待入库存酒对应的流水
-        store_time: this.saveTime, // string 存酒时间
+        prd_ids:this.tableData.map((item) => item.p), //NewPrdIds 对应子订单修改后的商品Id, 预留(将来可能修改商品)
+        csm_id: this.isCardBillRelated ? this.cardOrder : 0, // int64 待入库存酒对应的流水
+        seat_id: this.isCardBillRelated ? 0 : this.seat.id,     //NewSeatId 卡台Id 关联流水=0, 否则=指定卡台
+        sales_emp_id: this.isCardBillRelated ? 0 : this.employee.id,      //NewSalesEmpId 订位人Id 关联流水=0, 否则=指定定位人,散客=0
+        cust_name: this.remarkName || this.custName,     //NewCustName 可修改 客户中心存酒对应备注客人姓名, 客户存酒对应客户手机号
+        cust_phone: this.remarkPhone || this.custPhone,     //NewCustPhone 可修改 客户中心存酒对应备注客人手机号, 客户存酒对应客户手机号
+        store_time: this.saveTime   //NewStoreTime 存酒时间 注意这边使用格式 yyyy/mm/dd hh24:mi:ss 如果没有修改,则回传返回的存酒时间
       };
       try {
-        const res = await api_wine.reqAuthSureToLibNew(params);
+        const res = await api_wine.reqChgCjBefIn(params);
         if (res.code == 1) {
           this.$message.success("入库成功");
           this.showAuthDrawer = false;
           this.onCancelDrawer();
           this.$emit("getTableData");
+          this.dialogVisible = false;
         } else {
-          if (type == 2) window.loopReadCard();
           this.$message.warning(res.msg);
         }
-        this.dialogVisible = false;
+
       } catch (error) {
-        if (type == 2) window.loopReadCard();
-        console.log("授权修改存酒详情失败", error);
+        console.log("修改存酒详情失败", error);
       }
     },
 
@@ -300,19 +361,27 @@ export default {
     },
     onCardOrderSubmit(data){
       console.log(data);
-      this.cardOrder = data.orderInfo.id;
-      this.cardName = data.cardInfo.n;
-      this.businessDate = data.date;
-      this.showCardOrderDrawer = false;
+      if(this.isCardBillRelated) {
+        this.cardOrder = data.orderInfo.id;
+        this.seat = data.cardInfo;
+        this.businessDate = data.date;
+        this.showCardOrderDrawer = false;
+        this.employee = {n: data.orderInfo.s}
+      } else {
+        this.seat = data.cardInfo;
+        this.showCardOrderDrawer = false;
+      }
     },
     onCustomerInfoSubmit(data){
-      console.log(data);
       this.custPhone = data.phone
       this.custName = data.name
       this.showChgCustomerInfoDrawer = false;
     },
+    onSaveOrderPersonSubmit(data){
+      this.employee = data
+      this.showChgOrderPersonDrawer = false;
+    },
     onSaveTimeSubmit(data){
-      console.log(data);
       this.saveTime = data.time
       this.showChgSaveTimeDrawer = false;
     },
@@ -327,6 +396,9 @@ export default {
     },
     needWaiterAuth: {
       default: true,
+    },
+    isCustomer: {
+      default: false,
     },
   },
   computed: {
@@ -344,8 +416,9 @@ export default {
     authCom,
     drawerCardOrder,
     drawerChgCustomerInfo,
-    drawerChgSaveTime
-  },
+    drawerChgSaveTime,
+    drawerChgOrderPerson,
+},
   watch: {
     value: {
       handler(newVal) {
@@ -355,10 +428,10 @@ export default {
           );
           console.log(this.currentSaveInfo);
           this.saveTime = this.currentSaveInfo.t
-          this.custName = this.currentSaveInfo.c
-          this.custPhone = this.currentSaveInfo.p
+          this.custName = this.currentSaveInfo.c || (this.currentSaveInfo.rn)
+          this.custPhone = this.currentSaveInfo.p || (this.currentSaveInfo.rp)
           this.cardOrder = this.currentSaveInfo.m
-          this.cardName = this.currentSaveInfo.s
+          this.seat = { n: this.currentSaveInfo.s, id: this.currentSaveInfo.si }
           this.businessDate = this.currentSaveInfo.d
         } else {
         }
@@ -381,19 +454,23 @@ export default {
 .grid {
   margin-top: 20px;
   display: grid;
-  grid-template-columns:150px 100px 150px 1fr;
+  grid-template-columns:150px 200px 150px 1fr;
   grid-row-gap: 20px;
   justify-items: start;
   align-items:center
 
 }
 
+.coll {
+  margin-top: 10px;
+}
 
 .edit-save-info {
   .top {
     .title {
       font-size: 20px;
       font-weight: 600;
+      line-height: 35px;
     }
   }
   .red {
@@ -402,7 +479,6 @@ export default {
 
   .table {
     .tbody {
-      height: calc(100vh - 250px);
       overflow: auto;
     }
   }

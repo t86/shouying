@@ -3,17 +3,11 @@
     <div class="top m-b-3" layout="row" layout-align="start center">
       <div class="coll" layout="row" layout-align="start center">
         <span class="label fs14">日期：</span>
-        <el-date-picker
-          v-model="dateVal"
-          style="width:220px"
-          type="daterange"
-          size="small"
-          value-format="yyyy-MM-dd"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          >
-        </el-date-picker>
+        <el-date-picker style="width:140px" v-model="start_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="开始日期"></el-date-picker>
+          <span>至</span>
+          <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
+            value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         <div class="label fs14 m-l-3">仓库名称：</div>
         <div class="value">
           <el-select style="width:160px" v-model="libVal" size="small" placeholder="请选择">
@@ -87,7 +81,8 @@
 export default {
   data() {
     return {
-      dateVal: ['', ''],
+      start_day: "",
+      end_day: "",
       libVal: 0,
       libOption: [],
       keyword: '',
@@ -113,8 +108,8 @@ export default {
 
     async getTableData() {
       const params = {
-        start_day: this.dateVal[0],
-        end_day: this.dateVal[1],
+        start_day: this.start_day,
+        end_day: this.end_day,
         store_id: this.libVal * 1, //   int64    仓库id , 0 表示全部
         name: this.keyword || "" //  string   模糊查询关键字, 物料名称或简称 , 空, 表示不限制
       };
@@ -132,8 +127,8 @@ export default {
 
     async exportExcelHandle(){
       const params = {
-        start_day: this.dateVal[0],
-        end_day: this.dateVal[1],
+        start_day: this.start_day,
+        end_day: this.end_day,
         store_id: this.libVal * 1, //   int64    仓库id , 0 表示全部
         name: this.keyword || "" //  string   模糊查询关键字, 物料名称或简称 , 空, 表示不限制
       };
@@ -175,7 +170,8 @@ export default {
     resetHandle() {
       this.libVal = 0
       this.keyword = ''
-      this.dateVal = [this.getDate(), this.getDate()]
+      this.start_day = this.getDate()
+      this.end_day = this.getDate()
       this.getOption()
       this.getTableData()
     }

@@ -77,7 +77,11 @@ export default {
         'backVip': {
           name: '退卡',
           id: 3
-        }
+        },
+        'QXYH': {
+          name: '取消优惠',
+          id: 4
+        },
       },
       tableData: [],
       showDrawer: false,
@@ -165,7 +169,8 @@ export default {
       const typeInfo = {
         backReason: "back",
         YHReason: "YH",
-        backVipCard: 'backVip'
+        backVipCard: 'backVip',
+        QXYHReason: "QXYH"
       };
       return typeInfo[this.$route.name];
     }
