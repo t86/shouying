@@ -130,7 +130,7 @@ export default {
           this.$message.success("删除成功");
           this.getTableData();
         } else {
-          this.$message.warning(res.msg);
+          this.$message.warning(JSON.stringify(res.data.ns));
         }
       } catch (error) {
         console.log("删除失败", error);

@@ -69,7 +69,6 @@ export default {
 
     // 重置
     restSearchData() {
-      console.log(this.currentInfo,'??')
       this.name = this.status==2 ? this.currentInfo.n: "";
       this.full_expired_day = this.status==2 ? this.currentInfo.f: "";
       this.loose_expired_day =this.status==2 ? this.currentInfo.l: "";

@@ -52,12 +52,13 @@
         @showDrawerHandle="showCatDrawerHandle"
         @getTableData="getTableData"
         />
-        <drawerPassTime
-        :showDrawer="showPassTimeDrawer"
+        <drawerBatchSetWine
+        :showDrawer="showBatchDrawer"
         :ids="ids"
         @showDrawerHandle="showDrawerOfPassTime"
         @getTableData="getTableData"
         />
+
     </div>
   </template>
    
@@ -66,7 +67,7 @@
   import IconButton from "@/components/IconButton.vue";
   import CharactersButton from '@/components/CharactersButton.vue'
   import drawerAddWine from "./drawerAddWineCom/drawerAddWineCom.vue";
-  import drawerPassTime from "./drawerAddWineCom/drawerPassTimeCom.vue";
+  import drawerBatchSetWine from "./drawerAddWineCom/drawerBatchSetWine.vue";
   export default {
     data() {
       return {
@@ -76,7 +77,7 @@
         tableData: [],
         showCatDrawer: false,
         showDrawer: false,
-        showPassTimeDrawer: false,
+        showBatchDrawer: false,
         dataInfo: {},
         defaultProps: {
           children: 'children',
@@ -86,7 +87,6 @@
     },
     methods: {
       async getTableData() {
-        console.log(this.$route.query.menuId)
         try {
           const res = await this.$api.BMS.saveWine.reqGetWineList({
             wine_cate_id: this.$route.query.menuId * 1 || 0,
@@ -124,13 +124,13 @@
         this.showCatDrawer = !this.showCatDrawer;
       },
       showDrawerOfPassTime(){
-        if(!this.showPassTimeDrawer && this.ids.length == 0) return this.$message.warning('请选择商品')
-        this.showPassTimeDrawer = !this.showPassTimeDrawer
+        if(!this.showBatchDrawer && this.ids.length == 0) return this.$message.warning('请选择商品')
+        this.showBatchDrawer = !this.showBatchDrawer
       },
   
       async deleteHandle() {
         if (this.ids.length == 0) {
-          return this.$message.warning("请选择需要删除的理由");
+          return this.$message.warning("请选择需要删除的商品");
         }
         const params = {
           prd_ids: this.ids //   []int64  请求id数组
@@ -155,7 +155,7 @@
       IconButton,
       CharactersButton,
       drawerAddWine,
-      drawerPassTime
+      drawerBatchSetWine
     },
     computed: {
       ids(){

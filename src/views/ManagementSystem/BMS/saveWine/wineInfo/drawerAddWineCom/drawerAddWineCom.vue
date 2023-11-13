@@ -6,20 +6,12 @@
         <div class="select-top" layout="row" layout-align="start center">
           <div class="item" layout="row" layout-align="start center">
             <div class="label">分类:</div>
-            <el-cascader
-              v-model="searchFormData.valueArr"
-              :options="searchFormData.options"
-              size="small"
-              clearable
-            ></el-cascader>
+            <el-cascader v-model="searchFormData.valueArr" :options="searchFormData.options" size="small"
+              clearable></el-cascader>
           </div>
           <div class="item" layout="row" layout-align="start center">
-            <el-input
-              v-model="searchFormData.keyword"
-              style="width: 200px"
-              size="small"
-              placeholder="请输入商品名称或拼音字母"
-            ></el-input>
+            <el-input v-model="searchFormData.keyword" style="width: 200px" size="small"
+              placeholder="请输入商品名称或拼音字母"></el-input>
           </div>
           <div class="item" layout="row" layout-align="start center">
             <el-button type="primary" @click.stop="getTableData">查询</el-button>
@@ -31,11 +23,8 @@
           <div class="thead">
             <div class="tr" layout="row" layout-align="space-between center">
               <div class="th">
-                <el-checkbox
-                  v-model="checked"
-                  :indeterminate="isIndeterminate"
-                  @change="changeCheckboxHandle('all')"
-                >全选</el-checkbox>
+                <el-checkbox v-model="checked" :indeterminate="isIndeterminate"
+                  @change="changeCheckboxHandle('all')">全选</el-checkbox>
               </div>
               <div class="th">商品名称</div>
               <div class="th">一级分类</div>
@@ -43,22 +32,14 @@
             </div>
           </div>
           <div class="tbody">
-            <div
-              class="tr"
-              v-for="(item, index) in tableData"
-              :key="index"
-              layout="row"
-              layout-align="space-between center"
-            >
+            <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row"
+              layout-align="space-between center">
               <div class="td">
-                <el-checkbox
-                  v-model="item.checked"
-                  @change="changeCheckboxHandle('item')"
-                >{{ index + 1 }}</el-checkbox>
+                <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
               </div>
               <div class="td">{{ item.n }}</div>
-              <div class="td">{{ item.on}}</div>
-              <div class="td">{{item.tn}}</div>
+              <div class="td">{{ item.on }}</div>
+              <div class="td">{{ item.tn }}</div>
             </div>
             <div class="no-data m-t-10" v-if="tableData.length == 0" style="text-align:center">
               <img src="@/assets/img/wu.png" style="width:60px" alt />
@@ -161,15 +142,16 @@ export default {
       const params = {
         prd_ids: this.tableData
           .filter(item => item.checked)
-          .map(item => item.id * 1) //   []int64   待添加商品列表
+          .map(item => item.id * 1), //   []int64   待添加商品列表
+        wine_cate_id: this.$route.query.menuId * 1 || 0,
       };
 
       if (params.prd_ids.length <= 0)
         return this.$message.warning("请选择需要添加的商品");
 
       try {
-        const res =  await this.$api.BMS.saveWine.reqAddWine(params);
-        if(res.code == 1) {
+        const res = await this.$api.BMS.saveWine.reqAddWine(params);
+        if (res.code == 1) {
           this.$message.success('添加成功')
           this.closeDrawerHandle();
           this.$emit("getTableData");
@@ -244,7 +226,7 @@ export default {
   overflow: auto;
 }
 
-/deep/.el-dialog__footer{
+/deep/.el-dialog__footer {
   text-align: center;
 }
 </style>

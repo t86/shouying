@@ -27,11 +27,11 @@
         </ul>
         <!-- 展示搜索结果的二级菜单 -->
         <div v-else class="search-list">
-          <div v-if="searchMenu.oneCateList.length > 0" class="cate-list">
+          <div v-if="searchMenu.wineCatList.length > 0" class="cate-list">
             <p>一级分类：</p>
             <ul>
               <li
-                v-for="(item, index) in searchMenu.oneCateList"
+                v-for="(item, index) in searchMenu.wineCatList"
                 :key="index"
                 layout="row"
                 layout-align="start center"
@@ -42,11 +42,11 @@
               </li>
             </ul>
           </div>
-          <div v-if="searchMenu.twoCateList.length > 0" class="cate-list">
+          <div v-if="searchMenu.wineList.length > 0" class="cate-list">
             <p>二级分类：</p>
             <ul>
               <li
-                v-for="(item, index) in searchMenu.twoCateList"
+                v-for="(item, index) in searchMenu.wineList"
                 :key="index"
                 layout="row"
                 layout-align="start center"
@@ -74,8 +74,7 @@
           </div>
           <div
             v-if="
-              searchMenu.oneCateList.length == 0 &&
-              searchMenu.twoCateList.length == 0 &&
+              searchMenu.wineCatList.length == 0 &&
               searchMenu.wineList.length == 0
             "
             class="no-data m-t-4"
@@ -155,11 +154,11 @@ export default {
       };
 
       try {
-        const res = await this.$api.BMS.region.requestRegionSearch(params);
+        const res = await this.$api.BMS.saveWine.reqGetWineCateFmName(params);
         if(res.code == 1) {
           res.data = res.data || []
-          this.searchMenu.wineCatList = res.data.filter(item => item.t == 1)
-          this.searchMenu.wineList = res.data.filter(item => item.t == 2)
+          this.searchMenu.wineCatList = res.data.records.filter(item => item.t == 1)
+          this.searchMenu.wineList = res.data.records.filter(item => item.t == 2)
         } else {
           this.$message.warning(res.msg);
         }
