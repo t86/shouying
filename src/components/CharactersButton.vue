@@ -1,5 +1,5 @@
 <template>
-        <div class="racte" id="wafght" ref='pTag' :style="{'border-color':bcolor}"
+        <div class="racte" id="wafght" ref='pTag' :style="{'border-color':bcolor, 'background-color':bjcolors, 'color': tcolor} "
         @mouseover="itemMouseover"
         @mouseout="itemMouseout"
         :class="{'drgreg':disaed}">
@@ -15,6 +15,7 @@ export default {
     wz: { type: String, default: '' }, // 图片
     bcolor: { type: String, default: '#DADADA' }, // 颜色
     bjcolors: { type: String, default: '' }, // 背景颜色
+    tcolor: { type: String, default: '#1A1A21' }, // 字体颜色
     disaed: { type: Boolean, default: false }, // 禁用
   },
   data() {

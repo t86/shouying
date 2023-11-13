@@ -24,5 +24,20 @@ export default {
   reqSetPassTime: params => axios.post(`${base.htgl}/wine/cfg/set_prd_expired`, params),
 
   // 刷新存酒超级授权码
-  reqReloadCode: params => axios.post(`${base.htgl}/wine/refresh_wine_super_code`, params)
+  reqReloadCode: params => axios.post(`${base.htgl}/wine/refresh_wine_super_code`, params),
+
+  // 新建存酒分类
+  reqNewWineCate: params => axios.post(`${base.htgl}/wine/cfg/new_wine_cate`, params),
+
+  // 获取存酒分类列表
+  reqGetWineCateList: params => axios.post(`${base.htgl}/wine/cfg/get_wine_cate_list`, params),
+
+  // 批量删除存酒分类
+  reqBatchDelWineCate: params => axios.post(`${base.htgl}/wine/cfg/batch_del_wine_cate`, params),
+
+  // 批量设置存酒商品分类
+  reqBatchSetPrdWineCate: params => axios.post(`${base.htgl}/wine/cfg/batch_set_prd_wine_cate`, params),
+
+  // 存酒分类管理页面,模糊查询分类商品树
+  reqGetWineCateFmName: params => axios.post(`${base.htgl}/wine/cfg/get_wine_cate_fm_name`, params),
 }

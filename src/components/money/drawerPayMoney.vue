@@ -239,9 +239,17 @@
 
           <!-- 挂账 -->
           <div v-else-if="payActiveInfo.id == 6" class="center-center m-t-3">
+            <div v-if="isOrderGZ" style="margin: 5px 0px;" layout="row" layout-align="center center">
+              <el-radio v-model="GZInfo.selectInfo.gzValue" label="1"
+                >指定账号挂账</el-radio
+              >
+              <el-radio v-model="GZInfo.selectInfo.gzValue" label="2"
+                >订位人挂账</el-radio
+              >
+            </div>
             <p layout="row" layout-align="start center">
               <span>挂账账户: </span>
-              <span v-if="GZInfo.selectInfo.orderVal">{{ GZInfo.selectInfo.orderVal }}</span>
+              <span v-if="isOrderGZ && GZInfo.selectInfo.gzValue === '2'">{{ GZInfo.selectInfo.orderVal }}</span>
               <!-- <mySelect
                 style="width: 210px"
                 :value="GZInfo.selectInfo.selectVal"
@@ -250,10 +258,8 @@
                 @selectBlurHandle="selectBlurHandle"
                 @getOption="getOptionHandle"
               /> -->
-              <el-select
-              v-else="!GZInfo.selectInfo.orderVal"
+              <el-select v-else
               v-model="GZInfo.selectInfo.selectVal"
-              :disabled="isOrderGZ"
               placeholder="请选择或输入账号"
               style="width: 210px"
               filterable
@@ -268,6 +274,9 @@
               >
               </el-option>
             </el-select>
+            </p>
+            <p class="m-t-3 fs14 color-red" layout="row" layout-align="center center">
+              输入不存在的挂账账户系统将自动创建该挂账账户
             </p>
             <p class="m-t-3" layout="row" layout-align="start center">
               <span>{{ payActiveInfo.name }}金额:</span>
@@ -556,6 +565,7 @@ export default {
       GZInfo: {
         originOption: [],
         selectInfo: {
+          gzValue: "1",
           selectVal: "",
           selectOption: [],
           orderVal: ""
