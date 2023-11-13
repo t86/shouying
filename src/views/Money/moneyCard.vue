@@ -1712,7 +1712,7 @@ export default {
           resResultDataObj["businessData"],
           resort
         );
-        await this.getTabList(resResultDataObj["areaInfo"]);
+        await this.getTabList(JSON.parse(JSON.stringify(resResultDataObj["areaInfo"])));
         // 获取卡台数据
       } catch (error) {
         console.log("全量数据请求失败", error);
