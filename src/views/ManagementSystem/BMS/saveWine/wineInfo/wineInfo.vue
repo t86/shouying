@@ -127,6 +127,7 @@ export default {
       showDrawer: false,
       showPassTimeDrawer: false,
       dataInfo: {},
+      selCatInfo: {}
     };
   },
   mounted() {
@@ -138,9 +139,6 @@ export default {
       if(this.menuIndex == 0) {
         this.getMenuList();
       }
-    },
-    async getCatTableData() {
-
     },
     showOrHideMenuListHandle() {
       this.$router.push({
@@ -314,9 +312,7 @@ export default {
       }
     }
   },
-  created() {
-    this.getCatTableData()
-  },
+
   components: {
     IconButton,
     CharactersButton,

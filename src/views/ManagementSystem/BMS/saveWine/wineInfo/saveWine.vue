@@ -1,6 +1,16 @@
 <template>
+
     <div class="wine-info">
-        <div class="top" layout="row" layout-align="start center">
+      <div class="info fs-16" layout="row" layout-align="start center">
+        <span>当前存酒分类：</span>
+        <span class="color-red">{{ catInfo.n }}</span>
+        <span class="m-l-10">整瓶有效期：</span>
+        <span class="color-red">{{ catInfo.f }}</span>
+        <span class="m-l-10">散瓶有效期：</span>
+        <span class="color-red">{{ catInfo.l }}</span>
+      </div>
+
+      <div class="top" layout="row" layout-align="start center">
         <characters-button @click.native="showCatDrawerHandle" colors="transparent" wz='新增商品'></characters-button>
         <characters-button @click.native="deleteHandle" colors="transparent" wz='批量删除'></characters-button>
         <characters-button @click.native="showDrawerOfPassTime" colors="transparent" wz='批量更改存酒分类'></characters-button>
@@ -82,11 +92,15 @@
         defaultProps: {
           children: 'children',
           label: 'label'
-        }
+        },
+        catInfo: {}
+
       };
     },
     methods: {
       async getTableData() {
+        this.catInfo = { ...this.$route.query }
+
         try {
           const res = await this.$api.BMS.saveWine.reqGetWineList({
             wine_cate_id: this.$route.query.menuId * 1 || 0,
@@ -148,7 +162,7 @@
         }
       }
     },
-    created() {
+    mounted() {
       this.getTableData()
     },
     components: {
@@ -175,95 +189,7 @@
   <style lang="less" scoped>
   @import "./wineInfo.less";
   @import "../../../../../style/erp/table.less";
-  
-  .container {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    grid-gap: 10px;
-  
-    .nav-menu {
-      padding: 10px;
-      padding-right: 20px;
-      box-sizing: border-box;
-      height: calc(100vh - 90px);
-      float: left;
-      border-right: 1px solid #eee;
-  
-      // 搜索框
-      .search {
-        height: 40px;
-        position: relative;
-        text-align: center;
-  
-        i {
-          position: absolute;
-          top: 8px;
-          left: 12px;
-        }
-  
-        /deep/input.el-input__inner {
-          width: 100%;
-          height: 30px;
-          border-radius: 4px;
-          background-color: transparent;
-          color: #40404e;
-          outline: none;
-          padding-left: 30px;
-          padding-right: 10px;
-          border: 1px solid rgb(217, 217, 217);
-        }
-      }
-  
-      // 二级菜单
-      .menu-list {
-        height: calc(100% - 40px);
-        overflow-y: auto;
-  
-        >ul.first-cate{
-          padding-left: 0!important;
-          img{
-            width: 16px;
-            vertical-align: middle;
-          }
-          span.name{
-            display: inline-block;
-            vertical-align: middle;
-            line-height: 34px;
-            cursor: pointer;
-          }
-          ul.second-cate{
-            li{
-              cursor: pointer;
-              line-height: 34px;
-              padding-left: 30px;
-              box-sizing: border-box;
-            }
-          }
-        }
-  
-        .search-list {
-          p {
-            font-size: 13px;
-            line-height: 30px;
-          }
-  
-          li {
-            cursor: pointer;
-            padding-left: 20px;
-            border-radius: 6px;
-            line-height: 34px;
-  
-            &:hover {
-              background-color: #d7e9ff;
-            }
-  
-            img {
-              width: 16px;
-              margin-right: 10px;
-            }
-          }
-        }
-      }
+    .info {
+      margin: 5px 5px;
     }
-  }
   </style>

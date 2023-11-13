@@ -40,7 +40,7 @@ export default {
     clickSecondNavBarItemHandle(itemInfo) {
       this.$router.push({
         name: this.$route.name,
-        query: { menuIndex: itemInfo.menuIndex , menuId: itemInfo.id}
+        query: { menuIndex: itemInfo.menuIndex , menuId: itemInfo.id, n: itemInfo.n, l: itemInfo.l, f: itemInfo.f}
       });
     },
     showOrHideListHandle(itemInfo) {
