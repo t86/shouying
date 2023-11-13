@@ -172,7 +172,10 @@ export default [
     path: '/BMS/backVipCard', name: "backVipCard", meta: { title: '退卡理由' },
     component: () => import('@/views/ManagementSystem/BMS/reason/reason.vue'),
   },
-
+  {
+    path: '/BMS/QXYHReason', name: "QXYHReason", meta: { title: '取消优惠理由' },
+    component: () => import('@/views/ManagementSystem/BMS/reason/reason.vue'),
+  },
   /**
    * 业务配置
    */

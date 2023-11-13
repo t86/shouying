@@ -264,6 +264,10 @@ export default [
             {
               name: "退卡理由管理",
               url: "/BMS/backVipCard"
+            },
+            {
+              name: "取消优惠理由管理",
+              url: "/BMS/QXYHReason"
             }
           ]
         },

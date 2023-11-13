@@ -317,6 +317,14 @@
                         >
                           修改优惠人
                         </div>
+                        <!-- 已结账并且优惠可取消 -->
+                        <div
+                          class="li"
+                          v-if="item.at == 2 || item.at == 3"
+                          @click.stop="showOrHideUpdateDetailDrawer(item, 10)"
+                        >
+                          取消优惠
+                        </div>
                       </ul>
                     </div>
                   </div>

@@ -4,83 +4,61 @@
     赠送、自用、退单、选择套餐需要更改的套餐组、退单套餐查看套餐明细 
   -->
   <div class="my-order-drawer">
-    <el-drawer
-      :title="title"
-      :visible.sync="show"
-      direction="rtl"
-      :size="size"
-      :before-close="onCancelDrawer"
-    >
+    <el-drawer :title="title" :visible.sync="show" direction="rtl" :size="size" :before-close="onCancelDrawer">
       <div class="content">
         <!-- 优惠人 -->
-        <div v-if="status==9" class="my-order-drawer-content">
-           <!-- 授权 -->
-           <div class="authorization">
+        <div v-if="status == 9" class="my-order-drawer-content">
+          <!-- 授权 -->
+          <div class="authorization">
             <div layout="row" layout-align="center start">
               <div class="authorization-left" layout="col" layout-align="start center">
-                <p class="m-b-5 fs16">优惠商品：{{currentItemInfo.productInfo && currentItemInfo.productInfo.name}}</p>
-                <p class="m-b-5 fs16">优惠数量：{{currentItemInfo.pc}}</p>
-                <p class="m-b-5 fs16">优惠金额：{{(currentItemInfo.pa * 1).toFixed(2)}}</p>
+                <p class="m-b-5 fs16">优惠商品：{{ currentItemInfo.productInfo && currentItemInfo.productInfo.name }}</p>
+                <p class="m-b-5 fs16">优惠数量：{{ currentItemInfo.pc }}</p>
+                <p class="m-b-5 fs16">优惠金额：{{ (currentItemInfo.pa * 1).toFixed(2) }}</p>
                 <p class="m-b-5 fs16">原优惠人：{{ currentItemInfo.authInfo && currentItemInfo.authInfo.name }}</p>
               </div>
               <div class="authorization-right">
-                <authorization
-                  :authorizationInfo="authorizationInfo"
-                  @updateAuthorizationInfo="updateAuthorizationInfo"
-                />
+                <authorization :authorizationInfo="authorizationInfo"
+                  @updateAuthorizationInfo="updateAuthorizationInfo" />
               </div>
             </div>
           </div>
         </div>
         <!-- 退单1 / 优惠 2 / 自用3 -->
-        <div v-if="status==1||status==2||status==3" class="my-order-drawer-content">
-          <div v-if="subStatus==1">
+        <div v-if="status == 1 || status == 2 || status == 3" class="my-order-drawer-content">
+          <div v-if="subStatus == 1">
             <!-- 表单 -->
             <div class="form">
               <el-form label-position="right" label-width="150px" :model="formData" @submit.native.prevent>
                 <!-- 商品名称 -->
-                <el-form-item label="商品名称">{{currentProductInfo.productInfo.name}}</el-form-item>
+                <el-form-item label="商品名称">{{ currentProductInfo.productInfo.name }}</el-form-item>
                 <!-- 退单商品数量 -->
-                <el-form-item
-                  :label="(status==1?'退单':(status==2?'优惠':'自用'))+'数量'"
-                  class="change-count"
-                >
+                <el-form-item :label="(status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '数量'" class="change-count">
                   <img
-                    :src="((currentItemInfo.io == 1 && status == 1) || (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8||currentProductInfo.productInfo.prdType==5) && $store.state.userInfo.authStatus != 4)||currentProductInfo.productInfo.prdType==4||productCount==1?imgSrc.subDisabled:imgSrc.sub"
-                    @click="changeCount('sub')"
-                  />
-                  <input
-                    type="number"
-                    min="1"
-                    :disabled="(currentItemInfo.io == 1 && status == 1) || currentProductInfo.productInfo.prdType==4 || ((currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8||currentProductInfo.productInfo.prdType==5) && $store.state.userInfo.authStatus != 4)"
-                    v-model="productCount"
-                    @input="changeCount('input')"
-                  />
+                    :src="((currentItemInfo.io == 1 && status == 1) || (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4) || currentProductInfo.productInfo.prdType == 4 || productCount == 1 ? imgSrc.subDisabled : imgSrc.sub"
+                    @click="changeCount('sub')" />
+                  <input type="number" min="1"
+                    :disabled="(currentItemInfo.io == 1 && status == 1) || currentProductInfo.productInfo.prdType == 4 || ((currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4)"
+                    v-model="productCount" @input="changeCount('input')" />
                   <img
-                    :src="currentProductInfo.productInfo.prdType==4||productCount>=currentProductInfo.pc?imgSrc.addDisabled:imgSrc.add"
-                    @click="changeCount('add')"
-                  />
+                    :src="currentProductInfo.productInfo.prdType == 4 || productCount >= currentProductInfo.pc ? imgSrc.addDisabled : imgSrc.add"
+                    @click="changeCount('add')" />
                 </el-form-item>
                 <!-- 退单金额 -->
-                <el-form-item class="back-order-amt" v-if="status==1" label="退单金额">
+                <el-form-item class="back-order-amt" v-if="status == 1" label="退单金额">
                   <input
-                    v-if="$store.state.userInfo.authStatus==4&&(currentProductInfo.productInfo.prdType==3||currentProductInfo.productInfo.prdType==8||currentProductInfo.productInfo.prdType==5)"
-                    :disabled="backOrder.backOrderAmt==currentItemInfo.pa&&productCount==currentItemInfo.pc"
-                    v-model="backOrder.backOrderAmt"
-                    placeholder="请输入退款金额"
-                    @input="backOrderInputHandle"
-                  />
-                  <span
-                    v-else
-                  >￥{{currentProductInfo.pp * 1 == 0 ? currentProductInfo.pa : (currentProductInfo.pp*productCount).toFixed(2)}}</span>
+                    v-if="$store.state.userInfo.authStatus == 4 && (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5)"
+                    :disabled="backOrder.backOrderAmt == currentItemInfo.pa && productCount == currentItemInfo.pc"
+                    v-model="backOrder.backOrderAmt" placeholder="请输入退款金额" @input="backOrderInputHandle" />
+                  <span v-else>￥{{ currentProductInfo.pp * 1 == 0 ? currentProductInfo.pa :
+                    (currentProductInfo.pp * productCount).toFixed(2) }}</span>
                 </el-form-item>
                 <!-- 退单、赠送理由 -->
-                <el-form-item
-                  :label="'选择'+(status==1?'退单':(status==2?'优惠':'自用'))+'理由'"
-                  class="required required6"
-                >
+                <el-form-item :label="'选择' + (status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '理由'"
+                  class="required required6">
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{'active': formData.reason == item.name}" v-for="item in reasonList" :key="item.id" @click="formData.reason=item.name">{{item.name}}</li>
+                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
+                      @click="formData.reason = item.name">{{ item.name }}</li>
                   </ul>
                 </el-form-item>
               </el-form>
@@ -88,7 +66,7 @@
           </div>
           <!-- 授权 -->
           <div v-else class="authorization">
-            <p class="m-b-5 fs16">当前卡台：{{$store.state.orderInfo.currentCardInfo.name}}</p>
+            <p class="m-b-5 fs16">当前卡台：{{ $store.state.orderInfo.currentCardInfo.name }}</p>
             <ul layout="row" layout-align="center start">
               <li class="authorization-left">
                 <p class="p-b-2">授权商品和数量</p>
@@ -103,88 +81,73 @@
                   <div class="tbody">
                     <div class="tr" layout="row" layout-align="start start">
                       <div class="td">1</div>
-                      <div class="td">{{currentProductInfo.productInfo.name}}</div>
-                      <div class="td">{{productCount}}</div>
+                      <div class="td">{{ currentProductInfo.productInfo.name }}</div>
+                      <div class="td">{{ productCount }}</div>
                     </div>
                   </div>
                 </div>
               </li>
               <li class="authorization-right">
-                <authorization
-                  :authorizationInfo="authorizationInfo"
-                  @updateAuthorizationInfo="updateAuthorizationInfo"
-                />
+                <authorization :authorizationInfo="authorizationInfo"
+                  @updateAuthorizationInfo="updateAuthorizationInfo" />
               </li>
             </ul>
           </div>
         </div>
         <!-- 更改套餐明细 -->
-        <div v-if="status==4">
-          <p v-if="subStatus==1" class="red">请选择更改的套餐明细</p>
-          <ul v-if="subStatus==1" class="choose-detail">
-            <li
-              v-for="(item,i) in updateDetail.groupList"
-              :key="i"
-              layout="row"
-              layout-align="start center"
-            >
+        <div v-if="status == 4">
+          <p v-if="subStatus == 1" class="red">请选择更改的套餐明细</p>
+          <ul v-if="subStatus == 1" class="choose-detail">
+            <li v-for="(item, i) in updateDetail.groupList" :key="i" layout="row" layout-align="start center">
               <div class="left">
                 <input type="radio" v-model="updateDetail.detailIndex" :value="i" />
               </div>
               <div class="right" layout="row" layout-align="start center">
-                <p
-                  v-for="(items,index) in item.list"
-                  :key="index"
-                >{{items.groupInfo.name}} * {{items.sel_cnts ? items.sel_cnts * items.dtl_prd_cnts * item.count : items.sc * items.dpc * item.count }}{{items.r ? '（'+items.r+'）':''}}</p>
+                <p v-for="(items, index) in item.list" :key="index">{{ items.groupInfo.name }} * {{ items.sel_cnts ?
+                  items.sel_cnts * items.dtl_prd_cnts * item.count : items.sc * items.dpc * item.count }}{{ items.r ?
+    '（' + items.r + '）' : '' }}</p>
                 <!-- items.sel_cnts是点单系统中的字段，items.sc是收银系统中的字段，此处所用的三元表达式用于区分点单系统和收银系统 -->
               </div>
             </li>
           </ul>
 
           <!-- 更改明细 -->
-          <div v-if="subStatus==2" class="add-requested">
-            <groupProduct
-              :productInfo="updateDetail.productInfo"
-              :singleInfo="updateDetail.singleInfo"
-              :selectedInfoObj="updateDetail.selectedInfoObj"
-              isUpdate="true"
-              @updateSelectedArr="updateSelectedArr"
-            />
+          <div v-if="subStatus == 2" class="add-requested">
+            <groupProduct :productInfo="updateDetail.productInfo" :singleInfo="updateDetail.singleInfo"
+              :selectedInfoObj="updateDetail.selectedInfoObj" isUpdate="true" @updateSelectedArr="updateSelectedArr" />
           </div>
 
           <!-- 更改明细授权 -->
-          <div v-if="subStatus==3">
+          <div v-if="subStatus == 3">
             <div class="authorization">
-              <p class="m-b-5 fs16">当前卡台：{{$store.state.orderInfo.currentCardInfo.name}}</p>
+              <p class="m-b-5 fs16">当前卡台：{{ $store.state.orderInfo.currentCardInfo.name }}</p>
               <ul layout="row" layout-align="center start">
                 <li class="authorization-left">
                   <div class="pro-list">
                     <div class="pro-list-origin">
                       <p class="m-b-2 fs14">要更改的明细</p>
                       <div class="list-detail" layout="row" layout-align="start center">
-                        <span
-                          v-for="(item,index) in updateDetail.selectedInfoObj[0].beforeUpdateProduct"
-                          :key="index"
-                        >{{item.productInfo.name}} * {{item.selectedCount * item.prdCnt * updateDetail.singleInfo.prd_cnt}}{{item.requireText?'（'+item.requireText+'）':''}}</span>
+                        <span v-for="(item, index) in updateDetail.selectedInfoObj[0].beforeUpdateProduct" :key="index">{{
+                          item.productInfo.name }} * {{ item.selectedCount * item.prdCnt *
+    updateDetail.singleInfo.prd_cnt }}{{ item.requireText ? '（' + item.requireText + '）' : ''
+  }}</span>
                       </div>
                     </div>
 
                     <div class="pro-list-change">
                       <p class="m-b-2 fs14">更改后的套餐明细</p>
                       <div class="list-detail" layout="row" layout-align="start center">
-                        <span
-                          v-for="(item,index) in updateDetail.selectedInfoObj[0].selectedProductsArr"
-                          :key="index"
-                        >{{item.productInfo.name}} * {{item.selectedCount * item.prdCnt * updateDetail.singleInfo.prd_cnt}}{{item.requireText?'（'+item.requireText+'）':''}}</span>
+                        <span v-for="(item, index) in updateDetail.selectedInfoObj[0].selectedProductsArr" :key="index">{{
+                          item.productInfo.name }} * {{ item.selectedCount * item.prdCnt *
+    updateDetail.singleInfo.prd_cnt }}{{ item.requireText ? '（' + item.requireText + '）' : ''
+  }}</span>
                       </div>
                     </div>
                   </div>
                 </li>
                 <li class="authorization-right">
-                  <authorization
-                    :authorizationInfo="authorizationInfo"
-                    @updateAuthorizationInfo="updateAuthorizationInfo"
-                  />
+                  <authorization :authorizationInfo="authorizationInfo"
+                    @updateAuthorizationInfo="updateAuthorizationInfo" />
                 </li>
               </ul>
             </div>
@@ -192,7 +155,7 @@
         </div>
 
         <!-- 退款套餐查看套餐明细 -->
-        <div v-if="status==5">
+        <div v-if="status == 5">
           <div class="table">
             <div class="thead">
               <div class="tr">
@@ -201,124 +164,111 @@
               </div>
             </div>
             <div class="tbody">
-              <div class="tr" v-for="(item,i) in currentProductInfo.si" :key="i">
-                <div class="td">{{item.groupInfo.name}}{{item.r?'（'+item.r+'）':''}}</div>
-                <div class="td">{{!isNaN(item.sc * item.dpc) ? item.sc * item.dpc * currentItemInfo.pc : item.s * item.c * currentItemInfo.pc}}</div>
+              <div class="tr" v-for="(item, i) in currentProductInfo.si" :key="i">
+                <div class="td">{{ item.groupInfo.name }}{{ item.r ? '（' + item.r + '）' : '' }}</div>
+                <div class="td">{{ !isNaN(item.sc * item.dpc) ? item.sc * item.dpc * currentItemInfo.pc : item.s * item.c
+                  *
+                  currentItemInfo.pc }}</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- 批量优惠/批量优惠2/批量退单 -->
-        <div v-if="status==6 || status==7 || status == 8" class="seal-many">
+        <div v-if="status == 6 || status == 7 || status == 8" class="seal-many">
           <div v-if="subStatus == 1">
-            <div class="title m-b-4">请选择需要{{status == 8 ? '退单':'优惠'}}{{status==7 ? '2':''}}的商品</div>
+            <div class="title m-b-4">请选择需要{{ status == 8 ? '退单' : '优惠' }}{{ status == 7 ? '2' : '' }}的商品</div>
             <div class="table">
               <div class="thead">
                 <div class="tr" layout="row" layout-align="space-between center">
                   <div class="th">
-                    <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="changeCheckBox('all')">全选</el-checkbox>
+                    <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll"
+                      @change="changeCheckBox('all')">全选</el-checkbox>
                   </div>
                   <div class="th">名称</div>
                   <div class="th">数量</div>
-                  <div class="th">{{status==8 ? '退单' : '优惠'}}{{status == 7 ? '2' : ''}}数量</div>
+                  <div class="th">{{ status == 8 ? '退单' : '优惠' }}{{ status == 7 ? '2' : '' }}数量</div>
                   <div class="th" v-if="status == 8" style="width:25%">退单小计</div>
                   <div class="th" v-if="status == 8" style="width:15%">店单人</div>
                 </div>
               </div>
-              <div class="tbody" :class="{give: status==6}">
-                <div class="coll online" layout="row" layout-align="space-between center" v-for="(item, index) in sealProductList" :key="item.id">
+              <div class="tbody" :class="{ give: status == 6 }">
+                <div class="coll online" layout="row" layout-align="space-between center"
+                  v-for="(item, index) in sealProductList" :key="item.id">
                   <!-- 线上订单 -->
-                  <div v-if="item.oid" class="tr online" layout="row" layout-align="space-between center" >
+                  <div v-if="item.oid" class="tr online" layout="row" layout-align="space-between center">
                     <div class="td">
-                      <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{index + 1}}</el-checkbox>
+                      <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{ index + 1 }}</el-checkbox>
                     </div>
-                    <div class="td" :style="{'width': status == 8 ? '125%' : ''}">
-                      <div class="column p-t-1 p-b-1" v-for="items in item.canBackOrderList" :key="items.id" layout="row" layout-align="space-between center">
-                        <div class="td-td" :style="{'width': status == 8 ? '32%' : ''}">{{items.productInfo.name}}</div>
-                        <div class="td-td" :style="{'width': status == 8 ? '14%' : ''}">{{items.pc}}</div>
-                        <div class="td-td" :style="{'width': status == 8 ? '44%' : ''}">
-                          <img
-                            :src="items.changeCount == 1 || status == 8 ? require('@/assets/order-img/sub-disabled.png'):require('@/assets/order-img/sub.png')"
-                            @click="changeCountOfSeal('sub',items)"
-                            alt
-                          />
-                          <input
-                            type="number"
-                            :min="1"
-                            :disabled="status == 8"
-                            v-model="items.changeCount"
-                            @input="changeCountOfSeal('input',items)"
-                          />
-                          <img
-                            :src="items.changeCount>=items.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/order_add.png')"
-                            @click="changeCountOfSeal('add',items)"
-                            alt
-                          />
+                    <div class="td" :style="{ 'width': status == 8 ? '125%' : '' }">
+                      <div class="column p-t-1 p-b-1" v-for="items in item.canBackOrderList" :key="items.id" layout="row"
+                        layout-align="space-between center">
+                        <div class="td-td" :style="{ 'width': status == 8 ? '32%' : '' }">{{ items.productInfo.name }}
                         </div>
-                        <div class="td-td" v-if="status == 8" style="width:25%">{{items.allAmt}}</div>
-                        <div class="td-td" v-if="status == 8" style="width:15%">{{items.personInfo && items.personInfo.name}}</div>
+                        <div class="td-td" :style="{ 'width': status == 8 ? '14%' : '' }">{{ items.pc }}</div>
+                        <div class="td-td" :style="{ 'width': status == 8 ? '44%' : '' }">
+                          <img
+                            :src="items.changeCount == 1 || status == 8 ? require('@/assets/order-img/sub-disabled.png') : require('@/assets/order-img/sub.png')"
+                            @click="changeCountOfSeal('sub', items)" alt />
+                          <input type="number" :min="1" :disabled="status == 8" v-model="items.changeCount"
+                            @input="changeCountOfSeal('input', items)" />
+                          <img
+                            :src="items.changeCount >= items.pc ? require('@/assets/order-img/add-disabled.png') : require('@/assets/order-img/order_add.png')"
+                            @click="changeCountOfSeal('add', items)" alt />
+                        </div>
+                        <div class="td-td" v-if="status == 8" style="width:25%">{{ items.allAmt }}</div>
+                        <div class="td-td" v-if="status == 8" style="width:15%">{{ items.personInfo &&
+                          items.personInfo.name }}</div>
                       </div>
                     </div>
                   </div>
                   <!-- 线下订单 -->
-                  <div v-else class="tr offline" layout="row" layout-align="space-between center" >
+                  <div v-else class="tr offline" layout="row" layout-align="space-between center">
                     <div class="td">
-                      <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{index + 1}}</el-checkbox>
+                      <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{ index + 1 }}</el-checkbox>
                     </div>
-                    <div class="td">{{item.productInfo.name}}</div>
-                    <div class="td">{{item.pc}}</div>
+                    <div class="td">{{ item.productInfo.name }}</div>
+                    <div class="td">{{ item.pc }}</div>
                     <div class="td">
                       <img
-                        :src="item.changeCount==1?require('@/assets/order-img/sub-disabled.png'):require('@/assets/order-img/sub.png')"
-                        @click="changeCountOfSeal('sub',item)"
-                        alt
-                      />
-                      <input
-                        type="number"
-                        :min="1"
-                        v-model="item.changeCount"
-                        @input="changeCountOfSeal('input',item)"
-                      />
+                        :src="item.changeCount == 1 ? require('@/assets/order-img/sub-disabled.png') : require('@/assets/order-img/sub.png')"
+                        @click="changeCountOfSeal('sub', item)" alt />
+                      <input type="number" :min="1" v-model="item.changeCount"
+                        @input="changeCountOfSeal('input', item)" />
                       <img
-                        :src="item.changeCount>=item.pc?require('@/assets/order-img/add-disabled.png'):require('@/assets/order-img/order_add.png')"
-                        @click="changeCountOfSeal('add',item)"
-                        alt
-                      />
+                        :src="item.changeCount >= item.pc ? require('@/assets/order-img/add-disabled.png') : require('@/assets/order-img/order_add.png')"
+                        @click="changeCountOfSeal('add', item)" alt />
                     </div>
-                    
+
                     <div class="td" v-if="status == 8" style="width:25%">
-                      <div v-if="['5','3','8'].indexOf(item.productInfo.prdType)>-1">
-                        <input
-                          style="width:80%;height:26px;padding: 0 8px"
-                          v-if="item.changeCount < item.pc"
-                          type="number"
-                          @input="changeAmtHandle(item)"
-                          v-model="item.allAmt"
-                          min="0"
-                          placeholder="请输入金额"
-                        />
-                        <span v-else>{{item.allAmt}}</span>
+                      <div v-if="['5', '3', '8'].indexOf(item.productInfo.prdType) > -1">
+                        <input style="width:80%;height:26px;padding: 0 8px" v-if="item.changeCount < item.pc"
+                          type="number" @input="changeAmtHandle(item)" v-model="item.allAmt" min="0"
+                          placeholder="请输入金额" />
+                        <span v-else>{{ item.allAmt }}</span>
                       </div>
-                      <div v-else>{{item.pp==0? (item.pa*1).toFixed(2) : (item.pp * item.changeCount).toFixed(2)}}</div>
+                      <div v-else>{{ item.pp == 0 ? (item.pa * 1).toFixed(2) : (item.pp * item.changeCount).toFixed(2) }}
+                      </div>
                     </div>
-                    <div class="td" v-if="status == 8" style="width:15%">{{item.personInfo && item.personInfo.name}}</div>
+                    <div class="td" v-if="status == 8" style="width:15%">{{ item.personInfo && item.personInfo.name }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div class="form" v-if="status == 6 || status == 8">
               <el-form label-position="right" label-width="150px" :model="formData" @submit.native.prevent>
-                <el-form-item class="required required8" :label="'选择批量' + (status == 6 ? '优惠' : '退单') +'理由'">
+                <el-form-item class="required required8" :label="'选择批量' + (status == 6 ? '优惠' : '退单') + '理由'">
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{'active': formData.reason == item.name}" v-for="item in reasonList" :key="item.id" @click="formData.reason=item.name">{{item.name}}</li>
+                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
+                      @click="formData.reason = item.name">{{ item.name }}</li>
                   </ul>
                 </el-form-item>
               </el-form>
             </div>
           </div>
-          
+
           <!-- 授权 -->
           <div v-else class="authorization">
             <ul layout="row" layout-align="center start">
@@ -333,44 +283,63 @@
                     </div>
                   </div>
                   <div class="tbody">
-                    <div class="tr" layout="row" layout-align="start start" v-for="(item,index) in sealManyInfo.choosePrdList" :key="item.id">
-                      <div class="td">{{index + 1}}</div>
-                      <div class="td">{{item.productInfo.name}}</div>
-                      <div class="td">{{item.pc}}</div>
+                    <div class="tr" layout="row" layout-align="start start"
+                      v-for="(item, index) in sealManyInfo.choosePrdList" :key="item.id">
+                      <div class="td">{{ index + 1 }}</div>
+                      <div class="td">{{ item.productInfo.name }}</div>
+                      <div class="td">{{ item.pc }}</div>
                     </div>
                   </div>
                 </div>
               </li>
               <li class="authorization-right">
-                <authorization
-                  :authorizationInfo="authorizationInfo"
-                  @updateAuthorizationInfo="updateAuthorizationInfo"
-                />
+                <authorization :authorizationInfo="authorizationInfo"
+                  @updateAuthorizationInfo="updateAuthorizationInfo" />
               </li>
             </ul>
           </div>
         </div>
 
-        
+
+        <!-- 取消优惠 -->
+
+        <div v-if="status == 10" class="my-order-drawer-content">
+          <div v-if="subStatus == 1">
+            <!-- 表单 -->
+            <div class="form">
+              <el-form label-position="right" label-width="150px" :model="formData" @submit.native.prevent>
+                <!-- 商品名称 -->
+                <el-form-item label="当前商品">{{ currentItemInfo.productInfo && currentItemInfo.productInfo.name
+                }}</el-form-item>
+                <el-form-item label="优惠数量">{{ currentItemInfo.pc }}</el-form-item>
+                <el-form-item label="优惠小计">{{ (currentItemInfo.pa * 1).toFixed(2) }}</el-form-item>
+                <el-form-item label="优惠人">{{ currentItemInfo.authInfo && currentItemInfo.authInfo.name }}</el-form-item>
+                <!-- 退单、赠送理由 -->
+                <el-form-item label="选择取消原因" class="required required6">
+                  <ul class="reason-list" layout="row" layout-align="start center">
+                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
+                      @click="formData.reason = item.name">{{ item.name }}</li>
+                  </ul>
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+        </div>
+
         <!-- 批量提交优惠2 -->
-        <drawerYH2Submit
-          ref="drawerYH2Submit"
-          :showDrawer="sealMany2Info.showYH2Drawer"
-          :selectedProList="sealMany2Info.choosePrdList"
-          :showSelfBtn="sealMany2Info.authLimits"
-          @showOrHideDrawer="showOrHideYH2Drawer"
-          @showOrHideAnotherDrawer="onCancelDrawer"
-        />
+        <drawerYH2Submit ref="drawerYH2Submit" :showDrawer="sealMany2Info.showYH2Drawer"
+          :selectedProList="sealMany2Info.choosePrdList" :showSelfBtn="sealMany2Info.authLimits"
+          @showOrHideDrawer="showOrHideYH2Drawer" @showOrHideAnotherDrawer="onCancelDrawer" />
 
         <!-- 提交按钮 -->
         <div class="form-btn" layout="row" layout-align="center center">
-          <el-button type="info" @click.stop="onCancelDrawer(false)">{{status==5?'关闭':'取消'}}</el-button>
+          <el-button type="info" @click.stop="onCancelDrawer(false)">{{ status == 5 ? '关闭' : '取消' }}</el-button>
           <el-button
-            v-if="(status== 9 || (status==1 || (status == 2 && currentItemInfo && currentItemInfo.productInfo && currentItemInfo.productInfo.canSeal) || status == 3)&&subStatus==2) || (status == 4 && subStatus == 3) || (status == 6 && subStatus == 2)"
-            type="primary"
-            @click.stop="onSubmit('self')"
-          >自己授权</el-button>
-          <el-button type="primary" v-if="status!=5" @click.stop="onSubmit('another')">{{submitTxt}}</el-button>
+            v-if="(status == 9 || (status == 1 || (status == 2 && currentItemInfo && currentItemInfo.productInfo && currentItemInfo.productInfo.canSeal) || status == 3) && subStatus == 2) || (status == 4 && subStatus == 3) || (status == 6 && subStatus == 2)"
+            type="primary" @click.stop="onSubmit('self')">自己授权</el-button>
+          <el-button type="primary" v-if="status == 10" @click.stop="onSubmit('another')">下一步</el-button>
+          <el-button type="primary" v-if="status != 5 && status != 10" @click.stop="onSubmit('another')">{{ submitTxt
+          }}</el-button>
         </div>
       </div>
     </el-drawer>
@@ -464,7 +433,10 @@ export default {
         sub,
         addDisabled,
         subDisabled
-      }
+      },
+      formData: {
+        reason: '',
+      },
     };
   },
   methods: {
@@ -489,9 +461,9 @@ export default {
     changeCount(type) {
       if (this.currentItemInfo.productInfo.prdType == 4)
         return this.$message.warning("小费数量不可修改");
-      
+
       // 线上订单不支持修改数量
-      if(this.status == 1 && this.currentItemInfo.io == 1) {
+      if (this.status == 1 && this.currentItemInfo.io == 1) {
         return this.$message.warning('线上订单退单不支持修改数量')
       }
       switch (type) {
@@ -575,14 +547,14 @@ export default {
     },
 
     // 刷卡授权
-    swipingOrderHandle(empCardInfo){
-      if(this.show && (this.subStatus == 2 || this.status == 9)) {
+    swipingOrderHandle(empCardInfo) {
+      if (this.show && (this.subStatus == 2 || this.status == 9)) {
         const childrenVNode = this.$children[0].$children || []
         childrenVNode.forEach(el => {
-          if(el.$el.className == 'auth') {
-            if(el.tabIndex == 1) {
+          if (el.$el.className == 'auth') {
+            if (el.tabIndex == 1) {
               // 刷卡
-              if(this.status == 1){
+              if (this.status == 1) {
                 // 退单
                 this.orderBack('another', empCardInfo, 2)
               } else if (this.status == 2) {
@@ -601,12 +573,12 @@ export default {
             }
           }
         })
-      } else if(this.show && this.status == 4 && this.subStatus == 3){
+      } else if (this.show && this.status == 4 && this.subStatus == 3) {
         this.$nextTick(() => {
           const childrenVNode = this.$children[0].$children || []
           childrenVNode.forEach(el => {
-            if(el.$el.className == 'auth') {
-              if(el.tabIndex == 1) {
+            if (el.$el.className == 'auth') {
+              if (el.tabIndex == 1) {
                 // 修改明细
                 this.changGroupFromOrderPerson('another', empCardInfo, 2)
               } else {
@@ -619,8 +591,8 @@ export default {
         // 批量优惠2
         const childrenVNodeYH2 = this.$refs.drawerYH2Submit.$children[0].$children || []
         childrenVNodeYH2.forEach(el => {
-          if(el.$el.className == 'auth') {
-            if(el.tabIndex == 1) {
+          if (el.$el.className == 'auth') {
+            if (el.tabIndex == 1) {
               // 刷卡
               el.onSubmit('another', empCardInfo, 2)
             } else {
@@ -633,10 +605,10 @@ export default {
       }
     },
 
-    getCodeAndPwd(personType, empCardInfo, type){
+    getCodeAndPwd(personType, empCardInfo, type) {
       let authEmpCode = ''
       let authEmpPasswd = ''
-      if(type == 1) {
+      if (type == 1) {
         // 账号密码授权
         authEmpCode = personType == "self" ? "" : this.authorizationInfo.userName
         authEmpPasswd = personType == "self" ? "" : md5(this.authorizationInfo.passWord).toString().toUpperCase()
@@ -652,8 +624,8 @@ export default {
     },
 
     // 下单商品退单(单个商品退单)
-    async orderBack(personType, empCardInfo={}, type=1){
-      if(!this.formData.reason) return this.$message.warning('请选择退单理由')
+    async orderBack(personType, empCardInfo = {}, type = 1) {
+      if (!this.formData.reason) return this.$message.warning('请选择退单理由')
       let back_amt = "";
       if (
         [3, 5, 8].includes(this.currentItemInfo.productInfo.prdType * 1)
@@ -667,9 +639,9 @@ export default {
         }
       }
 
-      const {authEmpCode, authEmpPasswd} = this.getCodeAndPwd(personType, empCardInfo, type)
+      const { authEmpCode, authEmpPasswd } = this.getCodeAndPwd(personType, empCardInfo, type)
 
-      
+
       const loading = this.$loading({
         lock: true,
         text: "Loading",
@@ -685,7 +657,7 @@ export default {
         back_remark: this.formData.reason || "", // string  退单理由
         auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
         auth_emp_passwd: authEmpPasswd, // string   授权员工密码
-        pass_type : type  // 1:账号密码， 2：刷卡
+        pass_type: type  // 1:账号密码， 2：刷卡
       };
 
       try {
@@ -703,12 +675,12 @@ export default {
               this.$parent.$parent.getOrderInfo();
               break;
           }
-        } else if(res.code == 2) {
-          if(this.subStatus == 2) {
+        } else if (res.code == 2) {
+          if (this.subStatus == 2) {
             window.loopReadCard()
             this.$message.warning(res.msg)
           }
-          if(this.subStatus == 1) this.goAuthorization();
+          if (this.subStatus == 1) this.goAuthorization();
         } else {
           if (this.subStatus == 2) window.loopReadCard()
           this.$message.warning(res.msg);
@@ -717,12 +689,12 @@ export default {
         window.loopReadCard()
         console.log("退单失败");
       }
-      
+
       loading.close();
     },
 
     // 收银批量退单(批量循环退单)
-    async orderBackMany(currentItemInfo, personType, empCardInfo={}, type=1, callback){
+    async orderBackMany(currentItemInfo, personType, empCardInfo = {}, type = 1, callback) {
       let back_amt = "";
       if (
         [3, 5, 8].includes(currentItemInfo.productInfo.prdType * 1)
@@ -731,7 +703,7 @@ export default {
         back_amt = currentItemInfo.allAmt.toString();
       }
 
-      const {authEmpCode, authEmpPasswd} = this.getCodeAndPwd(personType, empCardInfo, type)
+      const { authEmpCode, authEmpPasswd } = this.getCodeAndPwd(personType, empCardInfo, type)
 
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
@@ -741,7 +713,7 @@ export default {
         back_remark: this.formData.reason || "", // string  退单理由
         auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
         auth_emp_passwd: authEmpPasswd, // string   授权员工密码
-        pass_type : type  // 1:账号密码， 2：刷卡
+        pass_type: type  // 1:账号密码， 2：刷卡
       };
 
       try {
@@ -749,12 +721,12 @@ export default {
         const res = await api_order[api](params);
         if (res.code === 1) {
           callback && callback()
-        } else if(res.code == 2) {
-          if(this.subStatus == 2) {
+        } else if (res.code == 2) {
+          if (this.subStatus == 2) {
             window.loopReadCard()
             this.$message.warning(res.msg)
           }
-          if(this.subStatus == 1) this.goAuthorization();
+          if (this.subStatus == 1) this.goAuthorization();
         } else {
           this.$message.warning(res.msg);
         }
@@ -765,10 +737,10 @@ export default {
 
     // 更改批量退单赔偿、小费商品金额
     changeAmtHandle(itemInfo) {
-      if(itemInfo.allAmt * 1 > itemInfo.pa * 1) {
+      if (itemInfo.allAmt * 1 > itemInfo.pa * 1) {
         this.$message.warning('不可超过最大金额' + itemInfo.pa)
         itemInfo.allAmt = itemInfo.pa * 1
-      } else if(itemInfo.allAmt * 1 < 0) {
+      } else if (itemInfo.allAmt * 1 < 0) {
         this.$message.warning('最小金额为0')
         itemInfo.allAmt = 0
       }
@@ -782,7 +754,7 @@ export default {
     },
 
     // 非收银员更改套餐明细
-    async changGroupFromOrderPerson(personType, empCardInfo={}, type=1){
+    async changGroupFromOrderPerson(personType, empCardInfo = {}, type = 1) {
       const {
         selectedProductsArr
       } = this.updateDetail.selectedInfoObj[0];
@@ -791,7 +763,7 @@ export default {
         beforeUpdateProduct
       } = this.updateDetail.selectedInfoObj[0];
 
-      const {authEmpCode, authEmpPasswd} = this.getCodeAndPwd(personType, empCardInfo, type)
+      const { authEmpCode, authEmpPasswd } = this.getCodeAndPwd(personType, empCardInfo, type)
 
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64   卡台Id
@@ -812,7 +784,7 @@ export default {
           el => el.selectedCount * 1
         ), // []int    对应上面dest_dtl_prd_ids的选中数
         dest_requirements: selectedProductsArr.map(el => el.requireText), // []string  套餐组Id对应的替换目标商品要求
-        pass_type : type  // 1:账号密码， 2：刷卡
+        pass_type: type  // 1:账号密码， 2：刷卡
       };
 
       try {
@@ -821,8 +793,8 @@ export default {
           this.$message.success("修改明细成功");
           this.onCancelDrawer(true);
           this.$parent.getOrderedData();
-        } else if(res.code == 2){
-          if(this.subStatus == 2) this.subStatus = 3;
+        } else if (res.code == 2) {
+          if (this.subStatus == 2) this.subStatus = 3;
           else {
             window.loopReadCard()
             this.$message.warning(res.msg);
@@ -836,8 +808,45 @@ export default {
       }
     },
 
+    // 取消优惠
+    async orderCancelDiscounts() {
+      if (!this.formData.reason) return this.$message.warning('请选择取消优惠原因')
+      this.$confirm("取消优惠后，商品将进入未结账列表，需要客人结账，请确认是否取消优惠", "确认", {
+        distinguishCancelAndClose: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      }).then(async () => {
+        try {
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            order_id: this.currentItemInfo.id * 1, // int64   订单项Id
+            remark: this.formData.reason, //  int  修改后数量 =0表示删除
+          };
+          const res = await api_order.reqCancelDiscount(params);
+          if (res.code === 1) {
+            this.$message.success('取消优惠成功');
+            this.onCancelDrawer(true);
+            switch (this.$route.name) {
+              case "myOrder": // 点单系统，我的订单页面
+                this.$parent.getOrderedData();
+                break;
+              case "payOrder": // 收银系统，未支付订单页面
+                this.$parent.$parent.getOrderInfo();
+                break;
+            }
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("取消优惠失败", error);
+        }
+      })
+        .catch(() => {
+
+        });
+    },
     // 提交
-    async onSubmit(personType, empCardInfo={}, type=1) {
+    async onSubmit(personType, empCardInfo = {}, type = 1) {
       // personType:{self:自己授权, another:别人授权}
       let authEmpCode = ''
       let authEmpPasswd = ''
@@ -860,13 +869,13 @@ export default {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
             order_ids: [this.currentProductInfo.id * 1], // int64   订单项Id
             auth_cnts: [this.productCount * 1], //  int   授权商品数量
-            pass_type : type  // 1:账号密码， 2：刷卡
+            pass_type: type  // 1:账号密码， 2：刷卡
           };
 
           if (!params.auth_emp_code && personType != "self") {
             return this.$message.warning("请输入授权员工号");
           }
-          if (!params.auth_emp_passwd && personType != "self"){
+          if (!params.auth_emp_passwd && personType != "self") {
             return this.$message.warning("请输入授权密码");
           }
           try {
@@ -957,11 +966,11 @@ export default {
             this.changGroupFromOrderPerson('another')
           }
           break;
-          
+
         case 6:
           // 确认批量优惠商品
           if (this.subStatus == 1) {
-            this.sealManyInfo.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item =>({
+            this.sealManyInfo.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item => ({
               ...item,
               pc: item.changeCount
             }))
@@ -981,13 +990,13 @@ export default {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
             order_ids: this.sealManyInfo.choosePrdList.map(item => item.id * 1), // []int64    要授权的购物车项Id
             auth_cnts: this.sealManyInfo.choosePrdList.map(item => item.pc * 1), //  []int   要授权的购物车项Id对应的数量
-            pass_type : type  // 1:账号密码， 2：刷卡
+            pass_type: type  // 1:账号密码， 2：刷卡
           };
 
           if (!params.auth_emp_code && personType != "self") {
             return this.$message.warning("请输入授权员工号");
           }
-          if (!params.auth_emp_passwd && personType != "self"){
+          if (!params.auth_emp_passwd && personType != "self") {
             return this.$message.warning("请输入授权密码");
           }
           try {
@@ -1011,10 +1020,10 @@ export default {
             window.loopReadCard()
             console.log("批量优惠授权失败", error);
           }
-          
+
           break
         case 7:  // 批量优惠2
-          this.sealMany2Info.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item =>({
+          this.sealMany2Info.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item => ({
             ...item,
             pc: item.changeCount
           }))
@@ -1022,19 +1031,19 @@ export default {
           // 判断当前操作人员是否有全部商品优惠2的权限
           this.sealMany2Info.authLimits = this.sealMany2Info.choosePrdList.every(item => item.productInfo.canSeal)
           this.showOrHideYH2Drawer()
-          
+
           break
         case 8:  // 批量退单
-          if(!this.formData.reason) return this.$message.warning('请选择退单理由')
+          if (!this.formData.reason) return this.$message.warning('请选择退单理由')
           this.backOrderIndex = 0
           const onlineBackPrdList = this.sealProductList.filter(item => item.checked && item.oid).map(item => item.canBackOrderList).flat()
           const localBackPrdList = this.sealProductList.filter(item => item.checked && !item.oid)
-          const backManyPrdList = [...onlineBackPrdList, ...localBackPrdList].map(item =>({
+          const backManyPrdList = [...onlineBackPrdList, ...localBackPrdList].map(item => ({
             ...item,
             pc: item.changeCount
           }))
           if (backManyPrdList.length == 0) return this.$message.warning('请选择需要批量退单的商品')
-          if(backManyPrdList.some(item => item.allAmt == '')) return this.$message.warning('请输入退单小计金额')
+          if (backManyPrdList.some(item => item.allAmt == '')) return this.$message.warning('请输入退单小计金额')
           backManyPrdList.forEach(el => {
             setTimeout(() => {
               this.orderBackMany(el, 'self', {}, 1, backManyPrdList => {
@@ -1046,24 +1055,24 @@ export default {
             }, 200 * this.backOrderIndex);
             this.backOrderIndex += 1
           })
-          
+
           break
         case 9:
           authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
           authEmpPasswd = this.getCodeAndPwd(personType, empCardInfo, type).authEmpPasswd
 
           params = {
-              auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
-              auth_emp_passwd: authEmpPasswd, // string  授权员工密码
-              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
-              order_id: this.currentProductInfo.id * 1, // int64   订单项Id
-              pass_type : type  // 1:账号密码， 2：刷卡
-            };
-            
+            auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
+            auth_emp_passwd: authEmpPasswd, // string  授权员工密码
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            order_id: this.currentProductInfo.id * 1, // int64   订单项Id
+            pass_type: type  // 1:账号密码， 2：刷卡
+          };
+
           if (!params.auth_emp_code && personType != "self") {
             return this.$message.warning("请输入授权员工号");
           }
-          if (!params.auth_emp_passwd && personType != "self"){
+          if (!params.auth_emp_passwd && personType != "self") {
             return this.$message.warning("请输入授权密码");
           }
           try {
@@ -1088,6 +1097,9 @@ export default {
             console.log("修改优惠/优惠2授权人失败", error);
           }
           break
+        case 10: // 取消优惠
+          this.orderCancelDiscounts()
+          break;
       }
     },
 
@@ -1139,7 +1151,7 @@ export default {
       ] = selectedInfo;
     },
 
-    
+
     /**
      * 批量优惠
      */
@@ -1152,7 +1164,7 @@ export default {
             count = Math.min(count + 1, info.pc);
             break;
           case "sub":
-            if(this.status == 8 && info.io == 1) {
+            if (this.status == 8 && info.io == 1) {
               // 线上订单批量退单
               return this.$message.warning('线上订单不可修改退单数量')
             }
@@ -1164,8 +1176,8 @@ export default {
             break;
         }
         info.changeCount = count;
-        if(['5','3','8'].indexOf(info.productInfo.prdType)>-1) {
-          if(info.changeCount == info.pc) {
+        if (['5', '3', '8'].indexOf(info.productInfo.prdType) > -1) {
+          if (info.changeCount == info.pc) {
             info.allAmt = info.pa
           }
         }
@@ -1173,13 +1185,13 @@ export default {
       }
     },
 
-    showOrHideYH2Drawer(){
+    showOrHideYH2Drawer() {
       this.sealMany2Info.showYH2Drawer = !this.sealMany2Info.showYH2Drawer
     },
 
     // 选择需要批量优惠/批量优惠2的商品
-    changeCheckBox(type){
-      switch(type){
+    changeCheckBox(type) {
+      switch (type) {
         case 'all':
           this.sealProductList = this.sealProductList.map(item => ({
             ...item,
@@ -1209,8 +1221,8 @@ export default {
       }
     }
   },
-  created() {},
-  mounted() {},
+  created() { },
+  mounted() { },
   props: {
     showDrawer: {
       default: false
@@ -1248,8 +1260,8 @@ export default {
             this.subStatus == 1
               ? "选择套餐明细"
               : this.subStatus == 2
-              ? "更改套餐明细"
-              : "更改套餐明细授权";
+                ? "更改套餐明细"
+                : "更改套餐明细授权";
           break;
         case 5:
           title = "查看套餐明细";
@@ -1266,6 +1278,8 @@ export default {
         case 9:
           title = '修改优惠人'
           break
+        case 10:
+          title = '取消优惠'
       }
       if (this.status != 4 && this.subStatus != 1) title = "授权";
       return title;
@@ -1273,7 +1287,7 @@ export default {
     size() {
       let size = "60%";
       if ((this.status === 4 && this.subStatus == 1) || this.status == 5) size = "40%";
-      if(this.status == 6 || this.status == 7) size = '80%'
+      if (this.status == 6 || this.status == 7) size = '80%'
       if (this.subStatus == 2 || this.subStatus == 3) size = "88%";
       return size;
     },
@@ -1281,12 +1295,19 @@ export default {
       let txt = "确认";
       return txt;
     },
-    reasonList(){ // 优惠1、退单2理由
-      const typeId = this.status == 1 || this.status == 8 ? 2 : 1
+    reasonList() { // 优惠1、退单2理由  4取消原因
+      let typeId;
+      if (this.status == 1 || this.status == 8) {
+        typeId = 2
+      } else if (this.status == 10) {
+        typeId = 4
+      } else {
+        typeId = 1
+      }
       return this.$store.state.cardPageInfo.resResultDataObj.reasonList.filter(item => item.status == 1 && item.type_id == typeId)
     },
 
-    isIndeterminate(){
+    isIndeterminate() {
       return !this.checkAll && this.sealProductList.some(item => item.checked)
     }
   },
@@ -1307,17 +1328,17 @@ export default {
 
         this.subStatus = 1;
         this.formData.reason = '';
-        
-        if(this.status < 6 || this.status  == 9) {
+
+        if (this.status < 6 || this.status == 9) {
           // 优惠 自用  加要求  更改明细 修改优惠人
           this.currentProductInfo = this.currentItemInfo.id
             ? this.currentItemInfo
             : {
-                productInfo: {
-                  name: "",
-                  prdType: 1
-                }
-              };
+              productInfo: {
+                name: "",
+                prdType: 1
+              }
+            };
         }
 
         switch (this.status) {
@@ -1414,7 +1435,7 @@ export default {
           case 7:  // 批量优惠2
             this.checkAll = true
 
-            const offLineOrder =  this.orderList.filter(item => !item.oid).filter(item => item.at !=2 && item.at != 3 && !item.back && (item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6))
+            const offLineOrder = this.orderList.filter(item => !item.oid).filter(item => item.at != 2 && item.at != 3 && !item.back && (item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6))
 
             this.sealProductList = offLineOrder.map(item => ({
               ...item,
@@ -1440,15 +1461,18 @@ export default {
               changeCount: item.pc,
             }))
 
-            const offLineOrders =  this.orderList.filter(item => !item.oid).filter(item => item.at !=2 && item.at != 3 && !item.back ).map(item => ({
-                ...item,
-                changeCount: item.pc,
-                checked: true,
-                allAmt: item.pa
-              }))
+            const offLineOrders = this.orderList.filter(item => !item.oid).filter(item => item.at != 2 && item.at != 3 && !item.back).map(item => ({
+              ...item,
+              changeCount: item.pc,
+              checked: true,
+              allAmt: item.pa
+            }))
             this.sealProductList = [...offLineOrders, ...resultOnlineOrder]
             this.checkAll = this.sealProductList.every(item => item.checked)
             break
+          case 10: // 取消优惠
+            this.formData.reason = "";
+            break;
         }
       } else {
         window.stopLoopReadCard()
