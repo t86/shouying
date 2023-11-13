@@ -207,34 +207,20 @@ export default {
     },
     // 从模糊查询中点击分类或商品
     getSearchDetail(itemInfo, type) {
-      if (type == "oneCate" || type == "twoCate") {
-        const menuIndex = type == "oneCate" ? "0" : "1";
+        const menuIndex = "1";
         const menuId = itemInfo.id;
         this.$router.push(
           "/BMS/wineInfo?menuIndex=" +
             menuIndex +
             "&menuId=" +
             menuId +
+            "&n=" + itemInfo.n +
+            "&f=" + itemInfo.f +
+            "&l=" + itemInfo.l +
             "&search=true"
         );
         this.searchVal = "";
         this.showMenuList = true;
-      } else {
-        this.$router.push(
-          "/BMS/wineInfo?prd=" +
-            itemInfo.id +
-            "&search=true"
-        );
-        // 打开存酒
-        this.wineId = itemInfo.id;
-        if (itemInfo.t == 3) {
-          // 单品
-          this.showDrawer = true;
-        } else {
-          // 套餐
-          this.showGroupDrawer = true;
-        }
-      }
     },
     // 模糊搜索
     inputSearchHandle() {
