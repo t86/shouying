@@ -59,7 +59,6 @@ export default {
     return {
       checked: false,
       indeterminate: false,
-      catTableData: [],
       tableData: [],
       showCatDrawer: false,
       dataInfo: {},
@@ -137,7 +136,11 @@ export default {
       }
     }
   },
+
   created() {
+
+  },
+  mounted(){
     this.getTableData();
   },
   components: {

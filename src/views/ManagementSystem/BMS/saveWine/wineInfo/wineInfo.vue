@@ -135,7 +135,9 @@ export default {
   methods: {
     init() {
       this.menuIndex = this.$route.query.menuIndex || 0
-      this.getMenuList();
+      if(this.menuIndex == 0) {
+        this.getMenuList();
+      }
     },
     async getCatTableData() {
 
