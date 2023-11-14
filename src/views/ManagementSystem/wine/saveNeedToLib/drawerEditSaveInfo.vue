@@ -330,7 +330,7 @@ export default {
     },
 
     copyHandle(itemInfo) {
-      this.tableData = [...this.tableData, {...itemInfo, id: 0 }]
+      this.tableData = [...this.tableData, {...itemInfo }]
     },
     deleteHandle(itemInfo) {
       const index = this.tniableData.findIndex((item) => item.id == itemInfo.id);
