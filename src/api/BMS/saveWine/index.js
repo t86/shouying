@@ -29,6 +29,9 @@ export default {
   // 新建存酒分类
   reqNewWineCate: params => axios.post(`${base.htgl}/wine/cfg/new_wine_cate`, params),
 
+  // 编辑存酒分类
+  reqUpdateWineCate : params => axios.post(`${base.htgl}/wine/cfg/save_wine_cate`, params),
+
   // 获取存酒分类列表
   reqGetWineCateList: params => axios.post(`${base.htgl}/wine/cfg/get_wine_cate_list`, params),
 

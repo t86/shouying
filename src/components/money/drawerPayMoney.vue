@@ -765,14 +765,17 @@ export default {
 
         // 挂账
         if (this.payActiveInfo.id == 6) {
-          if (!this.GZInfo.selectInfo.selectVal && !this.GZInfo.selectInfo.orderVal)
+          if ((!this.GZInfo.selectInfo.selectVal && this.GZInfo.selectInfo.gzValue == '1') 
+          || (!this.GZInfo.selectInfo.orderVal && this.GZInfo.selectInfo.gzValue == '2'))
             return this.$message.warning("请选择挂账账户");
-            
+          if (!this.GZInfo.selectInfo.selectVal && !this.GZInfo.selectInfo.orderVal)
+          return this.$message.warning("请选择挂账账户");
+
           let bizItem = this.GZInfo.originOption.find((item) => item.name == this.GZInfo.selectInfo.selectVal)
           params = {
             ...params,
-            biz_id: this.isOrderGZ ? 0 : bizItem ? bizItem.id * 1 : 0,
-            card_no: this.isOrderGZ ?  this.GZInfo.selectInfo.orderVal : bizItem ? '' : this.GZInfo.selectInfo.selectVal
+            biz_id: this.isOrderGZ && this.GZInfo.selectInfo.gzValue == '2' ? 0 : bizItem ? bizItem.id * 1 : 0,
+            card_no: this.isOrderGZ && this.GZInfo.selectInfo.gzValue == '2' ?  this.GZInfo.selectInfo.orderVal : bizItem ? '' : this.GZInfo.selectInfo.selectVal
           };
         }
 

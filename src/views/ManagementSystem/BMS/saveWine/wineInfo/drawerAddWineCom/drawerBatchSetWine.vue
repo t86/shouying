@@ -1,7 +1,8 @@
 <template>
   <div>
     <el-dialog title="批量修改存酒分类" :visible.sync="showDrawer" :close-on-click-modal="false" :size="500">
-      <div class="session">
+      <div class="session p-t-4">
+        <span class="color-red">说明: 修改后酒水的有效期将更改为新存酒分类的有效期</span>
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">存酒分类：</div>
           <div class="value">

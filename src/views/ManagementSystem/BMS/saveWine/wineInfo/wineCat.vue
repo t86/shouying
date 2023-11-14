@@ -45,7 +45,7 @@
       </div>
     </div>
     <drawerAddCatWine :currentInfo="currentInfo" :status="status" :showDrawer="showCatDrawer"
-      @showDrawerHandle="showCatDrawerHandle" @getTableData="getTableData" @getMenuList="$emit('getMenuList')" />
+      @showDrawerHandle="showCatDrawerHandle" @getTableData="getTableData" @getMenuList="getMenuList" />
   </div>
 </template>
    
@@ -74,6 +74,7 @@ export default {
     async getTableData() {
       try {
         const res = await this.$api.BMS.saveWine.reqGetWineCateList({});
+        this.getMenuList();
         if (res.code == 1) {
           this.tableData = (res.data.records || []).map(item => ({
             ...item,
@@ -87,7 +88,9 @@ export default {
         console.log("存酒列表数据获取失败", error);
       }
     },
-
+    getMenuList(){
+      this.$emit('getMenuList');
+    },
     changeCheckboxHandle(type) {
       switch (type) {
         case "all":

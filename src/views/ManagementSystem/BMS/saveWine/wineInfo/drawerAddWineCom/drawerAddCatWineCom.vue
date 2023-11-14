@@ -69,21 +69,22 @@ export default {
 
     // 重置
     restSearchData() {
-      this.name = this.status==2 ? this.currentInfo.n: "";
-      this.full_expired_day = this.status==2 ? this.currentInfo.f: "";
-      this.loose_expired_day =this.status==2 ? this.currentInfo.l: "";
+      this.name = this.status == 2 ? this.currentInfo.n : "";
+      this.full_expired_day = this.status == 2 ? this.currentInfo.f : "";
+      this.loose_expired_day = this.status == 2 ? this.currentInfo.l : "";
     },
     async submitHandle() {
       if (!this.validator()) return
       const params = {
+        id: this.status == 2 ? this.currentInfo.id : undefined,
         name: this.name,
         full_expired_day: Number(this.full_expired_day),
         loose_expired_day: Number(this.loose_expired_day),
       };
       try {
-        const res = await this.$api.BMS.saveWine.reqNewWineCate(params);
+        const res = this.status == 2 ? await this.$api.BMS.saveWine.reqUpdateWineCate(params) : await this.$api.BMS.saveWine.reqNewWineCate(params);
         if (res.code == 1) {
-          this.$message.success('添加成功')
+          this.$message.success(this.status == 2 ? '编辑成功' : '添加成功')
           this.closeDrawerHandle();
           this.$emit("getTableData");
           this.$emit('getMenuList');
@@ -91,7 +92,7 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log("添加失败", error);
+        console.log(this.status == 2 ? "编辑失败" : "添加失败", error);
       }
     },
     // 关闭drawer

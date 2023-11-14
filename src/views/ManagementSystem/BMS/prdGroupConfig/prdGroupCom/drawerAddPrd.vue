@@ -182,10 +182,36 @@ export default {
       this.getTableData();
     },
 
-    submitHandle() {
+    async submitHandle() {
       const checkedList = this.tableData.filter(item => item.checked);
-      if (checkedList.length <= 0)
+      if (checkedList.length <= 0) {
         return this.$message.warning("请选择需要添加的商品");
+      }
+
+      const params = {
+        station_id: this.stationId,
+        prd_ids: this.tableData.filter(item => item.checked).map(item => item.id)
+      };
+      try {
+        if (params.prd_ids.length > 0) {
+          const res = await this.$api.BMS.station.reqAddOrdExclPrd(
+            params
+          );
+          if (res.code == 1) {
+            this.$message.success("操作成功");
+            this.onCancelDrawer();
+            this.$emit("getTableData");
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } else {
+          this.$message.success("操作成功");
+          this.onCancelDrawer();
+          this.$emit("getTableData");
+        }
+      } catch (error) {
+        console.log("数据请求失败", error);
+      }
       this.onCancelDrawer();
       this.$emit("getChoosedPrdList", checkedList);
     },
@@ -204,6 +230,9 @@ export default {
     checkedPrdList: {
       default: []
     },
+    stationId: {
+      default: 0
+    }
   },
   computed: {
     show: {

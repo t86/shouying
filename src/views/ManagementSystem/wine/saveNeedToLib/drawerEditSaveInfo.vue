@@ -157,7 +157,7 @@
                 <div class="td" style="width: 220px">
                   <span
                     style="color: #2170ff; cursor: pointer"
-                    @click="deleteHandle(item)"
+                    @click="copyHandle(item)"
                     >复制</span
                   >
                   <span
@@ -329,8 +329,11 @@ export default {
       }
     },
 
+    copyHandle(itemInfo) {
+      this.tableData = [...this.tableData, {...itemInfo }]
+    },
     deleteHandle(itemInfo) {
-      const index = this.tableData.findIndex((item) => item.id == itemInfo.id);
+      const index = this.tniableData.findIndex((item) => item.id == itemInfo.id);
       if (index > -1) {
         this.tableData.splice(index, 1);
       }
