@@ -97,12 +97,12 @@
       </div>
 
       <!-- 添加商品 -->
-      <drawerAddPrd v-model="showAddPrdDrawer" @getChoosedPrdList="getChoosedPrdList" prdType="2" :checkedPrdList="tableData" />
+      <drawerAddPrd v-model="showAddPrdDrawer" @getChoosedPrdList="getChoosedPrdList" :stationId="checkedList.map((item) => item.id * 1)[0]" prdType="2" :checkedPrdList="tableData" />
 
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="primary" @click="onSubmit" v-if="isCanOrder">确定</el-button>
       </div>
     </el-drawer>
   </div>
@@ -119,6 +119,7 @@ export default {
       waiterCates: [], // 树形结构
       showAddPrdDrawer: false,
       tableData: [],
+      needSave: false,
     };
   },
   methods: {
@@ -147,6 +148,7 @@ export default {
       }
     },
     changeCheckboxHandle(type) {
+      this.needSave = true;
       switch (type) {
         case "all":
           this.tableData = this.tableData.map(item => ({
@@ -160,6 +162,12 @@ export default {
       }
     },
     async onChangeTab(type) {
+      if (type == 2){
+        if (this.needSave){
+          this.$message.warning('请先保存可点商品信息');
+          return
+        }
+      }
       if(type === 2){
         if(this.checkedList.map((item) => item.id * 1).length > 1) {
           this.$message.warning('不可点商品暂不支持批量设置');
@@ -212,6 +220,7 @@ export default {
 
     // 点击可点商品全部checkbox
     checkAllHandle(val) {
+      this.needSave = true;
       setTimeout(() => {
         this.checkAll = val;
         this.indeterminate = false;
@@ -233,6 +242,7 @@ export default {
 
     //监测可点商品数据变化
     waiterCatesChange(data) {
+      this.needSave = true;
       this.waiterCates = data;
       this.indeterminate = false;
       this.checkAll = false;
@@ -263,7 +273,8 @@ export default {
         } else if (!this.indeterminate && !this.checkAll) {
           allPrdMode = 2;
         } else {
-          allPrdMode = 3;      }
+          allPrdMode = 3;      
+        }
 
         const params = {
           station_ids: this.checkedList.map((item) => item.id * 1),        
@@ -285,37 +296,13 @@ export default {
         } catch (error) {
           console.log("数据请求失败", error);
         }
-      } else {
-        const params = {
-          station_id: this.checkedList.map((item) => item.id * 1)[0],
-          prd_ids: this.tableData.filter(item => item.checked).map(item => item.id)
-        };
-        try {
-          if (params.prd_ids.length > 0) {
-            const res = await this.$api.BMS.station.reqAddOrdExclPrd(
-              params
-            );
-            if (res.code == 1) {
-              this.$message.success("操作成功");
-              this.onCancelDrawer();
-              this.$emit("getTableData");
-            } else {
-              this.$message.warning(res.msg);
-            }
-          } else {
-            this.$message.success("操作成功");
-            this.onCancelDrawer();
-            this.$emit("getTableData");
-          }
-        } catch (error) {
-          console.log("数据请求失败", error);
-        }
       }
     },
 
     onCancelDrawer() {
       this.show = false;
       this.isCanOrder = true;
+      this.needSave = false;
       this.tableData = []
     },
   },
@@ -335,10 +322,17 @@ export default {
 
     show: {
       get() {
+        if (this.value){
+          let that = this
+          setTimeout(function() {
+            that.needSave = false;
+          }, 300);
+        }
         return this.value;
       },
 
       set(val) {
+
         this.$emit("input", val);
       },
     },
