@@ -291,26 +291,32 @@ export default {
           prd_ids: this.tableData.filter(item => item.checked).map(item => item.id)
         };
         try {
-          const res = await this.$api.BMS.station.reqAddOrdExclPrd(
-            params
-          );
-          if (res.code == 1) {
+          if (params.prd_ids.length > 0) {
+            const res = await this.$api.BMS.station.reqAddOrdExclPrd(
+              params
+            );
+            if (res.code == 1) {
+              this.$message.success("操作成功");
+              this.onCancelDrawer();
+              this.$emit("getTableData");
+            } else {
+              this.$message.warning(res.msg);
+            }
+          } else {
             this.$message.success("操作成功");
             this.onCancelDrawer();
             this.$emit("getTableData");
-          } else {
-            this.$message.warning(res.msg);
           }
         } catch (error) {
           console.log("数据请求失败", error);
         }
       }
-      this.isCanOrder = true
-      this.tableData = []
     },
 
     onCancelDrawer() {
       this.show = false;
+      this.isCanOrder = true;
+      this.tableData = []
     },
   },
   mounted() {},
