@@ -563,7 +563,7 @@ export default {
     height: calc(100vh - 178px);
     display: flex;
     flex-wrap: wrap;  
-    justify-content: end;
+    justify-content: space-between;
     // 左侧
     .left {
       overflow: auto;
