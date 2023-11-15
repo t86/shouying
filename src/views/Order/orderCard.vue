@@ -53,6 +53,9 @@
               ]"
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
+              :style="{
+                display: !item.canLookOrder && isMarketing ? 'none' : '',
+              }"
             >
               <p layout="row" layout-align="space-between center">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
@@ -1573,6 +1576,12 @@ export default {
       );
       const ids = subordinateList.map((d) => d.id);
       return ids;
+    },
+    // 有且只有一个营销角色权限 隐藏无权限展示的卡台
+    isMarketing() {
+      return (
+        this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1)
     },
   },
 
