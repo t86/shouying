@@ -109,6 +109,7 @@
 </template>
 
 <script>
+import { cloneDeep } from "lodash-es";
 export default {
   data() {
     return {
@@ -117,18 +118,20 @@ export default {
       indeterminate: false,
       resetStatus: false,
       waiterCates: [], // 树形结构
+      originCates: [],
       showAddPrdDrawer: false,
       tableData: [],
-      needSave: false,
     };
   },
   methods: {
     getChoosedPrdList(prdList){
+      console.log('getChoosedPrdList')
       this.tableData = [...this.tableData, ...prdList].filter((item, index, arr) => arr.findIndex(items => items.id == item.id) == index)
       this.checkAll = this.tableData.every(item => item.checked)
     },
     // 删除
     async deleteHandle() {
+      console.log('deleteHandle')
       const checkedIdList = this.tableData.filter(item => item.checked).map(item => item.id)
 
       const res = await this.$api.BMS.station.reqDelOrdExclPrd({
@@ -148,7 +151,7 @@ export default {
       }
     },
     changeCheckboxHandle(type) {
-      this.needSave = true;
+      console.log('changeCheckboxHandle', type)
       switch (type) {
         case "all":
           this.tableData = this.tableData.map(item => ({
@@ -161,9 +164,61 @@ export default {
           break;
       }
     },
+
+    filter(arr) {
+      const result = [];
+
+      for (let i = 0; arr && i < arr.length; i++) {
+        const item = arr[i];
+        if (item.c) {
+          result.push(item);
+        } else {
+          // 递归过滤子节点
+          const subs = this.filter(item.subs);  
+          if (subs.length > 0) {
+            // 如果子节点有过滤结果,则构造一个新的对象
+            result.push({
+              id: item.id,
+              subs: subs
+            });
+          }
+        }
+      }
+      return result;
+    },
+    equal(arr1, arr2) {
+      const filtered1 = this.filter(arr1);
+      const filtered2 = this.filter(arr2);
+      // 数组长度不一样则不相等
+      if (filtered1.length !== filtered2.length) {
+        return false;
+      }
+      // 遍历每一个元素进行深度比较
+      for (let i = 0; i < filtered1.length; i++) {
+        if (!this.deepEqual(filtered1[i], filtered2[i])) { 
+          return false;
+        }
+      }
+      return true;
+    },
+    // 比较两个树形数据结构
+    deepEqual(o1, o2) {
+        // 比较根节点 id 和 c
+        if (o1.id !== o2.id || o1.c != o2.c) {
+          return false;
+        }
+        for (let i = 0; o1.subs && i < o1.subs.length; i++) {
+          if (!this.deepEqual(o1.subs[i], o2.subs[i])) {
+            return false;
+          }
+        }
+        return true;
+    },
+
     async onChangeTab(type) {
       if (type == 2){
-        if (this.needSave){
+        const mustMatch = this.equal(this.originCates, this.waiterCates);
+        if (!mustMatch){
           this.$message.warning('请先保存可点商品信息');
           return
         }
@@ -206,6 +261,7 @@ export default {
               c: items.st == 1,
             })),
           }));
+
           setTimeout(() => {
             this.indeterminate = res.data.all_sel_type == 3;
             this.checkAll = res.data.all_sel_type == 1;
@@ -220,7 +276,6 @@ export default {
 
     // 点击可点商品全部checkbox
     checkAllHandle(val) {
-      this.needSave = true;
       setTimeout(() => {
         this.checkAll = val;
         this.indeterminate = false;
@@ -242,8 +297,10 @@ export default {
 
     //监测可点商品数据变化
     waiterCatesChange(data) {
-      this.needSave = true;
       this.waiterCates = data;
+      if(this.originCates.length == 0) {
+        this.originCates = cloneDeep(this.waiterCates);
+      }
       this.indeterminate = false;
       this.checkAll = false;
     },
@@ -302,7 +359,6 @@ export default {
     onCancelDrawer() {
       this.show = false;
       this.isCanOrder = true;
-      this.needSave = false;
       this.tableData = []
     },
   },
@@ -322,12 +378,6 @@ export default {
 
     show: {
       get() {
-        if (this.value){
-          let that = this
-          setTimeout(function() {
-            that.needSave = false;
-          }, 300);
-        }
         return this.value;
       },
 
