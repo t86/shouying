@@ -562,7 +562,7 @@ export default {
     padding: 0 20px;
     height: calc(100vh - 178px);
     display: flex;
-    flex-wrap: wrap;  
+    flex-wrap: nowrap;  
     justify-content: end;
     // 左侧
     .left {
