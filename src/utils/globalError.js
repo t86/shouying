@@ -12,7 +12,7 @@ class GlobalError {
     // 处理 onerror
     window.onerror = (message, source, lineno, colno, error) => {
       this.handleError(error);
-      if(error && error.message && error.message.includes('Loading chunk')) {
+      if(error && error.message && error.message.includes('Unexpected token')) {
         window.location.reload();
       }
  
