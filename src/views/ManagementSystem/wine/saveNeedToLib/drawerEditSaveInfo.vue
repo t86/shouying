@@ -60,7 +60,7 @@
 
             <div class="title">客人信息</div>
             <div class="name" v-if="isCustomer">{{ custName || ' ' }}</div>
-            <div v-else>{{ custName + "  " + custPhone }}</div>
+            <div v-else>{{ (custName || '') + "  " + (custPhone || '') }}</div>
             <div class="phone" v-if="isCustomer">{{ custPhone || ' ' }}</div>
             <el-button type="primary" @click="changeCustomerInfo" v-else
             >更改客人信息</el-button>
@@ -315,7 +315,7 @@ export default {
       try {
         const res = await api_wine.reqChgCjBefIn(params);
         if (res.code == 1) {
-          this.$message.success("入库成功");
+          this.$message.success("修改成功");
           this.showAuthDrawer = false;
           this.onCancelDrawer();
           this.$emit("getTableData");
@@ -347,7 +347,8 @@ export default {
       } else {
         // 仓库人员编辑完存酒单，不需要服务员授权，直接提交
         this.authInfo = { userName: "", passWord: "", type: 1 };
-        this.dialogVisible = true;
+        this.onSubmit();
+        // this.dialogVisible = true;
       }
     },
 
