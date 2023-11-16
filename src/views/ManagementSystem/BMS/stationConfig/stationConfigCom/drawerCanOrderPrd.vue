@@ -10,7 +10,7 @@
     >
       <div class="session p-5 erp-lib-detail fs14 tab">
         <div class="item item-left" :class="{isActive: isCanOrder}" @click.stop="onChangeTab(1)">配置可点分类</div>
-        <div class="item item-right" :class="{isActive: !isCanOrder}" @click.stop="onChangeTab(2)">配置不可点分类</div>
+        <div class="item item-right" :class="{isActive: !isCanOrder}" @click.stop="checkChangeTab">配置不可点分类</div>
       </div>
       <div class="session p-5 erp-lib-detail fs14" v-if="isCanOrder">
         <p class="red-color">
@@ -105,6 +105,14 @@
         <el-button type="primary" @click="onSubmit" v-if="isCanOrder">确定</el-button>
       </div>
     </el-drawer>
+
+    <el-dialog title="确认保存" :visible.sync="dialogSaveVisible" width="30%">
+        <p style="line-height:40px">可点商品信息尚未保存，是否确定保存？</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogSaveVisible = false; onChangeTab(2)">否</el-button>
+          <el-button type="primary" @click="saveAndChange">是</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
@@ -122,6 +130,7 @@ export default {
       originCheckAll: false,
       showAddPrdDrawer: false,
       tableData: [],
+      dialogSaveVisible: false,
     };
   },
   methods: {
@@ -215,19 +224,25 @@ export default {
         }
         return true;
     },
-
-    async onChangeTab(type) {
-      if (type == 2){
-        if(this.checkAll != this.originCheckAll) {
-          this.$message.warning('请先保存可点商品信息');
-          return
-        }
-        const mustMatch = this.equal(this.originCates, this.waiterCates);
-        if (!mustMatch){
-          this.$message.warning('请先保存可点商品信息');
-          return
-        }
+    checkChangeTab(){
+      if(this.checkAll != this.originCheckAll) {
+        this.dialogSaveVisible = true
+        return
       }
+      const mustMatch = this.equal(this.originCates, this.waiterCates);
+      if (!mustMatch){
+        this.dialogSaveVisible = true
+        return
+      }
+      this.onChangeTab(2)
+    },
+    saveAndChange(){
+      this.dialogSaveVisible = false
+      this.onSubmit(false);
+      this.onChangeTab(2)
+    },
+    async onChangeTab(type) {
+     
       if(type === 2){
         if(this.checkedList.map((item) => item.id * 1).length > 1) {
           this.$message.warning('不可点商品暂不支持批量设置');
@@ -244,6 +259,7 @@ export default {
             this.tableData = []
           }
         } else {
+          this.onChangeTab(1)
           this.$message.warning(res.msg);
         }
       } else {
@@ -315,7 +331,7 @@ export default {
       this.checkAll = false;
     },
 
-    async onSubmit() {
+    async onSubmit(isClose = true) {
       if(this.isCanOrder) {
         let selCates = [];
         let unChangeCates = [];
@@ -355,7 +371,11 @@ export default {
           );
           if (res.code == 1) {
             this.$message.success("操作成功");
-            this.onCancelDrawer();
+            this.originCates = this.waiterCates
+            this.originCheckAll = this.checkAll
+            if(isClose) {
+              this.onCancelDrawer();
+            }
             this.$emit("getTableData");
           } else {
             this.$message.warning(res.msg);
@@ -369,6 +389,10 @@ export default {
     onCancelDrawer() {
       this.show = false;
       this.isCanOrder = true;
+      this.waiterCates = []
+      this.originCates = []
+      this.checkAll = false
+      this.originCheckAll = false
       this.tableData = []
     },
   },
