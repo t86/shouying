@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="middle">
+      <div class="right">
         <div class="title fs16 m-t-3 m-b-3">取酒详情</div>
         <div class="table-content" layout="column">
           <div class="table">
@@ -189,15 +189,16 @@
             >
           </div>
         </div>
-      </div>
-      <keyBoard
-          class="kebBoard right"
+        <keyBoard
+          class="key"
+          landscape
           :itemWidth="66"
+          :height="120"
           :width="204"
           @changeNum="changeNumHandle"
         />
+      </div>
     </div>
-
     <!-- 底部按钮 -->
     <div class="form-btn" layout="row" layout-align="space-between center">
       <div class="left" layout="row" layout-align="end center">
@@ -568,7 +569,6 @@ export default {
     .left {
       overflow: auto;
       box-sizing: border-box;
-      max-width: 400px;
       flex-basis: 350px;
       flex-grow: 1;
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -597,12 +597,11 @@ export default {
       }
     }
     // 取酒侧
-    .middle {
+    .right {
       overflow: auto;
       box-sizing: border-box;
       height: 400px;
       margin-left: 10px;
-      max-width: 380px;
       flex-basis: 280px;
       flex-grow: 1;
       .table {
@@ -680,12 +679,6 @@ export default {
         border: 1px solid #32b9ff;
         box-shadow: 0px 0px 8px 0px rgba(26, 137, 255, 0.8);
       }
-    }
-    .right {
-      margin-top: 50px;
-      margin-left: 10px;
-      flex-basis: 200px;
-      flex-grow: 0;
     }
     //  箭头
     .arrow {
