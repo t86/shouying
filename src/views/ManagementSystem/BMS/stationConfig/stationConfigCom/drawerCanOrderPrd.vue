@@ -118,7 +118,7 @@ export default {
       indeterminate: false,
       resetStatus: false,
       waiterCates: [], // 树形结构
-      originCates: [],
+      // originCates: [],
       showAddPrdDrawer: false,
       tableData: [],
     };
@@ -216,13 +216,13 @@ export default {
     },
 
     async onChangeTab(type) {
-      if (type == 2){
-        const mustMatch = this.equal(this.originCates, this.waiterCates);
-        if (!mustMatch){
-          this.$message.warning('请先保存可点商品信息');
-          return
-        }
-      }
+      // if (type == 2){
+      //   const mustMatch = this.equal(this.originCates, this.waiterCates);
+      //   if (!mustMatch){
+      //     this.$message.warning('请先保存可点商品信息');
+      //     return
+      //   }
+      // }
       if(type === 2){
         if(this.checkedList.map((item) => item.id * 1).length > 1) {
           this.$message.warning('不可点商品暂不支持批量设置');
@@ -240,6 +240,10 @@ export default {
           }
         } else {
           this.$message.warning(res.msg);
+        }
+      } else {
+        if(this.checkAll) {
+          this.checkAllHandle(true)
         }
       }
       this.isCanOrder = type === 1
@@ -298,9 +302,9 @@ export default {
     //监测可点商品数据变化
     waiterCatesChange(data) {
       this.waiterCates = data;
-      if(this.originCates.length == 0) {
-        this.originCates = cloneDeep(this.waiterCates);
-      }
+      // if(this.originCates.length == 0) {
+      //   this.originCates = cloneDeep(this.waiterCates);
+      // }
       this.indeterminate = false;
       this.checkAll = false;
     },
