@@ -5,8 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-dev": "vue-cli-service build  --mode development",
-    "build-local": "vue-cli-service build  --mode local",
+    "build-dev": "vue-cli-service build  --mode development && node build.js",
+    "build-local": "vue-cli-service build  --mode local && node build.js",
     "build-production": "vue-cli-service build  --mode production",
     "build-store": "vue-cli-service build  --mode store && node build.js",
     "test": "webpack-dev-server --config webpack.config.js",
