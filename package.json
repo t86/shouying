@@ -1,6 +1,6 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202311142026",
+  "version": "1.0.202311162332",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -8,10 +8,11 @@
     "build-dev": "vue-cli-service build  --mode development",
     "build-local": "vue-cli-service build  --mode local",
     "build-production": "vue-cli-service build  --mode production",
-    "build-store": "vue-cli-service build  --mode store",
+    "build-store": "vue-cli-service build  --mode store && node build.js",
     "test": "webpack-dev-server --config webpack.config.js",
     "webpack": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server --hot --inline --progress --open"
+    "start": "webpack-dev-server --hot --inline --progress --open",
+    "version": "node build.js"
   },
   "dependencies": {
     "axios": "^0.24.0",
