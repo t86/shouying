@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import arrow from "@/assets/order-img/arrowBottom.png";
+import arrow from "@/assets/order-img/arrow-Bottom.png";
 import navPrdList from '@/mixin/navPrdList'
 export default {
   data() {

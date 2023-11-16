@@ -60,63 +60,136 @@
       flex-wrap: wrap;
 
       .prd-item {
-        width: 170px;
-        padding: 10px;
-        height: 148px;
-        margin: 4px;
+        width: 272px;
+        // padding: 10px;
+        height: 384px;
+        margin: 5px;
         box-sizing: border-box;
-        background: rgba(169, 173, 211, 0.2000);
+        // background: rgba(169, 173, 211, 0.2000);
+        background: #FAFAFC;
         box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.1500);
         border-radius: 6px;
         cursor: pointer;
+        position: relative;
+        overflow: hidden;
 
         &.opacity {
-          background: rgba(169, 173, 211, 0.1);
+          background: #FAFAFC;
+          opacity: 0.3;
         }
+
+        // &.opacity::before {
+        //   content: ""; 
+        //   position: absolute;
+        //   top: 0;
+        //   right: 0;
+        //   bottom: 0;
+        //   left: 0;
+        //   background: rgba(250,250,252,0.3);
+        //   z-index: 1; /* 确保蒙层在元素上方 */
+        // }
 
         .no-data-count {
-          width: 60px;
-          height: 60px;
-          transform: translate(-8px, -56px);
+          width: 80px;
+          height: 80px;
+          transform: translate(85px, -148px);
         }
 
-        &:hover {
-          background: rgba(57, 110, 255, 0.4000);
+        &:hover::before {
+          content: "";
+          /* 伪元素需要有content属性 */
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          background: rgba(16, 16, 32, 0.4);
+          z-index: 1;
+          /* 确保蒙层在元素上方 */
         }
+
+        .item-img-count {
+          position: relative;
+
+          .item-img {
+            width: 272px;
+            height: 272px;
+          }
+
+          .item-span {
+
+            border-radius: 12px;
+            position: absolute;
+            bottom: 8px;
+            right: 4px;
+            padding: 4px 8px;
+            background: #D44F44;
+            font-size: 16px;
+            font-family: PingFangSC-Semibold, PingFang SC;
+            font-weight: 600;
+            color: #FFFFFF
+          }
+        }
+
 
         .title {
-          height: 78px;
-          h5{
-            font-size: 15px;
+          width: 100%;
+          height: 62px;
+          margin-top: 10px;
+          padding: 0 10px;
+          box-sizing: border-box;
+
+          h5 {
+            font-size: 18px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
-            color: #FFFFFF;
-            line-height: 20px;
+            color: #08080A;
+            line-height: 22px;
           }
         }
 
         .english-name {
           height: 18px;
-          font-size: 14px;
-          font-family: '宋体';
-          color: #C0AA76;
+          font-size: 16px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: #9B5911;
           line-height: 18px;
         }
 
-        .count {
-          font-size: 12px;
-          text-align: right;
-          line-height: 30px;
-          height: 30px;
+        .item-footer {
+          height: 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          box-sizing: border-box;
+          padding: 0 10px;
+          margin-top: 6px;
+
+          .count {
+            font-size: 12px;
+            text-align: right;
+            line-height: 16px;
+            color: #1A1A21;
+          }
+
+          .price {
+            text-align: right;
+            font-size: 24px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: #009370;
+            line-height: 24px;
+          }
         }
 
-        .price {
-          text-align: right;
-          font-size: 22px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-          color: #1EDAAD;
-          line-height: 22px;
+        .fangda {
+          position: absolute;
+          right: 4px;
+          top: 4px;
+          width: 40x;
+          height: 40px;
+          z-index: 1;
         }
       }
 
@@ -128,13 +201,14 @@
     }
   }
 
-  
+
   // 箭头
   .arrow {
     width: 120px;
     height: 60px;
     position: fixed;
     right: 0;
+    top: 0;
     cursor: pointer;
 
     .bg {
@@ -144,9 +218,11 @@
       .bg-right {
         width: 46px;
         height: 40px;
-        background: #0D172D;
-        box-shadow: inset 0px 1px 1px 0px #2775BA;
+        background: #FFFFFF;
+        // box-shadow: inset 0px 1px 1px 0px #2775BA;
         text-align: center;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+        border: 1px solid #989FAF;
 
         img {
           width: 20px;
@@ -155,7 +231,8 @@
       }
 
       .bg-left {
-        border-radius: 30px 0px 0px 30px;
+        border-radius: 8px 0px 0px 8px;
+        border-right: none;
 
         img {
           transform: rotate(180deg);
@@ -163,7 +240,7 @@
       }
 
       .bg-right {
-        border-radius: 0 30px 30px 0;
+        border-radius: 0 8px 8px 0;
       }
     }
   }
