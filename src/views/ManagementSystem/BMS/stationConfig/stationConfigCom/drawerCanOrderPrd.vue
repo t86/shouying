@@ -371,7 +371,7 @@ export default {
           );
           if (res.code == 1) {
             this.$message.success("操作成功");
-            this.originCates = this.waiterCates
+            this.originCates = cloneDeep(this.waiterCates);
             this.originCheckAll = this.checkAll
             if(isClose) {
               this.onCancelDrawer();
