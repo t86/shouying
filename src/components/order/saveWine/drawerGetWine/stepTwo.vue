@@ -563,12 +563,12 @@ export default {
     height: calc(100vh - 178px);
     display: flex;
     flex-wrap: wrap;  
-    justify-content: end;
+    justify-content: space-between;
     // 左侧
     .left {
       overflow: auto;
       box-sizing: border-box;
- 
+      max-width: 400px;
       flex-basis: 350px;
       flex-grow: 1;
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -602,7 +602,8 @@ export default {
       box-sizing: border-box;
       height: 400px;
       margin-left: 10px;
-      flex-basis: 300px;
+      max-width: 380px;
+      flex-basis: 280px;
       flex-grow: 1;
       .table {
         width: 100%;
