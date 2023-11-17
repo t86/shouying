@@ -88,6 +88,7 @@ export default new Vuex.Store({
           (item) => item.id == info.emp_id
         );
       info["upper_emp_id"] = loginUser? loginUser.upper_emp_id : '';
+      info['clone_emp_id'] = loginUser? loginUser.clone_emp_id : '';
       info["roleIds"] = roleIds;
       info['sys_modules']=sys_module_ids;
      }

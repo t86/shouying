@@ -79,6 +79,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           namePy: el[7],  // 拼音首字母(用于模糊筛选)
           code: el[8],  // 员工工号
           upper_emp_id: el[9],  // 直属上级员工Id
+          clone_emp_id: el[10],  // 替身Id
         })
       })
       break
