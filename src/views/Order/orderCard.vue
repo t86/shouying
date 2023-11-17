@@ -907,7 +907,7 @@ export default {
       
       const list =  cardListInfoArr.filter((item) => {
         item.waiter_emp_ids_arr = item.waiter_emp_ids_arr || [];
-        return item.waiter_emp_ids_arr.includes(authEmpId.toString());
+        return item.waiter_emp_ids_arr.includes(authEmpId.toString()) || item.salesEmpId == this.loginUserInfo.emp_id;
       });
       return list;
     },
