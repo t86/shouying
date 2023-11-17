@@ -8,21 +8,29 @@
       direction="rtl"
       size="50%"
     >
+
       <el-form style="margin-top:40px" label-position="right" label-width="150px" ref="drawerRef" @submit.native.prevent>
         <el-form-item label="原密码">
-          <el-input v-model="form.old_password"
-          type="password" placeholder="请输入原密码"
-          style="width:250px;margin:0 10px" size="small"></el-input>
+          <div @click="checkedIndex=1">
+            <el-input v-model="form.old_password"
+            type="password" placeholder="请输入原密码"
+            style="width:250px;margin:0 10px" size="small"></el-input>
+          </div>
        </el-form-item>
         <el-form-item label="新密码">
-          <el-input v-model="form.new_password"
-          type="password" placeholder="请输入新密码"
-          style="width:250px;margin:0 10px" size="small"></el-input>
+          <div @click="checkedIndex=2">
+            <el-input v-model="form.new_password"
+            type="password" placeholder="请输入新密码"
+            style="width:250px;margin:0 10px" size="small"></el-input>
+          </div>
         </el-form-item>
         <el-form-item label="确认新密码" style="margin-bottom:40px">
-          <el-input v-model="form.rnew_password"
-          type="password" placeholder="请确认新密码"
-          style="width:250px;margin:0 10px" size="small"></el-input>
+          <div @click="checkedIndex=3">
+            <el-input v-model="form.rnew_password"
+            @click="checkedIndex=3"
+            type="password" placeholder="请确认新密码"
+            style="width:250px;margin:0 10px" size="small"></el-input>
+          </div>
         </el-form-item>
 
         <keyBoard @changeNum="changeNum" />
