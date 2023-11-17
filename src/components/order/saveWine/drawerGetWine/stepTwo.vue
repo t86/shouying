@@ -27,7 +27,20 @@
     <!-- 剩余取酒详情 -->
     <div class="get-list">
       <div class="left">
-        <div class="title fs16 m-t-3 m-b-3">剩余取酒详情</div>
+        <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3">
+          <span>剩余取酒详情</span>
+          <div class="arrow">
+            <div class="bg" layout="row" layout-align="center center">
+              <div class="bg-left" @click="scrollHandle('first', 'up')">
+                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+              </div>
+              <div class="bg-right" @click="scrollHandle('first', 'down')">
+                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+              </div>
+            </div>
+          </div>
+
+        </div>
         <div class="table-content" layout="column">
           <div class="table">
             <div class="thead">
@@ -72,22 +85,22 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <div class="right">
+        <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3"><span>取酒详情 </span>         
           <div class="arrow">
             <div class="bg" layout="row" layout-align="center center">
-              <div class="bg-left" @click="scrollHandle('first', 'up')">
+              <div class="bg-left" @click="scrollHandle('second', 'up')">
                 <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
               </div>
-              <div class="bg-right" @click="scrollHandle('first', 'down')">
+              <div class="bg-right" @click="scrollHandle('second', 'down')">
                 <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="right">
-        <div class="title fs16 m-t-3 m-b-3">取酒详情</div>
         <div class="table-content" layout="column">
           <div class="table">
             <div class="thead">
@@ -153,50 +166,42 @@
               </div>
             </div>
           </div>
-          <div class="arrow">
-            <div class="bg" layout="row" layout-align="center center">
-              <div class="bg-left" @click="scrollHandle('second', 'up')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
-              </div>
-              <div class="bg-right" @click="scrollHandle('second', 'down')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="tabIndex == 2"
-            class="coll"
-            layout="row"
-            layout-align="start center"
-            style="margin-top: 10px"
-          >
-            <div class="label">验证码</div>
-            <div class="value">
-              <input
-                v-model="validateVal"
-                :class="{ focus: focus == 'validateVal' }"
-                @click="focus = 'validateVal'"
-                placeholder="请输入验证码"
-              />
-            </div>
-            <el-button
-              style="margin-left: 10px"
-              :type="count == 60 ? 'primary' : 'info'"
-              :disabled="count != 60"
-              size="small"
-              @click="sendPhoneMessage"
-              >{{ btnText }}</el-button
+          <div layout="col" layout-align="center start">
+            <div
+              v-if="tabIndex == 2"
+              class="coll"
+              layout="row"
+              layout-align="start center"
+              style="margin-top: 10px"
             >
-          </div>
+              <div class="label">验证码</div>
+              <div class="value">
+                <input
+                  v-model="validateVal"
+                  :class="{ focus: focus == 'validateVal' }"
+                  @click="focus = 'validateVal'"
+                  placeholder="请输入验证码"
+                />
+              </div>
+              <el-button
+                style="margin-left: 10px"
+                :type="count == 60 ? 'primary' : 'info'"
+                :disabled="count != 60"
+                size="small"
+                @click="sendPhoneMessage"
+                >{{ btnText }}</el-button
+              >
+            </div>
+            <keyBoard
+            class="key"
+            :landscape="true"
+            :itemHeight="44"
+            :itemWidth="44"
+            :width="270"
+            @changeNum="changeNumHandle"
+          />
         </div>
-        <keyBoard
-          class="key"
-          landscape
-          :itemWidth="66"
-          :height="120"
-          :width="204"
-          @changeNum="changeNumHandle"
-        />
+        </div>
       </div>
     </div>
     <!-- 底部按钮 -->
@@ -252,14 +257,14 @@ export default {
         if (!currentInfo) return;
       }
       switch (value) {
-        case 10: // 清空
+        case 11: // 清空
           if (this.focus == "validateVal") {
             this.validateVal = "";
           } else {
             currentInfo.c = 0;
           }
           break;
-        case 12: // 回退(
+        case 10: // 回退(
           if (this.focus == "validateVal") {
             this.validateVal = this.validateVal
             .toString()
@@ -565,6 +570,10 @@ export default {
     display: flex;
     flex-wrap: wrap;  
     justify-content: space-between;
+
+    .title {
+      justify-content: space-between;
+    }
     // 左侧
     .left {
       overflow: auto;
@@ -576,7 +585,7 @@ export default {
       .table {
         width: 100%;
         .tbody {
-          height: 300px;
+          height: calc(100vh - 300px);
           overflow: auto;
           scroll-behavior: smooth;
           .get-icon {
@@ -600,12 +609,12 @@ export default {
     .right {
       overflow: auto;
       box-sizing: border-box;
-      height: 400px;
       margin-left: 10px;
       flex-basis: 280px;
       flex-grow: 1;
       .table {
         width: 100%;
+        height: calc(100vh - 400px);
         .tbody {
           height: 200px;
           overflow: auto;
@@ -647,6 +656,9 @@ export default {
       .label {
         width: 50px;
       }
+      .key{
+        width:270px;
+      }
       .value {
         position: relative;
         flex-wrap: nowrap;
@@ -683,11 +695,10 @@ export default {
     //  箭头
     .arrow {
       width: 120px;
-      height: 60px;
+      height: 40px;
       cursor: pointer;
 
       .bg {
-        margin-top: 10px;
 
         .bg-left,
         .bg-right {
@@ -732,6 +743,24 @@ export default {
     .right {
       width: 50%;
       box-sizing: border-box;
+    }
+  }
+
+  @media (orientation: portrait) {
+    .get-list {
+      .right {
+        margin-top: 20px;
+        padding-bottom: 100px;
+        .table {
+          height: calc(50vh - 100px);
+        }
+      }
+      .left {
+        .table {
+          height: calc(50vh - 100px);
+        }
+      }
+
     }
   }
 }
