@@ -487,6 +487,13 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
+    case 43:  // 前端版本号
+      arr.forEach(el => {  
+        resultArr.push({
+          ver: el[0], // 前端版本号
+        })
+      })
+      break
   }
   return resultArr
 }
