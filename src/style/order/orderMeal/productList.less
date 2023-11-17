@@ -19,7 +19,7 @@
     background: #DCE1EA;
     // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
     border-bottom: 1px solid rgba(0, 0, 0, 0.2000);
-
+    z-index: 99;
 
     input {
       width: 360px;
@@ -201,6 +201,48 @@
     }
   }
 
+  // 卡台名称
+  .card-name-top {
+    position: fixed;
+    right: 314px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    top: 0;
+    z-index: 99;
+    font-weight: 600;
+    color: #1A1A21;
+    font-family: PingFangSC, PingFang SC;
+  }
+
+  .line-top {
+    position: fixed;
+    right: 300px;
+    width: 1px;
+    height: 40px;
+    background: #C4CBD7;
+    top: 10px;
+    z-index: 99;
+  }
+
+  // 系统时间
+  .date-time-top {
+    position: fixed;
+    right: 136px;
+    top: 0px;
+    height: 60px;
+    z-index: 99;
+
+    p.time {
+      font-size: 18px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #08080A;
+      line-height: 18px;
+    }
+  }
 
   // 箭头
   .arrow {
@@ -210,6 +252,7 @@
     right: 0;
     top: 0;
     cursor: pointer;
+    z-index: 99;
 
     .bg {
       margin-top: 10px;

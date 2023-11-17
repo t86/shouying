@@ -8,6 +8,7 @@
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
       <img class="icon" :src="imgSrc.search" alt />
     </div>
+
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
         <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
@@ -38,7 +39,35 @@
         <p v-if="totalPage != 1" class="tips">{{ page >= totalPage ? '没有更多了' : '加载中...' }}</p>
       </div>
     </div>
-    <div class="arrow" :style="{ 'bottom': isRect ? '60px' : '120px' }">
+
+    <!-- 卡台信息 -->
+    <!-- :class="{
+        line:
+          $store.state.userInfo.authStatus == 4 ||
+          !(
+            $store.state.userInfo.roleIds.length == 1 &&
+            $store.state.userInfo.roleIds[0] == 4
+          ),
+      }" -->
+
+    <div class="card-name-top" ref="cardNameTop">
+      <div class="card-name-title" ref="cardNameTitle">
+        <span :style="{ fontSize: titleFontSize }">{{ cardInfo.name }}</span>
+        <span :style="{ fontSize: titleFontSize }">
+          {{
+            empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
+          }}
+        </span>
+      </div>
+      <div class="card-name-seat" v-if="cardInfo.chgSeatInfo">
+        <p :style="{ fontSize: seatFontSize }">{{ cardInfo.chgSeatInfo }}</p>
+      </div>
+    </div>
+
+    <div class="line-top"></div>
+
+    <!-- 箭头 -->
+    <div class="arrow">
       <div class="bg" layout="row" layout-align="center center">
         <div class="bg-left" @click="scrollArrowHandle('up')">
           <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
@@ -48,6 +77,23 @@
         </div>
       </div>
     </div>
+
+
+    <!-- 系统时间 -->
+    <div class="date-time-top" :class="{
+      'm-l-6': !isRect && !isNarrowWidth,
+      'p-l-3': !isNarrowWidth,
+    }" layout="column" layout-align="center center">
+      <p class="time">
+        {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
+          authInfo.minute
+        }}
+      </p>
+      <p class="time" :class="{ rect: !isRect }">
+        {{ authTips }}:{{ authInfo.name }}
+      </p>
+    </div>
+
 
     <el-dialog :visible.sync="dialogVisible" width="50%" :before-close="beforeClose">
       <img :src="bigImageUrl" style="width: 100%">
@@ -60,6 +106,7 @@
 </template>
 
 <script>
+import common_book from "@/utils/common/book";
 import api_order from "@/api/order";
 import search from "@/assets/order-img/search-icon.png";
 import mealDrawer from "@/components/order/drawerMeal";
@@ -102,10 +149,53 @@ export default {
       dialogVisible: false,
       bigImageUrl: "",
       pic_prefix_url: "",
-      shoppingCartList: []
+      shoppingCartList: [],
+      authInfo: {
+        month: "00",
+        day: "00",
+        hour: "00",
+        minute: "00",
+        name: "",
+      },
+      cardInfo: {},
+      // 是否收银系统
+      isMoneyClient: false,
+      titleFontSize: '32px', // 初始字体大小
+      seatFontSize: '18px'
+
     };
   },
   methods: {
+    adjustFontSize() {
+      const windowWidth = window.innerWidth;
+      const titleElement = this.$refs.cardNameTitle;
+      const titleWidth = titleElement.clientWidth;
+      if (windowWidth > 1300) {
+        this.titleFontSize = titleWidth > 350 ? '26px' : '32px';
+        this.seatFontSize = titleWidth > 350 ? '14px' : '18px';
+      } else {
+        let s = parseInt(windowWidth / 70);
+        let f = parseInt(windowWidth / 100);
+        this.titleFontSize = `${s}px`
+        this.seatFontSize = `${f}px`
+      }
+    },
+    empInfoFilter(empId) {
+      empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
+      const empInfo = common_book.getOrderPersonInfo(empId) || { name: "散客" };
+      const groupInfoName = common_book.getDepartmentName(empId) || "";
+      return (this.cardInfo.name ? "/" : "") + (groupInfoName ? groupInfoName + "/" : "") + empInfo.name;
+    },
+    getAuthInfo() {
+      const date = new Date();
+      this.authInfo = {
+        month: (date.getMonth() + 1).toString().padStart(2, 0),
+        day: date.getDate().toString().padStart(2, 0),
+        hour: date.getHours().toString().padStart(2, 0),
+        minute: date.getMinutes().toString().padStart(2, 0),
+        name: this.$store.state.userInfo.name,
+      };
+    },
     keyboardShow(refString) {
       if (
         window.atool
@@ -397,6 +487,11 @@ export default {
     firstLoad = true;
     this.getShoppingCartData()
     this.getCenterType();
+    this.getAuthInfo();
+    this.isMoneyClient = sessionStorage.getItem("client") == "money"
+    this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+    this.adjustFontSize(); // 在组件加载后调整一次字体大小
+    window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
     // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
   },
   props: ["allProductsList", "currentCategoryProductList"],
@@ -409,7 +504,10 @@ export default {
         console.log('获取终端类型失败', error)
       }
       return termType == 'android' || termType == 'pc'
-    }
+    },
+    authTips() {
+      return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
+    },
   },
   components: {
     mealDrawer
@@ -429,6 +527,7 @@ export default {
     document.onkeydown = null
     document.onkeyup = null
     downKeyCode = [0, 0]
+    window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
   }
 };
 </script>
