@@ -179,4 +179,8 @@ export default {
   reqCancelDiscount: (params) =>
     axios.post(`${base.htgl}/sel/cancel_yh`, params),
 
+    // 读取营销人员的可查看卡台列表
+  reqGetSalesmanSeatList: (params) =>
+    axios.post(`${base.htgl}/wo/get_sales_seats`, params),
+
 };

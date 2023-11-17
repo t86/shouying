@@ -54,7 +54,7 @@
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
               :style="{
-                display: !item.canLookOrder && isMarketing ? 'none' : '',
+                display: !item.canLookOrder && isOnlySales ? 'none' : '',
               }"
             >
               <p layout="row" layout-align="space-between center">
@@ -552,6 +552,11 @@ export default {
       payToStoreInfo: {
         show: false,
       },
+
+      salesCanLookCardInfo: {
+        all_seat: 1,     // 1 是  2 否 (否的话, 看返回的卡台列表)
+        seats  :[]
+      }, // 营销可查单区域列表
     };
   },
   methods: {
@@ -690,6 +695,10 @@ export default {
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
+      // 当岗位只有销售, 无替身或替身岗位也只有销售时
+      if(this.isOnlySales){
+        await this.getOnlyLookSelfCardList()
+      }
       // // 获取设备可操作区域或卡台
       const currentMachineId = this.$localStorage.getItem("machineId");
       const currentAreaAndCardList = (
@@ -806,10 +815,12 @@ export default {
               // 订位人upper_emp_id
               upper_emp_id: upper_emp_id,
             });
+           
+          
           }
         }
       });
-
+      console.log('cardList', cardList)
       // 初始化图例中显示的抵达数量
       this.setLegendCount(this.tab.activeIndex);
 
@@ -1130,9 +1141,33 @@ export default {
         console.log("服务员自己点单金额获取失败", error);
       }
     },
-
+    // 只是营销时 获取可查看卡台列表
+    async getOnlyLookSelfCardList() {
+      try {
+        this.salesCanLookCardList = [];
+        const res = await api_order.reqGetSalesmanSeatList();
+        if (res.code == 1) {
+          this.salesCanLookCardInfo.all_seat = res.data.all_seat || [];
+          this.salesCanLookCardInfo.seats = res.data.seats || [];
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("营销可查看卡台列表获取失败", error);
+      }
+    },
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
+      // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
+      if(this.isOnlySales){
+        let isLook = false;
+        if(this.salesCanLookCardInfo.all_seat == 1){
+          isLook = true;
+        }else{
+          isLook = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1)
+        }
+        return isLook;
+      }
       // 是否具有全场查单权限
       const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
@@ -1489,11 +1524,12 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     window.addEventListener("click", (e) => this.legendOptionHandle());
     window.addEventListener("resize", this.windowResizeHandle);
 
     window.onkeydown = this.keydownHandle;
+   
   },
 
   components: {
@@ -1577,11 +1613,28 @@ export default {
       const ids = subordinateList.map((d) => d.id);
       return ids;
     },
-    // 有且只有一个营销角色权限 隐藏无权限展示的卡台
-    isMarketing() {
-      return (
-        this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1)
+    // 有且只有一个营销角色权限  无替身或替身岗位也只有销售时
+    isOnlySales() {
+      let onlySales = (this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1);
+      let isCloneIsOnlySales = true;
+      // 无替身或替身也只是销售
+      if( onlySales && this.loginUserInfo.clone_emp_id != '0'){
+        const orderPersonInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+        [];
+        const clone_person = orderPersonInfo.find(
+        (item) => item.id == this.loginUserInfo.clone_emp_id
+        );
+        // 替身权限
+        const sysRole = this.$store.state.cardPageInfo.resResultDataObj['sysRole'] ||[];
+        // 获取角色ids
+        const roles = sysRole.filter(item => item.station_id == clone_person.stationId && item.status == 1);
+        const roleIds = [...new Set(roles.map(d=>d.sys_role_id * 1))];
+        isCloneIsOnlySales = roleIds.includes(3)&&roleIds.length == 1;
+      
+      }
+      return onlySales && isCloneIsOnlySales
     },
   },
 
