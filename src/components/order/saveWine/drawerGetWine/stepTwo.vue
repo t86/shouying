@@ -657,6 +657,7 @@ export default {
         width: 50px;
       }
       .key{
+        margin-top: 10px;
         width:270px;
       }
       .value {
