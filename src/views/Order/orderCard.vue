@@ -1325,9 +1325,22 @@ export default {
         const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
-   
+        // 区域下部分卡台
+       let cardStatusNo =
+         regionId == 2001
+           ? this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
+               (item) =>
+                 this.card.cardList.findIndex((i) => i.id == item.region_id) >=
+                 0
+             ) || []
+           : this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
+               (item) =>
+                 this.tab.tabListOrigin.findIndex(
+                   (i) => i.id == item.region_id
+                 ) >= 0
+             ) || [];
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
-        if(this.isOnlySales){
+        if(this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
           this.salesCanLookCardInfo.seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
           && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
