@@ -1307,6 +1307,7 @@ export default {
     // 登录后初始化图例中的抵达数量
     setLegendCount(regionId = 0) {
       setTimeout(() => {
+
         let result = {};
         if (
           this.$store.state.userInfo.roleIds.length == 0 
@@ -1324,20 +1325,33 @@ export default {
         const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
-        // 区域下部分卡台
-        let cardStatusNo =
-          regionId == 2001
-            ? this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
-                (item) =>
-                  this.card.cardList.findIndex((i) => i.id == item.region_id) >=
-                  0
-              ) || []
-            : this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
-                (item) =>
-                  this.tab.tabListOrigin.findIndex(
-                    (i) => i.id == item.region_id
-                  ) >= 0
-              ) || [];
+   
+        // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
+        if(this.isOnlySales){
+          this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
+          this.salesCanLookCardInfo.seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
+          && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
+          && this.salesCanLookCardInfo.seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
+          .forEach(item => {
+            item.id == 30 ?
+            result["10"] =
+            (result["10"] || 0) * 1 + item.cnt * 1  // 开台数
+            : result["20"] =
+            (result["20"] || 0) * 1 + item.cnt * 1  // 抵达数
+          })
+          this.card.cardList
+            .filter((item) => this.salesCanLookCardInfo.seats.includes(item.id * 1))
+            .forEach((el) => {
+              if (el.bizStatus != 4 && el.bizStatus != 20) {
+                // 除了开台数和抵达数以外的状态
+                result[el.bizStatus] =
+                  (result[el.bizStatus] || 0) * 1 + 1;
+              }
+            });
+            result["5"] = result["6"] || 0 + result["5"] || 0;
+            this.cardStatusNoInfo = result;
+            return;
+        }
 
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
