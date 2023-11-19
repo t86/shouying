@@ -102,7 +102,7 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <el-button type="primary" @click="onSubmit" v-if="isCanOrder">确定</el-button>
+        <el-button type="primary" @click="onSubmit(false)" v-if="isCanOrder">确定</el-button>
       </div>
     </el-drawer>
 
