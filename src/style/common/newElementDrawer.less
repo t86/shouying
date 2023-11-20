@@ -1,0 +1,157 @@
+/deep/ .el-drawer.rtl[aria-labelledby="el-drawer__title"] {
+  // background: #202c42!important;
+  // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%)!important;
+  // box-shadow: 0px 0px 12px 0px rgba(26,137,255,0.8);
+  background: #DCE1EA;
+  ;
+}
+
+/deep/.el-drawer.rtl {
+  -webkit-animation: none;
+  animation: none;
+}
+
+/deep/ #el-drawer__title {
+  color: #1A1A21 !important;
+  height: 40px;
+  background: #C4CBD7;
+
+  // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
+  span[role="heading"] {
+    transform: translateY(-8px);
+  }
+}
+
+/deep/ .el-dialog__close.el-icon.el-icon-close {
+  transform: translateY(-8px);
+}
+
+/deep/ .el-drawer__body {
+  padding-bottom: 20px;
+}
+
+/deep/ .el-form-item__label {
+  font-size: 20px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  color: #08080A;
+}
+
+.el-form-item {
+  position: relative;
+}
+
+.required.el-form-item::before {
+  width: 10px !important;
+  height: 10px !important;
+  content: '*' !important;
+  color: #F56C6C !important;
+  margin-right: 4px !important;
+  position: absolute;
+  top: 10px;
+}
+
+.required2.el-form-item::before {
+  left: 80px;
+}
+
+.required3.el-form-item::before {
+  left: 84px;
+}
+
+.required4.el-form-item::before {
+  left: 70px;
+}
+
+.required5.el-form-item::before {
+  left: 56px;
+}
+
+.required6.el-form-item::before {
+  left: 42px;
+}
+
+.required7.el-form-item::before {
+  left: 28px;
+}
+
+.required8.el-form-item::before {
+  left: 10px;
+}
+
+/* 单选框 */
+label[role="radio"] {
+  width: 100px !important;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 20px;
+}
+
+
+/* input样式 */
+/deep/ input::-webkit-outer-spin-button,
+/deep/ input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/deep/ input[type='number'] {
+  position: relative;
+  -moz-appearance: textfield;
+}
+
+/deep/ input,
+/deep/ textarea,
+/deep/ .is-disabled .el-input__inner {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  resize: none;
+}
+
+/deep/ input::placeholder,
+/deep/ textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* 提交表单数据按钮 */
+
+.el-drawer {
+  position: relative;
+
+  .el-form {
+    padding-bottom: 64px;
+
+    .form-btn {
+      width: 100%;
+      height: 64px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      text-align: center;
+      background: #161D33;
+
+      button {
+        margin-top: 12px;
+      }
+    }
+  }
+}
+
+button {
+  width: 120px;
+  height: 40px;
+  border-radius: 20px;
+  border: none;
+
+  &.el-button.el-button--info {
+    width: 120px;
+    background: #374368;
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+  }
+
+  &.el-button.el-button--primary {
+    background: #4B89FF;
+    // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+  }
+}

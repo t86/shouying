@@ -242,7 +242,7 @@ import shoppingCart from "@/assets/order-img/newShoppingCart.png";
 import myselfNav from "@/assets/order-img/newMyselfNav.png";
 import orderQRPayIcon from "@/assets/order-img/newOrderQRPayIcon.png";
 import zhiliujin from "@/assets/order-img/zhiliujin.png";
-import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
+import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
 import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
 import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
@@ -267,7 +267,7 @@ const orderNavList = [
   {
     id: 3,
     name: "购物车",
-    routeName: "shoppingCart",
+    routeName: "newShoppingCart",
     icon: shoppingCart,
     icon1: sanJiao,
     activeIcon: shoppingCartAcive

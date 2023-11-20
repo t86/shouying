@@ -16,8 +16,9 @@
           <div class="item-img-count">
             <img class="item-img"
               :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
-            <span class="item-span" v-if="shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
-              shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
+            <span class="item-span"
+              v-if=" shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+                shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
           </div>
           <div class="title">
             <h5>{{ item.name }}</h5>

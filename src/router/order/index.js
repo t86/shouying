@@ -15,6 +15,9 @@ export default [
         path: 'shoppingCart', name: 'shoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/shoppingCart.vue'),
       },
       {    
+        path: 'newShoppingCart', name: 'newShoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/newShoppingCart.vue'),
+      },
+      {    
         path: 'myOrder', name: 'myOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/myOrder.vue'),
       },
       // 已选列表
