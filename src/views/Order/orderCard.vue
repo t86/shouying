@@ -678,20 +678,46 @@ export default {
       );
     },
 
-      // 手动切换卡台订单状态
-      changeCardStatus(cardStatusId) {
-        if (cardStatusId === this.legendActive) {
-          // 点击的同状态一个按钮
-          this.legendActive = 0;
-          this.card.cardList = cardListInfoArr;
-          return;
-        }
+    // 手动切换卡台订单状态
+    changeCardStatus(cardStatusId) {
+      if (cardStatusId === this.legendActive) {
+        // 点击的同状态一个按钮
+        this.legendActive = 0;
+        this.card.cardList = cardListInfoArr;
+      } else {
         this.legendActive = cardStatusId;
         this.tab.anotherInfoActiveId = 0;
         this.tab.activeIndex = 0;
         this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
-      },
+      }
+      this.filterLimitCardList()
+      
+    },
+    filterLimitCardList(){
+        // 获取设备可操作区域或卡台
+        const currentMachineId = this.$localStorage.getItem("machineId");
+        const currentAreaAndCardList = (
+          resResultDataObj["machineArea"] || []
+        ).filter(
+          (item) => item.license_id == currentMachineId && item.status == 1
+        );
+        const isNoLimit = currentAreaAndCardList.filter(
+          (item) => item.type_id == 3
+        );
+        this.tab.tabListOrigin.forEach((el) => {
+          if (!el.isAllCard) {
+            if (currentAreaAndCardList.findIndex(area => el.id == area.region_o_seat_id && area.status ===1) >= 0) {
+              this.card.cardList = this.card.cardList.filter((item) => 
+                item.regionId == el.id)
+            } else {
+              this.card.cardList = this.card.cardList.filter((item) => 
+                currentAreaAndCardList.findIndex(it => it.status === 1 && it.region_o_seat_id == item.id) >= 0)
+            }
+          }
+        });
+
+    },
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
@@ -1107,6 +1133,7 @@ export default {
           this.tab.activeIndex
         );
 
+        this.filterLimitCardList(); 
         // this.$forceUpdate();
       } catch (error) {
         console.log("全量数据请求失败", error);
@@ -1341,20 +1368,27 @@ export default {
              ) || [];
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
         if(this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
-
           let seats = this.salesCanLookCardInfo.seats
-          if (isNoLimit.length == 0) {
-            seats = []
-            this.tab.tabListOrigin.forEach((el) => {
-                if (!el.isAllCard) {
-                  this.card.cardList.filter((item) => 
-                    item.regionId == el.id && this.salesCanLookCardInfo.seats.includes(item.id * 1)).forEach(it => seats.push(it.id * 1))
-                } else {
-                  this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(item => item.id == el.id
-                    && seats.includes(it.id * 1)).forEach(it => seats.push(it.id * 1))
-                }
-              });
-          }
+          // if (isNoLimit.length == 0) {
+          //   seats = []
+            
+          //   if(regionId == 2001 || regionId == 0) {
+          //     this.tab.tabListOrigin.forEach((el) => {
+          //         if (!el.isAllCard) {
+          //           if (currentAreaAndCardList.findIndex(area => el.id == area.region_o_seat_id && area.status ===1) >= 0) {
+          //             this.card.cardList.filter((item) => 
+          //             item.regionId == el.id && this.salesCanLookCardInfo.seats.includes(item.id * 1)).forEach(it => seats.push(it.id * 1))
+          //           } else {
+          //             currentAreaAndCardList.filter(item => item.status === 1 && this.salesCanLookCardInfo.seats.includes(item.region_o_seat_id * 1))
+          //             .forEach(item => seats.push(item.region_o_seat_id * 1))
+          //           }
+          //         } else {
+          //           this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(item => item.regionId == el.id
+          //             && seats.includes(item.id * 1)).forEach(it => seats.push(it.id * 1))
+          //         }
+          //       });
+          //   }
+          // }
 
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
           seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
