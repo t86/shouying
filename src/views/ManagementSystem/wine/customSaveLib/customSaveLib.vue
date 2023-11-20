@@ -99,13 +99,13 @@
                   <div class="tr-td">{{ items.c }}</div>
                   <div class="tr-td">
                     {{
-                      items.rp
-                        ? items.rn
-                          ? items.rp + " - " + items.rn
-                          : items.rp
-                        : items.rn
-                        ? items.rn
-                        : "-"
+                      item.rp
+                        ? (item.rn
+                          ? (item.rp + " - " + item.rn)
+                          : item.rp)
+                        : (item.rn
+                        ? item.rn
+                        : "-")
                     }}
                   </div>
                   <div class="tr-td">{{ items.e }}</div>

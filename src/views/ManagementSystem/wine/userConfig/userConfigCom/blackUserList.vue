@@ -17,6 +17,9 @@
       <el-button type="primary" size="small" @click="toUserListHandle"
         >移出黑名单</el-button
       >
+      <el-button type="primary" size="small" @click="toBalckListHandle"
+        >添加黑名单</el-button
+      >
       <el-button type="primary" size="small" @click="batchImport"
         >批量导入</el-button
       >
@@ -71,6 +74,61 @@
     </div>
 
     <drawerImportEmp v-model="showImportDrawer" @getTableData="getTableData" />
+
+    <el-dialog
+      title="移出黑名单"
+      @close="removeBlackListDialog = false"
+      :visible.sync="removeBlackListDialog"
+      :close-on-click-modal="false"
+    >
+      <div style="height: 60px; padding-top: 30px; ">
+        <span>确认将所选客户移出黑名单？</span>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="removeBlackListDialog = false">取消</el-button>
+        <el-button type="primary" @click="removeBlackListHandle">确认</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      title="添加黑名单"
+      @close="blackListDialog = false"
+      :visible.sync="blackListDialog"
+      :close-on-click-modal="false"
+    >
+      <el-form label-position="left">
+        <div class="compatibility" layout="row" layout-align="start center">
+          <div class="mandatory">姓名：</div>
+          <div class="value">
+              <el-input
+                v-model="userName"
+                size="small"
+                :maxLength="10"
+                placeholder="1-10个字"
+                style="width:200px"
+              ></el-input>
+            </div>
+        </div>
+      </el-form>
+      <el-form label-position="left">
+        <div class="compatibility" layout="row" layout-align="start center">
+          <div class="mandatory"><span class="color-red">*</span>手机号码：</div>
+          <div class="value">
+              <el-input
+                v-model="phoneNum"
+                size="small"
+                :maxLength="11"
+                placeholder="输入正确的手机号码"
+                style="width:200px"
+              ></el-input>
+            </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="blackListDialog = false">取消</el-button>
+        <el-button type="primary" @click="addBlackListHandle">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -100,7 +158,11 @@ export default {
       keyword: "",
       checkAll: false,
       showImportDrawer: false,
+      blackListDialog: false,
+      removeBlackListDialog: false,
       tableData: [],
+      userName: '',
+      phoneNum: '',
     };
   },
   methods: {
@@ -126,11 +188,11 @@ export default {
       }
     },
 
-    // 移出黑名单
-    async toUserListHandle() {
+    async removeBlackListHandle(){
       const currentInfoList = this.tableData.filter((item) => item.checked);
-      if (currentInfoList.length == 0)
+      if (currentInfoList.length == 0){
         return this.$message.warning("请选择用户后进行操作");
+      }
       const params = {
         phone_nums: currentInfoList.map((item) => item.p),
         cust_names: currentInfoList.map((item) => item.n),
@@ -138,6 +200,38 @@ export default {
       const res = await api_wine.reqDeleteBlackList(params);
       if (res.code == 1) {
         this.$message.success("操作成功");
+        this.removeBlackListDialog = false
+        this.getTableData();
+      } else {
+        this.$message.warning(res.msg);
+      }
+    },
+    // 移出黑名单
+    async toUserListHandle() {
+      const currentInfoList = this.tableData.filter((item) => item.checked);
+      if (currentInfoList.length == 0){
+        return this.$message.warning("请选择用户后进行操作");
+      }
+      this.removeBlackListDialog = true
+    },
+
+    toBalckListHandle(){
+      this.blackListDialog = true
+    },
+    async addBlackListHandle(){
+      if (!this.phoneNum || this.phoneNum.length != 11){
+            return this.$message.warning("请输入11位手机号码");
+      }
+      const params = {
+        phone_nums: [this.phoneNum],
+        cust_names: [this.userName],
+      };
+      const res = await api_wine.reqAddBlackList(params);
+      if (res.code == 1) {
+        this.$message.success("操作成功");
+        this.blackListDialog = false
+        this.phoneNum = ""
+        this.userName = ""
         this.getTableData();
       } else {
         this.$message.warning(res.msg);
@@ -201,6 +295,10 @@ export default {
       height: calc(100vh - 330px);
       overflow: auto;
     }
+  }
+
+  .mandatory {
+    width: 80px;
   }
 }
 </style>

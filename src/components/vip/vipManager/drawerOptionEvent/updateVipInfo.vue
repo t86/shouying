@@ -192,6 +192,7 @@ export default {
         timeLongList: [],
         messageList: [],
         personVal: "",
+        originPersonVal: "",
       },
       personOptions:[],
       remoteLoading: false,
@@ -222,6 +223,7 @@ export default {
           this.form.markVal = card_info.mark;
           this.form.timeLongVal = card_info.expired_type;
           this.form.personVal = card_info.sales_emp_name;
+          this.form.originPersonVal = card_info.sales_emp_id;
 
           reg_sms_types = reg_sms_types || [];
 

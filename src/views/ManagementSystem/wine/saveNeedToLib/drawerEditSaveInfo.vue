@@ -333,7 +333,7 @@ export default {
       this.tableData = [...this.tableData, {...itemInfo }]
     },
     deleteHandle(itemInfo) {
-      const index = this.tniableData.findIndex((item) => item.id == itemInfo.id);
+      const index = this.tableData.findIndex((item) => item.id == itemInfo.id);
       if (index > -1) {
         this.tableData.splice(index, 1);
       }

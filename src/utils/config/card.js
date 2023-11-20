@@ -70,6 +70,7 @@ export const resResultDataArr = [
   'machineArea',         // 40-设备可操作区域或卡台
   'sysRoleDetail',       // 41-系统角色明细
   'orderPrdList',       // 42-可点商品配置
+  'frontVersion',       // 43-前端版本号
 ]
 
 // 图例列表

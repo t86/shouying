@@ -80,6 +80,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           namePy: el[7],  // 拼音首字母(用于模糊筛选)
           code: el[8],  // 员工工号
           upper_emp_id: el[9],  // 直属上级员工Id
+          clone_emp_id: el[10],  // 替身Id
         })
       })
       break
@@ -485,6 +486,13 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           station_id: el[0], // 岗位id
           prd_id: el[1], // 商品id
           status: el[2], // 状态 1 有效
+        })
+      })
+      break
+    case 43:  // 前端版本号
+      arr.forEach(el => {  
+        resultArr.push({
+          ver: el[0], // 前端版本号
         })
       })
       break
