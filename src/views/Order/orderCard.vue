@@ -691,32 +691,7 @@ export default {
         this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
       }
-      this.filterLimitCardList()
       
-    },
-    filterLimitCardList(){
-        // 获取设备可操作区域或卡台
-        const currentMachineId = this.$localStorage.getItem("machineId");
-        const currentAreaAndCardList = (
-          resResultDataObj["machineArea"] || []
-        ).filter(
-          (item) => item.license_id == currentMachineId && item.status == 1
-        );
-        const isNoLimit = currentAreaAndCardList.filter(
-          (item) => item.type_id == 3
-        );
-        this.tab.tabListOrigin.forEach((el) => {
-          if (!el.isAllCard) {
-            if (currentAreaAndCardList.findIndex(area => el.id == area.region_o_seat_id && area.status ===1) >= 0) {
-              this.card.cardList = this.card.cardList.filter((item) => 
-                item.regionId == el.id)
-            } else {
-              this.card.cardList = this.card.cardList.filter((item) => 
-                currentAreaAndCardList.findIndex(it => it.status === 1 && it.region_o_seat_id == item.id) >= 0)
-            }
-          }
-        });
-
     },
 
     // 获取全量数据
@@ -1132,8 +1107,6 @@ export default {
           "regionId",
           this.tab.activeIndex
         );
-
-        this.filterLimitCardList(); 
         // this.$forceUpdate();
       } catch (error) {
         console.log("全量数据请求失败", error);

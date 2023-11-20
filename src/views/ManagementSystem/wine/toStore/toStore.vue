@@ -58,6 +58,7 @@
               >
             </div>
             <div class="th">充公操作人</div>
+            <div class="th">充公类型</div>
             <div class="th">卡台</div>
             <div class="th">订台人</div>
             <div class="th">待充公时间</div>
@@ -86,11 +87,12 @@
                 ></i>
               </div>
               <div class="td">{{ item.w }}</div>
+              <div class="td">{{ item.p }}</div>
               <div class="td">{{ item.s }}</div>
               <div class="td">{{ item.e }}</div>
               <div class="td">{{ item.t }}</div>
               <div class="td">
-                <span @click="showEditDrawerHandle(item)">编辑</span>
+                <span v-if="item.ti == 1" @click="showEditDrawerHandle(item)">编辑</span>
               </div>
             </div>
             <div class="detail-list" v-if="item.show">

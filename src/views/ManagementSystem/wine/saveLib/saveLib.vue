@@ -43,6 +43,7 @@
     </div>
     <div class="btn-area m-t-4">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">延期</el-button>
+      <el-button type="primary" size="small" @click="batchToStore">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportDetailHandle">明细导出</el-button>
     </div>
 
@@ -146,6 +147,22 @@
     </div>
 
     <drawerLongTime v-model="showLongDrawer" :ids="ids" @getTableData="getTableData" />
+
+    
+    <el-dialog
+      title="批量充公"
+      @close="toStoreDialog = false"
+      :visible.sync="toStoreDialog"
+      :close-on-click-modal="false"
+    >
+      <div style="height: 60px; padding-top: 30px; ">
+        <span>请确认是否将所选酒水批量充公？</span>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="toStoreDialog = false">取消</el-button>
+        <el-button type="primary" @click="toStoreHandle">确认</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
  
@@ -162,6 +179,7 @@ export default {
       keyword: "",
       tableData: [],
       showLongDrawer: false,  // 延期drawer
+      toStoreDialog: false,
     };
   },
   methods: {
@@ -203,6 +221,29 @@ export default {
     showLongDrawerHandle(){
       if(this.ids.length <=0) return this.$message.warning('请选择需要延期的商品')
       this.showLongDrawer = true
+    },
+
+    batchToStore(){
+      if(this.ids.length <=0) return this.$message.warning('请选择需要充公的商品')
+      this.toStoreDialog = true
+    },
+    async toStoreHandle(){
+      const params = {
+        invt_ids: this.ids, //    []int64    库存Id列表
+      };
+
+      try {
+        const res = await api_wine.reqCgWineInvt(params);
+        if(res.code == 1) {
+          this.$message.success('库存充公成功')
+          this.$emit('getTableData')
+          this.toStoreDialog = false;
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log("库存充公失败", error);
+      }
     },
     async exportDetailHandle(){
       try {

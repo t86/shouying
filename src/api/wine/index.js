@@ -49,6 +49,9 @@ export default {
   // 过期库存延期
   reqAddLongTime: (params) =>
     axios.post(`${base.htgl}/wine/delay_wine_invt2`, params),
+  //  库存充公
+  reqCgWineInvt: (params) =>
+    axios.post(`${base.htgl}/wine/cg_wine_invt`, params),
 
   /**
    * 存酒库子订单
