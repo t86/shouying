@@ -15,7 +15,7 @@
           :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img"
-              :src="item.picName ? pic_prefix_url + item.picName : 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'" />
+              :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
             <span class="item-span" v-if="shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
               shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
           </div>
@@ -112,7 +112,6 @@ import search from "@/assets/order-img/search-icon.png";
 import mealDrawer from "@/components/order/drawerMeal";
 
 import common_order from "@/utils/common/order";
-
 import { cloneDeep } from "lodash-es";
 
 // 键盘码 keycode
@@ -161,8 +160,7 @@ export default {
       // 是否收银系统
       isMoneyClient: false,
       titleFontSize: '32px', // 初始字体大小
-      seatFontSize: '18px'
-
+      seatFontSize: '18px',
     };
   },
   methods: {
@@ -331,7 +329,7 @@ export default {
 
     // 点击放大镜放大图片
     clickDescImage(item) {
-      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
+      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
       this.dialogVisible = true;
     },
     beforeClose(done) {

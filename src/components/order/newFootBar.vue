@@ -73,7 +73,9 @@
             ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
           "  -->
           <!-- 消费情况 -->
-          <div class="new-one" v-if="isRect" style="margin-top: 16px;" layout="row" layout-align="start start">
+          <div class="new-one" v-if="isRect &&
+            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)" style="padding-top: 8px; " layout="row"
+            layout-align="start start">
             <p class="new-one-txt-cut">
               <!-- 折前：当太总消费的应收金额（不含赠送） -->
               <span class="new-one-txt-title">折前金额:</span>
@@ -106,7 +108,8 @@
         </div>
       </div>
 
-      <div layout="row" layout-align="center center" v-if="!isRect">
+      <div layout="row" layout-align="center center" v-if="(!isRect) &&
+        ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
         <!-- 消费情况 -->
         <div class="new-one" layout="row" layout-align="start start">
           <p class="new-one-txt-cut">
@@ -144,12 +147,12 @@
       <div class="num-sub-tips" v-show="showNumSubTips">
         <div class="contain">
           <i class="el-icon-close" style="
-                                position: absolute;
-                                top: 10px;
-                                right: 20px;
-                                color: #fff;
-                                cursor: pointer;
-                              " @click="hideTimeSubHandle()"></i>
+                                    position: absolute;
+                                    top: 10px;
+                                    right: 20px;
+                                    color: #fff;
+                                    cursor: pointer;
+                                  " @click="hideTimeSubHandle()"></i>
           {{ logoutCount }}秒后将退出登录！
         </div>
       </div>
