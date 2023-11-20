@@ -1341,10 +1341,21 @@ export default {
              ) || [];
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
         if(this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
+
+          if (isNoLimit.length == 0) {
+            let seats = []
+            this.tab.tabListOrigin.forEach((el) => {
+                if (!el.isAllCard) {
+                  this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == el.id
+                  && this.salesCanLookCardInfo.seats.includes(it.id * 1)).forEach(it => seats.push(it.id * 1))
+                }
+              });
+          }
+
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
-          this.salesCanLookCardInfo.seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
+          seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
           && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
-          && this.salesCanLookCardInfo.seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
+          && seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
           .forEach(item => {
             item.id == 30 ?
             result["10"] =
@@ -1353,7 +1364,7 @@ export default {
             (result["20"] || 0) * 1 + item.cnt * 1  // 抵达数
           })
           this.card.cardList
-            .filter((item) => this.salesCanLookCardInfo.seats.includes(item.id * 1))
+            .filter((item) => seats.includes(item.id * 1))
             .forEach((el) => {
               if (el.bizStatus != 4 && el.bizStatus != 20) {
                 // 除了开台数和抵达数以外的状态
