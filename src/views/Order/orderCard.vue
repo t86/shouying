@@ -1640,7 +1640,7 @@ export default {
       const ids = subordinateList.map((d) => d.id);
       return ids;
     },
-    // 有且只有一个营销角色权限  无替身或替身岗位也只有销售时
+    // 有且只有一个营销角色权限  无替身或替身岗位也只有营销时
     isOnlySales() {
       let onlySales = (this.$store.state.userInfo.roleIds &&
         this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1);

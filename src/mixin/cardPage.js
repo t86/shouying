@@ -7,6 +7,67 @@ import eventVue from "@/utils/eventVue";
 
 export const cardPageMixins = {
   methods: {
+
+    // 根据当前用户角色，权限，设备限制等判断条件获取区域及卡台列表
+    getAreaAndCardList(){
+      const areaAndCardListType = [
+        {
+          id: "区域id", // 0 全部 2001 我的 一般的区域id
+          all: "0 or 1", // 0 非全区域 1 全区域
+          showCardList: { 
+            "卡台id": true, 
+          },
+          noAmountCardList:{  // 显示金额卡台id列表
+            '卡台id' : true
+          }
+    /* 
+      1.根据设备限制判断区域是否满足all为1 等，先过滤出第一波区域卡台信息
+      2.根据角色权限过滤区域和卡台
+          服务员
+          一、默认权限：允许查看下属点单消费 不能查看同组点单消费金额
+            可以查看所有卡台，但不能查看同组点单消费金额等信息,可以查看自己以及下属卡台的消费金额
+            开台，抵达等信息不受影响
+            区域all设置为1，showCardList设置为0，把不能看金额的卡台加入noAmountCardList
+            或者区域all设置为0，showCardList罗列卡台，把不能看金额的卡台加入noAmountCardList
+          二、不允许查看下属点单消费 
+            区域all设置为1，showCardList设置为0，把不能看金额的卡台加入noAmountCardList
+            或者区域all设置为0，showCardList罗列卡台，把不能看金额的卡台加入noAmountCardList
+          三、查看同组点单消费
+            区域all设置为1，showCardList设置为0，把不能看金额的卡台加入noAmountCardList
+            或者区域all设置为0，showCardList罗列卡台，把不能看金额的卡台加入noAmountCardList
+          特饮实现和服务员一 一样的效果
+          督查可以查看全场，具体卡台根据设备限制来
+            区域all设置为1，showCardList设置为0，或者区域all设置为0，showCardList罗列卡台
+          
+          营销 （营销关注订位， 服务员关注点单），营销不会使用noAmountCardList
+            一、 默认权限：不能查看同组，不能优惠查看全场，只能看到下属以及自己订位的卡台
+              区域all设置为1，showCardList设置为0，
+              或者区域all设置为0，showCardList罗列卡台，
+            二、查看和优惠全场
+              区域all设置为1，showCardList设置为0
+              或者区域all设置为0，showCardList罗列卡台
+            三、不允许查看和优惠下属订位卡台
+              区域all设置为1，showCardList设置为0
+              或者区域all设置为0，showCardList罗列卡台
+            四、查看和优惠同组订位卡台
+              区域all设置为1，showCardList设置为0
+              或者区域all设置为0，showCardList罗列卡台
+
+          既是服务员又是营销，取两者的并集，显示最大可查看权限
+              
+      当 all为1时，该区域下卡台为空，从元数据cardInfo根据区域id获取匹配卡台列表，
+      从元数据cardStatusNo获取每个区域的卡台状态，开台数和抵达数需要通过30，31数据来获取，
+      基于现有数据接口，不支持从卡台id倒查区域id(cardInfo时数组，不够高效)，可以在store里添加一个数据映射卡台id到区域id，提高查询速度
+      当 all为0时，从元数据businessData获取每个卡台状态，累计开台和抵达数由于涉及历史数据,
+      还是需要从元数据cardStatusNo的30，31数据来获取
+
+    */
+
+        }
+      ]
+
+    },
+
     // 切换tab
     changeTab(index, id) {
       if (this.modelVisible) return;
