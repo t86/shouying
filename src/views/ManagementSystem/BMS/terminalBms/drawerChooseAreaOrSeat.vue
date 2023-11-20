@@ -132,7 +132,7 @@ export default {
       const cardListId = []
       if(!this.checkAll) {
         this.cardList.forEach(el => {
-          if(el.checked){
+          if(el.checked && (!('checkAll' in el) || el.checkAll) ){
             areaListId.push(el.id)
           } else {
             el.ss.forEach(ele => {
