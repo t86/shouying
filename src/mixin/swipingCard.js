@@ -4,6 +4,8 @@ import eventVue from '@/utils/eventVue';
 export default {
   methods: {
     init() {
+
+      if(window.loopTimer) clearInterval(window.loopTimer)
       // 二维码扫描完成后回调
       window.qr_scan_callback = this.qr_scan_callback
       // 读取卡号
@@ -12,13 +14,14 @@ export default {
       window.loopReadCard = this.loopReadCard
       // 停止循环读卡
       window.stopLoopReadCard = this.stopLoopReadCard
+      window.loopTimer = null
     },
 
     // 循环读卡(pc)
     loopReadCard() {
       if(!this.isPcTerminal) return
       this.stopLoopReadCard()
-      loopTimer = setInterval(() => {
+      window.loopTimer = setInterval(() => {
         console.log('读卡中...')
         this.card_scan_done_callback()
       }, 1500);
