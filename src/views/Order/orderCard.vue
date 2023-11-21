@@ -582,13 +582,15 @@ export default {
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
 
+      let originYXTab = [];
+      // 有营销
       if (roleIds.includes(3)) {
         if(this.salesCanLookCardInfo.all_seat != 1) {
           YXTabList = [...JSON.parse(JSON.stringify(arr)).filter(i => this.$store.state.cardPageInfo.resResultDataObj.cardInfo
             .filter(item => this.salesCanLookCardInfo.seats.includes(item.id * 1)).map(item => item.regionId).includes(i.id))]
         } else {
-          // 有营销
           YXTabList = [...arr];
+          originYXTab = YXTabList;
         }
       }
 
@@ -621,7 +623,7 @@ export default {
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
 
-      this.tab.tabListOrigin = JSON.parse(JSON.stringify([...FUTabList, ...HLTabList, ...QCTabList].filter(
+      this.tab.tabListOrigin = JSON.parse(JSON.stringify([...FUTabList, ...originYXTab, ...HLTabList, ...QCTabList].filter(
           (item, index, arr) =>
             arr.findIndex((items) => items.id == item.id) == index
         ).sort((a, b) => a.dsp - b.dsp)
