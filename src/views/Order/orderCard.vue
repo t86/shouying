@@ -857,7 +857,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (
-        this.$store.state.userInfo.roleIds.length == 0 
+        this.$store.state.userInfo.roleIds.length == 0
       ) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
@@ -876,6 +876,10 @@ export default {
           (item) =>
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
         )));
+      }
+      // 如果只是营销 不写在这里前面的判断会把区域弄没
+      if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
+        cardListInfoArr = []
       }
       // 如果是营销，需要根据可点卡台列表限制卡台
       if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
@@ -1398,8 +1402,10 @@ export default {
             });
             result["5"] = result["6"] || 0 + result["5"] || 0;
             this.cardStatusNoInfo = result;
-            return;
-        }
+            if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
+              return;
+            }
+        } 
 
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
