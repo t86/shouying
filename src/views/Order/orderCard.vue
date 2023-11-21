@@ -1342,27 +1342,6 @@ export default {
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
         if(this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
           let seats = this.salesCanLookCardInfo.seats
-          // if (isNoLimit.length == 0) {
-          //   seats = []
-            
-          //   if(regionId == 2001 || regionId == 0) {
-          //     this.tab.tabListOrigin.forEach((el) => {
-          //         if (!el.isAllCard) {
-          //           if (currentAreaAndCardList.findIndex(area => el.id == area.region_o_seat_id && area.status ===1) >= 0) {
-          //             this.card.cardList.filter((item) => 
-          //             item.regionId == el.id && this.salesCanLookCardInfo.seats.includes(item.id * 1)).forEach(it => seats.push(it.id * 1))
-          //           } else {
-          //             currentAreaAndCardList.filter(item => item.status === 1 && this.salesCanLookCardInfo.seats.includes(item.region_o_seat_id * 1))
-          //             .forEach(item => seats.push(item.region_o_seat_id * 1))
-          //           }
-          //         } else {
-          //           this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(item => item.regionId == el.id
-          //             && seats.includes(item.id * 1)).forEach(it => seats.push(it.id * 1))
-          //         }
-          //       });
-          //   }
-          // }
-
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
           seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
           && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id

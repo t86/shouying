@@ -156,7 +156,7 @@ export default {
           if(!checkedIdList.find(item => item == el.id)) tableData.push(el)
         })
         this.tableData = [...tableData]
-        this.checkAll = false
+        this.unPrdcheckAll = false
       } else {
         this.$message.warning(res.msg);
       }
@@ -423,7 +423,7 @@ export default {
       },
     },
     isIndeterminate() {
-      return !this.checkAll && this.tableData.some(item => item.checked);
+      return !this.unPrdcheckAll && this.tableData.some(item => item.checked);
     }
   },
 
