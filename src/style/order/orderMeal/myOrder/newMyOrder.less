@@ -1,7 +1,7 @@
-.new-shopping-cart {
+// 我的点单
+.new-my-order {
   padding: 20px;
   box-sizing: border-box;
-  color: rgba(255, 255, 255, .8);
   min-height: 100%;
   background: #C4CBD7;
 
@@ -9,15 +9,10 @@
     position: relative;
     width: 100%;
     height: calc(100vh - 100px);
-
-    background: #DCE1EA;
-    // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
-    // box-shadow: 0px 0px 12px 0px rgba(26, 137, 255, 0.8000);
-
-    border: 1px solid #989FAF;
-    border-radius: 20px;
+    border-radius: 12px;
     box-sizing: border-box;
-    overflow: hidden;
+    background: #DCE1EA;
+    border: 1px solid #989FAF;
 
     &.rect {
       height: calc(100vh - 160px);
@@ -29,13 +24,10 @@
 
       .thead .tr {
 
-        background: #ECEFF4;
+        background: #FAFAFC #ECEFF4;
         // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
-
-        // border-radius: 12px 12px 0px 0px;
-
+        border-radius: 12px 12px 0px 0px;
         color: #08080A;
-
         font-size: 22px;
       }
 
@@ -43,9 +35,16 @@
         height: calc(100vh - 220px);
         overflow-y: auto;
 
-        .coll:nth-child(2n) {
+        .coll {
+          // &.online {
+          //   background: rgba(255, 47, 100, 0.1) !important;
+          //   border-bottom: 1px solid rgba(237, 127, 155, .4);
+          // }
 
-          background: #ECEFF4;
+          &:nth-child(2n) {
+
+            background: #ECEFF4;
+          }
         }
       }
 
@@ -63,6 +62,10 @@
         .td {
           padding: 0 4px;
           box-sizing: border-box;
+
+          // &.opacity {
+          //   opacity: .4;
+          // }
         }
 
         .th:nth-child(1),
@@ -73,27 +76,31 @@
           span {
             display: inline-block;
             text-align: center;
-            width: 20px;
-            height: 20px;
-            line-height: 18px;
-            font-size: 12px;
+            width: 26px;
+            height: 26px;
+            line-height: 26px;
+            font-size: 18px;
             font-family: PingFangSC-Medium, PingFang SC;
             font-weight: 500;
-            color: rgba(255, 255, 255, .8);
             border-radius: 50%;
 
+            color: #FFFFFF;
+
             &.green {
-              background: #1DC344;
+
+              background: #0D9940;
               // background: linear-gradient(180deg, #1DC344 0%, #00763E 100%);
             }
 
             &.blue {
-              background: #00C0B5;
-              // background: linear-gradient(180deg, #00C0B5 0%, #007BB5 100%);
+
+              background: #7D41F0;
+              // background: linear-gradient(180deg, #0079FF 0%, #0046E2 100%);
             }
 
             &.purple {
-              background: #9068FE;
+
+              background: #D2162D;
               // background: linear-gradient(180deg, #9068FE 0%, #6D21E5 100%);
             }
 
@@ -114,7 +121,6 @@
           color: #08080A;
 
           .english-name {
-            line-height: 18px;
             font-size: 16px;
             font-family: PingFangSC, PingFang SC;
             font-weight: 400;
@@ -124,30 +130,31 @@
 
         .th:nth-child(3),
         .td:nth-child(3) {
-          text-align: center;
-          width: 20%;
+          text-align: right;
+          width: 10%;
           white-space: nowrap;
+          font-size: 24px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #08080A;
 
           img {
             vertical-align: middle;
-            width: 32px;
+            width: 26px;
             cursor: pointer;
           }
 
           input {
-
-            color: #08080A;
+            color: rgba(255, 255, 255, .8);
             vertical-align: middle;
             width: 56px;
             height: 28px;
             padding: 0 10px;
             text-align: center;
             box-sizing: border-box;
-            background: #FAFAFC;
+            background: rgba(255, 255, 255, 0.0800);
             border-radius: 24px;
-
-            font-size: 24px;
-            border: 1px solid #C4CBD7;
+            border: 1px solid rgba(255, 255, 255, 0.3000);
 
           }
 
@@ -159,7 +166,7 @@
         .th:nth-child(4),
         .td:nth-child(4) {
           text-align: right;
-          width: 10%;
+          width: 11%;
           font-size: 24px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 500;
@@ -169,7 +176,7 @@
         .th:nth-child(5),
         .td:nth-child(5) {
           text-align: right;
-          width: 10%;
+          width: 11%;
           padding-right: 1%;
           font-size: 24px;
           font-family: PingFangSC, PingFang SC;
@@ -189,7 +196,7 @@
 
         .th:nth-child(7),
         .td:nth-child(7) {
-          width: 14%;
+          width: 11%;
           font-size: 20px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 400;
@@ -198,8 +205,18 @@
 
         .th:nth-child(8),
         .td:nth-child(8) {
+          width: 11%;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
+        }
+
+        .th:nth-child(9),
+        .td:nth-child(9) {
           position: relative;
           width: 6%;
+          text-align: center;
 
           .bg {
             position: fixed;
@@ -287,18 +304,22 @@
       .tr.detail-list {
         min-height: 20px !important;
         font-size: 13px;
-        padding: 4px 14px;
         color: #AED8FF;
+        padding: 4px 14px;
       }
 
       // 要求
       .requested {
         width: 25%;
-        padding: 8px 14px 14px 7%;
-        font-size: 16px;
+        padding: 0px 14px 14px 6%;
+        font-size: 12px;
         font-weight: 400;
-        color: #125A9C;
+        color: #AED8FF;
         line-height: 14px;
+
+        &.pt {
+          padding-top: 10px;
+        }
       }
     }
 
@@ -315,7 +336,6 @@
       height: 64px;
       background: #FAFAFC;
       border-radius: 0px 0px 12px 12px;
-
       font-size: 20px;
 
       color: #1A1A21;
@@ -347,40 +367,10 @@
           line-height: 20px;
           margin-left: 4px;
         }
-
         .right-btns {
           box-shadow: none;
           background: #3373E8;
           color: #FFFFFF;
-        }
-      }
-    }
-  }
-
-  .choose-detail {
-    color: rgba(255, 255, 255, .8);
-
-    .li {
-      padding: 0 10px 20px;
-
-      .left {
-        width: 10%;
-
-        input[type="radio"] {
-          cursor: pointer;
-        }
-      }
-
-      .center {
-        width: 25%;
-      }
-
-      .right {
-        width: 65%;
-        flex-wrap: wrap;
-
-        .p {
-          padding: 4px 8px;
         }
       }
     }
@@ -411,33 +401,5 @@
       }
 
     }
-  }
-}
-
-
-// 倒计时退出登录模态框
-.num-sub-tips {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, .3);
-
-  .contain {
-    width: 300px;
-    height: 100px;
-    padding: 20px;
-    border-radius: 8px;
-    background: #202C4A;
-    // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
-    box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
-    position: absolute;
-    left: 50%;
-    top: 40%;
-    transform: translate(-50%, -50%);
-    line-height: 100px;
-    text-align: center;
   }
 }

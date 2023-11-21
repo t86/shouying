@@ -20,6 +20,9 @@ export default [
       {    
         path: 'myOrder', name: 'myOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/myOrder.vue'),
       },
+      {    
+        path: 'newMyOrder', name: 'newMyOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/newMyOrder.vue'),
+      },
       // 已选列表
       {    
         path: 'choosedList', name: 'choosedList', meta: { title: '已选列表' }, component: () => import('@/views/Order/orderMeal/choosedList.vue'),

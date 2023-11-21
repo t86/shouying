@@ -1,4 +1,4 @@
-.new-give-more {
+.my-order-drawer {
   .content {
     padding: 0 20px;
     box-sizing: border-box;
@@ -32,6 +32,7 @@
         border: 1px solid rgba(255, 255, 255, 0.3000);
       }
     }
+
 
     // 理由
     .reason-list {
@@ -67,6 +68,21 @@
       }
     }
 
+    .back-order-amt {
+      input {
+        width: 50%;
+        height: 42px;
+        padding: 0 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+
+      input::-webkit-input-placeholder {
+        color: #bbb;
+      }
+    }
+
     input[type=button] {
       width: 100px;
       height: 30px;
@@ -90,10 +106,8 @@
     }
   }
 
-
   // 选择需要更改的套餐明细
-  ul.choose-detail,
-  ul.add-requested {
+  ul.choose-detail {
     color: #fff;
     padding-top: 20px;
 
@@ -119,14 +133,54 @@
     }
   }
 
+  // 表格
+  .table {
+    margin-top: 20px;
+    font-size: 14px;
+    padding: 0 10px;
+    padding-bottom: 50px;
+    transform: translateY(-10px);
+
+    .thead .tr {
+      background: rgba(216, 229, 255, .08);
+    }
+
+    .tr {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 14px;
+      box-sizing: border-box;
+      text-align: left;
+
+      &:nth-child(2n) {
+        background-color: rgba(255, 255, 255, .04);
+      }
+
+      .th:nth-child(1),
+      .td:nth-child(1) {
+        width: 80%;
+      }
+
+      .th:nth-child(2),
+      .td:nth-child(2) {
+        width: 20%;
+      }
+    }
+  }
+
   // 授权
   .authorization {
     &-left {
       width: 50%;
+      height: calc(100vh - 240px);
+      overflow-y: auto;
       padding-right: 10px;
       box-sizing: border-box;
       border-right: 1px solid rgba(255, 255, 255, .2);
 
+      // 自用赠送等授权商品表格
       .table {
         font-size: 14px;
 
@@ -145,8 +199,8 @@
 
           .th:nth-child(3),
           .td:nth-child(3) {
-            text-align: right;
             width: 20%;
+            text-align: right;
           }
         }
 
@@ -161,6 +215,36 @@
           .tr:nth-child(2n) {
             background-color: rgba(255, 255, 255, 0.04);
           }
+        }
+      }
+
+      // 更改套餐明细中套餐明细
+      .pro-list {
+        margin-right: 10px;
+
+        &-origin,
+        &-change {
+          padding: 16px 20px 12px;
+          box-sizing: border-box;
+          background: rgba(82, 82, 82, .3);
+          border-radius: 10px;
+
+          .list-detail {
+            flex-wrap: wrap;
+
+            span {
+              display: block;
+              margin: 6px 6px;
+              padding: 6px 14px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 24px;
+            }
+          }
+        }
+
+        &-change {
+          margin-top: 10px;
+          background: rgba(35, 90, 128, .3);
         }
       }
     }
@@ -184,7 +268,6 @@
     padding-bottom: 0;
 
     .thead .tr {
-
       background: #C4CBD7 !important;
       font-size: 22px;
       font-family: PingFangSC, PingFang SC;
@@ -195,6 +278,8 @@
         font-size: 21px;
         color: #08080A;
       }
+
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
     }
 
     .tbody {
@@ -205,14 +290,13 @@
         max-height: calc(100vh - 400px);
       }
 
-      .tr:nth-child(2n) {
-
+      .coll:nth-child(2n) {
         background: #ECEFF4;
       }
     }
 
-
     .tr {
+      width: 100%;
       display: flex;
       justify-content: start;
       align-items: center;
@@ -220,6 +304,7 @@
       padding: 8px;
       box-sizing: border-box;
       text-align: left;
+
 
       .th,
       .td {
@@ -231,6 +316,64 @@
         color: #08080A;
       }
 
+      &.online {
+        background: rgba(255, 47, 100, 0.1) !important;
+        border-bottom: 1px solid rgba(237, 127, 155, 0.4);
+
+        .td:nth-child(1) {
+          width: 15%;
+
+          /deep/.el-checkbox__label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            transform: translateY(2px);
+            padding-left: 6px;
+          }
+        }
+
+        .td:nth-child(2) {
+          width: 85%;
+
+          .td-td:nth-child(1) {
+            width: 36%;
+          }
+
+          .td-td:nth-child(2) {
+            width: 18%;
+          }
+
+          .td-td:nth-child(3) {
+            text-align: center;
+            width: 47%;
+            white-space: nowrap;
+
+            img {
+              vertical-align: middle;
+              width: 26px;
+              cursor: pointer;
+            }
+
+            input {
+              color: #fff;
+              vertical-align: middle;
+              width: 56px;
+              height: 28px;
+              padding: 0 10px;
+              text-align: center;
+              box-sizing: border-box;
+              background: rgba(255, 255, 255, 0.0800);
+              border-radius: 24px;
+              border: 1px solid rgba(255, 255, 255, 0.3000);
+
+            }
+
+            input[disabled] {
+              opacity: .4;
+            }
+          }
+
+        }
+      }
 
       .th:nth-child(1),
       .td:nth-child(1) {
@@ -265,7 +408,6 @@
         }
 
         input {
-
           color: #08080A;
           vertical-align: middle;
           width: 68px;
@@ -278,6 +420,7 @@
           border-radius: 24px;
           background: #FAFAFC;
           border: 1px solid #C4CBD7;
+
         }
 
         input[disabled] {
@@ -291,7 +434,7 @@
 
 
 
-.new-form-btn {
+.form-btn {
   position: absolute;
   bottom: 0;
   right: 0;

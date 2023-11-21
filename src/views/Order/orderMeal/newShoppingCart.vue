@@ -148,9 +148,9 @@
           <button style="width: 100px" @click.stop="showOrHideDrawer(6)">
             批量优惠
           </button>
-          <button style="width: 100px" @click.stop="showOrHideDrawer(7)">
+          <!-- <button style="width: 100px" @click.stop="showOrHideDrawer(7)">
             批量优惠2
-          </button>
+          </button> -->
           <button
             style="width: 100px"
             v-if="

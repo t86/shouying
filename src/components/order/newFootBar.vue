@@ -275,7 +275,7 @@ const orderNavList = [
   {
     id: 4,
     name: "我的点单",
-    routeName: "myOrder",
+    routeName: "newMyOrder",
     icon: myselfNav,
     icon1: sanJiao,
     activeIcon: myselfNavActive
