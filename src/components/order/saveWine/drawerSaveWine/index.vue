@@ -97,6 +97,9 @@ export default {
         this.reset();
       });
     },
+    beforeDestroy() {
+      this.$observer.unsubscribe(SCROLL_BOTTOM)
+    },
     async getStepOneData() {
       const params = {
         seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1, //    int64   待操作卡台Id

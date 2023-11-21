@@ -587,6 +587,7 @@ export default {
     },
 
     async logOutHandle() {
+      console.log("logout");
       try {
         const res = await api_auth.auth.requestauthlogout();
         if (res.code === 1) {
@@ -600,6 +601,7 @@ export default {
             },
           });
           this.$message.success("退出成功！");
+          window.location.reload();
         } else {
           this.$message.warning(res.msg);
         }

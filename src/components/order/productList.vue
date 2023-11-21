@@ -353,7 +353,6 @@ export default {
   mounted () {
     firstLoad = true;
     this.getCenterType();
-    // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
   },
   props: ["allProductsList", "currentCategoryProductList"],
   computed: {

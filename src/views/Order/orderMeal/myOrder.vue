@@ -488,6 +488,7 @@ export default {
   },
   beforeDestroy() {
     document.body.removeEventListener("click", this.showOrHideList);
+    eventVue.$off("reloadMyOrderTableData")
     document.onkeydown = null;
     document.onkeyup = null;
     downKeyCode = [0, 0];

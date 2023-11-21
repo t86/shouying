@@ -1855,6 +1855,7 @@ export default {
       this.payTabInfo.payTabShow = false;
       this.turnOverInfo.turnOverTabShow = false;
     });
+    eventVue.$off("reloadPayOrderList")
     document.onkeydown = null;
     document.onkeyup = null;
     downKeyCode = [0, 0];

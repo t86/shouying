@@ -148,6 +148,9 @@ export default {
   mounted() {
     eventVue.$on('changeTreeItem', this.changeCheckBoxHandle)
   },
+  beforeDestroy() {
+    eventVue.$off('changeTreeItem')
+  },
   props: {},
   components: {},
   filters: {}

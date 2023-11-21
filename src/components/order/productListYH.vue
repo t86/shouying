@@ -428,7 +428,6 @@ export default {
   },  
   created () {
     setTimeout(() => {
-      // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
       if (this.$store.state.userInfo.authStatus == 4) {
         window.onkeydown = this.keyHandle
         window.onkeyup = this.keyHandle
@@ -438,6 +437,9 @@ export default {
   mounted() {
     this.getCenterType();
     this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
+  },
+  beforeDestroy() {
+    this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
   },
   props: ["allProductsList", "currentCategoryProductList"],
   components: {

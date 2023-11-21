@@ -132,6 +132,7 @@ export default class WebSocketClient {
 
   reset = async () => {
     this.closeHandle();
+    this.resResultDataObj = {};
     setTimeout(() => {
       this.initAllData();
     }, 3000);

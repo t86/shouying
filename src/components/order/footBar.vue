@@ -894,6 +894,7 @@ export default {
 
     async logOutHandle() {
       try {
+        console.log('log out')
         const res = await api_auth.auth.requestauthlogout();
         if (res.code === 1) {
           // this.$store.commit("updateResResultDataObj", "");
@@ -906,6 +907,7 @@ export default {
             },
           });
           this.$message.success("退出成功！");
+          window.location.reload();
         } else {
           this.$message.warning(res.msg);
         }

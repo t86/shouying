@@ -623,6 +623,9 @@ export default {
       })();
     };
   },
+  beforeDestroy() {
+    this.$root.$off('next')
+  },
   components: {
     EllipsisTooltip,
     IconButton

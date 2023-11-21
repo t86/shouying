@@ -329,7 +329,9 @@ export const cardPageMixins = {
 
     this.getTabShowCount(this.getAllData);
   },
-
+  beforeDestroy() {
+    eventVue.$off("reloadData")
+  },
   filters: {
     filterTime(timeNumber) {
       if (!timeNumber) return "";
