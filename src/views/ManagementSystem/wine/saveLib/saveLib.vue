@@ -41,17 +41,24 @@
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
-    <div class="btn-area m-t-4">
+    <div class="btn-area m-t-4 m-b-2">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">延期</el-button>
       <el-button type="primary" size="small" @click="batchToStore">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportDetailHandle">明细导出</el-button>
     </div>
-
-    <div class="table-content m-t-4">
+    <span class="color-red">说明：过期充公的酒水将进入到待充公列表</span>
+    <div class="table-content m-t-2">
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="start center">
-            <div class="th">序号</div>
+            <div class="th">
+              <el-checkbox
+                v-model="checked"
+                :indeterminate="isIndeterminate"
+                @change="changeAllCheckboxHandle()"
+                >序号</el-checkbox
+              >
+            </div>
             <div class="th">客人姓名</div>
             <div class="th">联系方式</div>
             <div class="th">卡台</div>
@@ -180,6 +187,7 @@ export default {
       tableData: [],
       showLongDrawer: false,  // 延期drawer
       toStoreDialog: false,
+      checked: false,
     };
   },
   methods: {
@@ -195,6 +203,7 @@ export default {
         const res = await api_wine.reqGetSaveLibList(params);
         if (res.code == 1) {
           res.data.records = res.data.records || [];
+
           const oneDay = +new Date('2023/05/19 12:00') - +new Date('2023/05/18 12:00')
           const sevenDayAgo = 7 * oneDay + +new Date()
           res.data.records.forEach(el => {
@@ -210,6 +219,7 @@ export default {
 
           this.tableData = res.data.records;
           this.ids = []
+          this.checked = false
         } else {
           this.$message.warning(res.msg);
         }
@@ -236,7 +246,7 @@ export default {
         const res = await api_wine.reqCgWineInvt(params);
         if(res.code == 1) {
           this.$message.success('库存充公成功')
-          this.$emit('getTableData')
+          this.getTableData();
           this.toStoreDialog = false;
         } else {
           this.$message.warning(res.msg)
@@ -306,7 +316,21 @@ export default {
       //   }
       // })
     },
-
+    changeAllCheckboxHandle() {
+      this.tableData.forEach(el => {
+        el.checkAll = this.checked
+        el.ss.forEach(e => {
+          e.checked = this.checked;
+        });
+      });
+      const ids = []
+      this.tableData.forEach(el => {
+        el.ss.forEach(ele => {
+          if(ele.checked) ids.push(ele.id)
+        })
+      })
+      this.ids = ids
+    },
     resetHandle(){
       const oneHour = +new Date('2023/07/22 12:00:00') - +new Date('2023/07/22 11:00:00')
       const date = new Date(+new Date() - 8 * oneHour)
@@ -324,6 +348,11 @@ export default {
   },
   created() {
     this.resetHandle();
+  },
+  computed: {
+    isIndeterminate() {
+      return !this.checked && this.tableData.some(item => item.checked);
+    }
   },
   components: {
     drawerLongTime
