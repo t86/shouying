@@ -533,7 +533,11 @@ export default class WebSocketClient {
       }
       if (time) localStorage.setItem("websocketTimeMessageTime", time);
     } catch (e) {
-      this.getUpdateData();
+      try {
+        this.getUpdateData();
+      } catch (e) {
+        this.logoutHandle();
+      }
       globalError.handleError(e);
     }
 
