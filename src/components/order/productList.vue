@@ -110,7 +110,7 @@
 import common_book from "@/utils/common/book";
 import api_order from "@/api/order";
 import search from "@/assets/order-img/search-icon.png";
-import mealDrawer from "@/components/order/drawerMeal";
+import mealDrawer from "@/components/order/newDrawerMeal";
 
 import common_order from "@/utils/common/order";
 import { cloneDeep } from "lodash-es";

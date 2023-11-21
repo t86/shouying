@@ -1,0 +1,200 @@
+.group {
+  padding: 0 20px 20px;
+  width: 100%;
+
+  // 标题
+  &-title {
+    width: 100%;
+    padding-bottom: 20px;
+
+    &-name {
+      width: 50%;
+      padding-right: 20px;
+      box-sizing: border-box;
+      font-size: 20px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #FFFFFF;
+      line-height: 22px;
+    }
+
+    &-price,
+    &-count,
+    &-amt {
+      width: 20%;
+
+      span {
+        font-size: 14px;
+        font-weight: 400;
+        color: #FFFFFF;
+        line-height: 14px;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: middle;
+
+        &.value {
+          font-family: PingFangSC-Medium, PingFang SC;
+          font-weight: 500;
+          color: #1EDAAD;
+          font-size: 22px;
+          line-height: 22px;
+        }
+      }
+    }
+
+    &-count {
+      color: #fff;
+    }
+  }
+
+  // 选择列表
+  &-content {
+    text-align: center;
+
+    &-title {
+      height: 42px;
+      background: rgba(193, 223, 255, .2);
+      border-radius: 10px;
+
+      >div {
+        width: 50%;
+      }
+    }
+
+    // 已选择列表
+    &-checked {
+      text-align: left;
+      background: rgba(166, 72, 72, .2);
+      border-radius: 10px;
+      margin: 10px 0;
+      padding: 20px 0;
+
+      >div {
+        height: 100%;
+        width: 50%;
+        padding: 0 20px;
+
+
+        ul {
+          flex-wrap: wrap;
+          width: 100%;
+
+          li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            margin: 10px 20px 10px 0;
+            border-radius: 24px;
+            &.left{
+              padding: 4px 14;
+            }
+          }
+
+        }
+      }
+
+      &-left {
+        border-right: 1px solid rgba(255, 255, 255, .2);
+
+        .require-btn {
+          display: inline-block;
+          vertical-align: baseline;
+          width: 52px;
+          height: 28px;
+          text-align: center;
+          line-height: 28px;
+          background: #08080A;
+          border-radius: 30px;
+          opacity: 0.4;
+          font-size: 14px;
+        }
+      }
+
+    }
+
+    // 当前选择列表
+    &-choose {
+      margin: 10px 0;
+      padding: 20px 0;
+      background: rgba(35, 90, 128, .2);
+      border-radius: 10px;
+
+      >div {
+        width: 50%;
+        text-align: left;
+        padding: 0 20px;
+      }
+
+      &-left,
+      &-right {
+
+        .require-btn {
+          display: inline-block;
+          vertical-align: middle;
+          width: 52px;
+          height: 28px;
+          text-align: center;
+          line-height: 28px;
+          background: #08080A;
+          border-radius: 30px;
+          opacity: 0.4;
+          font-size: 14px;
+        }
+
+        border-right: 1px solid rgba(255, 255, 255, .2);
+
+        >p {
+          font-size: 14px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: #FFFFFF;
+          line-height: 14px;
+          padding-bottom: 10px;
+        }
+
+        ul {
+          flex-wrap: wrap;
+
+          li {
+            position: relative;
+            padding: 2px 0 2px 14px;
+            background: rgba(255, 255, 255, 0.1000);
+            border-radius: 24px;
+            margin: 10px 20px 10px 0;
+
+            img {
+              width: 30px;
+              margin-left: 10px;
+              transform: translateX(1px);
+              cursor: pointer;
+            }
+
+            p.selected-count {
+              position: absolute;
+              left: 0px;
+              top: 0;
+              transform: translate(-20%, -40%);
+              width: 24px;
+              height: 24px;
+              line-height: 20px;
+              text-align: center;
+              background: #FF2F64;
+              border-radius: 50%;
+              color: #fff;
+            }
+          }
+        }
+
+      }
+
+      &-right {
+        border-right: none;
+
+        li {
+          background: #C1DFFF !important;
+          color: #181830;
+        }
+      }
+    }
+  }
+
+}
