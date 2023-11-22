@@ -53,9 +53,7 @@
               ]"
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
-              :style="{
-                display: item.shouldHidden ? 'none' : '',
-              }"
+  
             >
               <p layout="row" layout-align="space-between center">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
@@ -814,7 +812,7 @@ export default {
               tipsArr: this.getTips(data.bizStatus),
               // 是否可查单
               canLookOrder: this.currentCardCanLookOrder(item.name, data),
-              shouldHidden: this.checkHidden(item),
+              isYX: this.checkYX(item),
               // 低消进度
               diXiaoJindu:
                 Number(data.assignMinCsmAmt) > 0
@@ -878,6 +876,7 @@ export default {
           (item) =>
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
         )));
+        cardListInfoArr.forEach(item => item.isWaiter = true)
       }
       // 如果只是营销 不写在这里前面的判断会把区域弄没
       if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
@@ -885,9 +884,10 @@ export default {
       }
       // 如果是营销，需要根据可点卡台列表限制卡台
       if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
-        cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
+        cardListInfoArr = JSON.parse(JSON.stringify(cardList.filter(
           (item) => this.salesCanLookCardInfo.seats.includes(item.id * 1)
-          )))];
+          || cardListInfoArr.map(item => item.id).includes(item.id)
+          )))
         }
 
 
@@ -1259,12 +1259,12 @@ export default {
       }
       return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
-    checkHidden(item){
-      // if(this.salesCanLookCardInfo.all_seat != 1) {
-      //   return !this.salesCanLookCardInfo.seats.includes(item.id)
-      // } else {
-        return false
-      // }
+    checkYX(item){
+      if(this.salesCanLookCardInfo.all_seat != 1) {
+        return this.salesCanLookCardInfo.seats.includes(item.id)
+      } else {
+        return true
+      }
     },
     // 显示或隐藏低消进度统计表
     showOrHideMinDetailDrawerHandle() {

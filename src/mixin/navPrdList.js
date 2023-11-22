@@ -73,7 +73,8 @@ export default {
           }
         }
 
-        if (this.$store.state.userInfo.roleIds.includes(3)) {
+        if (this.$store.state.userInfo.roleIds.includes(3)
+        && (this.$store.state.orderInfo.currentCardInfo.isWaiter)) {
           // 营销
           prdListId = getSealConfigPrdId(this);
         }
@@ -196,7 +197,8 @@ export default {
       /**
        * 营销
        */
-      if (this.$store.state.userInfo.roleIds.includes(3)) {
+      if (this.$store.state.userInfo.roleIds.includes(3) 
+        && (this.$store.state.orderInfo.currentCardInfo.isWaiter)) {
         // 营销在当前区域下可点商品
         const YXAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
