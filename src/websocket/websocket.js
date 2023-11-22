@@ -132,7 +132,8 @@ export default class WebSocketClient {
 
   reset = async () => {
     this.closeHandle();
-    this.resResultDataObj = {};
+    this.resResultDataObj =
+      this.vue.$store.state.cardPageInfo.resResultDataObj || {};
     setTimeout(() => {
       this.initAllData();
     }, 3000);
