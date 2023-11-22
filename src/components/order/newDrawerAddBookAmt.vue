@@ -65,6 +65,7 @@
           <div class="wait_content" v-if="[5, 6].includes(payType) && this.qrResult != null">
             <div v-if="qr_pay_state == 0">
               <img class="loading" :src="require('@/assets/order-img/loading.png')" />
+              <div class="loading_text">loading…</div>
               <div class="wait_tip">等待支付结果…</div>
             </div>
           </div>
@@ -522,7 +523,7 @@ export default {
     background-color: rgba(255, 255, 255, 0.2);
 
     img.loading {
-      width: 70px;
+      width: 80px;
       animation: rotateAnimation 0.7s linear infinite;
     }
 
@@ -552,7 +553,7 @@ export default {
   padding: 10px;
   text-align: center;
   box-sizing: border-box;
-  background: #202c4a;
+  background: #DCE1EA;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -560,13 +561,23 @@ export default {
   height: 376px;
 
   img.loading {
-    width: 70px;
+    width: 80px;
     animation: rotateAnimation 0.7s linear infinite;
   }
 
+  .loading_text {
+    margin-top: 8px;
+    font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    color: #3373E8;
+  }
+
   .wait_tip {
-    color: #fff;
-    font-size: 16px;
+    font-size: 24px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    color: #08080A;
     margin-top: 72px;
   }
 

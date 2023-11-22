@@ -11,11 +11,10 @@
       width: 50%;
       padding-right: 20px;
       box-sizing: border-box;
-      font-size: 20px;
-      font-family: PingFangSC-Medium, PingFang SC;
+      font-size: 24px;
+      font-family: PingFangSC, PingFang SC;
       font-weight: 500;
-      color: #FFFFFF;
-      line-height: 22px;
+      color: #08080A;
     }
 
     &-price,
@@ -24,26 +23,28 @@
       width: 20%;
 
       span {
-        font-size: 14px;
-        font-weight: 400;
-        color: #FFFFFF;
-        line-height: 14px;
         white-space: nowrap;
         display: inline-block;
         vertical-align: middle;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+
+        line-height: 20px;
 
         &.value {
-          font-family: PingFangSC-Medium, PingFang SC;
+          font-size: 26px;
+          font-family: PingFangSC, PingFang SC;
           font-weight: 500;
-          color: #1EDAAD;
-          font-size: 22px;
-          line-height: 22px;
+          color: #009370;
+          line-height: 26px;
         }
       }
     }
 
     &-count {
-      color: #fff;
+      // color: #fff;
     }
   }
 
@@ -52,19 +53,29 @@
     text-align: center;
 
     &-title {
-      height: 42px;
-      background: rgba(193, 223, 255, .2);
-      border-radius: 10px;
+
+      height: 44px;
+      background: #FAFAFC;
+      border-radius: 8px;
 
       >div {
         width: 50%;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        color: #08080A;
+        line-height: 20px;
+        text-align: left;
+        padding-left: 20px;
+        box-sizing: border-box;
       }
     }
 
     // 已选择列表
     &-checked {
       text-align: left;
-      background: rgba(166, 72, 72, .2);
+      // background: rgba(166, 72, 72, .2);
+      background: #D8C9D0;
       border-radius: 10px;
       margin: 10px 0;
       padding: 20px 0;
@@ -80,12 +91,18 @@
           width: 100%;
 
           li {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 14px;
+            padding: 9px 16px;
             margin: 10px 20px 10px 0;
-            border-radius: 24px;
-            &.left{
-              padding: 4px 14;
+            border-radius: 20px;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 500;
+            color: #08080A;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            &.left {
+              padding: 4px 14px;
             }
           }
 
@@ -93,19 +110,31 @@
       }
 
       &-left {
-        border-right: 1px solid rgba(255, 255, 255, .2);
+        border-right: 1px solid #ECEFF4;
 
         .require-btn {
-          display: inline-block;
-          vertical-align: baseline;
-          width: 52px;
-          height: 28px;
-          text-align: center;
-          line-height: 28px;
-          background: #08080A;
+          padding: 6px 10px;
+          background: #FFFFFF;
           border-radius: 30px;
-          opacity: 0.4;
-          font-size: 14px;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #3373E8;
+          text-align: center;
+          margin-left: 12px;
+        }
+      }
+
+      &-left {
+        li {
+          background: #ECEFF4;
+        }
+      }
+
+      &-right {
+        li {
+
+          background: #FCE8E8;
         }
       }
 
@@ -115,8 +144,9 @@
     &-choose {
       margin: 10px 0;
       padding: 20px 0;
-      background: rgba(35, 90, 128, .2);
-      border-radius: 10px;
+
+      background: #BDCBD9;
+      border-radius: 8px;
 
       >div {
         width: 50%;
@@ -124,45 +154,55 @@
         padding: 0 20px;
       }
 
+      .title {
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+        padding-bottom: 10px;
+      }
+
       &-left,
       &-right {
 
         .require-btn {
-          display: inline-block;
-          vertical-align: middle;
-          width: 52px;
-          height: 28px;
-          text-align: center;
-          line-height: 28px;
-          background: #08080A;
+          padding: 6px 10px;
+          background: #FFFFFF;
           border-radius: 30px;
-          opacity: 0.4;
-          font-size: 14px;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #3373E8;
+          text-align: center;
+          margin-left: 12px;
         }
 
-        border-right: 1px solid rgba(255, 255, 255, .2);
-
-        >p {
-          font-size: 14px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: #FFFFFF;
-          line-height: 14px;
-          padding-bottom: 10px;
-        }
+        border-right: 1px solid #ECEFF4;
 
         ul {
           flex-wrap: wrap;
 
           li {
+            padding: 9px 16px;
             position: relative;
-            padding: 2px 0 2px 14px;
-            background: rgba(255, 255, 255, 0.1000);
+            background: #ECEFF4;
             border-radius: 24px;
+            padding: 4px 16px;
             margin: 10px 20px 10px 0;
+            border-radius: 20px;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 500;
+            color: #08080A;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            &.left {
+              padding: 4px 14px;
+            }
 
             img {
-              width: 30px;
+              width: 32px;
               margin-left: 10px;
               transform: translateX(1px);
               cursor: pointer;
@@ -173,13 +213,13 @@
               left: 0px;
               top: 0;
               transform: translate(-20%, -40%);
-              width: 24px;
-              height: 24px;
               line-height: 20px;
               text-align: center;
-              background: #FF2F64;
               border-radius: 50%;
               color: #fff;
+              width: 24px;
+              height: 24px;
+              background: #E63122;
             }
           }
         }
@@ -190,8 +230,8 @@
         border-right: none;
 
         li {
-          background: #C1DFFF !important;
-          color: #181830;
+
+          background: #CEEAFF !important;
         }
       }
     }

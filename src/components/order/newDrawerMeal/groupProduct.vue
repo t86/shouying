@@ -8,7 +8,7 @@
       </div>
       <div class="group-title-count">
         <span>点单数量:</span>
-        <span class="value">{{groupInfo.count}}</span>
+        <span class="value" style="color: #08080A;">{{groupInfo.count}}</span>
       </div>
       <div class="group-title-amt">
         <span>小计:</span>
@@ -66,7 +66,7 @@
         layout-align="space-between start"
       >
         <div class="group-content-choose-left">
-          <p>从以下明细中选{{item.groupSelectCount}}次</p>
+          <p class="title">从以下明细中选{{item.groupSelectCount}}次</p>
           <ul layout="row" layout-align="start center">
             <li
               v-for="(items,i) in item.productInfoList"
@@ -86,7 +86,7 @@
           </ul>
         </div>
         <div class="group-content-choose-right">
-          <p>当前已选{{item.hadSelectedCount}}次</p>
+          <p class="title">当前已选{{item.hadSelectedCount}}次</p>
           <ul layout="row" layout-align="start center">
             <li
               v-for="(items,i) in item.selectedProductsArr"
@@ -135,12 +135,12 @@
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/order_add.png";
-import sub from "@/assets/order-img/sub.png";
+import add from "@/assets/order-img/new_order_add.png";
+import sub from "@/assets/order-img/new-meal-sub.png";
 
-import drawerChooseRequireInfo from "@/components/order/drawerMeal/drawerChooseRequireInfo";
+import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 // 补交
-import drawerBj from "@/components/order/drawerMeal/drawerBj/index.vue";
+import drawerBj from "@/components/order/newDrawerMeal/drawerBj/index.vue";
 
 export default {
   data() {
@@ -451,6 +451,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../../style/order/orderMeal/drawerMeal/groupProduct.less";
-@import "../../../style/common/elementFormBtn.less";
+@import "../../../style/order/orderMeal/newDrawerMeal/groupProduct.less";
+@import "../../../style/common/newElementFormBtn.less";
 </style>
