@@ -848,7 +848,8 @@ export default {
 
       if (
         (this.$store.state.userInfo.roleIds.includes(2) ||
-          this.$store.state.userInfo.roleIds.includes(3)) &&
+          this.$store.state.userInfo.roleIds.includes(3)
+          || this.$store.state.userInfo.roleIds.includes(4)) &&
         !this.modelVisible
       ) {
         // 服务员/营销/特饮  且已开启营业日
@@ -884,10 +885,10 @@ export default {
       }
       // 如果是营销，需要根据可点卡台列表限制卡台
       if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
-        cardListInfoArr = JSON.parse(JSON.stringify(cardList.filter(
+        cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
           (item) => this.salesCanLookCardInfo.seats.includes(item.id * 1)
-          || cardListInfoArr.map(item => item.id).includes(item.id)
-          )))
+          && !cardListInfoArr.map(item => item.id).includes(item.id)
+          )))]
         }
 
 
