@@ -438,9 +438,6 @@ export default {
     this.getCenterType();
     this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
   },
-  beforeDestroy() {
-    this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
-  },
   props: ["allProductsList", "currentCategoryProductList"],
   components: {
     mealDrawer,
@@ -459,6 +456,7 @@ export default {
     window.onkeydown = null
     window.onkeyup = null
     downKeyCode = [0, 0]
+    this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
   }
 };
 </script>

@@ -230,5 +230,7 @@ export default {
 
   created() {
     this.init()
-  }
+  },
+  beforeDestroy() {
+  },
 }
