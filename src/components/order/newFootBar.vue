@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <div layout="row" layout-align="center center" v-if="(!isRect) &&
+      <div layout="row" layout-align="center center"  style="padding-top: 8px; " v-if="(!isRect) &&
         ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
         <!-- 消费情况 -->
         <div class="new-one" layout="row" layout-align="start start">
@@ -162,15 +162,15 @@
         <div class="contain">
           <div class="top" layout="row" layout-align="space-between center">
             <div>选择支付方式</div>
-            <i class="el-icon-close cursor" style="color: #fff" @click="showChoosePayType = false"></i>
+            <i class="el-icon-close cursor" style="color: #1A1A21;" @click="showChoosePayType = false"></i>
           </div>
 
           <div class="center" layout="row" layout-align="start center">
             <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
               @click="payType = item.id">
-              <img :src="item.icon" style="height: 25px; width: 25px; vertical-align: middle" alt="" />
-              <span style="vertical-align: middle">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
-                style="margin-left: 4px; vertical-align: middle; color: red">(推荐)</span>
+              <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
+              <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
+                 class="tuijian">推荐</span>
             </div>
           </div>
 
@@ -797,9 +797,9 @@ export default {
   },
   components: {
     drawerPayQR,
-    drawerAddBookAmt: () => import("./drawerAddBookAmt.vue"),
+    drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
-    drawerOrderList: () => import("./drawerShowOrderList.vue"),
+    drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
   },
   beforeDestroy() {
