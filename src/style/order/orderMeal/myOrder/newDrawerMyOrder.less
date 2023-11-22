@@ -11,8 +11,17 @@
 
   // 表单
   .form {
-    .change-count {
+    font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    color: #08080A;
 
+    /deep/ .el-form-item__content {
+      font-size: 20px;
+    }
+
+    .change-count {
+      
       img {
         vertical-align: middle;
         width: 26px;
@@ -20,16 +29,18 @@
       }
 
       input {
-        color: #fff;
         vertical-align: middle;
-        width: 56px;
-        height: 28px;
-        padding: 0 10px;
-        text-align: center;
-        box-sizing: border-box;
-        background: rgba(255, 255, 255, 0.0800);
+        width: 68px;
+        height: 32px;
+        background: #FAFAFC;
         border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.3000);
+        border: 1px solid #C4CBD7;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        color: #08080A;
+        line-height: 32px;
+        text-align: center;
       }
     }
 
@@ -42,13 +53,7 @@
       li {
         margin-right: 10px;
         margin-bottom: 6px;
-        // width: 160px;
-        // height: 30px;
-        // line-height: 30px;
         text-align: center;
-        // border-radius: 15px;
-        // border: 1px solid rgba(255, 255, 2255, .5);
-        // color: rgba(255, 255, 2255, .5);
         cursor: pointer;
         width: 112px;
         height: 40px;
@@ -108,17 +113,23 @@
 
   // 选择需要更改的套餐明细
   ul.choose-detail {
-    color: #fff;
+    // color: #fff;
     padding-top: 20px;
+    color: #08080A;
+    font-size: 20px;
 
     li {
       padding: 0 20px 20px;
 
       .left {
         width: 10%;
+        display: flex;
+        align-items: center;
 
         input[type="radio"] {
           cursor: pointer;
+          width: 20px;
+          height: 20px;
         }
       }
 

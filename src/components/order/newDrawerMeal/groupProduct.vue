@@ -16,7 +16,7 @@
       </div>
     </div>
     <!-- 待替换商品 -->
-    <div v-if="isUpdate" class="p-t-2 p-b-5">
+    <div v-if="isUpdate" class="p-t-2 p-b-5" style="color: #08080A; font-size: 18px;">
       <span>待替换商品：</span>
       <span
         v-for="(item,i) in selectedInfoObj[0].beforeUpdateProduct"

@@ -312,16 +312,16 @@ import eventVue from '@/utils/eventVue';
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/order_add.png";
-import sub from "@/assets/order-img/sub.png";
-import addDisabled from "@/assets/order-img/add-disabled.png";
-import subDisabled from "@/assets/order-img/sub-disabled.png";
+import add from "@/assets/order-img/new_order_add.png";
+import sub from "@/assets/order-img/new_sub.png";
+import addDisabled from "@/assets/order-img/new-add-disabled.png";
+import subDisabled from "@/assets/order-img/new-sub-disabled.png";
 
 import selectCheckbox from "@/components/order/selectCheckbox";
-import groupProduct from "@/components/order/drawerMeal/groupProduct";
+import groupProduct from "@/components/order/newDrawerMeal/groupProduct";
 import authorization from "@/components/order/newShoppingCart/authorization";
-import drawerChooseRequireInfo from "@/components/order/drawerMeal/drawerChooseRequireInfo";
-import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
+import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
+import drawerYH2Submit from "@/components/order/newDrawerMeal/drawerYH2Submit.vue";
 
 import md5 from "js-md5";
 export default {

@@ -29,11 +29,11 @@
           <div v-if="subStatus == 1">
             <!-- 表单 -->
             <div class="form">
-              <el-form label-position="right" label-width="150px" :model="formData" @submit.native.prevent>
+              <el-form label-position="right"  label-width="180px" :model="formData" @submit.native.prevent>
                 <!-- 商品名称 -->
-                <el-form-item label="商品名称">{{ currentProductInfo.productInfo.name }}</el-form-item>
+                <el-form-item label="商品名称：">{{ currentProductInfo.productInfo.name }}</el-form-item>
                 <!-- 退单商品数量 -->
-                <el-form-item :label="(status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '数量'" class="change-count">
+                <el-form-item :label="(status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '数量：'" class="change-count">
                   <img
                     :src="((currentItemInfo.io == 1 && status == 1) || (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4) || currentProductInfo.productInfo.prdType == 4 || productCount == 1 ? imgSrc.subDisabled : imgSrc.sub"
                     @click="changeCount('sub')" />
@@ -45,7 +45,7 @@
                     @click="changeCount('add')" />
                 </el-form-item>
                 <!-- 退单金额 -->
-                <el-form-item class="back-order-amt" v-if="status == 1" label="退单金额">
+                <el-form-item class="back-order-amt" v-if="status == 1" label="退单金额：">
                   <input
                     v-if="$store.state.userInfo.authStatus == 4 && (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5)"
                     :disabled="backOrder.backOrderAmt == currentItemInfo.pa && productCount == currentItemInfo.pc"
@@ -54,8 +54,8 @@
                     (currentProductInfo.pp * productCount).toFixed(2) }}</span>
                 </el-form-item>
                 <!-- 退单、赠送理由 -->
-                <el-form-item :label="'选择' + (status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '理由'"
-                  class="required required6">
+                <el-form-item :label="'选择' + (status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '理由：'"
+                  required>
                   <ul class="reason-list" layout="row" layout-align="start center">
                     <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
                       @click="formData.reason = item.name">{{ item.name }}</li>
@@ -353,16 +353,16 @@ import api_order from "@/api/order";
 import api_money from "@/api/money";
 import common_order from "@/utils/common/order";
 
-import add from "@/assets/order-img/order_add.png";
-import sub from "@/assets/order-img/sub.png";
-import addDisabled from "@/assets/order-img/add-disabled.png";
-import subDisabled from "@/assets/order-img/sub-disabled.png";
+import add from "@/assets/order-img/new_order_add.png";
+import sub from "@/assets/order-img/new_sub.png";
+import addDisabled from "@/assets/order-img/new-add-disabled.png";
+import subDisabled from "@/assets/order-img/new-sub-disabled.png";
 
 import selectCheckbox from "@/components/order/selectCheckbox";
-import groupProduct from "@/components/order/drawerMeal/groupProduct";
+import groupProduct from "@/components/order/newDrawerMeal/groupProduct";
 import authorization from "@/components/order/newShoppingCart/authorization";
 import inputSelect from "@/components/book/inputSelect";
-import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
+import drawerYH2Submit from "@/components/order/newDrawerMeal/drawerYH2Submit.vue";
 
 import md5 from "js-md5";
 export default {

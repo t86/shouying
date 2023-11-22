@@ -222,7 +222,7 @@ import shoppingCarMore from "@/assets/order-img/newShoppingCarMore.png";
 import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
 import drawerGiveHeMore from "@/components/order/newShoppingCart/drawerGiveHeMore";
-import drawerChooseRequireInfo from "@/components/order/drawerMeal/drawerChooseRequireInfo";
+import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0];
