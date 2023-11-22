@@ -1193,15 +1193,7 @@ export default {
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
       // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
-      if(this.isSaleRole){
-        let isLook = false;
-        if(this.salesCanLookCardInfo.all_seat == 1){
-          isLook = true;
-        }else{
-          isLook = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1)
-        }
-        return isLook;
-      }
+      const saleLookRole = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1);
       // 是否具有全场查单权限
       const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
@@ -1257,7 +1249,7 @@ export default {
       if (this.hasWaitOnlyLookSelf || this.hasOnlyLookSelf){
          isWaiterSealer = false
       }
-      return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
+      return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
     checkYX(item){
       if(this.salesCanLookCardInfo.all_seat != 1) {
