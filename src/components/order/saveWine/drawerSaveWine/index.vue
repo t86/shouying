@@ -250,6 +250,9 @@ export default {
   props: {
     value: false,
   },
+  beforeDestroy() {
+      this.$observer.unsubscribe(SCROLL_BOTTOM)
+  },
   computed: {
     show: {
       get() {

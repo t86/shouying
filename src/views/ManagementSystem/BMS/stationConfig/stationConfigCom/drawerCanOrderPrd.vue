@@ -59,7 +59,7 @@
               <div class="tr" layout="row" layout-align="space-between center">
                 <div class="th">
                   <el-checkbox
-                    v-model="checkAll"
+                    v-model="unPrdcheckAll"
                     :indeterminate="isIndeterminate"
                     @change="changeCheckboxHandle('all')"
                   >全选</el-checkbox>
@@ -130,6 +130,7 @@ export default {
       originCheckAll: false,
       showAddPrdDrawer: false,
       tableData: [],
+      unPrdcheckAll: false,
       dialogSaveVisible: false,
     };
   },
@@ -137,7 +138,7 @@ export default {
     getChoosedPrdList(prdList){
       console.log('getChoosedPrdList')
       this.tableData = [...this.tableData, ...prdList].filter((item, index, arr) => arr.findIndex(items => items.id == item.id) == index)
-      this.checkAll = this.tableData.every(item => item.checked)
+      this.unPrdcheckAll = this.tableData.every(item => item.checked)
     },
     // 删除
     async deleteHandle() {
@@ -155,7 +156,7 @@ export default {
           if(!checkedIdList.find(item => item == el.id)) tableData.push(el)
         })
         this.tableData = [...tableData]
-        this.checkAll = false
+        this.unPrdcheckAll = false
       } else {
         this.$message.warning(res.msg);
       }
@@ -166,11 +167,11 @@ export default {
         case "all":
           this.tableData = this.tableData.map(item => ({
             ...item,
-            checked: this.checkAll
+            checked: this.unPrdcheckAll
           }));
           break;
         case "item":
-          this.checkAll = this.tableData.every(item => item.checked);
+          this.unPrdcheckAll = this.tableData.every(item => item.checked);
           break;
       }
     },
@@ -394,6 +395,7 @@ export default {
       this.checkAll = false
       this.originCheckAll = false
       this.tableData = []
+      this.unPrdcheckAll = false
     },
   },
   mounted() {},
@@ -421,7 +423,7 @@ export default {
       },
     },
     isIndeterminate() {
-      return !this.checkAll && this.tableData.some(item => item.checked);
+      return !this.unPrdcheckAll && this.tableData.some(item => item.checked);
     }
   },
 

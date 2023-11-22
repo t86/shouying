@@ -225,6 +225,9 @@ export default {
     })
 
   },
+  beforeDestroy() {
+    eventVue.$off('reloadReginList')
+  },
   components: {
     EllipsisTooltip,
     IconButton

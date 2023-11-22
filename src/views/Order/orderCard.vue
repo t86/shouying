@@ -54,7 +54,7 @@
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
               :style="{
-                display: !item.canLookOrder && isOnlySales ? 'none' : '',
+                display: item.shouldHidden ? 'none' : '',
               }"
             >
               <p layout="row" layout-align="space-between center">
@@ -554,7 +554,7 @@ export default {
       },
 
       salesCanLookCardInfo: {
-        all_seat: 1,     // 1 是  2 否 (否的话, 看返回的卡台列表)
+        all_seat: 0,     // 1 是  2 否 (否的话, 看返回的卡台列表)
         seats  :[]
       }, // 营销可查单区域列表
     };
@@ -582,9 +582,16 @@ export default {
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
 
-      if (roleIds.includes(3) || roleIds.includes(4)) {
-        // 有营销/花篮权限
-        YXTabList = [...arr];
+      let originYXTab = [];
+      // 有营销
+      if (roleIds.includes(3)) {
+        if(this.salesCanLookCardInfo.all_seat != 1) {
+          YXTabList = [...JSON.parse(JSON.stringify(arr)).filter(i => this.$store.state.cardPageInfo.resResultDataObj.cardInfo
+            .filter(item => this.salesCanLookCardInfo.seats.includes(item.id * 1)).map(item => item.regionId).includes(i.id))]
+        } else {
+          YXTabList = [...arr];
+          originYXTab = YXTabList;
+        }
       }
 
       // 特饮，也需要判断可点区域
@@ -615,11 +622,16 @@ export default {
       let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
+
+      this.tab.tabListOrigin = JSON.parse(JSON.stringify([...FUTabList, ...originYXTab, ...HLTabList, ...QCTabList].filter(
+          (item, index, arr) =>
+            arr.findIndex((items) => items.id == item.id) == index
+        ).sort((a, b) => a.dsp - b.dsp)
+        .filter((item) => item.status == 1)));
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0,
         tabList
       );
-      this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
       if (tabList.length > 0) {
@@ -678,26 +690,27 @@ export default {
       );
     },
 
-      // 手动切换卡台订单状态
-      changeCardStatus(cardStatusId) {
-        if (cardStatusId === this.legendActive) {
-          // 点击的同状态一个按钮
-          this.legendActive = 0;
-          this.card.cardList = cardListInfoArr;
-          return;
-        }
+    // 手动切换卡台订单状态
+    changeCardStatus(cardStatusId) {
+      if (cardStatusId === this.legendActive) {
+        // 点击的同状态一个按钮
+        this.legendActive = 0;
+        this.card.cardList = cardListInfoArr;
+      } else {
         this.legendActive = cardStatusId;
         this.tab.anotherInfoActiveId = 0;
         this.tab.activeIndex = 0;
         this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
-      },
+      }
+      
+    },
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
       // 当岗位只有销售, 无替身或替身岗位也只有销售时
-      if(this.isOnlySales){
-        await this.getOnlyLookSelfCardList()
+      if(this.isSaleRole){
+        await this.getLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
       const currentMachineId = this.$localStorage.getItem("machineId");
@@ -730,18 +743,22 @@ export default {
 
         // 通过cardList反推出对应的区域，并添加到区域id中
         const allCardInfo =
-          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
+          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo || []] || [];
 
         // 最终经过筛选过后的区域列表，对应元数据的areaInfo
         let resultAreaList = [];
         // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
         let resultCardList = [];
-
+        // 筛选营销中符合设备限制的所有卡台
+        let salesSeats = []
         areaIdList.forEach((el) => {
           // 存储配置区域的区域下所有卡台
           const currentAreaCardList = allCardInfo.filter(
-            (item) => item.regionId == el
+            (item) => (item.regionId == el)
           );
+          if(this.salesCanLookCardInfo.all_seat != 1) {
+            salesSeats = [...salesSeats, ...this.salesCanLookCardInfo.seats.filter(id => currentAreaCardList.map(i => i.id).includes("" + id))]
+          }
           resultCardList = [...resultCardList, ...currentAreaCardList];
         });
 
@@ -750,12 +767,18 @@ export default {
             (item) => item.id == el.region_o_seat_id
           );
           if (find) {
+            if(this.salesCanLookCardInfo.all_seat != 1 && this.salesCanLookCardInfo.seats.includes(find.id * 1)) {
+              salesSeats = [...salesSeats, find.id * 1]
+            }
             resultCardList.push(find);
             if (!areaIdList.find((item) => item == find.regionId)) {
               areaIdList.push(find.regionId);
             }
           }
         });
+
+        // 经过区域和卡台的筛选，理出所有营销符合设备限制的卡台id
+        this.salesCanLookCardInfo.seats = [...salesSeats]
         cardInfo = resultCardList;
       }
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
@@ -791,6 +814,7 @@ export default {
               tipsArr: this.getTips(data.bizStatus),
               // 是否可查单
               canLookOrder: this.currentCardCanLookOrder(item.name, data),
+              shouldHidden: this.checkHidden(item),
               // 低消进度
               diXiaoJindu:
                 Number(data.assignMinCsmAmt) > 0
@@ -835,7 +859,7 @@ export default {
 
       // 没有配置任何权限同时不具有全场查单权限
       if (
-        this.$store.state.userInfo.roleIds.length == 0 
+        this.$store.state.userInfo.roleIds.length == 0
       ) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
@@ -843,7 +867,7 @@ export default {
         cardListInfoArr = JSON.parse(JSON.stringify(cardList)); // 首次更改，为了给获取自己及下属员工卡台提供数据
       }
 
-      await this.getTabList(JSON.parse(JSON.stringify(resResultDataObj["areaInfo"])));
+      await this.getTabList(JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"])));
 
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (
@@ -855,6 +879,17 @@ export default {
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
         )));
       }
+      // 如果只是营销 不写在这里前面的判断会把区域弄没
+      if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
+        cardListInfoArr = []
+      }
+      // 如果是营销，需要根据可点卡台列表限制卡台
+      if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
+        cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
+          (item) => this.salesCanLookCardInfo.seats.includes(item.id * 1)
+          )))];
+        }
+
 
       try {
         // 此处为了解决点单系统websocket数据更新后页面不更新问题
@@ -1106,7 +1141,6 @@ export default {
           "regionId",
           this.tab.activeIndex
         );
-
         // this.$forceUpdate();
       } catch (error) {
         console.log("全量数据请求失败", error);
@@ -1142,7 +1176,7 @@ export default {
       }
     },
     // 只是营销时 获取可查看卡台列表
-    async getOnlyLookSelfCardList() {
+    async getLookSelfCardList() {
       try {
         this.salesCanLookCardList = [];
         const res = await api_order.reqGetSalesmanSeatList();
@@ -1159,7 +1193,7 @@ export default {
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
       // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
-      if(this.isOnlySales){
+      if(this.isSaleRole){
         let isLook = false;
         if(this.salesCanLookCardInfo.all_seat == 1){
           isLook = true;
@@ -1225,7 +1259,13 @@ export default {
       }
       return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
-
+    checkHidden(item){
+      // if(this.salesCanLookCardInfo.all_seat != 1) {
+      //   return !this.salesCanLookCardInfo.seats.includes(item.id)
+      // } else {
+        return false
+      // }
+    },
     // 显示或隐藏低消进度统计表
     showOrHideMinDetailDrawerHandle() {
       this.showMinDetailDrawer = !this.showMinDetailDrawer;
@@ -1340,11 +1380,12 @@ export default {
                  ) >= 0
              ) || [];
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
-        if(this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
+        if(this.isSaleRole && this.salesCanLookCardInfo.all_seat != 1) {
+          let seats = this.salesCanLookCardInfo.seats
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
-          this.salesCanLookCardInfo.seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
+          seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
           && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
-          && this.salesCanLookCardInfo.seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
+          && seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
           .forEach(item => {
             item.id == 30 ?
             result["10"] =
@@ -1353,7 +1394,7 @@ export default {
             (result["20"] || 0) * 1 + item.cnt * 1  // 抵达数
           })
           this.card.cardList
-            .filter((item) => this.salesCanLookCardInfo.seats.includes(item.id * 1))
+            .filter((item) => seats.includes(item.id * 1))
             .forEach((el) => {
               if (el.bizStatus != 4 && el.bizStatus != 20) {
                 // 除了开台数和抵达数以外的状态
@@ -1363,8 +1404,10 @@ export default {
             });
             result["5"] = result["6"] || 0 + result["5"] || 0;
             this.cardStatusNoInfo = result;
-            return;
-        }
+            if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
+              return;
+            }
+        } 
 
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
@@ -1477,11 +1520,11 @@ export default {
                 );
                 this.card.cardList
                   .filter((item) => item.regionId == el.id)
-                  .forEach((el) => {
-                    if (el.bizStatus != 4 && el.bizStatus != 20) {
+                  .forEach((item) => {
+                    if (item.bizStatus != 4 && item.bizStatus != 20) {
                       // 除了开台数和抵达数以外的状态
-                      result[el.bizStatus] =
-                        (result[el.bizStatus] || 0) * 1 + 1;
+                      result[item.bizStatus] =
+                        (result[item.bizStatus] || 0) * 1 + 1;
                     } else {
                       // 开台数、抵达数
                       const currentSeatOpenInfo = allOpenInfo.find(
@@ -1640,13 +1683,13 @@ export default {
       const ids = subordinateList.map((d) => d.id);
       return ids;
     },
-    // 有且只有一个营销角色权限  无替身或替身岗位也只有销售时
-    isOnlySales() {
-      let onlySales = (this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1);
-      let isCloneIsOnlySales = true;
-      // 无替身或替身也只是销售
-      if( onlySales && this.loginUserInfo.clone_emp_id != '0'){
+    // 有且只有一个营销角色权限  无替身或替身岗位也只有营销时
+    isSaleRole() {
+      let isSales = (this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(3));
+      let isCloneisSaleRole = true;
+      // 无替身或替身也是销售
+      if( isSales && this.loginUserInfo.clone_emp_id != '0'){
         const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
         [];
@@ -1658,10 +1701,10 @@ export default {
         // 获取角色ids
         const roles = sysRole.filter(item => item.station_id == clone_person.stationId && item.status == 1);
         const roleIds = [...new Set(roles.map(d=>d.sys_role_id * 1))];
-        isCloneIsOnlySales = roleIds.includes(3)&&roleIds.length == 1;
+        isCloneisSaleRole = roleIds.includes(3);
       
       }
-      return onlySales && isCloneIsOnlySales
+      return isSales || isCloneisSaleRole
     },
   },
 

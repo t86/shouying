@@ -367,7 +367,10 @@ export default {
 
     // 倒计时
     loopSecond() {
-      if (this.timer) clearInterval(this.timer);
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
       this.timer = setInterval(() => {
         this.count--;
         if (this.count == 0) {
@@ -505,6 +508,11 @@ export default {
     payId: {
       default: "",
     },
+  },
+  beforeDestroy() {
+    if(this.timer){
+      clearInterval(this.timer);
+    }
   },
   computed: {
     btnText() {

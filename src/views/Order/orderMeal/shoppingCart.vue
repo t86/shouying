@@ -587,6 +587,7 @@ export default {
     },
 
     async logOutHandle() {
+      console.log("logout");
       try {
         const res = await api_auth.auth.requestauthlogout();
         if (res.code === 1) {

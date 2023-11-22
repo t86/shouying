@@ -2264,7 +2264,8 @@ export default {
     );
     window.removeEventListener("click", (e) => this.legendOptionHandle());
     document.body.removeEventListener("click", this.documentClickHandle);
-
+    eventVue.$off("reloadMoneyCard")
+    
     window.onkeydown = null;
     window.onkeyup = null;
     downKeyCode = [0, 0];

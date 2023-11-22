@@ -420,6 +420,9 @@ export default {
       this.refresh(+this.$route.params.id);
     })
   },
+  beforeDestroy() {
+    eventVue.$off('reloadTableData')
+  },
   computed: {},
   filters: {
     pand: function (v) {

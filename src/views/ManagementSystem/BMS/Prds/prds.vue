@@ -1320,6 +1320,10 @@ export default {
       this.demand()
     })
   },
+  beforeDestroy() {
+    eventVue.$off('reloadCategoryList')
+    this.$root.$off('next')
+  },
   components: {
     EllipsisTooltip,
     IconButton,

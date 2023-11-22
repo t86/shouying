@@ -1527,6 +1527,9 @@ export default {
       this.refresh(this.$route.params.id);
     })
   },
+  beforeDestroy() {
+    eventVue.$off('reloadTableData')
+  },
   filters: {
     pand: function(v) {
       if (v == "置为无效") {

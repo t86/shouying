@@ -102,7 +102,7 @@ export default new Vuex.Store({
       // 获取最新当前点单卡台信息(点单后更新已消费金额)
       const currentCardId = state.orderInfo.currentCardInfo.seatId;
       if (currentCardId) {
-        const updatedCardInfo = value.businessData.find(
+        const updatedCardInfo = (value.businessData || []).find(
           (el) => el.seatId == currentCardId
         );
         for (let key in updatedCardInfo) {

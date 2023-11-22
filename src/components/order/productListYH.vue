@@ -428,7 +428,6 @@ export default {
   },  
   created () {
     setTimeout(() => {
-      // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
       if (this.$store.state.userInfo.authStatus == 4) {
         window.onkeydown = this.keyHandle
         window.onkeyup = this.keyHandle
@@ -457,6 +456,7 @@ export default {
     window.onkeydown = null
     window.onkeyup = null
     downKeyCode = [0, 0]
+    this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
   }
 };
 </script>
