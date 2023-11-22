@@ -907,7 +907,6 @@ export default {
             },
           });
           this.$message.success("退出成功！");
-          window.location.reload();
         } else {
           this.$message.warning(res.msg);
         }
