@@ -201,15 +201,14 @@ export default class WebSocketClient {
           let data = res.data ? res.data.ds : [];
           
           // 收到版本号更新通知, 同时当前版本比较老，强制刷新
-          if (resResultDataArr  
-            && resResultDataArr['frontVersion'] 
-            && resResultDataArr['frontVersion'].ver == data["43"]) {
+          if (localStorage.getItem('frontVersion') != data["43"][0]) {
               setTimeout(() => window.location.reload(), 0);
           }
           localStorage.setItem("refreshAllTime", res.data && res.data.ts);
           localStorage.setItem("refreshAllLocalTime", +this.formattedDate());
           localStorage.setItem("refreshAll", ...data["23"]);
           localStorage.setItem("websocketTimeMessageTime", res.data.ts);
+          localStorage.setItem('frontVersion', ...data["43"])
           resResultDataArr.forEach((el, index) => {
             this.resResultDataObj[el] =
               el != "businessData"
@@ -364,7 +363,11 @@ export default class WebSocketClient {
           }
         // 收到版本号更新通知, 强制刷新
         } else if (key == 43) {
-          setTimeout(() => window.location.reload(), 0);
+          if(localStorage.getItem('frontVersion') != dataObj[key][0]) {
+            localStorage.setItem("frontVersion", ...dataObj[key])
+            setTimeout(() => window.location.reload(), 0);
+          }
+
         } else {
           dataObj[key] = transformCardDataHandle(dataObj[key], key);
           dataObj[key].forEach((el) => {
