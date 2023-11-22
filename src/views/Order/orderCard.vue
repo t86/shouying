@@ -1261,7 +1261,7 @@ export default {
     },
     checkYX(item){
       if(this.salesCanLookCardInfo.all_seat != 1) {
-        return this.salesCanLookCardInfo.seats.includes(item.id)
+        return this.salesCanLookCardInfo.seats.includes(item.id * 1)
       } else {
         return true
       }
