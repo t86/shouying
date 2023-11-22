@@ -504,7 +504,10 @@ export default {
       }
 
       // 点单系统
-      if (sessionStorage.getItem("client") == "order"){
+      if (sessionStorage.getItem("client") == "order" 
+      && (this.$store.state.userInfo.roleIds.includes(2) 
+      || this.$store.state.userInfo.roleIds.includes(4)) 
+      && this.$store.state.orderInfo.currentCardInfo.isWaiter){
         resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
         ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
