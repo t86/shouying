@@ -6,7 +6,7 @@ import { projectName, projectConfig } from "@/utils/config/projectConfig.js";
 import getTermType from "./addTermType";
 import { canRequest } from "./intercept";
 import Observer, { CODE_INVALID } from "../observer";
-
+import store from '@/store'; // 导入你的Vuex store模块
 // 创建axios实例
 var instance = axios.create({ timeout: 1000 * 12 });
 // 设置post请求头
@@ -18,6 +18,7 @@ instance.defaults.headers.post["Content-Type"] =
  */
 instance.interceptors.request.use(
   function (config) {
+    store.dispatch('setLoading', true); // 在请求开始时显示loading
     if (!canRequest(config.url) && !config.url.includes("/oss/pt")) return;
 
     if (localStorage.getItem("tk")) {
@@ -38,6 +39,7 @@ instance.interceptors.request.use(
     return config;
   },
   function (error) {
+    store.dispatch('setLoading', false); // 在请求错误时隐藏loading
     if (localStorage.getItem("super") == "true") {
       router.push({ path: "/admin" });
     } else {
@@ -50,6 +52,7 @@ instance.interceptors.request.use(
 // 响应拦截器
 instance.interceptors.response.use(
   (res) => {
+    store.dispatch('setLoading', false); // 在接收到响应时隐藏loading
     if (res.data.code == 12 || res.data.code == 11) {
       if (localStorage.getItem("super") == "true") {
         router.push({ path: "/admin" });
@@ -75,6 +78,7 @@ instance.interceptors.response.use(
     return res;
   },
   (error) => {
+    store.dispatch('setLoading', false); // 在响应错误时隐藏loading
     console.log("requestErr", error);
     console.log("errorMessage", error.message);
     if (!error.message.includes("(reading 'cancelToken')"))

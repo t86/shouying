@@ -483,6 +483,7 @@ export default {
     }, 200);
   },
   mounted() {
+   
     firstLoad = true;
     this.getShoppingCartData()
     this.getCenterType();

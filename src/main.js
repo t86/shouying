@@ -20,7 +20,6 @@ Vue.prototype.$observer = Observer;
 Vue.prototype.$sessionStorage = sessionStorage;
 Vue.prototype.$localStorage = localStorage;
 Vue.prototype.$globalError = globalError;
-
 import less from "less";
 Vue.use(less);
 
@@ -71,6 +70,7 @@ Vue.config.errorHandler = function (err, vm, info) {
 
 
 router.beforeEach((to, from, next) => {
+  store.dispatch('setLoading', true); 
   const authId = store.state.userInfo.emp_id;
   /* 路由发生变化修改页面title */
   document.title = to.meta.title ? to.meta.title : "";
@@ -104,6 +104,11 @@ router.beforeEach((to, from, next) => {
       if (to.name === name || to.name === "appinfo") return next();
       authId ? next() : next({ name: "home" });
   }
+});
+
+// 全局后置钩子
+router.afterEach(() => {
+  store.dispatch('setLoading', false); // 结束加载，设置 loading 为 false
 });
 
 // import Print from './plugins/print/Print'

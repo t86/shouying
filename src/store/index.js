@@ -49,6 +49,7 @@ export default new Vuex.Store({
     },
     // 请求相关信息
     requestInfo: {},
+    loading: false, // loading
   },
   mutations: {
     gaibian(state, value) {
@@ -142,6 +143,9 @@ export default new Vuex.Store({
         JSON.stringify(state.cardPageInfo.resResultDataObj)
       );
     },
+    updateLoading(state, isLoading) {
+      state.loading = isLoading;
+    },
   },
   actions: {
     // 获取购物车商品数目总条数
@@ -176,6 +180,9 @@ export default new Vuex.Store({
       } catch (error) {
         console.log("获取营业信息失败", error);
       }
+    },
+    setLoading({ commit }, isLoading) {
+      commit('updateLoading', isLoading);
     },
  
   },
