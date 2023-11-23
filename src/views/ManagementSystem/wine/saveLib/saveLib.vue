@@ -46,7 +46,7 @@
       <el-button type="primary" size="small" @click="batchToStore">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportDetailHandle">明细导出</el-button>
     </div>
-    <span class="color-red">说明：过期充公的酒水将进入到待充公列表</span>
+    <span class="color-red">说明：充公酒水将进入待充公列表</span>
     <div class="table-content m-t-2">
       <div class="table">
         <div class="thead">
@@ -245,7 +245,7 @@ export default {
       try {
         const res = await api_wine.reqCgWineInvt(params);
         if(res.code == 1) {
-          this.$message.success('库存充公成功')
+          this.$message.success('已加入待充公列表')
           this.getTableData();
           this.toStoreDialog = false;
         } else {

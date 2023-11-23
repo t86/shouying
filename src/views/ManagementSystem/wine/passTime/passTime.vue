@@ -6,13 +6,13 @@
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
-    <div class="btn-area m-t-4">
+    <div class="btn-area m-t-4 m-b-2">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">批量延期</el-button>
       <el-button type="primary" size="small" @click="addStoreHandle">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportExcelHandle">导出</el-button>
     </div>
-
-    <div class="table-content m-t-4">
+    <span class="color-red">说明：过期充公酒水将进入待充公列表</span>
+    <div class="table-content m-t-2">
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="start center">
@@ -163,7 +163,7 @@ export default {
       try {
         const res = await api_wine.reqPassPrdToStore(params)
         if (res.code == 1) {
-          this.$message.success('充公成功')
+          this.$message.success('已加入待充公列表')
           this.getTableData()
         } else {
           this.$message.warning(res.msg)
