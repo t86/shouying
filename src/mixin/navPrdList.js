@@ -48,8 +48,10 @@ export default {
        * 无论是否为收银系统，都要去查看当前登录账号对商品的可点权限，目的是为了在收银系统中，对商品进行优惠操作时，如果自己有权限则显示自己优惠按钮，否则不显示
        */
       if (true) {
-        if (this.$store.state.userInfo.roleIds.includes(2)) {
-          // 服务员
+        if ((this.$store.state.userInfo.roleIds.includes(2) 
+        || this.$store.state.userInfo.roleIds.includes(4)) 
+        && this.$store.state.orderInfo.currentCardInfo.isWaiter) {
+          // 服务员 特饮 且是服务员可点卡台
           // 查看是否为不限可点
           if (
             notLimitStationId
@@ -73,7 +75,8 @@ export default {
           }
         }
 
-        if (this.$store.state.userInfo.roleIds.includes(3)) {
+        if (this.$store.state.userInfo.roleIds.includes(3)
+        && (this.$store.state.orderInfo.currentCardInfo.isYX)) {
           // 营销
           prdListId = getSealConfigPrdId(this);
         }
@@ -146,7 +149,9 @@ export default {
       /**
        *  服务员
        */
-      if (this.$store.state.userInfo.roleIds.includes(2)) {
+      if ((this.$store.state.userInfo.roleIds.includes(2) 
+      || this.$store.state.userInfo.roleIds.includes(4)) 
+      && this.$store.state.orderInfo.currentCardInfo.isWaiter) {
         // 当前区域下服务员可点商品
         const FWYAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
@@ -196,7 +201,8 @@ export default {
       /**
        * 营销
        */
-      if (this.$store.state.userInfo.roleIds.includes(3)) {
+      if (this.$store.state.userInfo.roleIds.includes(3) 
+        && (this.$store.state.orderInfo.currentCardInfo.isYX)) {
         // 营销在当前区域下可点商品
         const YXAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
@@ -498,7 +504,10 @@ export default {
       }
 
       // 点单系统
-      if (sessionStorage.getItem("client") == "order"){
+      if (sessionStorage.getItem("client") == "order" 
+      && (this.$store.state.userInfo.roleIds.includes(2) 
+      || this.$store.state.userInfo.roleIds.includes(4)) 
+      && this.$store.state.orderInfo.currentCardInfo.isWaiter){
         resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
         ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {

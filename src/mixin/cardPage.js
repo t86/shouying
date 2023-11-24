@@ -164,6 +164,9 @@ export const cardPageMixins = {
 
     // 页面可视区域尺寸发生变化
     windowResizeHandle() {
+      if(!this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]){
+        this.logOutHandle();
+      }
       this.getTabShowCount();
       this.getTabList(
         JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"]))
@@ -260,7 +263,33 @@ export const cardPageMixins = {
         console.log("修改密码失败", error);
       }
     },
-
+    async logOutHandle() {
+      try {
+        console.log('log out')
+        const res = await api_auth.auth.requestauthlogout();
+        if (res.code === 1) {
+          // this.$store.commit("updateResResultDataObj", "");
+          this.$store.commit("updateUserInfo", "");
+          this.$router.replace({
+            name: "Thelogin",
+            replace: true,
+            query: {
+              client: "order",
+            },
+          });
+          let version = localStorage.getItem("projectVersion");
+          sessionStorage.clear();
+          localStorage.clear();
+          localStorage.setItem("projectVersion", version);
+          this.$websocket.reset();
+          this.$message.success("退出成功！");
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("logout失败", error);
+      }
+    },
     // 修改授权密码
     async submitUpdateAuthPwdHandle(authPwdInfo = {}) {
       if (authPwdInfo.show) {

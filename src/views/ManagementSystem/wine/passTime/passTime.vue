@@ -6,17 +6,24 @@
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
-    <div class="btn-area m-t-4">
+    <div class="btn-area m-t-4 m-b-2">
       <el-button type="primary" size="small" @click="showLongDrawerHandle">批量延期</el-button>
       <el-button type="primary" size="small" @click="addStoreHandle">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportExcelHandle">导出</el-button>
     </div>
-
-    <div class="table-content m-t-4">
+    <span class="color-red">说明：过期充公酒水将进入待充公列表</span>
+    <div class="table-content m-t-2">
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="start center">
-            <div class="th">序号</div>
+            <div class="th">
+              <el-checkbox
+                v-model="allChecked"
+                :indeterminate="isIndeterminate"
+                @change="changeAllCheckboxHandle()"
+                >全选</el-checkbox
+              >
+            </div>
             <div class="th">客人姓名</div>
             <div class="th">联系方式</div>
             <div class="th">卡台</div>
@@ -120,8 +127,9 @@ export default {
       ids: [],
       keyword: "",
       tableData: [],
-      
+      allChecked: false,
       showLongDrawer: false,  // 延期drawer
+      isIndeterminate: false, //
     };
   },
   methods: {
@@ -163,7 +171,7 @@ export default {
       try {
         const res = await api_wine.reqPassPrdToStore(params)
         if (res.code == 1) {
-          this.$message.success('充公成功')
+          this.$message.success('已加入待充公列表')
           this.getTableData()
         } else {
           this.$message.warning(res.msg)
@@ -178,7 +186,23 @@ export default {
       if(this.ids.length <=0) return this.$message.warning('请选择需要延期的商品')
       this.showLongDrawer = true
     },
-
+    changeAllCheckboxHandle() {
+      this.tableData.forEach(el => {
+        el.checkAll = this.allChecked
+        el.ss.forEach(e => {
+          e.checked = this.allChecked;
+        });
+        el.isIndeterminate = !el.checkAll && el.ss.some(item => item.checked);
+      });
+      const ids = []
+      this.tableData.forEach(el => {
+        el.ss.forEach(ele => {
+          if(ele.checked) ids.push(ele.id)
+        })
+      })
+      this.ids = ids
+      this.isIndeterminate = !this.allChecked && ids.length > 0
+    },
     changeCheckboxHandle(type, itemInfo) {
       switch (type) {
         case "all":
@@ -193,24 +217,16 @@ export default {
       
       itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
       const ids = []
+      let checkAll = true
       this.tableData.forEach(el => {
         el.ss.forEach(ele => {
           if(ele.checked) ids.push(ele.id)
+          else checkAll = false
         })
       })
       this.ids = ids
-      // this.ids = itemInfo.ss.filter(item => item.checked).map(item => item.id * 1);
-      // itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
-      // this.tableData.forEach(el => {
-      //   if(el.o != itemInfo.o) {
-      //     el.checkAll = false
-      //     el.isIndeterminate = false
-      //     el.ss = el.ss.map(item => ({
-      //       ...item,
-      //       checked: false
-      //     }))
-      //   }
-      // })
+      this.allChecked = checkAll
+      this.isIndeterminate = !this.allChecked && ids.length > 0
     },
 
     resetHandle() {
@@ -248,6 +264,11 @@ export default {
   },
   created() {
     this.getTableData()
+  },
+  computed: {
+    isIndeterminate() {
+      return !this.allChecked && this.tableData.some(item => item.checked);
+    }
   },
   components: {
     drawerLongTime

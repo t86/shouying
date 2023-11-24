@@ -46,17 +46,17 @@
       <el-button type="primary" size="small" @click="batchToStore">批量充公</el-button>
       <el-button type="primary" size="small" @click="exportDetailHandle">明细导出</el-button>
     </div>
-    <span class="color-red">说明：过期充公的酒水将进入到待充公列表</span>
+    <span class="color-red">说明：充公酒水将进入待充公列表</span>
     <div class="table-content m-t-2">
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="start center">
             <div class="th">
               <el-checkbox
-                v-model="checked"
+                v-model="allChecked"
                 :indeterminate="isIndeterminate"
                 @change="changeAllCheckboxHandle()"
-                >序号</el-checkbox
+                >全选</el-checkbox
               >
             </div>
             <div class="th">客人姓名</div>
@@ -187,7 +187,8 @@ export default {
       tableData: [],
       showLongDrawer: false,  // 延期drawer
       toStoreDialog: false,
-      checked: false,
+      allChecked: false,
+      isIndeterminate: false,
     };
   },
   methods: {
@@ -219,7 +220,7 @@ export default {
 
           this.tableData = res.data.records;
           this.ids = []
-          this.checked = false
+          this.allChecked = false
         } else {
           this.$message.warning(res.msg);
         }
@@ -245,7 +246,7 @@ export default {
       try {
         const res = await api_wine.reqCgWineInvt(params);
         if(res.code == 1) {
-          this.$message.success('库存充公成功')
+          this.$message.success('已加入待充公列表')
           this.getTableData();
           this.toStoreDialog = false;
         } else {
@@ -299,29 +300,24 @@ export default {
       // this.ids = itemInfo.ss.filter(item => item.checked).map(item => item.id * 1);
       itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
       const ids = []
+      let checkedAll = true;
       this.tableData.forEach(el => {
         el.ss.forEach(ele => {
           if(ele.checked) ids.push(ele.id)
+          else checkedAll = false;
         })
       })
       this.ids = ids
-      // this.tableData.forEach(el => {
-      //   if(el.o != itemInfo.o) {
-      //     el.checkAll = false
-      //     el.isIndeterminate = false
-      //     el.ss = el.ss.map(item => ({
-      //       ...item,
-      //       checked: false
-      //     }))
-      //   }
-      // })
+      this.allChecked = checkedAll
+      this.isIndeterminate = !checkedAll && ids.length > 0
     },
     changeAllCheckboxHandle() {
       this.tableData.forEach(el => {
-        el.checkAll = this.checked
+        el.checkAll = this.allChecked
         el.ss.forEach(e => {
-          e.checked = this.checked;
+          e.checked = this.allChecked;
         });
+        el.isIndeterminate = !el.checkAll && el.ss.some(item => item.checked);
       });
       const ids = []
       this.tableData.forEach(el => {
@@ -330,6 +326,7 @@ export default {
         })
       })
       this.ids = ids
+      this.isIndeterminate = !this.allChecked && ids.length > 0
     },
     resetHandle(){
       const oneHour = +new Date('2023/07/22 12:00:00') - +new Date('2023/07/22 11:00:00')
@@ -348,11 +345,6 @@ export default {
   },
   created() {
     this.resetHandle();
-  },
-  computed: {
-    isIndeterminate() {
-      return !this.checked && this.tableData.some(item => item.checked);
-    }
   },
   components: {
     drawerLongTime

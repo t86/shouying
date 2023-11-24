@@ -20,7 +20,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           status: el[2],  // 卡台状态:1有效 2无效 3删除
           regionId: el[3],  // 所属区域Id
           seatType: el[4],  // 开台类型:1散台 2吧台 3卡座 4包厢
-          bizType: el[5],   // 业务类型:1 普通卡台 2 虚拟卡台  3:补交台(鸡尾酒)
+          bizType: el[5],   // 业务类型:1 普通卡台 2 虚拟卡台  3:关联功能台(鸡尾酒) 4:功能台
           capacity: el[6],  // 可坐人数
           dsp: el[7],  // 卡台排序
         })
