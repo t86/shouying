@@ -305,8 +305,8 @@ import drawerTYDetail from "@/components/money/drawerTYDetail.vue";
 // 估清弹框
 import outSomething from "./orderMeal/orderMealList.vue";
 
-import updatePassword from "@/components/common/updatePassword.vue";
-import updateAuthPassword from "@/components/common/updateAuthPassword.vue";
+import updatePassword from "@/components/common/newUpdatePassword.vue";
+import updateAuthPassword from "@/components/common/newUpdateAuthPassword.vue";
 import drawerSaveWine from "@/components/order/saveWine/drawerSaveWine/index.vue";
 import drawerGetWine from "@/components/order/saveWine/drawerGetWine/index.vue";
 import drawerPayToStore from "@/components/order/saveWine/drawerPayToStore/index.vue";
