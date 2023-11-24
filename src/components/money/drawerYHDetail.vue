@@ -59,8 +59,8 @@
               <div class="th">优惠金额小计</div>
               <div class="th">订台人</div>
               <div class="th">订台部门</div>
-              <div class="th">优惠2关联台</div>
-              <div class="th">优惠2关联台区域</div>
+              <div class="th">优惠2关联功能台</div>
+              <div class="th">优惠2关联功能台区域</div>
               <div class="th">优惠2订位人</div>
               <div class="th">优惠2订位人部门</div>
             </div>

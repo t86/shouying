@@ -323,7 +323,7 @@ export default {
         ] // []string  要求
       };
 
-      // 判断是否为补交台
+      // 判断是否为关联功能台
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = {...params}
         return this.showBJDrawer = true

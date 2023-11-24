@@ -16,7 +16,14 @@
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="start center">
-            <div class="th">序号</div>
+            <div class="th">
+              <el-checkbox
+                v-model="allChecked"
+                :indeterminate="isIndeterminate"
+                @change="changeAllCheckboxHandle()"
+                >全选</el-checkbox
+              >
+            </div>
             <div class="th">客人姓名</div>
             <div class="th">联系方式</div>
             <div class="th">卡台</div>
@@ -120,8 +127,9 @@ export default {
       ids: [],
       keyword: "",
       tableData: [],
-      
+      allChecked: false,
       showLongDrawer: false,  // 延期drawer
+      isIndeterminate: false, //
     };
   },
   methods: {
@@ -178,7 +186,23 @@ export default {
       if(this.ids.length <=0) return this.$message.warning('请选择需要延期的商品')
       this.showLongDrawer = true
     },
-
+    changeAllCheckboxHandle() {
+      this.tableData.forEach(el => {
+        el.checkAll = this.allChecked
+        el.ss.forEach(e => {
+          e.checked = this.allChecked;
+        });
+        el.isIndeterminate = !el.checkAll && el.ss.some(item => item.checked);
+      });
+      const ids = []
+      this.tableData.forEach(el => {
+        el.ss.forEach(ele => {
+          if(ele.checked) ids.push(ele.id)
+        })
+      })
+      this.ids = ids
+      this.isIndeterminate = !this.allChecked && ids.length > 0
+    },
     changeCheckboxHandle(type, itemInfo) {
       switch (type) {
         case "all":
@@ -193,24 +217,16 @@ export default {
       
       itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
       const ids = []
+      let checkAll = true
       this.tableData.forEach(el => {
         el.ss.forEach(ele => {
           if(ele.checked) ids.push(ele.id)
+          else checkAll = false
         })
       })
       this.ids = ids
-      // this.ids = itemInfo.ss.filter(item => item.checked).map(item => item.id * 1);
-      // itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
-      // this.tableData.forEach(el => {
-      //   if(el.o != itemInfo.o) {
-      //     el.checkAll = false
-      //     el.isIndeterminate = false
-      //     el.ss = el.ss.map(item => ({
-      //       ...item,
-      //       checked: false
-      //     }))
-      //   }
-      // })
+      this.allChecked = checkAll
+      this.isIndeterminate = !this.allChecked && ids.length > 0
     },
 
     resetHandle() {
@@ -248,6 +264,11 @@ export default {
   },
   created() {
     this.getTableData()
+  },
+  computed: {
+    isIndeterminate() {
+      return !this.allChecked && this.tableData.some(item => item.checked);
+    }
   },
   components: {
     drawerLongTime

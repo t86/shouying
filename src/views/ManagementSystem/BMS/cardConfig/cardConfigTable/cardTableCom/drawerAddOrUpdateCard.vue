@@ -56,7 +56,8 @@
             <el-select v-model="businessType" placeholder="请选择类型" size="mini">
               <el-option label="实体台" :value="1"></el-option>
               <el-option label="虚拟台" :value="2"></el-option>
-              <el-option label="关联台" :value="3"></el-option>
+              <el-option label="关联功能台" :value="3"></el-option>
+              <el-option label="功能台" :value="4"></el-option>
             </el-select>
           </div>
         </div>

@@ -157,11 +157,11 @@ export default {
     axios.post(`${base.htgl}/emp/chg_auth_pwd`, params),
 
   // 补交
-  // 关联台,选择好日期后,返回可补交的卡台列表(有有效流水的卡台列表)
+  // 关联功能台,选择好日期后,返回可补交的卡台列表(有有效流水的卡台列表)
   reqGetCanBJSeatList: (params) =>
     axios.post(`${base.htgl}/wo/get_relate_seat_items`, params),
 
-  // 关联台,选择好日期和卡台后,返回可补交的流水列表
+  // 关联功能台,选择好日期和卡台后,返回可补交的流水列表
   reqGetCanBJSeatOrderList: (params) =>
     axios.post(`${base.htgl}/wo/get_relate_seat_csm_items`, params),
 

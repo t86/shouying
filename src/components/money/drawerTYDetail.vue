@@ -51,7 +51,7 @@
               <div class="th">点单金额</div>
               <div class="th">订台人</div>
               <div class="th">订位部门</div>
-              <div class="th">补交台</div>
+              <div class="th">关联功能台</div>
               <div class="th">补交营业日</div>
               <div class="th">支付信息描述</div>
               <div class="th">{{ showArrow ? ">>" : "" }}</div>

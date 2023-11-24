@@ -53,10 +53,10 @@
           <div class="tr" layout="row" layout-align="start center">
             <div class="th">
               <el-checkbox
-                v-model="checked"
+                v-model="allChecked"
                 :indeterminate="isIndeterminate"
                 @change="changeAllCheckboxHandle()"
-                >序号</el-checkbox
+                >全选</el-checkbox
               >
             </div>
             <div class="th">客人姓名</div>
@@ -187,7 +187,8 @@ export default {
       tableData: [],
       showLongDrawer: false,  // 延期drawer
       toStoreDialog: false,
-      checked: false,
+      allChecked: false,
+      isIndeterminate: false,
     };
   },
   methods: {
@@ -219,7 +220,7 @@ export default {
 
           this.tableData = res.data.records;
           this.ids = []
-          this.checked = false
+          this.allChecked = false
         } else {
           this.$message.warning(res.msg);
         }
@@ -299,29 +300,24 @@ export default {
       // this.ids = itemInfo.ss.filter(item => item.checked).map(item => item.id * 1);
       itemInfo.isIndeterminate = !itemInfo.checkAll && itemInfo.ss.some(item => item.checked);
       const ids = []
+      let checkedAll = true;
       this.tableData.forEach(el => {
         el.ss.forEach(ele => {
           if(ele.checked) ids.push(ele.id)
+          else checkedAll = false;
         })
       })
       this.ids = ids
-      // this.tableData.forEach(el => {
-      //   if(el.o != itemInfo.o) {
-      //     el.checkAll = false
-      //     el.isIndeterminate = false
-      //     el.ss = el.ss.map(item => ({
-      //       ...item,
-      //       checked: false
-      //     }))
-      //   }
-      // })
+      this.allChecked = checkedAll
+      this.isIndeterminate = !checkedAll && ids.length > 0
     },
     changeAllCheckboxHandle() {
       this.tableData.forEach(el => {
-        el.checkAll = this.checked
+        el.checkAll = this.allChecked
         el.ss.forEach(e => {
-          e.checked = this.checked;
+          e.checked = this.allChecked;
         });
+        el.isIndeterminate = !el.checkAll && el.ss.some(item => item.checked);
       });
       const ids = []
       this.tableData.forEach(el => {
@@ -330,6 +326,7 @@ export default {
         })
       })
       this.ids = ids
+      this.isIndeterminate = !this.allChecked && ids.length > 0
     },
     resetHandle(){
       const oneHour = +new Date('2023/07/22 12:00:00') - +new Date('2023/07/22 11:00:00')
@@ -348,11 +345,6 @@ export default {
   },
   created() {
     this.resetHandle();
-  },
-  computed: {
-    isIndeterminate() {
-      return !this.checked && this.tableData.some(item => item.checked);
-    }
   },
   components: {
     drawerLongTime

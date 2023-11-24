@@ -64,7 +64,7 @@ export default {
             ...item,
             ss: (item.ss || []).map(items => ({
               ...items,
-              checked: items.t == 1 || items.t == 3  //  1  已选中  2 未选中  3 固定选中项(类似虚拟,补交台默认选中,不能取消)
+              checked: items.t == 1 || items.t == 3  //  1  已选中  2 未选中  3 固定选中项(类似虚拟,关联功能台默认选中,不能取消)
             }))
           }))
         } else {
@@ -101,7 +101,7 @@ export default {
     },
 
     chooseSeatHandle(itemInfo){
-      if(itemInfo.t == 3) return this.$message.warning('虚拟台、关联台不允许取消选中')
+      if(itemInfo.t == 3) return this.$message.warning('虚拟台、关联功能台不允许取消选中')
       itemInfo.checked = !itemInfo.checked
     }
   },
