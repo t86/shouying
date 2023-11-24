@@ -1,7 +1,7 @@
 export default [
   // 点单首页列表
   {
-    path: '/orderCard', name: 'orderCard', meta: { title: '卡台信息' }, component: () => import('@/views/Order/orderCard.vue'),
+    path: '/orderCard', name: 'orderCard', meta: { title: '卡台信息' }, component: () => import('@/views/Order/newOrderCard.vue'),
   },
   // 点单页面
   {
