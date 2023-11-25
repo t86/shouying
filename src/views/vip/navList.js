@@ -100,6 +100,11 @@ export default [
         name: "客户关系维护表",
         routerName: "customerRelationShipMaintence",
       },
+      {
+        id: 48,
+        name: "注销记录表",
+        routerName: "logoutRecordForm",
+      },
     ],
   },
 ];

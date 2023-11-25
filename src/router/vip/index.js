@@ -97,6 +97,13 @@ export default [
         meta: { title: "客户关系维护表" },
         component: () => import("@/views/vip/customerRelationShipMaintence.vue"),
       },
+      // 注销记录表
+      {
+        path: "/logoutRecordForm",
+        name: "logoutRecordForm",
+        meta: { title: "注销记录表" },
+        component: () => import("@/views/vip/logoutRecordForm.vue"),
+      },
     ],
   },
 ];

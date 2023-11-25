@@ -341,4 +341,11 @@ export default {
   // 导出客户关系维护
   reqExportMbCardConsumeList: (params) =>
     axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_consume_list`, params),
+
+  // 读取会员卡注销记录表,注销卡数量不会太多, 暂时不做分页
+  reqGetMbCardZxList: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_zx_list`, params),
+  // 导出会员卡注销记录表
+  reqExportMbCardZxList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_zx_list`, params),
 };
