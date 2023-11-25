@@ -10,6 +10,7 @@
       <characters-button @click.native="showQrHandle" colors="#f5f5f5" wz='预览二维码'></characters-button>
       <characters-button @click.native="downloadExpQr" colors="#f5f5f5" wz='导出全部卡台二维码'></characters-button>
       <characters-button @click.native="$message.info('上下拖动区域可调整顺序')" colors="#383943" wz='调整顺序'></characters-button>
+      <characters-button @click.native="configCanOrderPrd" colors="#383943" wz='功能台配置可点商品'></characters-button>
     </div>
     <div class="percentage" v-show="percentage">
       <span class="percentage_label">二维码生成进度：</span>
@@ -79,6 +80,10 @@
         <drawerShowQR v-model="showDrawerQr" :currentInfo="currentInfo" />
         <!-- 置为有效无效删除冲突 -->
         <drawerNextDrawer v-model="showNextDrawer" :effectType="effectType" :nexDrawerInfo="nexDrawerInfo"  @getTableData="getTableData" @setEffectOrNotEffect="setEffectOrNotEffect" />
+        
+        <!-- 添加商品 -->
+        <drawerConfigOrderPrd v-model="showConfigPrdDrawer" :currentInfo="currentInfo" />
+
       </div>
     </div>
   </div>
@@ -91,6 +96,7 @@ import drawerAddOrUpdateCard from './cardTableCom/drawerAddOrUpdateCard.vue'
 import drawerAddAllCard from './cardTableCom/drawerAddAllCard.vue'
 import drawerShowQR from './cardTableCom/drawerShowQr.vue'
 import drawerNextDrawer from './cardTableCom/drawerNextDrawer.vue'
+import drawerConfigOrderPrd from './cardTableCom/drawerConfigOrderPrd.vue'
 
 import { projectName, projectConfig } from '@/utils/config/projectConfig.js'
 export default {
@@ -115,9 +121,13 @@ export default {
 
       jobId: '',
       percentage: 0,
+      showConfigPrdDrawer: false,
     };
   },
   methods: {
+    getChoosedPrdList(){
+
+    },
     async getTableData(isScrollToBottom = false) {
       const params = {
         id: this.$route.query.menuId * 1 || 0
@@ -223,6 +233,22 @@ export default {
       }
     },
 
+    configCanOrderPrd(){
+      const checkedList = this.tableData.filter(item => item.checked)
+      if(checkedList.length == 1) {
+        this.currentInfo = checkedList[0]
+      } else {
+        return this.$message.warning('请选择一条数据进行操作')
+      }
+      console.log(this.currentInfo);
+      if(this.currentInfo.bt == '功能台' || this.currentInfo.bt == '关联功能台') {
+        this.showConfigPrdDrawer = true
+      } else {
+        this.$message.warning('只有功能台和关联功能台支持配置商品')
+      }
+
+    },
+
     //获取文件下载进度
     async getExpQrPercent(){
       const params = {
@@ -323,7 +349,8 @@ export default {
     drawerAddOrUpdateCard,
     drawerAddAllCard,
     drawerShowQR,
-    drawerNextDrawer
+    drawerNextDrawer,
+    drawerConfigOrderPrd
   },
   watch: {
     '$route': {

@@ -201,7 +201,8 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           payed_zy_free_amt: el[30], // 已付款主营无价金额    payed_zy_free_amt 已付款主营无价金额 与 payed_free_amt 可算出已付款非主营无价金额
           order_zy_amt: el[31], // 主营下单金额(不包含优惠,优惠2)
           isOwnBookedCard: false, // 是否是自己或自己下属预定的卡台   此字段用于点单系统营销确认卡台是否为自己或自己下属一定的卡台判断
-          chgSeatInfo: el[32],
+          chgSeatInfo: el[32],  //  转台信息
+          seat_biz_type: el[33], // 卡台类型字段(1 实体台 2 虚拟台 3 关联功能台 4 功能台)
         })
       })
       break

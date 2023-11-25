@@ -219,6 +219,16 @@
             打印优惠2消费单
           </div>
 
+          <!-- 如果是关联功能台和功能台 -->
+          <div
+            class="button"
+            style="width: 150px"
+            v-if="payTabInfo.activePayId == -1 && !isOldOrder"
+            @click="showOrHidePrintDrawer(1)"
+          >
+            导出数据
+          </div>
+
           <div
             class="button"
             style="width: 150px"
