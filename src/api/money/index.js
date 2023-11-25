@@ -399,6 +399,13 @@ export default {
   reqExportJkList: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_jk_list`, params,),
 
+  // 读取导出功能台报表数据
+  reqGetSpSeatRptList: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_sp_seat_rpt_list`, params),
+
+  // 导出功能台报表数据  
+  reqExpSpSeatRptList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_sp_seat_rpt_list`, params),
 
   /**
    * 
