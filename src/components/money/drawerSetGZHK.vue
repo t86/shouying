@@ -74,7 +74,7 @@ export default {
     async getTableData() {
       const res = await api_money.reqGetCnlAccountRtnList();
       if (res.code == 1) {
-        this.tableData = res.data.prd_sets || []
+        this.tableData = res.data.records || []
       } else {
         this.$message.warning(res.msg);
       }
