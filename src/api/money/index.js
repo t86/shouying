@@ -439,4 +439,19 @@ export default {
   // 查询授权人,优惠额度详情
   reqAuthYHCount: (params) =>
     axios.post(`${base.htgl}/sel/get_auth_emp_free_limit`, params),
+
+
+  // 读取功能台卡台点单金额和优惠金额
+  reqGetSpSeatList: (params) =>
+    axios.post(`${base.htgl}/wo/get_sp_seat_list`, params),
+
+
+  // 读取挂账还款记录
+  reqGetCnlAccountRtnList: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_cnl_account_rtn_list`, params),
+
+  // 导出挂账还款记录
+  reqExpCnlAccountRtnList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_cnl_account_rtn_list`, params),
+
 };

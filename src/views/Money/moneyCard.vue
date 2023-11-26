@@ -630,6 +630,16 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click="showOrHideSetGZHKDrawerHandle()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/yh-detail-icon.png')"
+                    alt
+                  />
+                  <span>挂账还款记录表</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click.stop="endStoreHandle('stop')"
                 >
                   <img :src="imgSrc.updatepwd" alt />
@@ -907,7 +917,13 @@
         @showOrHideSetCountDrawerHandle="showOrHideSetCountDrawerHandle"
       />
     </div>
-
+    <!-- 挂账还款记录表 -->
+    <div class="day-report" v-if="showSetGZHKDrawer">
+      <drawerSetGZHK
+        @showOrHideSetGZHKDrawerHandle="showOrHideSetGZHKDrawerHandle"
+      />
+    </div>
+      
     <!-- 部门销售汇总表 -->
     <drawerXSAllInfo
       :showDrawer="showXSAllInfoDrawer"
@@ -1015,6 +1031,9 @@ import drawerSetCount from "../../components/money/drawerSetCount.vue";
 // 部门销售明细表
 import drawerXSDetail from "../../components/money/drawerXSDetail.vue";
 
+// 挂账还款记录表
+import drawerSetGZHK from "../../components/money/drawerSetGZHK.vue";
+
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import eventVue from "@/utils/eventVue";
@@ -1074,6 +1093,7 @@ export default {
       showCatQDAllInfoDrawer: false, // 分类渠道汇总表
       showDetailDrawer: false, // 部门销售明细表
       showSetCountDrawer: false, // 套餐统计表
+      showSetGZHKDrawer: false, // 挂账还款记录表
       showXSAllInfoDrawer: false, // 部门销售汇总表
       keyWord: "",
       tab: {
@@ -1521,6 +1541,11 @@ export default {
     // 显示或隐藏套餐统计表
     showOrHideSetCountDrawerHandle() {
       this.showSetCountDrawer = !this.showSetCountDrawer;
+    },
+
+    // 显示或隐藏挂账还款记录表
+    showOrHideSetGZHKDrawerHandle() {
+      this.showSetGZHKDrawer = !this.showSetGZHKDrawer;
     },
 
     // 更多功能
@@ -2237,6 +2262,7 @@ export default {
     drawerXSDetail,
     drawerXSAllInfo,
     drawerSetCount,
+    drawerSetGZHK,
   },
 
   watch: {

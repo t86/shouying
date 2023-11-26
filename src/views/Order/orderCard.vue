@@ -711,12 +711,7 @@ export default {
         await this.getLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
-      const currentMachineId = this.$localStorage.getItem("machineId");
-      const currentAreaAndCardList = (
-        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
-      ).filter(
-        (item) => item.license_id == currentMachineId && item.status == 1
-      );
+      const currentAreaAndCardList = this.getCurrentAreaAndCardList();;
 
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
@@ -857,9 +852,7 @@ export default {
       }
 
       // 没有配置任何权限同时不具有全场查单权限
-      if (
-        this.$store.state.userInfo.roleIds.length == 0
-      ) {
+      if (this.isUserWithoutRoles()) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
@@ -936,7 +929,12 @@ export default {
       );
     },
 
-    // 我的卡台数据(卡台列表)
+
+    /**
+     * 检索与当前用户关联的卡台列表。
+     * 
+     * @returns {Array} 卡台列表。
+     */
     getMyCardList() {
       const authEmpId =
         this.$store.state.userInfo && this.$store.state.userInfo.emp_id;
@@ -948,7 +946,14 @@ export default {
       return list;
     },
 
-    // 筛选卡台数据
+    /**
+     * 根据指定的键和ID筛选卡台列表。
+     * 
+     * @param {string} key - 用于筛选卡台列表的键。
+     * @param {number} id - 用于筛选卡台列表的ID。
+     * @param {Array} cardList - 可选的卡台列表进行筛选。
+     * @returns {Array} 筛选后的卡台列表。
+     */
     filterCardList(key, id, cardList) {
       let targetCardList = cardListInfoArr;
       if (cardList) {
@@ -966,7 +971,11 @@ export default {
         : filterArr;
     },
 
-    // 递归获取自己下属卡台数据
+    /**
+     * 递归检索与当前用户的下属关联的卡台列表。
+     * 
+     * @param {number} selfId - 用户的ID。如果未提供，则使用当前用户的ID。
+     */
     getSelfStaffList(selfId) {
       // 未传值表明是当前登录账号人的id
       selfId = selfId || this.$store.state.userInfo.emp_id;
@@ -985,7 +994,9 @@ export default {
       }
     },
 
-    // 获取自己以及下属员工的卡台
+    /**
+     * 检索与当前用户及其下属关联的卡台列表。
+     */
     getSelfAndSelfStaffCardList() {
       mySelfAndMyStaffCardList = [];
 
@@ -1337,24 +1348,26 @@ export default {
       return false;
     },
 
+    isUserWithoutRoles() {
+      return this.$store.state.userInfo.roleIds.length == 0;
+    },
+    getCurrentAreaAndCardList() {
+    const currentMachineId = this.$localStorage.getItem("machineId");
+    return (resResultDataObj["machineArea"] || []).filter(
+      (item) => item.license_id == currentMachineId && item.status == 1
+    );
+  },
     // 登录后初始化图例中的抵达数量
     setLegendCount(regionId = 0) {
       setTimeout(() => {
 
         let result = {};
-        if (
-          this.$store.state.userInfo.roleIds.length == 0 
-        ) {
+        if (this.isUserWithoutRoles()) {
           this.cardStatusNoInfo = {};
           return;
         }
         // 获取设备可操作区域或卡台
-        const currentMachineId = this.$localStorage.getItem("machineId");
-        const currentAreaAndCardList = (
-          resResultDataObj["machineArea"] || []
-        ).filter(
-          (item) => item.license_id == currentMachineId && item.status == 1
-        );
+        const currentAreaAndCardList = this.getCurrentAreaAndCardList();
         const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
