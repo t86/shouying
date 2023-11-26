@@ -224,8 +224,9 @@
           <div
             class="button"
             style="width: 150px"
-            v-if="this.$store.state.orderInfo.currentCardInfo.bizType == 3
-                || this.$store.state.orderInfo.currentCardInfo.bizType == 4"
+            v-if="(this.$store.state.orderInfo.currentCardInfo.bizType == 3
+                || this.$store.state.orderInfo.currentCardInfo.bizType == 4
+                ) && payTabInfo.activePayId == -1"
             @click="showExportFormat = true"
           >
             导出数据
@@ -1000,6 +1001,7 @@ export default {
 
     // 筛选翻台/订单信息订单
     async changeTab(type, id, isReset = true) {
+      console.log(type, id)
       switch (type) {
         case "turnOverCount": // 点击翻台tab
           if (id == -2) {
