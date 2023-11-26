@@ -451,6 +451,9 @@ export default {
     axios.post(`${base.htgl}/sel/rpt/get_cnl_account_rtn_list`, params),
 
   // 导出挂账还款记录
+  /**
+   * 
+   */
   reqExpCnlAccountRtnList: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_cnl_account_rtn_list`, params),
 
