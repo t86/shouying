@@ -151,7 +151,7 @@ export default {
                 ...item,
                 checked: matched,
                 disabled: matched,
-                price: item.price || item.p
+                price: item.price || (item.p / 100).toFixed(2)
               }
           })
           this.loadText = tableData.length == this.pageSize ? '加载中...' : '没有更多了'
