@@ -208,6 +208,11 @@ export default {
   reqPassToStoreListOfAuth: (params) =>
     axios.post(`${base.htgl}/wine/confirm_auth_csm_cg_bef_in`, params),
 
+  // 充公待入库单(修改)
+  reqChgCsmCgBefIn: (params) =>
+    axios.post(`${base.htgl}/wine/chg_csm_cg_bef_in`, params),
+
+
   /**
    * 充公库
    */

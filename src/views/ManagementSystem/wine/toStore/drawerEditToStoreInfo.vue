@@ -129,7 +129,7 @@ export default {
         g_cnts: this.tableData.map(item => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
       };
       try {
-        const res = await api_wine.reqPassToStoreListOfAuth(params);
+        const res = await api_wine.reqChgCsmCgBefIn(params);
         if (res.code == 1) {
           this.$message.success("入库成功");
           this.showAuthDrawer = false;

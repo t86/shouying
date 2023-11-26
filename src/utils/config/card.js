@@ -71,6 +71,7 @@ export const resResultDataArr = [
   'sysRoleDetail',       // 41-系统角色明细
   'orderPrdList',       // 42-可点商品配置
   'frontVersion',       // 43-前端版本号
+  'funcOrderPrdConfig', // 44-功能台可点商品配置
 ]
 
 // 图例列表

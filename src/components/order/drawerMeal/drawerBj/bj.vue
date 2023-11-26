@@ -3,7 +3,7 @@
     <div class="coll" layout="row" layout-align="center center">
       <div class="label">
         <span class="red-color">*</span>
-        <span class="fs14">补交日期：</span>
+        <span class="fs14">关联日期：</span>
       </div>
       <div class="value">
         <el-select v-model="dateValue" size="small" placeholder="请选择日期">

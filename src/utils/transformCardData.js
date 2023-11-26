@@ -495,6 +495,15 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
+    case 44:  // 功能台配置可点商品
+      arr.forEach(el => {  
+        resultArr.push({
+          seat_id : el[0], // 卡台id,
+          prd_id : el[1], // 可点商品Id
+          status: el[2], // 状态 1 有效 3 删除
+        })
+      })
+      break
   }
   return resultArr
 }
