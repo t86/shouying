@@ -38,6 +38,7 @@
             v-for="(item, index) in tableData"
             :key="index"
           >
+          <div class="td one-txt-cut">{{ index + 1 }}</div>
           <div class="td one-txt-cut">{{item.o}}</div>
           <div class="td one-txt-cut">{{item.a}}</div>
           <div class="td one-txt-cut">{{item.e}}</div>
