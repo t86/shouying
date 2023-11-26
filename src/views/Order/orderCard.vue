@@ -1300,9 +1300,11 @@ export default {
       }
 
       // 查看特饮权限，是否配置不允许查看下属点单详情，查看同组点单详情
-      if(this.$store.state.userInfo.roleIds.includes(4) && this.hasYXCanLookDept){
-        isLookSubordinate = false;
+      if(this.$store.state.userInfo.roleIds.includes(4) && !this.hasTYCanLookDept){
         isLookDept = false;
+      }
+      if(this.$store.state.userInfo.roleIds.includes(4) && this.hasTYOnlyLookSelf){
+        isLookSubordinate = false;
       }
 
       return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
