@@ -90,7 +90,7 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="showAuthHandle">服务员授权</el-button>
+        <el-button type="primary" @click="onSubmit">确认入库</el-button>
       </div>
     </el-drawer>
   </div>
@@ -120,9 +120,6 @@ export default {
   methods: {
     async onSubmit({ userName, passWord, type }) {
       const params = {
-        auth_emp_code: userName, // string   授权人工号
-        auth_emp_passwd: passWord, //  string   授权人密码
-        pass_type: type, //  int   1 验证 员工号/密码  2 验证卡号/卡数据 为兼容之前的账号密码认证, 当=2的时候验证卡号和卡密, 共用emp_code,password
         bef_cg_id: this.currentWineInfo.o * 1, //  int64      //BefInId 待入库订单Id
         bef_cg_dtl_ids: this.tableData.map(item => item.id * 1), //  []int64   待入库子订单Id
         unit_types: this.tableData.map(item =>
@@ -139,11 +136,9 @@ export default {
           this.onCancelDrawer();
           this.$emit("getTableData");
         } else {
-          if(type == 2) window.loopReadCard()
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        if(type == 2) window.loopReadCard()
         console.log("授权修改存酒充公入库信息失败", error);
       }
     },
