@@ -2,28 +2,6 @@
   <!-- 待充公 -->
   <div class="to-store">
     <div class="top" layout="row" layout-align="start center">
-      <div class="label fs14">待充公日期：</div>
-      <div class="value m-r-2">
-        <el-date-picker
-            style="width:140px"
-            v-model="start_cg_day"
-            type="date"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            placeholder="开始日期"
-          ></el-date-picker>
-          <span>至</span>
-          <el-date-picker
-            style="width:140px"
-            v-model="end_cg_day"
-            type="date"
-            :clearable="false"
-            size="small"
-            value-format="yyyy-MM-dd"
-            placeholder="结束日期"
-          ></el-date-picker>
-      </div>
       <el-input
         v-model="keyword"
         style="width: 200px"

@@ -1255,7 +1255,7 @@ export default {
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
       // 是否是当前卡台订位人的同组人员
-      let  isLookDept = this.hasCanLookDept&&cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
+      let  isLookDept = this.hasYXCanLookDept&&cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
 
        // 下过单的服务员 也属于同组 
       let isWaiterDept = false;
@@ -1274,7 +1274,7 @@ export default {
         }
       }
       // 不允许查看同组
-      if(!this.hasCanLookDept){
+      if(!this.hasYXCanLookDept){
         isWaiterDept = false;
       }
   
@@ -1291,13 +1291,20 @@ export default {
       }
   
        // 营销 不能看下属
-      if(this.hasOnlyLookSelf){
+      if(this.hasYxOnlyLookSelf){
         isLookSubordinate = false
       }
       // 下单服务员包括营销 所以都要判断
-      if (this.hasWaitOnlyLookSelf || this.hasOnlyLookSelf){
+      if (this.hasWaitOnlyLookSelf || this.hasYxOnlyLookSelf){
          isWaiterSealer = false
       }
+
+      // 查看特饮权限，是否配置不允许查看下属点单详情，查看同组点单详情
+      if(this.$store.state.userInfo.roleIds.includes(4) && this.hasYXCanLookDept){
+        isLookSubordinate = false;
+        isLookDept = false;
+      }
+
       return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
     checkYX(item){
@@ -1695,7 +1702,7 @@ export default {
       );
     },
     // 不允许查看下属点单消费  只能看自己
-    hasOnlyLookSelf() {
+    hasYxOnlyLookSelf() {
       return this.$store.state.userInfo.sys_modules &&
          this.$store.state.userInfo.sys_modules.includes(10)
     },
@@ -1703,12 +1710,25 @@ export default {
       return this.$store.state.userInfo.sys_modules &&
          this.$store.state.userInfo.sys_modules.includes(6)
     },
-    //能查看同组点单消费
-    hasCanLookDept() {
+    //营销能查看同组点单消费
+    hasYXCanLookDept() {
       return (
         this.$store.state.userInfo.sys_modules &&
         (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
       );
+    },
+
+    // 特饮能查看同组点单
+    hasTYCanLookDept() {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
+      );
+    },
+    // 不允许查看下属点单  只能看自己
+    hasTYOnlyLookSelf() {
+      return this.$store.state.userInfo.sys_modules &&
+         this.$store.state.userInfo.sys_modules.includes(10)
     },
 
     // 当前用户信息
