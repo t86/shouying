@@ -298,12 +298,11 @@ let mySelfStaffList = []; // 自己下属员工列表
 let mySelfAndMyStaffCardList = []; // 自己及下属员工卡台列表
 
 // 低消进度统计表
-import drawerMinDetail from "@/components/money/drawerMinDetail.vue";
-// 鸡尾酒明细表
-import drawerTYDetail from "@/components/money/drawerTYDetail.vue";
+import drawerMinDetail from "@/components/money/newDrawerMinDetail.vue";
+import drawerTYDetail from "@/components/money/newDrawerTYDetail.vue";
 
 // 估清弹框
-import outSomething from "./orderMeal/orderMealList.vue";
+import outSomething from "./orderMeal/newOrderMealList.vue";
 
 import updatePassword from "@/components/common/newUpdatePassword.vue";
 import updateAuthPassword from "@/components/common/newUpdateAuthPassword.vue";
