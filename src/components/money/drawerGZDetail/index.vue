@@ -22,6 +22,17 @@
             <img :src="require('../../../assets/money-img/del.png')" alt="">
             <div class="tips">删除</div>
           </div>
+
+          <div layout="row" layout-align="center center">
+            <input style="width: 150px; height: 25px; line-height: 20px; padding: 3px 10px" v-model="keyword" placeholder="账户名称" />
+            <el-button
+              class="m-l-4"
+              type="primary"
+              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
+              @click="getTableData"
+              >查询</el-button
+            >
+          </div>
         </div>
 
         <div class="table">
@@ -96,14 +107,15 @@ export default {
       showOrHideGaveMoney: false,
       showOrHideDetail: false,
       currentInfo: {},
-      tableData: []
+      tableData: [],
+      keyword: '',
     };
   },
   methods: {
     // 获取数据
     async getTableData() {
       try {
-        const res = await api_money.reqGetGZList();
+        const res = await api_money.reqGetGZList({key: this.keyword});
         if (res.code == 1) {
           this.tableData = (res.data.records || []).map(item => ({
             ...item,
@@ -179,7 +191,26 @@ export default {
 
     onCancelDrawer() {
       this.$emit("showOrHideGZDetailDrawer");
+    },
+    keyHandle(event){
+    // 回车按钮触发getTableData
+      if (event.keyCode === 13) {
+        this.getTableData();
+      }
     }
+  },
+  mounted() {
+    setTimeout(() => {
+      // 给document绑定onkeydown事件
+      document.onkeydown = this.keyHandle;
+    })
+
+    
+  },
+  // 页面销毁时解绑onkeydown事件
+  beforeDestroy() {
+    // Unbind onkeydown event from document
+    document.onkeydown = null;
   },
   props: {
     showDrawer: {
@@ -199,6 +230,7 @@ export default {
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
+      this.keyword = "";
       newVal ? this.getTableData() : "";
     }
   }

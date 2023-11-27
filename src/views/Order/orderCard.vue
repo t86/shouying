@@ -1299,14 +1299,6 @@ export default {
          isWaiterSealer = false
       }
 
-      // 查看特饮权限，是否配置不允许查看下属点单详情，查看同组点单详情
-      if(this.$store.state.userInfo.roleIds.includes(4) && !this.hasTYCanLookDept){
-        isLookDept = false;
-      }
-      if(this.$store.state.userInfo.roleIds.includes(4) && this.hasTYOnlyLookSelf){
-        isLookSubordinate = false;
-      }
-
       return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
     checkYX(item){
@@ -1720,18 +1712,18 @@ export default {
       );
     },
 
-    // 特饮能查看同组点单
-    hasTYCanLookDept() {
-      return (
-        this.$store.state.userInfo.sys_modules &&
-        (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
-      );
-    },
-    // 不允许查看下属点单  只能看自己
-    hasTYOnlyLookSelf() {
-      return this.$store.state.userInfo.sys_modules &&
-         this.$store.state.userInfo.sys_modules.includes(10)
-    },
+    // // 特饮能查看同组点单
+    // hasTYCanLookDept() {
+    //   return (
+    //     this.$store.state.userInfo.sys_modules &&
+    //     (this.$store.state.userInfo.sys_modules.includes(13) || this.$store.state.userInfo.sys_modules.includes(14))
+    //   );
+    // },
+    // // 不允许查看下属点单  只能看自己
+    // hasTYOnlyLookSelf() {
+    //   return this.$store.state.userInfo.sys_modules &&
+    //      this.$store.state.userInfo.sys_modules.includes(13)
+    // },
 
     // 当前用户信息
     loginUserInfo() {
