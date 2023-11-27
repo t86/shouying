@@ -503,14 +503,7 @@ export default {
         }));
       }
 
-      /* 通过 this.$store.state.cardPageInfo.resResultDataObj["areaProduct"]，结构如下
-      [{
-      "region_id": "231590956410106",
-      "status": "1",
-      "prd_id": "232162229462095",
-      "mklib_id": "231590944409827"
-      }] 过滤resultProductArr中 数据，不在当前区域的都排除掉
-      */
+
 
       // 点单系统
       if (sessionStorage.getItem("client") == "order" 
@@ -536,6 +529,14 @@ export default {
         resultProductArr = tmpArr.filter(item => resultProductArr.find(i => i.id == item.id))
       }
 
+      /* 通过 this.$store.state.cardPageInfo.resResultDataObj["areaProduct"]，结构如下
+      [{
+      "region_id": "231590956410106",
+      "status": "1",
+      "prd_id": "232162229462095",
+      "mklib_id": "231590944409827"
+      }] 过滤resultProductArr中 数据，不在当前区域的都排除掉
+      */
       resultProductArr = resultProductArr.filter(i => currentAreaAllProduct.findIndex(
         (item) => item.prd_id == i.id && item.region_id == this.$store.state.orderInfo.currentCardInfo.regionId && item.status == '1'
       ) >= 0);
