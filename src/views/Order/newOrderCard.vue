@@ -306,9 +306,9 @@ import outSomething from "./orderMeal/newOrderMealList.vue";
 
 import updatePassword from "@/components/common/newUpdatePassword.vue";
 import updateAuthPassword from "@/components/common/newUpdateAuthPassword.vue";
-import drawerSaveWine from "@/components/order/saveWine/drawerSaveWine/index.vue";
-import drawerGetWine from "@/components/order/saveWine/drawerGetWine/index.vue";
-import drawerPayToStore from "@/components/order/saveWine/drawerPayToStore/index.vue";
+import drawerSaveWine from "@/components/order/newSaveWine/drawerSaveWine/index.vue";
+import drawerGetWine from "@/components/order/newSaveWine/drawerGetWine/index.vue";
+import drawerPayToStore from "@/components/order/newSaveWine/drawerPayToStore/index.vue";
 
 
 export default {

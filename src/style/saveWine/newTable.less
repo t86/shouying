@@ -1,0 +1,82 @@
+// 点单系统中存酒
+.table-content {
+  position: relative;
+  width: 100%;
+
+  .table {
+
+    .thead {
+      position: sticky;
+      top: 0;
+      background: #C4CBD7;
+      font-size: 22px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 500;
+      color: #08080A;
+
+    }
+
+    .tr {
+      min-height: 40px;
+
+      &:nth-child(2n) {
+        background: #ECEFF4;
+      }
+
+    }
+    .th,
+    .td {
+      width: 50%;
+      padding: 0 6px;
+
+      /deep/.el-checkbox__label {
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+      }
+
+      /deep/.el-checkbox .el-checkbox__inner {
+        // border-radius: 50%;
+        width: 20px;
+        height: 20px;
+      }
+
+      /deep/.el-checkbox__input.is-checked .el-checkbox__inner::after {
+        transform: rotate(45deg) scaleY(1) translate(5px, 0px);
+      }
+
+      /deep/.el-checkbox__inner {
+        background-color: transparent;
+      }
+
+      /deep/.el-checkbox__input.is-checked .el-checkbox__inner,
+      .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+
+        background: #3373E8;
+      }
+    }
+  }
+
+  .no-data {
+    text-align: center;
+
+    img {
+      margin-top: 80px;
+      width: 60px;
+    }
+
+    p {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  }
+
+  .pagination {
+    float: right;
+  }
+
+  /deep/ .el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: #2170ff;
+  }
+}
