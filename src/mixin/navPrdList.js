@@ -503,6 +503,15 @@ export default {
         }));
       }
 
+      /* 通过 this.$store.state.cardPageInfo.resResultDataObj["areaProduct"]，结构如下
+      [{
+      "region_id": "231590956410106",
+      "status": "1",
+      "prd_id": "232162229462095",
+      "mklib_id": "231590944409827"
+      }] 过滤resultProductArr中 数据，不在当前区域的都排除掉
+      */
+
       // 点单系统
       if (sessionStorage.getItem("client") == "order" 
       && (this.$store.state.userInfo.roleIds.includes(2) 
@@ -526,6 +535,10 @@ export default {
         // 从tmpArr过滤所有resultProductArr包含的商品
         resultProductArr = tmpArr.filter(item => resultProductArr.find(i => i.id == item.id))
       }
+
+      resultProductArr = resultProductArr.filter(i => currentAreaAllProduct.findIndex(
+        (item) => item.prd_id == i.id && item.region_id == this.$store.state.orderInfo.currentCardInfo.regionId && item.status == '1'
+      ) >= 0);
 
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
