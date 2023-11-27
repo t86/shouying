@@ -218,6 +218,19 @@
           >
             打印优惠2消费单
           </div>
+          
+
+          <!-- 如果是关联功能台和功能台 -->
+          <div
+            class="button"
+            style="width: 150px"
+            v-if="(this.$store.state.orderInfo.currentCardInfo.bizType == 3
+                || this.$store.state.orderInfo.currentCardInfo.bizType == 4
+                ) && payTabInfo.activePayId == -1"
+            @click="showExportFormat = true"
+          >
+            导出数据
+          </div>
 
           <div
             class="button"
@@ -358,6 +371,17 @@
       pageType="payOrder"
       @showOrHidePrintDrawer="showOrHidePrintDrawer"
     />
+
+    <el-dialog title="选择导出格式" :visible.sync="showExportFormat" width="30%">
+      <div >
+          <el-radio v-model="exportType" label="1">汇总</el-radio>
+          <el-radio v-model="exportType" label="2">非汇总</el-radio>
+        </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showExportFormat = false">取消</el-button>
+        <el-button type="primary" @click="exportData">确定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -445,6 +469,9 @@ export default {
       imgSrc: {
         arrowBottom,
       },
+
+      showExportFormat: false, // 选择导出数据格式
+      exportType: '1', // 汇总
     };
   },
   methods: {
@@ -458,6 +485,38 @@ export default {
           this.changeTab("order", this.payTabInfo.payTabList[0].id);
         }, 300);
       }
+    },
+    async exportData(){
+      const params = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
+        turnover_cnt: this.turnOverInfo.activeTurnOverCount, // int   第几次翻台,默认是0; 总翻台次数可以从业务原数据中获取
+        type_id: this.exportType * 1        //TypeId 导出类型 1 汇总 2 不汇总
+      }
+
+      try {
+        const res = await api_money.reqExpSpSeatRptList(params);
+        if (!res.msg) {
+          const url = window.URL.createObjectURL(
+            new Blob([res], {
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            })
+          );
+          const a = document.createElement("a"); //添加a标签
+          document.body.appendChild(a);
+          a.href = url;
+          a.setAttribute("download", decodeURIComponent(res.fileName)); // 下载文件的名称及文件类型后缀
+          a.click(); //点击标签
+          document.body.removeChild(a); // 下载完成移除元素
+          window.URL.revokeObjectURL(url); // 释放掉blob对象
+          this.showExportFormat = false
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("导出excel失败", error);
+      }
+
     },
     // 获取翻台tab数据
     getTurnTabList() {
@@ -942,6 +1001,7 @@ export default {
 
     // 筛选翻台/订单信息订单
     async changeTab(type, id, isReset = true) {
+      console.log(type, id)
       switch (type) {
         case "turnOverCount": // 点击翻台tab
           if (id == -2) {

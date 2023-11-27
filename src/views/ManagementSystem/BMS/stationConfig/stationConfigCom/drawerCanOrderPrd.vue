@@ -107,12 +107,12 @@
     </el-drawer>
 
     <el-dialog title="确认保存" :visible.sync="dialogSaveVisible" width="30%">
-        <p style="line-height:40px">可点商品信息尚未保存，是否确定保存？</p>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogSaveVisible = false; onChangeTab(2)">否</el-button>
-          <el-button type="primary" @click="saveAndChange">是</el-button>
-        </span>
-      </el-dialog>
+      <p style="line-height:40px">可点商品信息尚未保存，是否确定保存？</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogSaveVisible = false; onChangeTab(2)">否</el-button>
+        <el-button type="primary" @click="saveAndChange">是</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 

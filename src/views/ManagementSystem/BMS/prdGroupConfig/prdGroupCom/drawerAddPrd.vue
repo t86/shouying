@@ -112,6 +112,7 @@ export default {
         page_num: this.page,
         page_size: this.pageSize,
         init: init,
+        is_init: init,
         name: this.searchFormData.keyword || "",
         one_cate_id: this.searchFormData.valueArr[0],
         two_cate_id: this.searchFormData.valueArr[1],
@@ -120,8 +121,10 @@ export default {
         let res = null
         if(this.prdType == "1") {
           res = await this.$api.BMS.pgrp.requestpgrpprd_items(params);
-        }else {
+        }else if(this.prdType == '2') {
           res = await this.$api.BMS.station.reqGetOrdExclPrdItems(params);
+        }else {
+          res = await this.$api.BMS.seat.requestGetSpSeatPrdItems(params);
         }
         if (res.code == 1) {
           if (init == 1) {
@@ -141,13 +144,14 @@ export default {
             });
             this.searchFormData.options = [...options];
           }
-          const tableData = (res.data.prds || []).map(item =>
+          const tableData = ((this.prdType == 3 ? res.data.items : res.data.prds) || []).map(item =>
             { 
               let matched = this.checkedPrdList.findIndex(i => i.id == item.id) >= 0;
               return {
                 ...item,
                 checked: matched,
-                disabled: matched
+                disabled: matched,
+                price: item.price || (item.p / 100).toFixed(2)
               }
           })
           this.loadText = tableData.length == this.pageSize ? '加载中...' : '没有更多了'
@@ -190,13 +194,17 @@ export default {
 
       const params = {
         station_id: this.stationId,
+        seat_id: this.stationId,      //SeatId 功能卡台Id
         prd_ids: this.tableData.filter(item => item.checked).map(item => item.id)
       };
       try {
         if (params.prd_ids.length > 0) {
-          const res = await this.$api.BMS.station.reqAddOrdExclPrd(
-            params
-          );
+          let res = null
+          if (this.prdType == 3) {
+            res = await this.$api.BMS.seat.requestBatchAddSpSeatPrd(params);
+          } else {
+            res = await this.$api.BMS.station.reqAddOrdExclPrd(params)
+          }
           if (res.code == 1) {
             this.$message.success("操作成功");
             this.onCancelDrawer();
@@ -225,7 +233,7 @@ export default {
       default: false // 是否显示drawer
     },
     prdType: {
-      default: "1" // 1.商品组配置， 2：不可点商品配置
+      default: "1" // 1.商品组配置， 2：不可点商品配置 3.功能台配置可点商品
     },
     checkedPrdList: {
       default: []

@@ -71,5 +71,24 @@ const article = {
   requestSeatGetExpQrPercent(data) {
     return axios.post(`${base.htgl}/seat/get_exp_qr_percent`, data);
   },
+  // 读取功能台可点酒水
+  requestGetSpSeatPrdItems(data) {
+    return axios.post(`${base.htgl}/seat/get_sp_seat_prd_items`, data);
+  },
+
+  // 批量添加功能台可点酒水
+  requestBatchAddSpSeatPrd(data) {
+    return axios.post(`${base.htgl}/seat/batch_add_sp_seat_prd`, data);
+  },
+
+  // 批量删除功能台可点酒水
+  requestBatchDelSpSeatPrd(data) {
+    return axios.post(`${base.htgl}/seat/batch_del_sp_seat_prd`, data);
+  },
+
+  // 读取功能台商品列表
+  requestGetSpSeatPrdList(data) {
+    return axios.post(`${base.htgl}/seat/get_sp_seat_prd_list`, data);
+  },
 }
 export default article;

@@ -606,6 +606,9 @@ export default {
       if(this.type == 11) {
         // 新增部门
         if(this.groupSonName == '') return this.$message.warning('请输入子部门名称')
+        // 长度超过5，提示报错  
+        if(this.$overall.character(this.groupSonName) > 10) return this.$message.warning('子部门长度超过5') 
+        
         params = {
           pid: this.menuId ? this.menuId * 1 : 0,
           name: this.groupSonName || '',

@@ -515,6 +515,18 @@ export default {
         }), ...resultProductArr]
       }
 
+      if (sessionStorage.getItem("client") == "order" 
+      && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4')) {
+        let tmpArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
+          "funcOrderPrdConfig"
+        ].findIndex(i => i.prd_id == item.id && i.seat_id == this.$store.state.orderInfo.currentCardInfo.id && i.status == '1') >= 0).map(item => {
+          return {...item}
+        })]
+
+        // 从tmpArr过滤所有resultProductArr包含的商品
+        resultProductArr = tmpArr.filter(item => resultProductArr.find(i => i.id == item.id))
+      }
+
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
       secondCategoryAll.forEach((el) => {

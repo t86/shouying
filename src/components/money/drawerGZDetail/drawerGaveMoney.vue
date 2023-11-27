@@ -132,6 +132,8 @@ export default {
         this.show = newVal;
         if (!newVal) {
           this.$emit('getTableData')
+        } else {
+          this.amtCount = ''
         }
       },
       immediate: true
