@@ -65,7 +65,7 @@
                           @click="
                             focus = index;
                           itemText = 'weight';
-                                                                                                                                                                                                                                                                                                                                                                                                                                                     "
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             "
                           :class="{
                             focus: focus == index && itemText == 'weight', keshu: true
                           }" type="number" :min="1" v-model="item.allWeight" />克
@@ -80,7 +80,7 @@
                           @click="
                             focus = index;
                           itemText = 'count';
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  "
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "
                           :class="{
                             focus: focus == index && itemText == 'count',
                           }" :min="1" v-model="item.count" />
@@ -593,6 +593,7 @@ export default {
 /deep/ .el-select {
   input {
 
+    
     background: #FAFAFC;
     border-radius: 8px;
     border: 1px solid #C4CBD7;
@@ -607,15 +608,23 @@ export default {
   }
 }
 
-/deep/ .el-scrollbar .el-scrollbar__view.el-select-dropdown__list{
-  background-color: red !important;
-}
- .el-select-dropdown__item.hover, .el-select-dropdown__item:hover{
-  background-color: red !important;
+
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  color: #1A1A21 !important;
+  background: rgba(16, 16, 32, 0.4);
 }
 
-.el-select-dropdown__item.selected{
-  color: pink;
+.el-select-dropdown__item.selected {
+  color: #1A1A21 !important;
+  background: rgba(16, 16, 32, 0.4);
 }
+</style>
 
+
+<style>
+.el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
+  color: #1A1A21 !important;
+  background: #FAFAFC !important;
+}
 </style>

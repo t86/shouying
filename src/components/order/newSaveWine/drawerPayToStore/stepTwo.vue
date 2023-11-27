@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="content">
-      
+
       <div class="top" layout="row" layout-align="space-between center">
         <div class="left">
         </div>
         <div class="right" layout="row" layout-align="start center">
-          <div class="card-name">{{$store.state.orderInfo.saveWineCardInfo.name}}</div>
+          <div class="card-name">{{ $store.state.orderInfo.saveWineCardInfo.name }}</div>
           <div class="info">
-            <span class="date">{{stepOneInfo.dateVal.split('-').join('/')}}</span>
-            <span>订位人：{{stepOneInfo.empName}}</span>
+            <span class="date">{{ stepOneInfo.dateVal.split('-').join('/') }}</span>
+            <span>订位人：{{ stepOneInfo.empName }}</span>
           </div>
         </div>
       </div>
@@ -18,68 +18,69 @@
           <div class="nav" layout="row" layout-align="start start">
             <div class="nav-left">
               <ul class="first-menu" ref="firstMenuRef">
-                <li
-                  :class="{'active': firstCategoryActiveId === item.id}"
-                  v-for="(item,index) in firstCategoryList"
-                  :key="index"
-                  @click="changeFirstCategory(item)"
-                >
-                  <span>{{item.n}}</span>
+                <li :class="{ 'active': firstCategoryActiveId === item.id }" v-for="(item, index) in firstCategoryList"
+                  :key="index" @click="changeFirstCategory(item)">
+                  <span>{{ item.n }}</span> 
                 </li>
               </ul>
               <li class="arrow">
                 <div class="bg" layout="row" layout-align="center center">
-                  <div class="bg-left" @click="scrollHandle('first','up')">
-                    <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                  <div class="bg-left" @click="scrollHandle('first', 'up')">
+                    <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
                   </div>
-                  <div class="bg-right" @click="scrollHandle('first','down')">
-                    <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                  <div class="bg-right" @click="scrollHandle('first', 'down')">
+                    <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
                   </div>
                 </div>
               </li>
             </div>
             <div class="nav-right">
               <ul class="second-menu" ref="secondMenuRef">
-                <li
-                  :class="{'active': secondCategoryActiveId === item.id}"
-                  v-for="(item,index) in secondCategoryList"
-                  :key="index"
-                  @click="changeSecondCategory(item.id)"
-                >
+                <li :class="{ 'active': secondCategoryActiveId === item.id }" v-for="(item, index) in secondCategoryList"
+                  :key="index" @click="changeSecondCategory(item.id)">
                   <div class="item">
-                    <span>{{item.n}}</span>
+                    <span>{{ item.n }}</span>
                   </div>
                 </li>
               </ul>
               <li class="arrow">
                 <div class="bg" layout="row" layout-align="center center">
-                  <div class="bg-left" @click="scrollHandle('second','up')">
-                    <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                  <div class="bg-left" @click="scrollHandle('second', 'up')">
+                    <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
                   </div>
-                  <div class="bg-right" @click="scrollHandle('second','down')">
-                    <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                  <div class="bg-right" @click="scrollHandle('second', 'down')">
+                    <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
                   </div>
                 </div>
               </li>
             </div>
           </div>
           <div class="prd-list" ref="cardListRef" layout="row" layout-align="center start">
-            <ul
-              class="center-type"
-              :style="{'width':centerType+'px'}"
-              layout="row"
-              layout-align="start start"
-            >
-              <li
-                class="prd-item"
-                v-for="item in productList"
-                :key="item.id"
-                @click="chooseWindInfoHandle(item)"
-              >
-                <div class="name">{{item.n}}</div>
-              </li>
-            </ul>
-          </div>
+                <ul class="center-type" :style="{ width: centerType + 'px' }" layout="row" layout-align="start start">
+                  <li class="prd-item" v-for="item in productList" :key="item.id" @click="chooseWindInfoHandle(item)">
+                    <div class="prd-item-div">
+                      <div class="item-img">
+                        <img class="item-img"
+                          :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
+                      </div>
+                      <span>{{ item.n }}</span>
+                      <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda"
+                        @click.stop="clickDescImage(item)" />
+                    </div>
+                  </li>
+                </ul>
+                <!-- arrow -->
+                <div class="arrow" style="top: 0px">
+                  <div class="bg" layout="row" layout-align="center center">
+                    <div class="bg-left" @click="scrollArrowHandle('up')">
+                      <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                    </div>
+                    <div class="bg-right" @click="scrollArrowHandle('down')">
+                      <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                    </div>
+                  </div>
+                </div>
+              </div>
           <p v-if="productList.length == 0" class="tips">暂无数据</p>
         </div>
 
@@ -97,29 +98,20 @@
                 </div>
               </div>
               <div class="tbody">
-                <div
-                  class="tr"
-                  layout="row"
-                  layout-align="space-between center"
-                  v-for="item in resultWineList"
-                  :key="item.id"
-                >
-                  <div class="td">{{item.name}}</div>
-                  <div class="td">{{item.selectVal == 1 ? '整瓶' : item.selectVal + '瓶'}}</div>
-                  <div class="td">{{item.allWeight || '-'}}</div>
+                <div class="tr" layout="row" layout-align="space-between center" v-for="item in resultWineList"
+                  :key="item.id">
+                  <div class="td tdfs">{{ item.name }}</div>
+                  <div class="td tdfs">{{ item.selectVal == 1 ? '整瓶' : item.selectVal + '瓶' }}</div>
+                  <div class="td tdfs">{{ item.allWeight || '-' }}</div>
                   <div class="td" layout="row" layout-align="start center">
                     <img
-                      :src="item.count > 1 ? require('@/assets/order-img/sub.png') : require('@/assets/order-img/sub-disabled.png')"
-                      @click="item.count = Math.max(item.count - 1, 1)"
-                    />
+                      :src="item.count > 1 ? require('@/assets/order-img/new_sub.png') : require('@/assets/order-img/new-sub-disabled.png')"
+                      @click="item.count = Math.max(item.count - 1, 1)" />
                     <input type="number" :min="1" v-model="item.count" />
-                    <img
-                      :src="require('@/assets/order-img/order_add.png')"
-                      @click="item.count++"
-                    />
+                    <img :src="require('@/assets/order-img/new_order_add.png')" @click="item.count++" />
                   </div>
                   <div class="td" layout="row" layout-align="start center">
-                    <img @click="deleteWineHandle(item)" :src="require('@/assets/order-img/delete.png')" />
+                    <img @click="deleteWineHandle(item)" :src="require('@/assets/order-img/new-delete.png')" />
                   </div>
                 </div>
               </div>
@@ -128,23 +120,22 @@
         </div>
 
         <!-- 选择酒水详细信息 -->
-        <drawerChooseWineInfo
-          v-model="showChooseDrawer"
-          :type="2"
-          :currentWineInfo="currentWineInfo"
-          @addAuthWineHandle="addAuthWineHandle"
-        />
+        <drawerChooseWineInfo v-model="showChooseDrawer" :type="2" :currentWineInfo="currentWineInfo"
+          @addAuthWineHandle="addAuthWineHandle" />
       </div>
       <div class="form-btn" layout="row" layout-align="space-between center">
-      <div class="left" layout="row" layout-align="end center">
-        <!-- <el-button type="primary" @click="showChooseWineParamsOfAuthDrawer=true">授权存酒</el-button> -->
+        <div class="left" layout="row" layout-align="end center">
+          <!-- <el-button type="primary" @click="showChooseWineParamsOfAuthDrawer=true">授权存酒</el-button> -->
+        </div>
+        <div class="right" layout="row" layout-align="end center">
+          <el-button type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
+          <el-button type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
+          <el-button type="primary" @click="submitHandle">确定充公</el-button>
+        </div>
       </div>
-      <div class="right" layout="row" layout-align="end center">
-        <el-button type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
-        <el-button type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
-        <el-button type="primary" @click="submitHandle">确定充公</el-button>
-      </div>
-    </div>
+      <el-dialog :visible.sync="dialogVisible" width="50%" :before-close="beforeClose">
+        <img :src="bigImageUrl" style="width: 100%">
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -171,10 +162,25 @@ export default {
       currentWineInfo: {},
 
       resultWineList: [],
-      
+      pic_prefix_url: "",
+      dialogVisible: false,
+      bigImageUrl: "",
     };
   },
   methods: {
+    getPicUrl() {
+      this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
+    },
+     // 点击放大镜放大图片
+     clickDescImage(item) {
+      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
+      this.dialogVisible = true;
+    },
+    beforeClose(done) {
+      // 在关闭对话框前重置状态
+      this.dialogVisible = false;
+      done();
+    },
     getCenterType() {
       this.$nextTick(() => {
         const containWidth = this.$refs.cardListRef.offsetWidth;
@@ -266,7 +272,7 @@ export default {
 
       tempWineList.forEach(el => {
         const index = resultWineList.findIndex(item => item.name == el.name && item.selectVal == el.selectVal && item.allWeight == el.allWeight)
-        if(index > -1) {
+        if (index > -1) {
           resultWineList[index].count = resultWineList[index].count * 1 + el.count * 1
         } else {
           resultWineList.push(el)
@@ -278,9 +284,9 @@ export default {
     },
 
     // 当前临时购物车删除
-    deleteWineHandle(itemInfo){
+    deleteWineHandle(itemInfo) {
       const index = this.resultWineList.findIndex(item => item.id == itemInfo.id)
-      if(index > -1) this.resultWineList.splice(index, 1)
+      if (index > -1) this.resultWineList.splice(index, 1)
     },
 
     // 充公
@@ -315,18 +321,28 @@ export default {
       dom.scrollTo(0, scrollTop);
     },
 
+    scrollArrowHandle(direction) {
+      let dom = this.$refs.cardListRef;
+      const step = 200;
+      const scrollTop =
+        direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
+      dom.scrollTo(0, scrollTop);
+    },
     onCancelDrawer() {
       this.show = false;
     },
   },
   props: {
     value: false,
-    stepOneInfo:{
+    stepOneInfo: {
       default: () => ({})
     }
   },
   components: {
     drawerChooseWineInfo
+  },
+  mounted() {
+    this.getPicUrl()
   },
   computed: {
     show: {
@@ -351,57 +367,62 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../../../style/common/elementDrawer.less";
+@import "../../../../style/common/newElementDrawer.less";
 @import "../../../../style/common/elementDrawerHeaderAndSession.less";
-@import "../../../../style/common/elementFormBtn.less";
+@import "../../../../style/common/newElementFormBtn.less";
 @import "../../../../style/common/scrollBar.less";
-@import "../../../../style/saveWine/table.less";
+@import "../../../../style/saveWine/newTable.less";
 @import "../../../../style/order/orderMeal/orderMealNav.less";
 </style>
 
 <style lang="less" scoped>
 .content {
   box-sizing: border-box;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-  
+
   // 头部
   .top {
-    background-color: #11182d;
-    padding: 0 20px 20px;
+    background: #ECEFF4;
+    border-radius: 6px;
+    padding: 0 20px;
+
+    height: 42px;
+
     .left {
       font-size: 24px;
-      color: #fff;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 500;
+      color: #08080A;
     }
+
     .right {
       .card-name {
-        color: #fff;
-        font-size: 24px;
+        font-size: 32px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        color: #08080A;
         padding-right: 20px;
         position: relative;
+
         &:after {
           content: "";
           position: absolute;
           right: 0;
-          top: 0;
+          top: 50%;
           width: 1px;
-          height: 100%;
-          background: rgba(255, 255, 255, 0);
-          // background: linear-gradient(
-          //   180deg,
-          //   rgba(255, 255, 255, 0) 0%,
-          //   #ffffff 53%,
-          //   rgba(255, 255, 255, 0) 100%
-          // );
-          opacity: 0.5;
+          height: 30px;
+          background: #989FAF;
+          transform: translateY(-50%);
         }
       }
 
       .info {
         padding-left: 20px;
+
         span {
-          font-size: 14px;
-          color: #aed8ff;
+          font-size: 16px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
 
           &.date {
             margin-right: 20px;
@@ -410,6 +431,7 @@ export default {
       }
     }
   }
+
   .left-area {
     transform: translate(0, 0);
     height: calc(100vh - 180px);
@@ -420,66 +442,77 @@ export default {
 
     .nav {
       height: 100%;
+
       .nav-left {
         ul.first-menu {
-          height: calc(100vh - 240px);
+          height: calc(100vh - 200px);
           overflow-y: auto;
           color: #fff;
           scroll-behavior: smooth;
 
           li {
-            position: relative;
-            height: 56px;
-            text-align: center;
-            font-size: 15px;
-            color: #aed8ff;
+            margin-top: 4px;
+            // position: relative;
+            width: 90px;
+            height: 64px;
+            background: #FAFAFC;
+            box-shadow: 0px 2px 4px 0px #C4CBD7;
+            border-radius: 8px;
+            // line-height: 64px;
+            font-weight: 500;
+            color: #08080A;
+            font-size: 22px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             span {
-              width: 70%;
-              position: absolute;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
+              text-align: center;
             }
 
             &.active {
-              background: url("../../../../assets/order-img/navBarBgi.png");
-              background-size: 100% 100%;
-              color: #6a9eff;
+
+              background: #989FAF;
+
+              color: #FFFFFF;
             }
           }
         }
       }
+
       .nav-right {
         ul.second-menu {
-          height: calc(100vh - 240px);
+          height: calc(100vh - 200px);
           overflow-y: auto;
           color: #fff;
           scroll-behavior: smooth;
-          li {
-            position: relative;
-            height: 56px;
-            text-align: center;
-            font-size: 15px;
-            color: #fff;
-            cursor: pointer;
 
-            .item {
-              width: 72px;
-              height: 50px;
-              display: flex;
-              justify-content: center;
-              align-items: center;
+          li {
+            margin-top: 4px;
+            width: 90px;
+            height: 64px;
+
+            background: #FFFFFF;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #08080A;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            span {
+              text-align: center;
             }
 
             &.active {
-              .item {
-                background: #455eff;
-                // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%);
-                box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
-                border-radius: 20px;
-              }
+
+
+              background: #3373E8;
+
+              color: #FFFFFF;
             }
           }
         }
@@ -488,18 +521,100 @@ export default {
 
     .prd-list {
       width: 100%;
+      height: 100%;
+      overflow: auto;
+      scroll-behavior: smooth;
+      margin-top: 60px;
+      margin-left: 10px;
+      height: calc(100vh - 240px);
+
       .center-type {
         flex-wrap: wrap;
+
         .prd-item {
           margin-right: 10px;
           margin-top: 10px;
-          width: 130px;
-          height: 96px;
-          padding: 10px;
+          width: 272px;
           box-sizing: border-box;
-          background: rgba(169, 173, 211, 0.2);
-          box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.15);
+          position: relative;
+          background: #FAFAFC;
           border-radius: 6px;
+          display: flex;
+          flex-direction: column;
+          cursor: pointer;
+
+          div {
+            img {
+              width: 272px;
+              height: 272px;
+            }
+          }
+
+          span {
+            display: inline-block;
+            height: 64px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 18px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 400;
+            color: #08080A;
+
+          }
+
+          .fangda {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            width: 40px;
+            height: 40px;
+            z-index: 1;
+          }
+        }
+      }
+
+      //  箭头
+      .arrow {
+        width: 120px;
+        height: 60px;
+        position: fixed;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+        z-index: 99;
+
+        .bg {
+          margin-top: 10px;
+
+          .bg-left,
+          .bg-right {
+            width: 46px;
+            height: 40px;
+            background: #FFFFFF;
+            // box-shadow: inset 0px 1px 1px 0px #2775BA;
+            text-align: center;
+            box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+            border: 1px solid #989FAF;
+
+            img {
+              width: 20px;
+              margin-top: 10px;
+            }
+          }
+
+          .bg-left {
+            border-radius: 8px 0px 0px 8px;
+            border-right: none;
+
+            img {
+              transform: rotate(180deg);
+            }
+          }
+
+          .bg-right {
+            border-radius: 0 8px 8px 0;
+          }
         }
       }
     }
@@ -508,53 +623,79 @@ export default {
       margin-top: 20px;
     }
   }
+
   .right-area {
-    height: calc(100vh - 180px);
+    height: calc(100vh - 140px);
     width: 50%;
     padding: 10px;
     box-sizing: border-box;
+
     .title {
-      margin: 10px 0;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      color: #1A1A21;
     }
+
     .table {
       .tbody {
         height: calc(100vh - 230px);
         overflow: auto;
       }
+
       .th,
       .td {
         width: 20%;
+
         &:nth-child(4) {
           width: 30%;
+
           img {
-            width: 20px;
+            width: 32px;
             cursor: pointer;
           }
+
           input {
-            width: 50px;
-            height: 26px;
-            border-radius: 13px;
-            margin: 0 6px;
-            font-size: 14px;
+            width: 68px;
+            height: 32px;
+            background: #FAFAFC;
+            border-radius: 24px;
+            border: 1px solid #C4CBD7;
+            font-size: 24px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 500;
+            color: #08080A;
             text-align: center;
-            box-sizing: border-box;
+            line-height: 32px;
+            margin: 0 4px;
           }
         }
+
         &:nth-child(5) {
           width: 10%;
+
           img {
-            width: 20px;
+            width: 32px;
             cursor: pointer;
           }
         }
       }
+
+      .tdfs {
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+      }
     }
   }
-  
+
   .form-btn {
     width: 100%;
     box-sizing: border-box;
     padding: 0 20px;
+
     .left {
       height: 100%;
       width: 50%;
@@ -562,6 +703,7 @@ export default {
       box-sizing: border-box;
       border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
+
     .right {
       width: 50%;
       box-sizing: border-box;

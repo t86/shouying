@@ -4,28 +4,17 @@
       <div class="coll" layout="row" layout-align="center center">
         <div class="label">充公日期</div>
         <div class="value">
-          <el-date-picker
-            v-model="dateVal"
-            style="width:268px;height:36px"
-            type="date"
-            format="yyyy-MM-dd"
-            value-format="yyyy-MM-dd"
-            placeholder="选择日期">
+          <el-date-picker v-model="dateVal" style="width:268px;height:36px" type="date" format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd" placeholder="选择日期">
           </el-date-picker>
         </div>
       </div>
       <div class="coll" layout="row" layout-align="center center">
         <div class="label">订位人</div>
         <div class="value">
-          <inputSelect
-            style="width:268px;"
-            :value="empName"
-            placeholder="请输入姓名或工号"
-            :optionsList="empOption"
-            @selectInputHandle="inputSealName"
-            @selectOptionItem="changeSealName"
-            @selectBlurHandle="selectBlurHandle"
-          ></inputSelect>
+          <inputSelect style="width:268px;" :value="empName" placeholder="请输入姓名或工号" :optionsList="empOption"
+            @selectInputHandle="inputSealName" @selectOptionItem="changeSealName" @selectBlurHandle="selectBlurHandle">
+          </inputSelect>
         </div>
       </div>
     </div>
@@ -35,8 +24,8 @@
  
 <script>
 import api_vip from "@/api/vip";
-import inputSelect from "@/components/book/inputSelect";
-import keyBoard from "@/components/common/keyBoard.vue";
+import inputSelect from "@/components/book/newInputSelect";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 export default {
   data() {
     return {
@@ -54,7 +43,7 @@ export default {
           count = "";
           break;
         case 12: // 回退(
-          if(isNaN(count * 1)) {
+          if (isNaN(count * 1)) {
             count = "";
           } else {
             count =
@@ -85,11 +74,11 @@ export default {
       const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
       const results = query
         ? sealInfoArr.filter(
-            el =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
+          el =>
+            el.code.toString().includes(query) ||
+            el.name.toString().includes(query) ||
+            el.namePy.toString().includes(query.toLowerCase())
+        )
         : sealInfoArr;
       this.empOption = results;
     },
@@ -127,21 +116,25 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-@import "../../../../style/saveWine/table.less";
+@import "../../../../style/saveWine/newTable.less";
 </style>
 <style scoped lang="less">
 .step-one {
   padding: 20px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
 
   .coll {
     height: 50px;
     transform: translateX(-6px);
+
     .label {
-      width: 60px;
+      font-size: 20px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      color: #08080A;
+      width: 80px;
       text-align: right;
     }
+
     .value {
       margin-left: 6px;
       position: relative;
@@ -150,7 +143,7 @@ export default {
       width: 320px;
     }
   }
-    
+
 }
 
 
@@ -160,13 +153,36 @@ export default {
   height: 36px;
   line-height: 36px;
 }
+
+/deep/ .el-input {
+  input {
+    background: #FAFAFC;
+    border-radius: 8px;
+    border: 1px solid #C4CBD7;
+    font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    color: #08080A;
+
+    &::placeholder {
+
+      color: #7A7A7A;
+    }
+
+    &:focus {
+
+      border: 2px solid #3373E8;
+    }
+  }
+}
 </style>
 <style>
-.el-icon-date:before{
+.el-icon-date:before {
   color: rgba(50, 185, 255, 1);
   transform: translateY(-2px);
 }
-.el-picker-panel{
-  background-color: #5d6e99!important;
+
+.el-picker-panel {
+  background-color: #5d6e99 !important;
 }
 </style>

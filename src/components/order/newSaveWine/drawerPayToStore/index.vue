@@ -144,7 +144,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../../../style/common/elementDrawer.less";
+@import "../../../../style/common/newElementDrawer.less";
 @import "../../../../style/common/elementDrawerHeaderAndSession.less";
-@import "../../../../style/common/elementFormBtn.less";
+@import "../../../../style/common/newElementFormBtn.less";
 </style>
