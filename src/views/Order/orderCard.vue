@@ -778,42 +778,6 @@ export default {
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
 
-      // 在对每个卡台赋值之前，获取功能台或者关联功能台的金额信息
-      // 根据card_ids调用reqGetSpSeatList
-      // 卡台类型 '1' 实体台 '2' 虚拟台 '3' 关联功能台 '4' 功能台
-      try {
-        const res = await api_money.reqGetSpSeatList({
-          seat_ids: cardInfo.filter((item) => item.bizType == '3' || item.bizType == '4').map((item) => item.id * 1),
-        });
-        if (res.code == 1) {
-            /**
-             *     客户端传入json:
-              seat_ids   []int64      //SeatIds 待读取功能台列表,读取点单金额和优惠金额
-            成功返回编码:1, 返回json:
-              records    []*ResGetSpSeatListItem //Records 记录列表
-                --------------------------------
-                引用 ResGetSpSeatListItem 格式:
-                  s          int64      //SeatId 卡台Id
-                  y          int64      //YhAmt 优惠金额,单位分,需要前端格式化
-                  o          int64      //OrderAmt 下单金额,单位分,需要前端格式化
-            普通失败, 返回编码<>1, 数据为空
-             */
-          const { records } = res.data;
-          cardInfo.forEach((item, index) => {
-            const find = records.find((el) => el.s == item.id);
-            if (find) {
-              cardInfo[index].yhAmt = find.y;
-              cardInfo[index].orderAmt = find.o;
-            }
-          });
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("读取功能台卡台点单金额和优惠金额失败", error);
-      }
-
-
       cardInfo.forEach((item, index) => {
         if (item.status == "1") {
           // 查找对应的业务数据
@@ -886,6 +850,41 @@ export default {
       ) {
         // 服务员/营销/特饮  且已开启营业日
         cardList = await this.addOwnPayedAmtToCard(cardList);
+      }
+
+      // 获取功能台或者关联功能台的金额信息
+      // 根据card_ids调用reqGetSpSeatList
+      // 卡台类型 '1' 实体台 '2' 虚拟台 '3' 关联功能台 '4' 功能台
+      try {
+        const res = await api_money.reqGetSpSeatList({
+          seat_ids: cardList.filter((item) => item.bizType == '3' || item.bizType == '4').map((item) => item.id * 1),
+        });
+        if (res.code == 1) {
+            /**
+             *     客户端传入json:
+              seat_ids   []int64      //SeatIds 待读取功能台列表,读取点单金额和优惠金额
+            成功返回编码:1, 返回json:
+              records    []*ResGetSpSeatListItem //Records 记录列表
+                --------------------------------
+                引用 ResGetSpSeatListItem 格式:
+                  s          int64      //SeatId 卡台Id
+                  y          int64      //YhAmt 优惠金额,单位分,需要前端格式化
+                  o          int64      //OrderAmt 下单金额,单位分,需要前端格式化
+            普通失败, 返回编码<>1, 数据为空
+             */
+          const { records } = res.data;
+          cardList.forEach((item, index) => {
+            const find = records.find((el) => el.s == item.id);
+            if (find) {
+              cardList[index].yhAmt = ((find.y || 0) / 100).toFixed(2);
+              cardList[index].orderAmt = ((find.o || 0) / 100).toFixed(2);
+            }
+          });
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("读取功能台卡台点单金额和优惠金额失败", error);
       }
 
       // 没有配置任何权限同时不具有全场查单权限

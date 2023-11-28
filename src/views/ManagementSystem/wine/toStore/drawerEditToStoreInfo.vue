@@ -90,7 +90,7 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确认入库</el-button>
+        <el-button type="primary" @click="onSubmit">确认修改</el-button>
       </div>
     </el-drawer>
   </div>
@@ -131,7 +131,7 @@ export default {
       try {
         const res = await api_wine.reqChgCsmCgBefIn(params);
         if (res.code == 1) {
-          this.$message.success("入库成功");
+          this.$message.success("修改成功");
           this.showAuthDrawer = false;
           this.onCancelDrawer();
           this.$emit("getTableData");
@@ -139,7 +139,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("授权修改存酒充公入库信息失败", error);
+        console.log("授权修改存酒充公信息失败", error);
       }
     },
 

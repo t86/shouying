@@ -399,6 +399,14 @@ export default {
       if (this.orderMealStatus == 5) {
         return this.showOrHideYH2Drawer();
       }
+
+      // 如果是功能台或者关联功能台，则加入购物车
+      if (
+        this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
+        this.$store.state.orderInfo.currentCardInfo.bizType == 4
+      ) {
+        return this.orderMealToShoppingCart();
+      }
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
