@@ -13,29 +13,30 @@
           <span class="date">{{
             filterTime($store.state.orderInfo.saveWineCardInfo.openTime)
           }}</span>
-          <span
-            >订位人：{{
-              getOrderPersonName(
-                $store.state.orderInfo.saveWineCardInfo.salesEmpId
-              )
-            }}</span
-          >
+          <span>订位人：{{
+            getOrderPersonName(
+              $store.state.orderInfo.saveWineCardInfo.salesEmpId
+            )
+          }}</span>
         </div>
       </div>
     </div>
 
-    <!-- 剩余取酒详情 -->
-    <div class="get-list">
+    <!-- 剩余取酒详情  -->
+    <div :class="{
+      'get-list': true,
+      'get-list-cloumn': !isRect 
+    }">
       <div class="left">
         <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3">
-          <span>剩余取酒详情</span>
+          <span class="row-title">剩余取酒详情</span>
           <div class="arrow">
             <div class="bg" layout="row" layout-align="center center">
               <div class="bg-left" @click="scrollHandle('first', 'up')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
               </div>
               <div class="bg-right" @click="scrollHandle('first', 'down')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
               </div>
             </div>
           </div>
@@ -48,37 +49,26 @@
                 <div class="th">名称</div>
                 <div class="th">规格</div>
                 <div class="th">每瓶克数</div>
-                <div class="th">存酒时间</div>
-                <div class="th">过期时间</div>
+                <!-- <div class="th">存酒时间</div>
+                <div class="th">过期时间</div> -->
                 <div class="th">剩余可取数量</div>
               </div>
             </div>
             <div class="tbody" ref="firstTableRef">
-              <div
-                class="tr"
-                layout="row"
-                layout-align="space-between center"
-                v-for="item in WineList"
-                :key="item.id"
-              >
+              <div class="tr" layout="row" layout-align="space-between center" v-for="item in WineList" :key="item.id">
                 <div class="td" :class="{ 'is-black': isBlack }">
-                  {{ item.n }}
+
+                  <p style="font-size: 22px;font-weight: 400;color: #08080A;"> {{ item.n }}</p>
+                  <p style="font-size: 16px;font-weight: 400;color: #40404E;">过期时间：{{ item.e }}</p>
                 </div>
-                <div class="td">{{ item.u }}</div>
-                <div class="td">{{ item.g || "-" }}</div>
-                <div class="td">{{ item.i }}</div>
-                <div class="td">{{ item.e }}</div>
-                <div
-                  class="td"
-                  layout="row"
-                  layout-align="space-between center"
-                >
-                  <div class="count">{{ item.c }}</div>
-                  <div
-                    class="get-icon"
-                    :class="{ opacity: !item.canGet }"
-                    @click="addWineToShoppingCart(item)"
-                  >
+                <div class="td" style="display: flex; flex-direction: column;">
+                  <p style="font-size: 20px;font-weight: 400;color: #08080A;"> {{ item.u }}</p>
+                  <p style="font-size: 16px;font-weight: 400;color: #40404E;">存酒时间：{{ item.i }}</p>
+                </div>
+                <div class="td" style="font-size: 20px;font-weight: 400;color: #08080A;">{{ item.g || "-" }}</div>
+                <div class="td" layout="row" layout-align="space-between center">
+                  <div class="count" style="font-size: 24px;font-weight: 400;color: #08080A;">{{ item.c }}</div>
+                  <div class="get-icon" :class="{ opacity: !item.canGet }" @click="addWineToShoppingCart(item)">
                     取
                   </div>
                 </div>
@@ -89,14 +79,14 @@
       </div>
 
       <div class="right">
-        <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3"><span>取酒详情 </span>         
+        <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3"><span class="row-title">取酒详情 </span>
           <div class="arrow">
             <div class="bg" layout="row" layout-align="center center">
               <div class="bg-left" @click="scrollHandle('second', 'up')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
               </div>
               <div class="bg-right" @click="scrollHandle('second', 'down')">
-                <img :src="require('@/assets/order-img/arrowBottom.png')" alt />
+                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
               </div>
             </div>
           </div>
@@ -113,94 +103,65 @@
               </div>
             </div>
             <div class="tbody" ref="secondTableRef">
-              <div
-                class="tr"
-                layout="row"
-                layout-align="space-between center"
-                v-for="(item, index) in shoppingCartWineList"
-                :key="item.id"
-              >
-                <div class="td" :class="{ 'is-black': isBlack }">
+              <div class="tr" layout="row" layout-align="space-between center"
+                v-for="(item, index) in shoppingCartWineList" :key="item.id">
+                <div class="td" :class="{ 'is-black': isBlack }"
+                  style="font-size: 20px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">
                   {{ item.n }}
                 </div>
-                <div class="td">{{ item.u }}</div>
-                <div class="td">{{ item.g || "-" }}</div>
+                <div class="td"
+                  style="font-size: 20px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">{{ item.u
+                  }}</div>
+                <div class="td"
+                  style="font-size: 20px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">{{ item.g
+                    || "-" }}</div>
                 <div class="td" layout="row" layout-align="start center">
-                  <img
-                    :src="
-                      item.c > 1
-                        ? require('@/assets/order-img/sub.png')
-                        : require('@/assets/order-img/sub-disabled.png')
-                    "
-                    @click="
-                      changeShoppingCartCount(item, Math.max(item.c * 1 - 1, 1))
-                    "
-                  />
-                  <input
-                    type="number"
-                    :class="{ onFocus: focus == index }"
-                    @click="focus = index"
-                    :min="1"
-                    v-model="item.c"
-                    @input="changeShoppingCartCount(item, Math.max(item.c, 1))"
-                  />
-                  <img
-                    :src="
-                      item.c < item.maxCount
-                        ? require('@/assets/order-img/order_add.png')
-                        : require('@/assets/order-img/add-disabled.png')
-                    "
-                    @click="changeShoppingCartCount(item, item.c * 1 + 1)"
-                  />
+                  <img :src="
+                    item.c > 1
+                      ? require('@/assets/order-img/new_sub.png')
+                      : require('@/assets/order-img/new-sub-disabled.png')
+                  " @click="
+  changeShoppingCartCount(item, Math.max(item.c * 1 - 1, 1))
+" />
+                  <input type="number" :class="{ onFocus: focus == index }" @click="focus = index" :min="1"
+                    v-model="item.c" @input="changeShoppingCartCount(item, Math.max(item.c, 1))" />
+                  <img :src="
+                    item.c < item.maxCount
+                      ? require('@/assets/order-img/new_order_add.png')
+                      : require('@/assets/order-img/new-add-disabled.png')
+                  " @click="changeShoppingCartCount(item, item.c * 1 + 1)" />
                 </div>
-                <div
-                  class="td"
-                  layout="row"
-                  layout-align="space-between center"
-                >
-                  <img
-                    :src="require('@/assets/order-img/delete.png')"
-                    @click="changeShoppingCartCount(item, 0)"
-                  />
+                <div class="td" layout="row" layout-align="space-between center">
+                  <img :src="require('@/assets/order-img/new-delete.png')" @click="changeShoppingCartCount(item, 0)" />
                 </div>
               </div>
             </div>
           </div>
-          <div layout="col" layout-align="center start">
-            <div
-              v-if="tabIndex == 2"
-              class="coll"
-              layout="row"
-              layout-align="start center"
-              style="margin-top: 10px"
-            >
+          <div style="display: flex; align-items: center; justify-content: space-between;padding-bottom: 80px; margin-top: 20px;">
+            <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
-              <div class="value">
-                <input
-                  v-model="validateVal"
-                  :class="{ focus: focus == 'validateVal' }"
-                  @click="focus = 'validateVal'"
-                  placeholder="请输入验证码"
-                />
+              <div class="value-content">
+                <div class="value">
+                  <input v-model="validateVal" :class="{ focus: focus == 'validateVal' }" @click="focus = 'validateVal'"
+                    placeholder="请输入验证码" />
+                </div>
+                <el-button style="margin-left: 10px;
+                            width: 120px;
+                            height: 44px;
+                            background: #374368;
+                            box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+                            border-radius: 8px;font-size: 20px;
+                            font-family: PingFangSC, PingFang SC;
+                            font-weight: 500;
+                            padding: 0;
+                            color: #FFFFFF;"
+                   :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                  @click="sendPhoneMessage">{{ btnText }}</el-button>
               </div>
-              <el-button
-                style="margin-left: 10px"
-                :type="count == 60 ? 'primary' : 'info'"
-                :disabled="count != 60"
-                size="small"
-                @click="sendPhoneMessage"
-                >{{ btnText }}</el-button
-              >
+
             </div>
-            <keyBoard
-            class="key"
-            :landscape="true"
-            :itemHeight="44"
-            :itemWidth="44"
-            :width="270"
-            @changeNum="changeNumHandle"
-          />
-        </div>
+            <keyBoard @changeNum="changeNumHandle" :width="is1920 ? 266 : 194"  :itemHeight="is1920 ? 88 : 64" :itemWidth="is1920 ? 88 : 64"/>
+          </div>
         </div>
       </div>
     </div>
@@ -210,12 +171,8 @@
         <!-- <el-button type="primary" @click="showChooseWineParamsOfAuthDrawer=true">授权存酒</el-button> -->
       </div>
       <div class="right" layout="row" layout-align="end center">
-        <el-button type="info" @click="$emit('onCancelDrawer', true)"
-          >取消</el-button
-        >
-        <el-button type="info" @click="$emit('changeStatus', 1)"
-          >返回上一步</el-button
-        >
+        <el-button type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
+        <el-button type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
         <el-button type="primary" @click="getWineHandle">确定取酒</el-button>
       </div>
     </div>
@@ -224,7 +181,7 @@
 
 <script>
 import api_saveWine from "@/api/saveWine";
-import keyBoard from "@/components/common/keyBoard.vue";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 import api_vip from "@/api/vip";
 export default {
   data() {
@@ -238,10 +195,13 @@ export default {
       timer: null,
       count: 60, // 验证码倒计时
       validateVal: "", // 验证码
+      isRect: window.innerWidth >= 1366, // 屏幕是否超过1400
+      is1920: window.innerWidth >= 1920
     };
   },
   methods: {
     init() {
+      console.log(window.innerWidth)
       this.shoppingCartWineList = [];
       this.getOrderCanGetWine();
     },
@@ -267,8 +227,8 @@ export default {
         case 10: // 回退(
           if (this.focus == "validateVal") {
             this.validateVal = this.validateVal
-            .toString()
-            .slice(0, this.validateVal.toString().length - 1);
+              .toString()
+              .slice(0, this.validateVal.toString().length - 1);
           } else {
             currentInfo.c =
               currentInfo.c
@@ -370,28 +330,28 @@ export default {
     },
 
     async getWineHandle() {
-      
+
       try {
-        if(this.tabIndex == 2 && !this.validateVal){
-        this.$message.warning("请先验证手机验证码");
-        return;
-      }
-      let phone_num_auth_code = "";
-      if (this.tabIndex == 1){
-        phone_num_auth_code = this.phoneValidateStr;
-      } else if (this.tabIndex == 2) {
-        phone_num_auth_code =  await this.validatePhoneInfo();
-        if(!phone_num_auth_code) return;
-      } else if (this.tabIndex == 3) {
-        phone_num_auth_code = this.superValidate;
-      }
-      const params = {
-        seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1, // int64    卡台Id
-        invt_ids: this.shoppingCartWineList.map((item) => item.id * 1), //   []int64   存酒库存Id列表
-        prd_cnts: this.shoppingCartWineList.map((item) => item.c * 1), //  []int  对应存酒库存Id的取酒商品数量
-        phone_num_auth_code: phone_num_auth_code, // string  认证手机授权码
-        phone_num: this.phoneNum, //  string  取酒客户手机号
-      };
+        if (this.tabIndex == 2 && !this.validateVal) {
+          this.$message.warning("请先验证手机验证码");
+          return;
+        }
+        let phone_num_auth_code = "";
+        if (this.tabIndex == 1) {
+          phone_num_auth_code = this.phoneValidateStr;
+        } else if (this.tabIndex == 2) {
+          phone_num_auth_code = await this.validatePhoneInfo();
+          if (!phone_num_auth_code) return;
+        } else if (this.tabIndex == 3) {
+          phone_num_auth_code = this.superValidate;
+        }
+        const params = {
+          seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1, // int64    卡台Id
+          invt_ids: this.shoppingCartWineList.map((item) => item.id * 1), //   []int64   存酒库存Id列表
+          prd_cnts: this.shoppingCartWineList.map((item) => item.c * 1), //  []int  对应存酒库存Id的取酒商品数量
+          phone_num_auth_code: phone_num_auth_code, // string  认证手机授权码
+          phone_num: this.phoneNum, //  string  取酒客户手机号
+        };
         const res = await api_saveWine.reqGetWineToNextLib(params);
         if (res.code == 1) {
           this.$message.success("取酒成功");
@@ -477,7 +437,7 @@ export default {
       try {
         const res = await api_vip.reqValidatePhoneMsg(params);
         if (res.code == 1) {
-         return res.data.c;
+          return res.data.c;
         } else {
           this.$message.warning(res.msg);
         }
@@ -506,51 +466,57 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-@import "../../../../style/saveWine/table.less";
-@import "../../../../style/common/elementFormBtn.less";
+@import "../../../../style/saveWine/newTable.less";
+@import "../../../../style/common/newElementFormBtn.less";
 </style>
 <style scoped lang="less">
 .step-two {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-
   // 头部
+  color: #08080A;
+
   .top {
     background-color: #11182d;
-    padding: 0 20px 20px;
+    background: #ECEFF4;
+    border-radius: 6px;
+    height: 42px;
+    padding: 0 16px;
+
     .left {
       font-size: 24px;
-      color: #fff;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 500;
+      color: #08080A;
     }
+
     .right {
       .card-name {
-        color: #fff;
-        font-size: 24px;
+        font-size: 32px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        color: #08080A;
         padding-right: 20px;
         position: relative;
+
         &:after {
           content: "";
           position: absolute;
           right: 0;
-          top: 0;
+          top: 50%;
           width: 1px;
-          height: 100%;
-          background: rgba(255, 255, 255, 0);
-          // background: linear-gradient(
-          //   180deg,
-          //   rgba(255, 255, 255, 0) 0%,
-          //   #ffffff 53%,
-          //   rgba(255, 255, 255, 0) 100%
-          // );
-          opacity: 0.5;
+          height: 30px;
+          background: #989FAF;
+          transform: translateY(-50%);
         }
       }
 
       .info {
         padding-left: 20px;
+
         span {
-          font-size: 14px;
-          color: #aed8ff;
+          font-size: 16px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
 
           &.date {
             margin-right: 20px;
@@ -563,48 +529,64 @@ export default {
   .is-black {
     color: red;
   }
+
   // 列表
   .get-list {
     padding: 0 20px;
     height: calc(100vh - 178px);
     display: flex;
-    flex-wrap: wrap;  
+    flex-wrap: wrap;
     justify-content: space-between;
 
     .title {
       justify-content: space-between;
     }
+
     // 左侧
     .left {
       overflow: auto;
       box-sizing: border-box;
       flex-basis: 350px;
       flex-grow: 1;
+
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
+      .row-title {
+        font-size: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #1A1A21;
+      }
 
       .table {
         width: 100%;
+
         .tbody {
           height: calc(100vh - 300px);
           overflow: auto;
           scroll-behavior: smooth;
+
           .get-icon {
-            width: 36px;
-            height: 28px;
-            line-height: 28px;
+            width: 38px;
+            height: 38px;
+            background: #3373E8;
+            border-radius: 8px;
+            font-size: 22px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 600;
+            color: #FFFFFF;
             text-align: center;
-            font-size: 18px;
-            color: #fff;
-            background: #4b89ff;
-            border-radius: 6px;
+            line-height: 38px;
             cursor: pointer;
+
             &.opacity {
-              opacity: 0.2;
+              background: rgba(51, 115, 232, 0.3);
+              color: rgba(255, 255, 255, 0.3);
             }
           }
         }
       }
     }
+
     // 取酒侧
     .right {
       overflow: auto;
@@ -612,91 +594,75 @@ export default {
       margin-left: 10px;
       flex-basis: 280px;
       flex-grow: 1;
+
+      .row-title {
+        font-size: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #1A1A21;
+      }
+
       .table {
         width: 100%;
         height: calc(100vh - 400px);
+
         .tbody {
           height: 200px;
           overflow: auto;
           scroll-behavior: smooth;
         }
+
         .th,
         .td {
           width: 20%;
+
           &:nth-child(4) {
             width: 30%;
+
             img {
-              width: 20px;
+              width: 32px;
               cursor: pointer;
             }
+
             input {
-              width: 50px;
-              height: 26px;
-              border-radius: 13px;
-              margin: 0 6px;
-              font-size: 14px;
+              width: 68px;
+              height: 32px;
+              background: #FAFAFC;
+              border-radius: 24px;
+              border: 1px solid #C4CBD7;
+              margin: 0 4px;
+              font-size: 24px;
+              font-family: PingFangSC, PingFang SC;
+              font-weight: 500;
+              color: #08080A;
               text-align: center;
-              box-sizing: border-box;
+              line-height: 32px;
             }
-            .onFocus {
-              border: 1px solid #32b9ff;
-            }
+
+            // .onFocus {
+            //   border: 1px solid #32b9ff;
+            // }
           }
+
           &:nth-child(5) {
             img {
-              width: 20px;
+              width: 32px;
               cursor: pointer;
             }
           }
         }
       }
+
       .arrow {
         right: 300px;
       }
-      .label {
-        width: 50px;
-      }
-      .key{
-        margin-top: 10px;
-        width:270px;
-      }
-      .value {
-        position: relative;
-        flex-wrap: nowrap;
-        flex-shrink: 0;
-        width: 120px;
-        input {
-          width: 108px;
-          height: 36px;
-          background: rgba(0, 0, 0, 0.2);
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          padding: 0 10px;
-          box-sizing: border-box;
-          margin-right: 10px;
-          &:focus {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid #32b9ff;
-            box-shadow: 0px 0px 8px 0px rgba(26, 137, 255, 0.8);
-          }
-        }
-
-        .focus {
-          background: rgba(0, 0, 0, 0.2);
-          border: 1px solid #32b9ff;
-          box-shadow: 0px 0px 8px 0px rgba(26, 137, 255, 0.8);
-        }
-      }
-      .focus {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid #32b9ff;
-        box-shadow: 0px 0px 8px 0px rgba(26, 137, 255, 0.8);
-      }
     }
+
     //  箭头
+
     .arrow {
       width: 120px;
-      height: 40px;
+      height: 60px;
       cursor: pointer;
 
       .bg {
@@ -705,9 +671,11 @@ export default {
         .bg-right {
           width: 46px;
           height: 40px;
-          background: #0d172d;
-          box-shadow: inset 0px 1px 1px 0px #2775ba;
+          background: #FFFFFF;
+          // box-shadow: inset 0px 1px 1px 0px #2775BA;
           text-align: center;
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+          border: 1px solid #989FAF;
 
           img {
             width: 20px;
@@ -716,7 +684,8 @@ export default {
         }
 
         .bg-left {
-          border-radius: 30px 0px 0px 30px;
+          border-radius: 8px 0px 0px 8px;
+          border-right: none;
 
           img {
             transform: rotate(180deg);
@@ -724,16 +693,65 @@ export default {
         }
 
         .bg-right {
-          border-radius: 0 30px 30px 0;
+          border-radius: 0 8px 8px 0;
+        }
+      }
+    }
+
+    .cap-content {
+      display: flex;
+      flex-direction: column;
+      .label {
+        font-size: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #1A1A21;
+      }
+
+      .value-content {
+        display: flex;
+        margin-top: 16px;
+
+        .label {
+          width: 100px;
+        }
+
+        .value {
+          input {
+            width: 256px;
+            height: 44px;
+            background: #FAFAFC;
+            border-radius: 8px;
+            border: 1px solid #C4CBD7;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 400;
+            color: #08080A;
+            box-sizing: border-box;
+            padding-left: 12px;
+
+            &:focus {
+              border: 2px solid #3373E8;
+            }
+
+            &::placeholder {
+              color: #7A7A7A;
+            }
+          }
         }
       }
     }
   }
 
+  .get-list-cloumn{
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
   .form-btn {
     width: 100%;
     box-sizing: border-box;
     padding: 0 20px;
+
     .left {
       height: 100%;
       width: 50%;
@@ -741,6 +759,7 @@ export default {
       box-sizing: border-box;
       // border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
+
     .right {
       width: 50%;
       box-sizing: border-box;
@@ -752,10 +771,12 @@ export default {
       .right {
         margin-top: 20px;
         padding-bottom: 100px;
+
         .table {
           height: calc(50vh - 100px);
         }
       }
+
       .left {
         .table {
           height: calc(50vh - 100px);

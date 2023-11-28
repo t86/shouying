@@ -63,7 +63,7 @@ export default {
         superValidate: "", // 超级授权码
         phoneNum: "", // 手机号
         validateVal: "", // 验证码
-        phoneValidateStr: "" // 手机号授权认证
+        phoneValidateStr: "", // 手机号授权认证
       }
     },
 
@@ -156,7 +156,8 @@ export default {
           size = "90%";
           break;
         case 2:
-          size = "95%";
+          console.log(window.innerWidth,window.innerHeight)
+          size = window.innerWidth >= 1366 ? "95%" : "60%";
           break;
       }
       return size;
@@ -195,7 +196,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../../../style/common/elementDrawer.less";
+@import "../../../../style/common/newElementDrawer.less";
 @import "../../../../style/common/elementDrawerHeaderAndSession.less";
-@import "../../../../style/common/elementFormBtn.less";
+@import "../../../../style/common/newElementFormBtn.less";
 </style>
