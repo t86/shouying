@@ -48,6 +48,10 @@
           <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
         </div>
       </div>
+      <!-- 提交按钮 -->
+      <div class="form-btn" layout="row" layout-align="center center">
+        <el-button type="info" @click="onClose">关闭</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -117,6 +121,7 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "../../style/common/elementFormBtn.less";
 .day-report {
   background: #202C4A;
   // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
@@ -130,8 +135,9 @@ export default {
   .table{
     border: 1px solid #999;
     border-radius: 10px;
-    height: calc(100vh - 90px);
+    height: calc(100vh - 170px);
     overflow-y: auto;
+    margin-bottom: 10px;
     .tr{
       padding: 0 20px;
       box-sizing: border-box;

@@ -247,13 +247,16 @@ export default {
     },
 
     // 键盘
+    // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
       if (this.focus == -1) {
         return;
       }
       let currentInfo;
+      let orginNum = 0;
       if (this.focus != "validateVal") {
         currentInfo = this.shoppingCartWineList[this.focus];
+        orginNum = currentInfo.maxCount;
         if (!currentInfo) return;
       }
       switch (value) {
@@ -284,6 +287,9 @@ export default {
               currentInfo.c == 0
                 ? value * 1
                 : currentInfo.c.toString() + value * 1;
+            if(currentInfo.c * 1 > orginNum) {
+              currentInfo.c = orginNum;
+            }
           }
           break;
       }

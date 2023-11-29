@@ -537,10 +537,11 @@ export default {
       "mklib_id": "231590944409827"
       }] 过滤resultProductArr中 数据，不在当前区域的都排除掉
       */
-      resultProductArr = resultProductArr.filter(i => currentAreaAllProduct.findIndex(
-        (item) => item.prd_id == i.id && item.region_id == this.$store.state.orderInfo.currentCardInfo.regionId && item.status == '1'
-      ) >= 0);
-
+      if (sessionStorage.getItem("client") == "order" && !isGQ) {
+        resultProductArr = resultProductArr.filter(i => currentAreaAllProduct.findIndex(
+          (item) => item.prd_id == i.id && item.region_id == this.$store.state.orderInfo.currentCardInfo.regionId && item.status == '1'
+        ) >= 0);
+      }
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
       secondCategoryAll.forEach((el) => {
