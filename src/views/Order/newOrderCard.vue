@@ -539,12 +539,8 @@ export default {
         await this.getLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
-      const currentMachineId = this.$localStorage.getItem("machineId");
-      const currentAreaAndCardList = (
-        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
-      ).filter(
-        (item) => item.license_id == currentMachineId && item.status == 1
-      );
+      // // 获取设备可操作区域或卡台
+      const currentAreaAndCardList = this.getCurrentAreaAndCardList();;
 
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
@@ -640,7 +636,7 @@ export default {
               tipsArr: this.getTips(data.bizStatus),
               // 是否可查单
               canLookOrder: this.currentCardCanLookOrder(item.name, data),
-              shouldHidden: this.checkHidden(item),
+              isYX: this.checkYX(item),
               // 低消进度
               diXiaoJindu:
                 Number(data.assignMinCsmAmt) > 0
@@ -683,10 +679,43 @@ export default {
         cardList = await this.addOwnPayedAmtToCard(cardList);
       }
 
+       // 获取功能台或者关联功能台的金额信息
+      // 根据card_ids调用reqGetSpSeatList
+      // 卡台类型 '1' 实体台 '2' 虚拟台 '3' 关联功能台 '4' 功能台
+      try {
+        const res = await api_money.reqGetSpSeatList({
+          seat_ids: cardList.filter((item) => item.bizType == '3' || item.bizType == '4').map((item) => item.id * 1),
+        });
+        if (res.code == 1) {
+            /**
+             *     客户端传入json:
+              seat_ids   []int64      //SeatIds 待读取功能台列表,读取点单金额和优惠金额
+            成功返回编码:1, 返回json:
+              records    []*ResGetSpSeatListItem //Records 记录列表
+                --------------------------------
+                引用 ResGetSpSeatListItem 格式:
+                  s          int64      //SeatId 卡台Id
+                  y          int64      //YhAmt 优惠金额,单位分,需要前端格式化
+                  o          int64      //OrderAmt 下单金额,单位分,需要前端格式化
+            普通失败, 返回编码<>1, 数据为空
+             */
+          const { records } = res.data;
+          cardList.forEach((item, index) => {
+            const find = records.find((el) => el.s == item.id);
+            if (find) {
+              cardList[index].yhAmt = ((find.y || 0) / 100).toFixed(2);
+              cardList[index].orderAmt = ((find.o || 0) / 100).toFixed(2);
+            }
+          });
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("读取功能台卡台点单金额和优惠金额失败", error);
+      }
+
       // 没有配置任何权限同时不具有全场查单权限
-      if (
-        this.$store.state.userInfo.roleIds.length == 0
-      ) {
+      if (this.isUserWithoutRoles()) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
@@ -704,6 +733,7 @@ export default {
           (item) =>
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
         )));
+        cardListInfoArr.forEach(item => item.isWaiter = true)
       }
       // 如果只是营销 不写在这里前面的判断会把区域弄没
       if (this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
@@ -713,8 +743,9 @@ export default {
       if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
         cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
           (item) => this.salesCanLookCardInfo.seats.includes(item.id * 1)
-        )))];
-      }
+          && !cardListInfoArr.map(item => item.id).includes(item.id)
+          )))]
+        }
 
 
       try {
@@ -1018,16 +1049,8 @@ export default {
     },
     // 当前卡台是否有查单权限
     currentCardCanLookOrder(n, cardItemInfo) {
-      // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
-      if (this.isSaleRole) {
-        let isLook = false;
-        if (this.salesCanLookCardInfo.all_seat == 1) {
-          isLook = true;
-        } else {
-          isLook = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1)
-        }
-        return isLook;
-      }
+        // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
+        const saleLookRole = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1);
       // 是否具有全场查单权限
       const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
@@ -1036,61 +1059,62 @@ export default {
       // 是否是当前卡台点单服务员
       const waiter_emp_ids_arr = "waiter_emp_ids_arr" in cardItemInfo && cardItemInfo.waiter_emp_ids_arr || [];
       const isSealer =
-        waiter_emp_ids_arr.find(
+      waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
       // 是否是当前卡台订位人的同组人员
-      let isLookDept = this.hasCanLookDept && cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
+      let  isLookDept = this.hasYXCanLookDept&&cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
 
-      // 下过单的服务员 也属于同组 
+       // 下过单的服务员 也属于同组 
       let isWaiterDept = false;
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
         [];
-      for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
+      for(let i =0; i< waiter_emp_ids_arr.length; i++){
         const element = waiter_emp_ids_arr[i];
-        if (element) {
+        if(element){
           const waiter = orderPersonInfo.find(
-            (item) => item.id == element);
-          if (waiter && waiter.upper_emp_id == this.loginUserInfo.upper_emp_id && this.loginUserInfo.upper_emp_id != 0) {
-            isWaiterDept = true;
-            break
-          }
+         (item) => item.id == element);
+         if(waiter && waiter.upper_emp_id == this.loginUserInfo.upper_emp_id && this.loginUserInfo.upper_emp_id != 0){
+          isWaiterDept = true;
+          break
+         }
         }
       }
       // 不允许查看同组
-      if (!this.hasCanLookDept) {
+      if(!this.hasYXCanLookDept){
         isWaiterDept = false;
       }
-
+  
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
 
       // 服务员的下属 
       let isWaiterSealer = false;
       for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
-        if (this.loginUserSubordinateIds.includes(element)) {
+        if(this.loginUserSubordinateIds.includes(element)){
           isWaiterSealer = true;
           break;
         }
       }
-
-      // 营销 不能看下属
-      if (this.hasOnlyLookSelf) {
+  
+       // 营销 不能看下属
+      if(this.hasYxOnlyLookSelf){
         isLookSubordinate = false
       }
       // 下单服务员包括营销 所以都要判断
-      if (this.hasWaitOnlyLookSelf || this.hasOnlyLookSelf) {
-        isWaiterSealer = false
+      if (this.hasWaitOnlyLookSelf || this.hasYxOnlyLookSelf){
+         isWaiterSealer = false
       }
-      return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
+
+      return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
     },
-    checkHidden(item) {
-      // if(this.salesCanLookCardInfo.all_seat != 1) {
-      //   return !this.salesCanLookCardInfo.seats.includes(item.id)
-      // } else {
-      return false
-      // }
+    checkYX(item){
+      if(this.salesCanLookCardInfo.all_seat != 1) {
+        return this.salesCanLookCardInfo.seats.includes(item.id * 1)
+      } else {
+        return true
+      }
     },
     // 显示或隐藏低消进度统计表
     showOrHideMinDetailDrawerHandle() {
@@ -1170,25 +1194,29 @@ export default {
       return false;
     },
 
+    isUserWithoutRoles() {
+      return this.$store.state.userInfo.roleIds.length == 0;
+    },
+
+    getCurrentAreaAndCardList() {
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      return (resResultDataObj["machineArea"] || []).filter(
+        (item) => item.license_id == currentMachineId && item.status == 1
+      );
+    },
+
     // 登录后初始化图例中的抵达数量
     setLegendCount(regionId = 0) {
       setTimeout(() => {
 
         let result = {};
-        if (
-          this.$store.state.userInfo.roleIds.length == 0
-        ) {
+        if (this.isUserWithoutRoles()) {
           this.cardStatusNoInfo = {};
           return;
         }
-        // 获取设备可操作区域或卡台
-        const currentMachineId = this.$localStorage.getItem("machineId");
-        const currentAreaAndCardList = (
-          resResultDataObj["machineArea"] || []
-        ).filter(
-          (item) => item.license_id == currentMachineId && item.status == 1
-        );
-        const isNoLimit = currentAreaAndCardList.filter(
+       // 获取设备可操作区域或卡台
+       const currentAreaAndCardList = this.getCurrentAreaAndCardList();
+       const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
         // 区域下部分卡台

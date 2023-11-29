@@ -162,6 +162,7 @@ export default {
       isMoneyClient: false,
       titleFontSize: '32px', // 初始字体大小
       seatFontSize: '18px',
+      isNarrowWidth: window.innerWidth < 850,
     };
   },
   methods: {
