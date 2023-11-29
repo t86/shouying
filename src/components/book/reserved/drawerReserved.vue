@@ -14,6 +14,12 @@
         ref="drawerRef"
         @submit.native.prevent
       >
+        <el-form-item label="当前卡台:">
+          <label style="width: 80%; color: white;">
+            {{ $store.state.orderInfo.currentCardInfo.name }}
+          </label>
+        </el-form-item>
+
         <el-form-item label="客人电话">
           <input-select
             style="width: 80%"

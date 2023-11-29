@@ -19,6 +19,8 @@
               >全选</el-checkbox>
             </div>
             <div class="th">二级分类名称</div>
+            <div class="th">时段限制</div>
+            <div class="th">时段</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
             <div class="th">状态</div>
@@ -47,6 +49,8 @@
               </div>
             </div>
             <div class="td">{{item.n}}</div>
+            <div class="td">{{item.e}}</div>
+            <div class="td">{{item.t}}</div>
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
             <div class="td">{{item.s}}</div>

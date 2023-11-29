@@ -42,6 +42,46 @@
             </el-checkbox>
           </div>
         </div>
+        <!-- 如果switch开关，添加限制供应时间段的功能，如果设置为true，供应时段（开始-结束）为必填，且支持添加多个 -->
+        <div class="coll" layout="column" layout-align="start start">
+          <div class="coll" layout="row" layout-align="start start">
+            <div class="label">
+              <span>开启时间段限制:</span>
+            </div>
+            <div class="value">
+              <el-switch
+                v-model="switchValue"
+              ></el-switch>
+            </div>
+          </div>
+          <div class="coll" layout="column" layout-align="start center" v-if="switchValue">
+            <div class="coll" style="width: 100%;" layout="row" layout-align="start center" >
+              <div class="label">
+                <span>供应时段:</span>
+              </div>
+              <el-button type="primary" class="m-l-2" @click="addTimePeriod">添加</el-button>
+            </div>
+            <div class="value" layout="column" layout-align="start center">
+              <div v-for="(period, index) in timePeriods" :key="index" class="coll" layout="row" layout-align="start center">
+                <el-time-picker
+                  v-model="period.start"
+                  style="width:268px;height:36px"
+                  placeholder="开始时段"
+                  format="HH:mm"
+                  value-format="HH:mm"
+                ></el-time-picker>
+                <el-time-picker
+                  v-model="period.end"
+                  style="width:268px;height:36px"
+                  placeholder="结束时段"
+                  format="HH:mm"
+                  value-format="HH:mm"
+                ></el-time-picker>
+                <el-button type="danger" icon="el-icon-delete" @click="removeTimePeriod(index)"></el-button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
@@ -50,17 +90,26 @@
     </el-drawer>
   </div>
 </template>
- 
 <script>
 export default {
   data() {
     return {
       oneCateInfo: {},
       twoCateName: "",
-      requireList: []
+      requireList: [],
+      switchValue: false,
+      timePeriods: [],
     };
   },
   methods: {
+    // Function to add a new time period
+    addTimePeriod() {
+      this.timePeriods.push({ start: "", end: "" });
+    },
+    // Function to remove a time period at a specific index
+    removeTimePeriod(index) {
+      this.timePeriods.splice(index, 1);
+    },
     // 获取编辑前信息
     async getDetail(){
       const params = {
