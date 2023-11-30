@@ -251,7 +251,7 @@ export default {
     value: false,
   },
   beforeDestroy() {
-      this.$observer.unsubscribe(SCROLL_BOTTOM)
+    this.$observer.unsubscribe(SCROLL_BOTTOM)
   },
   computed: {
     show: {

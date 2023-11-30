@@ -274,9 +274,9 @@ export default {
         };
         const res = await api_order.reqGetOrderList(params);
         if (res.code === 1) {
-          this.amt.allAmt = res.data.order_amt || "0.00";
-          this.amt.giveAmt = res.data.yh_amt || "0.00";
-          this.amt.notPayAmt = res.data.unpayed_amt || "0.00";
+          this.amt.allAmt = ((res.data.pay_info.order_amt || 0) / 100).toFixed(2);
+          this.amt.giveAmt = ((res.data.pay_info.yh_amt || 0) / 100).toFixed(2);
+          this.amt.notPayAmt = ((res.data.pay_info.order_amt || 0 - res.data.payed_amt || 0) / 100).toFixed(2);
           const data = res.data.records || [];
           data.forEach((el) => {
             el.productInfo = common_order.getProductInfo(el.pid);
@@ -487,6 +487,7 @@ export default {
   },
   beforeDestroy() {
     document.body.removeEventListener("click", this.showOrHideList);
+    eventVue.$off("reloadMyOrderTableData");
     document.onkeydown = null;
     document.onkeyup = null;
     downKeyCode = [0, 0];

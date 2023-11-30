@@ -25,7 +25,7 @@
     <!-- 剩余取酒详情  -->
     <div :class="{
       'get-list': true,
-      'get-list-cloumn': !isRect 
+      'get-list-cloumn': !isRect
     }">
       <div class="left">
         <div layout="row" layout-align="start center" class="title fs16 m-t-3 m-b-3">
@@ -137,7 +137,8 @@
               </div>
             </div>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between;padding-bottom: 80px; margin-top: 20px;">
+          <div
+            style="display: flex; align-items: center; justify-content: space-between;padding-bottom: 80px; margin-top: 20px;">
             <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
               <div class="value-content">
@@ -146,21 +147,21 @@
                     placeholder="请输入验证码" />
                 </div>
                 <el-button style="margin-left: 10px;
-                            width: 120px;
-                            height: 44px;
-                            background: #374368;
-                            box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
-                            border-radius: 8px;font-size: 20px;
-                            font-family: PingFangSC, PingFang SC;
-                            font-weight: 500;
-                            padding: 0;
-                            color: #FFFFFF;"
-                   :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                              width: 120px;
+                              height: 44px;
+                              background: #374368;
+                              box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+                              border-radius: 8px;font-size: 20px;
+                              font-family: PingFangSC, PingFang SC;
+                              font-weight: 500;
+                              padding: 0;
+                              color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
                   @click="sendPhoneMessage">{{ btnText }}</el-button>
               </div>
 
             </div>
-            <keyBoard @changeNum="changeNumHandle" :width="is1920 ? 266 : 194"  :itemHeight="is1920 ? 88 : 64" :itemWidth="is1920 ? 88 : 64"/>
+            <keyBoard @changeNum="changeNumHandle" :width="is1920 ? 266 : 194" :itemHeight="is1920 ? 88 : 64"
+              :itemWidth="is1920 ? 88 : 64" />
           </div>
         </div>
       </div>
@@ -207,13 +208,16 @@ export default {
     },
 
     // 键盘
+    // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
       if (this.focus == -1) {
         return;
       }
       let currentInfo;
+      let orginNum = 0;
       if (this.focus != "validateVal") {
         currentInfo = this.shoppingCartWineList[this.focus];
+        orginNum = currentInfo.maxCount;
         if (!currentInfo) return;
       }
       switch (value) {
@@ -244,6 +248,9 @@ export default {
               currentInfo.c == 0
                 ? value * 1
                 : currentInfo.c.toString() + value * 1;
+            if (currentInfo.c * 1 > orginNum) {
+              currentInfo.c = orginNum;
+            }
           }
           break;
       }
@@ -701,6 +708,7 @@ export default {
     .cap-content {
       display: flex;
       flex-direction: column;
+
       .label {
         font-size: 24px;
         font-family: PingFangSC, PingFang SC;
@@ -743,10 +751,11 @@ export default {
     }
   }
 
-  .get-list-cloumn{
+  .get-list-cloumn {
     flex-direction: column;
     flex-wrap: nowrap;
   }
+
   .form-btn {
     width: 100%;
     box-sizing: border-box;
