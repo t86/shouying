@@ -61,14 +61,21 @@
                 >
                   <span style="width: 70px">赠送积分:</span>{{ item.p }}
                 </p>
+                
               </div>
               <p v-else class="amt">￥{{ item.chooseAmt }}</p>
+              <p
+                  class="amt"
+                  style="font-size: 12px"
+                  layout="row"
+                  layout-align="start center"
+                >
+                  <span style="width: 70px">结账时间:</span>{{ item.pt }}
+                </p>
             </div>
           </div>
         </div>
-        <div layout="row" layout-align="center start">
-          <span class="payed-time">结账时间:{{ item.pt }}</span>
-        </div>
+
         <div
           class="change-type"
           v-if="

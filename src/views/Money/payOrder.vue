@@ -838,7 +838,7 @@ export default {
               payedOrderList.push({
                 pid: el.id,
                 list: [...anotherPayedOrderList, ...onlinePayedOrderList],
-                ps: el.ps, // 支付渠道
+                ps: el.ps.map(item => { return {...item, pt: el.pt} }), // 支付渠道
                 amts: el.amts || {},
               });
             });
