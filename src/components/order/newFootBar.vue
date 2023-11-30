@@ -228,7 +228,7 @@ import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import api_money from "@/api/money";
 
-import drawerPayQR from "./drawerPayQR.vue";
+import drawerPayQR from "./newDrawerPayQR.vue";
 
 import goBack from "@/assets/order-img/newBack.png";
 import shoppingNav from "@/assets/order-img/newShoppingNav.png";

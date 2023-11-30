@@ -138,7 +138,7 @@
             </div>
           </div>
           <div
-            style="display: flex; align-items: center; justify-content: space-between;padding-bottom: 80px; margin-top: 20px;">
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px;padding-bottom:80px" >
             <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
               <div class="value-content">
@@ -147,21 +147,20 @@
                     placeholder="请输入验证码" />
                 </div>
                 <el-button style="margin-left: 10px;
-                              width: 120px;
-                              height: 44px;
-                              background: #374368;
-                              box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
-                              border-radius: 8px;font-size: 20px;
-                              font-family: PingFangSC, PingFang SC;
-                              font-weight: 500;
-                              padding: 0;
-                              color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                                  width: 120px;
+                                  height: 44px;
+                                  background: #374368;
+                                  box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+                                  border-radius: 8px;font-size: 20px;
+                                  font-family: PingFangSC, PingFang SC;
+                                  font-weight: 500;
+                                  padding: 0;
+                                  color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
                   @click="sendPhoneMessage">{{ btnText }}</el-button>
               </div>
 
             </div>
-            <keyBoard @changeNum="changeNumHandle" :width="is1920 ? 266 : 194" :itemHeight="is1920 ? 88 : 64"
-              :itemWidth="is1920 ? 88 : 64" />
+            <keyBoard @changeNum="changeNumHandle" :width="389" :itemHeight="64" :itemWidth="64" :landscape="true" />
           </div>
         </div>
       </div>
@@ -708,7 +707,7 @@ export default {
     .cap-content {
       display: flex;
       flex-direction: column;
-
+      margin-bottom: 24px;
       .label {
         font-size: 24px;
         font-family: PingFangSC, PingFang SC;

@@ -96,8 +96,11 @@
     </div>
 
 
-    <el-dialog :visible.sync="dialogVisible" width="50%" :before-close="beforeClose">
-      <img :src="bigImageUrl" style="width: 100%">
+    <el-dialog :visible.sync="dialogVisible" width="100%"  :fullscreen="true" :before-close="beforeClose">
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+        <img :src="bigImageUrl" style="width: 60%">
+      </div>
+     
     </el-dialog>
 
     <!-- 单品点单 -->

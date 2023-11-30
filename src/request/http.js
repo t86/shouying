@@ -18,7 +18,7 @@ instance.defaults.headers.post["Content-Type"] =
  */
 instance.interceptors.request.use(
   function (config) {
-    store.dispatch('setLoading', true); // 在请求开始时显示loading
+    // store.dispatch('setLoading', true); // 在请求开始时显示loading
     if (!canRequest(config.url) && !config.url.includes("/oss/pt")) return;
 
     if (localStorage.getItem("tk")) {
