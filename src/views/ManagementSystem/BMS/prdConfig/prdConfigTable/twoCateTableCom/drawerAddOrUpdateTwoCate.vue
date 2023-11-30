@@ -50,12 +50,12 @@
             </div>
             <div class="value" layout="column" layout-align="start start">
               <el-switch
-                v-model="switchValue"
+                v-model="isTimelimit"
               ></el-switch>
               <span class="color-red m-t-2">说明：开关关闭则表示全部时段都可以供应，开启后需配置供应时间段</span>
             </div>
           </div>
-          <div class="coll" layout="column" layout-align="start center" v-if="switchValue">
+          <div class="coll" layout="column" layout-align="start center" v-if="isTimelimit">
             <div class="coll" style="width: 100%;" layout="row" layout-align="start center" >
               <div class="label">
                 <span>供应时段:</span>
@@ -118,7 +118,7 @@ export default {
       oneCateInfo: {},
       twoCateName: "",
       requireList: [],
-      switchValue: false,
+      isTimelimit: false,
       period1: {
         start: '',
         end: ''
@@ -155,6 +155,15 @@ export default {
             ...item,
             checked: res.data.two_cate_info.rqm_types && res.data.two_cate_info.rqm_types.includes(item.id)
           }))
+          this.isTimelimit = res.data.two_cate_info.enable_time_limit == 1 ? true : false,
+          this.period1 = {
+            start: res.data.two_cate_info.begin_time,
+            end: res.data.two_cate_info.end_time
+          }
+          this.period2 = {
+            start: res.data.two_cate_info.begin_time2,
+            end: res.data.two_cate_info.end_time2
+          }
         } else {
           this.$message.warning(res.msg)
         }
@@ -206,7 +215,18 @@ export default {
         name: this.twoCateName || '',
         rqm_types: this.requireList.filter(item => item.checked).map(item => item.id * 1),
         ...this.type == 1 && {one_cate_id: this.oneCateInfo.id},
-        ...this.type == 2 && {id : this.currentInfo.id}
+        ...this.type == 2 && {id : this.currentInfo.id},
+        enable_time_limit: this.isTimelimit ? 1 : 2,
+        ...this.isTimelimit && 
+            {
+              begin_time: this.period1.start,
+              end_time: this.period1.end,
+              ...this.period2.start && {
+                begin_time2: this.period2.start,
+                end_time2: this.period2.end
+              },
+              
+            },
       };
       try {
         const api = this.type == 1 ? 'requesttcatenew' : 'requesttcatesave'
