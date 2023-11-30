@@ -48,10 +48,11 @@
             <div class="label">
               <span>开启时间段限制:</span>
             </div>
-            <div class="value">
+            <div class="value" layout="column" layout-align="start start">
               <el-switch
                 v-model="switchValue"
               ></el-switch>
+              <span class="color-red m-t-2">说明：开关关闭则表示全部时段都可以供应，开启后需配置供应时间段</span>
             </div>
           </div>
           <div class="coll" layout="column" layout-align="start center" v-if="switchValue">
@@ -59,25 +60,45 @@
               <div class="label">
                 <span>供应时段:</span>
               </div>
-              <el-button type="primary" class="m-l-2" @click="addTimePeriod">添加</el-button>
             </div>
             <div class="value" layout="column" layout-align="start center">
-              <div v-for="(period, index) in timePeriods" :key="index" class="coll" layout="row" layout-align="start center">
+              <div class="coll" layout="row" layout-align="start center">
+                <span class="color-red" style="width: 70px;">（必填）</span>
                 <el-time-picker
-                  v-model="period.start"
-                  style="width:268px;height:36px"
+                  v-model="period1.start"
+                  style="width:220px; height:36px"
                   placeholder="开始时段"
                   format="HH:mm"
                   value-format="HH:mm"
                 ></el-time-picker>
+              <!-- 画一条水平垂直居中，颜色为黑色，宽度20px的线 -->
+              <div style="width: 20px; height: 0.5px; background-color: #000; margin: 0 10px;"></div>
                 <el-time-picker
-                  v-model="period.end"
-                  style="width:268px;height:36px"
+                  v-model="period1.end"
+                  style="width:220px; height:36px"
                   placeholder="结束时段"
                   format="HH:mm"
                   value-format="HH:mm"
                 ></el-time-picker>
-                <el-button type="danger" icon="el-icon-delete" @click="removeTimePeriod(index)"></el-button>
+              </div>
+              <div class="coll" layout="row" layout-align="start center">
+              <span class="color-red" style="width: 70px;"></span>
+              <el-time-picker
+                v-model="period2.start"
+                style="width:220px; height:36px"
+                placeholder="开始时段"
+                format="HH:mm"
+                value-format="HH:mm"
+              ></el-time-picker>
+              <!-- 画一条水平垂直居中，颜色为黑色，宽度20px的线 -->
+              <div style="width: 20px; height: 0.5px; background-color: #000; margin: 0 10px;"></div>
+              <el-time-picker
+                v-model="period2.end"
+                style="width:220px; height:36px"
+                placeholder="结束时段"
+                format="HH:mm"
+                value-format="HH:mm"
+              ></el-time-picker>
               </div>
             </div>
           </div>
@@ -98,7 +119,14 @@ export default {
       twoCateName: "",
       requireList: [],
       switchValue: false,
-      timePeriods: [],
+      period1: {
+        start: '',
+        end: ''
+      },
+      period2: {
+        start: '',
+        end: ''
+      },
     };
   },
   methods: {
@@ -160,6 +188,18 @@ export default {
     },
 
     async onSubmit() {
+
+      // 判断period1的开始时间和结束时间不能和period2的开始时间和结束时间有重合，同时每个开始时间都必须小于结束时间
+      if(this.period1.start > this.period1.end || this.period2.start > this.period2.end) {
+        return this.$message.warning('开始时间不能大于结束时间')
+      }
+      if(this.period1.start > this.period2.start && this.period1.start < this.period2.end) {
+        return this.$message.warning('两个时间段不能有重合')
+      }
+      if(this.period1.end > this.period2.start && this.period1.end < this.period2.end) {
+        return this.$message.warning('两个时间段不能有重合')
+      }
+
       if (this.twoCateName.length <= 0)
         return this.$message.warning("请输入二级分类名称");
       const params = {
@@ -255,4 +295,6 @@ export default {
     width: 150px;
   }
 }
+
+
 </style>

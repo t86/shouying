@@ -422,6 +422,7 @@ export default {
         }
       } catch (error) {
         console.log("删除失败", error);
+        this.$message.warning("删除失败", error)
       }
     },
 

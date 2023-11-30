@@ -44,6 +44,11 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           status: el[2],  // 分类状态:1有效 2无效 3 删除
           dsp: el[3],  // 分类显示顺序
           oneCateId: el[4],  // 二级分类所属一级分类Id
+          enable_time_limit: el[5],// 开启时间段限制 1 开启 2 未开启,
+          begin_time: el[6], // 时间段1开始时间格式hh24:mi,
+          end_time: el[7],// 时间段1结束时间,
+          begin_time2: el[8],// 时间段2开始时间,
+          end_time2: el[9],// 时间段2结束时间
         })
       })
       break
