@@ -67,6 +67,10 @@ export default {
         {
           value: 2,
           label: "过期充公"
+        },
+        {
+          value: 5,
+          label: "库存充公"
         }
       ],
       keyword: "",
