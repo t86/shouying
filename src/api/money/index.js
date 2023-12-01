@@ -457,4 +457,7 @@ export default {
   reqExpCnlAccountRtnList: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_cnl_account_rtn_list`, params),
 
+
+  // 修改订单服务员
+  reqChgWkorderWaiter: (params) => axios.post(`${base.htgl}/sel/chg_wkorder_waiter`, params),
 };

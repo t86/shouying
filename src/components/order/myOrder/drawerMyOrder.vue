@@ -326,6 +326,29 @@
           </div>
         </div>
 
+        <div v-if="status == 11" class="my-order-drawer-content">
+          <!-- 表单 -->
+          <div class="form">
+            <el-form label-position="right" label-width="150px"  @submit.native.prevent>
+              <h3 class="m-b-4 m-l-4">修改下单人</h3>
+              <!-- 修改下单人 -->
+              <el-form-item  label="原下单人：">{{ formData.originName }}</el-form-item>
+              <el-form-item label="下单人：">
+                <input-select
+                  :autoFocus="true"
+                  style="width: 200px"
+                  :value="formData.sales.sales_name"
+                  placeholder="请输入姓名或工号"
+                  :optionsList="formData.sales.sales_info_option"
+                  @selectInputHandle="inputSealName"
+                  @selectOptionItem="changeSealName"
+                  @selectBlurHandle="selectBlurHandle"
+                ></input-select>
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+
         <!-- 批量提交优惠2 -->
         <drawerYH2Submit ref="drawerYH2Submit" :showDrawer="sealMany2Info.showYH2Drawer"
           :selectedProList="sealMany2Info.choosePrdList" :showSelfBtn="sealMany2Info.authLimits"
@@ -383,6 +406,12 @@ export default {
       formData: {
         radio: "1",
         reason: '',  // 原因
+        originName: '', // 原下单人
+        sales: {
+          sales_name: "", // 订位人名称
+          sales_emp_id: "", // 订位人id
+          sales_info_option: [], // 下单人下拉框选项
+        }, // 下单人
       },
 
       backOrder: {
@@ -434,12 +463,37 @@ export default {
         addDisabled,
         subDisabled
       },
-      formData: {
-        reason: '',
-      },
     };
   },
   methods: {
+
+     // 获取模糊查询订位人的相关信息
+     inputSealName(query) {
+      this.formData.sales.sales_name = query;
+      this.formData.sales.sales_phone = "";
+      this.formData.sales.sales_emp_id = "";
+      const sealInfoArr =
+        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      const results = query
+        ? sealInfoArr.filter(
+            (el) =>
+              el.code.toString().includes(query) ||
+              el.name.toString().includes(query) ||
+              el.namePy.toString().includes(query.toLowerCase())
+          )
+        : sealInfoArr;
+      this.formData.sales.sales_info_option = results;
+    },
+    // 选择订位人的信息
+    changeSealName(info) {
+      this.formData.sales.sales_name = info.name;
+      this.formData.sales.sales_phone = info.phoneNum;
+      this.formData.sales.sales_emp_id = info.id;
+      this.formData.sales.sales_info_option = [];
+    },
+    selectBlurHandle() {
+      this.formData.sales.sales_info_option = [];
+    },
     /**
      * 退单
      */
@@ -1100,6 +1154,28 @@ export default {
         case 10: // 取消优惠
           this.orderCancelDiscounts()
           break;
+        case 11: // 修改订位人
+          this.changeWkorderWaiter()
+          break
+      }
+    },
+
+    changeWkorderWaiter(){
+      try{
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+          order_id: this.currentItemInfo.id * 1, // int64   订单项Id
+          waiter_emp_id: this.formData.sales.sales_emp_id * 1, // string   订位人
+        };
+        const res = api_money.reqChgWkorderWaiter(params)
+        if (res.code == 1) {
+          this.$message.success('修改订位人成功');
+          this.onCancelDrawer(true);
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("修改订位人失败", error);
       }
     },
 
@@ -1472,6 +1548,9 @@ export default {
             break
           case 10: // 取消优惠
             this.formData.reason = "";
+            break;
+          case 11: // 修改下单人
+            this.formData.originName = this.currentItemInfo.personInfo.name;
             break;
         }
       } else {

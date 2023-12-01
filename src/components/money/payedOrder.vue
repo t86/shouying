@@ -335,6 +335,12 @@
                         >
                           取消优惠
                         </div>
+                        <div
+                          class="li"
+                          @click.stop="showOrHideUpdateDetailDrawer(item, 11)"
+                        >
+                          修改下单人
+                        </div>
                       </ul>
                     </div>
                   </div>
@@ -499,7 +505,7 @@ export default {
       }
     },
 
-    // 更改已支付套餐明细/更改优惠人 9修改优惠人
+    // 更改已支付套餐明细/更改优惠人 9修改优惠人 11 修改下单人
     showOrHideUpdateDetailDrawer(objInfo, status) {
       this.showUpdateDetailDrawer = !this.showUpdateDetailDrawer;
       if (objInfo) {

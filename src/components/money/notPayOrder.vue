@@ -57,7 +57,7 @@
                           <img src="@/assets/money-img/notOut.png" />
                         </span>
                       </div>
-                      <div class="td-td" :class="{'opacity':items.back}">{{items.productInfo.name}}</div>
+                      <div class="td-td" :class="{'opacity':items.back}">{{ items.productInfo.name }}</div>
                       <div class="td-td">
                         <img :src="imgSrc.subDisabled" />
                         <input type="number" disabled v-model="items.pc" />
@@ -175,7 +175,9 @@
                     <img src="@/assets/money-img/notOut.png" />
                   </span> -->
                 </div>
-                <div class="td">{{item.productInfo.name}}</div>
+                <div class="td">
+                  <h5>{{item.productInfo.name}}</h5>
+                  <h5 v-if="item.back">{{item.b + " - " + item.be}}</h5></div>
                 <div class="td">
                   <img
                     :src="item.back||item.changeCount==1||(item.at==2||item.at==3||item.at==5)||item.pp * 1==0?imgSrc.subDisabled:imgSrc.sub"
@@ -247,6 +249,9 @@
                       v-if="item.productInfo.prdType==2&&item.back"
                       @click.stop="showOrHideDrawer(5,item)"
                     >查看套餐明细</div>
+                    <div class="li"
+                      @click.stop="showOrHideDrawer(11,item)"
+                    >更改下单人</div>
                   </div>
 
                 </div>
@@ -531,9 +536,9 @@ export default {
     showOrHideDrawer(status, objInfo = {}) {
       this.drawer.showDrawer = !this.drawer.showDrawer;
       if (!objInfo && status < 6) return;
-      // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单 9：修改优惠人
+      // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单 9：修改优惠人 11：修改下单人
       this.drawer.status = status;
-      if(status < 6 || status == 9) this.drawer.currentItemInfo = {...objInfo};
+      if(status < 6 || status == 9 || status == 11) this.drawer.currentItemInfo = {...objInfo};
     },
 
     // 关闭批量退单drawer
