@@ -361,8 +361,16 @@
                 <img :src="imgSrc.turnOver" alt />
                 <span>转台记录</span>
               </div>
+              <div
+                class="option-item"
+                @click="showOrHideReservedRecordDrawerHandle"
+              >
+                <img :src="imgSrc.openCard" alt />
+                <span>预留记录</span>
+              </div>
               <img :src="imgSrc.sanJiao" alt />
             </div>
+
           </div>
 
           <div class="dosomething-item" @click.stop="legendOptionHandle('pwd')">
@@ -435,6 +443,12 @@
       @showOrHideDrawer="showOrHideTurnOverDrawerHandle"
     />
 
+    <!-- 预留记录 -->
+    <drawerReservedRecord
+      :showDrawer="showReservedRecordDrawer"
+      @showOrHideDrawer="showOrHideReservedRecordDrawerHandle"
+    />
+
     <!-- 修改密码 -->
     <updatePassword
       ref="updatePassword"
@@ -451,6 +465,7 @@ import cardDrawer from "@/components/book/machine/cardDrawer"; // 抽屉组件
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏表格
 import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"; // 开台记录
 import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"; // 转台记录
+import drawerReservedRecord from '@/components/book/machine/drawerReservedRecord.vue'; // 预留记录
 import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
 
 import api_card from "@/api/Book";
@@ -487,6 +502,7 @@ export default {
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showOpenCardDrawer: false, // 是否显示卡台记录drawer
       showTurnOverDrawer: false, // 是否显示转台记录drawer
+      showReservedRecordDrawer: false, // 是否显示预留记录drawer
       dateTab: {
         dateTabList: [],
         activeIndex: 0,
@@ -1298,7 +1314,7 @@ export default {
     getOptionsPosition(index) {
       this.$nextTick(() => {
         const cardDom = this.$refs.cardOptions;
-        if (cardDom.length === 0) return false;
+        if (!cardDom || cardDom.length === 0) return false;
         // console.log(cardDom[0]);
 
         // 设置最小上下偏移量
@@ -1409,6 +1425,13 @@ export default {
      */
     showOrHideTurnOverDrawerHandle() {
       this.showTurnOverDrawer = !this.showTurnOverDrawer;
+    },
+
+    /**
+     * 显示或隐藏预留记录
+     */
+     showOrHideReservedRecordDrawerHandle() {
+      this.showReservedRecordDrawer = !this.showReservedRecordDrawer;
     },
 
     /**
@@ -1671,6 +1694,7 @@ export default {
     drawerOpenCard, // 开台记录
     drawerTurnOver, // 转台记录
     updatePassword, // 修改密码
+    drawerReservedRecord, // 预留记录
   },
 
   filters: {

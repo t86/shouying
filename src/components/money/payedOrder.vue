@@ -70,7 +70,7 @@
                   layout="row"
                   layout-align="start center"
                 >
-                  <span style="width: 70px">结账时间:</span>{{ item.pt }}
+                  <span style="width: 70px">结账时间:</span>{{ item.pt || '' }}
                 </p>
             </div>
           </div>
