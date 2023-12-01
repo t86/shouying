@@ -254,6 +254,7 @@
 <script>
 import api_vip from "@/api/vip";
 import api_saveWine from "@/api/saveWine";
+import api_wine from "@/api/wine";
 import keyBoard from "@/components/common/keyBoard.vue";
 export default {
   data() {
@@ -419,7 +420,7 @@ export default {
       this.emitStepOneInfoHandle();
     },
 
-    emitStepOneInfoHandle() {
+    async emitStepOneInfoHandle() {
       this.$emit("updateStepInfo", {
         ...JSON.parse(JSON.stringify(this.stepOneInfo)),
         orderList: [...this.tableData],
@@ -438,15 +439,42 @@ export default {
       if (this.tabIndex == 2) {
         if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
         if (this.phoneNum.toString().length == 11) {
+          let isBalck = await this.validateBlackList(this.phoneNum.toString())
+          if(isBalck) {
+            return
+          }
           this.getOrderCanSaveWine();
         }
       }
       if (this.tabIndex == 3) {
         if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
         if (this.customPhoneNum.toString().length == 11) {
+          let isBalck = await this.validateBlackList(this.phoneNum.toString())
+          if(isBalck) {
+            return
+          }
           this.getOrderCanSaveWine();
         }
       }
+    },
+
+    // 手机号验证
+    async validateBlackList(phoneNumber) {
+      const params = {
+        key: phoneNumber, //   string   搜索关键字
+      };
+
+      try {
+        const res = await api_wine.reqGetBlackList(params);
+        if (res.code == 1 && res.data.records && res.data.records.length > 0) {
+          this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
+          return false;
+        }
+      } catch (error) {
+        this.$message.warning("黑名单服务验证异常，稍后重试");
+        return false;
+      }
+      return true;
     },
 
     // 获取订单流水可存酒水
