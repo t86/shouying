@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 查看我的下级 -->
+    <!-- 查看我的替身 -->
     <el-drawer
       :title="title"
       :visible.sync="show"
@@ -62,7 +62,7 @@ export default {
     // 获取获取指定员工的下级(
     async getTableData(){
       try {
-        const res = await this.$api.BMS.emp.reqGetMySubList({
+        const res = await this.$api.BMS.emp.reqGetMyCloneList({
           id: this.id * 1 // int64  员工Id
         })
         if (res.code == 1){
@@ -90,7 +90,7 @@ export default {
   },
   computed: {
     title() {
-      return '我的下级'
+      return '我的替身'
     },
 
     size() {

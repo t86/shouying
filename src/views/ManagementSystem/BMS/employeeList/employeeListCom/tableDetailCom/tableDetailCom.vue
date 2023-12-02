@@ -152,17 +152,17 @@
       <el-input v-model="searchKey" placeholder="姓名/工号/岗位"  clearable  style="width:200px; background: white" @change="getEmpTableList"></el-input>
       <el-button type="primary" size="small" @click="getEmpTableList" style="margin-left: 15px;">查询</el-button>
       <characters-button
-          @click.native="addOrUpdateHandle(23)"
+          @click.native="addOrUpdateHandle(24)"
           colors="#383943"
           wz="我的下级"
       ></characters-button>
       <characters-button
-        @click.native="addOrUpdateHandle(23)"
+        @click.native="addOrUpdateHandle(25)"
         colors="#383943"
         wz="我的替身"
       ></characters-button>
       <characters-button
-        @click.native="addOrUpdateHandle(23)"
+        @click.native="addOrUpdateHandle(26)"
         colors="#383943"
         wz="我的同组"
       ></characters-button>
@@ -290,15 +290,18 @@
       />
       <!-- 我的下级 -->
       <drawerMySubordinates
-        v-model="showMySubordinatesDrawer"/>
+        v-model="showMySubordinatesDrawer"
+        :id="currentInfo.id"/>
 
       <!-- 我的替身 -->
-      <drawerMySubstitutes
-        v-model="showMySubstitutesDrawer"/>
+      <drawerMyClones
+        v-model="showMyClonesDrawer"
+        :id="currentInfo.id"/>
 
       <!-- 我的同组 -->
       <drawerMySameGroup
-        v-model="showMySameGroup"/>
+        v-model="showMySameGroup"
+        :id="currentInfo.id"/>
 
       <!-- 制卡/清卡操作模态框 -->
       <div
@@ -352,6 +355,7 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
@@ -380,7 +384,8 @@ export default {
 
       showBindEmpDrawer: false, // 绑定员工
       showMySubordinatesDrawer: false, // 我的下级
-      showMySubstitutesDrawer: false, // 我的替身
+      showMyClonesDrawer: false, // 我的替身
+      showMySameGroup: false, // 我的同组
 
       currentBindPersonInfo: {}, // 当前绑定的员工信息
 
@@ -462,7 +467,25 @@ export default {
           }
           this.showAddOrUpdateDrawer = true;
           break;
-
+        case 24:
+          // 我的下级
+        case 25:
+        // 我的替身
+        case 26:
+        // 我的同组
+          const checkedList = this.employeeTableData.filter((item) => item.checked);
+          if (checkedList.length != 1)
+            return this.$message.warning("请选择一个进行查看");
+          this.currentInfo = { ...checkedList[0] };
+          console.log(this.currentInfo)
+          if (type == 24) {
+            this.showMySubordinatesDrawer = true;
+          } else if (type == 25) {
+            this.showMyClonesDrawer = true;
+          } else if (type == 26) {
+            this.showMySameGroup = true;
+          }
+          break;
       }
     },
 
@@ -604,8 +627,8 @@ export default {
     },
 
     // 显示或隐藏我的替身的drawer
-    showMySubstitutesDrawerHandle(itemInfo = {}) {
-      this.showMySubstitutesDrawer = !this.showMySubstitutesDrawer;
+    showMyClonesDrawerHandle(itemInfo = {}) {
+      this.showMyClonesDrawer = !this.showMyClonesDrawer;
     },
 
     /**
@@ -802,9 +825,9 @@ export default {
     drawerImportEmp: () => import("./drawerCom/drawerImportEmp.vue"),
     drawerBindEmp: () => import("./drawerCom/drawerBindEmp.vue"),
     drawerMySubordinates: () => import("./drawerCom/drawerMySubordinates.vue"),
-    drawerMySubstitutes: () => import("./drawerCom/drawerMySubstitutes.vue"),
+    drawerMyClones: () => import("./drawerCom/drawerMyClones.vue"),
     drawerMySameGroup: () => import("./drawerCom/drawerMySameGroup.vue"),
-  },
+},
 
   watch: {
     $route(newVal) {

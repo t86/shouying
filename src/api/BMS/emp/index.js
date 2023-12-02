@@ -110,15 +110,15 @@ const article = {
 
 
   // 获取我的下级
-  reqGetMySubList: params => axios.post(`${base.htgl}/emp/get_my_sub_list`, params),
+  reqGetMySubList: params => axios.post(`${base.htgl}/emp/get_emp_sub_list`, params),
 
 
   // 获取我的替身
-  reqGetMyCloneList: params => axios.post(`${base.htgl}/emp/get_my_clone_list`, params),
+  reqGetMyCloneList: params => axios.post(`${base.htgl}/emp/get_emp_clone_list`, params),
 
 
   // 获取我的同组
-  reqGetMyEqList: params => axios.post(`${base.htgl}/emp/get_my_eq_list`, params),
+  reqGetMyEqList: params => axios.post(`${base.htgl}/emp/get_emp_eq_list`, params),
 
 }
 export default article;

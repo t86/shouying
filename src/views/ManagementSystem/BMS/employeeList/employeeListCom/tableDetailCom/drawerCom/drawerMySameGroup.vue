@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 绑定员工 -->
+    <!-- 查看我的同级 -->
     <el-drawer
       :title="title"
       :visible.sync="show"
@@ -9,17 +9,43 @@
       append-to-body
       :size="size"
     >
-      <div class="session p-5 erp-lib-detail fs14" style="width:100%;height:80%">
-        <div v-if="currentBindPersonInfo.bs=='未绑定'" style="width:100%;height:100%" layout="column" layout-align="center center" >
-          <img width="300" :src="QRBindImgSrc" />
-          <h3 style="line-height:60px;text-align:center">请‘{{currentBindPersonInfo.n}}’用微信扫描二维码进行绑定</h3>
-          <p class="red-color">备注：二维码在15分钟内有效</p>
+    <!--         
+        e          string     //EmpName 员工姓名,前面会有空格表示层次, 需要对空格进行处理, 让页面能展示
+        d          string     //DeptName 部门姓名
+        c          string     //EmpCode 员工工号
+      -->
+    <div class="table-content table2">
+        <div class="table">
+          <div class="thead">
+            <div class="tr" layout="row" layout-align="start center">
+              <div class="th">序号</div>
+              <div class="th">员工姓名</div>
+              <div class="th">部门名称</div>
+              <div class="th">员工工号</div>
+            </div>
+          </div>
+          <div class="tbody">
+            <div
+              class="tr"
+              v-for="(item, index) in tableData"
+              :key="index"
+              layout="row"
+              layout-align="start center"
+            >
+              <div class="td">{{ index + 1 }}</div>
+              <div class="td">{{ item.e }}</div>
+              <div class="td">{{ item.d }}</div>
+              <div class="td">{{ item.c }}</div>
+            </div>
+            <div class="no-data" v-if="tableData.length == 0">
+              <img src="@/assets/img/wu.png" alt />
+              <p>暂无数据</p>
+            </div>
+          </div>
         </div>
-        <h3 v-else style="line-height:60px">是否确认解除绑定？</h3>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="" @click.stop="onCancelDrawer">{{currentBindPersonInfo.bs=='未绑定'?'关闭':'取消'}}</el-button>
-        <el-button v-if="currentBindPersonInfo.bs!='未绑定'" type="primary" @click.native="unBindEmpHandle">确认</el-button>
+        <el-button type="primary" @click.native="onCancelDrawer">关闭</el-button>
       </div>
     </el-drawer>
   </div>
@@ -29,46 +55,23 @@
 export default {
   data() {
     return {
-      QRBindImgSrc: ''
+      tableData: [],
     };
   },
   methods: {
-    // 获取绑定员工二维码
-    async getBindQRcode(){
-      const params = {
-        emp_id: this.currentBindPersonInfo.id * 1 //  int64   员工Id
-      }
-
+    // 获取获取指定员工的下级(
+    async getTableData(){
       try {
-        const res = await this.$api.BMS.emp.reqGetEmpQrCode(params)
-        if (!res.msg){
-          const blob = new Blob([res]);
-          const url = URL.createObjectURL(blob)
-          this.QRBindImgSrc = url;
-        } else {
-          this.$message.warning(res.msg)
-        }
-      } catch (error) {
-        console.log('绑定员工二维码获取失败', error)
-      }
-    },
-
-    // 解绑
-    async unBindEmpHandle(){
-      const params = {
-        emp_id: this.currentBindPersonInfo.id * 1 //  int64   员工Id
-      }
-      try {
-         const res = await this.$api.BMS.emp.reqUnbindEmp(params)
+        const res = await this.$api.BMS.emp.reqGetMyEqList({
+          id: this.id * 1 // int64  员工Id
+        })
         if (res.code == 1){
-          this.$message.success('解绑成功')
-          this.onCancelDrawer()
-          this.$emit('getEmpTableList')
+          this.tableData = res.data.records || []
         } else {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-          console.log('解绑员工失败', error)
+        console.log('获取我的下级失败', error)
       }
     },
 
@@ -81,13 +84,13 @@ export default {
     value: {
       default: false // 是否显示drawer
     },
-    currentBindPersonInfo:{
-      default: () => ({})
+    id:{
+      default: '' // 员工id
     }
   },
   computed: {
     title() {
-      return '绑定员工'
+      return '我的同组'
     },
 
     size() {
@@ -98,7 +101,6 @@ export default {
       get() {
         return this.value;
       },
-
       set(val) {
         this.$emit("input", val);
       }
@@ -108,7 +110,8 @@ export default {
     value: {
       handler(newVal) {
         if (newVal) {
-          this.getBindQRcode()
+          this.show = newVal;
+          this.getTableData();
         }
       },
       immediate: true

@@ -103,6 +103,13 @@ const article = {
   // 图片检测页面上传商品图片
   reqUploadSingleImg: params => axios.post(`${base.htgl}/prd/upload_pic`, params),
 
+
+  // 商品管理-批量上传商品图片页面上传商品默认图片
+  reqSavePrdDefPic: params => axios.post(`${base.htgl}/prd/save_prd_def_pic`, params),
+
+  // 商品管理-获取商品默认图片
+  reqGetPrdDefPic: params => axios.post(`${base.htgl}/prd/get_prd_def_pic`, params),
+
   /**
    * 批量导入商品（excel）
    */

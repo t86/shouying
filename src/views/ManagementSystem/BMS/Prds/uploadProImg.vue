@@ -10,7 +10,8 @@
     </ul>
     <div class="content">
       <uploadImg v-if="active==0" />
-      <proList v-else />
+      <proList v-else-if="active==1" />
+      <prodDefaultImg v-else />
     </div>
   </div>
 </template>
@@ -18,16 +19,18 @@
 <script>
 import uploadImg from "./uploadProImgCom/uploadImg.vue";
 import proList from "./uploadProImgCom/proList.vue";
+import prodDefaultImg from './uploadProImgCom/prodDefaultImg.vue';
 export default {
   data() {
     return {
-      tabList: ["批量上传图片", "图片检测"],
+      tabList: ["批量上传图片", "图片检测", "商品默认图片"],
       active: 0
     };
   },
   components: {
     uploadImg,
-    proList
+    proList,
+    prodDefaultImg
   }
 };
 </script>

@@ -512,7 +512,15 @@
         @nextHandle="getChoosePayList"
         @showOrHideDrawer="showOrHideChooseVipCardDrawer"
       />
+
     </el-drawer>
+
+    <el-dialog class="custom-dialog" title="提示" :visible="showConsumed" append-to-body @close="showConsumed =false">
+        <h3>{{ consumeMessage }}</h3>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="showConsumed =false">关闭</el-button>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -575,6 +583,8 @@ export default {
       imgSrc: {
         arrowBottom,
       },
+      consumeMessage: "", // 消费提示信息
+      showConsumed: false, // 是否显示消费提示信息
     };
   },
   methods: {
@@ -682,6 +692,9 @@ export default {
         if (res.code == 1) {
           this.$message.success("加入成功");
           this.getChoosePayList();
+        } else if (res.code == 2) {
+          this.showConsumed = true
+          this.consumeMessage = res.msg;
         } else {
           this.$message.warning(res.msg);
         }
@@ -1084,6 +1097,9 @@ export default {
       if (res.code == 1) {
         this.$message.success("加入成功");
         this.getChoosePayList();
+      } else if (res.code == 2) {
+        this.showConsumed = true
+        this.consumeMessage = res.msg;
       } else {
         this.$message.warning(res.msg);
       }
@@ -1249,4 +1265,7 @@ export default {
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/money/drawerPayMoney.less";
 @import "../../style/common/scrollBar.less";
+</style>
+
+<style scoped lang="less">
 </style>

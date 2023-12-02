@@ -248,6 +248,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         resultArr.push({
           status: '1',  // 1：有效
           wkday_id: el[0],  // 营业日Id: 如果=0 表示营业日未开启 <>0 表示当前营业日id(需与本地存储的营业日id进行比较,如果不一致,需重新拉取 类型14的业务数据
+          pic_prefix_url: el[1],  // 图片前缀地址
         })
       })
       break
