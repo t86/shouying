@@ -7,7 +7,7 @@
       </div>
       
       <div class="orso">
-        <el-button type="primary" @click.stop="changeKeyboard">{{ isKeyBoard ? '关闭系统键盘' : '开启系统键盘' }}</el-button>
+        <el-button v-if="showKeyboard" type="primary" @click.stop="changeKeyboard">{{ isKeyBoard ? '关闭系统键盘' : '开启系统键盘' }}</el-button>
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
             <!-- {{activeNames}} -->
@@ -161,6 +161,9 @@ export default {
      // 是否有空瓶仓权限
      hasEmptyManage(){
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
+    },
+    showKeyboard(){ 
+      return window.atool && window.atool.getTermType() == "android"
     },
     ...mapState(["name"])
   },
