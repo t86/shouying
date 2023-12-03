@@ -5,27 +5,27 @@
 export const keyboardMixins = {
     methods: {
         keyboardShow(refString) {
-            if (
-                window.atool
-                && window.atool.getTermType() == "android" &&
-                ("showSoftInput" in window.atool)
-            ) {
-                atool.showSoftInput();
-                atool.executeJs(`this.$refs.${refString}.focus()`)
+            // if (
+            //     window.atool
+            //     && window.atool.getTermType() == "android" &&
+            //     ("showSoftInput" in window.atool)
+            // ) {
+            //     atool.showSoftInput();
+            //     atool.executeJs(`this.$refs.${refString}.focus()`)
         
-            }
+            // }
         },
         keyboardLeave() {
-            setTimeout(() => {
-                if (
-                window.atool
-                && window.atool.getTermType() == "android" &&
-                ("hideSoftInput" in window.atool)
-                ) {
-                atool.hideSoftInput();
-                atool.restart();
-                }
-            }, 10)
+            // setTimeout(() => {
+            //     if (
+            //     window.atool
+            //     && window.atool.getTermType() == "android" &&
+            //     ("hideSoftInput" in window.atool)
+            //     ) {
+            //     atool.hideSoftInput();
+            //     atool.restart();
+            //     }
+            // }, 10)
         },
     }
 }

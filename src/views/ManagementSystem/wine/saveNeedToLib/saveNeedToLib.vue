@@ -1,11 +1,13 @@
 <template>
 <!-- 存酒待入库 -->
   <div class="save-lib">
-    <div class="top">
-      <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" 
-      @blur="keyboardLeave" 
-      @click="keyboardShow('keywordReqInput')" ref="keywordReqInput"
-      placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
+    <div class="top" layout="row" layout-align="start center">
+      <div @click.stop="keyboardShow('keywordReqInput')" >
+        <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" autofocus
+        @blur="keyboardLeave" 
+        ref="keywordReqInput"
+        placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
+      </div>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
@@ -226,7 +228,7 @@ export default {
     showEditDrawerHandle(itemInfo){
       this.currentSaveInfo = {...itemInfo}
       this.showEditDrawer = true
-    }
+    },
   },
   created() {
     this.getTableData()

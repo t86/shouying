@@ -5,7 +5,9 @@
         <img src="@/assets/img/logo.png" style="visibility:hidden" alt />
         <div class="header">{{header}}</div>
       </div>
+      
       <div class="orso">
+        <el-button type="primary" @click.stop="changeKeyboard">{{ isKeyBoard ? '关闭系统键盘' : '开启系统键盘' }}</el-button>
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
             <!-- {{activeNames}} -->
@@ -147,7 +149,8 @@ export default {
         }
       ], // 列表
       activeNames: "0", //点开了第几个
-      nr: []
+      nr: [],
+      isKeyBoard: false // 是否开启系统键盘
     };
   },
   mounted() {
@@ -162,6 +165,30 @@ export default {
     ...mapState(["name"])
   },
   methods: {
+    changeKeyboard() {
+      if(this.isKeyBoard) {
+        if (window.atool&& window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)) {
+          setTimeout(() => {
+            atool.hideSoftInput();
+            atool.restart();
+            }, 10)
+        } else {
+          this.$message.warning("当前设备不支持系统键盘, 请找实施人员升级应用");
+          return;
+        }
+      } else {
+        if (window.atool && window.atool.getTermType() == "android" &&
+          ("showSoftInput" in window.atool)) {
+            atool.showSoftInput();
+        } else {
+          this.$message.warning("当前设备不支持系统键盘, 请找实施人员升级应用");
+          return;
+        }
+      }
+      this.isKeyBoard = !this.isKeyBoard;
+    },
+
     initNavBarActive(paramsStr = "") {
       if (localStorage.getItem("navigation")) {
         var nums = localStorage.getItem("navigation").split(",");
