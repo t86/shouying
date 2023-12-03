@@ -604,6 +604,7 @@ export default class WebSocketClient {
           sessionStorage.getItem("client") == "money" ||
           sessionStorage.getItem("client") == "order" ||
           sessionStorage.getItem("client") == "vip" ||
+          sessionStorage.getItem("client") == "erp" ||
           sessionStorage.getItem("client") == "book"
         ) {
           this.connect();
