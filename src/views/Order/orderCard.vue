@@ -1003,7 +1003,6 @@ export default {
         el.showOption = false;
       });
 
-      const filterArr = targetCardList.filter((item) => item[key] == id);
       /*
       对targetCardList返回的cardlist进行重新排序，按照tabListOrigin中regionId对应的dsp从小到大排，并且regionId一样的排在一起，regionId一样时，根据targetCardList的dsp从小到大排
       */
@@ -1017,6 +1016,8 @@ export default {
           }))
         }
       });
+      targetCardList = sortCardList;
+      const filterArr = targetCardList.filter((item) => item[key] == id);
       return id == 2001
         ? this.getMyCardList()
         : id == 0

@@ -5,13 +5,11 @@
       <router-view></router-view>
     </div>
 
-    <footBar ref="footBarRef" v-if="!isOrderMeal" />
-    <newFootBar ref="footBarRef" v-else />
+    <newFootBar ref="footBarRef"/>
   </div>
 </template>
 
 <script>
-import footBar from '@/components/order/footBar';
 import newFootBar from '@/components/order/newFootBar'
 export default {
   data() {
@@ -30,7 +28,6 @@ export default {
   },
   props: ['String'],
   components: {
-    footBar,
     newFootBar
   },
   filters: {

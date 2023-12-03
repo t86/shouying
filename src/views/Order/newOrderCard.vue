@@ -835,6 +835,20 @@ export default {
         el.showOption = false;
       });
 
+            /*
+      对targetCardList返回的cardlist进行重新排序，按照tabListOrigin中regionId对应的dsp从小到大排，并且regionId一样的排在一起，regionId一样时，根据targetCardList的dsp从小到大排
+      */
+
+      let sortCardList = []
+      this.tab.tabListOrigin && this.tab.tabListOrigin.forEach((item) => {
+        const find = targetCardList.filter((el) => el.regionId == item.id);
+        if (find.length > 0) {
+          sortCardList.push(...find.sort((a, b) => {
+            return a.dsp - b.dsp;
+          }))
+        }
+      });
+      targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
       return id == 2001
         ? this.getMyCardList()
