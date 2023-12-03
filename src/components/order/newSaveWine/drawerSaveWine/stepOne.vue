@@ -1,0 +1,551 @@
+<template>
+  <div class="step-one">
+    <!-- 选择流水 -->
+    <div class="choose">
+      <div class="label">
+        <span class="red">*</span>
+        <span>选择流水</span>
+      </div>
+      <div class="table-content m-t-3">
+        <div class="table">
+          <div class="thead">
+            <div class="tr" layout="row" layout-align="space-between center">
+              <div class="th">序号</div>
+              <div class="th">开台时间</div>
+              <div class="th">订位人</div>
+            </div>
+          </div>
+          <div class="tbody">
+            <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in tableData"
+              :key="item.id">
+              <div class="td">
+                <el-checkbox v-model="item.checked" @change="changeCheckBox(item)">{{ index + 1 }}</el-checkbox>
+              </div>
+              <div class="td" style="font-size: 20px; font-weight: 400;">{{ item.o }}</div>
+              <div class="td" style="font-size: 20px; font-weight: 400;">{{ item.s }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-info m-t-6">
+        <div class="label">
+          <span class="red">*</span>
+          <span>客人信息</span>
+        </div>
+        <div class="info-detail m-t-3" :layout="isRect ? 'row' : 'column'"
+          :layout-align="isRect ? 'center start' : 'center center'">
+          <div class="info-tab">
+            <div class="tab" layout="row" layout-align="start center">
+              <div class="tab-item m-r-3" :class="{ active: tabIndex == 2 }"
+                @click="
+                  tabIndex = 2;
+                focus = 0;
+                                                                                                                                                                                                                          ">
+                手机号
+              </div>
+              <div class="tab-item m-r-3" :class="{ active: tabIndex == 1 }"
+                @click="
+                  tabIndex = 1;
+                focus = 0;
+                                                                                                                                                                                                                          ">
+                服务码
+              </div>
+
+              <div class="tab-item m-r-3" :class="{ active: tabIndex == 3 }"
+                @click="
+                  tabIndex = 3;
+                focus = 0;
+                                                                                                                                                                                                                          ">
+                客户中心存酒
+              </div>
+              <div v-if="stepOneInfo.needAuthPhoneVal" class="tab-item" :class="{ active: tabIndex == 4 }"
+                @click="
+                  tabIndex = 4;
+                focus = 0;
+                                                                                                                                                                                                                          ">
+                超级授权码
+              </div>
+            </div>
+            <div class="tab-content m-t-6">
+              <div v-if="tabIndex == 1" class="m-b-6">
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label" style="position: relative">
+                    <span class="red-color" style="position: absolute; left: -12px">*</span>
+                    <span>服务码</span>
+                  </div>
+                  <div class="value">
+                    <input v-model="authValidateVal" :class="{ focus: focus == 1 }" @click="focus = 1"
+                      @input="emitStepOneInfoHandle" placeholder="请输入服务码" />
+                  </div>
+                </div>
+              </div>
+              <div v-if="tabIndex == 2" class="m-b-6">
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label" style="position: relative">
+                    <span class="red-color" style="position: absolute; left: -12px">*</span>
+                    <span>手机号码</span>
+                  </div>
+                  <div class="value">
+                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2"
+                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
+                    <el-button v-if="stepOneInfo.needAuthPhoneVal" style="position: absolute; left: 280px;background: #374368;
+      box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+      border-radius: 8px;font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 500;
+    color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60" size="small"
+                      @click="sendPhoneMessage">{{ btnText }}</el-button>
+                  </div>
+                </div>
+                <div class="coll" v-if="stepOneInfo.needAuthPhoneVal" layout="row" layout-align="start center">
+                  <div class="label">验证码</div>
+                  <div class="value">
+                    <input v-model="validateVal" :class="{ focus: focus == 3 }" @click="focus = 3"
+                      @input="emitStepOneInfoHandle" placeholder="请输入验证码" />
+                  </div>
+                </div>
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label">客人姓名</div>
+                  <div class="value" @click="keyboardShow(11, 'customName')">
+                    <input @blur="keyboardLeave" ref="customName" v-model="customName" :class="{ focus: focus == 10 }"
+                      @click="focus = 10" @input="emitStepOneInfoHandle" placeholder="请输入客户姓名" />
+                  </div>
+                </div>
+              </div>
+              <div v-if="tabIndex == 3" class="m-b-6">
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label" style=" position: relative">
+                    <span class="red-color" style="position: absolute; left: -12px">*</span>
+                    <span>手机号码</span>
+                  </div>
+                  <div class="value">
+                    <input v-model="customPhoneNum" :class="{ focus: focus == 4 }" @click="focus = 4"
+                      @input="emitStepOneInfoHandle" placeholder="请输入客户手机号" />
+                  </div>
+                </div>
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label">客人姓名</div>
+                  <div class="value" @click="keyboardShow(11, 'customPhoneName')">
+                    <input @blur="keyboardLeave" ref="customPhoneName" v-model="customPhoneName"
+                      :class="{ focus: focus == 11 }" @input="emitStepOneInfoHandle" placeholder="请输入客户姓名" />
+                  </div>
+                </div>
+
+                <div class="red m-t-2" style="font-size: 18px;">
+                  手机号仅用于区分客人信息，做备注用；不会发送短信
+                </div>
+              </div>
+              <div v-if="tabIndex == 4" class="m-b-6">
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label">手机号</div>
+                  <div class="value">
+                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2"
+                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
+                  </div>
+                </div>
+                <div class="coll" layout="row" layout-align="start center">
+                  <div class="label">授权码</div>
+                  <div class="value">
+                    <input v-model="superValidate" :class="{ focus: focus == 5 }" @click="focus = 5"
+                      @input="emitStepOneInfoHandle" placeholder="请输入超级授权码" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="width: 280px">
+            <keyBoard v-if="focus != 10 && focus != 11" @changeNum="changeNumHandle" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import api_vip from "@/api/vip";
+import api_saveWine from "@/api/saveWine";
+import keyBoard from "@/components/common/newKeyBoard";
+export default {
+  data() {
+    return {
+      isRect: true, // 是否为横屏
+      focus: 1,
+      timer: null,
+      count: 60, // 验证码倒计时
+      tableData: [],
+      selectedInfo: {},
+      tabIndex: 1,
+      authValidateVal: "", // 服务码
+      phoneNum: "", // 手机号
+      validateVal: "", // 验证码
+      customPhoneNum: "", // 客户手机号
+      customPhoneName: "", // 客户中心客户姓名
+      superValidate: "", // 超级授权码
+      customName: "", // 客户名称
+    };
+  },
+  methods: {
+    interValHandle() {
+      const storageSecondCount = this.$sessionStorage.getItem("secondCount"); // 获取发送短信时的时间戳
+      const now = +new Date();
+      const oneMinute =
+        +new Date("2023/05/25 12:01:00") - +new Date("2023/05/25 12:00:00");
+      if (now - storageSecondCount < oneMinute) {
+        // 倒计时为结束接着倒计时
+        this.count =
+          ((oneMinute - (now - storageSecondCount)) / (oneMinute / 60)).toFixed(
+            0
+          ) * 1;
+        this.loopSecond();
+      } else {
+        this.count = 60;
+      }
+    },
+    // 发送验证码
+    async sendPhoneMessage() {
+      if (this.count != 60) return;
+      const params = {
+        t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
+        m: this.phoneNum, //  string   手机号
+      };
+      if (params.m.length != 11)
+        return this.$message.warning("请输入正确的11位手机号");
+      try {
+        let res = await api_saveWine.reqCheckBlackPhone({
+          p: this.phoneNum,
+        });
+
+        res = await api_vip.reqSendPhoneMsg(params);
+        if (res.code == 2) {
+          this.$message.warning("短信发送失败：" + res.msg);
+        }
+        if (res.code == 1) {
+          this.$message.success("验证码发送成功");
+          this.count--;
+          this.loopSecond();
+          this.$sessionStorage.setItem("secondCount", (+new Date()).toString());
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("发送验证码失败", error);
+      }
+    },
+
+    keyboardShow(focusIndex, refString) {
+      this.focus = focusIndex
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        atool.showSoftInput();
+        atool.executeJs(`this.$refs.${refString}.focus()`)
+
+      }
+    },
+    keyboardLeave() {
+      setTimeout(() => {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.hideSoftInput();
+          atool.restart();
+        }
+      }, 10)
+    },
+    // 倒计时
+    loopSecond() {
+      if (this.timer) clearInterval(this.timer);
+      this.timer = setInterval(() => {
+        this.count--;
+        if (this.count == 0) {
+          clearInterval(this.timer);
+          this.count = 60;
+        }
+      }, 1000);
+    },
+
+    blueHandle() {
+      this.focus = 0;
+    },
+
+    addInputHandle(value) {
+      if (this.focus == 10) {
+        this.customName = this.customName.toString() + value.toString();
+      } else {
+        this.customPhoneName =
+          this.customPhoneName.toString() + value.toString();
+      }
+      this.emitStepOneInfoHandle();
+    },
+
+    subInputHandle() {
+      if (this.focus == 10) {
+        // 手机号存酒
+        if (this.customName == "") return;
+        this.customName = this.customName.toString().slice(0, -1);
+      }
+
+      if (this.focus == 11) {
+        // 客户中心存酒
+        if (this.customPhoneName == "") return;
+        this.customPhoneName = this.customPhoneName.toString().slice(0, -1);
+      }
+      this.emitStepOneInfoHandle();
+    },
+
+    changeNumHandle(value) {
+      if (!this.focus) return;
+      let count = "";
+      if (this.focus == 1) count = "authValidateVal";
+      else if (this.focus == 2) count = "phoneNum";
+      else if (this.focus == 3) count = "validateVal";
+      else if (this.focus == 4) count = "customPhoneNum";
+      else if (this.focus == 5) count = "superValidate";
+      switch (value) {
+        case 10: // 清空
+          this[count] = "";
+          break;
+        case 12: // 回退(
+          this[count] =
+            this[count].toString().slice(0, this[count].toString().length - 1) *
+            1;
+          break;
+        default:
+          this[count] = this[count].toString() + value * 1;
+          break;
+      }
+      this.emitStepOneInfoHandle();
+    },
+    changeCheckBox(itemInfo) {
+      this.selectedInfo = { ...itemInfo };
+      this.tableData = this.tableData.map((item) => ({
+        ...item,
+        checked: item.id == itemInfo.id,
+      }));
+      this.emitStepOneInfoHandle();
+    },
+
+    emitStepOneInfoHandle() {
+      this.$emit("updateStepInfo", {
+        ...JSON.parse(JSON.stringify(this.stepOneInfo)),
+        orderList: [...this.tableData],
+        tabIndex: this.tabIndex,
+        authValidateVal: this.authValidateVal || "", // 服务码
+        phoneNum: this.phoneNum || "", // 手机号
+        validateVal: this.validateVal || "", // 验证码
+        customPhoneNum: this.customPhoneNum || "", // 手机号
+        customName: this.customName || "", // 客户姓名
+        customPhoneName: this.customPhoneName || "", // 客户中心存酒客户姓名
+        superValidate: this.superValidate || "", // 超级授权码
+      });
+
+      if (this.focus == 10 || this.focus == 11) return;
+
+      if (this.tabIndex == 2) {
+        if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
+        if (this.phoneNum.toString().length == 11) {
+          this.getOrderCanSaveWine();
+        }
+      }
+      if (this.tabIndex == 3) {
+        if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
+        if (this.customPhoneNum.toString().length == 11) {
+          this.getOrderCanSaveWine();
+        }
+      }
+    },
+
+    // 获取订单流水可存酒水
+    async getOrderCanSaveWine() {
+      const params = {
+        csm_id: this.selectedInfo.id * 1, //    int64    流水Id
+        cust_phone_num:
+          this.tabIndex == 2
+            ? this.phoneNum.toString() || "-"
+            : this.customPhoneNum.toString() || "-", // string   客户手机号,用以返还客户姓名
+      };
+
+      try {
+        const res = await api_saveWine.reqGetCanSaveWineList(params);
+        if (res.code == 1) {
+          this.tabIndex == 2
+            ? (this.customName = res.data.cust_name || "")
+            : (this.customPhoneName = res.data.cust_name || "");
+          this.$emit("updateStepInfo", {
+            ...JSON.parse(JSON.stringify(this.stepOneInfo)),
+            orderList: [...this.tableData],
+            tabIndex: this.tabIndex,
+            authValidateVal: this.authValidateVal || "", // 服务码
+            phoneNum: this.phoneNum || "", // 手机号
+            validateVal: this.validateVal || "", // 验证码
+            customPhoneNum: this.customPhoneNum || "", // 手机号
+            customName: this.customName || "", // 客户姓名
+            customPhoneName: this.customPhoneName || "", // 客户中心存酒客户姓名
+            superValidate: this.superValidate || "", // 超级授权码
+          });
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取订单流水可存酒水列表失败", error);
+      }
+    },
+    // 检测是否为横屏
+    getRectVal() {
+      const width = screen.availWidth;
+      const height = screen.availHeight;
+      this.isRect = width >= height;
+    },
+  },
+  props: {
+    stepOneInfo: {
+      default: () => ({ orderList: [] }),
+    },
+  },
+  components: {
+    keyBoard,
+  },
+  computed: {
+    btnText() {
+      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+    },
+  },
+  watch: {
+    stepOneInfo: {
+      handler(newVal) {
+        this.getRectVal();
+        this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
+        this.selectedInfo = this.tableData.find((item) => item.checked) || {};
+        this.tabIndex = newVal.tabIndex;
+        this.validateVal = newVal.validateVal;
+        this.customPhoneNum = newVal.customPhoneNum;
+        this.customPhoneName = newVal.customPhoneName;
+        this.phoneNum = newVal.phoneNum;
+        this.customName = newVal.customName;
+        this.authValidateVal = newVal.authValidateVal;
+        this.superValidate = newVal.superValidate;
+      },
+      deep: true,
+      immediate: true,
+    },
+    tabIndex() {
+      this.emitStepOneInfoHandle();
+    },
+  },
+};
+</script>
+<style lang="less" scoped>
+@import "../../../../style/saveWine/newTable.less";
+</style>
+<style scoped lang="less">
+.step-one {
+  padding: 20px;
+  font-size: 24px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  color: #1A1A21;
+
+  .red {
+    color: #ff2f64;
+  }
+
+  .table {
+    .tbody {
+      max-height: 20vh;
+      overflow: auto;
+    }
+  }
+
+  .custom-info {
+    .info-detail {
+      .info-tab {
+        width: 500px;
+        margin-right: 20px;
+
+        .tab {
+          .tab-item {
+            line-height: 44px;
+            text-align: center;
+            cursor: pointer;
+
+            width: 120px;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid #40404E;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 400;
+            color: #08080A;
+
+            &.active {
+              font-weight: 500;
+              border: none;
+              color: #FFFFFF;
+              background: #3373E8;
+              box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+            }
+          }
+        }
+
+        .tab-content {
+          .coll {
+            height: 50px;
+
+            .label {
+              width: 80px;
+              font-size: 20px;
+              font-family: PingFangSC, PingFang SC;
+              font-weight: 400;
+              color: #08080A;
+            }
+
+            .value {
+              position: relative;
+              flex-wrap: nowrap;
+              flex-shrink: 0;
+              width: 320px;
+              margin-left: 10px;
+
+              input {
+
+                width: 266px;
+                height: 44px;
+                background: #FAFAFC;
+                border-radius: 8px;
+                border: 1px solid #C4CBD7;
+                padding: 0 10px;
+                box-sizing: border-box;
+                margin-right: 10px;
+                font-size: 20px;
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 400;
+                color: #08080A;
+
+                &::placeholder {
+
+                  color: #7A7A7A;
+                }
+
+                &:focus {
+                  border: 2px solid #3373E8;
+                }
+              }
+
+              .focus {
+                order: 2px solid #3373E8;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</style>

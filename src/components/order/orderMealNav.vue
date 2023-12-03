@@ -1,48 +1,40 @@
 <template>
   <div class="nav" layout="row" layout-align="start start">
     <div class="nav-left">
-      <div class="ul first-menu" ref="firstMenuRef" :style="{'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)'}">
-        <div
-          class="li first-menu-item"
-          :class="{'active': firstCategoryActiveId === item.id}"
-          v-for="(item,index) in firstCategoryList"
-          :key="index"
-          @click="changeFirstCategory(item.id)"
-        >
-          <span>{{item.name}}</span>
+      <div class="ul first-menu" ref="firstMenuRef"
+        :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)' }">
+        <div class="li first-menu-item" :class="{ 'active': firstCategoryActiveId === item.id }"
+          v-for="(item, index) in firstCategoryList" :key="index" @click="changeFirstCategory(item.id)">
+          <span>{{ item.name }}</span>
         </div>
       </div>
-      <div class="li arrow" :style="{'bottom': isRect ? '0px' : '60px'}">
+      <div class="li arrow">
         <div class="bg" layout="row" layout-align="center center">
-          <div class="bg-left" @click="scrollHandle('first','up')">
+          <div class="bg-left" @click="scrollHandle('first', 'up')">
             <img :src="imgSrc.arrow" alt />
           </div>
-          <div class="bg-right" @click="scrollHandle('first','down')">
+          <div class="bg-right" @click="scrollHandle('first', 'down')">
             <img :src="imgSrc.arrow" alt />
           </div>
         </div>
       </div>
     </div>
     <div class="nav-right">
-      <div class="ul second-menu" ref="secondMenuRef" :style="{'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)'}">
-        <div
-          class="li"
-          :class="{'active': secondCategoryActiveId === item.id}"
-          v-for="(item,index) in secondCategoryList"
-          :key="index"
-          @click="secondCategoryActiveId = item.id"
-        >
+      <div class="ul second-menu" ref="secondMenuRef"
+        :style="{ 'height': !isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)' }">
+        <div class="li" :class="{ 'active': secondCategoryActiveId === item.id }" v-for="(item, index) in secondCategoryList"
+          :key="index" @click="secondCategoryActiveId = item.id">
           <div class="item">
-            <span>{{item.name}}</span>
+            <span>{{ item.name }}</span>
           </div>
         </div>
       </div>
-      <div class="li arrow" :style="{'bottom': isRect ? '0px' : '60px'}">
+      <div class="li arrow">
         <div class="bg" layout="row" layout-align="center center">
-          <div class="bg-left" @click="scrollHandle('second','up')">
+          <div class="bg-left" @click="scrollHandle('second', 'up')">
             <img :src="imgSrc.arrow" alt />
           </div>
-          <div class="bg-right" @click="scrollHandle('second','down')">
+          <div class="bg-right" @click="scrollHandle('second', 'down')">
             <img :src="imgSrc.arrow" alt />
           </div>
         </div>
@@ -52,7 +44,7 @@
 </template>
 
 <script>
-import arrow from "@/assets/order-img/arrowBottom.png";
+import arrow from "@/assets/order-img/arrow-Bottom.png";
 import navPrdList from '@/mixin/navPrdList'
 export default {
   data() {
@@ -73,10 +65,12 @@ export default {
   methods: {
 
     // 检测是否为横屏
-    getRectVal(){
+    getRectVal() {
       const width = screen.availWidth
       const height = screen.availHeight
-      this.isRect = width >= height
+
+      // this.isRect = width >= height
+      this.isRect = window.innerWidth >= 1366
     },
 
     changeFirstCategory(firstCategoryId = "") {
@@ -135,7 +129,7 @@ export default {
   mixins: [navPrdList],
   props: {
     cardInfo: {
-      default: () => {}
+      default: () => { }
     },
     isGQ: {
       default: false
@@ -152,7 +146,7 @@ export default {
     isGQ(newValue) {
       if (newValue) {
         this.isGQ = true
-        this.getMenuInfo(newValue) 
+        this.getMenuInfo(newValue)
       }
     }
   }

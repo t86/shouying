@@ -1,17 +1,16 @@
 .nav {
   position: fixed;
   left: 0;
-  top: 0;
-  width: 168px;
+  top: 0px;
+  width: 200px;
   height: calc(100vh - 60px);
-
+  color: #08080A;
   .nav-left {
-    background: #08080a;
-    // background: linear-gradient(to bottom, #08080a, #091121);
+    background:  #ECEFF4;
   }
 
   .nav-right {
-    background: #182031;
+    background: #989FAF;
   }
 
   .nav-left,
@@ -19,23 +18,21 @@
     height: 100%;
     position: relative;
     width: 50%;
+    padding: 59px 5px 0px;
 
     .ul {
       height: calc(100vh - 120px);
       overflow-y: auto;
-      color: #fff;
       scroll-behavior: smooth;
-
       .li {
         position: relative;
-        height: 56px;
+        height: 64px;
         text-align: center;
-        font-size: 15px;
-        color: #AED8FF;
+        font-size: 22px;
         cursor: pointer;
 
         span {
-          width: 70%;
+          width: 90%;
           position: absolute;
           left: 50%;
           top: 50%;
@@ -45,36 +42,30 @@
       }
 
       &.first-menu {
+        background: #FAFAFC;
         .li {
+          box-shadow: 0px 2px 4px 0px #C4CBD7;
+          border-radius: 8px;
+          margin-bottom: 4px;
           &.active {
-            background: url('../../../assets/order-img/navBarBgi.png');
-            background-size: 100% 100%;
-            color: #6a9eff;
+            color: #fff;
+            background: #989FAF;
+            border-radius: 8px;
           }
         }
       }
 
       &.second-menu {
-
         .li {
-          color: #fff;
-
-          .item {
-            width: 72px;
-            height: 50px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-          }
+          background: #FAFAFC;
+          box-shadow: 0px 2px 4px 0px #C4CBD7;
+          border-radius: 8px;
+          margin-bottom: 4px;
 
           &.active {
-            .item {
-              background: #455EFF;
-              // background: linear-gradient(180deg, #455EFF 0%, #4B89FF 100%);
-              box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5000);
-              border-radius: 20px;
-            }
+            background: #3373E8;
+            box-shadow: none;
+            color: #FFFFFF;
           }
         }
       }
@@ -83,22 +74,23 @@
     // 箭头
     .arrow {
       width: 100%;
-      height: 60px;
+      height: 59px;
       position: absolute;
-      bottom: 0px;
+      top: 0px;
       cursor: pointer;
-
+      margin-left: -5px;
       .bg {
-        margin-top: 10px;
+        margin-top: 6px;
 
         .bg-left,
         .bg-right {
           width: 40px;
           height: 40px;
-          background: #0D172D;
-          box-shadow: inset 0px 1px 1px 0px #2775BA;
+          background: #FFFFFF;
+          box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.1);
           text-align: center;
-
+          border: 1px solid #989FAF;
+          box-sizing: border-box;
           img {
             width: 20px;
             margin-top: 10px;
@@ -106,15 +98,15 @@
         }
 
         .bg-left {
-          border-radius: 30px 0px 0px 30px;
-
+          border-radius: 8px 0px 0px 8px;
+          border-right: none;
           img {
             transform: rotate(180deg);
           }
         }
 
         .bg-right {
-          border-radius: 0 30px 30px 0;
+          border-radius: 0 8px 8px 0;
         }
       }
     }

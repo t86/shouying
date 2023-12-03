@@ -1,0 +1,240 @@
+.group {
+  padding: 0 20px 20px;
+  width: 100%;
+
+  // 标题
+  &-title {
+    width: 100%;
+    padding-bottom: 20px;
+
+    &-name {
+      width: 50%;
+      padding-right: 20px;
+      box-sizing: border-box;
+      font-size: 24px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 500;
+      color: #08080A;
+    }
+
+    &-price,
+    &-count,
+    &-amt {
+      width: 20%;
+
+      span {
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+
+        line-height: 20px;
+
+        &.value {
+          font-size: 26px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #009370;
+          line-height: 26px;
+        }
+      }
+    }
+
+    &-count {
+      // color: #fff;
+    }
+  }
+
+  // 选择列表
+  &-content {
+    text-align: center;
+
+    &-title {
+
+      height: 44px;
+      background: #FAFAFC;
+      border-radius: 8px;
+
+      >div {
+        width: 50%;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        color: #08080A;
+        line-height: 20px;
+        text-align: left;
+        padding-left: 20px;
+        box-sizing: border-box;
+      }
+    }
+
+    // 已选择列表
+    &-checked {
+      text-align: left;
+      // background: rgba(166, 72, 72, .2);
+      background: #D8C9D0;
+      border-radius: 10px;
+      margin: 10px 0;
+      padding: 20px 0;
+
+      >div {
+        height: 100%;
+        width: 50%;
+        padding: 0 20px;
+
+
+        ul {
+          flex-wrap: wrap;
+          width: 100%;
+
+          li {
+            padding: 9px 16px;
+            margin: 10px 20px 10px 0;
+            border-radius: 20px;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 500;
+            color: #08080A;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            &.left {
+              padding: 4px 14px;
+            }
+          }
+
+        }
+      }
+
+      &-left {
+        border-right: 1px solid #ECEFF4;
+
+        .require-btn {
+          padding: 6px 10px;
+          background: #FFFFFF;
+          border-radius: 30px;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #3373E8;
+          text-align: center;
+          margin-left: 12px;
+        }
+      }
+
+      &-left {
+        li {
+          background: #ECEFF4;
+        }
+      }
+
+      &-right {
+        li {
+
+          background: #FCE8E8;
+        }
+      }
+
+    }
+
+    // 当前选择列表
+    &-choose {
+      margin: 10px 0;
+      padding: 20px 0;
+
+      background: #BDCBD9;
+      border-radius: 8px;
+
+      >div {
+        width: 50%;
+        text-align: left;
+        padding: 0 20px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+        padding-bottom: 10px;
+      }
+
+      &-left,
+      &-right {
+
+        .require-btn {
+          padding: 6px 10px;
+          background: #FFFFFF;
+          border-radius: 30px;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          color: #3373E8;
+          text-align: center;
+          margin-left: 12px;
+        }
+
+        border-right: 1px solid #ECEFF4;
+
+        ul {
+          flex-wrap: wrap;
+
+          li {
+            padding: 9px 16px;
+            position: relative;
+            background: #ECEFF4;
+            border-radius: 24px;
+            padding: 4px 16px;
+            margin: 10px 20px 10px 0;
+            border-radius: 20px;
+            font-size: 20px;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 500;
+            color: #08080A;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            &.left {
+              padding: 4px 14px;
+            }
+
+            img {
+              width: 32px;
+              margin-left: 10px;
+              transform: translateX(1px);
+              cursor: pointer;
+            }
+
+            p.selected-count {
+              position: absolute;
+              left: 0px;
+              top: 0;
+              transform: translate(-20%, -40%);
+              line-height: 20px;
+              text-align: center;
+              border-radius: 50%;
+              color: #fff;
+              width: 24px;
+              height: 24px;
+              background: #E63122;
+            }
+          }
+        }
+
+      }
+
+      &-right {
+        border-right: none;
+
+        li {
+
+          background: #CEEAFF !important;
+        }
+      }
+    }
+  }
+
+}

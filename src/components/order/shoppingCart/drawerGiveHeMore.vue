@@ -1020,5 +1020,5 @@ export default {
 <style scoped lang="less">
 @import "../../../style/common/elementDrawer.less";
 @import "../../../style/common/elementTable.less";
-@import "../../../style/order/orderMeal/shoppingCart/drawerGiveHeMore.less";
+@import "../../../style/order/orderMeal/newShoppingCart/drawerGiveHeMore.less";
 </style>

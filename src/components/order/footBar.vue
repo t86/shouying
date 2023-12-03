@@ -1,102 +1,47 @@
 <template>
-  <div
-    class="footBar"
-    :class="{ rect: !isRect }"
-    :layout="isRect ? 'row' : 'column'"
-    :layout-align="isRect ? 'space-between center' : 'start center'"
-  >
-    <div
-      style="width: 100%"
-      :layout="isRect ? 'row' : 'column'"
-      :layout-align="isRect ? 'start center' : 'start start'"
-    >
-      <div
-        style="margin-bottom: -2px; width: 100%; display: flex"
-        layout="row"
-        layout-align="start center"
-      >
-        <div
-          style="flex: 1"
-          class="ul"
-          layout="row"
-          layout-align="start center"
-        >
-          <div
-            class="li line"
-            v-for="(item, index) in navList"
-            :key="index"
-            :class="{ active: item.routeName === activeRouteName }"
-            @click="footNavBarClick(item)"
-          >
-            <div
-              class="shopping-count"
-              v-if="
-                item.id === 3 &&
-                $store.state.orderInfo.shoppingCartInfo.shoppingCount
-              "
-            >
+  <div class="footBar" :class="{ rect: !isRect }" :layout="isRect ? 'row' : 'column'"
+    :layout-align="isRect ? 'space-between center' : 'start center'">
+    <div style="width: 100%" :layout="isRect ? 'row' : 'column'" :layout-align="isRect ? 'start center' : 'start start'">
+      <div style="margin-bottom: -2px; width: 100%; display: flex" layout="row" layout-align="start center">
+        <div style="flex: 1" class="ul" layout="row" layout-align="start center">
+          <div class="li line" v-for="(item, index) in navList" :key="index"
+            :class="{ active: item.routeName === activeRouteName }" @click="footNavBarClick(item)">
+            <div class="shopping-count" v-if="
+              item.id === 3 &&
+              $store.state.orderInfo.shoppingCartInfo.shoppingCount
+            ">
               {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
             </div>
             <img width="20" :src="item.icon" alt />
-            <img
-              class="sanJiao"
-              v-if="item.routeName === activeRouteName"
-              :src="item.icon1"
-              alt
-            />
+            <img class="sanJiao" v-if="item.routeName === activeRouteName" :src="item.icon1" alt />
             <p>{{ item.name }}</p>
           </div>
           <!-- 督查 特饮 服务员买单结账按钮 -->
-          <div
-            v-if="
-              isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
-            "
-            class="server-pay-btn"
-          >
-            <div
-              class="button"
-              layout="row"
-              layout-align="center center"
-              @click="showOrderListDrawerHandle"
-            >
+          <div v-if="
+            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
+          " class="server-pay-btn">
+            <div class="button" layout="row" layout-align="center center" @click="showOrderListDrawerHandle">
               <img :src="imgSrc.orderQRPayIcon" alt />
               <span>买单</span>
             </div>
           </div>
           <!-- 服务员充值滞留金 -->
-          <div
-            v-if="
-              isShowPayBtn 
-            "
-            class="server-pay-btn line"
-          >
-            <div
-              class="button"
-              layout="row"
-              layout-align="center center"
-              @click="showAddBookDrawer = true"
-            >
+          <div v-if="
+            isShowPayBtn
+          " class="server-pay-btn line">
+            <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">
               <img :src="imgSrc.orderQRPayIcon" alt />
               <span>滞留金</span>
             </div>
           </div>
           <!-- 收银系统按钮 -->
-          <div
-            class="pay-btn line"
-            :style="isNarrowWidth && 'padding: 0px 0px'"
-            v-if="
-              $store.state.userInfo.authStatus == 4 &&
-              !this.$route.path.startsWith('/orderMeal') &&
-              $store.state.orderInfo.currentCardInfo.bizStatus != 1
-            "
-            layout="row"
-          >
-            <div
-              class="button"
-              layout="row"
-              layout-align="center center"
-              @click="$router.push({ name: 'orderMealList' })"
-            >
+          <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
+            $store.state.userInfo.authStatus == 4 &&
+            !this.$route.path.startsWith('/orderMeal') &&
+            $store.state.orderInfo.currentCardInfo.bizStatus != 1
+          " layout="row">
+            <div class="button" layout="row" layout-align="center center"
+              @click="$router.push({ name: 'orderMealList' })">
               <img :src="imgSrc.shoppingNav" alt />
               <span>点单</span>
             </div>
@@ -109,42 +54,26 @@
           <img :src="imgSrc.giveNav" alt />
           <span>优惠2</span>
         </div> -->
-            <div
-              class="button"
-              @click.stop="clearCardHandle"
-              layout="row"
-              layout-align="center center"
-            >
+            <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
               <img :src="imgSrc.clearNav" alt />
               <span>清台</span>
             </div>
 
-            <div
-              class="button"
-              @click.stop="showMerchantConfig = true"
-              style="width: 140px"
-              layout="row"
-              layout-align="center center"
-            >
-              <img
-                :src="require('@/assets/money-img/merchant-btn-icon.png')"
-                alt
-              />
+            <div class="button" @click.stop="showMerchantConfig = true" style="width: 140px" layout="row"
+              layout-align="center center">
+              <img :src="require('@/assets/money-img/merchant-btn-icon.png')" alt />
               <span style="transform: translateX(-2px)">滞留金管理</span>
             </div>
           </div>
           <!-- 卡台名称 -->
-          <div
-            class="card-name"
-            :class="{
-              line:
-                $store.state.userInfo.authStatus == 4 ||
-                !(
-                  $store.state.userInfo.roleIds.length == 1 &&
-                  $store.state.userInfo.roleIds[0] == 4
-                ),
-            }"
-          >
+          <div class="card-name" :class="{
+            line:
+              $store.state.userInfo.authStatus == 4 ||
+              !(
+                $store.state.userInfo.roleIds.length == 1 &&
+                $store.state.userInfo.roleIds[0] == 4
+              ),
+          }">
             <p>{{ cardInfo.name }}</p>
             <p>{{ cardInfo.chgSeatInfo }}</p>
           </div>
@@ -154,22 +83,16 @@
               empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
             }}
           </div>
-          <div class="open-time" v-if="isMoneyClient" >
+          <div class="open-time" v-if="isMoneyClient">
             <p>{{ openTime }}</p>
           </div>
         </div>
         <div layout="row" layout-align="end center">
           <!-- 消费情况 -->
-          <div
-            id="aaaa"
-            class="amt line p-r-6"
-            v-if="
-              isRect &&
-              ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
-            "
-            layout="row"
-            layout-align="start start"
-          >
+          <div id="aaaa" class="amt line p-r-6" v-if="
+            isRect &&
+            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
+          " layout="row" layout-align="start start">
             <div class="left m-r-2">
               <p class="one-txt-cut">
                 <!-- 折前：当太总消费的应收金额（不含赠送） -->
@@ -179,16 +102,12 @@
               <p class="one-txt-cut">
                 <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
                 <span>折后金额:</span>
-                <span
-                  >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
-                >
+                <span>￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
               </p>
               <p class="one-txt-cut">
                 <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
                 <span>主营点单金额:</span>
-                <span
-                  >￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span
-                >
+                <span>￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
               </p>
             </div>
             <div class="right">
@@ -200,23 +119,16 @@
               <p class="one-txt-cut">
                 <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
                 <span class="txt-right">当台实收:</span>
-                <span
-                  >￥{{
-                    Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
-                  }}</span
-                >
+                <span>￥{{
+                  Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
+                }}</span>
               </p>
             </div>
           </div>
-          <div
-            class="date-time"
-            :class="{
-              'm-l-6': !isRect && !isNarrowWidth,
-              'p-l-3': !isNarrowWidth,
-            }"
-            layout="column"
-            layout-align="center center"
-          >
+          <div class="date-time" :class="{
+            'm-l-6': !isRect && !isNarrowWidth,
+            'p-l-3': !isNarrowWidth,
+          }" layout="column" layout-align="center center">
             <p class="time">
               {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
                 authInfo.minute
@@ -231,49 +143,35 @@
 
       <div layout="row" layout-align="center center" v-if="!isRect">
         <!-- 消费情况 -->
-        <div
-          class="amt line p-r-6"
-          v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt"
-          layout="row"
-          layout-align="start start"
-        >
+        <div class="amt line p-r-6" v-if="$store.state.userInfo.authStatus == 4 || canLookOrderAmt" layout="row"
+          layout-align="start start">
           <div class="left m-r-2" layout="row">
             <p class="one-txt-cut">
               <!-- 折前：当太总消费的应收金额（不含赠送） -->
               <span>折前金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span
-              >
+              <span class="m-r-4">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
               <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
               <span>折后金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span
-              >
+              <span class="m-r-4">￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
               <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
               <span>主营点单金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span
-              >
+              <span class="m-r-4">￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
             </p>
           </div>
           <div class="right" layout="row">
             <p class="one-txt-cut">
               <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
               <span>已收金额:</span>
-              <span class="m-r-4"
-                >￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span
-              >
+              <span class="m-r-4">￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
               <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
               <span class="txt-right">当台实收:</span>
-              <span
-                >￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span
-              >
+              <span>￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span>
             </p>
           </div>
         </div>
@@ -281,17 +179,13 @@
       <!-- 暂不支付倒计时退出 -->
       <div class="num-sub-tips" v-show="showNumSubTips">
         <div class="contain">
-          <i
-            class="el-icon-close"
-            style="
-              position: absolute;
-              top: 10px;
-              right: 20px;
-              color: #fff;
-              cursor: pointer;
-            "
-            @click="hideTimeSubHandle()"
-          ></i>
+          <i class="el-icon-close" style="
+                    position: absolute;
+                    top: 10px;
+                    right: 20px;
+                    color: #fff;
+                    cursor: pointer;
+                  " @click="hideTimeSubHandle()"></i>
           {{ logoutCount }}秒后将退出登录！
         </div>
       </div>
@@ -301,32 +195,15 @@
         <div class="contain">
           <div class="top" layout="row" layout-align="space-between center">
             <div>选择支付方式</div>
-            <i
-              class="el-icon-close cursor"
-              style="color: #fff"
-              @click="showChoosePayType = false"
-            ></i>
+            <i class="el-icon-close cursor" style="color: #fff" @click="showChoosePayType = false"></i>
           </div>
 
           <div class="center" layout="row" layout-align="start center">
-            <div
-              class="choose"
-              :class="{ active: payType == item.id }"
-              v-for="item in payTypeList"
-              :key="item.id"
-              @click="payType = item.id"
-            >
-              <img
-                :src="item.icon"
-                style="height: 25px; width: 25px; vertical-align: middle"
-                alt=""
-              />
-              <span style="vertical-align: middle">{{ item.name }}</span
-              ><span
-                v-if="[5, 6].includes(item.id)"
-                style="margin-left: 4px; vertical-align: middle; color: red"
-                >(推荐)</span
-              >
+            <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
+              @click="payType = item.id">
+              <img :src="item.icon" style="height: 25px; width: 25px; vertical-align: middle" alt="" />
+              <span style="vertical-align: middle">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
+                style="margin-left: 4px; vertical-align: middle; color: red">(推荐)</span>
             </div>
           </div>
 
@@ -344,18 +221,8 @@
       <!-- 扫码输入支付码 -->
       <div class="scan_input" v-if="scanStart">
         <div class="contain">
-          <div
-            class="top center"
-            layout="row"
-            layout-align="space-between center"
-          >
-            <input
-              style="width: 260px"
-              v-model="scanCode"
-              class="value focus"
-              size="small"
-              placeholder="请输入支付码"
-            />
+          <div class="top center" layout="row" layout-align="space-between center">
+            <input style="width: 260px" v-model="scanCode" class="value focus" size="small" placeholder="请输入支付码" />
           </div>
           <div class="m-t-6">
             <keyBoard @changeNum="changeCode" />
@@ -367,36 +234,22 @@
         </div>
       </div>
       <!-- 服务员买单选择商品列表 -->
-      <drawerOrderList
-        v-show="showOrderListDrawer"
-        v-model="showOrderListDrawer"
-        @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle"
-      />
+      <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer"
+        @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
 
       <!-- 客人扫码支付订单费用/扫码支付订单 -->
-      <drawerPayQR
-        :showDrawer="showOrHideQRDrawer"
-        :payType="payType"
-        :orderInfoDetail="orderInfoDetail"
-        @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle"
-        @subSecondLogoutHandle="subSecondLogoutHandle"
-        @reloadQrRequest="showChoosePayTypeHandle"
-      />
+      <drawerPayQR :showDrawer="showOrHideQRDrawer" :payType="payType" :orderInfoDetail="orderInfoDetail"
+        @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle"
+        @reloadQrRequest="showChoosePayTypeHandle" />
 
       <!-- 服务员让客人扫码添加滞留金 -->
       <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-      <drawerAddBookAmt
-        v-if="showAddBookDrawer"
-        v-model="showAddBookDrawer"
-        @subSecondLogoutHandle="subSecondLogoutHandle"
-      />
+      <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
+        @subSecondLogoutHandle="subSecondLogoutHandle" />
 
       <!-- 收银系统滞留金管理 -->
       <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-      <drawerMerchantConfig
-        v-show="showMerchantConfig"
-        v-model="showMerchantConfig"
-      />
+      <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
     </div>
   </div>
 </template>
@@ -463,51 +316,51 @@ const payNavList = [
 
 const payTypeList =
   window.atool &&
-  ("startScan" in window.atool || window.atool.getTermType() == "android")
+    ("startScan" in window.atool || window.atool.getTermType() == "android")
     ? [
-        {
-          id: 6,
-          icon: weixin_saokeren,
-          name: "扫客人-微信",
-        },
-        {
-          id: 5,
-          icon: zhifubaozhifu_saokeren,
-          name: "扫客人-支付宝",
-        },
-        {
-          id: 2,
-          icon: weixin_kerensaowo,
-          name: "客人扫我-微信",
-        },
-        {
-          id: 1,
-          icon: zhifubao_kerensaowo,
-          name: "客人扫我-支付宝",
-        },
-        {
-          id: 3,
-          icon: weixinxiaochengxu,
-          name: "微信小程序自助",
-        },
-      ]
+      {
+        id: 6,
+        icon: weixin_saokeren,
+        name: "扫客人-微信",
+      },
+      {
+        id: 5,
+        icon: zhifubaozhifu_saokeren,
+        name: "扫客人-支付宝",
+      },
+      {
+        id: 2,
+        icon: weixin_kerensaowo,
+        name: "客人扫我-微信",
+      },
+      {
+        id: 1,
+        icon: zhifubao_kerensaowo,
+        name: "客人扫我-支付宝",
+      },
+      {
+        id: 3,
+        icon: weixinxiaochengxu,
+        name: "微信小程序自助",
+      },
+    ]
     : [
-        {
-          id: 2,
-          icon: weixin_kerensaowo,
-          name: "客人扫我-微信",
-        },
-        {
-          id: 1,
-          icon: zhifubao_kerensaowo,
-          name: "客人扫我-支付宝",
-        },
-        {
-          id: 3,
-          icon: weixinxiaochengxu,
-          name: "微信小程序自助",
-        },
-      ];
+      {
+        id: 2,
+        icon: weixin_kerensaowo,
+        name: "客人扫我-微信",
+      },
+      {
+        id: 1,
+        icon: zhifubao_kerensaowo,
+        name: "客人扫我-支付宝",
+      },
+      {
+        id: 3,
+        icon: weixinxiaochengxu,
+        name: "微信小程序自助",
+      },
+    ];
 
 export default {
   data() {
@@ -560,9 +413,11 @@ export default {
       },
 
       payTypeList, // 支付方式
-      terminalType : '',
+      terminalType: '',
       // 是否收银系统
       isMoneyClient: false,
+      // 是否是点单系统
+      isOrderMeal: false,
     };
   },
   methods: {
@@ -573,18 +428,18 @@ export default {
           ? this.$router.replace({ name: "moneyCard" })
           : this.$router.replace({ name: "orderCard" })
         : this.$router.replace(
-            {
-              name: item.routeName,
-              query: {
-                give: this.$route.query.give,
-                mustOrderPrdId: item.mustOrderPrdId,
-                mustPrdName: item.mustPrdName,
-              },
+          {
+            name: item.routeName,
+            query: {
+              give: this.$route.query.give,
+              mustOrderPrdId: item.mustOrderPrdId,
+              mustPrdName: item.mustPrdName,
             },
-            () => {
-              this.activeRouteName = this.navList[item.id - 1].routeName;
-            }
-          );
+          },
+          () => {
+            this.activeRouteName = this.navList[item.id - 1].routeName;
+          }
+        );
     },
 
     getAuthInfo() {
@@ -681,7 +536,7 @@ export default {
       this.$store.dispatch("getShoppingCount", this);
       this.navList =
         this.$store.state.userInfo.authStatus == 4 &&
-        !this.$route.path.startsWith("/orderMeal")
+          !this.$route.path.startsWith("/orderMeal")
           ? payNavList
           : orderNavList;
       if (
@@ -692,11 +547,11 @@ export default {
         this.navList = this.$route.query.give
           ? [this.navList[0], this.navList[1]]
           : [
-              this.navList[0],
-              this.navList[1],
-              this.navList[2],
-              this.navList[3],
-            ];
+            this.navList[0],
+            this.navList[1],
+            this.navList[2],
+            this.navList[3],
+          ];
       } else {
         this.navList[0]["name"] = "返回首页";
       }
@@ -964,33 +819,32 @@ export default {
     },
   },
   computed: {
-    isShowPayBtn(){
+    isShowPayBtn() {
       let isHaveAuth = false;
-        if(this.$store.state.userInfo.authStatus != 4){
-          // 服务员 特饮 督查
-          if(this.$store.state.userInfo.roleIds.includes(2)|| this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11))
-          {
-            isHaveAuth = true
-          }
-        }
-        if(this.$store.state.userInfo.authStatus == 4 &&
-        this.terminalType == 'android'){
+      if (this.$store.state.userInfo.authStatus != 4) {
+        // 服务员 特饮 督查
+        if (this.$store.state.userInfo.roleIds.includes(2) || this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11)) {
           isHaveAuth = true
-        }   
+        }
+      }
+      if (this.$store.state.userInfo.authStatus == 4 &&
+        this.terminalType == 'android') {
+        isHaveAuth = true
+      }
       return isHaveAuth;
     },
     authTips() {
       return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },
-    openTime(){
+    openTime() {
       let time = this.cardInfo.openTime || '';
-       // 20231004223952 转换时间格式
-      if(time.length == 14){
-        time = time.slice(8,10) + ':' + time.slice(10,12)
-      }else{
+      // 20231004223952 转换时间格式
+      if (time.length == 14) {
+        time = time.slice(8, 10) + ':' + time.slice(10, 12)
+      } else {
         time = ''
       }
-      return  time
+      return time
     }
   },
   components: {

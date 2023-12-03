@@ -67,7 +67,8 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           prdType: el[9],  // 商品类型:1存货(关联erp) 7普通(不关联erp) 2套餐 3 时价特饮(关联erp) 4 时价小费 5 时价赔偿 6 联营,13 定价特饮 14 定价小费  15定价赔偿
           bizType: el[10],  // 营业类型 1 主营 2 非主营 3 非主营(分成),
           matId: el[11],  // 关联物料Id 如果=0代表没有关联
-          useType: el[12]  // 使用限制 1 无限制 2 仅优惠
+          useType: el[12],  // 使用限制 1 无限制 2 仅优惠
+          picName: el[13],  // 商品图片
         })
       })
       break
@@ -248,7 +249,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         resultArr.push({
           status: '1',  // 1：有效
           wkday_id: el[0],  // 营业日Id: 如果=0 表示营业日未开启 <>0 表示当前营业日id(需与本地存储的营业日id进行比较,如果不一致,需重新拉取 类型14的业务数据
-          pic_prefix_url: el[1],  // 图片前缀地址
+          pic_prefix_url: el[1], // 图片url访问前缀
         })
       })
       break

@@ -1,8 +1,17 @@
 <template>
   <div id="app">
     <router-view />
+    <Loading />
   </div>
 </template>
+<script>
+import Loading from '@/components/Loading.vue';
+export default {
+  components: {
+    Loading,
+  },
+};
+</script>
 <style lang="less">
 /* .el-popup-parent--hidden{
   padding-right: 0px !important;
@@ -55,9 +64,11 @@ a {
 }
 
 .el-scrollbar__view.el-select-dropdown__list {
-  background-color: #f5f5f5!important;
+  background-color: #f5f5f5 !important;
 }
-.el-select-dropdown__item.hover, .el-select-dropdown__item:hover{
-  background-color: #e5e5e5!important;
+
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background-color: #e5e5e5 !important;
 }
 </style>
