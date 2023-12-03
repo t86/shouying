@@ -900,7 +900,7 @@ export default {
       }
 
       await this.getTabList(JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"])));
-
+      
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (
         this.$store.state.userInfo.roleIds.includes(2) ||
@@ -1004,10 +1004,23 @@ export default {
       });
 
       const filterArr = targetCardList.filter((item) => item[key] == id);
+      /*
+      对targetCardList返回的cardlist进行重新排序，按照tabListOrigin中regionId对应的dsp从小到大排，并且regionId一样的排在一起，regionId一样时，根据targetCardList的dsp从小到大排
+      */
+
+      let sortCardList = []
+      this.tab.tabListOrigin && this.tab.tabListOrigin.forEach((item) => {
+        const find = targetCardList.filter((el) => el.regionId == item.id);
+        if (find.length > 0) {
+          sortCardList.push(...find.sort((a, b) => {
+            return a.dsp - b.dsp;
+          }))
+        }
+      });
       return id == 2001
         ? this.getMyCardList()
         : id == 0
-        ? JSON.parse(JSON.stringify(targetCardList))
+        ? JSON.parse(JSON.stringify(sortCardList))
         : filterArr;
     },
 

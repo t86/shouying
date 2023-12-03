@@ -35,27 +35,13 @@
             <div class="tr" layout="row" layout-align="space-between center">
               <div class="th">商品名称</div>
               <div class="th">剩余估清数量</div>
-              <div class="th">操作</div>
             </div>
           </div>
           <div class="tbody">
             <div class="tr" v-for="(item, i) in tableData" :key="i">
               <div class="prd-info" layout="row" layout-align="space-between center">
                 <div class="td">{{item.n}}</div>
-                <div class="td">
-                  <img
-                    :src="item.c <= 0 ? imgSrc.subDisabled : imgSrc.sub"
-                    @click="changeCount('sub',item)"
-                  />
-                  <input type="number" min="0" v-model="item.c" @input="changeCount('input',item)" />
-                  <img
-                    :src="imgSrc.add"
-                    @click="changeCount('add',item)"
-                  />
-                </div>
-                <div class="td" @click="deletePrdHandle(item.id)">
-                  <span>删除</span>
-                </div>
+                <div class="td">{{ item.c }}</div>
               </div>
               <div class="require p-l-2">{{item.require}}</div>
             </div>
