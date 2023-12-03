@@ -199,23 +199,23 @@ export default {
       }
     },
 
-    // 更改数据库对应的估清商品数量
-    async changeGQPrdCount(itemInfo, needLoad = true) {
-      const params = {
-        prd_id: itemInfo.id * 1, //     int64    商品Id
-        cnt: itemInfo.c * 1 //   int  数量
-      };
-      try {
-        const res = await api_order.reqAddGQOrder(params);
-        if (res.code == 1) {
-          if(needLoad) this.getGQPrdList();
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("修改估清商品数量失败", error);
-      }
-    },
+    // // 更改数据库对应的估清商品数量
+    // async changeGQPrdCount(itemInfo, needLoad = true) {
+    //   const params = {
+    //     prd_id: itemInfo.id * 1, //     int64    商品Id
+    //     cnt: itemInfo.c * 1 //   int  数量
+    //   };
+    //   try {
+    //     const res = await api_order.reqAddGQOrder(params);
+    //     if (res.code == 1) {
+    //       if(needLoad) this.getGQPrdList();
+    //     } else {
+    //       this.$message.warning(res.msg);
+    //     }
+    //   } catch (error) {
+    //     console.log("修改估清商品数量失败", error);
+    //   }
+    // },
 
     // 更改估清商品数量
     changeCount(type, info) {

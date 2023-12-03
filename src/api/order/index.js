@@ -137,6 +137,10 @@ export default {
   reqAddGQOrder: (params) =>
     axios.post(`${base.htgl}/sel/add_prd_sold_out`, params),
 
+  // 设置估清
+  reqSetGQOrder: (params) =>
+    axios.post(`${base.htgl}/sel/set_prd_sold_out`, params),
+  
   // 删除估清
   reqDelGQOrder: (params) =>
     axios.post(`${base.htgl}/sel/del_prd_sold_out`, params),
