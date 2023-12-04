@@ -70,7 +70,7 @@ Vue.config.errorHandler = function (err, vm, info) {
 
 
 router.beforeEach((to, from, next) => {
-  store.dispatch('setLoading', true); 
+  // store.dispatch('setLoading', true); 
   const authId = store.state.userInfo.emp_id;
   /* 路由发生变化修改页面title */
   document.title = to.meta.title ? to.meta.title : "";
@@ -108,7 +108,7 @@ router.beforeEach((to, from, next) => {
 
 // 全局后置钩子
 router.afterEach(() => {
-  store.dispatch('setLoading', false); // 结束加载，设置 loading 为 false
+  // store.dispatch('setLoading', false); // 结束加载，设置 loading 为 false
 });
 
 // import Print from './plugins/print/Print'
