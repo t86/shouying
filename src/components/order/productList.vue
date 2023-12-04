@@ -11,7 +11,7 @@
 
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-        <div class="prd-item" v-if="true" style="height: 384px;"   v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
+        <div class="prd-item" v-if="pic_show" style="height: 384px;"   v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
           :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img"
@@ -39,7 +39,7 @@
         </div>
 
 
-        <div class="prd-item" style="height: 160px;" v-if="false" v-for="item in productsList" :key="item.id"
+        <div class="prd-item" style="height: 160px;" v-if="!pic_show" v-for="item in productsList" :key="item.id"
           @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="title">
             <h5>{{ item.name }}</h5>
@@ -184,6 +184,7 @@ export default {
       titleFontSize: '32px', // 初始字体大小
       seatFontSize: '18px',
       isNarrowWidth: window.innerWidth < 850,
+      pic_show: false
     };
   },
   methods: {
@@ -300,7 +301,8 @@ export default {
 
       this.productsList = this.productsListTotal || []
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
-
+      let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
+      this.pic_show = showAmt && showAmt.param1 === '1';
       // 获取当前估清商品的数量
       const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj[
         "prdOutOfSomething"

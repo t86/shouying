@@ -10,7 +10,7 @@
       </div>
       <div class="card-list" ref="cardListRef">
         <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-          <div class="prd-item" v-if="true" style="height: 384px;" v-for="item in productsList" :key="item.id"
+          <div class="prd-item" v-if="pic_show" style="height: 384px;" v-for="item in productsList" :key="item.id"
             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
             <div class="item-img-count">
               <img class="item-img"
@@ -37,7 +37,7 @@
             <div class="hover-click"></div>
           </div>
 
-          <div class="prd-item" v-if="false" style="height: 160px;" v-for="item in productsList" :key="item.id"
+          <div class="prd-item" v-if="!pic_show" style="height: 160px;" v-for="item in productsList" :key="item.id"
             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
             <div class="title">
               <h5>{{ item.name }}</h5>
@@ -104,7 +104,7 @@
 import api_order from "@/api/order";
 import search from "@/assets/order-img/new-search.png";
 import mealDrawer from "@/components/order/newDrawerMeal";
-
+import ImagePreview from "@/components/ImagePreview";
 import common_order from "@/utils/common/order";
 
 import add from "@/assets/order-img/new_order_add.png";
@@ -145,13 +145,15 @@ export default {
       tableData: [],
       pic_prefix_url: "",
       bigImageUrl: "",
-      dialogVisible: false
+      dialogVisible: false,
+      pic_show: false
     };
   },
   methods: {
     getPicUrl() {
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
-      console.log(this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url, '?????????')
+      let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
+      this.pic_show = showAmt && showAmt.param1 === '1';
     },
     // 点击放大镜放大图片
     clickDescImage(item) {
@@ -316,7 +318,8 @@ export default {
   },
   props: ["allProductsList", "currentCategoryProductList"],
   components: {
-    mealDrawer
+    mealDrawer,
+    ImagePreview
   },
   watch: {
     currentCategoryProductList(newVal) {
