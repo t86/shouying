@@ -49,7 +49,7 @@ export default new Vuex.Store({
     },
     // 请求相关信息
     requestInfo: {},
-    defaultImg: require("@/assets/order-img/defaultImg.png"),
+    defaultImg: localStorage.getItem("defaultImage") || require("@/assets/order-img/defaultImg.png"),
     loading: false, // loading
   },
   mutations: {

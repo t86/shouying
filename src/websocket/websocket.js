@@ -230,7 +230,10 @@ export default class WebSocketClient {
           );
           this.resResultDataObj['showAmt'].forEach((item) => {
             if (item.id * 1 == 8 && item.param1 * 1 == 1 && item.paramv1) {
-              this.vue.$store.commit('updateDefaultImage', item.paramv1)
+              localStorage.setItem('defaultImage', this.resResultDataObj.storeStatusInfo[0].pic_prefix_url
+              + item.paramv1)
+              this.vue.$store.commit('updateDefaultImage', this.resResultDataObj.storeStatusInfo[0].pic_prefix_url
+              + item.paramv1)
             }
           });
         } else {
@@ -467,7 +470,10 @@ export default class WebSocketClient {
             if (key == 35) {
               dataObj[key].forEach((item) => {
                 if (item.id * 1 == 8 && item.param1 * 1 == 1 && item.paramv1) {
-                  this.vue.$store.commit('updateDefaultImage', item.paramv1)
+                  localStorage.setItem('defaultImage', this.resResultDataObj.storeStatusInfo[0].pic_prefix_url
+                  + item.paramv1)
+                  this.vue.$store.commit('updateDefaultImage', this.resResultDataObj.storeStatusInfo[0].pic_prefix_url
+                  + item.paramv1)
                 }
               });
             }
