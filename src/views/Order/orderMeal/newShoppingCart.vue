@@ -128,7 +128,7 @@
           </div>
         </div>
       </div>
-
+      
       <div
         class="new-shopping-cart-content-bottom"
         layout="row"

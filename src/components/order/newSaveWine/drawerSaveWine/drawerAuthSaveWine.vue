@@ -47,15 +47,17 @@
               </div>
               <div class="prd-list" ref="cardListRef" layout="row" layout-align="center start">
                 <ul class="center-type" :style="{ width: centerType + 'px' }" layout="row" layout-align="start start">
-                  <li class="prd-item" v-for="item in productList" :key="item.id" @click="chooseWindInfoHandle(item)">
+                  <li class="prd-item" v-for="item in productList"
+                    :key="item.id" @click="chooseWindInfoHandle(item)">
                     <div class="prd-item-div">
-                      <div class="item-img">
+                      <div class="item-img" v-if="false">
                         <img class="item-img"
                           :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
                       </div>
                       <span>{{ item.n }}</span>
+                      <!-- <p class="english-name one-txt-cut">{{ item.nameEng }}</p> -->
                       <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda"
-                        @click.stop="clickDescImage(item)" />
+                        @click.stop="clickDescImage(item)" v-if="false" />
                     </div>
                   </li>
                 </ul>
@@ -121,9 +123,9 @@
             <ul layout="row" layout-align="center start">
               <li class="authorization-left">
                 <p class="p-b-2" style="font-size: 24px;
-  font-family: PingFangSC, PingFang SC;
-  font-weight: 400;
-  color: #1A1A21;">授权商品和数量</p>
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      color: #1A1A21;">授权商品和数量</p>
                 <div class="table">
                   <div class="thead">
                     <div class="tr" layout="row" layout-align="start start">
@@ -178,7 +180,7 @@
 
 <script>
 import eventVue from "@/utils/eventVue";
-const cardWidth = 140;
+const cardWidth = 272;
 import api_saveWine from "@/api/saveWine";
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import authorization from "@/components/order/newShoppingCart/authorization";
@@ -646,6 +648,15 @@ export default {
             font-weight: 400;
             color: #08080A;
 
+          }
+
+          .english-name {
+            height: 18px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #9B5911;
+            line-height: 18px;
           }
 
           .fangda {
