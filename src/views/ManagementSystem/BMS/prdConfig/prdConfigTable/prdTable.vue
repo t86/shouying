@@ -25,7 +25,8 @@
               >全选</el-checkbox>
             </div>
             <div class="th">商品名称</div>
-            <div class="th">拼音简写</div>
+            <div class="th">时段限制</div>
+            <div class="th">时段</div>
             <div class="th">英文名称</div>
             <div class="th">商品类型</div>
             <div class="th">业务类型</div>
@@ -61,7 +62,8 @@
               <span class="tips" v-if="item.pt.includes('小费') || item.pt.includes('特饮')">{{item.pt.includes('小费') ? 'X' : (item.pt.includes('特饮') ? 'T' : '')}}</span>
             </div>
             <div class="td">{{item.n}}</div>
-            <div class="td">{{item.np}}</div>
+            <div class="td">{{item.enable_time_limit}}</div>
+            <div class="td">{{item.time_range}}</div>
             <div class="td">{{item.ne}}</div>
             <div class="td">{{item.pt}}</div>
             <div class="td">{{item.bt}}</div>
@@ -154,8 +156,10 @@ export default {
       try {
         const res = await this.$api.BMS.Prd.requestprdlist(params);
         if (res.code == 1) {
-          this.tableData = (res.data || []).map(item => ({
+          this.tableData = (res.data.records || []).map(item => ({
             ...item,
+            enable_time_limit: res.data.enable_time_limit,
+            time_range: res.data.time_range,
             checked: false
           }));
           this.checkAll = false;
