@@ -90,6 +90,7 @@
             <div class="th">入库单价</div>
             <div class="th">入库小计</div>
             <div class="th">入库操作人</div>
+            <div class="th">备注</div>
           </div>
         </div>
         <div class="tbody">
@@ -110,6 +111,7 @@
             <div class="td">{{ item.ip }}</div>
             <div class="td">{{ item.ia }}</div>
             <div class="td">{{ item.ion }}</div>
+            <div class="td">{{ item.r }}</div>
           </div>
           <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />

@@ -107,6 +107,7 @@
                             <div class="alignment">入库小计</div>
                         </th>
                         <th>入库操作人</th>
+                        <th>备注</th>
                     </tr>
                     </thead>
                     <tbody class="limiting" ref="systemForm" @scroll="sysHandleScroll()"
@@ -153,6 +154,9 @@
                         </td>
                         <td>
                             <ellipsis-tooltip :text="item.ion || '---'"></ellipsis-tooltip>
+                        </td>
+                        <td>
+                            <div class="alignment">{{item.r}}</div>
                         </td>
                     </tr>
                     </tbody>
