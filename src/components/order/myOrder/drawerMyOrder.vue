@@ -1160,14 +1160,14 @@ export default {
       }
     },
 
-    changeWkorderWaiter(){
+    async changeWkorderWaiter(){
       try{
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
           order_id: this.currentItemInfo.id * 1, // int64   订单项Id
           waiter_emp_id: this.formData.sales.sales_emp_id * 1, // string   订位人
         };
-        const res = api_money.reqChgWkorderWaiter(params)
+        const res = await api_money.reqChgWkorderWaiter(params)
         if (res.code == 1) {
           this.$message.success('修改订位人成功');
           this.onCancelDrawer(true);
