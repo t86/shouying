@@ -474,7 +474,7 @@ export default {
             line-height: 44px;
             text-align: center;
             cursor: pointer;
-
+            padding: 0 4px;
             width: 120px;
             height: 44px;
             border-radius: 8px;

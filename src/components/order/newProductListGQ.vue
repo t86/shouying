@@ -10,8 +10,8 @@
       </div>
       <div class="card-list" ref="cardListRef">
         <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-          <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
-            :class="{ 'opacity': item.outSomethingCount == 0 }">
+          <div class="prd-item" v-if="true" style="height: 384px;" v-for="item in productsList" :key="item.id"
+            @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
             <div class="item-img-count">
               <img class="item-img"
                 :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
@@ -35,6 +35,28 @@
 
             <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda" @click.stop="clickDescImage(item)" />
             <div class="hover-click"></div>
+          </div>
+
+          <div class="prd-item" v-if="false" style="height: 160px;" v-for="item in productsList" :key="item.id"
+            @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
+            <div class="title">
+              <h5>{{ item.name }}</h5>
+              <p class="english-name one-txt-cut">{{ item.nameEng }}</p>
+            </div>
+            <div class="al-product">
+              <span class="item-span"
+                v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+                  shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
+            </div>
+            <div class="item-footer">
+              <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
+              <p v-else class="count"></p>
+              <p class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
+              </p>
+            </div>
+
+            <img v-if="item.outSomethingCount == 0" class="no-data-count1"
+              :src="require('@/assets/order-img/noCount.png')" />
           </div>
           <p v-if="totalPage != 1" class="tips">{{ page >= totalPage ? '没有更多了' : '加载中...' }}</p>
         </div>
@@ -61,21 +83,19 @@
             </div>
           </div>
         </div>
-       
+
       </div>
       <div class="btn-area" layout="row" layout-align="center center">
-          <div class="button cancel" @click.stop="$emit('showOrHideOutSomethingHandle')">取消</div>
-          <div class="button" style="margin-left: 4px;" @click.stop="$emit('showOrHideOutSomethingHandle')">确定</div>
-        </div>
+        <div class="button cancel" @click.stop="$emit('showOrHideOutSomethingHandle')">取消</div>
+        <div class="button" style="margin-left: 4px;" @click.stop="$emit('showOrHideOutSomethingHandle')">确定</div>
+      </div>
     </div>
 
     <!-- 单品点单 -->
     <mealDrawer ref="mealDrawer" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
       @showOrHideDrawer="showOrHideDrawer" @getGQPrdList="getGQPrdList" />
 
-    <el-dialog :visible.sync="dialogVisible" width="50%" :before-close="beforeClose">
-      <img :src="bigImageUrl" style="width: 100%">
-    </el-dialog>
+    <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
 
   </div>
 </template>
@@ -92,7 +112,7 @@ import sub from "@/assets/order-img/new_sub.png";
 import addDisabled from "@/assets/order-img/new-add-disabled.png";
 import subDisabled from "@/assets/order-img/new-sub-disabled.png";
 
-const cardWidth = 200;
+const cardWidth = 282;
 let oneLineCount = 0;
 let pageColl = 10; // 每页加载10行数据
 export default {
@@ -123,20 +143,23 @@ export default {
 
       // 估清商品列表
       tableData: [],
+      pic_prefix_url: "",
       bigImageUrl: "",
       dialogVisible: false
     };
   },
   methods: {
+    getPicUrl() {
+      this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
+      console.log(this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url, '?????????')
+    },
     // 点击放大镜放大图片
     clickDescImage(item) {
       this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
       this.dialogVisible = true;
     },
-    beforeClose(done) {
-      // 在关闭对话框前重置状态
+    handleCloseClick() {
       this.dialogVisible = false;
-      done();
     },
     getCenterType() {
       this.$nextTick(() => {
@@ -288,6 +311,7 @@ export default {
   mounted() {
     this.getCenterType();
     this.getGQPrdList();
+    this.getPicUrl();
     // this.$refs.productListRef.onscroll = this.scrollHandle
   },
   props: ["allProductsList", "currentCategoryProductList"],

@@ -941,7 +941,7 @@ import drawerStopStore from "@/components/money/drawerStopStore";
 import drawerNeedBackOrderList from "@/components/money/drawerNeedBackOrderList/drawerNeedBackOrderList.vue";
 
 // 估清弹框
-import outSomething from "../Order/orderMeal/orderMealList.vue";
+import outSomething from "../Order/orderMeal/newOrderMealList.vue";
 
 // 班结表
 import drawerStopClass from "@/components/money/drawerStopClass";

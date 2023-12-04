@@ -11,13 +11,13 @@
 
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-        <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
+        <div class="prd-item" v-if="true" style="height: 384px;"   v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
           :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img"
               :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
             <span class="item-span"
-              v-if=" shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+              v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
                 shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
           </div>
           <div class="title">
@@ -37,19 +37,35 @@
           <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda" @click.stop="clickDescImage(item)" />
           <div class="hover-click"></div>
         </div>
+
+
+        <div class="prd-item" style="height: 160px;" v-if="false" v-for="item in productsList" :key="item.id"
+          @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
+          <div class="title">
+            <h5>{{ item.name }}</h5>
+            <p class="english-name one-txt-cut">{{ item.nameEng }}</p>
+          </div>
+          <div class="al-product">
+            <span class="item-span"
+              v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+                shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
+          </div>
+          <div class="item-footer">
+            <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
+            <p v-else class="count"></p>
+            <p class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
+            </p>
+          </div>
+
+          <img v-if="item.outSomethingCount == 0" class="no-data-count1"
+            :src="require('@/assets/order-img/noCount.png')" />
+        </div>
         <p v-if="totalPage != 1" class="tips">{{ page >= totalPage ? '没有更多了' : '加载中...' }}</p>
       </div>
     </div>
 
-    <!-- 卡台信息 -->
-    <!-- :class="{
-        line:
-          $store.state.userInfo.authStatus == 4 ||
-          !(
-            $store.state.userInfo.roleIds.length == 1 &&
-            $store.state.userInfo.roleIds[0] == 4
-          ),
-      }" -->
+
+
 
     <div class="card-name-top" ref="cardNameTop">
       <div class="card-name-title" ref="cardNameTitle">
@@ -96,16 +112,18 @@
     </div>
 
 
-    <el-dialog :visible.sync="dialogVisible" width="100%"  :fullscreen="true" :before-close="beforeClose">
+    <!-- <el-dialog :visible.sync="dialogVisible" width="100%" :fullscreen="true" :before-close="beforeClose">
       <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
         <img :src="bigImageUrl" style="width: 60%">
       </div>
-     
-    </el-dialog>
+
+    </el-dialog> -->
 
     <!-- 单品点单 -->
     <mealDrawer ref="mealDrawerRef" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
       @showOrHideDrawer="showOrHideDrawer" />
+
+    <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
   </div>
 </template>
 
@@ -114,7 +132,7 @@ import common_book from "@/utils/common/book";
 import api_order from "@/api/order";
 import search from "@/assets/order-img/search-icon.png";
 import mealDrawer from "@/components/order/newDrawerMeal";
-
+import ImagePreview from "@/components/ImagePreview"
 import common_order from "@/utils/common/order";
 import { cloneDeep } from "lodash-es";
 
@@ -122,7 +140,7 @@ import { cloneDeep } from "lodash-es";
 let downKeyCode = [0, 0]
 const ctrlAndShiftCode = [17, 16]
 
-const cardWidth = 180;
+const cardWidth = 282;
 let oneLineCount = 0;
 let pageColl = 10; // 每页加载10行数据
 
@@ -174,7 +192,7 @@ export default {
       const titleElement = this.$refs.cardNameTitle;
       const titleWidth = titleElement.clientWidth;
       if (windowWidth > 1300) {
-        this.titleFontSize = titleWidth > 350 ? '26px' : '32px';
+        this.titleFontSize = titleWidth > 350 ? '26px' : '30px';
         this.seatFontSize = titleWidth > 350 ? '14px' : '18px';
       } else {
         let s = parseInt(windowWidth / 70);
@@ -337,6 +355,9 @@ export default {
       this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
       this.dialogVisible = true;
     },
+    handleCloseClick() {
+      this.dialogVisible = false;
+    },
     beforeClose(done) {
       // 在关闭对话框前重置状态
       this.dialogVisible = false;
@@ -487,7 +508,7 @@ export default {
     }, 200);
   },
   mounted() {
-   
+
     firstLoad = true;
     this.getShoppingCartData()
     this.getCenterType();
@@ -514,7 +535,8 @@ export default {
     },
   },
   components: {
-    mealDrawer
+    mealDrawer,
+    ImagePreview
   },
   watch: {
     currentCategoryProductList(newVal) {

@@ -62,7 +62,7 @@
       .prd-item {
         width: 272px;
         // padding: 10px;
-        height: 384px;
+        // height: 384px;
         margin: 5px;
         box-sizing: border-box;
         // background: rgba(169, 173, 211, 0.2000);
@@ -89,10 +89,33 @@
         //   z-index: 1; /* 确保蒙层在元素上方 */
         // }
 
+        .al-product{
+          display: flex;
+          justify-content: end;
+          margin-top: 16px;
+          margin-bottom: 14px;
+          height: 30px;
+          .item-span{
+            border-radius: 12px;
+            padding: 4px 8px;
+            background: #D44F44;
+            font-size: 16px;
+            font-family: PingFangSC-Semibold, PingFang SC;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-right: 4px;
+          }
+        }
         .no-data-count {
           width: 80px;
           height: 80px;
           transform: translate(85px, -148px);
+        }
+
+        .no-data-count1 {
+          width: 80px;
+          height: 80px;
+          transform: translate(100px, -128px);
         }
 
         &:hover::before {
@@ -289,3 +312,4 @@
     }
   }
 }
+
