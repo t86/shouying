@@ -50,14 +50,14 @@
                   <li class="prd-item" v-for="item in productList"
                     :key="item.id" @click="chooseWindInfoHandle(item)">
                     <div class="prd-item-div">
-                      <div class="item-img" v-if="false">
+                      <div class="item-img" v-if="pic_show">
                         <img class="item-img"
                           :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
                       </div>
                       <span>{{ item.n }}</span>
                       <!-- <p class="english-name one-txt-cut">{{ item.nameEng }}</p> -->
                       <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda"
-                        @click.stop="clickDescImage(item)" v-if="false" />
+                        @click.stop="clickDescImage(item)" v-if="pic_show" />
                     </div>
                   </li>
                 </ul>
@@ -171,9 +171,7 @@
         </div>
       </div>
 
-      <el-dialog :visible.sync="dialogVisible" width="50%" :before-close="beforeClose">
-        <img :src="bigImageUrl" style="width: 100%">
-      </el-dialog>
+      <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
     </el-drawer>
   </div>
 </template>
@@ -184,6 +182,7 @@ const cardWidth = 272;
 import api_saveWine from "@/api/saveWine";
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import authorization from "@/components/order/newShoppingCart/authorization";
+import ImagePreview from "@/components/ImagePreview";
 import md5 from "js-md5";
 export default {
   data() {
@@ -212,11 +211,14 @@ export default {
       pic_prefix_url: "",
       dialogVisible: false,
       bigImageUrl: "",
+      pic_show: false
     };
   },
   methods: {
     getPicUrl() {
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
+      let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
+      this.pic_show = showAmt && showAmt.param1 === '1';
     },
     getCenterType() {
       this.$nextTick(() => {
@@ -295,10 +297,9 @@ export default {
       this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
       this.dialogVisible = true;
     },
-    beforeClose(done) {
+    handleCloseClick(done) {
       // 在关闭对话框前重置状态
       this.dialogVisible = false;
-      done();
     },
 
     // 选择商品规格等信息
@@ -469,6 +470,7 @@ export default {
   components: {
     drawerChooseWineInfo,
     authorization,
+    ImagePreview
   },
   computed: {
     show: {
