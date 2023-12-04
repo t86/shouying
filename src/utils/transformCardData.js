@@ -418,7 +418,11 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           param3 : el[3],  
           param4 : el[4],  
           param5 : el[5],  
-          status: 1, // 1有效 2无效  3删除
+          paramv1: el[6], // v1
+          paramv2: el[7], // v2
+          paramv3: el[8], // v3
+          paramv4: el[9], // v4
+          paramv5: el[10], // v5
         })
       })
   //     35号源数据
