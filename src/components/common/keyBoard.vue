@@ -8,7 +8,11 @@
               height: itemHeight + 'px',
             }">
             <img v-if="items.icon" :src="items.icon" alt="">
-            <span :class="{'hasIcon': items.icon}">{{items.name}}</span>
+            <span :style="{
+              width: itemWidth + 'px',
+              height: itemHeight + 'px',
+            }"
+            :class="{'hasIcon': items.icon}">{{items.name}}</span>
           </div>
           </div>
         <div v-else layout="row" layout-align="center center">
@@ -44,21 +48,43 @@
       getKeyBoardData() {
         const keyBoardData = []
         if (this.landscape) {
-          let trArr = []
-          for (let i = 0; i < 12; i++) {
-            if (i != 0 && i % 6 === 0) {
-              keyBoardData.push(trArr)
-              trArr = []
+          if(this.oneLine) {
+            let trArr = []
+            for (let i = 0; i < 12; i++) {
+              if (i != 0 && i % 6 === 0) {
+                keyBoardData.push(trArr)
+                trArr = []
+              }
+              const item = {
+                id: i === 11 ? i : i === 5 ? 10 : i < 5 ? i : i - 1,
+                name: i === 11 ? '' : i === 5 ? '' : i < 5 ? i : i - 1,
+                click: false
+              }
+              
+              item.icon = i === 5 ? this.imgSrc.keyboardDel : i === 11 ? this.imgSrc.keyboardReset : ''
+              trArr.push(item)
+              if (i === 11) keyBoardData.push(trArr)
             }
-            const item = {
-              id: i === 11 ? i : i === 5 ? 10 : i < 5 ? i : i - 1,
-              name: i === 11 ? '' : i === 5 ? '' : i < 5 ? i : i - 1,
-              click: false
+          } else {
+            let trArr = []
+            for (let i = 0; i < 10; i++) {
+              trArr.push({
+                id: i,
+                name: i,
+                click: false
+              })
             }
-            
-            item.icon = i === 5 ? this.imgSrc.keyboardDel : i === 11 ? this.imgSrc.keyboardReset : ''
-            trArr.push(item)
-            if (i === 11) keyBoardData.push(trArr)
+            trArr.push({
+              id: 10,
+              name: '清空',
+              icon: this.imgSrc.keyboardReset
+            })
+            trArr.push({
+              id: 11,
+              name: '删除',
+              icon: this.imgSrc.keyboardDel
+            })
+            keyBoardData.push(trArr)
           }
         } else {
           let trArr = []
@@ -108,6 +134,9 @@
         default: 270  // 整个键盘的宽度
       },
       landscape: {
+        default: false
+      },
+      oneLine: {
         default: false
       }
     },

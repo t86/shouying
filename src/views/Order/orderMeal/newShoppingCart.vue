@@ -129,6 +129,16 @@
         </div>
       </div>
       
+      
+      <keyBoard
+          class="new-shopping-cart-content-key"
+          :landscape="true"
+          :itemHeight="44"
+          :itemWidth="44"
+          :width="540"
+          @changeNum="changeNumHandle"
+        />
+
       <div
         class="new-shopping-cart-content-bottom"
         layout="row"
@@ -213,6 +223,7 @@ import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import keyBoard from "@/components/common/keyBoard.vue";
 
 import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new_sub.png";
@@ -297,6 +308,56 @@ export default {
             el.showList = false;
           });
         });
+    },
+
+    // 键盘
+    // 根据currentInfo的c设置键盘输入，不能超过c的值
+    changeNumHandle(value) {
+      if (this.focus == -1) {
+        return;
+      }
+      let currentInfo;
+      let orginNum = 0;
+      if (this.focus != "validateVal") {
+        currentInfo = this.shoppingCartWineList[this.focus];
+        orginNum = currentInfo.maxCount;
+        if (!currentInfo) return;
+      }
+      switch (value) {
+        case 11: // 清空
+          if (this.focus == "validateVal") {
+            this.validateVal = "";
+          } else {
+            currentInfo.c = 0;
+          }
+          break;
+        case 10: // 回退(
+          if (this.focus == "validateVal") {
+            this.validateVal = this.validateVal
+            .toString()
+            .slice(0, this.validateVal.toString().length - 1);
+          } else {
+            currentInfo.c =
+              currentInfo.c
+                .toString()
+                .slice(0, currentInfo.c.toString().length - 1) * 1;
+          }
+          break;
+        default:
+          if (this.focus == "validateVal") {
+            this.validateVal = this.validateVal.toString() + value * 1;
+          } else {
+            currentInfo.c =
+              currentInfo.c == 0
+                ? value * 1
+                : currentInfo.c.toString() + value * 1;
+            if(currentInfo.c * 1 > orginNum) {
+              currentInfo.c = orginNum;
+            }
+          }
+          break;
+      }
+      this.$forceUpdate();
     },
 
     // 是否显示操作下拉框选项
@@ -717,6 +778,7 @@ export default {
   components: {
     drawerGiveHeMore,
     drawerChooseRequireInfo,
+    keyBoard
   },
   computed: {
     isShowPayBtn() {

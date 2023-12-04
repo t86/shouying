@@ -342,7 +342,7 @@ export default {
     return {
       canLookOrderAmt: false,
 
-      isRect: window.innerWidth > 1024,
+      isRect: window.innerWidth >= 1024,
       isNarrowWidth: window.innerWidth < 850,
 
       activeRouteName: "", // 当前页面的routerName
