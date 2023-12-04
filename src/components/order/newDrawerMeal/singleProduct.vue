@@ -63,7 +63,7 @@
     <!-- 提交按钮 -->
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-      <el-button type="primary" @click.stop="deletePrdHandle">解除沽清</el-button>
+      <el-button v-if="type == 4" type="primary" @click.stop="deletePrdHandle">解除沽清</el-button>
       <el-button type="primary" @click.stop="onSubmit">确认</el-button>
     </div>
 
@@ -531,6 +531,9 @@ export default {
     // productInfo.prdType 1存货(关联erp) 7普通(不关联erp) 2套餐 3 时价特饮(关联erp) 4 小费 5 赔偿 6 联营,13 定价特饮 14 定价小费
     productInfo: {
       default: () => { },
+    },
+    type: {
+      default: 1, // 1：点单数量  2：选择套餐  3：授权  4：估清数量
     },
     orderMealStatus: {
       default: 1,

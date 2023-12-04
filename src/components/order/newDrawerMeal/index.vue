@@ -12,6 +12,7 @@
       <singleProduct
         ref="singleProductRef"
         v-if="type == 1 || type == 4"
+        :type="type"
         :productInfo="productInfo"
         :orderMealStatus="orderMealStatus"
         :show="show"

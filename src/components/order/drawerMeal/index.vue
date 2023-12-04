@@ -12,6 +12,7 @@
       <singleProduct
         ref="singleProductRef"
         v-if="type == 1 || type == 4"
+        :type="type"
         :productInfo="productInfo"
         :orderMealStatus="orderMealStatus"
         :show="show"
@@ -139,7 +140,7 @@ export default {
           title = "授权";
           break;
         case 4:
-          title = "估清数量";
+          title = "沽清数量";
           break;
       }
       return title;
@@ -155,7 +156,9 @@ export default {
           singleDom && singleDom.resetSingleForm();
         });
 
-        if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {this.changeType(4)};
+        if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
+          this.changeType(4)
+        };
       }
     }
   }
