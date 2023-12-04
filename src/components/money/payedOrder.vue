@@ -285,44 +285,36 @@
                     <div class="td">
                       <img
                         :src="imgSrc.shoppingCarMore"
-                        v-if="
-                          (item.at == 2 || item.at == 3) ||
-                          (item.is == 1 &&
-                          turnOverCount ==
-                            $store.state.orderInfo.currentCardInfo.turnoverCnt)
-                        "
                         @click.stop="showOrHideList(item)"
                         alt
                       />
                       <img
                         :src="imgSrc.sanJiao"
-                        v-if="item.showList && (item.productInfo.prdType == 2 ||
-                        item.at == 2 || item.at == 3)"
                         class="sanJiao"
+                        v-if="item.showList"
                         alt
                       />
                       <ul
                         class="do-list"
-                        v-if="item.showList && (item.productInfo.prdType == 2 ||
-                        item.at == 2 || item.at == 3)"
+                        v-if="item.showList"
                       >
                         <div
                           class="li"
-                          v-if="item.productInfo.prdType == 2 && !item.back"
+                          v-if="item.showList && item.productInfo.prdType == 2 && !item.back"
                           @click.stop="showOrHideUpdateDetailDrawer(item, 4)"
                         >
                           更改套餐明细
                         </div>
                         <div
                           class="li"
-                          v-if="item.productInfo.prdType == 2 && item.back"
+                          v-if="item.showList && item.productInfo.prdType == 2 && item.back"
                           @click.stop="showOrHideUpdateDetailDrawer(item, 5)"
                         >
                           查看套餐明细
                         </div>
                         <div
                           class="li"
-                          v-if="item.at == 2 || item.at == 3"
+                          v-if="item.showList && (item.at == 2 || item.at == 3)"
                           @click.stop="showOrHideUpdateDetailDrawer(item, 9)"
                         >
                           修改优惠人
@@ -330,13 +322,14 @@
                         <!-- 已结账并且优惠可取消 -->
                         <div
                           class="li"
-                          v-if="item.at == 2 || item.at == 3"
+                          v-if="item.showList && (item.at == 2 || item.at == 3)"
                           @click.stop="showOrHideUpdateDetailDrawer(item, 10)"
                         >
                           取消优惠
                         </div>
                         <div
                           class="li"
+                          v-if="item.showList"
                           @click.stop="showOrHideUpdateDetailDrawer(item, 11)"
                         >
                           修改下单人
