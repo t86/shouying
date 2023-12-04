@@ -49,6 +49,7 @@ export default new Vuex.Store({
     },
     // 请求相关信息
     requestInfo: {},
+    defaultImg: require("@/assets/order-img/defaultImg.png"),
     loading: false, // loading
   },
   mutations: {
@@ -59,6 +60,10 @@ export default new Vuex.Store({
 
     updateRequestInfo(state, value) {
       state.requestInfo = { ...value };
+    },
+
+    updateDefaultImage(state, value) {
+      state.defaultImg = value;
     },
 
     updateClient(state, value) {

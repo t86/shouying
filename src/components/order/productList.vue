@@ -15,7 +15,7 @@
           :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img"
-              :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
+              :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
             <span class="item-span"
               v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
                 shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
@@ -354,7 +354,7 @@ export default {
 
     // 点击放大镜放大图片
     clickDescImage(item) {
-      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
+      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : $store.state.defaultImg
       this.dialogVisible = true;
     },
     handleCloseClick() {

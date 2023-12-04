@@ -15,6 +15,10 @@
         :model="formData"
         ref="drawerRef"
       >
+      <el-form-item label="卡台名称">
+        <span class="white">{{ cardInfo.name }}</span>
+      </el-form-item>
+
         <!-- 订位人预约信息 -->
         <div v-if="formData.sales.sales_status_arr.indexOf(formStatus) > -1">
           <el-form-item label="订位人">

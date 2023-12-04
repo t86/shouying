@@ -52,7 +52,7 @@
                     <div class="prd-item-div">
                       <div class="item-img" v-if="pic_show">
                         <img class="item-img"
-                          :src="item.picName ? pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')" />
+                          :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
                       </div>
                       <span>{{ item.n }}</span>
                       <!-- <p class="english-name one-txt-cut">{{ item.nameEng }}</p> -->
@@ -294,7 +294,7 @@ export default {
 
     // 点击放大镜放大图片
     clickDescImage(item) {
-      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : require('@/assets/order-img/defaultImg.png')
+      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : $store.state.defaultImg
       this.dialogVisible = true;
     },
     handleCloseClick(done) {

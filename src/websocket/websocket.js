@@ -228,6 +228,11 @@ export default class WebSocketClient {
             "updateStoreStatusId",
             this.resResultDataObj["storeStatusInfo"][0]["wkday_id"]
           );
+          this.resResultDataObj['showAmt'].forEach((item) => {
+            if (item.id * 1 == 8 && item.param1 * 1 == 1 && item.paramv1) {
+              this.vue.$store.commit('updateDefaultImage', item.paramv1)
+            }
+          });
         } else {
           if (init) this.getUpdateData();
           console.log("old-resResultDataObj:", this.resResultDataObj);
@@ -459,10 +464,12 @@ export default class WebSocketClient {
               this.resResultDataObj[resResultDataArr[key]][0] = el;
             }
 
-            if (index < 0 && (key == 39 || key == 35)) {
-              // 新增卡台状态数量统计
-              console.log("5", key, el);
-              // return this.getAllData(true, true)
+            if (key == 35) {
+              dataObj[key].forEach((item) => {
+                if (item.id * 1 == 8 && item.param1 * 1 == 1 && item.paramv1) {
+                  this.vue.$store.commit('updateDefaultImage', item.paramv1)
+                }
+              });
             }
 
             if (index < 0) {
