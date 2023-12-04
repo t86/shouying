@@ -49,21 +49,13 @@
             <div class="tr" layout="row" layout-align="space-between center">
               <div class="th">商品名称</div>
               <div class="th">剩余估清数量</div>
-              <div class="th">操作</div>
             </div>
           </div>
           <div class="tbody">
             <div class="tr" v-for="(item, i) in tableData" :key="i">
               <div class="prd-info" layout="row" layout-align="space-between center">
                 <div class="td">{{ item.n }}</div>
-                <div class="td">
-                  <img :src="item.c <= 0 ? imgSrc.subDisabled : imgSrc.sub" @click="changeCount('sub', item)" />
-                  <input type="number" min="0" v-model="item.c" @input="changeCount('input', item)" />
-                  <img :src="imgSrc.add" @click="changeCount('add', item)" />
-                </div>
-                <div class="td" @click="deletePrdHandle(item.id)">
-                  <span>删除</span>
-                </div>
+                <div class="td">{{ item.c }}</div>
               </div>
               <div class="require p-l-2">{{ item.require }}</div>
             </div>
@@ -234,48 +226,48 @@ export default {
       }
     },
 
-    // 更改数据库对应的估清商品数量
-    async changeGQPrdCount(itemInfo, needLoad = true) {
-      const params = {
-        prd_id: itemInfo.id * 1, //     int64    商品Id
-        cnt: itemInfo.c * 1 //   int  数量
-      };
-      try {
-        const res = await api_order.reqAddGQOrder(params);
-        if (res.code == 1) {
-          if (needLoad) this.getGQPrdList();
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("修改估清商品数量失败", error);
-      }
-    },
+    // // 更改数据库对应的估清商品数量
+    // async changeGQPrdCount(itemInfo, needLoad = true) {
+    //   const params = {
+    //     prd_id: itemInfo.id * 1, //     int64    商品Id
+    //     cnt: itemInfo.c * 1 //   int  数量
+    //   };
+    //   try {
+    //     const res = await api_order.reqAddGQOrder(params);
+    //     if (res.code == 1) {
+    //       if (needLoad) this.getGQPrdList();
+    //     } else {
+    //       this.$message.warning(res.msg);
+    //     }
+    //   } catch (error) {
+    //     console.log("修改估清商品数量失败", error);
+    //   }
+    // },
 
-    // 更改估清商品数量
-    changeCount(type, info) {
-      let count = info.c;
-      switch (type) {
-        case "add":
-          count = Math.min(count + 1, 1000);
-          break;
-        case "sub":
-          if (count <= 0) return
-          count = Math.max(count - 1, 0);
-          break;
-        case "input":
-          count = Math.min(count, 1000);
-          count = Math.max(count, 0);
-          break;
-      }
-      this.changeGQPrdCount({
-        id: info.id,
-        c: count - info.originCount
-      }, false);
-      info.c = info.originCount = count
+    // // 更改估清商品数量
+    // changeCount(type, info) {
+    //   let count = info.c;
+    //   switch (type) {
+    //     case "add":
+    //       count = Math.min(count + 1, 1000);
+    //       break;
+    //     case "sub":
+    //       if (count <= 0) return
+    //       count = Math.max(count - 1, 0);
+    //       break;
+    //     case "input":
+    //       count = Math.min(count, 1000);
+    //       count = Math.max(count, 0);
+    //       break;
+    //   }
+    //   this.changeGQPrdCount({
+    //     id: info.id,
+    //     c: count - info.originCount
+    //   }, false);
+    //   info.c = info.originCount = count
 
-      this.getPageData()
-    },
+    //   this.getPageData()
+    // },
 
     async deletePrdHandle(id) {
       const params = {

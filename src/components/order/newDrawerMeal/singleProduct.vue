@@ -63,6 +63,7 @@
     <!-- 提交按钮 -->
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
+      <el-button type="primary" @click.stop="deletePrdHandle">解除沽清</el-button>
       <el-button type="primary" @click.stop="onSubmit">确认</el-button>
     </div>
 
@@ -158,6 +159,23 @@ export default {
       this.$emit("closeDrawerHandle");
     },
 
+    async deletePrdHandle() {
+      const params = {
+        prd_id: this.productInfo.id * 1, //     int64    商品Id
+      };
+      try {
+        const res = await api_order.reqDelGQOrder(params);
+        if (res.code == 1) {
+          this.$emit("getGQPrdList");
+          this.onCancelDrawer();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("删除估清商品失败", error);
+      }
+    },
+
     focusHandle(value = 1) {
       // if (value == 1 && this.productInfo.prdType == 4)
       //   return this.$message.warning("小费类型商品数量不可修改");
@@ -241,7 +259,7 @@ export default {
           cnt: this.count * 1, //   int  数量
         };
         try {
-          const res = await api_order.reqAddGQOrder(params);
+          const res = await api_order.reqSetGQOrder(params);
           if (res.code == 1) {
             this.$message.success("添加估清商品成功");
             this.$emit("getGQPrdList");
