@@ -87,6 +87,7 @@
             <div class="th">出库单价</div>
             <div class="th">出库小计</div>
             <div class="th">出库操作人</div>
+            <div class="th">备注</div>
           </div>
         </div>
         <div class="tbody">
@@ -109,6 +110,7 @@
             <div class="td">{{ item.sp }}</div>
             <div class="td">{{ item.sa }}</div>
             <div class="td">{{ item.oon }}</div>
+            <div class="td">{{ item.r }}</div>
           </div>
           <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />

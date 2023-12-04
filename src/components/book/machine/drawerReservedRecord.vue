@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-drawer
-      title="开台记录"
+      title="开台预留"
       :visible.sync="show"
       :before-close="closeDrawerHandle"
       direction="rtl"
