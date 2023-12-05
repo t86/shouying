@@ -308,6 +308,28 @@ export default {
         "prdOutOfSomething"
       ].filter(item => item.status == 1)
 
+       /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
+          商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间 
+          里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
+          */
+      const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
+      const nowTime = new Date().getTime()
+      this.productsList = this.productsList.filter(item => {
+        const find = secondCategoryInfo.find(el => el.id == item.twoCateId)
+        if (find && find.enable_time_limit == 1) {
+          const beginTime = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time).getTime()
+          const endTime = new Date(new Date().toLocaleDateString() + ' ' + find.end_time).getTime()
+          const beginTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time2).getTime()
+          const endTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.end_time2).getTime()
+          if (nowTime < beginTime || nowTime > endTime) {
+            if (nowTime < beginTime2 || nowTime > endTime2) {
+              return false
+            }
+          }
+        }
+        return true
+      })
+
       this.productsList.forEach(el => {
         const find = outSomethingPrdList.find(item => item.id == el.id)
         el.outSomethingCount = find ? find.cnt : 'many'
