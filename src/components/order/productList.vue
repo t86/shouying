@@ -376,7 +376,7 @@ export default {
 
     // 点击放大镜放大图片
     clickDescImage(item) {
-      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : $store.state.defaultImg
+      this.bigImageUrl = item.picName ? this.pic_prefix_url + item.picName : this.$store.state.defaultImg
       this.dialogVisible = true;
     },
     handleCloseClick() {

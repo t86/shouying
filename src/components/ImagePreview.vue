@@ -1,6 +1,7 @@
 <template>
-    <div class="image-container" v-if="dialogVisible" @click="handleClose()">
+    <div class="image-container" v-if="dialogVisible">
         <img :src="imgSrc" alt="Image Preview" class="preview-image">
+        <img :src="require('@/assets/img/pre-close.png')" @click="handleClose()" class="close-img">
     </div>
 </template>
 
@@ -38,11 +39,20 @@ export default {
     z-index: 999;
 
     .preview-image {
-        min-width: 30%;
         max-width: 100%;
-        max-height: 100%;
-        object-fit: cover;
+        height: 100vh;
+        object-fit: contain;
         /* 图片保持原始比例 */
+    }
+
+    .close-img {
+        width: 60px;
+        height: 60px;
+        position: fixed;
+        z-index: 1000;
+        top: 10px;
+        right: 20%;
+        cursor: pointer;
     }
 }
 </style>
