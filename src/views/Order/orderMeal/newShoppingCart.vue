@@ -38,7 +38,7 @@
                 <!-- 赔偿类商品不可修改数量 -->
                 <img
                   :src="
-                    item.pc == 1 ||
+                    item.pc <= 1 ||
                     ((item.at == 2 || item.at == 3) && authId != item.ae)
                       ? imgSrc.subDisabled
                       : imgSrc.sub
@@ -59,7 +59,7 @@
                 />
                 <img
                   :src="
-                    item.pc >= 100 ||
+                    item.pc > 9999 ||
                     ((item.at == 2 || item.at == 3) && authId != item.ae)
                       ? imgSrc.addDisabled
                       : imgSrc.add

@@ -311,6 +311,7 @@ export default {
        /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
           商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间 
           里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
+          如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
           */
       const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
       const nowTime = new Date().getTime()
