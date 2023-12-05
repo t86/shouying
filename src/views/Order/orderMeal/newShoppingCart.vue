@@ -55,6 +55,7 @@
                   v-model="item.pc"
                   @click.stop="selectedItem = item"
                   @input="changeCount('input', item)"
+                  :class="{ inputActive:  selectedItem && selectedItem.id===item.id}"
                 />
                 <img
                   :src="
@@ -187,7 +188,7 @@
             position: absolute;
             top: 10px;
             right: 20px;
-            color: #fff;
+            color: #08080A;
             cursor: pointer;
           "
           @click="hideTimeSubHandle()"
@@ -315,6 +316,7 @@ export default {
     // 键盘
     // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
+      console.log(this.selectedItem,'????')
       if (!this.selectedItem) {
         return;
       }

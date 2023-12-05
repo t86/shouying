@@ -99,7 +99,7 @@
 <script>
 import api_order from "@/api/order";
 import eventVue from '@/utils/eventVue';
-import authorization from "@/components/order/shoppingCart/authorization";
+import authorization from "@/components/order/newShoppingCart/authorization";
 import inputSelect from "@/components/book/inputSelect";
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 转台
 

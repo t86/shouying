@@ -115,7 +115,7 @@ import keyBoard from "@/components/common/newKeyBoard";
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 import drawerYH2Submit from "@/components/order/newDrawerMeal/drawerYH2Submit.vue";
 // 补交
-import drawerBj from "@/components/order/drawerMeal/drawerBj/index.vue";
+import drawerBj from "@/components/order/newDrawerMeal/drawerBj/index.vue";
 export default {
   data() {
     return {

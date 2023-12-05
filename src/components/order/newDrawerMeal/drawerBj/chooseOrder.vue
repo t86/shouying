@@ -11,19 +11,14 @@
           </div>
         </div>
         <div class="tbody">
-          <div
-            class="tr"
-            layout="row"
-            layout-align="space-between center"
-            v-for="(item, index) in tableData"
-            :key="item.id"
-          >
-            <div class="td">
-              <el-checkbox v-model="item.checked" @change="changeCheckBox(item)">{{index + 1}}</el-checkbox>
+          <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in tableData"
+            :key="item.id">
+            <div class="td" style="font-size: 22px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">
+              <el-checkbox v-model="item.checked" @change="changeCheckBox(item)">{{ index + 1 }}</el-checkbox>
             </div>
-            <div class="td">{{item.n}}</div>
-            <div class="td">{{item.o}}</div>
-            <div class="td">{{item.s}}</div>
+            <div class="td" style="font-size: 22px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">{{ item.n }}</div>
+            <div class="td" style="font-size: 22px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">{{ item.o }}</div>
+            <div class="td" style="font-size: 22px;font-family: PingFangSC, PingFang SC;font-weight: 400;color: #08080A;">{{ item.s }}</div>
           </div>
           <div class="no-data p-10 fs14" v-if="tableData.length <= 0">暂无数据</div>
         </div>
@@ -56,7 +51,7 @@ export default {
             ...item,
             checked: (res.data.records || []).length == 1
           }));
-          if(this.tableData.length == 1) {
+          if (this.tableData.length == 1) {
             this.$emit('chooseOrderHandle', this.tableData[0]);
           }
         } else {
@@ -75,8 +70,8 @@ export default {
       this.$emit('chooseOrderHandle', itemInfo);
     }
   },
-  created() {},
-  mounted() {},
+  created() { },
+  mounted() { },
   props: {
     cardId: "",
     dateVal: ""
@@ -86,7 +81,7 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-@import "../../../../style/saveWine/table.less";
+@import "../../../../style/saveWine/newTable.less";
 </style>
 
 <style scoped lang='less'>
