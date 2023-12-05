@@ -312,7 +312,7 @@ export default {
         amt: item.useAmt,
       };
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
-      if (res.code == 1) {
+      if (res.code == 1 || res.code == 2) {
         this.$message.success("加入成功");
         this.getChoosePayList();
         this.cardPayInfo();

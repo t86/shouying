@@ -515,10 +515,10 @@
 
     </el-drawer>
 
-    <el-dialog class="custom-dialog" title="提示" :visible="showConsumed" append-to-body @close="showConsumed =false">
+    <el-dialog class="custom-dialog" title="提示" :visible="showConsumed" append-to-body @close="closeConsume">
         <h3>{{ consumeMessage }}</h3>
         <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="showConsumed =false">关闭</el-button>
+          <el-button type="primary" @click="closeConsume">关闭</el-button>
         </div>
       </el-dialog>
   </div>
@@ -703,6 +703,10 @@ export default {
       }
     },
 
+    closeConsume(){
+      showConsumed =false
+      this.getChoosePayList();
+    },
     async selfAuth() {
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   卡台Id
