@@ -53,6 +53,7 @@
                     (item.at == 2 || item.at == 3) && authId != item.ae
                   "
                   v-model="item.pc"
+                  @click.stop="selectedItem = item"
                   @input="changeCount('input', item)"
                 />
                 <img
@@ -215,7 +216,7 @@
       @updateRequireInfoArr="updateRequireInfoArr"
       @showOrHideDrawer="showOrHideRequireDrawer"
     />
-  </div>
+</div>
 </template>
 
 <script>
@@ -223,7 +224,7 @@ import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
-import keyBoard from "@/components/common/keyBoard.vue";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 
 import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new_sub.png";
@@ -276,6 +277,7 @@ export default {
         productInfo: {}, //  当前单品的单品信息
         requestInfoArr: [], // 当前单品修改前的定制要求
       },
+      selectedItem: null,
     };
   },
   methods: {
@@ -313,49 +315,28 @@ export default {
     // 键盘
     // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
-      if (this.focus == -1) {
+      if (!this.selectedItem) {
         return;
-      }
-      let currentInfo;
-      let orginNum = 0;
-      if (this.focus != "validateVal") {
-        currentInfo = this.shoppingCartWineList[this.focus];
-        orginNum = currentInfo.maxCount;
-        if (!currentInfo) return;
       }
       switch (value) {
         case 11: // 清空
-          if (this.focus == "validateVal") {
-            this.validateVal = "";
-          } else {
-            currentInfo.c = 0;
-          }
+          this.selectedItem.pc = '';
           break;
         case 10: // 回退(
-          if (this.focus == "validateVal") {
-            this.validateVal = this.validateVal
-            .toString()
-            .slice(0, this.validateVal.toString().length - 1);
-          } else {
-            currentInfo.c =
-              currentInfo.c
-                .toString()
-                .slice(0, currentInfo.c.toString().length - 1) * 1;
-          }
+          this.selectedItem.pc =
+          this.selectedItem.pc
+              .toString()
+              .slice(0, this.selectedItem.pc.toString().length - 1) * 1;
           break;
         default:
-          if (this.focus == "validateVal") {
-            this.validateVal = this.validateVal.toString() + value * 1;
-          } else {
-            currentInfo.c =
-              currentInfo.c == 0
+        this.selectedItem.pc =
+          !this.selectedItem.pc
                 ? value * 1
-                : currentInfo.c.toString() + value * 1;
-            if(currentInfo.c * 1 > orginNum) {
-              currentInfo.c = orginNum;
-            }
-          }
+                : this.selectedItem.pc.toString() + value * 1;
           break;
+      }
+      if(this.selectedItem.pc * 1 > 1000){
+        this.selectedItem.pc = '1000';
       }
       this.$forceUpdate();
     },
@@ -847,7 +828,7 @@ export default {
 
 <style scoped lang="less">
 @import "../../../style/common/elementDialog.less";
-@import "../../../style/order/orderMeal/shoppingCart/newShoppingCart.less";
+@import "../../../style/order/orderMeal/newShoppingCart/newShoppingCart.less";
 </style>
 
 <style scoped>
