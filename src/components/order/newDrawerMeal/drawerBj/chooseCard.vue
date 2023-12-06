@@ -8,7 +8,7 @@
             <ul class="contain-content-item-right" layout="row" layout-align="start center">
               <li :class="{ 'active': items.id === activeId, 'disabled': items.b == 2 }" v-for="(items, i) in item.ss"
                 :key="i">
-                <img :class="{ 'active': items.id === activeId }" :src="require('@/assets/card-imgs/zhuantaiduigou.png')"
+                <img :class="{ 'active': items.id === activeId }" :src="require('@/assets/card-imgs/new-zhuantaiduigou.png')"
                   alt />
                 <div :class="['bgc' + items.bizStatus]" @click.stop="chooseCard(items)" layout="column"
                   layout-align="center start">
@@ -106,23 +106,24 @@ export default {
 <style scoped lang='less'>
 .contain {
   // color: rgba(255, 255, 255, .8);
-
   color: #08080A;
   width: 100%;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 220px);
   overflow-y: auto;
   scroll-behavior: smooth;
   overflow-x: hidden;
   word-break: break-all;
+  margin-top: 50px;
 
   .contain-content {
     padding-bottom: 10px;
 
     &-item {
-      background: #2A3959;
+
+      background: #C4CBD7;
       padding: 5px;
       position: relative;
-      border-radius: 10px;
+      border-radius: 8px;
       transform: translate(10px, 10px);
       margin-bottom: 10px;
       min-height: 100px;
@@ -135,7 +136,9 @@ export default {
         border-radius: 8px;
         text-align: center;
         box-sizing: border-box;
-        background: #374368;
+        font-size: 24px;
+        font-family: SimHei;
+        background: #FAFAFC;
         writing-mode: vertical-lr;
         text-orientation: upright;
         letter-spacing: 4px;
@@ -148,6 +151,10 @@ export default {
         align-items: center;
         align-content: center;
         margin-left: 51px;
+        font-size: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
 
         >li {
           position: relative;
@@ -160,8 +167,8 @@ export default {
           }
 
           &.active {
-            border-color: #FDFF5F;
-            border-radius: 10px;
+            border-color: #3373E8;
+            border-radius: 8px;
           }
 
           >img {
@@ -179,12 +186,13 @@ export default {
             padding: 0 10px;
             margin: 3px;
             word-break: break-word;
-            width: 120px;
-            height: 56px;
+            width: 140px;
+            height: 70px;
             border-radius: 8px;
             box-sizing: border-box;
 
             .card-name {
+
               font-size: 16px;
               line-height: 26px;
               word-break: keep-all;
@@ -210,7 +218,7 @@ export default {
   height: 60px;
   position: fixed;
   right: 10px;
-  bottom: 0;
+  top: 40px;
   z-index: 100;
   cursor: pointer;
 

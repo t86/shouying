@@ -1693,7 +1693,7 @@ export default {
 </style>
 
 <style lang="less">
-@import "../../style/common/newElementConfirm.less";
+@import "../../style/common/elementConfirm.less";
 .out-something {
   position: fixed;
   z-index: 10;
