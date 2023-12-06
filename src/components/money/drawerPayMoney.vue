@@ -704,7 +704,7 @@ export default {
     },
 
     closeConsume(){
-      showConsumed =false
+      this.showConsumed =false
       this.getChoosePayList();
     },
     async selfAuth() {
