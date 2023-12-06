@@ -131,7 +131,7 @@ export default {
       if(status == 1) {
         this.status = status
       } else if(status == 2) {
-        if(!this.dateVal) return this.$message.warning('请选择补交日期')
+        if(!this.dateVal) return this.$message.warning('请选关联日期')
         this.status = status;
         this.$refs.chooseCard.init()
       } else if (status == 3) {
@@ -229,7 +229,7 @@ export default {
       let title = "";
       switch (this.status) {
         case 1:
-          title = "补交"
+          title = "关联"
           break
         case 2:
           title = "选择卡台";
@@ -277,8 +277,8 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../../../style/common/elementDrawer.less";
+@import "../../../../style/common/newElementDrawer.less";
 @import "../../../../style/common/elementDrawerHeaderAndSession.less";
-@import "../../../../style/common/elementFormBtn.less";
+@import "../../../../style/common/newElementFormBtn.less";
 @import "../../../../style/common/scrollBar.less";
 </style>

@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <div layout="row" layout-align="center center"  style="padding-top: 8px; " v-if="(!isRect) &&
+      <div layout="row" layout-align="center center" style="padding-top: 8px; " v-if="(!isRect) &&
         ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
         <!-- 消费情况 -->
         <div class="new-one" layout="row" layout-align="start start">
@@ -147,12 +147,12 @@
       <div class="num-sub-tips" v-show="showNumSubTips">
         <div class="contain">
           <i class="el-icon-close" style="
-                                    position: absolute;
-                                    top: 10px;
-                                    right: 20px;
-                                    color: #fff;
-                                    cursor: pointer;
-                                  " @click="hideTimeSubHandle()"></i>
+                                      position: absolute;
+                                      top: 10px;
+                                      right: 20px;
+                                      color: #08080A;
+                                      cursor: pointer;
+                                    " @click="hideTimeSubHandle()"></i>
           {{ logoutCount }}秒后将退出登录！
         </div>
       </div>
@@ -170,7 +170,7 @@
               @click="payType = item.id">
               <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
               <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
-                 class="tuijian">推荐</span>
+                class="tuijian">推荐</span>
             </div>
           </div>
 
@@ -491,6 +491,7 @@ export default {
             payedAmt,
             payed_zy_val_amt,
           };
+
         });
 
         // 查看当台记录，更新页面底部的五个金额

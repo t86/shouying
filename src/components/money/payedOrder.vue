@@ -253,7 +253,8 @@
                       </span>
                     </div>
                     <div class="td" :class="{ opacity: item.back }">
-                      {{ item.productInfo && item.productInfo.name }}
+                      <h5>{{item.productInfo.name}}</h5>
+                      <h5 v-if="item.back">{{item.b + " - " + item.be}}</h5>
                     </div>
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.pc }}
