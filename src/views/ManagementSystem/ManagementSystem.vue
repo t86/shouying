@@ -150,7 +150,7 @@ export default {
       ], // 列表
       activeNames: "0", //点开了第几个
       nr: [],
-      isKeyBoard: false // 是否开启系统键盘
+      isKeyBoard: localStorage.getItem('keyboard') == '1' // 是否开启系统键盘
     };
   },
   mounted() {
@@ -169,9 +169,10 @@ export default {
   },
   methods: {
     changeKeyboard() {
-      if(this.isKeyBoard) {
+      if(localStorage.getItem('keyboard') == '1') {
         if (window.atool&& window.atool.getTermType() == "android" &&
             ("hideSoftInput" in window.atool)) {
+          localStorage.setItem('keyboard', "2")
           setTimeout(() => {
             atool.hideSoftInput();
             atool.restart();
@@ -184,12 +185,13 @@ export default {
         if (window.atool && window.atool.getTermType() == "android" &&
           ("showSoftInput" in window.atool)) {
             atool.showSoftInput();
+            localStorage.setItem('keyboard', "1")
         } else {
           this.$message.warning("当前设备不支持系统键盘, 请找实施人员升级应用");
           return;
         }
       }
-      this.isKeyBoard = !this.isKeyBoard;
+      this.isKeyBoard = localStorage.getItem('keyboard') == '1';
     },
 
     initNavBarActive(paramsStr = "") {
