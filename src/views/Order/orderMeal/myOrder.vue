@@ -276,7 +276,7 @@ export default {
         if (res.code === 1) {
           this.amt.allAmt = ((res.data.pay_info.order_amt || 0) / 100).toFixed(2);
           this.amt.giveAmt = ((res.data.pay_info.yh_amt || 0) / 100).toFixed(2);
-          this.amt.notPayAmt = ((res.data.pay_info.order_amt || 0 - res.data.payed_amt || 0) / 100).toFixed(2);
+          this.amt.notPayAmt = ((res.data.pay_info.order_amt || 0 - res.data.pay_info.payed_amt || 0) / 100).toFixed(2);
           const data = res.data.records || [];
           data.forEach((el) => {
             el.productInfo = common_order.getProductInfo(el.pid);

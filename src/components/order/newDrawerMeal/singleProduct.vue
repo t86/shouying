@@ -3,9 +3,9 @@
     <!-- 数量 -->
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
       <input ref="inputCount" v-if="$store.state.userInfo.authStatus == 4" class="count" :class="{ focus: focus == 1 }"
-        @click.stop="focusHandle(1)" placeholder="请输入商品数量" v-model="count" />
+        @click.stop="focusHandle(1)" placeholder="商品数量默认1" v-model="count" />
       <div v-else class="count" :class="{ focus: focus == 1, text: !count }" @click.stop="focusHandle(1)">
-        {{ count == "" ? "请输入商品数量" : count }}
+        {{ count == "" ? "商品数量默认1" : count }}
       </div>
     </el-form-item>
 
@@ -243,13 +243,16 @@ export default {
     },
 
     async onSubmit() {
+      // 如果count为空，则默认为1
+      if (this.count === "") this.count = 1;
+
       if (
         this.count.toString().indexOf(".") > -1 &&
         this.count.toString().indexOf(".") < this.count.toString().length - 1
       )
         return this.$message.warning("商品数量必须为整数");
       if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !this.count)
-        return this.$message.warning("请输入商品数量！");
+        return this.$message.warning("商品数量默认1");
       if (isNaN(this.count * 1)) return this.$message.warning("请输入数字！");
 
       // 判断是否为估清
