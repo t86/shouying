@@ -466,7 +466,7 @@ export default {
   .custom-info {
     .info-detail {
       .info-tab {
-        width: 500px;
+        width: 600px;
         margin-right: 20px;
 
         .tab {
@@ -475,7 +475,7 @@ export default {
             text-align: center;
             cursor: pointer;
             padding: 0 4px;
-            width: 120px;
+            width: 150px;
             height: 44px;
             border-radius: 8px;
             border: 1px solid #40404E;
