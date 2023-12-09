@@ -118,6 +118,34 @@ export default {
     };
   },
   methods: {
+    showKeyboard(){ 
+      return window.atool && window.atool.getTermType() == "android"
+    },
+    changeKeyboard() {
+      if(localStorage.getItem('keyboard') == '1') {
+        if (window.atool&& window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)) {
+          localStorage.setItem('keyboard', "2")
+          setTimeout(() => {
+            atool.hideSoftInput();
+            atool.restart();
+            }, 10)
+        } else {
+          this.$message.warning("当前设备不支持系统键盘, 请找实施人员升级应用");
+          return;
+        }
+      } else {
+        if (window.atool && window.atool.getTermType() == "android" &&
+          ("showSoftInput" in window.atool)) {
+            atool.showSoftInput();
+            localStorage.setItem('keyboard', "1")
+        } else {
+          this.$message.warning("当前设备不支持系统键盘, 请找实施人员升级应用");
+          return;
+        }
+      }
+      this.isKeyBoard = localStorage.getItem('keyboard') == '1';
+    },
     // 显示修改密码框
     showChangePwd(){
       this.dialogFormVisible = true;
