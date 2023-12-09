@@ -18,10 +18,10 @@ export default [
         path: 'newShoppingCart', name: 'newShoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/newShoppingCart.vue'),
       },
       {    
-        path: 'myOrder', name: 'myOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/myOrder.vue'),
+        path: 'oldMyOrder', name: 'oldMyOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/myOrder.vue'),
       },
       {    
-        path: 'newMyOrder', name: 'newMyOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/newMyOrder.vue'),
+        path: 'myOrder', name: 'myOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/newMyOrder.vue'),
       },
       // 已选列表
       {    

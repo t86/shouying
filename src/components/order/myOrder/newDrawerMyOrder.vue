@@ -854,6 +854,14 @@ export default {
       switch (this.status) {
         case 1: // 退单
           this.orderBack(this.subStatus == 1 ? 'self' : 'another', {}, 1)
+          switch (this.$route.name) {
+              case "myOrder": // 点单系统，我的订单页面
+                this.$parent.getOrderedData();
+                break;
+              case "payOrder": // 收银系统，未支付订单页面
+                this.$parent.$parent.getOrderInfo();
+                break;
+            }
           break;
         case 2: // 优惠
         case 3: // 自用

@@ -465,8 +465,8 @@ export default {
       };
 
       try {
-        const res = await api_wine.reqGetBlackList(params);
-        if (res.code == 1 && res.data.records && res.data.records.length > 0) {
+        const res = await api_wine.reqCheckBlackPhone(params);
+        if (res.code != 1) {
           this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
           return false;
         }

@@ -192,6 +192,12 @@ export default {
         return this.$message.warning("请选择需要添加的商品");
       }
 
+      if(this.prdType * 1 == 1) {
+        this.onCancelDrawer();
+        this.$emit("getChoosedPrdList", checkedList);
+        return;
+      }
+
       const params = {
         station_id: this.stationId,
         seat_id: this.stationId,      //SeatId 功能卡台Id
@@ -200,7 +206,7 @@ export default {
       try {
         if (params.prd_ids.length > 0) {
           let res = null
-          if (this.prdType == 3) {
+          if (this.prdType * 1 == 3) {
             res = await this.$api.BMS.seat.requestBatchAddSpSeatPrd(params);
           } else {
             res = await this.$api.BMS.station.reqAddOrdExclPrd(params)
