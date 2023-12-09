@@ -11,7 +11,7 @@
     >
       <div class="session choose-pay-order p-5 fs14">
         <div class="fs14">请勾选结账商品
-          <span class="red-color">(含有“线”标志的为先手工那支付的订单，线上支付的订单需线联系收银员转为线下支付才可进行买单)</span>
+          <span class="red-color">(含有“线”标志的为线上支付的订单，线上支付的订单需线联系收银员转为线下支付才可进行买单)</span>
         </div>
         <div class="tab m-t-3" layout="row" layout-align="start center">
           <div class="tab-item" :class="{active: tabIndex == 1}" @click="changeTabIndexHandle(1)">勾选全部未结</div>
