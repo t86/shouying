@@ -548,23 +548,25 @@ export default {
       里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
       如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
       */
-      const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
-      const nowTime = new Date().getTime()
-      resultProductArr = resultProductArr.filter(item => {
-        const find = secondCategoryInfo.find(el => el.id == item.twoCateId)
-        if (find && find.enable_time_limit == 1) {
-          const beginTime = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time).getTime()
-          const endTime = new Date(new Date().toLocaleDateString() + ' ' + find.end_time).getTime()
-          const beginTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time2).getTime()
-          const endTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.end_time2).getTime()
-          if (nowTime < beginTime || nowTime > endTime) {
-            if (nowTime < beginTime2 || nowTime > endTime2) {
-              return false
+      if (!isGQ) {
+        const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
+        const nowTime = new Date().getTime()
+        resultProductArr = resultProductArr.filter(item => {
+          const find = secondCategoryInfo.find(el => el.id == item.twoCateId)
+          if (find && find.enable_time_limit == 1) {
+            const beginTime = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time).getTime()
+            const endTime = new Date(new Date().toLocaleDateString() + ' ' + find.end_time).getTime()
+            const beginTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time2).getTime()
+            const endTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.end_time2).getTime()
+            if (nowTime < beginTime || nowTime > endTime) {
+              if (nowTime < beginTime2 || nowTime > endTime2) {
+                return false
+              }
             }
           }
-        }
-        return true
-      })
+          return true
+        })
+      }
 
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];

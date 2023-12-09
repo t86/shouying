@@ -178,7 +178,7 @@
 
 <script>
 import eventVue from "@/utils/eventVue";
-const cardWidth = 272;
+const cardWidth = 282;
 import api_saveWine from "@/api/saveWine";
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import authorization from "@/components/order/newShoppingCart/authorization";
