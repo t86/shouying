@@ -47,7 +47,7 @@
                   " v-model="item.pc" @click.stop="selectedItem = item" @input="changeCount('input', item)"
                     :class="{ inputActive: selectedItem && selectedItem.id === item.id }" />
                   <img :src="
-                    item.pc > 9999 ||
+                    item.pc > 999999 ||
                       ((item.at == 2 || item.at == 3) && authId != item.ae)
                       ? imgSrc.addDisabled
                       : imgSrc.add
@@ -136,12 +136,12 @@
       <div class="num-sub-tips" v-show="showNumSubTips">
         <div class="contain">
           <i class="el-icon-close" style="
-              position: absolute;
-              top: 10px;
-              right: 20px;
-              color: #08080A;
-              cursor: pointer;
-            " @click="hideTimeSubHandle()"></i>
+                position: absolute;
+                top: 10px;
+                right: 20px;
+                color: #08080A;
+                cursor: pointer;
+              " @click="hideTimeSubHandle()"></i>
           {{ logoutCount }}秒后将退出登录！
         </div>
       </div>
@@ -255,7 +255,6 @@ export default {
     // 键盘
     // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
-      console.log(this.selectedItem, '????')
       if (!this.selectedItem) {
         return;
       }
@@ -276,10 +275,11 @@ export default {
               : this.selectedItem.pc.toString() + value * 1;
           break;
       }
-      if (this.selectedItem.pc * 1 > 1000) {
-        this.selectedItem.pc = '1000';
+      if (this.selectedItem.pc * 1 > 999999) {
+        this.selectedItem.pc = '999999';
       }
-      this.$forceUpdate();
+      this.changeCount('input', this.selectedItem)
+      // this.$forceUpdate();
     },
 
     // 是否显示操作下拉框选项
@@ -329,14 +329,13 @@ export default {
       let count = info.pc;
       switch (type) {
         case "add":
-          count = Math.min(count + 1, 1000);
+          count = Math.min(count + 1, 999999);
           break;
         case "sub":
           count = Math.max(count - 1, 1);
           break;
         case "input":
-          count = Math.min(count, 1000);
-          count = Math.max(count, 1);
+          count = count * 1 > 999999 ? 999999 : count * 1;
           break;
       }
 
@@ -351,7 +350,6 @@ export default {
           "点单数量已超过当前可点估清数量" + isOutOfSomethingPrd.cnt
         );
       }
-
       try {
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
