@@ -257,7 +257,7 @@ import api_saveWine from "@/api/saveWine";
 import api_wine from "@/api/wine";
 import keyBoard from "@/components/common/keyBoard.vue";
 export default {
-  data() {
+  data () {
     return {
       isRect: true, // 是否为横屏
       focus: 1,
@@ -276,7 +276,7 @@ export default {
     };
   },
   methods: {
-    interValHandle() {
+    interValHandle () {
       const storageSecondCount = this.$sessionStorage.getItem("secondCount"); // 获取发送短信时的时间戳
       const now = +new Date();
       const oneMinute =
@@ -293,7 +293,7 @@ export default {
       }
     },
     // 发送验证码
-    async sendPhoneMessage() {
+    async sendPhoneMessage () {
       if (this.count != 60) return;
       const params = {
         t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
@@ -323,32 +323,32 @@ export default {
       }
     },
 
-    keyboardShow(focusIndex, refString){
+    keyboardShow (focusIndex, refString) {
       this.focus = focusIndex
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
+        ("showSoftInput" in window.atool)
+      ) {
+        atool.showSoftInput();
+        atool.executeJs(`this.$refs.${refString}.focus()`)
 
-          }
+      }
     },
-    keyboardLeave(){
-      setTimeout(()=> {
+    keyboardLeave () {
+      setTimeout(() => {
         if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("hideSoftInput" in window.atool)
-          ) {
-            atool.hideSoftInput();
-            atool.restart();
-          }
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.hideSoftInput();
+          atool.restart();
+        }
       }, 10)
     },
     // 倒计时
-    loopSecond() {
+    loopSecond () {
       if (this.timer) clearInterval(this.timer);
       this.timer = setInterval(() => {
         this.count--;
@@ -359,11 +359,11 @@ export default {
       }, 1000);
     },
 
-    blueHandle() {
+    blueHandle () {
       this.focus = 0;
     },
 
-    addInputHandle(value) {
+    addInputHandle (value) {
       if (this.focus == 10) {
         this.customName = this.customName.toString() + value.toString();
       } else {
@@ -373,7 +373,7 @@ export default {
       this.emitStepOneInfoHandle();
     },
 
-    subInputHandle() {
+    subInputHandle () {
       if (this.focus == 10) {
         // 手机号存酒
         if (this.customName == "") return;
@@ -388,7 +388,7 @@ export default {
       this.emitStepOneInfoHandle();
     },
 
-    changeNumHandle(value) {
+    changeNumHandle (value) {
       if (!this.focus) return;
       let count = "";
       if (this.focus == 1) count = "authValidateVal";
@@ -411,7 +411,7 @@ export default {
       }
       this.emitStepOneInfoHandle();
     },
-    changeCheckBox(itemInfo) {
+    changeCheckBox (itemInfo) {
       this.selectedInfo = { ...itemInfo };
       this.tableData = this.tableData.map((item) => ({
         ...item,
@@ -420,7 +420,7 @@ export default {
       this.emitStepOneInfoHandle();
     },
 
-    async emitStepOneInfoHandle() {
+    async emitStepOneInfoHandle () {
       this.$emit("updateStepInfo", {
         ...JSON.parse(JSON.stringify(this.stepOneInfo)),
         orderList: [...this.tableData],
@@ -440,7 +440,7 @@ export default {
         if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
         if (this.phoneNum.toString().length == 11) {
           let isBalck = await this.validateBlackList(this.phoneNum.toString())
-          if(isBalck) {
+          if (isBalck) {
             return
           }
           this.getOrderCanSaveWine();
@@ -450,7 +450,7 @@ export default {
         if (!this.selectedInfo.id) return this.$message.warning("请选择流水");
         if (this.customPhoneNum.toString().length == 11) {
           let isBalck = await this.validateBlackList(this.phoneNum.toString())
-          if(isBalck) {
+          if (isBalck) {
             return
           }
           this.getOrderCanSaveWine();
@@ -459,13 +459,13 @@ export default {
     },
 
     // 手机号验证
-    async validateBlackList(phoneNumber) {
+    async validateBlackList (phoneNumber) {
       const params = {
         key: phoneNumber, //   string   搜索关键字
       };
 
       try {
-        const res = await api_wine.reqCheckBlackPhone(params);
+        const res = await api_saveWine.reqCheckBlackPhone(params);
         if (res.code != 1) {
           this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
           return false;
@@ -478,7 +478,7 @@ export default {
     },
 
     // 获取订单流水可存酒水
-    async getOrderCanSaveWine() {
+    async getOrderCanSaveWine () {
       const params = {
         csm_id: this.selectedInfo.id * 1, //    int64    流水Id
         cust_phone_num:
@@ -513,7 +513,7 @@ export default {
       }
     },
     // 检测是否为横屏
-    getRectVal() {
+    getRectVal () {
       const width = screen.availWidth;
       const height = screen.availHeight;
       this.isRect = width >= height;
@@ -528,13 +528,13 @@ export default {
     keyBoard,
   },
   computed: {
-    btnText() {
+    btnText () {
       return this.count == 60 ? "发送验证码" : this.count + "s后发送";
     },
   },
   watch: {
     stepOneInfo: {
-      handler(newVal) {
+      handler (newVal) {
         this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
         this.selectedInfo = this.tableData.find((item) => item.checked) || {};
@@ -550,7 +550,7 @@ export default {
       deep: true,
       immediate: true,
     },
-    tabIndex() {
+    tabIndex () {
       this.emitStepOneInfoHandle();
     },
   },

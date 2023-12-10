@@ -53,7 +53,9 @@
               ]"
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
-  
+              :style="{
+                display: !item.canLookOrder && isOnlySales ? 'none' : '',
+              }"
             >
               <p layout="row" layout-align="space-between center">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
@@ -442,7 +444,6 @@
 <script>
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
-import api_money from "@/api/money";
 
 import { legendList, orderSaveWineOptions } from "@/utils/config/card";
 
@@ -485,7 +486,7 @@ import drawerPayToStore from "@/components/order/saveWine/drawerPayToStore/index
 
 
 export default {
-  data() {
+  data () {
     return {
       // loadIndex: 0,
       // modelVisible: true, // 是否显示未开启营业日模态框
@@ -553,14 +554,14 @@ export default {
       },
 
       salesCanLookCardInfo: {
-        all_seat: 0,     // 1 是  2 否 (否的话, 看返回的卡台列表)
-        seats  :[]
+        all_seat: 1,     // 1 是  2 否 (否的话, 看返回的卡台列表)
+        seats: []
       }, // 营销可查单区域列表
     };
   },
   methods: {
     // 获取tab展示的数量
-    getTabShowCount(callback) {
+    getTabShowCount (callback) {
       const windowWidth = document.body.clientWidth;
       this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth);
       this.card.centerTypeWidth =
@@ -569,7 +570,7 @@ export default {
     },
 
     // 获取tab数据
-    getTabList(arr = []) {
+    getTabList (arr = []) {
       // 判断当前登录身份 1：服务员  2：营销  3：特饮/花篮
       const roleIds = this.$store.state.userInfo.roleIds;
       let FUTabList = [];
@@ -581,15 +582,9 @@ export default {
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
 
-      // 有营销
-      if (roleIds.includes(3)) {
-        if(this.salesCanLookCardInfo.all_seat != 1) {
-          YXTabList = [...JSON.parse(JSON.stringify(arr)).filter(i => this.$store.state.cardPageInfo.resResultDataObj.cardInfo
-            .filter(item => this.salesCanLookCardInfo.seats.includes(item.id * 1)).map(item => item.regionId).includes(i.id))]
-        
-        } else {
-          YXTabList = [...arr];
-        }
+      if (roleIds.includes(3) || roleIds.includes(4)) {
+        // 有营销/花篮权限
+        YXTabList = [...arr];
       }
 
       // 特饮，也需要判断可点区域
@@ -604,7 +599,7 @@ export default {
         !(
           roleIds.includes(2) ||
           roleIds.includes(3) ||
-          roleIds.includes(4)||
+          roleIds.includes(4) ||
           this.hasLookOrder
         )
       ) {
@@ -620,16 +615,11 @@ export default {
       let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
-
-      this.tab.tabListOrigin = JSON.parse(JSON.stringify([...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
-          (item, index, arr) =>
-            arr.findIndex((items) => items.id == item.id) == index
-        ).sort((a, b) => a.dsp - b.dsp)
-        .filter((item) => item.status == 1)));
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0,
         tabList
       );
+      this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
       if (tabList.length > 0) {
@@ -655,7 +645,7 @@ export default {
     },
 
     // 服务员身份权限返回可点的对应区域及可查单区域列表
-    getAuthArea(arr) {
+    getAuthArea (arr) {
       // 可点区域tab
       const canPayOrderAreaList = [];
       // 筛选可用的可点区域岗位(服务员)可点区域
@@ -689,29 +679,33 @@ export default {
     },
 
     // 手动切换卡台订单状态
-    changeCardStatus(cardStatusId) {
+    changeCardStatus (cardStatusId) {
       if (cardStatusId === this.legendActive) {
         // 点击的同状态一个按钮
         this.legendActive = 0;
         this.card.cardList = cardListInfoArr;
-      } else {
-        this.legendActive = cardStatusId;
-        this.tab.anotherInfoActiveId = 0;
-        this.tab.activeIndex = 0;
-        this.tab.showAnotherInfo = false;
-        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+        return;
       }
-      
+      this.legendActive = cardStatusId;
+      this.tab.anotherInfoActiveId = 0;
+      this.tab.activeIndex = 0;
+      this.tab.showAnotherInfo = false;
+      this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
     },
 
     // 获取全量数据
-    async getCardList(cardInfo = [], businessData = []) {
+    async getCardList (cardInfo = [], businessData = []) {
       // 当岗位只有销售, 无替身或替身岗位也只有销售时
-      if(this.isSaleRole){
-        await this.getLookSelfCardList()
+      if (this.isOnlySales) {
+        await this.getOnlyLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
-      const currentAreaAndCardList = this.getCurrentAreaAndCardList();;
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      const currentAreaAndCardList = (
+        this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
+      ).filter(
+        (item) => item.license_id == currentMachineId && item.status == 1
+      );
 
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
@@ -736,22 +730,18 @@ export default {
 
         // 通过cardList反推出对应的区域，并添加到区域id中
         const allCardInfo =
-          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo || []] || [];
+          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
 
         // 最终经过筛选过后的区域列表，对应元数据的areaInfo
         let resultAreaList = [];
         // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
         let resultCardList = [];
-        // 筛选营销中符合设备限制的所有卡台
-        let salesSeats = []
+
         areaIdList.forEach((el) => {
           // 存储配置区域的区域下所有卡台
           const currentAreaCardList = allCardInfo.filter(
-            (item) => (item.regionId == el)
+            (item) => item.regionId == el
           );
-          if(this.salesCanLookCardInfo.all_seat != 1) {
-            salesSeats = [...salesSeats, ...this.salesCanLookCardInfo.seats.filter(id => currentAreaCardList.map(i => i.id).includes("" + id))]
-          }
           resultCardList = [...resultCardList, ...currentAreaCardList];
         });
 
@@ -760,18 +750,12 @@ export default {
             (item) => item.id == el.region_o_seat_id
           );
           if (find) {
-            if(this.salesCanLookCardInfo.all_seat != 1 && this.salesCanLookCardInfo.seats.includes(find.id * 1)) {
-              salesSeats = [...salesSeats, find.id * 1]
-            }
             resultCardList.push(find);
             if (!areaIdList.find((item) => item == find.regionId)) {
               areaIdList.push(find.regionId);
             }
           }
         });
-
-        // 经过区域和卡台的筛选，理出所有营销符合设备限制的卡台id
-        this.salesCanLookCardInfo.seats = [...salesSeats]
         cardInfo = resultCardList;
       }
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
@@ -783,7 +767,7 @@ export default {
           const data = businessData.find((el) => el.seatId === item.id) || {};
           if (data.bizStatus != "22" && data.bizStatus != "33") {
             // 订位人upper_emp_id
-            function get_upper_emp_id() {
+            function get_upper_emp_id () {
               const sealPersonInfo = orderPersonInfo.find(
                 (el) => data.salesEmpId === el.id
               );
@@ -807,20 +791,19 @@ export default {
               tipsArr: this.getTips(data.bizStatus),
               // 是否可查单
               canLookOrder: this.currentCardCanLookOrder(item.name, data),
-              isYX: this.checkYX(item),
               // 低消进度
               diXiaoJindu:
                 Number(data.assignMinCsmAmt) > 0
                   ? (Number(data.order_zy_amt - data.payed_zy_free_amt) /
-                      Number(data.assignMinCsmAmt)) *
-                      100 >
+                    Number(data.assignMinCsmAmt)) *
+                    100 >
                     100
                     ? "100%"
                     : (
-                        (Number(data.order_zy_amt - data.payed_zy_free_amt) /
-                          Number(data.assignMinCsmAmt)) *
-                        100
-                      ).toFixed(0) + "%"
+                      (Number(data.order_zy_amt - data.payed_zy_free_amt) /
+                        Number(data.assignMinCsmAmt)) *
+                      100
+                    ).toFixed(0) + "%"
                   : "",
               // 点击卡台出现的可操作选项
               options: this.getCardOptions(data.bizStatus, data.turnoverCnt),
@@ -832,8 +815,8 @@ export default {
               // 订位人upper_emp_id
               upper_emp_id: upper_emp_id,
             });
-           
-          
+
+
           }
         }
       });
@@ -843,63 +826,25 @@ export default {
 
       if (
         (this.$store.state.userInfo.roleIds.includes(2) ||
-          this.$store.state.userInfo.roleIds.includes(3)
-          || this.$store.state.userInfo.roleIds.includes(4)) &&
+          this.$store.state.userInfo.roleIds.includes(3)) &&
         !this.modelVisible
       ) {
         // 服务员/营销/特饮  且已开启营业日
         cardList = await this.addOwnPayedAmtToCard(cardList);
       }
 
-      // 获取功能台或者关联功能台的金额信息
-      // 根据card_ids调用reqGetSpSeatList
-      // 卡台类型 '1' 实体台 '2' 虚拟台 '3' 关联功能台 '4' 功能台
-      let seat_ids = cardList.filter((item) => item.bizType == '3' || item.bizType == '4').map((item) => item.id * 1)
-      if(seat_ids.length > 0 && !this.$store.state.userInfo.roleIds.includes(11)) {
-        try {
-          const res = await api_money.reqGetSpSeatList({
-            seat_ids,
-          });
-          if (res.code == 1) {
-              /**
-               *     客户端传入json:
-                seat_ids   []int64      //SeatIds 待读取功能台列表,读取点单金额和优惠金额
-              成功返回编码:1, 返回json:
-                records    []*ResGetSpSeatListItem //Records 记录列表
-                  --------------------------------
-                  引用 ResGetSpSeatListItem 格式:
-                    s          int64      //SeatId 卡台Id
-                    y          int64      //YhAmt 优惠金额,单位分,需要前端格式化
-                    o          int64      //OrderAmt 下单金额,单位分,需要前端格式化
-              普通失败, 返回编码<>1, 数据为空
-              */
-            const { records } = res.data;
-            cardList.forEach((item, index) => {
-              const find = records.find((el) => el.s == item.id);
-              if (find) {
-                cardList[index].yhAmt = ((find.y || 0) / 100).toFixed(2);
-                cardList[index].orderAmt = ((find.o || 0) / 100).toFixed(2);
-              }
-            });
-          } else {
-            this.$message.warning(res.msg);
-          }
-        } catch (error) {
-          console.log("读取功能台卡台点单金额和优惠金额失败", error);
-        }
-      }
-     
-
       // 没有配置任何权限同时不具有全场查单权限
-      if (this.isUserWithoutRoles()) {
+      if (
+        this.$store.state.userInfo.roleIds.length == 0
+      ) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
       } else {
         cardListInfoArr = JSON.parse(JSON.stringify(cardList)); // 首次更改，为了给获取自己及下属员工卡台提供数据
       }
 
-      await this.getTabList(JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"])));
-      
+      await this.getTabList(JSON.parse(JSON.stringify(resResultDataObj["areaInfo"])));
+
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
       if (
         this.$store.state.userInfo.roleIds.includes(2) ||
@@ -909,20 +854,7 @@ export default {
           (item) =>
             this.tab.tabListOrigin.findIndex((i) => i.id == item.regionId) >= 0
         )));
-        cardListInfoArr.forEach(item => item.isWaiter = true)
       }
-      // 如果只是营销 不写在这里前面的判断会把区域弄没
-      if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
-        cardListInfoArr = []
-      }
-      // 如果是营销，需要根据可点卡台列表限制卡台
-      if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
-        cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
-          (item) => this.salesCanLookCardInfo.seats.includes(item.id * 1)
-          && !cardListInfoArr.map(item => item.id).includes(item.id)
-          )))]
-        }
-
 
       try {
         // 此处为了解决点单系统websocket数据更新后页面不更新问题
@@ -937,7 +869,7 @@ export default {
       // this.$store.commit("updateCardList", cardList);
     },
 
-    getCardOptions(bizStatus, turnoverCnt) {
+    getCardOptions (bizStatus, turnoverCnt) {
       let cardOption = [];
       if (turnoverCnt <= 0) {
         // 未过翻台
@@ -968,32 +900,20 @@ export default {
       );
     },
 
-
-    /**
-     * 检索与当前用户关联的卡台列表。
-     * 
-     * @returns {Array} 卡台列表。
-     */
-    getMyCardList() {
+    // 我的卡台数据(卡台列表)
+    getMyCardList () {
       const authEmpId =
         this.$store.state.userInfo && this.$store.state.userInfo.emp_id;
-      
-      const list =  cardListInfoArr.filter((item) => {
+
+      const list = cardListInfoArr.filter((item) => {
         item.waiter_emp_ids_arr = item.waiter_emp_ids_arr || [];
         return item.waiter_emp_ids_arr.includes(authEmpId.toString()) || item.salesEmpId == this.loginUserInfo.emp_id;
       });
       return list;
     },
 
-    /**
-     * 根据指定的键和ID筛选卡台列表。
-     * 
-     * @param {string} key - 用于筛选卡台列表的键。
-     * @param {number} id - 用于筛选卡台列表的ID。
-     * @param {Array} cardList - 可选的卡台列表进行筛选。
-     * @returns {Array} 筛选后的卡台列表。
-     */
-    filterCardList(key, id, cardList) {
+    // 筛选卡台数据
+    filterCardList (key, id, cardList) {
       let targetCardList = cardListInfoArr;
       if (cardList) {
         targetCardList = cardList;
@@ -1002,34 +922,16 @@ export default {
         el.showOption = false;
       });
 
-      /*
-      对targetCardList返回的cardlist进行重新排序，按照tabListOrigin中regionId对应的dsp从小到大排，并且regionId一样的排在一起，regionId一样时，根据targetCardList的dsp从小到大排
-      */
-
-      let sortCardList = []
-      this.tab.tabListOrigin && this.tab.tabListOrigin.forEach((item) => {
-        const find = targetCardList.filter((el) => el.regionId == item.id);
-        if (find.length > 0) {
-          sortCardList.push(...find.sort((a, b) => {
-            return a.dsp - b.dsp;
-          }))
-        }
-      });
-      targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
       return id == 2001
         ? this.getMyCardList()
         : id == 0
-        ? JSON.parse(JSON.stringify(sortCardList))
-        : filterArr;
+          ? JSON.parse(JSON.stringify(targetCardList))
+          : filterArr;
     },
 
-    /**
-     * 递归检索与当前用户的下属关联的卡台列表。
-     * 
-     * @param {number} selfId - 用户的ID。如果未提供，则使用当前用户的ID。
-     */
-    getSelfStaffList(selfId) {
+    // 递归获取自己下属卡台数据
+    getSelfStaffList (selfId) {
       // 未传值表明是当前登录账号人的id
       selfId = selfId || this.$store.state.userInfo.emp_id;
       const allStaffList =
@@ -1047,10 +949,8 @@ export default {
       }
     },
 
-    /**
-     * 检索与当前用户及其下属关联的卡台列表。
-     */
-    getSelfAndSelfStaffCardList() {
+    // 获取自己以及下属员工的卡台
+    getSelfAndSelfStaffCardList () {
       mySelfAndMyStaffCardList = [];
 
       this.getSelfStaffList();
@@ -1102,14 +1002,14 @@ export default {
     },
 
     // 点击卡台
-    cardClickHandle(info) {
+    cardClickHandle (info) {
       // 存酒模式
       if (this.typeModule == 2) return;
       // 点单模式
-      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8){
+      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
         return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
       }
-      
+
       this.$store.commit("updateOrderInfo", {
         key: "currentCardInfo",
         value: info,
@@ -1119,7 +1019,7 @@ export default {
     },
 
     // 操作图例legend中的option
-    async legendOptionHandle(type) {
+    async legendOptionHandle (type) {
       switch (type) {
         case "pwd": // 点击修改密码系列
           this.legendOptions.showUpdatePwd = !this.legendOptions.showUpdatePwd;
@@ -1168,7 +1068,7 @@ export default {
     },
 
     // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
-    async getAllData() {
+    async getAllData () {
       this.getAuthStatus();
       // const loading = this.$loading({
       //   lock: true,
@@ -1206,6 +1106,7 @@ export default {
           "regionId",
           this.tab.activeIndex
         );
+
         // this.$forceUpdate();
       } catch (error) {
         console.log("全量数据请求失败", error);
@@ -1214,7 +1115,7 @@ export default {
     },
 
     // 给卡台数据添加登录人自己的点单金额
-    async addOwnPayedAmtToCard(cardList) {
+    async addOwnPayedAmtToCard (cardList) {
       const ownPayedCardList = (await this.getAuthOwnPayedAmt()) || [];
       return cardList.map((item) => {
         const OwnPayInfo = ownPayedCardList.find(
@@ -1227,7 +1128,7 @@ export default {
       });
     },
     // 获取当前登录人可自己的下单金额
-    async getAuthOwnPayedAmt() {
+    async getAuthOwnPayedAmt () {
       try {
         const res = await api_order.reqGetOwnPayAmt();
         if (res.code == 1) {
@@ -1241,7 +1142,7 @@ export default {
       }
     },
     // 只是营销时 获取可查看卡台列表
-    async getLookSelfCardList() {
+    async getOnlyLookSelfCardList () {
       try {
         this.salesCanLookCardList = [];
         const res = await api_order.reqGetSalesmanSeatList();
@@ -1256,9 +1157,17 @@ export default {
       }
     },
     // 当前卡台是否有查单权限
-    currentCardCanLookOrder(n, cardItemInfo) {
+    currentCardCanLookOrder (n, cardItemInfo) {
       // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
-      const saleLookRole = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1);
+      if (this.isOnlySales) {
+        let isLook = false;
+        if (this.salesCanLookCardInfo.all_seat == 1) {
+          isLook = true;
+        } else {
+          isLook = this.salesCanLookCardInfo.seats.includes(cardItemInfo.seatId * 1)
+        }
+        return isLook;
+      }
       // 是否具有全场查单权限
       const isLookAll = this.hasLookOrder;
       // 是否是当前卡台订位人
@@ -1267,84 +1176,77 @@ export default {
       // 是否是当前卡台点单服务员
       const waiter_emp_ids_arr = "waiter_emp_ids_arr" in cardItemInfo && cardItemInfo.waiter_emp_ids_arr || [];
       const isSealer =
-      waiter_emp_ids_arr.find(
+        waiter_emp_ids_arr.find(
           (item) => item * 1 == this.$store.state.userInfo.emp_id * 1
         );
       // 是否是当前卡台订位人的同组人员
-      let  isLookDept = this.hasYXCanLookDept&&cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
+      let isLookDept = this.hasCanLookDept && cardItemInfo && cardItemInfo.upper_emp_id != 0 && cardItemInfo.upper_emp_id == this.loginUserInfo.upper_emp_id;
 
-       // 下过单的服务员 也属于同组 
+      // 下过单的服务员 也属于同组 
       let isWaiterDept = false;
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
         [];
-      for(let i =0; i< waiter_emp_ids_arr.length; i++){
+      for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
-        if(element){
+        if (element) {
           const waiter = orderPersonInfo.find(
-         (item) => item.id == element);
-         if(waiter && waiter.upper_emp_id == this.loginUserInfo.upper_emp_id && this.loginUserInfo.upper_emp_id != 0){
-          isWaiterDept = true;
-          break
-         }
+            (item) => item.id == element);
+          if (waiter && waiter.upper_emp_id == this.loginUserInfo.upper_emp_id && this.loginUserInfo.upper_emp_id != 0) {
+            isWaiterDept = true;
+            break
+          }
         }
       }
       // 不允许查看同组
-      if(!this.hasYXCanLookDept){
+      if (!this.hasCanLookDept) {
         isWaiterDept = false;
       }
-  
+
       let isLookSubordinate = cardItemInfo && this.loginUserSubordinateIds.includes(cardItemInfo.salesEmpId);
 
       // 服务员的下属 
       let isWaiterSealer = false;
       for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
-        if(this.loginUserSubordinateIds.includes(element)){
+        if (this.loginUserSubordinateIds.includes(element)) {
           isWaiterSealer = true;
           break;
         }
       }
-  
-       // 营销 不能看下属
-      if(this.hasYxOnlyLookSelf){
+
+      // 营销 不能看下属
+      if (this.hasOnlyLookSelf) {
         isLookSubordinate = false
       }
       // 下单服务员包括营销 所以都要判断
-      if (this.hasWaitOnlyLookSelf || this.hasYxOnlyLookSelf){
-         isWaiterSealer = false
+      if (this.hasWaitOnlyLookSelf || this.hasOnlyLookSelf) {
+        isWaiterSealer = false
       }
+      return isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
+    },
 
-      return saleLookRole || isLookAll || isBooker || isSealer || isLookDept || isWaiterDept || isLookSubordinate || isWaiterSealer;
-    },
-    checkYX(item){
-      if(this.salesCanLookCardInfo.all_seat != 1) {
-        return this.salesCanLookCardInfo.seats.includes(item.id * 1)
-      } else {
-        return true
-      }
-    },
     // 显示或隐藏低消进度统计表
-    showOrHideMinDetailDrawerHandle() {
+    showOrHideMinDetailDrawerHandle () {
       this.showMinDetailDrawer = !this.showMinDetailDrawer;
     },
     // 显示或隐藏估清商品
-    showOrHideOutSomethingHandle(value) {
+    showOrHideOutSomethingHandle (value) {
       this.showOrHideOutSomething = !this.showOrHideOutSomething;
     },
     // 鸡尾酒明细表
-    showOrHideTYDetailDrawer() {
+    showOrHideTYDetailDrawer () {
       this.showOrHideTYDetail = !this.showOrHideTYDetail;
     },
 
     /*
     存酒相关
   */
-    checkOutModuleHandle() {
+    checkOutModuleHandle () {
       this.typeModule = this.typeModule == 1 ? 2 : 1;
     },
 
-    optionsClickHandle(optionsInfo, cardInfo) {
+    optionsClickHandle (optionsInfo, cardInfo) {
       switch (optionsInfo.id) {
         case 1:
           this.saveWineInfo.show = true;
@@ -1362,7 +1264,7 @@ export default {
       });
     },
 
-    keydownHandle(e) {
+    keydownHandle (e) {
       if (e.keyCode == 13) {
         this.$nextTick(() => {
           if (this.legendOptions.updatePwdModel) {
@@ -1398,63 +1300,60 @@ export default {
       }
     },
 
-    rightClickHandle() {
+    rightClickHandle () {
       return false;
     },
 
-    isUserWithoutRoles() {
-      return this.$store.state.userInfo.roleIds.length == 0;
-    },
-    getCurrentAreaAndCardList() {
-    const currentMachineId = this.$localStorage.getItem("machineId");
-    return (resResultDataObj["machineArea"] || []).filter(
-      (item) => item.license_id == currentMachineId && item.status == 1
-    );
-  },
     // 登录后初始化图例中的抵达数量
-    setLegendCount(regionId = 0) {
+    setLegendCount (regionId = 0) {
       setTimeout(() => {
 
         let result = {};
-        if (this.isUserWithoutRoles()) {
+        if (
+          this.$store.state.userInfo.roleIds.length == 0
+        ) {
           this.cardStatusNoInfo = {};
           return;
         }
         // 获取设备可操作区域或卡台
-        const currentAreaAndCardList = this.getCurrentAreaAndCardList();
+        const currentMachineId = this.$localStorage.getItem("machineId");
+        const currentAreaAndCardList = (
+          resResultDataObj["machineArea"] || []
+        ).filter(
+          (item) => item.license_id == currentMachineId && item.status == 1
+        );
         const isNoLimit = currentAreaAndCardList.filter(
           (item) => item.type_id == 3
         );
         // 区域下部分卡台
-       let cardStatusNo =
-         regionId == 2001
-           ? this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
-               (item) =>
-                 this.card.cardList.findIndex((i) => i.id == item.region_id) >=
-                 0
-             ) || []
-           : this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
-               (item) =>
-                 this.tab.tabListOrigin.findIndex(
-                   (i) => i.id == item.region_id
-                 ) >= 0
-             ) || [];
+        let cardStatusNo =
+          regionId == 2001
+            ? this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
+              (item) =>
+                this.card.cardList.findIndex((i) => i.id == item.region_id) >=
+                0
+            ) || []
+            : this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(
+              (item) =>
+                this.tab.tabListOrigin.findIndex(
+                  (i) => i.id == item.region_id
+                ) >= 0
+            ) || [];
         // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
-        if(this.isSaleRole && this.salesCanLookCardInfo.all_seat != 1) {
-          let seats = this.salesCanLookCardInfo.seats
-          this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item => 
-          seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
-          && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
-          && seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
-          .forEach(item => {
-            item.id == 30 ?
-            result["10"] =
-            (result["10"] || 0) * 1 + item.cnt * 1  // 开台数
-            : result["20"] =
-            (result["20"] || 0) * 1 + item.cnt * 1  // 抵达数
-          })
+        if (this.isOnlySales && this.salesCanLookCardInfo.all_seat != 1) {
+          this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item =>
+            this.salesCanLookCardInfo.seats.includes(item.region_id * 1) && (item.id == '30' || item.id == '31')
+            && this.$store.state.cardPageInfo.resResultDataObj.cardInfo.filter(it => it.id == item.region_id
+              && this.salesCanLookCardInfo.seats.includes(it.id * 1) && (it.regionId == regionId || regionId == 0 || regionId == 2001)).length > 0)
+            .forEach(item => {
+              item.id == 30 ?
+                result["10"] =
+                (result["10"] || 0) * 1 + item.cnt * 1  // 开台数
+                : result["20"] =
+                (result["20"] || 0) * 1 + item.cnt * 1  // 抵达数
+            })
           this.card.cardList
-            .filter((item) => seats.includes(item.id * 1))
+            .filter((item) => this.salesCanLookCardInfo.seats.includes(item.id * 1))
             .forEach((el) => {
               if (el.bizStatus != 4 && el.bizStatus != 20) {
                 // 除了开台数和抵达数以外的状态
@@ -1462,12 +1361,10 @@ export default {
                   (result[el.bizStatus] || 0) * 1 + 1;
               }
             });
-            result["5"] = result["6"] || 0 + result["5"] || 0;
-            this.cardStatusNoInfo = result;
-            if(this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
-              return;
-            }
-        } 
+          result["5"] = result["6"] || 0 + result["5"] || 0;
+          this.cardStatusNoInfo = result;
+          return;
+        }
 
         if (isNoLimit.length > 0) {
           // 没有对设备进行卡台或区域限制
@@ -1554,7 +1451,7 @@ export default {
         } else {
           // 对设备进行了卡台区域配置
           if (regionId == 0 || regionId == 2001) {
-            // 选择的'全部'
+            // 选择的'全部' 或 我的
             this.tab.tabListOrigin.forEach((el) => {
               if (el.isAllCard) {
                 // 区域下所有卡台
@@ -1580,11 +1477,11 @@ export default {
                 );
                 this.card.cardList
                   .filter((item) => item.regionId == el.id)
-                  .forEach((item) => {
-                    if (item.bizStatus != 4 && item.bizStatus != 20) {
+                  .forEach((el) => {
+                    if (el.bizStatus != 4 && el.bizStatus != 20) {
                       // 除了开台数和抵达数以外的状态
-                      result[item.bizStatus] =
-                        (result[item.bizStatus] || 0) * 1 + 1;
+                      result[el.bizStatus] =
+                        (result[el.bizStatus] || 0) * 1 + 1;
                     } else {
                       // 开台数、抵达数
                       const currentSeatOpenInfo = allOpenInfo.find(
@@ -1654,12 +1551,12 @@ export default {
     },
   },
 
-  async mounted() {
+  async mounted () {
     window.addEventListener("click", (e) => this.legendOptionHandle());
     window.addEventListener("resize", this.windowResizeHandle);
 
     window.onkeydown = this.keydownHandle;
-   
+
   },
 
   components: {
@@ -1675,7 +1572,7 @@ export default {
 
   watch: {
     "tab.activeIndex": {
-      handler(newVal, oldVal) {
+      handler (newVal, oldVal) {
         let regionId = "";
         if (newVal == 999) {
           // 选的的是'其他'按钮
@@ -1691,62 +1588,49 @@ export default {
   },
   computed: {
     // 是否有沽清权限
-    hasOutSomething() {
+    hasOutSomething () {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(5)
       );
     },
     // 是否有查单权限
-    hasLookOrder() {
+    hasLookOrder () {
       return (
         this.$store.state.userInfo.roleIds &&
         this.$store.state.userInfo.roleIds.includes(11)
       );
     },
     // 是否有存取酒
-    hasWineAuth() {
+    hasWineAuth () {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(1)
       );
     },
     // 不允许查看下属点单消费  只能看自己
-    hasYxOnlyLookSelf() {
+    hasOnlyLookSelf () {
       return this.$store.state.userInfo.sys_modules &&
-         this.$store.state.userInfo.sys_modules.includes(10)
+        this.$store.state.userInfo.sys_modules.includes(10)
     },
-    hasWaitOnlyLookSelf(){
+    hasWaitOnlyLookSelf () {
       return this.$store.state.userInfo.sys_modules &&
-         this.$store.state.userInfo.sys_modules.includes(6)
+        this.$store.state.userInfo.sys_modules.includes(6)
     },
-    //营销能查看同组点单消费
-    hasYXCanLookDept() {
+    //能查看同组点单消费
+    hasCanLookDept () {
       return (
         this.$store.state.userInfo.sys_modules &&
         (this.$store.state.userInfo.sys_modules.includes(7) || this.$store.state.userInfo.sys_modules.includes(11))
       );
     },
 
-    // // 特饮能查看同组点单
-    // hasTYCanLookDept() {
-    //   return (
-    //     this.$store.state.userInfo.sys_modules &&
-    //     (this.$store.state.userInfo.sys_modules.includes(13) || this.$store.state.userInfo.sys_modules.includes(14))
-    //   );
-    // },
-    // // 不允许查看下属点单  只能看自己
-    // hasTYOnlyLookSelf() {
-    //   return this.$store.state.userInfo.sys_modules &&
-    //      this.$store.state.userInfo.sys_modules.includes(13)
-    // },
-
     // 当前用户信息
-    loginUserInfo() {
+    loginUserInfo () {
       return this.$store.state.userInfo;
     },
     // loginUser 下属列表
-    loginUserSubordinateIds() {
+    loginUserSubordinateIds () {
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
         [];
@@ -1756,45 +1640,39 @@ export default {
       const ids = subordinateList.map((d) => d.id);
       return ids;
     },
-    // 有且只有一个营销角色权限  无替身或替身岗位也只有营销时
-    isSaleRole() {
-      let isSales = (this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(3));
-      let isCloneisSaleRole = true;
-      // 无替身或替身也是销售
-      if( isSales && this.loginUserInfo.clone_emp_id != '0'){
+    // 有且只有一个营销角色权限  无替身或替身岗位也只有销售时
+    isOnlySales () {
+      let onlySales = (this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1);
+      let isCloneIsOnlySales = true;
+      // 无替身或替身也只是销售
+      if (onlySales && this.loginUserInfo.clone_emp_id != '0') {
         const orderPersonInfo =
-        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
-        [];
+          this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+          [];
         const clone_person = orderPersonInfo.find(
-        (item) => item.id == this.loginUserInfo.clone_emp_id
+          (item) => item.id == this.loginUserInfo.clone_emp_id
         );
         // 替身权限
-        const sysRole = this.$store.state.cardPageInfo.resResultDataObj['sysRole'] ||[];
+        const sysRole = this.$store.state.cardPageInfo.resResultDataObj['sysRole'] || [];
         // 获取角色ids
         const roles = sysRole.filter(item => item.station_id == clone_person.stationId && item.status == 1);
-        const roleIds = [...new Set(roles.map(d=>d.sys_role_id * 1))];
-        isCloneisSaleRole = roleIds.includes(3);
-      
+        const roleIds = [...new Set(roles.map(d => d.sys_role_id * 1))];
+        isCloneIsOnlySales = roleIds.includes(3) && roleIds.length == 1;
+
       }
-      return isSales || isCloneisSaleRole
-    },
-    // 判断是否功能台或者功能关联台
-    isFunctionCard() {
-      return this.$store.state.cardPageInfo.resResultDataObj["cardInfo"].find(
-        (item) => item.typeId == 3
-      );
+      return onlySales && isCloneIsOnlySales
     },
   },
 
-  beforeDestroy() {
+  beforeDestroy () {
     console.log("beforeDestroy");
     window.removeEventListener("resize", this.windowResizeHandle);
     window.removeEventListener("click", (e) => this.legendOptionHandle());
 
     window.onkeydown = null;
   },
-  destroyed() {
+  destroyed () {
     console.log("destroyed");
   },
 
