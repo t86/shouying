@@ -58,7 +58,7 @@ import stepOne from "./stepOne.vue";
 import stepTwo from "./stepTwo.vue";
 import { SCROLL_BOTTOM } from '../../../../observer';
 export default {
-  data() {
+  data () {
     return {
       status: 1, // 1:选择流水  2：选择可存酒水  3：授权存酒
       stepOneInfo: {
@@ -79,7 +79,7 @@ export default {
     };
   },
   methods: {
-    init() {
+    init () {
       this.getStepOneData();
       this.stepOneInfo = {
         tabIndex: 2,
@@ -97,7 +97,7 @@ export default {
         this.reset();
       });
     },
-    async getStepOneData() {
+    async getStepOneData () {
       const params = {
         seat_id: this.$store.state.orderInfo.saveWineCardInfo.id * 1, //    int64   待操作卡台Id
       };
@@ -120,7 +120,7 @@ export default {
     },
 
     // 手机号验证
-    async validatePhoneInfo() {
+    async validatePhoneInfo () {
       const params = {
         m: this.stepOneInfo.phoneNum, //   string    手机号
         c: this.stepOneInfo.validateVal, //    string   验证码
@@ -144,14 +144,14 @@ export default {
     },
 
     // 手机号验证
-    async validateBlackList(phoneNumber) {
+    async validateBlackList (phoneNumber) {
       const params = {
         key: phoneNumber, //   string   搜索关键字
       };
 
       try {
-        const res = await api_wine.reqCheckBlackPhone(params);
-        if (res.code != 1 ) {
+        const res = await api_saveWine.reqCheckBlackPhone(params);
+        if (res.code != 1) {
           this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
           return false;
         }
@@ -163,7 +163,7 @@ export default {
     },
 
     // 服务码验证
-    async validateValidateInfo() {
+    async validateValidateInfo () {
       const params = {
         pay_code: this.stepOneInfo.authValidateVal, //    string   付款码
       };
@@ -188,7 +188,7 @@ export default {
       }
     },
 
-    async onSubmit() {
+    async onSubmit () {
       switch (this.status) {
         case 1:
           let result = "";
@@ -230,11 +230,11 @@ export default {
       }
     },
 
-    changeStatus(status = 1) {
+    changeStatus (status = 1) {
       this.status = status;
     },
 
-    updateStepInfo(info) {
+    updateStepInfo (info) {
       if (this.status == 1) {
         this.stepOneInfo = { ...info };
       } else if (this.status == 2) {
@@ -242,7 +242,7 @@ export default {
       }
     },
 
-    onCancelDrawer(isClose) {
+    onCancelDrawer (isClose) {
       if (isClose || this.status == 1) this.show = false;
       else this.status -= 1;
     },
@@ -250,23 +250,23 @@ export default {
   props: {
     value: false,
   },
-  beforeDestroy() {
+  beforeDestroy () {
     this.$observer.unsubscribe(SCROLL_BOTTOM)
   },
   computed: {
     show: {
-      get() {
+      get () {
         return this.value;
       },
-      set(val) {
+      set (val) {
         this.$emit("input", val);
       },
     },
-    checkedOrderInfo() {
+    checkedOrderInfo () {
       const find = this.stepOneInfo.orderList.find((item) => item.checked);
       return find || {};
     },
-    title() {
+    title () {
       let title = "";
       switch (this.status) {
         case 1:
@@ -276,7 +276,7 @@ export default {
       }
       return title;
     },
-    size() {
+    size () {
       let size = "60%";
       switch (this.status) {
         case 1:
@@ -288,7 +288,7 @@ export default {
       }
       return size;
     },
-    submitTxt() {
+    submitTxt () {
       let txt = "确认";
       switch (this.status) {
         case 1:
@@ -303,14 +303,14 @@ export default {
     stepTwo,
   },
   watch: {
-    value(newVal) {
+    value (newVal) {
       this.show = newVal;
       if (newVal) {
         this.status = 1;
         this.init();
       }
     },
-    status(newVal) {
+    status (newVal) {
       if (newVal == 2) {
         this.$nextTick(() => {
           this.$refs.stepTwo.init();
