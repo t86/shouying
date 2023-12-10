@@ -64,9 +64,9 @@ export default {
         this.seatFontSize = titleWidth > 350 ? '14px' : '18px';
 
       } else {
-        let s = parseInt(windowWidth / 70);
-        let s1 = parseInt(windowWidth / 90);
-        let f = parseInt(windowWidth / 100);
+        let s = parseInt(windowWidth / 60);
+        let s1 = parseInt(windowWidth / 80);
+        let f = parseInt(windowWidth / 90);
         this.titleFontSize = `${s}px`
         this.titleFontSize1 = `${s1}px`
         this.seatFontSize = `${f}px`
@@ -102,11 +102,16 @@ export default {
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
     this.getAuthInfo();
     this.getOpenTime();
-    this.adjustFontSize(); // 在组件加载后调整一次字体大小
-    window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
+    // this.adjustFontSize(); // 在组件加载后调整一次字体大小
+    // window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
+  },
+  computed: {
+    authTips() {
+      return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
+    },
   },
   beforeDestroy () {
-    window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
+    // window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
   }
 
 };

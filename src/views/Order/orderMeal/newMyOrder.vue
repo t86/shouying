@@ -1,202 +1,148 @@
 <template>
-  <!-- 我的点单 -->
-  <div class="new-my-order">
-    <HeaderInfo></HeaderInfo>
-    <div class="new-my-order-content" :class="{ rect: !isRect }">
-      <div class="new-my-order-content-top">
-        <div class="thead">
-          <div class="tr">
-            <div class="th">状态</div>
-            <div class="th">名称</div>
-            <div class="th">数量</div>
-            <div class="th">单价(元)</div>
-            <div class="th">小计(元)</div>
-            <div class="th">服务员</div>
-            <div class="th">点单时间</div>
-            <div class="th">优惠人</div>
-            <div class="th">操作</div>
+  <div>
+
+    <HeaderInfo />
+    <!-- 我的点单 -->
+    <div class="new-my-order">
+
+      <div class="new-my-order-content" :class="{ rect: !isRect }">
+        <div class="new-my-order-content-top">
+          <div class="thead">
+            <div class="tr">
+              <div class="th">状态</div>
+              <div class="th">名称</div>
+              <div class="th">数量</div>
+              <div class="th">单价(元)</div>
+              <div class="th">小计(元)</div>
+              <div class="th">服务员</div>
+              <div class="th">点单时间</div>
+              <div class="th">优惠人</div>
+              <div class="th">操作</div>
+            </div>
           </div>
-        </div>
-        <div class="tbody">
-          <div
-            class="coll"
-            v-for="item in orderList"
-            :key="item.id"
-            :class="{ online: item.io == 1 }"
-          >
-            <div class="detail tr">
-              <div class="td" layout="row" layout-align="start center">
-                <span class="purple" v-if="item.s == 5">结</span>
-                <span class="blue" v-if="item.l > 0">锁</span>
-                <span class="red" v-if="item.back">退</span>
-                <span
-                  class="red"
-                  v-if="item.s == 21"
-                  style="width: 50px; border-radius: 10px"
-                  >退单中</span
-                >
-                <span class="green" v-if="item.at == 2">惠</span>
-                <span class="green" v-if="item.at == 3"
-                  ><span style="display: block; transform: scale(0.7)"
-                    >惠2</span
-                  ></span
-                >
-                <!-- <span class="blue" v-if="item.at==6">自</span> -->
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                <div class="p one-txt-cut">{{ item.productInfo.name }}</div>
-                <div class="p english-name one-txt-cut">
-                  {{ item.productInfo.nameEng }}
+          <div class="tbody">
+            <div class="coll" v-for="item in orderList" :key="item.id" :class="{ online: item.io == 1 }">
+              <div class="detail tr">
+                <div class="td" layout="row" layout-align="start center">
+                  <span class="purple" v-if="item.s == 5">结</span>
+                  <span class="blue" v-if="item.l > 0">锁</span>
+                  <span class="red" v-if="item.back">退</span>
+                  <span class="red" v-if="item.s == 21" style="width: 50px; border-radius: 10px">退单中</span>
+                  <span class="green" v-if="item.at == 2">惠</span>
+                  <span class="green" v-if="item.at == 3"><span
+                      style="display: block; transform: scale(0.7)">惠2</span></span>
+                  <!-- <span class="blue" v-if="item.at==6">自</span> -->
                 </div>
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.pc }}
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.pp }}
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.at == 2 || item.at == 3 ? "0.00" : item.pa }}
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.personInfo && item.personInfo.name }}
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.ot.slice(7) }}
-              </div>
-              <div class="td" :class="{ opacity: item.back }">
-                {{ item.authInfo ? item.authInfo.name : "---" }}
-              </div>
-              <div class="td">
-                <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
-                <img
-                  v-if="
-                    (item.s != 5 && !item.back) || item.productInfo.prdType == 2
-                  "
-                  :src="imgSrc.shoppingCarMore"
-                  @click.stop="showOrHideList(item)"
-                  alt
-                />
-                <img
-                  :src="imgSrc.sanJiao"
-                  v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
-                  "
-                  class="sanJiao"
-                  alt
-                />
-                <div
-                  class="do-list"
-                  v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
-                  "
-                >
-                  <div
-                    class="li"
-                    v-if="item.s != 5 && !item.back && hasOrderBackAuth"
-                    @click.stop="showOrHideDrawer(1, item)"
-                  >
-                    退单
+                <div class="td" :class="{ opacity: item.back }">
+                  <div class="p one-txt-cut">{{ item.productInfo.name }}</div>
+                  <div class="p english-name one-txt-cut">
+                    {{ item.productInfo.nameEng }}
                   </div>
-                  <div
-                    class="li"
-                    v-if="
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.pc }}
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.pp }}
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.at == 2 || item.at == 3 ? "0.00" : item.pa }}
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.personInfo && item.personInfo.name }}
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.ot.slice(7) }}
+                </div>
+                <div class="td" :class="{ opacity: item.back }">
+                  {{ item.authInfo ? item.authInfo.name : "---" }}
+                </div>
+                <div class="td">
+                  <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
+                  <img v-if="
+                    (item.s != 5 && !item.back) || item.productInfo.prdType == 2
+                  " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
+                  <img :src="imgSrc.sanJiao" v-if="
+                    item.showList &&
+                    (!item.back || item.productInfo.prdType == 2)
+                  " class="sanJiao" alt />
+                  <div class="do-list" v-if="
+                    item.showList &&
+                    (!item.back || item.productInfo.prdType == 2)
+                  ">
+                    <div class="li" v-if="item.s != 5 && !item.back && hasOrderBackAuth"
+                      @click.stop="showOrHideDrawer(1, item)">
+                      退单
+                    </div>
+                    <div class="li" v-if="
                       item.productInfo.prdType == 2 &&
                       !item.back &&
                       hasChangeDetailAuth
-                    "
-                    @click.stop="showOrHideDrawer(4, item)"
-                  >
-                    更改套餐明细
-                  </div>
-                  <div
-                    class="li"
-                    v-if="item.productInfo.prdType == 2 && item.back"
-                    @click.stop="showOrHideDrawer(5, item)"
-                  >
-                    查看套餐明细
+                    " @click.stop="showOrHideDrawer(4, item)">
+                      更改套餐明细
+                    </div>
+                    <div class="li" v-if="item.productInfo.prdType == 2 && item.back"
+                      @click.stop="showOrHideDrawer(5, item)">
+                      查看套餐明细
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div v-if="item.is == 1 && !item.back">
-              <div
-                class="detail-list tr"
-                v-for="(items, i) in item.si"
-                :key="i"
-              >
-                <div class="td"></div>
-                <div class="td one-txt-cut">
-                  {{ items.groupInfo.name
-                  }}{{ items.r ? "（" + items.r + "）" : "" }}
+              <div v-if="item.is == 1 && !item.back">
+                <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
+                  <div class="td"></div>
+                  <div class="td one-txt-cut">
+                    {{ items.groupInfo.name
+                    }}{{ items.r ? "（" + items.r + "）" : "" }}
+                  </div>
+                  <div class="td">{{ items.s * items.c * item.pc }}</div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
                 </div>
-                <div class="td">{{ items.s * items.c * item.pc }}</div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
               </div>
+              <div v-if="(item.r || item.is == 1) && !item.back" :class="{ pt: item.is == 1 }" class="requested">
+                {{ item.r }}
+              </div>
+              <!-- 补单信息 -->
+              <div v-if="item.rl" class="requested">{{ item.rl }}</div>
             </div>
-            <div
-              v-if="(item.r || item.is == 1) && !item.back"
-              :class="{ pt: item.is == 1 }"
-              class="requested"
-            >
-              {{ item.r }}
+          </div>
+        </div>
+
+        <div class="new-my-order-content-bottom" layout="row" layout-align="space-between center">
+          <div class="amt" layout="row">
+            <div class="p m-r-5" layout="row" layout-align="start center">
+              <span>点单金额：</span>
+              <span class="num">￥{{ amt.allAmt }}</span>
             </div>
-            <!-- 补单信息 -->
-            <div v-if="item.rl" class="requested">{{ item.rl }}</div>
+            <div class="p m-r-5" layout="row" layout-align="start center">
+              <span>优惠金额：</span>
+              <span class="num">￥{{ amt.giveAmt }}</span>
+            </div>
+            <div class="p" layout="row" layout-align="start center">
+              <span>未结账金额：</span>
+              <span class="num">￥{{ amt.notPayAmt }}</span>
+            </div>
+          </div>
+          <div class="btn" layout="row" layout-align="end center">
+            <button @click.stop="showOrHideDrawer(6, item)">批量优惠</button>
+            <!-- <button @click.stop="showOrHideDrawer(7, item)">批量优惠2</button> -->
+            <button @click.stop="showOrHidePrintDrawer" class="right-btns">打印消费单</button>
           </div>
         </div>
       </div>
 
-      <div
-        class="new-my-order-content-bottom"
-        layout="row"
-        layout-align="space-between center"
-      >
-        <div class="amt" layout="row">
-          <div class="p m-r-5" layout="row" layout-align="start center">
-            <span>点单金额：</span>
-            <span class="num">￥{{ amt.allAmt }}</span>
-          </div>
-          <div class="p m-r-5" layout="row" layout-align="start center">
-            <span>优惠金额：</span>
-            <span class="num">￥{{ amt.giveAmt }}</span>
-          </div>
-          <div class="p" layout="row" layout-align="start center">
-            <span>未结账金额：</span>
-            <span class="num">￥{{ amt.notPayAmt }}</span>
-          </div>
-        </div>
-        <div class="btn" layout="row" layout-align="end center">
-          <button @click.stop="showOrHideDrawer(6, item)">批量优惠</button>
-          <!-- <button @click.stop="showOrHideDrawer(7, item)">批量优惠2</button> -->
-          <button @click.stop="showOrHidePrintDrawer"  class="right-btns">打印消费单</button>
-        </div>
-      </div>
+      <!-- 赠送、自用、退单等drawer -->
+      <drawerMyOrder ref="drawerMyOrder" :status="drawer.status" :showDrawer="drawer.showDrawer"
+        :currentItemInfo="drawer.currentItemInfo" :orderList="orderList" @showOrHideDrawer="showOrHideDrawer" />
+
+      <!-- 打印消费单 -->
+      <drawerPrintOrder ref="drawerPrintOrder" pageType="myOrder" :showDrawer="showPrintDrawer"
+        @showOrHidePrintDrawer="showOrHidePrintDrawer" />
     </div>
-
-    <!-- 赠送、自用、退单等drawer -->
-    <drawerMyOrder
-      ref="drawerMyOrder"
-      :status="drawer.status"
-      :showDrawer="drawer.showDrawer"
-      :currentItemInfo="drawer.currentItemInfo"
-      :orderList="orderList"
-      @showOrHideDrawer="showOrHideDrawer"
-    />
-
-    <!-- 打印消费单 -->
-    <drawerPrintOrder
-      ref="drawerPrintOrder"
-      pageType="myOrder"
-      :showDrawer="showPrintDrawer"
-      @showOrHidePrintDrawer="showOrHidePrintDrawer"
-    />
   </div>
 </template>
 
@@ -269,7 +215,7 @@ export default {
       try {
         let bizData = this.$store.state.cardPageInfo.resResultDataObj["businessData"];
         let biz = bizData.find(item => item.seatId == this.$store.state.orderInfo.currentCardInfo.seatId)
-       console.log('biz', biz)
+        console.log('biz', biz)
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
           turnover_cnt: biz.turnoverCnt * 1
@@ -321,7 +267,7 @@ export default {
               resultData.push(el);
             }
           });
-          console.log("未权限过滤的信息",resultData)
+          console.log("未权限过滤的信息", resultData)
           // const authList = [];
           // for(let i = 0;i<resultData.length;i++){
           //   let el = resultData[i]
@@ -346,7 +292,7 @@ export default {
           //     authList.push(el);
           //     continue;
           //   }
-            
+
           //   // 能看同组的 非同组的返回
           //   const upper_emp_id = el.personInfo&&el.personInfo.upper_emp_id || ''
           //   if ( this.hasCanLookDept &&
@@ -510,7 +456,7 @@ export default {
         this.$store.state.userInfo.sys_modules.includes(4)
       );
     },
-  // 是否有查单权限
+    // 是否有查单权限
     // hasLookOrder() {
     //   return (
     //     this.$store.state.userInfo.roleIds &&
