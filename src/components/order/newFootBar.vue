@@ -409,6 +409,7 @@ export default {
             this.activeRouteName = this.navList[item.id - 1].routeName;
           }
         );
+        
     },
 
     getAuthInfo() {

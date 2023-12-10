@@ -136,12 +136,12 @@
       <div class="num-sub-tips" v-show="showNumSubTips">
         <div class="contain">
           <i class="el-icon-close" style="
-                position: absolute;
-                top: 10px;
-                right: 20px;
-                color: #08080A;
-                cursor: pointer;
-              " @click="hideTimeSubHandle()"></i>
+                          position: absolute;
+                          top: 10px;
+                          right: 20px;
+                          color: #08080A;
+                          cursor: pointer;
+                        " @click="hideTimeSubHandle()"></i>
           {{ logoutCount }}秒后将退出登录！
         </div>
       </div>
@@ -176,6 +176,7 @@ import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 import drawerGiveHeMore from "@/components/order/newShoppingCart/drawerGiveHeMore";
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 import HeaderInfo from '@/components/HeaderInfo.vue';
+import { json } from "body-parser";
 // 键盘码 keycode
 let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
@@ -255,18 +256,24 @@ export default {
     // 键盘
     // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
+      // let copyItem = JSON.parse(JSON.stringify(this.selectedItem))
+      // let shoppingCount = this.$store.state.orderInfo.shoppingCartInfo.shoppingCount
       if (!this.selectedItem) {
         return;
       }
       switch (value) {
         case 11: // 清空
           this.selectedItem.pc = '';
+          // shoppingCount = shoppingCount - copyItem.pc
           break;
         case 10: // 回退(
           this.selectedItem.pc =
             this.selectedItem.pc
               .toString()
               .slice(0, this.selectedItem.pc.toString().length - 1) * 1;
+          // shoppingCount = shoppingCount - (copyItem.pc - this.selectedItem.pc
+          //   .toString()
+          //   .slice(0, this.selectedItem.pc.toString().length - 1) * 1)
           break;
         default:
           this.selectedItem.pc =
@@ -278,8 +285,18 @@ export default {
       if (this.selectedItem.pc * 1 > 999999) {
         this.selectedItem.pc = '999999';
       }
-      this.changeCount('input', this.selectedItem)
-      // this.$forceUpdate();
+      if (!this.selectedItem.pc) {
+        // this.changeCountZero(this.selectedItem)
+      } else {
+        this.changeCount('input', this.selectedItem)
+      }
+    },
+
+    // 处理清空删除为0的清空 
+    changeCountZero(info) {
+      info.pc = '';
+      info.pa = 0;
+      // this.$store.state.orderInfo.shoppingCartInfo.shoppingCount = shoppingCount
     },
 
     // 是否显示操作下拉框选项
