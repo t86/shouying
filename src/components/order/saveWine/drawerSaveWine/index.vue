@@ -146,7 +146,7 @@ export default {
     // 手机号验证
     async validateBlackList (phoneNumber) {
       const params = {
-        key: phoneNumber, //   string   搜索关键字
+        p: phoneNumber, //   string   搜索关键字
       };
 
       try {
