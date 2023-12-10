@@ -34,9 +34,10 @@
 </template>
   
 <script>
+import common_book from "@/utils/common/book";
 export default {
   name: 'HeaderInfo',
-  data() {
+  data () {
     return {
       openTime: "",
       cardInfo: {},
@@ -53,7 +54,7 @@ export default {
     }
   },
   methods: {
-    adjustFontSize() {
+    adjustFontSize () {
       const windowWidth = window.innerWidth;
       const titleElement = this.$refs.cardNameTitle;
       const titleWidth = titleElement.clientWidth;
@@ -72,7 +73,7 @@ export default {
 
       }
     },
-    getOpenTime() {
+    getOpenTime () {
       let cardInfo = this.$store.state.orderInfo.currentCardInfo;
       if (cardInfo && cardInfo.openTime) {
         let h = parseInt(cardInfo.openTime.substring(8, 10)); // 时
@@ -80,13 +81,13 @@ export default {
         this.openTime = `${h}:${s}`
       }
     },
-    empInfoFilter(empId) {
+    empInfoFilter (empId) {
       empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
       const empInfo = common_book.getOrderPersonInfo(empId) || { name: "散客" };
       const groupInfoName = common_book.getDepartmentName(empId) || "";
       return (this.cardInfo.name ? "/" : "") + (groupInfoName ? groupInfoName + "/" : "") + empInfo.name;
     },
-    getAuthInfo() {
+    getAuthInfo () {
       const date = new Date();
       this.authInfo = {
         month: (date.getMonth() + 1).toString().padStart(2, 0),
@@ -97,14 +98,14 @@ export default {
       };
     },
   },
-  mounted() {
+  mounted () {
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
     this.getAuthInfo();
     this.getOpenTime();
     this.adjustFontSize(); // 在组件加载后调整一次字体大小
     window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
   },
-  beforeDestroy() {
+  beforeDestroy () {
     window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
   }
 
@@ -113,9 +114,9 @@ export default {
   
 <style scoped lang="less">
 .header-content {
-  width: 100%;
+  width: 100vw;
   height: 56px;
-  background: #DCE1EA;
+  background: #dce1ea;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -130,7 +131,7 @@ export default {
       font-size: 18px;
       font-family: PingFangSC, PingFang SC;
       font-weight: 400;
-      color: #1A1A21;
+      color: #1a1a21;
 
       &:last-child {
         font-size: 24px;
@@ -151,7 +152,7 @@ export default {
       .card-name-title {
         display: flex;
         align-items: center;
-        color: #1A1A21;
+        color: #1a1a21;
         font-weight: 600;
         font-family: PingFangSC, PingFang SC;
       }
@@ -159,7 +160,7 @@ export default {
       .card-name-seat {
         font-family: PingFangSC, PingFang SC;
         font-weight: 600;
-        color: #1A1A21;
+        color: #1a1a21;
       }
     }
 
@@ -171,7 +172,7 @@ export default {
       font-size: 18px;
       font-family: PingFangSC, PingFang SC;
       font-weight: 400;
-      color: #08080A;
+      color: #08080a;
     }
   }
 }
