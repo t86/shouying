@@ -21,6 +21,19 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.2000);
     z-index: 99;
 
+    span {
+      font-size: 18px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      color: #1A1A21;
+
+      &:last-child {
+        font-size: 24px;
+        font-weight: 600;
+      }
+    }
+
+
     input {
       width: 360px;
       height: 36px;
@@ -89,13 +102,14 @@
         //   z-index: 1; /* 确保蒙层在元素上方 */
         // }
 
-        .al-product{
+        .al-product {
           display: flex;
           justify-content: end;
           margin-top: 16px;
           margin-bottom: 14px;
           height: 30px;
-          .item-span{
+
+          .item-span {
             border-radius: 12px;
             padding: 4px 8px;
             background: #D44F44;
@@ -106,6 +120,7 @@
             margin-right: 4px;
           }
         }
+
         .no-data-count {
           width: 80px;
           height: 80px;
@@ -239,6 +254,11 @@
     font-weight: 600;
     color: #1A1A21;
     font-family: PingFangSC, PingFang SC;
+
+    .card-name-title {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .line-top {
@@ -312,4 +332,3 @@
     }
   }
 }
-

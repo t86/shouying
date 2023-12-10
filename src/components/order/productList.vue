@@ -2,23 +2,24 @@
   <!-- 点单商品/套餐列表 -->
   <div class="product-list" ref="productListRef">
     <div class="search" layout="row" layout-align="start center">
-      <input @blur="keyboardLeave" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
+      <!-- <input @blur="keyboardLeave" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
         :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
         v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
-      <img class="icon" :src="imgSrc.search" alt />
+      <img class="icon" :src="imgSrc.search" alt /> -->
+      <span>开台时间：</span>
+      <span>{{ openTime }}</span>
     </div>
 
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-        <div class="prd-item" v-if="pic_show" style="height: 384px;"   v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)"
-          :class="{ 'opacity': item.outSomethingCount == 0 }">
+        <div class="prd-item" v-if="pic_show" style="height: 384px;" v-for="item in productsList" :key="item.id"
+          @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
-            <img class="item-img"
-              :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
+            <img class="item-img" :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
             <span class="item-span"
               v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
-                shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
+                shoppingCount(item.id * 1) }}</span>
           </div>
           <div class="title">
             <h5>{{ item.name }}</h5>
@@ -48,7 +49,7 @@
           <div class="al-product">
             <span class="item-span"
               v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
-                shoppingCartList.find(d => d.pid === item.id * 1).pc }}</span>
+                shoppingCount(item.id * 1) }}</span>
           </div>
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
@@ -70,7 +71,7 @@
     <div class="card-name-top" ref="cardNameTop">
       <div class="card-name-title" ref="cardNameTitle">
         <span :style="{ fontSize: titleFontSize }">{{ cardInfo.name }}</span>
-        <span :style="{ fontSize: titleFontSize }">
+        <span :style="{ fontSize: titleFontSize1 }">
           {{
             empInfoFilter($store.state.orderInfo.currentCardInfo.salesEmpId)
           }}
@@ -182,9 +183,11 @@ export default {
       // 是否收银系统
       isMoneyClient: false,
       titleFontSize: '32px', // 初始字体大小
+      titleFontSize1: '24px',
       seatFontSize: '18px',
       isNarrowWidth: window.innerWidth < 850,
-      pic_show: false
+      pic_show: false,
+      openTime: "",
     };
   },
   methods: {
@@ -194,12 +197,17 @@ export default {
       const titleWidth = titleElement.clientWidth;
       if (windowWidth > 1300) {
         this.titleFontSize = titleWidth > 350 ? '26px' : '30px';
+        this.titleFontSize1 = titleWidth > 350 ? '20px' : '24px';
         this.seatFontSize = titleWidth > 350 ? '14px' : '18px';
+
       } else {
         let s = parseInt(windowWidth / 70);
+        let s1 = parseInt(windowWidth / 90);
         let f = parseInt(windowWidth / 100);
         this.titleFontSize = `${s}px`
+        this.titleFontSize1 = `${s1}px`
         this.seatFontSize = `${f}px`
+
       }
     },
     empInfoFilter(empId) {
@@ -250,6 +258,7 @@ export default {
         const res = await api_order.reqGetShoppingList(params);
         if (res.code === 1) {
           this.shoppingCartList = res.data;
+          console.log(res.data, '?????')
         } else {
           this.$message.warning(res.msg);
         }
@@ -308,11 +317,11 @@ export default {
         "prdOutOfSomething"
       ].filter(item => item.status == 1)
 
-       /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
-          商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间 
-          里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
-          如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
-          */
+      /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
+         商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间 
+         里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
+         如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
+         */
       const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
       const nowTime = new Date().getTime()
       this.productsList = this.productsList.filter(item => {
@@ -520,7 +529,22 @@ export default {
       if (this.search.keyWord == '') return
       this.search.keyWord = this.search.keyWord.toString().slice(0, -1)
       this.getPageData(1)
-    }
+    },
+    getOpenTime() {
+      let cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      if (cardInfo && cardInfo.openTime) {
+        let h = parseInt(cardInfo.openTime.substring(8, 10)); // 时
+        let s = parseInt(cardInfo.openTime.substring(10, 12)); // 分
+        this.openTime = `${h}:${s}`
+      }
+    },
+    shoppingCount(pid) {
+      // 已点
+      return this.shoppingCartList.reduce((sum, item) => {
+        // 如果当前元素的 pid 与目标 pid 相同，则将其 count 累加到总和
+        return item.pid === pid ? sum + item.pc : sum;
+      }, 0);
+    },
   },
   created() {
     setTimeout(() => {
@@ -540,6 +564,7 @@ export default {
     this.getAuthInfo();
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+    this.getOpenTime(); //开台时间
     this.adjustFontSize(); // 在组件加载后调整一次字体大小
     window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
     // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);

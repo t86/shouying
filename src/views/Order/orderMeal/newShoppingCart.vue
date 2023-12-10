@@ -1,223 +1,162 @@
 <template>
-  <div class="new-shopping-cart">
-    <div class="new-shopping-cart-content" :class="{ rect: !isRect }">
-      <div class="new-shopping-cart-content-top">
-        <div class="thead">
-          <div class="tr">
-            <div class="th">状态</div>
-            <div class="th">名称</div>
-            <div class="th">数量</div>
-            <div class="th">单价(元)</div>
-            <div class="th">小计(元)</div>
-            <div class="th">点单人</div>
-            <div class="th">优惠人</div>
-            <div class="th">操作</div>
+  <div>
+    <HeaderInfo />
+    <div class="new-shopping-cart">
+
+      <div class="new-shopping-cart-content" :class="{ rect: !isRect }">
+        <div class="new-shopping-cart-content-top">
+          <div class="thead">
+            <div class="tr">
+              <div class="th">状态</div>
+              <div class="th">名称</div>
+              <div class="th">数量</div>
+              <div class="th">单价(元)</div>
+              <div class="th">小计(元)</div>
+              <div class="th">点单人</div>
+              <div class="th">优惠人</div>
+              <div class="th">操作</div>
+            </div>
           </div>
-        </div>
-        <div class="tbody">
-          <div class="coll" v-for="item in shoppingCartList" :key="item.id">
-            <div class="detail tr">
-              <div class="td" layout="row" layout-align="start center">
-                <span class="green" v-if="item.at == 2">惠</span>
-                <span class="green" v-if="item.at == 3"
-                  ><span style="display: block; transform: scale(0.7)"
-                    >惠2</span
-                  ></span
-                >
-                <!-- <span class="blue" v-if="item.at==6">自</span> -->
-                <!-- <span class="purple">结</span>
+          <div class="tbody">
+            <div class="coll" v-for="item in shoppingCartList" :key="item.id">
+              <div class="detail tr">
+                <div class="td" layout="row" layout-align="start center">
+                  <span class="green" v-if="item.at == 2">惠</span>
+                  <span class="green" v-if="item.at == 3"><span
+                      style="display: block; transform: scale(0.7)">惠2</span></span>
+                  <!-- <span class="blue" v-if="item.at==6">自</span> -->
+                  <!-- <span class="purple">结</span>
                 <span class="red">退</span>-->
-              </div>
-              <div class="td">
-                <div class="p one-txt-cut">{{ item.productInfo.name }}</div>
-                <div class="p english-name one-txt-cut">
-                  {{ item.productInfo.nameEng }}
                 </div>
-              </div>
-              <div class="td">
-                <!-- 赔偿类商品不可修改数量 -->
-                <img
-                  :src="
+                <div class="td">
+                  <div class="p one-txt-cut">{{ item.productInfo.name }}</div>
+                  <div class="p english-name one-txt-cut">
+                    {{ item.productInfo.nameEng }}
+                  </div>
+                </div>
+                <div class="td">
+                  <!-- 赔偿类商品不可修改数量 -->
+                  <img :src="
                     item.pc <= 1 ||
-                    ((item.at == 2 || item.at == 3) && authId != item.ae)
+                      ((item.at == 2 || item.at == 3) && authId != item.ae)
                       ? imgSrc.subDisabled
                       : imgSrc.sub
-                  "
-                  @click="changeCount('sub', item)"
-                  alt
-                />
-                <input
-                  type="number"
-                  min="1"
-                  :disabled="
+                  " @click="changeCount('sub', item)" alt />
+                  <input type="number" min="1" :disabled="
                     (item.at == 2 || item.at == 3) && authId != item.ae
-                  "
-                  v-model="item.pc"
-                  @click.stop="selectedItem = item"
-                  @input="changeCount('input', item)"
-                  :class="{ inputActive:  selectedItem && selectedItem.id===item.id}"
-                />
-                <img
-                  :src="
+                  " v-model="item.pc" @click.stop="selectedItem = item" @input="changeCount('input', item)"
+                    :class="{ inputActive: selectedItem && selectedItem.id === item.id }" />
+                  <img :src="
                     item.pc > 9999 ||
-                    ((item.at == 2 || item.at == 3) && authId != item.ae)
+                      ((item.at == 2 || item.at == 3) && authId != item.ae)
                       ? imgSrc.addDisabled
                       : imgSrc.add
-                  "
-                  @click="changeCount('add', item)"
-                  alt
-                />
-              </div>
-              <div class="td">{{ item.pp }}</div>
-              <div class="td">{{ item.pa }}</div>
-              <div class="td">{{ item.personInfo.name }}</div>
-              <div class="td">
-                {{ item.authInfo ? item.authInfo.name : "---" }}
-              </div>
-              <div class="td">
-                <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
-                <img
-                  :src="imgSrc.shoppingCarMore"
-                  @click.stop="showOrHideList(item)"
-                  alt
-                />
-                <img
-                  :src="imgSrc.sanJiao"
-                  v-if="item.showList"
-                  class="sanJiao"
-                  alt
-                />
-                <div class="do-list" v-if="item.showList">
-                  <div class="li" @click.stop="delProduct(item)">删除</div>
-                  <div class="li" @click.stop="showOrHideDrawer(3, item)">
-                    加要求
-                  </div>
-                  <!-- 出现更改明细弹框 -->
-                  <div
-                    class="li"
-                    @click.stop="showOrHideDrawer(4, item)"
-                    v-if="item.is == 1 && hasChangeDetailAuth"
-                  >
-                    更改明细
+                  " @click="changeCount('add', item)" alt />
+                </div>
+                <div class="td">{{ item.pp }}</div>
+                <div class="td">{{ item.pa }}</div>
+                <div class="td">{{ item.personInfo.name }}</div>
+                <div class="td">
+                  {{ item.authInfo ? item.authInfo.name : "---" }}
+                </div>
+                <div class="td">
+                  <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
+                  <img :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
+                  <img :src="imgSrc.sanJiao" v-if="item.showList" class="sanJiao" alt />
+                  <div class="do-list" v-if="item.showList">
+                    <div class="li" @click.stop="delProduct(item)">删除</div>
+                    <div class="li" @click.stop="showOrHideDrawer(3, item)">
+                      加要求
+                    </div>
+                    <!-- 出现更改明细弹框 -->
+                    <div class="li" @click.stop="showOrHideDrawer(4, item)" v-if="item.is == 1 && hasChangeDetailAuth">
+                      更改明细
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div v-if="item.is == 1">
-              <div
-                class="detail-list tr"
-                v-for="(items, i) in item.si"
-                :key="i"
-              >
-                <div class="td"></div>
-                <div class="td one-txt-cut">
-                  {{ items.groupInfo.name
-                  }}{{ items.r ? "（" + items.r + "）" : "" }}
+              <div v-if="item.is == 1">
+                <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
+                  <div class="td"></div>
+                  <div class="td one-txt-cut">
+                    {{ items.groupInfo.name
+                    }}{{ items.r ? "（" + items.r + "）" : "" }}
+                  </div>
+                  <div class="td">{{ items.s * items.c * item.pc }}</div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
+                  <div class="td"></div>
                 </div>
-                <div class="td">{{ items.s * items.c * item.pc }}</div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
-                <div class="td"></div>
               </div>
+              <div v-if="item.r || item.is == 1" class="requested">
+                {{ item.r }}
+              </div>
+              <!-- 补单信息 -->
+              <div v-if="item.ra" class="requested">{{ item.ra }}</div>
             </div>
-            <div v-if="item.r || item.is == 1" class="requested">
-              {{ item.r }}
-            </div>
-            <!-- 补单信息 -->
-            <div v-if="item.ra" class="requested">{{ item.ra }}</div>
           </div>
         </div>
-      </div>
-      
-      
-      <keyBoard
-          class="new-shopping-cart-content-key"
-          :landscape="true"
-          :itemHeight="44"
-          :itemWidth="44"
-          :width="540"
-          @changeNum="changeNumHandle"
-        />
 
-      <div
-        class="new-shopping-cart-content-bottom"
-        layout="row"
-        layout-align="space-between center"
-      >
-        <div class="amt" layout="row">
-          <div class="p m-r-10" layout="row" layout-align="start center">
-            <span>购物车金额：</span>
-            <span class="num">￥{{ amt.allAmt }}</span>
+
+        <keyBoard class="new-shopping-cart-content-key" :landscape="true" :itemHeight="44" :itemWidth="44" :width="540"
+          @changeNum="changeNumHandle" />
+
+        <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
+          <div class="amt" layout="row">
+            <div class="p m-r-10" layout="row" layout-align="start center">
+              <span>购物车金额：</span>
+              <span class="num">￥{{ amt.allAmt }}</span>
+            </div>
+            <div class="p" layout="row" layout-align="start center">
+              <span>优惠金额：</span>
+              <span class="num">￥{{ amt.giveAmt }}</span>
+            </div>
           </div>
-          <div class="p" layout="row" layout-align="start center">
-            <span>优惠金额：</span>
-            <span class="num">￥{{ amt.giveAmt }}</span>
-          </div>
-        </div>
-        <div class="btn" layout="row" layout-align="end center">
-          <button style="width: 100px" @click.stop="showOrHideDrawer(6)">
-            批量优惠
-          </button>
-          <!-- <button style="width: 100px" @click.stop="showOrHideDrawer(7)">
+          <div class="btn" layout="row" layout-align="end center">
+            <button style="width: 100px" @click.stop="showOrHideDrawer(6)">
+              批量优惠
+            </button>
+            <!-- <button style="width: 100px" @click.stop="showOrHideDrawer(7)">
             批量优惠2
           </button> -->
-          <button
-            style="width: 100px"
-            v-if="
-              isShowPayBtn            "
-            @click.stop="submitShoppingCartAndPayHandle"
-            class="right-btns"
-          >
-            下单并买单
-          </button>
-          <button style="width: 100px" class="right-btns" @click.stop="submitShoppingCart('')">
-            {{ canOrder ? "立即下单" : "未点必须商品" }}
-          </button>
+            <button style="width: 100px" v-if="
+              isShowPayBtn" @click.stop="submitShoppingCartAndPayHandle" class="right-btns">
+              下单并买单
+            </button>
+            <button style="width: 100px" class="right-btns" @click.stop="submitShoppingCart('')">
+              {{ canOrder ? "立即下单" : "未点必须商品" }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 下单倒计时退出 -->
-    <div class="num-sub-tips" v-show="showNumSubTips">
-      <div class="contain">
-        <i
-          class="el-icon-close"
-          style="
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            color: #08080A;
-            cursor: pointer;
-          "
-          @click="hideTimeSubHandle()"
-        ></i>
-        {{ logoutCount }}秒后将退出登录！
+      <!-- 下单倒计时退出 -->
+      <div class="num-sub-tips" v-show="showNumSubTips">
+        <div class="contain">
+          <i class="el-icon-close" style="
+              position: absolute;
+              top: 10px;
+              right: 20px;
+              color: #08080A;
+              cursor: pointer;
+            " @click="hideTimeSubHandle()"></i>
+          {{ logoutCount }}秒后将退出登录！
+        </div>
       </div>
+
+      <!-- 单个优惠及其他操作 -->
+      <drawerGiveHeMore ref="drawerGiveHeMore" :status="drawer.status" :showDrawer="drawer.showDrawer"
+        :currentItemInfo="drawer.currentItemInfo" :shoppingCartList="shoppingCartList"
+        @showOrHideDrawer="showOrHideDrawer" />
+
+      <!-- 单品定制要求 -->
+      <drawerChooseRequireInfo ref="drawerChooseRequireInfo" :showDrawer="requireDrawerInfo.showDrawer"
+        :productInfo="requireDrawerInfo.productInfo" :requestInfoArr="requireDrawerInfo.requestInfoArr"
+        notCloseDrawer="true" @updateRequireInfoArr="updateRequireInfoArr" @showOrHideDrawer="showOrHideRequireDrawer" />
     </div>
-
-    <!-- 单个优惠及其他操作 -->
-    <drawerGiveHeMore
-      ref="drawerGiveHeMore"
-      :status="drawer.status"
-      :showDrawer="drawer.showDrawer"
-      :currentItemInfo="drawer.currentItemInfo"
-      :shoppingCartList="shoppingCartList"
-      @showOrHideDrawer="showOrHideDrawer"
-    />
-
-    <!-- 单品定制要求 -->
-    <drawerChooseRequireInfo
-      ref="drawerChooseRequireInfo"
-      :showDrawer="requireDrawerInfo.showDrawer"
-      :productInfo="requireDrawerInfo.productInfo"
-      :requestInfoArr="requireDrawerInfo.requestInfoArr"
-      notCloseDrawer="true"
-      @updateRequireInfoArr="updateRequireInfoArr"
-      @showOrHideDrawer="showOrHideRequireDrawer"
-    />
-</div>
+  </div>
 </template>
 
 <script>
@@ -236,7 +175,7 @@ import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
 import drawerGiveHeMore from "@/components/order/newShoppingCart/drawerGiveHeMore";
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
-
+import HeaderInfo from '@/components/HeaderInfo.vue';
 // 键盘码 keycode
 let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
@@ -316,7 +255,7 @@ export default {
     // 键盘
     // 根据currentInfo的c设置键盘输入，不能超过c的值
     changeNumHandle(value) {
-      console.log(this.selectedItem,'????')
+      console.log(this.selectedItem, '????')
       if (!this.selectedItem) {
         return;
       }
@@ -326,18 +265,18 @@ export default {
           break;
         case 10: // 回退(
           this.selectedItem.pc =
-          this.selectedItem.pc
+            this.selectedItem.pc
               .toString()
               .slice(0, this.selectedItem.pc.toString().length - 1) * 1;
           break;
         default:
-        this.selectedItem.pc =
-          !this.selectedItem.pc
-                ? value * 1
-                : this.selectedItem.pc.toString() + value * 1;
+          this.selectedItem.pc =
+            !this.selectedItem.pc
+              ? value * 1
+              : this.selectedItem.pc.toString() + value * 1;
           break;
       }
-      if(this.selectedItem.pc * 1 > 1000){
+      if (this.selectedItem.pc * 1 > 1000) {
         this.selectedItem.pc = '1000';
       }
       this.$forceUpdate();
@@ -761,17 +700,18 @@ export default {
   components: {
     drawerGiveHeMore,
     drawerChooseRequireInfo,
-    keyBoard
+    keyBoard,
+    HeaderInfo,
   },
   computed: {
     isShowPayBtn() {
       let isHaveAuth = false;
-        if(this.$store.state.userInfo.authStatus != 4){
-          // 服务员 特饮 督查
-          if(this.$store.state.userInfo.roleIds.includes(2)|| this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11)){
-            isHaveAuth = true
-          }
+      if (this.$store.state.userInfo.authStatus != 4) {
+        // 服务员 特饮 督查
+        if (this.$store.state.userInfo.roleIds.includes(2) || this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11)) {
+          isHaveAuth = true
         }
+      }
       return isHaveAuth;
     },
     amt() {
@@ -814,9 +754,9 @@ export default {
       }
     },
 
-     // 是否有替换商品明细权限
-   hasChangeDetailAuth() {
-      return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(4)
+    // 是否有替换商品明细权限
+    hasChangeDetailAuth() {
+      return this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(4)
     }
   },
   beforeDestroy() {

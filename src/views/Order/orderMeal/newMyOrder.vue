@@ -1,6 +1,7 @@
 <template>
   <!-- 我的点单 -->
   <div class="new-my-order">
+    <HeaderInfo></HeaderInfo>
     <div class="new-my-order-content" :class="{ rect: !isRect }">
       <div class="new-my-order-content-top">
         <div class="thead">
@@ -215,6 +216,7 @@ import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
 import drawerMyOrder from "@/components/order/myOrder/newDrawerMyOrder";
 import drawerPrintOrder from "@/components/order/myOrder/newDrawerPrintOrder";
+import HeaderInfo from '@/components/HeaderInfo.vue';
 
 // 键盘码 keycode
 let downKeyCode = [0, 0];
@@ -484,6 +486,7 @@ export default {
   components: {
     drawerMyOrder,
     drawerPrintOrder,
+    HeaderInfo,
   },
   beforeDestroy() {
     document.body.removeEventListener("click", this.showOrHideList);
