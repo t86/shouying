@@ -29,8 +29,19 @@
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">手机号</div>
                   <div class="value">
-                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2" :maxlength="11"
-                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
+                    <!-- <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2" :maxlength="11"
+                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" /> -->
+                    <input-select
+                     :class="{ focus: focus == 2 }"
+                     @click="focus = 2" 
+                      style="width:80%"
+                      :value="phoneNum"
+                      placeholder="请输入手机号"
+                      :optionsList="phoneList"
+                      @selectInputHandle="inputPhone"
+                      @selectOptionItem="changePhone"
+                      @selectBlurHandle="selectBlurHandle"
+                    ></input-select>
                   </div>
                 </div>
 
@@ -63,6 +74,8 @@
  
 <script>
 import keyBoard from "@/components/common/newKeyBoard.vue";
+import api_saveWine from "@/api/saveWine";
+import inputSelect from "@/components/book/inputSelect";
 export default {
   data() {
     return {
@@ -73,10 +86,42 @@ export default {
       authValidateVal: "", // 服务码
       superValidate: '',  // 超级授权码
       phoneNum: "", // 手机号
-      validateVal: "" // 验证码
+      validateVal: "", // 验证码
+      phoneList: [], // 手机号列表, p          string     //PhoneNum 手机号， n          string     //Name 客户姓名
     };
   },
   methods: {
+    async inputPhone(query){
+      this.phoneNum = query;
+      // 判断query是4位长度的数字
+      if(/^[0-9]{4}$/.test(query)) {
+        try {
+          const res = await api_saveWine.reqGetWineCustByPhone4({
+            p: query
+          })
+          if(res.code == 1) {
+            console.log(res.data.records)
+            this.phoneList = res.data.records.map(item => {
+              return {
+                code: item.p,
+                name: item.n
+              }
+            })
+          }
+        }catch(e) {
+          this.$message.warning('模糊查询失败')
+        }
+      }
+      
+    },
+    changePhone(info){
+      this.phoneList = []
+      this.phoneNum = info.code
+    },
+    selectBlurHandle(){
+      this.phoneList = []
+
+    },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem("secondGetWineCount");  // 获取发送短信时的时间戳
       const now = +new Date()
@@ -140,7 +185,8 @@ export default {
     }
   },
   components: {
-    keyBoard
+    keyBoard,
+    inputSelect,
   },
 
   watch: {

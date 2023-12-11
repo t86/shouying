@@ -52,7 +52,6 @@
 import api_vip from "@/api/vip";
 import api_money from "@/api/money";
 import api_saveWine from "@/api/saveWine";
-import api_wine from "@/api/wine";
 
 import stepOne from "./stepOne.vue";
 import stepTwo from "./stepTwo.vue";
