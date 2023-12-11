@@ -89,6 +89,7 @@
 </template>
 
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerHc from "./drawerHC.vue";
 import drawerDetail from "./drawerDetail.vue";
@@ -193,6 +194,7 @@ export default {
   created() {
     this.resetHandle();
   },
+  mixins: [keyHandle],
   components: {
     drawerHc,
     drawerDetail,

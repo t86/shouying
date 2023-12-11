@@ -118,6 +118,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerGetLibShoppingCart from './drawerGetLibShoppingCart.vue'
 export default {
@@ -226,6 +227,7 @@ export default {
   components: {
     drawerGetLibShoppingCart
   },
+  mixins: [keyHandle],
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);

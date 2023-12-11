@@ -51,4 +51,8 @@ export default {
   // 新建消费充公待入库
   reqCreateOrderOfPayToStore: (params) =>
     axios.post(`${base.htgl}/wine/new_csm_cg_bef_in`, params),
+
+  // 手机号后4位,模糊查询存酒客户信息
+  reqGetWineCustByPhone4: (params) =>
+    axios.post(`${base.htgl}/wine/get_wine_cust_by_phone4`, params),
 };

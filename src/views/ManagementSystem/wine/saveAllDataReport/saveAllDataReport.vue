@@ -36,6 +36,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import saveDetail from './saveAllDataReportCom/saveDetail.vue'
 import saveGrid from './saveAllDataReportCom/saveGrid.vue'
@@ -127,7 +128,8 @@ export default {
     tabIndex(){
       this.getTableData()
     }
-  }
+  },
+  mixins: [keyHandle]
 };
 </script>
 

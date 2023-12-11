@@ -56,6 +56,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerShowAllData from './drawerShowAllData.vue'
 export default {
@@ -130,6 +131,7 @@ export default {
   created() {
     this.resetHandle()
   },
+  mixins: [keyHandle],
   components: {
     drawerShowAllData
   },

@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import { keyHandle } from "../../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerUpdateAuthInfo from "../drawerUpdateAuthInfo.vue";
 export default {
@@ -297,6 +298,7 @@ export default {
   created() {
     this.getTableData();
   },
+  mixins: [keyHandle],
   components: {
     drawerUpdateAuthInfo,
   },

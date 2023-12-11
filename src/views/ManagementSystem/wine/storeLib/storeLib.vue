@@ -70,6 +70,7 @@
 </template>
  
 <script>
+import { keyHandle } from "@/mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerGetLib from "./drawerGetLib.vue";
 export default {
@@ -143,6 +144,7 @@ export default {
   components: {
     drawerGetLib
   },
+  mixins: [keyHandle],
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);

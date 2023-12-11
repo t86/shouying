@@ -119,7 +119,8 @@
 </template>
  
 <script>
-import api_wine from '@/api/wine'
+import { keyHandle } from '../../../../mixin/keyhandle';
+import api_wine from '@/api/wine';
 import drawerLongTime from '../saveLib/drawerLongTime.vue'
 export default {
   data() {
@@ -270,6 +271,7 @@ export default {
       return !this.allChecked && this.tableData.some(item => item.checked);
     }
   },
+  mixins: [keyHandle],
   components: {
     drawerLongTime
   },

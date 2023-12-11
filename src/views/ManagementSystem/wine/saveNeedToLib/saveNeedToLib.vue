@@ -6,7 +6,8 @@
         <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" autofocus
         @blur="keyboardLeave" 
         ref="keywordReqInput"
-        placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
+        placeholder="输入客人手姓名/手机号/商品/卡台/订位人"
+        @keyup.enter.prevent="getTableData"></el-input>
       </div>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
@@ -114,7 +115,8 @@
  
 <script>
 // 引入keyboard.js
-import { keyboardMixins } from '../../../../mixin/keyboard';
+import { keyHandle } from '../../../../mixin/keyhandle';
+
 import api_wine from '@/api/wine'
 import drawerEditSaveInfo from './drawerEditSaveInfo.vue'
 export default {
@@ -241,7 +243,7 @@ export default {
       return !this.checkAll && this.tableData.some(item => item.checked);
     }
   },
-  mixins: [keyboardMixins],
+  mixins: [keyHandle],
 };
 </script>
 

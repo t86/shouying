@@ -74,6 +74,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 export default {
   data() {
@@ -152,7 +153,8 @@ export default {
   },
   created() {
     this.resetHandle();
-  }
+  },
+  mixins: [keyHandle]
 };
 </script>
 

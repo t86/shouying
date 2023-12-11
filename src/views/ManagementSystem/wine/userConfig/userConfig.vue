@@ -11,6 +11,7 @@
 </template>
  
 <script>
+
 import userList from './userConfigCom/userList.vue'
 import blackUserList from './userConfigCom/blackUserList.vue'
 export default {
@@ -27,7 +28,7 @@ export default {
     userList,
     blackUserList
   },
-  filters: {}
+  filters: {},
 };
 </script>
 

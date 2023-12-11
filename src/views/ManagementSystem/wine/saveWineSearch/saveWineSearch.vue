@@ -120,6 +120,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 export default {
   data() {
@@ -282,7 +283,8 @@ export default {
       this.keyword = ''
       this.selectEmpVal = ''
     }
-  }
+  },
+  mixins: [keyHandle],
 };
 </script>
 

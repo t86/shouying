@@ -174,6 +174,7 @@
 </template>
  
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerLongTime from './drawerLongTime.vue'
 export default {
@@ -343,6 +344,7 @@ export default {
       this.getTableData()
     },
   },
+  mixins: [keyHandle],
   created() {
     this.resetHandle();
   },

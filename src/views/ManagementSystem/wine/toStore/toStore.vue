@@ -118,6 +118,7 @@
 </template>
 
 <script>
+import { keyHandle } from "../../../../mixin/keyhandle";
 import api_wine from "@/api/wine";
 import drawerEditToStoreInfo from "./drawerEditToStoreInfo.vue";
 export default {
@@ -247,6 +248,7 @@ export default {
   components: {
     drawerEditToStoreInfo,
   },
+  mixins: [keyHandle],
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some((item) => item.checked);
