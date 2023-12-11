@@ -31,14 +31,15 @@
         <div class="content">
           <div v-if="card.cardList.length > 0" class="center-type" :style="'width:' + card.centerTypeWidth + 'px'"
             layout="row" layout-align="start center">
-            <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
-              {
+            <!-- {
                 opacity:
                   typeModule == 1 &&
                   (item.bizStatus == 1 ||
                     item.bizStatus == 2 ||
                     item.bizStatus == 8),
-              },
+              }, -->
+            <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
+              
               'bgc' + Number(item.bizStatus),
             ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center">
