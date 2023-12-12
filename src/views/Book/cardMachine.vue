@@ -475,7 +475,7 @@ import { legendList, cardOptions } from "@/utils/config/card";
 
 import { cardPageMixins } from "@/mixin/cardPage";
 
-import arrowBottom from "@/assets/card-imgs/arrow-bottom.png";
+import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 import more from "@/assets/card-imgs/more.png";
 import openCard from "@/assets/card-imgs/open-card.png";
 import turnOver from "@/assets/card-imgs/turn-over.png";

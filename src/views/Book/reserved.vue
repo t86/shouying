@@ -50,7 +50,7 @@
 
   import tabContent from '@/components/book/reserved/tabContent'
 
-  import arrowBottom from '@/assets/card-imgs/arrow-bottom.png'
+  import arrowBottom from '@/assets/card-imgs/new-arrow-bottom.png'
   import more from '@/assets/card-imgs/more.png'
   import arrowTop from '@/assets/card-imgs/arrow-top.png'
   import checkout from '@/assets/card-imgs/checkout.png'

@@ -535,7 +535,7 @@ import keyBoard from "@/components/common/keyBoard";
 import authComponent from "@/components/money/drawerPayMoneyAuth";
 import mySelect from "@/components/book/select";
 
-import arrowBottom from "@/assets/card-imgs/arrow-bottom.png";
+import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 export default {
   data() {
     return {

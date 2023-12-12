@@ -33,10 +33,10 @@
           <div class="arrow">
             <div class="bg" layout="row" layout-align="center center">
               <div class="bg-left" @click="scrollHandle('first', 'up')">
-                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
               </div>
               <div class="bg-right" @click="scrollHandle('first', 'down')">
-                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
               </div>
             </div>
           </div>
@@ -83,10 +83,10 @@
           <div class="arrow">
             <div class="bg" layout="row" layout-align="center center">
               <div class="bg-left" @click="scrollHandle('second', 'up')">
-                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
               </div>
               <div class="bg-right" @click="scrollHandle('second', 'down')">
-                <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+                <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default {
       timer: null,
       count: 60, // 验证码倒计时
       validateVal: "", // 验证码
-      isRect: window.innerWidth >= 1366, // 屏幕是否超过1400
+      isRect: window.innerWidth >= 1024, // 屏幕是否超过1400
       is1920: window.innerWidth >= 1920
     };
   },

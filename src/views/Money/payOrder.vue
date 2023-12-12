@@ -393,7 +393,7 @@ import api_money from "@/api/money";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
 
-import arrowBottom from "@/assets/card-imgs/arrow-bottom.png";
+import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 
 import notPayOrder from "@/components/money/notPayOrder";
 import payedOrder from "@/components/money/payedOrder";

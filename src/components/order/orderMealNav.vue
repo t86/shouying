@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import arrow from "@/assets/order-img/arrow-Bottom.png";
+import arrow from "@/assets/card-imgs/new-arrow-bottom.png";
 import navPrdList from '@/mixin/navPrdList'
 export default {
   data() {
@@ -70,7 +70,7 @@ export default {
       const height = screen.availHeight
 
       // this.isRect = width >= height
-      this.isRect = window.innerWidth >= 1366
+      this.isRect = window.innerWidth >= 1024
     },
 
     changeFirstCategory(firstCategoryId = "") {

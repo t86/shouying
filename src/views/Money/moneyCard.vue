@@ -1037,7 +1037,7 @@ import drawerSetGZHK from "../../components/money/drawerSetGZHK.vue";
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import eventVue from "@/utils/eventVue";
-import arrowBottom from "@/assets/card-imgs/arrow-bottom.png";
+import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 import more from "@/assets/card-imgs/more.png";
 import reload from "@/assets/card-imgs/reload.png";
 import arrowTop from "@/assets/card-imgs/arrow-top.png";

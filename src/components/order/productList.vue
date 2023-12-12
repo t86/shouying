@@ -88,10 +88,10 @@
     <div class="arrow">
       <div class="bg" layout="row" layout-align="center center">
         <div class="bg-left" @click="scrollArrowHandle('up')">
-          <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
         </div>
         <div class="bg-right" @click="scrollArrowHandle('down')">
-          <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
         </div>
       </div>
     </div>

@@ -24,10 +24,10 @@
     <div class="arrow">
       <div class="bg" layout="row" layout-align="center center">
         <div class="bg-left" @click="scrollHandle('up')">
-          <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
         </div>
         <div class="bg-right" @click="scrollHandle('down')">
-          <img :src="require('@/assets/order-img/arrow-Bottom.png')" alt />
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
         </div>
       </div>
     </div>
