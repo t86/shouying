@@ -267,7 +267,7 @@ const orderNavList = [
   {
     id: 3,
     name: "购物车",
-    routeName: "newShoppingCart",
+    routeName: "shoppingCart",
     icon: shoppingCart,
     icon1: sanJiao,
     activeIcon: shoppingCartAcive
