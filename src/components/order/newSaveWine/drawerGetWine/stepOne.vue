@@ -47,14 +47,22 @@
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">手机号</div>
                   <div class="value">
-                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2" @input="emitStepOneInfoHandle"
-                      placeholder="请输入手机号" />
+                    <input-select
+                     :class="{ focus: focus == 2 }"
+                      style="width:300px;"
+                      :value="phoneNum"
+                      placeholder="请输入手机号"
+                      :optionsList="phoneList"
+                      @selectInputHandle="inputPhone"
+                      @selectOptionItem="changePhone"
+                      @selectBlurHandle="selectBlurHandle"
+                    ></input-select>
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">授权码</div>
                   <div class="value">
-                    <input v-model="superValidate" :class="{ focus: focus == 4 }" @click="focus = 4"
+                    <input v-model="superValidate" :class="{ focus: focus == 4 }" @click.stop="focus = 4"
                       @input="emitStepOneInfoHandle" placeholder="请输入超级授权码" />
                   </div>
                 </div>
@@ -161,7 +169,9 @@ export default {
           this[count] = this[count].toString() + value * 1;
           break;
       }
-      this.inputPhone(this.phoneNum);
+      if(this.focus == 2) {
+        this.inputPhone(this.phoneNum);
+      }
       this.emitStepOneInfoHandle()
     },
     // 检测是否为横屏
