@@ -2,7 +2,7 @@
   <div class="nav" layout="row" layout-align="start start">
     <div class="nav-left">
       <div class="ul first-menu" ref="firstMenuRef"
-        :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)' }">
+        :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)' }">
         <div class="li first-menu-item" :class="{ 'active': firstCategoryActiveId === item.id }"
           v-for="(item, index) in firstCategoryList" :key="index" @click="changeFirstCategory(item.id)">
           <span>{{ item.name }}</span>
@@ -21,7 +21,7 @@
     </div>
     <div class="nav-right">
       <div class="ul second-menu" ref="secondMenuRef"
-        :style="{ 'height': !isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 190px)' }">
+        :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)' }">
         <div class="li" :class="{ 'active': secondCategoryActiveId === item.id }" v-for="(item, index) in secondCategoryList"
           :key="index" @click="secondCategoryActiveId = item.id">
           <div class="item">
