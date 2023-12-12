@@ -29,11 +29,8 @@
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">手机号</div>
                   <div class="value">
-                    <!-- <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2" :maxlength="11"
-                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" /> -->
                     <input-select
                      :class="{ focus: focus == 2 }"
-                     @click="focus = 2" 
                       style="width:80%"
                       :value="phoneNum"
                       placeholder="请输入手机号"
@@ -44,7 +41,7 @@
                     ></input-select>
                   </div>
                 </div>
-
+                <div class="label color-red fs20 m-t-2">输入手机号后4位模糊查询</div>
               </div>
               <div v-if="tabIndex == 3" class="m-b-6">
                 <div class="coll" layout="row" layout-align="start center">
@@ -92,6 +89,7 @@ export default {
   },
   methods: {
     async inputPhone(query){
+      this.focus = 2;
       this.phoneNum = query;
       // 判断query是4位长度的数字
       if(/^[0-9]{4}$/.test(query)) {
@@ -99,7 +97,7 @@ export default {
           const res = await api_saveWine.reqGetWineCustByPhone4({
             p: query
           })
-          if(res.code == 1) {
+          if(res.code == 1 && res.data.records) {
             console.log(res.data.records)
             this.phoneList = res.data.records.map(item => {
               return {
@@ -120,7 +118,7 @@ export default {
     },
     selectBlurHandle(){
       this.phoneList = []
-
+      this.focus = 2;
     },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem("secondGetWineCount");  // 获取发送短信时的时间戳
@@ -159,6 +157,7 @@ export default {
           this[count] = this[count].toString() + value * 1;
           break;
       }
+      this.inputPhone(this.phoneNum);
       this.emitStepOneInfoHandle()
     },
     // 检测是否为横屏
@@ -228,6 +227,11 @@ export default {
       max-height: 20vh;
       overflow: auto;
     }
+  }
+
+  /deep/.el-input__inner {
+    color: black; /* 文本颜色 */
+    background-color: white; /* 背景颜色 */
   }
 
   .custom-info {
