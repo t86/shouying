@@ -91,6 +91,7 @@ export default {
     async inputPhone(query){
       this.focus = 2;
       this.phoneNum = query;
+      this.emitStepOneInfoHandle()
       // 判断query是4位长度的数字
       if(/^[0-9]{4}$/.test(query)) {
         try {
