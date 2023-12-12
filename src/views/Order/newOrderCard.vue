@@ -2,6 +2,7 @@
   <div class="card-box">
     <div class="contain" ref="containRef">
       <div class="contain-content" ref="containContentRef">
+        
         <!-- tab -->
         <div class="tab" layout="row" layout-align="space-between center">
           <div layout="row" layout-align="center">
@@ -31,20 +32,9 @@
         <div class="content">
           <div v-if="card.cardList.length > 0" class="center-type" :style="'width:' + card.centerTypeWidth + 'px'"
             layout="row" layout-align="start center">
-            <!-- {
-                opacity:
-                  typeModule == 1 &&
-                  (item.bizStatus == 1 ||
-                    item.bizStatus == 2 ||
-                    item.bizStatus == 8),
-              }, -->
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
-              
               'bgc' + Number(item.bizStatus),
-            ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle"
-            :style="{
-                display: !item.canLookOrder && isOnlySales ? 'none' : '',
-              }">
+            ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -543,8 +533,8 @@ export default {
 
     // 获取全量数据
     async getCardList(cardInfo = [], businessData = []) {
-      // 当岗位只有销售, 无替身或替身岗位也只有销售时
-      if (this.isOnlySales) {
+      // 当岗位是营销时
+      if (this.isSaleRole) {
         await this.getLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
@@ -1612,12 +1602,12 @@ export default {
     },
 
     // 有且只有一个营销角色权限  无替身或替身岗位也只有营销时
-    isOnlySales() {
-      let onlySales = (this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1);
-      let isCloneIsOnlySales = true;
+    isSaleRole() {
+      let isSales = (this.$store.state.userInfo.roleIds &&
+      this.$store.state.userInfo.roleIds.includes(3));
+      let isCloneisSaleRole = true;
       // 无替身或替身也只是销售
-      if (onlySales && this.loginUserInfo.clone_emp_id != '0') {
+      if (isSales && this.loginUserInfo.clone_emp_id != '0') {
         const orderPersonInfo =
           this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
           [];
@@ -1629,10 +1619,9 @@ export default {
         // 获取角色ids
         const roles = sysRole.filter(item => item.station_id == clone_person.stationId && item.status == 1);
         const roleIds = [...new Set(roles.map(d => d.sys_role_id * 1))];
-        isCloneIsOnlySales = roleIds.includes(3) && roleIds.length == 1;
-
+        isCloneisSaleRole = roleIds.includes(3);
       }
-      return onlySales && isCloneIsOnlySales
+      return isSales || isCloneisSaleRole
     },
     // 判断是否功能台或者功能关联台
     isFunctionCard() {
