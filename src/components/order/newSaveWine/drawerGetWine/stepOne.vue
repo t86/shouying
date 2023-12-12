@@ -105,6 +105,8 @@ export default {
                 name: item.n
               }
             })
+          } else {
+            this.$message.warning('手机号查询无结果')
           }
         }catch(e) {
           this.$message.warning('模糊查询失败')
@@ -115,6 +117,7 @@ export default {
     changePhone(info){
       this.phoneList = []
       this.phoneNum = info.code
+      this.emitStepOneInfoHandle()
     },
     selectBlurHandle(){
       this.phoneList = []
