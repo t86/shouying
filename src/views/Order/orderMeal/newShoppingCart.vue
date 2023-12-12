@@ -100,7 +100,8 @@
         </div>
 
 
-        <keyBoard class="new-shopping-cart-content-key" :landscape="true" :itemHeight="44" :itemWidth="44" :width="540"
+        <keyBoard class="new-shopping-cart-content-key" 
+         :landscape="true" :oneLine="true" :itemHeight="44" :itemWidth="44" :width="540"
           @changeNum="changeNumHandle" />
 
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">

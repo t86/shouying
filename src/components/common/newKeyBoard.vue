@@ -14,7 +14,7 @@
             }"
             :class="{'hasIcon': items.icon}">{{items.name}}</span>
           </div>
-          </div>
+        </div>
         <div v-else layout="row" layout-align="center center">
           <div  class="item" :class="{'active': items.click}" v-for="items in item" :key="items.id" @click.stop="clickKeyBoardHandle(items)" :style="{
             width: itemWidth + 'px',
@@ -48,7 +48,7 @@
       getKeyBoardData() {
         const keyBoardData = []
         if (this.landscape) {
-          if(this.oneLine) {
+          if(!this.oneLine) {
             let trArr = []
             for (let i = 0; i < 12; i++) {
               if (i != 0 && i % 6 === 0) {
@@ -57,7 +57,7 @@
               }
               const item = {
                 id: i === 11 ? i : i === 5 ? 10 : i < 5 ? i : i - 1,
-                name: i === 11 ? '' : i === 5 ? '' : i < 5 ? i : i - 1,
+                name: i === 11 ? '清空' : i === 5 ? '删除' : i < 5 ? i : i - 1,
                 click: false
               }
               

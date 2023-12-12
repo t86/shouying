@@ -31,7 +31,7 @@
                   <div class="value">
                     <input-select
                      :class="{ focus: focus == 2 }"
-                      style="width:300px"
+                      style="width:300px;"
                       :value="phoneNum"
                       placeholder="请输入手机号"
                       :optionsList="phoneList"
@@ -235,6 +235,7 @@ export default {
   /deep/.el-input__inner {
     color: black; /* 文本颜色 */
     background-color: white; /* 背景颜色 */
+    font-size: 20px;
   }
 
   .custom-info {

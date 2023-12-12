@@ -194,7 +194,7 @@
             </div>
             <keyBoard
             class="key"
-            :landscape="true"
+            landscape
             :itemHeight="44"
             :itemWidth="44"
             :width="270"
@@ -224,7 +224,7 @@
 
 <script>
 import api_saveWine from "@/api/saveWine";
-import keyBoard from "@/components/common/keyBoard.vue";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 import api_vip from "@/api/vip";
 export default {
   data() {
@@ -618,9 +618,10 @@ export default {
       margin-left: 10px;
       flex-basis: 280px;
       flex-grow: 1;
+
       .table {
         width: 100%;
-        height: calc(100vh - 400px);
+        height: calc(100vh - 450px);
         .tbody {
           height: 200px;
           overflow: auto;
