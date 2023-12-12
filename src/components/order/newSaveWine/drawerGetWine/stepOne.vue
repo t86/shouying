@@ -31,7 +31,7 @@
                   <div class="value">
                     <input-select
                      :class="{ focus: focus == 2 }"
-                      style="width:80%"
+                      style="width:300px"
                       :value="phoneNum"
                       placeholder="请输入手机号"
                       :optionsList="phoneList"
