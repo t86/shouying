@@ -282,7 +282,7 @@ import updatepwd from "@/assets/card-imgs/new-updatepwd.png";
 import authPwd from "@/assets/card-imgs/new-authPwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/new-sanjiao.png";
-const TabWidth = 100; // tab固定宽度
+const TabWidth = 112; // tab固定宽度
 const cardWidth = 172; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
 let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
@@ -384,7 +384,7 @@ export default {
     // 获取tab展示的数量
     getTabShowCount(callback) {
       const windowWidth = document.body.clientWidth;
-      this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth);
+      this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth) - 1;
       this.card.centerTypeWidth =
         Math.floor(windowWidth / cardWidth) * cardWidth;
       callback && callback();
