@@ -12,10 +12,10 @@ export default [
         path: 'orderMealList', name: 'orderMealList', meta: { title: '点单' }, component: () => import('@/views/Order/orderMeal/orderMealList.vue'),
       },
       {    
-        path: 'shoppingCart', name: 'shoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/shoppingCart.vue'),
+        path: 'oldShoppingCart', name: 'oldShoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/shoppingCart.vue'),
       },
       {    
-        path: 'newShoppingCart', name: 'newShoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/newShoppingCart.vue'),
+        path: 'shoppingCart', name: 'shoppingCart', meta: { title: '购物车' }, component: () => import('@/views/Order/orderMeal/newShoppingCart.vue'),
       },
       {    
         path: 'oldMyOrder', name: 'oldMyOrder', meta: { title: '我的点单' }, component: () => import('@/views/Order/orderMeal/myOrder.vue'),

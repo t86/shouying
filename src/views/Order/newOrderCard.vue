@@ -108,7 +108,10 @@
                   typeModule == 1 &&
                   item.bizStatus != 1 &&
                   item.bizStatus != 2
-                " class="one-txt-cut" style="width: 130px">
+                " class="one-txt-cut" style="width: 160px; 
+                  white-space: normal; overflow: hidden; text-overflow: ellipsis; 
+                  display: -webkit-box; -webkit-line-clamp: 2; 
+                  -webkit-box-orient: vertical;">
                   {{ item.salesEmpId | getDepartmentName }}
                   {{ item.salesEmpId | getOrderPersonName }}
                 </span>
