@@ -109,6 +109,7 @@
                   item.bizStatus != 1 &&
                   item.bizStatus != 2
                 " class="one-txt-cut" style="width: 160px; 
+                  word-break: normal;
                   white-space: normal; overflow: hidden; text-overflow: ellipsis; 
                   display: -webkit-box; -webkit-line-clamp: 2; 
                   -webkit-box-orient: vertical;">
@@ -117,7 +118,6 @@
                 </span>
                 <!-- 用于占位 -->
                 <span v-else></span>
-
                 <!-- 翻台数 -->
                 <span style="word-break: keep-all;" v-if="
                   item.turnoverCnt > 0 &&
@@ -208,7 +208,7 @@
             </div>
             <div class="dosomething-item" @click.stop="legendOptionHandle('pwd')">
               <img :src="imgSrc.arrowTop" :class="{ rotate: legendOptions.showUpdatePwd }" alt />
-              <p class="do-title">{{ authName }}</p>
+              <p class="do-title p-2">{{ authName }}</p>
               <!-- 操作选项 -->
               <div class="option" v-if="legendOptions.showUpdatePwd">
                 <div class="option-item" @click.stop="legendOptionHandle('updatePwd')">

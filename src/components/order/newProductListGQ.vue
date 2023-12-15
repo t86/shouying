@@ -71,6 +71,7 @@
             <div class="tr" layout="row" layout-align="space-between center">
               <div class="th">商品名称</div>
               <div class="th">剩余估清数量</div>
+              <div class="th">操作</div>
             </div>
           </div>
           <div class="tbody">
@@ -78,8 +79,10 @@
               <div class="prd-info" layout="row" layout-align="space-between center">
                 <div class="td">{{ item.n }}</div>
                 <div class="td">{{ item.c }}</div>
+                <div class="td" style="color: #2170ff; cursor: pointer;">删除</div>
               </div>
               <div class="require p-l-2">{{ item.require }}</div>
+
             </div>
           </div>
         </div>
@@ -306,7 +309,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("修改估清商品数量失败", error);
+        console.log("解除估清失败", error);
       }
     }
   },

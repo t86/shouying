@@ -74,12 +74,17 @@
     min-height: calc(100vh - 120px);
 
     .center-type {
+      display: flex;
       margin: 0 auto;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 10px;
 
       .card-item {
+        flex-basis: 160px;
+        flex-grow: 1;
+        max-width: calc(33.33% - 10px);
         position: relative;
-        width: 160px;
         height: 140px;
         box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.7);
         border-radius: 8px;

@@ -156,10 +156,14 @@
     .center-type {
       margin: 0 auto;
       flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 10px;
 
       .card-item {
+        flex-basis: 260px;
+        flex-grow: 1;
+        max-width: 360px;
         position: relative;
-        width: 260px;
         height: 172px;
         // box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.7);
         border-radius: 6px;
@@ -452,10 +456,13 @@
         width: 96px;
 
         .do-title {
+          display: inline-block;
           font-size: 18px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 400;
           color: #08080A;
+          overflow: hidden; 
+          text-overflow: ellipsis; 
         }
 
         img {

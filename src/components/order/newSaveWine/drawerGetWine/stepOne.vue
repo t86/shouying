@@ -20,7 +20,7 @@
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">服务码</div>
                   <div class="value">
-                    <input v-model="authValidateVal" :class="{ focus: focus == 1 }" @click="focus = 1"
+                    <input v-model="authValidateVal" :class="{ focus: focus == 1 }" @click.stop="focus = 1"
                       @input="emitStepOneInfoHandle" placeholder="请输入服务码" />
                   </div>
                 </div>

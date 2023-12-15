@@ -26,6 +26,7 @@
         </div>
       </div>
     </div>
+
     <!-- 估清已选商品列表 -->
     <div class="selected-pro-list">
       <div class="title">估清商品</div>
@@ -254,7 +255,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("修改估清商品数量失败", error);
+        console.log("解除估清失败", error);
       }
     }
   },

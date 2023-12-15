@@ -75,7 +75,7 @@
                     <span>服务码</span>
                   </div>
                   <div class="value">
-                    <input v-model="authValidateVal" :class="{ focus: focus == 1 }" @click="focus = 1"
+                    <input v-model="authValidateVal" :class="{ focus: focus == 1 }" @click.stop="focus = 1"
                       @input="emitStepOneInfoHandle" placeholder="请输入服务码" />
                   </div>
                 </div>
@@ -87,7 +87,7 @@
                     <span>手机号码</span>
                   </div>
                   <div class="value">
-                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2"
+                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
                       @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
                     <el-button v-if="stepOneInfo.needAuthPhoneVal" style="position: absolute; left: 280px;background: #374368;
       box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
@@ -101,15 +101,15 @@
                 <div class="coll" v-if="stepOneInfo.needAuthPhoneVal" layout="row" layout-align="start center">
                   <div class="label">验证码</div>
                   <div class="value">
-                    <input v-model="validateVal" :class="{ focus: focus == 3 }" @click="focus = 3"
+                    <input v-model="validateVal" :class="{ focus: focus == 3 }" @click.stop="focus = 3"
                       @input="emitStepOneInfoHandle" placeholder="请输入验证码" />
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">客人姓名</div>
-                  <div class="value" @click="keyboardShow(11, 'customName')">
+                  <div class="value" @click.stop="keyboardShow(10, 'customName')">
                     <input @blur="keyboardLeave" ref="customName" v-model="customName" :class="{ focus: focus == 10 }"
-                      @click="focus = 10" @input="emitStepOneInfoHandle" placeholder="请输入客户姓名" />
+                      @input="emitStepOneInfoHandle" placeholder="请输入客户姓名" />
                   </div>
                 </div>
               </div>
@@ -126,7 +126,7 @@
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">客人姓名</div>
-                  <div class="value" @click="keyboardShow(11, 'customPhoneName')">
+                  <div class="value" @click.stop="keyboardShow(11, 'customPhoneName')">
                     <input @blur="keyboardLeave" ref="customPhoneName" v-model="customPhoneName"
                       :class="{ focus: focus == 11 }" @input="emitStepOneInfoHandle" placeholder="请输入客户姓名" />
                   </div>
@@ -140,14 +140,14 @@
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">手机号</div>
                   <div class="value">
-                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click="focus = 2"
+                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
                       @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
                   <div class="label">授权码</div>
                   <div class="value">
-                    <input v-model="superValidate" :class="{ focus: focus == 5 }" @click="focus = 5"
+                    <input v-model="superValidate" :class="{ focus: focus == 5 }" @click.stop="focus = 5"
                       @input="emitStepOneInfoHandle" placeholder="请输入超级授权码" />
                   </div>
                 </div>
