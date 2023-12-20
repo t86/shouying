@@ -31,8 +31,9 @@
         font-size: 22px;
       }
 
+
       .tbody {
-        height: calc(100vh - 220px);
+        height: calc(100vh - 290px);
         overflow-y: auto;
 
         .coll {
@@ -401,4 +402,14 @@
 
     }
   }
+}
+
+/* 如果是竖屏，调整高度 */
+@media screen and (orientation: portrait) {
+  .new-my-order-content-top {
+    .tbody {
+      height: calc(100vh - 360px);
+    }
+  }
+
 }
