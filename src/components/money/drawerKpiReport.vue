@@ -109,7 +109,7 @@ export default {
           },
           {
             id: 5,
-            name: "按订位人汇总"
+            name: "按订位人排名汇总"
           }
        ]
      },
