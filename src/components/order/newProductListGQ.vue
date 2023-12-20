@@ -79,7 +79,7 @@
               <div class="prd-info" layout="row" layout-align="space-between center">
                 <div class="td">{{ item.n }}</div>
                 <div class="td">{{ item.c }}</div>
-                <div class="td" style="color: #2170ff; cursor: pointer;">删除</div>
+                <div class="td" style="color: #2170ff; cursor: pointer;" @click.stop="deletePrdHandle(item.id)">删除</div>
               </div>
               <div class="require p-l-2">{{ item.require }}</div>
 
@@ -173,6 +173,7 @@ export default {
         this.centerType = oneLineCount * cardWidth;
       });
     },
+
 
     getPageData(page = 1) {
       this.page = page;
