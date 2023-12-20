@@ -106,6 +106,10 @@ export default {
           {
             id: 4,
             name: "按直属部门分组"
+          },
+          {
+            id: 5,
+            name: "按订位人汇总"
           }
        ]
      },
