@@ -30,7 +30,7 @@
         </div>
         <!-- 卡台列表 -->
         <div class="content">
-          <div v-if="card.cardList.length > 0" class="center-type" :style="'width:' + card.centerTypeWidth + 'px'"
+          <div v-if="card.cardList.length > 0" class="center-type"
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus),
@@ -393,6 +393,19 @@ export default {
       callback && callback();
     },
 
+    adjustItemWidth() {
+      const container = document.querySelector('.center-type');
+      if(!container) return;
+      const items = container.querySelectorAll('.card-item');
+      const containerWidth = container.offsetWidth;
+      const itemMinWidth = 310; // 你的项目的最小宽度
+      const maxItemsPerRow = Math.floor(containerWidth / itemMinWidth);
+      const itemWidth = (containerWidth  - maxItemsPerRow * 10 + 10 )/ maxItemsPerRow - 20;
+    
+      items.forEach(item => {
+        item.style.width = `${itemWidth}px`;
+      });
+    },
 
     // 获取tab数据
     getTabList(arr = []) {
@@ -849,6 +862,12 @@ export default {
       });
       targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
+
+      let that = this;
+      setTimeout(() => {
+        that.adjustItemWidth();
+      }, 0);
+
       return id == 2001
         ? this.getMyCardList()
         : id == 0
@@ -1516,6 +1535,10 @@ export default {
     window.addEventListener("resize", this.windowResizeHandle);
 
     window.onkeydown = this.keydownHandle;
+    window.addEventListener('resize', this.adjustItemWidth);
+
+    // 调用一次函数，以便在页面加载时设置项目的宽度
+    this.adjustItemWidth();
 
   },
 
@@ -1638,6 +1661,7 @@ export default {
   beforeDestroy() {
     console.log("beforeDestroy");
     window.removeEventListener("resize", this.windowResizeHandle);
+    window.removeEventListener("resize", this.adjustItemWidth);
     window.removeEventListener("click", (e) => this.legendOptionHandle());
 
     window.onkeydown = null;

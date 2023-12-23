@@ -102,9 +102,9 @@ export const cardPageMixins = {
       }
       if (item.fontSize) return item.fontSize;
       if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
-      let fontSize = 30
+      let fontSize = 35
       this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
-      while (this.$refs.cardRef[index].scrollWidth > 130) {
+      while (this.$refs.cardRef[index].scrollWidth > 180) {
         fontSize *= 0.95;
         this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
       }
@@ -344,6 +344,7 @@ export const cardPageMixins = {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadData", (e) => {
       this.getAllData(false);
+
       if (e && e.func) {
         this.getTabShowCount(e.func);
       }
