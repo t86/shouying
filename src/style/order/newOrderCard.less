@@ -157,18 +157,15 @@
       margin: 0 auto;
       flex-wrap: wrap;
       justify-content: flex-start;
-      gap: 10px;
+      gap: 0px;
 
       .card-item {
-        flex-basis: 260px;
-        flex-grow: 1;
-        max-width: 360px;
+        width: 260px;
         position: relative;
         height: 172px;
-        // box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.7);
         border-radius: 6px;
-        margin: 10px;
-        padding: 10px 10px;
+        margin: 6px;
+        padding: 10px;
         font-family: PingFangSC, PingFang SC;
         font-weight: 500;
         font-size: 18px;
@@ -198,11 +195,12 @@
         }
 
         .card-name {
-          height: 50px;
+          height: 40px;
+          margin-top: 8px;
           font-size: 40px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 600;
-          line-height: 46px;
+          line-height: 40px;
           overflow: hidden;
         }
 
@@ -237,7 +235,6 @@
             }
 
             &:hover {
-
               background: rgba(16, 16, 32, 0.4);
             }
 
@@ -252,6 +249,18 @@
               color: #08080A;
             }
           }
+        }
+
+        .order-amt{
+          font-size: 22px;
+          line-height: 22px;
+          margin-top: 8px;
+        }
+
+        .order-person{
+          font-size: 18px;
+          line-height: 18px;
+          margin-top: 10px;
         }
 
         .card-tips {
@@ -280,6 +289,9 @@
         }
 
         &:hover {
+          margin: 0px;
+          padding: 10px 16px;
+          width: 272px;
           background-image: url('../../assets/card-imgs/card-click.png') !important;
           background-position: center center !important;
           background-repeat: no-repeat !important;

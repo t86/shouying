@@ -62,7 +62,7 @@
               </div>
 
               <!-- 点单金额 -->
-              <p style="height: 18px" layout="row" v-if="
+              <p class="order-amt" layout="row" v-if="
                 typeModule == 1 &&
                 item.bizStatus != 1 &&
                 item.bizStatus != 2 &&
@@ -81,10 +81,10 @@
                   item.diXiaoJindu
                 }}</span>
               </p>
-              <p v-else style="height: 18px"></p>
+              <p v-else class="order-amt"></p>
 
               <!-- 优惠金额 -->
-              <p style="height: 18px" v-if="
+              <p class="order-amt" v-if="
                 typeModule == 1 &&
                 item.canLookOrder &&
                 item.bizStatus != 1 &&
@@ -94,9 +94,9 @@
               ">
                 <span>惠:￥{{ item.zengSongAmt }}</span>
               </p>
-              <p v-else style="height: 18px"></p>
+              <p v-else class="order-amt"></p>
 
-              <p layout="row" layout-align="space-between center" style="margin-top: 4px">
+              <p layout="row" layout-align="space-between center" class="order-person">
                 <!-- tips -->
                 <span v-if="typeModule == 1 && item.tipsArr.length > 0" layout="row" layout-align="space-between center">
                   <span class="card-tips" :class="{ green: items !== '锁', yellow: items === '锁' }"
@@ -286,7 +286,7 @@ import authPwd from "@/assets/card-imgs/new-authPwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/new-sanjiao.png";
 const TabWidth = 112; // tab固定宽度
-const cardWidth = 172; // 卡台信息固定宽度
+const cardWidth = 272; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
 let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
 let cardListInfoArr = []; // 卡台总数据

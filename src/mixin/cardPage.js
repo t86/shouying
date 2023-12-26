@@ -102,7 +102,7 @@ export const cardPageMixins = {
       }
       if (item.fontSize) return item.fontSize;
       if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
-      let fontSize = 30
+      let fontSize = 40
       this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
       while (this.$refs.cardRef[index].scrollWidth > 130) {
         fontSize *= 0.95;
