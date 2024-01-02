@@ -104,7 +104,7 @@ export const cardPageMixins = {
       if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
 
       let fontSize = 30
-      let fontWidth = 150
+      let fontWidth = 130
       if(sessionStorage.getItem("client") == "order") {
         // 如果是点单卡台，字体大小为40
         fontSize = 40
