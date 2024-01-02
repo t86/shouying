@@ -7,8 +7,10 @@
         v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
       <img class="icon" :src="imgSrc.search" alt />
-      <span>开台时间：</span>
-      <span>{{ openTime }}</span>
+      <div class="opentime" layout="row" layout-align="center center">
+        <span >开台时间：</span>
+        <span>{{ openTime }}</span>
+      </div>
     </div>
 
     <div class="card-list" ref="cardListRef">
@@ -107,8 +109,8 @@
           authInfo.minute
         }}
       </p>
-      <p class="time" :class="{ rect: !isRect }">
-        {{ authTips }}:{{ authInfo.name }}
+      <p class="author" :class="{ rect: !isRect }">
+        {{ authTips }}: {{authInfo.name}}
       </p>
     </div>
 
@@ -545,6 +547,16 @@ export default {
         return item.pid === pid ? sum + item.pc : sum;
       }, 0);
     },
+    checkOverflow() {
+      const el = this.$el.querySelector('.author');
+      console.log('checkoverflow', el.scrollWidth, el.clientWidth)
+      
+      let fontSize = 16
+      while (164 < el.innerText.length * fontSize) {
+        fontSize = fontSize * 0.9
+        el.style.fontSize = fontSize + 'px';
+      }
+    },
   },
   created() {
     setTimeout(() => {
@@ -568,6 +580,7 @@ export default {
     this.adjustFontSize(); // 在组件加载后调整一次字体大小
     window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
     // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
+    this.checkOverflow();
   },
   props: ["allProductsList", "currentCategoryProductList"],
   computed: {

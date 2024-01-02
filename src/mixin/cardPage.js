@@ -102,9 +102,17 @@ export const cardPageMixins = {
       }
       if (item.fontSize) return item.fontSize;
       if ((!index && index != 0) || index < 0 || !this.$refs.cardRef || !this.$refs.cardRef[index]) return
-      let fontSize = 40
+
+      let fontSize = 30
+      let fontWidth = 150
+      if(sessionStorage.getItem("client") == "order") {
+        // 如果是点单卡台，字体大小为40
+        fontSize = 40
+        fontWidth = 180
+      }
+
       this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
-      while (this.$refs.cardRef[index].scrollWidth > 180) {
+      while (this.$refs.cardRef[index].scrollWidth > fontWidth) {
         fontSize *= 0.95;
         this.$refs.cardRef[index].style.fontSize = fontSize + 'px';
       }

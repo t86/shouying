@@ -274,7 +274,8 @@
   // 系统时间
   .date-time-top {
     position: fixed;
-    right: 136px;
+    width: 164px;
+    right: 126px;
     top: 0px;
     height: 60px;
     z-index: 99;
@@ -284,7 +285,14 @@
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
       color: #08080A;
-      line-height: 18px;
+      line-height: 24px;
+    }
+    p.author {
+      font-size: 16px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #08080A;
+      line-height: 24px;
     }
   }
 
@@ -330,5 +338,19 @@
         border-radius: 0 8px 8px 0;
       }
     }
+  }
+}
+
+@media (orientation: portrait) and (max-width: 800px) {
+  .date-time-top {
+    display: none;
+  }
+  .opentime {
+    position: fixed;
+    width: 164px;
+    right: 126px;
+    top: 0px;
+    height: 60px;
+    z-index: 99;
   }
 }
