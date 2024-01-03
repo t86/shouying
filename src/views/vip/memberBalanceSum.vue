@@ -59,6 +59,7 @@
                 <div class="th">充值金额</div>
                 <div class="th">赠送金额</div>
                 <div class="th">总余额</div>
+                <div class="th">推荐人</div>
                 <div class="th">积分余额</div>
               </div>
             </div>
@@ -80,6 +81,7 @@
                 <div class="td fs16-bold">{{ item.vb }}</div>
                 <div class="td fs16-bold">{{ item.fb }}</div>
                 <div class="td fs16-bold">{{ item.b }}</div>
+                <div class="td fs16-bold">{{ item.s }}</div>
                 <div class="td fs16-bold">{{ item.p }}</div>
               </div>
               <div class="no-data" v-if="tableData.length == 0">
