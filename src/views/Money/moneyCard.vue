@@ -459,6 +459,17 @@
                   />
                   <span>优惠明细表</span>
                 </div>
+                <!-- 商品卡台销售表 -->
+                <div
+                  class="option-item line"
+                  @click="showOrHideKTSalesDetailDrawer()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/kpi-report.png')"
+                    alt
+                  />
+                  <span>商品卡台销售表</span>
+                </div>
                 <div
                   class="option-item line"
                   @click="showOrHideTYDetailDrawer()"
@@ -802,6 +813,12 @@
       @showOrHideYHDetailDrawer="showOrHideYHDetailDrawer"
     />
 
+    <!-- 商品卡台销售表 -->
+    <drawerKTSalesDetail
+      :showDrawer="showOrHideKTSalesDetail"
+      @showOrHideKTSalesDetailDrawer="showOrHideKTSalesDetailDrawer"
+    />
+
     <!-- 鸡尾酒明细表 -->
     <drawerTYDetail
       :showDrawer="showOrHideTYDetail"
@@ -967,6 +984,8 @@ import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue"
 // 优惠明细表
 import drawerYHDetail from "../../components/money/drawerYHDetail.vue";
 
+import drawerKTSalesDetail from "../../components/money/drawerKTSalesDetail.vue";
+
 // 鸡尾酒明细表
 import drawerTYDetail from "../../components/money/drawerTYDetail.vue";
 
@@ -1075,6 +1094,7 @@ export default {
       showOrHideKpiReport: false, // 业绩日报表
       showOrHideOnlineBooking: false, // 线上预定记录
       showOrHideYHDetail: false, // 优惠明细表
+      showOrHideKTSalesDetail: false, // 商品卡台销售表
       showOrHideTYDetail: false, // 鸡尾酒明细表
       showOrHideTYHZ: false, // 鸡尾酒汇总表
       showOrHideGZDetail: false, // 挂账详情
@@ -1602,6 +1622,12 @@ export default {
     showOrHideYHDetailDrawer() {
       this.showOrHideYHDetail = !this.showOrHideYHDetail;
     },
+
+    // 商品卡台销售表
+    showOrHideKTSalesDetailDrawer() {
+      this.showOrHideKTSalesDetail = !this.showOrHideKTSalesDetail;
+    },
+
 
     // 鸡尾酒明细表
     showOrHideTYDetailDrawer() {
@@ -2241,6 +2267,7 @@ export default {
     drawerKpiReport,
     drawerOnlineBooking,
     drawerYHDetail,
+    drawerKTSalesDetail,
     drawerTYDetail,
     drawerTYHZ,
     drawerGZDetail,

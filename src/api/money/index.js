@@ -256,6 +256,18 @@ export default {
       params
     ),
 
+  // 读取商品卡台销售表
+  reqGePrdSetSoldCnt: (params) =>
+  axios.post(`${base.htgl}/sel/rpt/get_prd_set_sold_cnt`, params),
+
+  // 导出商品卡台销售表
+  reqExportPrdSetSoldCnt: (params) =>
+  axios.binaryFilePost(
+    `${base.htgl}/sel/rpt/exp_prd_set_sold_cnt`,
+    params
+  ),
+
+
   // 读取服务员指定商品销售汇总表(按部门,商品汇总,并排序,金额为实收金额)
   reqGetXSAllInfoReport: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_waiter_sales_prd_amt_sums`, params),

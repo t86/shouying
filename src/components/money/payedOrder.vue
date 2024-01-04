@@ -335,6 +335,9 @@
                         >
                           修改下单人
                         </div>
+                        <div class="li"
+                            @click.stop="printPrdTicket(item)"
+                          >补打出品小票</div>
                       </ul>
                     </div>
                   </div>
@@ -402,6 +405,7 @@
 <script>
 import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
+import api_order from "@/api/order";
 
 import shoppingCarMore from "@/assets/order-img/shoppingCarMore.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
@@ -510,6 +514,21 @@ export default {
 
     updateChangedOrderData() {
       this.$emit("updateChangedOrderData");
+    },
+
+    
+    // 商品补打出品小票
+    async printPrdTicket(objInfo = {}) {
+      try {
+        const res = await api_order.reqReprtCp({ order_id: objInfo.id * 1 })
+        if (res.code === 1) {
+          this.$message.success('补打成功')
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        this.$message.warning('补打失败，请稍后重试')
+      }
     },
   },
   mounted() {

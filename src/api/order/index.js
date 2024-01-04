@@ -80,6 +80,10 @@ export default {
   reqChangeOrderDetailWhenNotOrdered: (params) =>
     axios.post(`${base.htgl}/wo/set_chg`, params),
 
+  // 补打出品小票
+  reqReprtCp: (params) =>
+    axios.post(`${base.htgl}/wo/reprt_cp`, params),
+
   // 手工打印消费单
   reqPrintOrder: (params) => axios.post(`${base.htgl}/wo/prt_csm_bill`, params),
   // 手工补打消费单
