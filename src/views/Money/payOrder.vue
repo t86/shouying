@@ -133,6 +133,16 @@
           layout="row"
           layout-align="end center"
         >
+          <!-- 转单 -->
+          <div
+            class="button"
+            :class="{ gray: hasChooseClockOrder }"
+            v-if="payTabInfo.activePayId == 0"
+            @click="changeOrderToAnotherSeat"
+          >
+            转单
+          </div>
+
           <div
             class="button"
             v-if="payTabInfo.activePayId == 0"
@@ -355,7 +365,8 @@
 
     <!-- 并台 -->
     <fullPageTable
-      titleText="转优惠2"
+      :titleText="chooseCardInfo.title"
+      :fromMerchant="chooseCardInfo.title == '转单'"
       @showOrHideFullPageHandle="showOrHideChooseCardDrawer"
       @setChoosedCardInfo="setChoosedCardInfo"
       v-if="chooseCardInfo.showDrawer"
@@ -459,9 +470,10 @@ export default {
         },
       },
 
-      // 是否显示选择并台（转优惠2）中的选择卡台
+      // 是否显示选择并台（转优惠2）或者转单中的选择卡台
       chooseCardInfo: {
         showDrawer: false,
+        title: '',
       },
 
       isPrintNotPay: false, // 是否打印为未结消费单
@@ -1145,6 +1157,18 @@ export default {
       }
     },
 
+    changeOrderToAnotherSeat(){
+      if (this.hasChooseClockOrder)
+        return this.$message.warning("所选订单存在锁定订单，不可操作");
+      const checkedOrderList = this.notPayData.choosePayOrderList.filter(
+        (item) => item.checkout && !item.back && !item.oid
+      );
+      if (checkedOrderList.length === 0)
+        return this.$message.warning("请选择要操作的转单订单");
+      this.showOrHideChooseCardDrawer();
+      this.chooseCardInfo.title = '转单'
+    },
+
     // 并台（转优惠2）
     mergeOrderToAnotherSeat() {
       if (this.hasChooseClockOrder)
@@ -1158,6 +1182,7 @@ export default {
       if (!isYh2)
         return this.$message.warning("只允许优惠2订单进行转优惠2操作！");
       this.showOrHideChooseCardDrawer();
+      this.chooseCardInfo.title = '转优惠2'
     },
 
     // 显示或隐藏并台（转优惠2）选择卡台
@@ -1167,8 +1192,39 @@ export default {
 
     // 获取选取的并台（转优惠2）卡台
     setChoosedCardInfo(cardInfo) {
-      this.submitMergeOrder(cardInfo);
+      if(cardInfo.title == '转优惠2') {
+        this.submitMergeOrder(cardInfo);
+      } else if(cardInfo.title == '转单') {
+        this.submitChangeOrder(cardInfo);
+      }
     },
+
+    // 提交转单数据
+    async submitChangeOrder(cardInfo) {
+      const checkedOrderList = this.notPayData.choosePayOrderList.filter(
+        (item) => item.checkout && !item.back && !item.oid
+      );
+      const params = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   待操作卡台Id
+        dest_seat_id: cardInfo.seatId * 1, // int64    目标卡台Id
+        wk_order_ids: checkedOrderList.map((item) => item.id * 1),     //WkOrderIds 待转订单Id的列表
+        prd_cnts: checkedOrderList.map((item) => item.changeCount),        //PrdCnts 待转订单的商品数量列表
+        total_amt: checkedOrderList.map((item) => item.pp * item.changeCount),      //TotalAmt 待转涉及的总金额,单位分
+      };
+      try {
+        const res = await api_money.reqMoveWkOrder(params);
+        if (res.code == 1) {
+          this.$message.success("转单成功");
+          this.showOrHideChooseCardDrawer();
+          this.getOrderInfo();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("转单失败", error);
+      }
+    },
+
 
     // 提交并台（转优惠2）数据
     async submitMergeOrder(cardInfo) {

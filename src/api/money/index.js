@@ -36,6 +36,10 @@ export default {
   reqMergeYh2Order: (params) =>
     axios.post(`${base.htgl}/sel/move_order`, params),
 
+  // 转单
+  reqMoveWkOrder: (params) =>
+  axios.post(`${base.htgl}/sel/move_wk_order`, params),
+
   // 线上支付订单转线下
   reqOnlineOrderToOrgOrder: (params) =>
     axios.post(`${base.htgl}/sel/conv_ol_order_local`, params),

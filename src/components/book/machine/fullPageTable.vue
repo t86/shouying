@@ -10,7 +10,7 @@
       <i class="el-icon-close" @click.stop="closeFullPageHandle(false)"></i>
     </div>
     <!-- 筛选 -->
-    <div class="search">
+    <div class="search" v-if="title != '转单'">
       <span>最低消费：</span>
       <input type="number" min="0" v-model="minAmt" /> 元
       <span>-</span>
@@ -160,6 +160,7 @@ export default {
       )
         return;
       this.selectedInfo = cardInfo;
+      this.selectedInfo.title = this.title;
       this.activeId = cardInfo.id;
     },
 

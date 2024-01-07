@@ -58,6 +58,55 @@
             </div>
           </div>
           <div class="NoPaging">
+            <div class="title bold">转单-出品单格式:</div>
+            <div class="content">
+              <div class="bill_info">
+                <div class="bill_info_l">[卡座] K001转K002</div>
+                <div class="bill_info_r">001</div>
+              </div>
+              <div class="guest_info" style="border: none">
+                <div class="guest_info_l">人数：10</div>
+                <div class="guest_info_r">服务员：000000 系统管理员</div>
+              </div>
+              <div class="guest_info">
+                <div class="guest_info_l">转单操作人：0220 张三</div>
+              </div>
+              <div class="pro border-b">
+                <div class="pro_td_o_li fs17">百威啤酒</div>
+                <div class="w200 pro_td_o_li">¥10.00</div>
+                <div class="pro_td_o_li bold">1</div>
+              </div>
+              <div class="pro border-b">
+                <div class="pro_td_o_li fs17">雪花啤酒</div>
+                <div class="w200 pro_td_o_li">¥10.00</div>
+                <div class="pro_td_o_li bold">1</div>
+              </div>
+              <div class="pro pro_tc m-t-2">
+                <div class="pro_td_o_li fs17">小吃套餐</div>
+                <div class="w200 pro_td_o_li">¥20.00</div>
+                <div class="pro_td_o_li bold">1</div>
+              </div>
+              <div class="pro pro_tc">
+                <div class="pro_td_o_li m-l-4 fs17">花生</div>
+                <div class="pro_td_o_li bold">1</div>
+              </div>
+              <div class="pro pro_tc border-b" style="padding-bottom: 8px">
+                <div class="pro_td_o_li m-l-4 fs17">可乐</div>
+                <div class="pro_td_o_li bold">1</div>
+              </div>
+
+              <div class="totalmoney">
+                <div class="totalmoney_l">总金额：40.00元</div>
+                <div class="totalmoney_r">总数：4（3道）</div>
+              </div>
+              <div class="order_time">
+                <div class="order_time_li">下单时间：2023-02-07 21:50:20</div>
+                <div class="order_time_li">打印时间：2023-02-07 21:50:20</div>
+                <div class="order_time_li">[大厅出品库]</div>
+              </div>
+            </div>
+          </div>
+          <div class="NoPaging">
             <div class="title bold">出品单（退单）格式:</div>
             <div class="content">
               <div class="bill_info">
@@ -904,6 +953,15 @@ export default {
   .content {
     border: 1px solid #333;
     padding: 10px;
+
+    .bill_info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2px 0 4px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #333;
+    }
 
     .bill_info_l {
       font-weight: 600;
