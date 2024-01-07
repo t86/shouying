@@ -1209,7 +1209,7 @@ export default {
         dest_seat_id: cardInfo.seatId * 1, // int64    目标卡台Id
         wk_order_ids: checkedOrderList.map((item) => item.id * 1),     //WkOrderIds 待转订单Id的列表
         prd_cnts: checkedOrderList.map((item) => item.changeCount),        //PrdCnts 待转订单的商品数量列表
-        total_amt: checkedOrderList.map((item) => item.pp * item.changeCount),      //TotalAmt 待转涉及的总金额,单位分
+        total_amt: checkedOrderList.map((item) => item.pp * item.changeCount * 100).reduce((a,b) => a + b,0),      //TotalAmt 待转涉及的总金额,单位分
       };
       try {
         const res = await api_money.reqMoveWkOrder(params);
