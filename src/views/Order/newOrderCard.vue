@@ -35,7 +35,7 @@
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus),
             ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
-              <p layout="row" layout-align="space-between center">
+              <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
                   <span v-if="item.mark" class="mark">{{ item.mark }}</span>
