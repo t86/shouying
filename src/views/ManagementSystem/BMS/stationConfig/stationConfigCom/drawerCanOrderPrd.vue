@@ -10,7 +10,7 @@
     >
       <div class="session p-5 erp-lib-detail fs14 tab">
         <div class="item item-left" :class="{isActive: isCanOrder}" @click.stop="onChangeTab(1)">配置可点分类</div>
-        <div class="item item-right" :class="{isActive: !isCanOrder}" @click.stop="checkChangeTab">配置不可点分类</div>
+        <div class="item item-right" :class="{isActive: !isCanOrder}" @click.stop="checkChangeTab">配置不可点商品</div>
       </div>
       <div class="session p-5 erp-lib-detail fs14" v-if="isCanOrder">
         <p class="red-color">
