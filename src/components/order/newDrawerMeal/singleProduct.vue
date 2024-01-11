@@ -2,10 +2,13 @@
   <el-form label-position="right" @submit.native.prevent style="margin-top: 30px">
     <!-- 数量 -->
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
-      <input ref="inputCount" v-if="$store.state.userInfo.authStatus == 4" class="count" :class="{ focus: focus == 1 }"
+      <input ref="inputCount" 
+      type="text"
+      v-if="$store.state.userInfo.authStatus == 4 && count" 
+      class="count" :class="{ focus: focus == 1 }"
         @click.stop="focusHandle(1)" placeholder="商品数量默认1" v-model="count" />
       <div v-else class="count" :class="{ focus: focus == 1, text: !count }" @click.stop="focusHandle(1)">
-        {{ count == "" ? "商品数量默认1" : count }}
+        {{ !count ? "商品数量默认1" : count }}
       </div>
     </el-form-item>
 
@@ -123,7 +126,7 @@ export default {
       showModal: false,
       isGQ: false, // 是否是估清模态框
       focus: 1,
-      count: "", // 数量
+      count: undefined, // 数量
       amt: "", // 金额
       authType: "2", // 赠送类型
       authTypeList: [], // 当前商品对应的二级分类authType集合
