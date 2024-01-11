@@ -266,7 +266,7 @@ export default {
 
   // 导出商品卡台销售表
   reqExportPrdSetSoldCnt: (params) =>
-  axios.binaryFilePost(
+    axios.binaryFilePost(
     `${base.htgl}/sel/rpt/exp_prd_set_sold_cnt`,
     params
   ),
