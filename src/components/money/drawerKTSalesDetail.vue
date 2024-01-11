@@ -143,7 +143,7 @@ export default {
     },
 
     onCancelDrawer() {
-      this.$emit("showOrHideYHDetailDrawer");
+      this.$emit("showOrHideKTSalesDetailDrawer");
     },
 
   },
