@@ -234,7 +234,7 @@ export default {
                 : common_book.getOrderPersonInfo(el.wei);
             el.authInfo = common_book.getOrderPersonInfo(el.ae);
             el.showList = false;
-            if (el.is == 1)
+            if (el.is == 1 && el.si)
               el.si.forEach((ele) => {
                 ele.groupInfo = common_order.getProductInfoFromGroup(ele.i);
               });
