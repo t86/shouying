@@ -1596,10 +1596,10 @@ export default {
     },
     // 是否有查单权限
     hasLookOrder () {
-      return (
+      return ((
         this.$store.state.userInfo.roleIds &&
         this.$store.state.userInfo.roleIds.includes(11)
-      );
+      ) || this.$store.state.userInfo.isShopManager);
     },
     // 是否有存取酒
     hasWineAuth () {

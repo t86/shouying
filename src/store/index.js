@@ -97,6 +97,7 @@ export default new Vuex.Store({
       info['clone_emp_id'] = loginUser? loginUser.clone_emp_id : '';
       info["roleIds"] = roleIds;
       info['sys_modules']=sys_module_ids;
+      info['isShopManager'] = state.cardPageInfo.resResultDataObj['shopManagerConfig'].find(item => item.emp_id == info.emp_id && item.status == 1)? true : false;
      }
       sessionStorage.setItem("userInfo", JSON.stringify(info));
       state.userInfo = info;
