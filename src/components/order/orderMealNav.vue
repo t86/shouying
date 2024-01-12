@@ -24,7 +24,7 @@
         :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)' }">
         <div class="li" :class="{ 'active': secondCategoryActiveId === item.id }" v-for="(item, index) in secondCategoryList"
           :key="index" @click="secondCategoryActiveId = item.id">
-          <div class="item">
+          <div class="item" :style="{ fontSize: fontSize(item, index) + 'px'}" ref="cardRef">
             <span>{{ item.name }}</span>
           </div>
         </div>
@@ -63,7 +63,17 @@ export default {
     };
   },
   methods: {
+    fontSize(item) {
+      let fontSize = 22;
 
+      if (item.name.length > 12 ) {
+          fontSize *= 0.6;
+      }
+      if (item.name.length > 6 ) {
+          fontSize *= 0.8;
+      }
+      return fontSize;
+    },
     // 检测是否为横屏
     getRectVal() {
       const width = screen.availWidth
