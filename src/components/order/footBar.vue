@@ -117,8 +117,8 @@
                 <span>￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
               </p>
               <p class="one-txt-cut">
-                <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
-                <span class="txt-right">当台实收:</span>
+                <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
+                <span class="txt-right">主营实收:</span>
                 <span>￥{{
                   Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
                 }}</span>
@@ -169,8 +169,8 @@
               <span class="m-r-4">￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
-              <!-- 当台实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
-              <span class="txt-right">当台实收:</span>
+              <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
+              <span class="txt-right">主营实收:</span>
               <span>￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span>
             </p>
           </div>
@@ -510,7 +510,7 @@ export default {
             order_zy_amt += el.amts.pzv * 1;
             // 已收金额
             payedAmt += el.amts.p * 1;
-            // 当台实收
+            // 主营实收
             payed_zy_val_amt += el.amts.pzv * 1;
           });
 

@@ -72,6 +72,7 @@ export const resResultDataArr = [
   'orderPrdList',       // 42-可点商品配置
   'frontVersion',       // 43-前端版本号
   'funcOrderPrdConfig', // 44-功能台可点商品配置
+  'shopManagerConfig', // 45-店长配置
 ]
 
 // 图例列表
