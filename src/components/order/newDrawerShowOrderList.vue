@@ -240,7 +240,7 @@ export default {
               // 优惠2卡台信息
               el.Yh2SeatInfo =
                 el.y2s == 0 ? {} : common_book.getCardInfo(el.y2s);
-              if (el.is == 1)
+              if (el.is == 1 && el.si)
                 el.si.forEach(ele => {
                   ele.groupInfo = common_order.getProductInfoFromGroup(ele.dpi);
                 });
