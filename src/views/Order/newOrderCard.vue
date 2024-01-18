@@ -684,7 +684,7 @@ export default {
       // 获取功能台或者关联功能台的金额信息
       // 根据card_ids调用reqGetSpSeatList
       // 卡台类型 '1' 实体台 '2' 虚拟台 '3' 关联功能台 '4' 功能台
-      let seat_ids = cardList.filter((item) => item.bizType == '3' || item.bizType == '4').map((item) => item.id * 1)
+      let seat_ids = cardList.filter((item) => item.bizType == '3').map((item) => item.id * 1)
       if(seat_ids.length > 0) {
         try {
           const res = await api_money.reqGetSpSeatList({
