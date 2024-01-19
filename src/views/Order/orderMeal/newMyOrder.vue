@@ -88,11 +88,11 @@
                   </div>
                 </div>
               </div>
-              <div v-if="item.is == 1 && !item.back">
+              <div v-if="(item.is == 1 || item.is == 2) && !item.back">
                 <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
                   <div class="td"></div>
                   <div class="td one-txt-cut detail">
-                    {{ items.groupInfo.name
+                    {{ items.groupInfo && items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>
                   <div class="td detail-count">{{ items.s * items.c * item.pc }}</div>
@@ -226,15 +226,15 @@ export default {
           this.amt.giveAmt = ((res.data.pay_info.yh_amt || 0) / 100).toFixed(2);
           this.amt.notPayAmt = (((res.data.pay_info.order_amt || 0) - (res.data.pay_info.payed_amt || 0)) / 100).toFixed(2);
           
-          eventVue.$emit("changeTurnOverCountHandle", [{
-            amts: {
-              o: res.data.pay_info.order_amt,
-              pv: res.data.pay_info.payed_val_amt,
-              oz: res.data.pay_info.order_zy_amt,
-              p: res.data.pay_info.payed_amt,
-              pzv: res.data.pay_info.payed_zy_val_amt,
-            }
-          }]);
+          // eventVue.$emit("changeTurnOverCountHandle", [{
+          //   amts: {
+          //     o: res.data.pay_info.order_amt,
+          //     pv: res.data.pay_info.payed_val_amt,
+          //     oz: res.data.pay_info.order_zy_amt,
+          //     p: res.data.pay_info.payed_amt,
+          //     pzv: res.data.pay_info.payed_zy_val_amt,
+          //   }
+          // }]);
           const data = res.data.records || [];
           data.forEach((el) => {
             el.productInfo = common_order.getProductInfo(el.pid);
@@ -244,7 +244,7 @@ export default {
                 : common_book.getOrderPersonInfo(el.wei);
             el.authInfo = common_book.getOrderPersonInfo(el.ae);
             el.showList = false;
-            if (el.is == 1 && el.si)
+            if ((el.is == 1 || el.is == 2)&& el.si)
               el.si.forEach((ele) => {
                 ele.groupInfo = common_order.getProductInfoFromGroup(ele.i);
               });
