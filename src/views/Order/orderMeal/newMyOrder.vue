@@ -60,7 +60,8 @@
                 <div class="td">
                   <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
                   <img v-if="
-                    (item.s != 5 && !item.back) || item.productInfo.prdType == 2
+                    ((item.s != 5 && !item.back) || item.productInfo.prdType == 2)
+                    && (hasOrderBackAuth || hasChangeDetailAuth)
                   " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
                   <img :src="imgSrc.sanJiao" v-if="
                     item.showList &&
