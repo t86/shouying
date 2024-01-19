@@ -108,11 +108,11 @@
                 :key="i"
               >
                 <div class="td"></div>
-                <div class="td one-txt-cut">
+                <div class="td one-txt-cut detail ">
                   {{ items.groupInfo.name
                   }}{{ items.r ? "（" + items.r + "）" : "" }}
                 </div>
-                <div class="td">{{ items.s * items.c * item.pc }}</div>
+                <div class="td detail-count">{{ items.s * items.c * item.pc }}</div>
                 <div class="td"></div>
                 <div class="td"></div>
                 <div class="td"></div>

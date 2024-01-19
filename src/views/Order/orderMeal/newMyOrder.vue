@@ -95,7 +95,7 @@
                     {{ items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>
-                  <div class="td">{{ items.s * items.c * item.pc }}</div>
+                  <div class="td detail-count">{{ items.s * items.c * item.pc }}</div>
                   <div class="td"></div>
                   <div class="td"></div>
                   <div class="td"></div>
@@ -225,6 +225,16 @@ export default {
           this.amt.allAmt = ((res.data.pay_info.order_amt || 0) / 100).toFixed(2);
           this.amt.giveAmt = ((res.data.pay_info.yh_amt || 0) / 100).toFixed(2);
           this.amt.notPayAmt = (((res.data.pay_info.order_amt || 0) - (res.data.pay_info.payed_amt || 0)) / 100).toFixed(2);
+          
+          eventVue.$emit("changeTurnOverCountHandle", [{
+            amts: {
+              o: res.data.pay_info.order_amt,
+              pv: res.data.pay_info.payed_val_amt,
+              oz: res.data.pay_info.order_zy_amt,
+              p: res.data.pay_info.payed_amt,
+              pzv: res.data.pay_info.payed_zy_val_amt,
+            }
+          }]);
           const data = res.data.records || [];
           data.forEach((el) => {
             el.productInfo = common_order.getProductInfo(el.pid);

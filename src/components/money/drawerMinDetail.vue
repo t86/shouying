@@ -11,6 +11,7 @@
       <div class="min-detail">
         <div class="top">
           <el-button
+            v-if="!isOrder()"
             type="primary"
             @click="exportExcel"
             style="width:90px;height:30px;line-height:30px;padding:0"
@@ -118,7 +119,10 @@ export default {
 
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
-    }
+    },
+  isOrder(){
+    return sessionStorage.getItem("client") == "order"
+  }
   },
   props: {
     showDrawer: {

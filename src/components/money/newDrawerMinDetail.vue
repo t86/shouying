@@ -4,7 +4,7 @@
     <el-drawer title="低消进度统计表" :visible.sync="show" :before-close="onCancelDrawer" direction="rtl" size="98%">
       <div class="min-detail">
         <div class="top">
-          <el-button type="primary" @click="exportExcel" style="width: 130px;
+          <el-button type="primary" v-if="!isOrder()" @click="exportExcel" style="width: 130px;
       height: 44px;
       background: #3373E8;
       border-radius: 8px;padding: 0;line-height: 44px;font-size: 20px;
@@ -108,6 +108,9 @@ export default {
 
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
+    },
+    isOrder(){
+      return sessionStorage.getItem("client") == "order"
     }
   },
   props: {

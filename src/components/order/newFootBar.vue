@@ -477,7 +477,7 @@ export default {
             // 折后金额
             payed_val_amt += el.amts.pv * 1;
             // 主营点单金额
-            order_zy_amt += el.amts.pzv * 1;
+            order_zy_amt += el.amts.oz * 1;
             // 已收金额
             payedAmt += el.amts.p * 1;
             // 主营实收

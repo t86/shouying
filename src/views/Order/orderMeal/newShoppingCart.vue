@@ -78,11 +78,11 @@
               <div v-if="item.is == 1">
                 <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
                   <div class="td"></div>
-                  <div class="td one-txt-cut m-l-6">
+                  <div class="td one-txt-cut m-l-6 detail">
                     {{ items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>
-                  <div class="td">{{ items.s * items.c * item.pc }}</div>
+                  <div class="td detail-count">{{ items.s * items.c * item.pc }}</div>
                   <div class="td"></div>
                   <div class="td"></div>
                   <div class="td"></div>
