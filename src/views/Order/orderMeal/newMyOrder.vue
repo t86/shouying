@@ -91,7 +91,7 @@
               <div v-if="(item.is == 1 || item.is == 2) && !item.back">
                 <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
                   <div class="td"></div>
-                  <div class="td one-txt-cut detail">
+                  <div class="td one-txt-cut p-l-6 detail">
                     {{ items.groupInfo && items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>
