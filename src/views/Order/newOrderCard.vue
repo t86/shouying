@@ -707,8 +707,8 @@ export default {
             cardList.forEach((item, index) => {
               const find = records.find((el) => el.s == item.id);
               if (find) {
-                cardList[index].yhAmt = ((find.y || 0) / 100).toFixed(2);
-                cardList[index].orderAmt = ((find.o || 0) / 100).toFixed(2);
+                cardList[index].yhAmt = ((find.yh_amt || 0) / 100).toFixed(2);
+                cardList[index].orderAmt = ((find.order_amt || 0) / 100).toFixed(2);
                 cardList[index].payed_val_amt = ((find.payed_val_amt || 0) / 100).toFixed(2);
                 cardList[index].order_zy_amt = ((find.order_zy_amt || 0) / 100).toFixed(2);
                 cardList[index].payedAmt = ((find.payed_amt || 0) / 100).toFixed(2);
