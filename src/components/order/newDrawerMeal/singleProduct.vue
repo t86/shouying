@@ -67,7 +67,7 @@
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
       <el-button v-if="type == 4" type="primary" @click.stop="deletePrdHandle">解除沽清</el-button>
-      <el-button type="primary" @click.stop="onSubmit">确认</el-button>
+      <el-button type="primary" :disabled="isSubmitting" @click.stop="onSubmit">确认</el-button>
     </div>
 
     <!-- 提交优惠2 -->
@@ -131,6 +131,7 @@ export default {
       authType: "2", // 赠送类型
       authTypeList: [], // 当前商品对应的二级分类authType集合
       requestInfoArr: [], // 选择好的要求列表
+      isSubmitting: false,
       formData: {
         // 赠送理由
         selectedInfo: {},
@@ -246,6 +247,8 @@ export default {
     },
 
     async onSubmit() {
+
+      this.isSubmitting = true
       // 如果count为空，则默认为1
       if (this.count === "") this.count = 1;
 
