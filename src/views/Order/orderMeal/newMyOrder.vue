@@ -60,8 +60,10 @@
                 <div class="td">
                   <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
                   <img v-if="
-                    ((item.s != 5 && !item.back) || item.productInfo.prdType == 2)
-                    && (hasOrderBackAuth || hasChangeDetailAuth)
+                    (item.s != 5 && !item.back && hasOrderBackAuth) || (item.productInfo.prdType == 2 &&
+                      !item.back &&
+                      hasChangeDetailAuth) || 
+                      (item.productInfo.prdType == 2 && item.back)
                   " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
                   <img :src="imgSrc.sanJiao" v-if="
                     item.showList &&
@@ -92,7 +94,7 @@
               <div v-if="(item.is == 1 || item.is == 2) && !item.back">
                 <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
                   <div class="td"></div>
-                  <div class="td one-txt-cut detail">
+                  <div class="td one-txt-cut p-l-6 detail">
                     {{ items.groupInfo && items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>

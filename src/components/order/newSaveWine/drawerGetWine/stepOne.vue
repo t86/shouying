@@ -327,7 +327,8 @@ export default {
                 }
 
                 .focus {
-                  order: 2px solid #3373E8;
+                  border: 2px solid #3373E8;
+                  border-radius: 8px;
                 }
               }
             }

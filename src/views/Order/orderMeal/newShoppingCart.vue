@@ -78,7 +78,7 @@
               <div v-if="item.is == 1">
                 <div class="detail-list tr" v-for="(items, i) in item.si" :key="i">
                   <div class="td"></div>
-                  <div class="td one-txt-cut m-l-6 detail">
+                  <div class="td one-txt-cut detail">
                     {{ items.groupInfo.name
                     }}{{ items.r ? "（" + items.r + "）" : "" }}
                   </div>
