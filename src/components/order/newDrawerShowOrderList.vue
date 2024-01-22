@@ -86,7 +86,7 @@
                           >
                             <div class="online-detail-td"></div>
                             <div
-                              class="online-detail-td one-txt-cut"
+                              class="online-detail-td one-txt-cut name"
                             >{{itemss.groupInfo.name}}{{itemss.r ? '（'+itemss.r+'）':''}}</div>
                             <div class="online-detail-td">{{itemss.sc * itemss.dpc * items.pc}}</div>
                             <div class="online-detail-td"></div>
@@ -135,7 +135,7 @@
                       <div class="td"></div>
                       <div class="td"></div>
                       <div
-                        class="td one-txt-cut"
+                        class="td one-txt-cut name"
                       >{{items.groupInfo.name}}{{items.r ? '（'+items.r+'）':''}}</div>
                       <div class="td">{{items.sc * items.dpc * item.pc}}</div>
                       <div class="td"></div>

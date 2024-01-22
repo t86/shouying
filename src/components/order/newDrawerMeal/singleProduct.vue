@@ -248,9 +248,9 @@ export default {
 
     async onSubmit() {
 
-      this.isSubmitting = true
+
       // 如果count为空，则默认为1
-      if (this.count === "") this.count = 1;
+      if (this.count === "" || !this.count) this.count = 1;
 
       if (
         this.count.toString().indexOf(".") > -1 &&
@@ -261,6 +261,7 @@ export default {
         return this.$message.warning("商品数量默认1");
       if (isNaN(this.count * 1)) return this.$message.warning("请输入数字！");
 
+      this.isSubmitting = true
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
         const params = {
@@ -269,6 +270,7 @@ export default {
         };
         try {
           const res = await api_order.reqSetGQOrder(params);
+
           if (res.code == 1) {
             this.$message.success("添加估清商品成功");
             this.$emit("getGQPrdList");
@@ -279,17 +281,21 @@ export default {
         } catch (error) {
           console.log("添加估清商品失败", error);
         }
+        this.isSubmitting = false
         return false;
       }
+  
 
       // 判断点单数量是否超过了估清数量
       if (
         this.productInfo.outSomethingCount != "many" &&
         this.count * 1 > this.productInfo.outSomethingCount
-      )
+      ) {
+        this.isSubmitting = false
         return this.$message.warning(
           `商品数量超过了可点最大数量${this.productInfo.outSomethingCount}`
         );
+      }
 
       // 判断点单数量是否超过估清数量
       const outOfSomethingPrdList =
@@ -302,6 +308,7 @@ export default {
         isOutOfSomethingPrd.cnt < this.count * 1 &&
         isOutOfSomethingPrd.status == 1
       ) {
+        this.isSubmitting = false
         // 当前商品是估清商品,且点单数量超过了估清数量
         return this.$message.warning(
           "点单数量已超过当前可点估清数量" + isOutOfSomethingPrd.cnt
@@ -313,6 +320,7 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
         this.productInfo.prdType != 2
       ) {
+        this.isSubmitting = false
         return (this.showBJDrawer = true);
       }
 
@@ -327,37 +335,48 @@ export default {
           require: this.requestInfoArr.join(";"),
         };
 
+        this.isSubmitting = false
         this.$emit("getYh2ProInfo", resultProductInfo);
         return;
       }
 
       // 收银下单
       if (this.$store.state.userInfo.authStatus == 4) {
-        return this.orderMealToShoppingCart();
+         this.orderMealToShoppingCart();
+         this.isSubmitting = false
+         return
       }
 
       // 服务员可点商品加入购物车
       if (this.orderMealStatus == 1) {
-        return this.orderMealToShoppingCart();
+        this.orderMealToShoppingCart();
+        this.isSubmitting = false
+        return
       }
 
       // 营销/花篮加入购物车
       if (this.orderMealStatus == 2 || this.orderMealStatus == 3) {
-        return this.sealToShoppingCart();
+        this.sealToShoppingCart();
+        this.isSubmitting = false
+        return
       }
 
       // 优惠2加入购物车
       if (this.orderMealStatus == 5) {
-        return this.showOrHideYH2Drawer();
+        this.showOrHideYH2Drawer();
+        this.isSubmitting = false
+        return
       }
       // 如果是功能台或者关联功能台，则加入购物车
       if (
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
         this.$store.state.orderInfo.currentCardInfo.bizType == 4
       ) {
-        return this.orderMealToShoppingCart();
+        this.orderMealToShoppingCart();
+        this.isSubmitting = false
+        return
       }
-
+      this.isSubmitting = false
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
