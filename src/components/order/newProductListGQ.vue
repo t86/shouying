@@ -10,7 +10,7 @@
       </div>
       <div class="card-list" ref="cardListRef">
         <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-          <div class="prd-item" v-if="pic_show" style="height: 384px;" v-for="item in productsList" :key="item.id"
+          <!-- <div class="prd-item" v-if="pic_show" style="height: 384px;" v-for="item in productsList" :key="item.id"
             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
             <div class="item-img-count">
               <img class="item-img"
@@ -35,9 +35,9 @@
 
             <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda" @click.stop="clickDescImage(item)" />
             <div class="hover-click"></div>
-          </div>
+          </div> -->
 
-          <div class="prd-item" v-if="!pic_show" style="height: 160px;" v-for="item in productsList" :key="item.id"
+          <div class="prd-item" style="height: 160px;" v-for="item in productsList" :key="item.id"
             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
             <div class="title">
               <h5>{{ item.name }}</h5>
@@ -170,7 +170,7 @@ export default {
       this.$nextTick(() => {
         const containWidth = this.$refs.cardListRef.offsetWidth;
         oneLineCount = Math.floor(containWidth / cardWidth);
-        this.centerType = oneLineCount * cardWidth;
+        this.centerType = oneLineCount * cardWidth ;
       });
     },
 

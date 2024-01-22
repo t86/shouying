@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-drawer title="授权存酒" append-to-body :visible.sync="show" direction="rtl" size="95%" :before-close="onCancelDrawer">
+    <el-drawer title="授权存酒" append-to-body :visible.sync="show" direction="rtl" size="98%" :before-close="onCancelDrawer">
       <div class="content">
         <div class="session m-b-10">
           <div v-if="status == 1" layout="row" layout-align="space-between center">
@@ -46,19 +46,11 @@
                 </div>
               </div>
               <div class="prd-list" ref="cardListRef" layout="row" layout-align="center start">
-                <ul class="center-type" :style="{ width: centerType + 'px' }" layout="row" layout-align="start start">
+                <ul class="center-type"  layout="row" layout-align="start start">
                   <li class="prd-item" v-for="item in productList"
                     :key="item.id" @click="chooseWindInfoHandle(item)">
-                    <div class="prd-item-div">
-                      <div class="item-img" v-if="pic_show">
-                        <img class="item-img"
-                          :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
-                      </div>
-                      <span>{{ item.n }}</span>
-                      <!-- <p class="english-name one-txt-cut">{{ item.nameEng }}</p> -->
-                      <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda"
-                        @click.stop="clickDescImage(item)" v-if="pic_show" />
-                    </div>
+                      <span class="prd-item-zh">{{ item.n }}</span>
+                      <span class="prd-item-en">{{ item.en }}</span>
                   </li>
                 </ul>
                 <!-- arrow -->
@@ -84,7 +76,7 @@
                     <div class="tr" layout="row" layout-align="space-between center">
                       <div class="th">名称</div>
                       <div class="th">规格</div>
-                      <div class="th">每瓶克数</div>
+                      <div class="th">克/瓶</div>
                       <div class="th">数量</div>
                       <div class="th">操作</div>
                     </div>
@@ -92,7 +84,7 @@
                   <div class="tbody">
                     <div class="tr" layout="row" layout-align="space-between center" v-for="item in resultWineList"
                       :key="item.id">
-                      <div class="td one-txt-cut tdfs">{{ item.name }}</div>
+                      <div class="td  tdfs">{{ item.name }}</div>
                       <div class="td tdfs">
                         {{
                           item.selectVal == 1 ? "整瓶" : item.selectVal + "瓶"
@@ -132,7 +124,7 @@
                       <div class="th">序号</div>
                       <div class="th">商品名称</div>
                       <div class="th">规格</div>
-                      <div class="th">每瓶克数</div>
+                      <div class="th">克/瓶</div>
                       <div class="th">数量</div>
                     </div>
                   </div>
@@ -140,7 +132,7 @@
                     <div class="tr" layout="row" layout-align="start start" v-for="(item, index) in resultWineList"
                       :key="item.id">
                       <div class="td">{{ index + 1 }}</div>
-                      <div class="td one-txt-cut">{{ item.name }}</div>
+                      <div class="td">{{ item.name }}</div>
                       <div class="td">
                         {{
                           item.selectVal == 1 ? "整瓶" : item.selectVal + "瓶"
@@ -178,7 +170,7 @@
 
 <script>
 import eventVue from "@/utils/eventVue";
-const cardWidth = 282;
+const cardWidth = 272;
 import api_saveWine from "@/api/saveWine";
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import authorization from "@/components/order/newShoppingCart/authorization";
@@ -224,7 +216,7 @@ export default {
       this.$nextTick(() => {
         const containWidth = this.$refs.cardListRef.offsetWidth;
         const oneLineCount = Math.floor(containWidth / cardWidth);
-        this.centerType = oneLineCount * cardWidth;
+        this.centerType = oneLineCount * cardWidth + 10;
       });
       this.getNavData(1);
     },
@@ -524,7 +516,7 @@ export default {
   .left-area {
     transform: translate(0, 0);
     height: calc(100vh - 140px);
-    width: 50%;
+    width: 60%;
     padding-left: 180px;
     box-sizing: border-box;
     border-right: 1px solid rgba(255, 255, 255, 0.15);
@@ -609,21 +601,23 @@ export default {
     }
 
     .prd-list {
-      width: 100%;
+      width: 98%;
       height: 100%;
       overflow: auto;
       scroll-behavior: smooth;
       margin-top: 60px;
-      margin-left: 10px;
+      margin-left: 25px;
       height: calc(100vh - 200px);
 
       .center-type {
         flex-wrap: wrap;
-
+        width: 100%;
         .prd-item {
           margin-right: 10px;
           margin-top: 10px;
-          width: 272px;
+          width: 262px;
+          height: 100px;
+          color: #08080A;
           box-sizing: border-box;
           position: relative;
           background: #FAFAFC;
@@ -632,33 +626,32 @@ export default {
           flex-direction: column;
           cursor: pointer;
 
-          div {
-            img {
-              width: 272px;
-              height: 272px;
-            }
-          }
-
-          span {
-            display: inline-block;
-            height: 64px;
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+          &-zh{
+            text-overflow: -o-ellipsis-lastline;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; //行数
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            padding: 5px;
+            text-overflow: ellipsis;
             font-size: 18px;
-            font-family: PingFangSC, PingFang SC;
+            line-height: 22px;
             font-weight: 400;
-            color: #08080A;
-
+            font-family: PingFangSC, PingFang SC;
           }
 
-          .english-name {
-            height: 18px;
+          &-en {
+            padding: 5px;
+            text-overflow: ellipsis;
+            overflow-y: hidden;
             font-size: 16px;
-            font-family: PingFangSC-Regular, PingFang SC;
-            font-weight: 400;
-            color: #9B5911;
             line-height: 18px;
+            font-weight: 400;
+            font-family: PingFangSC, PingFang SC;
+            height: 45px;
+            color: #9B5911;
           }
 
           .fangda {
@@ -726,7 +719,7 @@ export default {
 
   .right-area {
     height: calc(100vh - 140px);
-    width: 50%;
+    width: 40%;
     padding: 10px;
     box-sizing: border-box;
 
@@ -749,7 +742,7 @@ export default {
         width: 20%;
 
         &:nth-child(4) {
-          width: 30%;
+          width: 28%;
 
           img {
             width: 32px;
@@ -772,7 +765,7 @@ export default {
         }
 
         &:nth-child(5) {
-          width: 10%;
+          width: 12%;
 
           img {
             width: 32px;

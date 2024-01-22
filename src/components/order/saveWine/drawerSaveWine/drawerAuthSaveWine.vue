@@ -143,7 +143,7 @@
                     >
                       <div class="th">名称</div>
                       <div class="th">规格</div>
-                      <div class="th">每瓶克数</div>
+                      <div class="th">克/瓶</div>
                       <div class="th">数量</div>
                       <div class="th">操作</div>
                     </div>
