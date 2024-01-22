@@ -1215,7 +1215,7 @@ export default {
         const res = await api_money.reqMoveWkOrder(params);
         if (res.code == 1) {
           this.$message.success("转单成功");
-          this.showOrHideChooseCardDrawer();
+          // this.showOrHideChooseCardDrawer();
           this.getOrderInfo();
         } else {
           this.$message.warning(res.msg);
