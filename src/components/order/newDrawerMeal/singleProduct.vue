@@ -250,7 +250,7 @@ export default {
 
 
       // 如果count为空，则默认为1
-      if (this.count === "" || !this.count) this.count = 1;
+      if (this.count === "") this.count = 1;
 
       if (
         this.count.toString().indexOf(".") > -1 &&

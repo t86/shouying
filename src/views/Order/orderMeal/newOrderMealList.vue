@@ -39,7 +39,7 @@ import productListGQ from "@/components/order/newProductListGQ.vue";
 export default {
   data() {
     return {
-      isYH2: false, // 是否是优惠2点餐
+      isYH2: true, // 是否是优惠2点餐
       isGQ: false, // 是否是估清
       allProductsList: [],
       currentCategoryProductList: []
