@@ -4,7 +4,7 @@
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
       <input ref="inputCount" 
       type="text"
-      v-if="$store.state.userInfo.authStatus == 4 && (count != '')" 
+      v-if="($store.state.userInfo.authStatus == 4 && (count != ''))|| isGQ" 
       class="count" :class="{ focus: focus == 1 }"
         @click.stop="focusHandle(1)" :placeholder="type == 4 ? '': '商品数量默认1'" v-model="count" />
       <div v-else class="count" :class="{ focus: focus == 1, text: !count }" @click.stop="focusHandle(1)">
@@ -21,7 +21,7 @@
         productInfo.prdType == 8)
     ">
       <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
-        <input v-if="$store.state.userInfo.authStatus == 4" class="count" :class="{ focus: focus == 2 }"
+        <input ref="inputAmt" v-if="$store.state.userInfo.authStatus == 4" class="count" :class="{ focus: focus == 2 }"
           @click.stop="focusHandle(2)" placeholder="输入数量总金额" v-model="amt" />
         <div v-else class="count" :class="{ focus: focus == 2, text: !amt }" @click.stop="focusHandle(2)">
           {{ amt == "" ? "输入数量总金额" : amt }}
@@ -155,6 +155,9 @@ export default {
         this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 0;
       }
       this.isGQ = this.$route.name == "moneyCard" || this.$route.name == 'orderCard';
+      if(this.isGQ) {
+        this.count = 0
+      }
     },
 
     onCancelDrawer() {
@@ -209,12 +212,24 @@ export default {
             : (this.amt =
               this.amt.toString().slice(0, this.amt.toString().length - 1) *
               1);
+
           break;
         default:
           this.focus == 1
             ? (this.count = (this.count.toString() + value) * 1)
             : (this.amt = (this.amt.toString() + value) * 1);
           break;
+      }
+      if(this.focus == 1) {
+        this.$nextTick(() => {
+          this.focusHandle(1);
+          this.$refs.inputCount && this.$refs.inputCount.focus();
+        });
+      } else {
+        this.$nextTick(() => {
+          this.focusHandle(2);
+          this.$refs.inputAmt && this.$refs.inputAmt.focus();
+        });
       }
     },
 
@@ -525,12 +540,24 @@ export default {
     showOrHideYH2Drawer() {
       this.showYH2Drawer = !this.showYH2Drawer;
     },
+    keyHandle(event){
+    // 回车按钮触发getTableData
+      if (event.keyCode === 13) {
+        this.onSubmit();
+      }
+    }
   },
 
   mounted() {
     this.init();
+    // 给document绑定onkeydown事件
+    document.onkeydown = this.keyHandle;
   },
 
+  beforeDestroy(){
+    // Unbind onkeydown event from document
+    document.onkeydown = null;
+  },
   computed: {
     requireText() {
       return this.requestInfoArr.length > 0
@@ -591,6 +618,11 @@ export default {
       },
       immediate: true,
     },
+    count: {
+      handler(newVal) {
+        if (newVal) this.count = newVal * 1;
+      }
+    }
   },
 };
 </script>

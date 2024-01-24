@@ -2230,7 +2230,6 @@ export default {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadMoneyCard", this.getAllData);
 
-    setTimeout(() => {
       window.addEventListener("click", (e) => this.legendOptionHandle());
       this.$refs.containRef.addEventListener(
         "scroll",
@@ -2238,12 +2237,9 @@ export default {
       );
       window.addEventListener("resize", this.windowResizeHandle);
       document.addEventListener("click", this.documentClickHandle);
-
-      window.onkeydown = this.keyHandle;
-      window.onkeyup = this.keyHandle;
-
+      window.addEventListener('keydown', this.keyHandle);
+      window.addEventListener('keyup', this.keyHandle);
       this.$refs.searchInputRef && this.$refs.searchInputRef.focus();
-    }, 1000);
   },
 
   computed: {
@@ -2319,8 +2315,9 @@ export default {
     document.body.removeEventListener("click", this.documentClickHandle);
     eventVue.$off("reloadMoneyCard")
     
-    window.onkeydown = null;
-    window.onkeyup = null;
+    window.removeEventListener('keyup', this.keyHandle);
+    window.removeEventListener('keydown', this.keyHandle);
+
     downKeyCode = [0, 0];
   },
 

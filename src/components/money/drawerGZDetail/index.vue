@@ -204,8 +204,6 @@ export default {
       // 给document绑定onkeydown事件
       document.onkeydown = this.keyHandle;
     })
-
-    
   },
   // 页面销毁时解绑onkeydown事件
   beforeDestroy() {
