@@ -20,10 +20,10 @@
       </el-select>
       <el-input
         v-model="keyword"
-        style="width:310px"
+        style="width:350px"
         class="m-r-2 m-l-2"
         size="small"
-        placeholder="输入客人姓名/手机号码/商品/卡台/存酒流水号"
+        placeholder="输入客人姓名/手机号码/商品/卡台/存酒流水号/订位人"
       ></el-input>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>

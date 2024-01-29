@@ -9,11 +9,20 @@
         size="small"
         placeholder="商品名称"
       ></el-input>
+      <el-select v-model="unitType" size="mini" style="width:100px; margin-right: 5px;" placeholder="规格选择">
+        <el-option
+          v-for="item in unitTypeList"
+          :key="item"
+          :label="item"
+          :value="item"
+        ></el-option>
+      </el-select>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
     <div class="btn-area m-t-4">
-      <el-button type="primary" size="small" @click="getStoreWineHandle">充公出库</el-button>
+      <el-button type="primary" size="small" @click="getStoreWineHandle(fasle)">充公出库</el-button>
+      <el-button type="primary" size="small" @click="getStoreWineHandle(true)">批量充公出库</el-button>
     </div>
 
     <div class="table-content m-t-4">
@@ -64,7 +73,7 @@
     </div>
 
     <!-- 充公出库 -->
-    <drawerGetLib v-model="showDrawer" :currentInfoList="currentInfoList" :storeList="storeList" @getTableData="getTableData" />
+    <drawerGetLib v-model="showDrawer" :batchLib="batchLib" :currentInfoList="currentInfoList" :storeList="storeList" @getTableData="getTableData" />
 
   </div>
 </template>
@@ -79,11 +88,12 @@ export default {
       keyword: "",
       checkAll: false,
       tableData: [],
-
       storeList: [], // 仓库列表
-
       showDrawer: false,
-      currentInfoList: [] // 当前选择的商品列表
+      batchLib: false, // 批量操作
+      currentInfoList: [], // 当前选择的商品列表
+      unitTypeList:[],
+      unitType:'',
     };
   },
   methods: {
@@ -99,7 +109,14 @@ export default {
             ...item,
             checked: false
           }));
-
+          if(this.unitTypeList.length == 0) {
+            let myArray = Array.from(new Set(this.tableData.map(item => item.u)));
+            // 对数组进行排序
+            this.unitTypeList = myArray.sort((a, b) => a - b);
+          }
+          if(this.unitType) {
+            this.tableData = this.tableData.filter(item => item.u == this.unitType);
+          }
           this.storeList = res.data.stores || []
 
           this.checkAll = false;
@@ -125,11 +142,12 @@ export default {
     },
 
     // 充公出库
-    getStoreWineHandle() {
+    getStoreWineHandle(batchLib) {
       const currentInfoList = this.tableData.filter(item => item.checked);
       if (currentInfoList.length <= 0)
         return this.$message.warning("请选择需要出库的商品");
       this.showDrawer = true;
+      this.batchLib = batchLib
       this.currentInfoList = currentInfoList;
     },
 

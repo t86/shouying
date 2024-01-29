@@ -2,14 +2,11 @@
   <el-form label-position="right" @submit.native.prevent style="margin-top: 30px">
     <!-- 数量 -->
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
+      <p class="youhui-title" v-if="!GQ">默认商品数量1</p>
       <input ref="inputCount" 
-      type="text"
-      v-if="$store.state.userInfo.authStatus == 4 && (count != '')" 
-      class="count" :class="{ focus: focus == 1 }"
-        @click.stop="focusHandle(1)" :placeholder="type == 4 ? '': '商品数量默认1'" v-model="count" />
-      <div v-else class="count" :class="{ focus: focus == 1, text: !count }" @click.stop="focusHandle(1)">
-        {{ !count ? (type == 4 ? (count == 0 ? 0 : ''): '商品数量默认1') : count }}
-      </div>
+      type="text" 
+      class="count" 
+      :class="{ focus: focus == 1 }" @click.stop="focusHandle(1)" v-model="count" />
     </el-form-item>
 
     <!-- 金额 -->
@@ -568,6 +565,15 @@ export default {
     },
   },
   watch: {
+    count: {
+      handler(newVal) {
+        if(typeof newVal== 'number' && !isNaN(newVal)) {
+          this.count = newVal * 1;
+        }
+
+      },
+      immediate: true,
+    },
     show: {
       handler(newVal) {
         this.$nextTick(() => {
