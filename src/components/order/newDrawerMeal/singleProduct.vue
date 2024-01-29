@@ -556,10 +556,9 @@ export default {
   watch: {
     count: {
       handler(newVal) {
-        if(typeof newVal== 'number' && !isNaN(newVal)) {
+        if(!isNaN(newVal)) {
           this.count = newVal * 1;
         }
-
       },
       immediate: true,
     },
