@@ -347,6 +347,7 @@ export default {
     },
 
     keyHandle(e){
+      console.log('productlistyh keyHandle')
       // alt 或 windows键(防止利用alt切屏)
       if (e.keyCode == 18 || e.keyCode == 91) return e.preventDefault()
       switch (e.type){
@@ -450,14 +451,13 @@ export default {
     }
   },  
   created () {
-    setTimeout(() => {
-      if (this.$store.state.userInfo.authStatus == 4) {
-        window.onkeydown = this.keyHandle
-        window.onkeyup = this.keyHandle
-      }
-    }, 200);
   },
   mounted() {
+    console.log('productlistYH mounted')
+    if (this.$store.state.userInfo.authStatus == 4) {
+      window.addEventListener('keydown', this.keyHandle);
+      window.addEventListener('keyup', this.keyHandle);
+    }
     this.getCenterType();
     this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
   },
@@ -475,9 +475,9 @@ export default {
   },
 
   beforeDestroy () {
-    console.log('destroy')
-    window.onkeydown = null
-    window.onkeyup = null
+    console.log('productlistYH destroy')
+    window.removeEventListener('keydown', this.keyHandle);
+    window.removeEventListener('keyup', this.keyHandle);
     downKeyCode = [0, 0]
     this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
   }
