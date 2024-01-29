@@ -2,7 +2,7 @@
   <el-form label-position="right" @submit.native.prevent style="margin-top: 30px">
     <!-- 数量 -->
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
-      <p class="youhui-title" v-if="!GQ">默认商品数量1</p>
+      <p class="youhui-title" v-if="!isGQ">默认商品数量1</p>
       <input ref="inputCount" 
       type="text" 
       class="count" 
@@ -147,15 +147,21 @@ export default {
   methods: {
     init() {
       this.getAuthTypeList();
+      this.isGQ = this.$route.name == "moneyCard" || this.$route.name == 'orderCard';
       // 小费类型4商品数量默认为1 赔偿商品数量只能为 1  切不可修改
       if (this.productInfo.prdType == 4) {
-        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 0;
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+      } else {
+        this.count = this.isGQ ? 0 : 1;
       }
-      this.isGQ = this.$route.name == "moneyCard" || this.$route.name == 'orderCard';
     },
 
     onCancelDrawer() {
-      this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 0;
+      if (this.productInfo.prdType == 4) {
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+      } else {
+        this.count = this.isGQ ? 0 : 1;
+      }
       this.requestInfoArr = [];
       this.isSubmitting = true
       this.$emit("closeDrawerHandle");
@@ -223,7 +229,11 @@ export default {
     resetSingleForm() {
       this.focus = 1;
       this.amt = "";
-      this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 0;
+      if (this.productInfo.prdType == 4) {
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+      } else {
+        this.count = this.isGQ ? 0 : 1;
+      }
       this.requestInfoArr = [];
 
       this.authType = "2"; // 赠送类型
@@ -558,6 +568,8 @@ export default {
       handler(newVal) {
         if(!isNaN(newVal)) {
           this.count = newVal * 1;
+        } else {
+          this.count = this.isGQ ? 1 : 0;
         }
       },
       immediate: true,
