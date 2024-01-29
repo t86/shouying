@@ -4,7 +4,7 @@
     <div class="top" layout="row" layout-align="start center">
       <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
       <span>过期天数大于</span>
-      <el-input v-model="passDay" style="width:50px" class="m-r-2" size="small" placeholder="数字：单位天"></el-input>
+      <el-input v-model="passDay" style="width:70px" class="m-r-2" size="small" placeholder="数字：单位天"></el-input>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>

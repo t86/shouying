@@ -21,8 +21,7 @@
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
     <div class="btn-area m-t-4">
-      <el-button type="primary" size="small" @click="getStoreWineHandle(fasle)">充公出库</el-button>
-      <el-button type="primary" size="small" @click="getStoreWineHandle(true)">批量充公出库</el-button>
+      <el-button type="primary" size="small" @click="getStoreWineHandle">充公出库</el-button>
     </div>
 
     <div class="table-content m-t-4">
@@ -50,7 +49,7 @@
             layout="row"
             layout-align="space-between center"
             v-for="(item, index) in tableData"
-            :key="item.id"
+            :key="index"
           >
             <div class="td" layout="row" layout-align="start center">
               <div style="width: 60px;text-align:left">
@@ -73,7 +72,7 @@
     </div>
 
     <!-- 充公出库 -->
-    <drawerGetLib v-model="showDrawer" :batchLib="batchLib" :currentInfoList="currentInfoList" :storeList="storeList" @getTableData="getTableData" />
+    <drawerGetLib v-model="showDrawer"  :currentInfoList="currentInfoList" :storeList="storeList" @getTableData="getTableData" />
 
   </div>
 </template>
@@ -90,7 +89,6 @@ export default {
       tableData: [],
       storeList: [], // 仓库列表
       showDrawer: false,
-      batchLib: false, // 批量操作
       currentInfoList: [], // 当前选择的商品列表
       unitTypeList:[],
       unitType:'',
@@ -142,12 +140,11 @@ export default {
     },
 
     // 充公出库
-    getStoreWineHandle(batchLib) {
+    getStoreWineHandle() {
       const currentInfoList = this.tableData.filter(item => item.checked);
       if (currentInfoList.length <= 0)
         return this.$message.warning("请选择需要出库的商品");
       this.showDrawer = true;
-      this.batchLib = batchLib
       this.currentInfoList = currentInfoList;
     },
 
