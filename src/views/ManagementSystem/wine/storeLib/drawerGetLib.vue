@@ -12,13 +12,13 @@
         <div v-if="batchLib" layout="row" layout-align="start center" class="m-b-4">
           <div>批量入库仓库选择：</div>
           <el-select v-model="selBatchLib" size="mini" style="width:100px" placeholder="请选择">
-          <el-option
-            v-for="item in storeList"
-            :key="item.id"
-            :label="item.n"
-            :value="item.id"
-          ></el-option>
-        </el-select>
+            <el-option
+              v-for="item in storeList"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            ></el-option>
+          </el-select>
         </div>
 
         <div class="table-content">
