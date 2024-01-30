@@ -162,6 +162,11 @@ export default {
      hasEmptyManage(){
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
     },
+    // 是否不止存酒仓库报表权限
+    hasWineAllAuthority(){
+      return (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(10))
+        && (!this.$store.state.userInfo.sys_modules|| !this.$store.state.userInfo.sys_modules.includes(50))
+    },
     showKeyboard(){ 
       return window.atool && window.atool.getTermType() == "android"
     },
@@ -356,8 +361,11 @@ export default {
           for (let p = 0; p < this.Thelistof[i].auth.length; p++) {
               if(this.Thelistof[i].needAuth && this.Thelistof[i].auth[p] == sessionStorage.getItem("client")) {
                  // 需要授权的权限（erp管理员有权限，但是erp仓库管理员通过配置确认是否有权限）
-                 if(this.hasEmptyManage) {
-                   s.push(this.Thelistof[i]);
+                 if(this.hasEmptyManage && this.Thelistof[i].auth[p] == 'erp') {
+                    s.push(this.Thelistof[i]);
+                // 需要授权的权限（存酒仓库管理员有权限，确认是否只配置了查看报表）
+                 } else if(this.hasWineAllAuthority) {
+                    s.push(this.Thelistof[i]);
                  }
               }
           }
