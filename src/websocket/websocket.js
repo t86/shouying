@@ -612,17 +612,18 @@ export default class WebSocketClient {
 
       const token = localStorage.getItem("tk") || "";
       if (token && token.length > 0) {
-        // 不是订单，收银，预定系统，会员，不需要websocket
-        if (
-          sessionStorage.getItem("client") == "money" ||
-          sessionStorage.getItem("client") == "order" ||
-          sessionStorage.getItem("client") == "vip" ||
-          sessionStorage.getItem("client") == "erp" ||
-          sessionStorage.getItem("client") == "book"
-        ) {
+        // // 不是订单，收银，预定系统，会员，不需要websocket
+        // if (
+        //   sessionStorage.getItem("client") == "money" ||
+        //   sessionStorage.getItem("client") == "order" ||
+        //   sessionStorage.getItem("client") == "vip" ||
+        //   sessionStorage.getItem("client") == "erp" ||
+        //   sessionStorage.getItem("client") == "wine" ||
+        //   sessionStorage.getItem("client") == "book"
+        // ) {
           this.connect();
           return;
-        }
+        // }
       }
       this.initAllData();
     }, 100);
