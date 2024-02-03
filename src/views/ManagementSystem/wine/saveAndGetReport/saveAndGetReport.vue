@@ -91,6 +91,7 @@
                 <div class="tr-th">授权人</div>
                 <div class="tr-th">备注姓名</div>
                 <div class="tr-th">备注手机号</div>
+                <div class="tr-th">存酒卡台</div>
                 <div class="tr-th">存酒流水号</div>
               </div>
               <div class="tr-tbody">
@@ -109,6 +110,7 @@
                   <div class="tr-td">{{items.a}}</div>
                   <div class="tr-td">{{items.rn}}</div>
                   <div class="tr-td">{{items.rp}}</div>
+                  <div class="tr-td">{{items.s}}</div>
                   <div class="tr-td" style="user-select: text;">{{items.i}}</div>
                 </div>
               </div>

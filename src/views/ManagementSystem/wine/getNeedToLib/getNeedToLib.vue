@@ -70,6 +70,7 @@
                 <div class="tr-th">规格</div>
                 <div class="tr-th">每瓶克数</div>
                 <div class="tr-th">数量</div>
+                <div class="tr-th">存酒卡台</div>
                 <div class="tr-th">存酒订位人</div>
                 <div class="tr-th">过期时间</div>
                 <div class="tr-th">授权人</div>
@@ -88,6 +89,7 @@
                   <div class="tr-td">{{items.u}}</div>
                   <div class="tr-td">{{items.g || '-'}}</div>
                   <div class="tr-td">{{items.c}}</div>
+                  <div class="tr-td">{{items.ss}}</div>
                   <div class="tr-td">{{items.s}}</div>
                   <div class="tr-td">{{items.e}}</div>
                   <div class="tr-td">{{items.a}}</div>
