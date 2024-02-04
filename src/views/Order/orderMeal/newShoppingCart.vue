@@ -17,7 +17,7 @@
               <div class="th">操作</div>
             </div>
           </div>
-          <div class="tbody">
+          <div class="tbody" :class="{ rect: !isRect }">
             <div class="coll" v-for="item in shoppingCartList" :key="item.id">
               <div class="detail tr">
                 <div class="td" layout="row" layout-align="start center">
@@ -185,7 +185,7 @@ const ctrlAndShiftCode = [17, 16];
 export default {
   data() {
     return {
-      isRect: true, // 是否为横屏
+      isRect: window.innerWidth >= 1024,
       timer: "", // 下单后倒计时退出登录
       showNumSubTips: false, // 倒计时退出模态框
       logoutCount: 3, // 倒计时秒数
@@ -675,11 +675,11 @@ export default {
     },
 
     // 检测是否为横屏
-    getRectVal() {
-      const width = screen.availWidth;
-      const height = screen.availHeight;
-      this.isRect = width >= height;
-    },
+    // getRectVal() {
+    //   const width = screen.availWidth;
+    //   const height = screen.availHeight;
+    //   this.isRect = width >= height;
+    // },
 
     // 点单快捷键
     keydownHandle(e) {
@@ -709,7 +709,7 @@ export default {
   },
   mounted() {
     this.authId = this.$store.state.userInfo.emp_id;
-    this.getRectVal();
+    // this.getRectVal();
     this.getShoppingCartData();
     document.body.addEventListener("click", this.showOrHideList);
   },
