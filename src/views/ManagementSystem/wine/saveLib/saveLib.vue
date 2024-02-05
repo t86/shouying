@@ -366,7 +366,7 @@ export default {
         font-size: 15px;
       }
       .tbody {
-        height: calc(100vh - 260px);
+        height: calc(100vh - 290px);
         overflow: auto;
         .tr {
           background-color: #ddd!important;
