@@ -35,6 +35,23 @@
         </div>
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
+            <span class="red">*</span>
+            <span>套餐类型：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <el-select
+              v-model="setType"
+              placeholder="请选择套餐类型"
+              size="mini"
+            >
+              <el-option label="普通套餐" :value="2"></el-option>
+              <el-option label="抖音套餐" :value="12"></el-option>
+              <el-option label="美团套餐" :value="22"></el-option>
+            </el-select>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
             <span>拼音简写：</span>
           </div>
           <div class="value">{{ py }}</div>
@@ -460,6 +477,7 @@ export default {
       tableData: [], // 区域出品库表格数据
       checkAll: false, // 出品库全选
       outLibOption: [], // 区域出品库下拉option
+      setType: '', // 套餐类型
     };
   },
   methods: {
@@ -482,6 +500,7 @@ export default {
           this.name = res.data.name || "";
           this.py = res.data.name_py || "";
           this.englishName = res.data.name_eng || "";
+          this.setType = res.data.prd_type * 1;
           this.price = res.data.price || "";
           this.businessType = res.data.biz_type * 1;
           this.userYH = res.data.ut == 2;
@@ -733,6 +752,7 @@ export default {
         is_force: force,
         fix_items: fixPrdList,
         rpl_items: canChoosePrdList,
+        prd_type: this.setType * 1, // 套餐类型
         region_ids: this.tableData
           .filter((item) => item.checked)
           .map((item) => item.id * 1), // 可点区域,
@@ -802,6 +822,7 @@ export default {
       this.py = ""; // 中文拼音
       this.englishName = ""; // 英文名
       this.price = ""; // 商品价格
+      this.setType = ""; // 套餐类型
       this.businessType = ""; // 营业类型
       this.userYH = false;
       this.picUrl = "";

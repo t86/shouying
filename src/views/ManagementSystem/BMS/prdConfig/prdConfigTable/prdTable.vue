@@ -205,7 +205,7 @@ export default {
         this.currentInfo = checkedList[0]
         if(groupPrdType == 2) {
           // 编辑
-          if(this.currentInfo.pt == '套餐') {
+          if([2,12,22].includes(this.currentInfo.pi)) {
             // 编辑套餐
             this.showGroupDrawer = true
           } else {
@@ -214,7 +214,7 @@ export default {
           }
         } else {
           // 类似创建
-          if (this.currentInfo.pt == "套餐") {
+          if ([2,12,22].includes(this.currentInfo.pi)) {
             // 类似创建套餐
             this.showGroupDrawer = true
           } else {
