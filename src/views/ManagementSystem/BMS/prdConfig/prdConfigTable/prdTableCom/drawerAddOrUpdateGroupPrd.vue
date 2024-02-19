@@ -47,6 +47,7 @@
               <el-option label="普通套餐" :value="2"></el-option>
               <el-option label="抖音套餐" :value="12"></el-option>
               <el-option label="美团套餐" :value="22"></el-option>
+              <el-option label="推广套餐" :value="32"></el-option>
             </el-select>
           </div>
         </div>
