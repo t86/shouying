@@ -311,6 +311,9 @@ export default {
       */
 
       this.productsList = this.productsListTotal || []
+      this.productsList = this.productsList.filter((item, index) => {
+        return ![12,22].includes(item.prdType*1)
+      })
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
       let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
       this.pic_show = showAmt && showAmt.param1 === '1';
