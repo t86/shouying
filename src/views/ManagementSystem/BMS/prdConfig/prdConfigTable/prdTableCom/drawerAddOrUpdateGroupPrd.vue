@@ -44,6 +44,13 @@
               placeholder="请选择套餐类型"
               size="mini"
             >
+              <el-option
+                  v-for="item in typeOptions"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id"
+                >
+              </el-option>
               <el-option label="普通套餐" :value="2"></el-option>
               <el-option label="抖音套餐" :value="12"></el-option>
               <el-option label="美团套餐" :value="22"></el-option>
@@ -454,6 +461,8 @@
 </template>
 
 <script>
+export const typeOptions = [2, 12, 22, 32]
+
 export default {
   data() {
     return {

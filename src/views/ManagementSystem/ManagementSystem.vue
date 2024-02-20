@@ -162,10 +162,11 @@ export default {
      hasEmptyManage(){
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
     },
-    // 是否不止存酒仓库报表权限
+    // 存酒系统情况下，判断是否不止存酒仓库报表权限
     hasWineAllAuthority(){
       return (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(10))
         && (!this.$store.state.userInfo.sys_modules|| !this.$store.state.userInfo.sys_modules.includes(50))
+        && sessionStorage.getItem("client") == "wine"
     },
     showKeyboard(){ 
       return window.atool && window.atool.getTermType() == "android"
