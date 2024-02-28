@@ -34,6 +34,15 @@
               <span>滞留金</span>
             </div>
           </div>
+          <!-- 服务员核销卡券 -->
+          <div v-if="
+            isShowPayBtn
+          " class="server-pay-btn line">
+            <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">
+              <img :src="imgSrc.orderQRPayIcon" alt />
+              <span>核销卡券</span>
+            </div>
+          </div>
           <!-- 收银系统按钮 -->
           <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
             $store.state.userInfo.authStatus == 4 &&
@@ -246,6 +255,9 @@
       <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
       <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
         @subSecondLogoutHandle="subSecondLogoutHandle" />
+
+      <!-- 服务员核销卡券 -->
+      <!-- <drawer -->
 
       <!-- 收银系统滞留金管理 -->
       <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->

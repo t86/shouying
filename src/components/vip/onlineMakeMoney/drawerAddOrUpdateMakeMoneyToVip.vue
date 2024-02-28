@@ -143,9 +143,16 @@ export default {
       if(this.showBind) {
         this.showBind = false
       } else {
+        if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
+        if(this.remark.length > 30) return this.$message.warning('充值提示不可超过30个字')
+        if(this.zsPoint == '' || !this.cardTypeVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
         const params = {
-          deposit_amt: this.makeMoney * 1, // int   充值金额
-          free_amt: this.zsMoney * 1 //   int    赠送金额
+          deposit_amt: this.makeMoney * 100, // int   充值金额
+          free_amt: this.zsMoney * 100, //   int    赠送金额
+          card_type_id: this.cardTypeVal * 1, //  int    会员卡类型
+          free_pt_amt: this.zsPoint * 1, // int    赠送积分
+          free_kq_id: this.couponId * 1, // int    赠送卡券id      
+          remark: this.remark, // string    充值提示    
         };
         if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
         if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
