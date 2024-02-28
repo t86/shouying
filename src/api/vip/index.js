@@ -58,6 +58,10 @@ export default {
   reqOssImgBaseUrl: (params) =>
     axios.post(`${base.htgl}/oss/get_pic_prefix`, params),
 
+  // 读取卡券/大礼包列表用于配置充值赠送规则
+  reqGetKqItems: (params) =>
+    axios.post(`${base.htgl}/mb/deposit_rule/get_kq_items`, params),
+
   /**
    * 会员管理
    */
@@ -93,7 +97,7 @@ export default {
     axios.post(`${base.htgl}/mb/card/mk_card_end`, params),
 
   /**
-   * 线上充值设置
+   * 会员卡充值设置
    */
   // 读取会员充送规则列表
   reqGetVipCardMakeMoneyListRule: (params) =>

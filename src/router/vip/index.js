@@ -27,11 +27,11 @@ export default [
         meta: { title: "积分榜管理" },
         component: () => import("@/views/vip/pointManager.vue"),
       },
-      // 线上充值设置
+      // 会员卡充值设置
       {
         path: "/onlineMakeMoneyToVip",
         name: "onlineMakeMoneyToVip",
-        meta: { title: "线上充值设置" },
+        meta: { title: "会员卡充值设置" },
         component: () => import("@/views/vip/onlineMakeMoneyToVip.vue"),
       },
       // 会员卡号生成规则

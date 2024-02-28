@@ -9,7 +9,29 @@
       size="720px"
     >
       <div class="session add-or-update-make-money-to-vip">
-        <div class="form">
+        <div class="form" v-if="!showBind">
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red">*</span>
+              <span>会员卡类型</span>
+            </div>
+            <div class="value">
+              <el-select
+              v-model="cardTypeVal"
+              size="small"
+              placeholder="请选择会员卡类型"
+              style="width: 200px"
+            >
+              <el-option
+                v-for="item in cardTypeList"
+                :key="item.id"
+                :label="item.n"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+            </div>
+          </div>
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
               <span class="red">*</span>
@@ -27,6 +49,41 @@
               <el-input v-model="zsMoney" size="small" style="width:284px" placeholder="请输入赠送金额"></el-input>
             </div>
           </div>
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>赠送卡券或礼包</span>
+            </div>
+            <div class="value">
+              <div layout="row" layout-align="start center" >
+                <el-button type="text" @click="onBind" v-if="couponId == ''">添加</el-button>
+                <span style="padding-right: 5px" v-if="couponId">{{couponName}}</span>
+                <el-button type="text" @click="onBind" v-if="couponId">更改</el-button>
+                <el-button type="text" @click="deleteCouponHandle" v-if="couponId">删除</el-button>
+              </div>
+
+            </div>
+          </div>
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>赠送积分</span>
+            </div>
+            <div class="value">
+              <el-input v-model="zsPoint" size="small" style="width:284px" placeholder="请输入积分"></el-input>
+            </div>
+          </div>
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>充值提示</span>
+            </div>
+            <div class="value">
+              <el-input v-model="remark" size="small" style="width:284px" placeholder="不超过30个字，用于充值时提示客人"></el-input>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <couponViewCom
+            @value-changed="onValueChanged"
+          />
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
@@ -39,42 +96,83 @@
  
 <script>
 import api_vip from "@/api/vip";
+import couponViewCom from "@/components/vip/onlineMakeMoney/couponViewCom.vue";
 export default {
   data() {
     return {
       show: false,
       makeMoney: "",
-      zsMoney: ""
+      zsMoney: "",
+      zsPoint: "",
+      remark: "",
+      cardTypeList: [], // 会员卡类型列表
+      cardTypeVal: "", // 会员卡类型
+      showBind: false, // 显示添加卡券/大礼包
+      couponName: "", // 卡券/大礼包名称
+      couponId: "", // 卡券/大礼包id
     };
   },
   methods: {
-    // 提交
-    async onSubmit() {
-      const params = {
-        deposit_amt: this.makeMoney * 1, // int   充值金额
-        free_amt: this.zsMoney * 1 //   int    赠送金额
-      };
-      if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
-      if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
+    async getCardTypeList() {
       try {
-        const res = this.editInfo.d ? await api_vip.reqUpdateVipCardMakeMoneyRule(params) : await api_vip.reqAddVipCardMakeMoneyRule(params)
+        const res = await api_vip.reqGetVipTypeList();
         if (res.code == 1) {
-          this.$message.success(`${this.editInfo.d ? '编辑': '新建'}成功`)
-          this.onCancelDrawer()
+          this.cardTypeList = res.data.records;
         } else {
-          this.$message.warning(res.msg)
+          this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log(`${this.editInfo.d ? '编辑': '新建'}充值规则失败`, error)
+        console.log("获取会员卡类型列表失败", error);
+      }
+    },
+    // 绑定
+    onBind() {
+      this.showBind = true
+    },
+    deleteCouponHandle(){
+      this.couponName = ""
+      this.couponId = ""
+    },
+    onValueChanged(item){
+      this.couponName = item.n
+      this.couponId = item.id
+      console.log("onValueChanged", item);
+    },
+    // 提交
+    async onSubmit() {
+      if(this.showBind) {
+        this.showBind = false
+      } else {
+        const params = {
+          deposit_amt: this.makeMoney * 1, // int   充值金额
+          free_amt: this.zsMoney * 1 //   int    赠送金额
+        };
+        if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
+        if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
+        try {
+          const res = this.editInfo.d ? await api_vip.reqUpdateVipCardMakeMoneyRule(params) : await api_vip.reqAddVipCardMakeMoneyRule(params)
+          if (res.code == 1) {
+            this.$message.success(`${this.editInfo.d ? '编辑': '新建'}成功`)
+            this.onCancelDrawer()
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log(`${this.editInfo.d ? '编辑': '新建'}充值规则失败`, error)
+        }
       }
     },
     onCancelDrawer() {
-      this.$emit("showOrHideHandle");
+      if(this.showBind) {
+        this.showBind = false
+      } else {
+        this.$emit("showOrHideHandle");
+      }
     },
     resetData() {
       this.makeMoney = "";
       this.zsMoney = "";
-    }
+    },
   },
   mounted() {},
   props: {
@@ -95,6 +193,7 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
+          this.getCardTypeList();
           if (this.editInfo.d) {
             // 编辑
             this.makeMoney = this.editInfo.d
@@ -108,6 +207,9 @@ export default {
       },
       immediate: true
     }
+  },
+  components: {
+    couponViewCom
   }
 };
 </script>

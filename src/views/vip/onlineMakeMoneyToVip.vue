@@ -1,6 +1,6 @@
 <template>
   <div class="vip vip-online">
-    <h3 class="title">线上充值设置</h3>
+    <h3 class="title">会员卡充值设置</h3>
     <div class="top" v-if="$store.getters.vipAuth" layout="row" layout-align="start center">
       <icon-button
         @click.native="showDrawerHandle('add')"
@@ -79,7 +79,7 @@ export default {
       indeterminate: false,
       tableData: [],
       showDrawer: false,
-      editInfo: {}
+      editInfo: {},
     };
   },
   methods: {

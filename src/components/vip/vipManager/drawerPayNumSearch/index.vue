@@ -175,7 +175,6 @@ export default {
 @import "../../../../style/vip/vipBtn.less";
 @import "../../../../style/common/elementFormBtnVip.less";
 @import "../../../../style/common/scrollBarVip.less";
-@import "../../../../style/vip/vipBtn.less";
 </style>
 
 <style lang="less" scoped>

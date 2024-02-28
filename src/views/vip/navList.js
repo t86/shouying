@@ -44,7 +44,7 @@ export default [
     children: [
       {
         id: 31,
-        name: "线上充值设置",
+        name: "会员卡充值设置",
         routerName: "onlineMakeMoneyToVip",
       },
       {

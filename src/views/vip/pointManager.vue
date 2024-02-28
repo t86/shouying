@@ -5,7 +5,7 @@
       <span>赠送积分规则：</span>
       <el-radio-group v-model="form.type_id" v-if="$store.getters.vipAuth">
         <el-radio :label="1">不赠送积分</el-radio>
-        <el-radio :label="2">充值赠送积分</el-radio>
+        <!-- <el-radio :label="2">充值赠送积分</el-radio> -->
         <el-radio :label="3">消费赠送积分</el-radio>
       </el-radio-group>
       <span v-if="!$store.getters.vipAuth">{{ form.type_id == 1 ? '不赠送积分' : form.type_id == 2 ? '充值赠送积分' : '消费赠送积分' }}</span>
