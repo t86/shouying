@@ -1,5 +1,6 @@
 <template>
   <div class="vip vip-type">
+    
     <h3 class="title">会员卡类型</h3>
     <div
       class="top"
@@ -67,7 +68,7 @@
           <div class="td">{{ item.u }}</div>
           <div class="td">{{ item.c }}</div>
           <div class="td" v-if="$store.getters.vipAuth">
-            <span @click="configRule(item)">配置结账规则</span>
+            <span @click="configRule(item)">配置</span>
             <span @click="deleteHandle(item)">删除</span>
           </div>
         </div>
@@ -104,7 +105,7 @@ import api_vip from "@/api/vip";
 import IconButton from "@/components/IconButton.vue";
 import drawerAddOrUpdateVipType from "@/components/vip/vipType/drawerAddOrUpdateVipType.vue";
 import drawerDeleteFail from "@/components/vip/vipType/drawerDeleteFail.vue";
-import drawerVipBillRules from "@/components/vip/vipType/drawerVipBillRules.vue";
+import drawerVipBillRules from "@/components/vip/vipType/drawerVipSettings.vue";
 export default {
   data() {
     return {
