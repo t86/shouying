@@ -5,6 +5,7 @@
       :title="title"
       :visible.sync="show"
       :before-close="onCancelDrawer"
+      append-to-body
       direction="rtl"
       size="720px"
     >

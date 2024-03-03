@@ -9,14 +9,15 @@
         append-to-body
       >
         <div class="tab-container vip vip-bill-rules pl-2" >
-          <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+          <el-tabs v-model="activeTab" >
+            
             <el-tab-pane label="卡等级配置" name="cardLevel">
               <!-- 卡等级配置内容 -->
               <vipLevelConfig :item="item"/>
             </el-tab-pane>
             <el-tab-pane label="充值配置" name="recharge">
               <!-- 充值配置内容 -->
-              <!-- <vipRecharge :item="item"/> -->
+              <vipRecharge :item="item"/>
             </el-tab-pane>
             <el-tab-pane label="结账规则配置" name="billRules">
                 <!-- 结账规则配置内容 -->
@@ -31,29 +32,11 @@
       </el-drawer>
     </div>
   </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        activeTab: 'cardLevel',
-      };
-    },
-    methods: {
-      handleTabClick(tab) {
-        // handle tab click event
-      },
-      // other methods
-    },
-  };
-  </script>
-        
-  
   <script>
   import vipBillRules from "@/components/vip/vipType/vipBillRules.vue";
   import vipLevelConfig from "@/components/vip/vipType/vipLevel.vue";
-  import vipRecharge from "@/Components/vip/vipType/rechargeConfig.vue";
-  import vipPointConfig from "@/Components/vip/vipType/pointConfig.vue";
+  import vipRecharge from "@/components/vip/vipType/rechargeConfig.vue";
+  import vipPointConfig from "@/components/vip/vipType/pointConfig.vue";
   export default {
     props: {
       item: {},
@@ -65,9 +48,6 @@
       showDrawer: {
         handler(newVal) {
           this.show = newVal;
-          if (newVal) {
-            this.refresh();
-          }
         },
         immediate: true,
       },
@@ -79,6 +59,7 @@
     },
     data() {
       return {
+        activeTab: "cardLevel",
         show: {
           default: false,
         },

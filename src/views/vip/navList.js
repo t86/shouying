@@ -29,11 +29,11 @@ export default [
         name: "会员卡类型",
         routerName: "vipType",
       },
-      {
-        id: 23,
-        name: "积分设置",
-        routerName: "pointManager",
-      },
+      // {
+      //   id: 23,
+      //   name: "积分设置",
+      //   routerName: "pointManager",
+      // },
     ],
   },
   {
@@ -42,11 +42,11 @@ export default [
     icon: require("@/assets/vip-imgs/config.png"),
     hoverIcon: require("@/assets/vip-imgs/config-hover.png"),
     children: [
-      {
-        id: 31,
-        name: "会员卡充值设置",
-        routerName: "onlineMakeMoneyToVip",
-      },
+      // {
+      //   id: 31,
+      //   name: "会员卡充值设置",
+      //   routerName: "onlineMakeMoneyToVip",
+      // },
       {
         id: 32,
         name: "会员卡号生成规则",

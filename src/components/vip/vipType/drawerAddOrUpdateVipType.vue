@@ -422,6 +422,7 @@ export default {
         id: this.editInfo.id * 1,  //    int64    卡类型Id
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
+        exp_threshold: 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
       }
 
       try {
@@ -502,8 +503,8 @@ export default {
         const params = {
           name: this.form.vipName, // string  卡类型名称
           is_def: this.form.isDefault ? 1 : 2, //   int   是否默认 1 默认 2 不默认
-          level_names: this.cardInfoList.map(item => item.name),  // []string    卡等级名称列表
-          level_pic_names: this.cardInfoList.map(item => item.bgiName),  // []string   卡面图片列表
+          // level_names: this.cardInfoList.map(item => item.name),  // []string    卡等级名称列表
+          // level_pic_names: this.cardInfoList.map(item => item.bgiName),  // []string   卡面图片列表
         }
         try {
           const res = await api_vip.reqAddVipType(params)

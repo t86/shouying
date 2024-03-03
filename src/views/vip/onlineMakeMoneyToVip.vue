@@ -86,7 +86,7 @@ export default {
     async getTableData() {
       try {
         const res = await api_vip.reqGetVipCardMakeMoneyListRule({
-          card_type_id: ''
+          card_type_id: 0
         });
         if (res.code == 1) {
           this.tableData = (res.data.records || []).map(item => ({
