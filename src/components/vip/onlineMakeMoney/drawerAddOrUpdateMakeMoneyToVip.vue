@@ -74,7 +74,7 @@
           </div>
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
-              <span>充值提示</span>
+              <span>充值规则</span>
             </div>
             <div class="value">
               <el-input v-model="remark" size="small" style="width:284px" placeholder="不超过30个字，用于充值时提示客人"></el-input>
@@ -145,11 +145,12 @@ export default {
         this.showBind = false
       } else {
         if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
-        if(this.remark.length > 30) return this.$message.warning('充值提示不可超过30个字')
+        if(this.remark.length > 30) return this.$message.warning('充值规则不可超过30个字')
         if(this.zsPoint == '' || !this.cardTypeVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
         const params = {
           deposit_amt: this.makeMoney * 100, // int   充值金额
           free_amt: this.zsMoney * 100, //   int    赠送金额
+          card_level_id: 0, // int    会员卡等级
           card_type_id: this.cardTypeVal * 1, //  int    会员卡类型
           free_pt_amt: this.zsPoint * 1, // int    赠送积分
           free_kq_id: this.couponId * 1, // int    赠送卡券id      

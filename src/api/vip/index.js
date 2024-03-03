@@ -15,6 +15,18 @@ export default {
   // 新增会员卡类型
   reqAddVipType: (params) => axios.post(`${base.htgl}/mb/type/new`, params),
 
+    // 开启会员卡类型自动升级
+  reqEnableAutopd: (params) =>
+    axios.post(`${base.htgl}/mb/type/enable_autoupd`, params),
+
+  // 关闭会员卡类型自动升级
+  reqDisableAutoupd: (params) =>
+    axios.post(`${base.htgl}/mb/type/disable_autoupd`, params),
+
+  // 更改会员卡等级经验阀值
+  reqChgMbCardLevelExpTd: (params) =>
+    axios.post(`${base.htgl}/mb/type/chg_mb_card_level_exp_td`, params),
+
   // 修改会员卡类型名称
   reqUpdateVipType: (params) =>
     axios.post(`${base.htgl}/mb/type/chg_name`, params),
@@ -310,6 +322,7 @@ export default {
   // 充值积分 获取规则
   reqGetPointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
+
 
   // 下载会员信息excel
   reqExportExcelForVipManager: (params) =>

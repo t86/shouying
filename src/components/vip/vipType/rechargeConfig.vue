@@ -1,6 +1,5 @@
 <template>
   <div class="vip vip-online">
-    <h3 class="title">会员卡充值设置</h3>
     <div class="top" v-if="$store.getters.vipAuth" layout="row" layout-align="start center">
       <icon-button
         @click.native="showDrawerHandle('add')"
@@ -33,6 +32,8 @@
           </div>
           <div class="th">充值金额</div>
           <div class="th">赠送金额</div>
+          <div class="th">赠送卡券</div>
+          <div class="th">赠送积分</div>
           <div class="th" v-if="$store.getters.vipAuth">操作</div>
         </div>
       </div>
@@ -51,6 +52,8 @@
           </div>
           <div class="td fs16-bold">{{item.d}}</div>
           <div class="td fs16-bold">{{item.f}}</div>
+          <div class="td fs16-bold">{{item.fk}}</div>
+          <div class="td fs16-bold">{{item.fp}}</div>
           <div class="td" v-if="$store.getters.vipAuth"><span @click="delItemInfo(item)">删除</span></div>
         </div>
         <div class="no-data" v-if="tableData.length==0">

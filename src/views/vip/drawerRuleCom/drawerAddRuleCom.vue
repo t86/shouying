@@ -8,8 +8,26 @@
       size="720px"
       append-to-body
     >
+  
       <div v-if="step == 1" class="session p-3 fs14">
-        <p class="m-b-2">选择扣款规则</p>
+        <span class="red">*</span>
+        <span>选择卡等级：</span>
+        <el-select
+          v-model="levelVal"
+          size="small"
+          placeholder="请选择会员卡等级"
+          style="width: 200px"
+        >
+          <el-option
+            v-for="item in levelOption"
+            :key="item.id"
+            :label="item.n"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+
+
+        <p class="m-2">选择扣款规则</p>
 
         <div>
           <el-radio class="m-t-3 m-l-3" v-model="ruleValue" label="1"
@@ -164,6 +182,8 @@ export default {
         pageSize: 20,
         total: 0,
       },
+      levelOption: [],
+      levelVal: null,
     };
   },
   methods: {
@@ -349,5 +369,8 @@ export default {
 <style>
 .el-icon-arrow-right:before {
   color: #606266;
+}
+.red {
+   color: red;
 }
 </style>

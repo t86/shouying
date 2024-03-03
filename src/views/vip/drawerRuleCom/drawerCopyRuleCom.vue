@@ -26,6 +26,24 @@
             :value="item.id"
           ></el-option>
         </el-select>
+
+        <div v-if="typeVal" style="margin: 10px 0px;">
+          <span class="red">*</span>
+          <span>请选择要复制结账配置的卡等级：</span>
+          <el-select
+            v-model="levelVal"
+            size="small"
+            placeholder="请选择会员卡等级"
+            style="width: 200px"
+          >
+            <el-option
+              v-for="item in levelOption"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </div>
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
@@ -47,6 +65,8 @@ export default {
       ruleValue: "1",
       typeVal: null,
       typeOption: [],
+      levelVal: null,
+      levelOption: [],
     };
   },
   methods: {

@@ -1,0 +1,224 @@
+<template>
+  <div>
+    <!-- 新增、修改线上充值 -->
+    <el-drawer
+      :title="title"
+      :visible.sync="show"
+      :before-close="onCancelDrawer"
+      append-to-body
+      direction="rtl"
+      size="720px"
+    >
+      <div class="session add-or-update-make-money-to-vip">
+        <div class="row" layout="row" layout-align="start center">
+          <div class="label">
+            <span class="red">*</span>
+            <span>卡等级</span>
+          </div>
+          <div class="value">
+            <el-select
+            v-model="cardTypeVal"
+            size="small"
+            placeholder="请选择会员卡等级"
+            style="width: 200px"
+          >
+            <el-option
+              v-for="item in cardTypeList"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+          </div>
+        </div>
+        <div class="row" layout="row" layout-align="start center">
+          <div class="label">
+            <span>赠送积分规则</span>
+          </div>
+          <div class="value">
+            <el-input v-model="makeMoney" :disabled="!!editInfo.d" size="small" style="width:284px" placeholder="请输入充值金额"></el-input>
+          </div>
+        </div>
+        <div class="row" layout="row" layout-align="start center">
+          <span>消费</span>
+          <el-input v-model="zsMoney" size="small" style="width:284px" placeholder="输入整数"></el-input>
+          <span>元储值金额送1积分</span>
+        </div>
+        <div class="row" layout="row" layout-align="start center">
+            <span class="red">说明：不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span>
+        </div>
+      </div>
+      <div class="form-btn" layout="row" layout-align="center center">
+        <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
+      </div>
+    </el-drawer>
+  </div>
+</template>
+ 
+<script>
+import api_vip from "@/api/vip";
+import couponViewCom from "@/components/vip/onlineMakeMoney/couponViewCom.vue";
+export default {
+  data() {
+    return {
+      show: false,
+      makeMoney: "",
+      zsMoney: "",
+      zsPoint: "",
+      remark: "",
+      cardTypeList: [], // 会员卡类型列表
+      cardTypeVal: "", // 会员卡类型
+      showBind: false, // 显示添加卡券/大礼包
+      couponName: "", // 卡券/大礼包名称
+      couponId: "", // 卡券/大礼包id
+    };
+  },
+  methods: {
+    async getCardTypeList() {
+      try {
+        const res = await api_vip.reqGetVipTypeList();
+        if (res.code == 1) {
+          this.cardTypeList = res.data.records;
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取会员卡类型列表失败", error);
+      }
+    },
+    // 绑定
+    onBind() {
+      this.showBind = true
+    },
+    deleteCouponHandle(){
+      this.couponName = ""
+      this.couponId = ""
+    },
+    onValueChanged(item){
+      this.couponName = item.n
+      this.couponId = item.id
+      console.log("onValueChanged", item);
+    },
+    // 提交
+    async onSubmit() {
+      if(this.showBind) {
+        this.showBind = false
+      } else {
+        if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
+        if(this.remark.length > 30) return this.$message.warning('充值规则不可超过30个字')
+        if(this.zsPoint == '' || !this.cardTypeVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
+        const params = {
+          deposit_amt: this.makeMoney * 100, // int   充值金额
+          free_amt: this.zsMoney * 100, //   int    赠送金额
+          card_level_id: 0, // int    会员卡等级
+          card_type_id: this.cardTypeVal * 1, //  int    会员卡类型
+          free_pt_amt: this.zsPoint * 1, // int    赠送积分
+          free_kq_id: this.couponId * 1, // int    赠送卡券id      
+          remark: this.remark, // string    充值提示    
+        };
+        if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
+        if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
+        try {
+          const res = this.editInfo.d ? await api_vip.reqUpdateVipCardMakeMoneyRule(params) : await api_vip.reqAddVipCardMakeMoneyRule(params)
+          if (res.code == 1) {
+            this.$message.success(`${this.editInfo.d ? '编辑': '新建'}成功`)
+            this.onCancelDrawer()
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log(`${this.editInfo.d ? '编辑': '新建'}充值规则失败`, error)
+        }
+      }
+    },
+    onCancelDrawer() {
+      if(this.showBind) {
+        this.showBind = false
+      } else {
+        this.$emit("showOrHideHandle");
+      }
+    },
+    resetData() {
+      this.makeMoney = "";
+      this.zsMoney = "";
+    },
+  },
+  mounted() {},
+  props: {
+    showDrawer: {
+      default: false // 是否显示drawer
+    },
+    editInfo: {
+      default: {}
+    }
+  },
+  computed: {
+    title() {
+      return this.editInfo.d ? "编辑" : "新增";
+    }
+  },
+  watch: {
+    showDrawer: {
+      handler(newVal) {
+        this.show = newVal;
+        if (newVal) {
+          this.getCardTypeList();
+          if (this.editInfo.d) {
+            // 编辑
+            this.makeMoney = this.editInfo.d
+            this.zsMoney = this.editInfo.f
+          } else {
+            this.resetData();
+          }
+        } else {
+          this.$emit("getTableData");
+        }
+      },
+      immediate: true
+    }
+  },
+  components: {
+    couponViewCom
+  }
+};
+</script>
+
+<style scoped lang="less">
+@import "../../../style/common/elementDrawerVip.less";
+@import "../../../style/common/elementDrawerHeaderAndSession.less";
+@import "../../../style/vip/vipBtn.less";
+@import "../../../style/common/elementFormBtnVip.less";
+@import "../../../style/common/scrollBarVip.less";
+@import "../../../style/vip/vipBtn.less";
+</style>
+<style lang="less" scoped>
+.add-or-update-make-money-to-vip {
+  .form {
+    padding-bottom: 30px;
+    .row {
+      margin: 20px 0;
+
+      .label {
+        width: 150px;
+        text-align: right;
+        font-size: 14px;
+        margin-right: 10px;
+
+        span.red {
+          color: #f51f4b;
+        }
+      }
+
+      .value {
+        .tips {
+          margin-top: 10px;
+          font-size: 13px;
+          color: #72727b;
+        }
+      }
+    }
+  }
+}
+</style>

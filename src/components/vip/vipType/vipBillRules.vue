@@ -82,6 +82,7 @@
                 >序号</el-checkbox
               >
             </div>
+            <div class="th">卡等级</div>
             <div class="th">商品名称</div>
             <div class="th">一级分类</div>
             <div class="th">二级分类</div>
@@ -105,6 +106,7 @@
                 >{{ index + 1 }}</el-checkbox
               >
             </div>
+            <div class="td">{{ item.l }}</div>
             <div class="td">{{ item.n }}</div>
             <div class="td">
               {{ cateOptions.find((i) => i.id == item.oc).n }}
