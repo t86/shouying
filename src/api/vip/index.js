@@ -15,6 +15,9 @@ export default {
   // 新增会员卡类型
   reqAddVipType: (params) => axios.post(`${base.htgl}/mb/type/new`, params),
 
+  // 获取会员卡等级列表
+  reqGetLevelList: (params) => axios.post(`${base.htgl}/mb/type/get_level_list`, params),
+
     // 开启会员卡类型自动升级
   reqEnableAutopd: (params) =>
     axios.post(`${base.htgl}/mb/type/enable_autoupd`, params),

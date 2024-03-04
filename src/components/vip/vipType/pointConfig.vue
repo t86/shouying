@@ -87,6 +87,10 @@ export default {
     item: {
       type: Object,
       default: () => ({})
+    },
+    activeTab: {
+      type: String,
+      default: "points"
     }
   },
   watch: {

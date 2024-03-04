@@ -4,8 +4,11 @@
       <!-- 新增卡类型 -->
       <template >
         <div class="top-info" v-if="status==1">
-          <label for="autoUpgrade">卡等级自动升级:</label>
-          <input type="checkbox" id="autoUpgrade" v-model="autoUpgradeEnabled">
+          <div layout="row" layout-align="start center">
+            <span class="m-r-4">卡等级自动升级:</span>
+            <el-switch v-model="autoUpgradeEnabled" title="卡等级自动升级:" @change="show"></el-switch>
+          </div>
+          
           <div style="padding-left:30px; font-size: 14px;color: gray; margin: 10px 5px;">开关开启后需配置每个等级的等级经验门槛值，达到后，客人端将自动升级</div>
         </div>
 
@@ -20,6 +23,7 @@
                 <div class="th"></div>
                 <div class="th">等级名称</div>
                 <div class="th">等级封面</div>
+                <div class="th" v-if="autoUpgradeEnabled">等级经验值（达到该值后自动升级）</div>
               </div>
             </div>
             <div class="tbody">
@@ -34,9 +38,15 @@
                   <button v-if="item.id && !item.disabled" class="btn mini primary m-l-2" @click="saveDeepNameHandle(item)">保存</button>
                   <button v-if="item.id && item.disabled" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
                 </div>
+         
                 <div class="td" layout="row" layout-align="start center">
                   <img :src="imgBaseUrl + item.bgiName " alt="">
                   <button class="btn mini info m-l-2" @click="updateBgiImgHandle(item)">更改</button>
+                </div>
+                <div v-if="autoUpgradeEnabled" class="td" layout="row" layout-align="start center">
+                  <el-input v-model="item.experince" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);max-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
+                  <button v-if="item.id && !item.disabled" class="btn mini primary m-l-2" @click="saveExperienceHandle(item)">保存</button>
+                  <button v-if="item.id && item.disabled" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
                 </div>
               </div>
             </div>
@@ -48,17 +58,17 @@
         <div class="top-info add-deep">
           <div class="form" style="border:none">
               <div class="row" v-if="subStatus==1 || subStatus==3" layout="row" layout-align="start center">
-              <div class="label">
-                <span class="red">*</span>
-                <span>会员卡等级:</span>
+                <div class="label">
+                  <span class="red">*</span>
+                  <span>会员卡等级:</span>
+                </div>
+                <el-input
+                  v-model="formDeep.deepName"
+                  size="small"
+                  placeholder="请输入会员卡等级(1-10字)"
+                  style="width:284px;"
+                ></el-input>
               </div>
-              <el-input
-                v-model="formDeep.deepName"
-                size="small"
-                placeholder="请输入会员卡等级(1-10字)"
-                style="width:284px;"
-              ></el-input>
-            </div>
               <div class="row" layout="row" layout-align="start start">
               <div class="label">
                 <span class="red">*</span>
@@ -112,6 +122,16 @@
                 </div>
               </div>
             </div>
+            <div v-if="subStatus==1 || subStatus==3" class="row" layout="row" layout-align="start start" >
+              <div class="label">
+                <span class="red">*</span>
+                <span>等级经验值:</span>
+              </div>
+              <div>
+                <el-input v-model="experince" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);min-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
+                <div class="m-t-2" style="color: gray; font-size: 14px;">达到该值后自动升级</div>
+              </div>
+            </div>
           </div>
           <div class="form-btn" layout="row" layout-align="center center">
             <el-button type="info" @click="onCancelDrawer($event, false)">关闭</el-button>
@@ -141,13 +161,15 @@ export default {
       formDeep:{
         deepName: ''
       },
+      experince: '',
       currentDeepInfo: {}, // 当前修改的卡等级
       cardInfoList: [
         {
           id: +new Date(),
           name: "默认等级",
           disabled: false,
-          bgiName: "default1.png"
+          bgiName: "default1.png",
+          experince: ''
         }
       ],
       // 默认选中的背景图uid
@@ -165,9 +187,10 @@ export default {
     // 获取待编辑的类型信息
     async getEditInfoHandle(){
       const params = {
-        id: this.item.id * 1 //  int64   会员卡类型Id
+        id: this.editInfo.id * 1 //  int64   会员卡类型Id
       }
       try {
+
         const res = await api_vip.reqGetVipTypeDetail(params)
         if (res.code == 1) {
           this.form.vipName = res.data.name
@@ -178,7 +201,8 @@ export default {
             d: item.d,
             name: item.n,
             disabled: true,
-            bgiName: item.p
+            bgiName: item.p,
+            experince: item.e
           }))
           cardInfoList.length == 0 ? '' : this.cardInfoList = [...cardInfoList]
         } else {
@@ -195,7 +219,7 @@ export default {
     },
     // 删除卡等级
     async deleteVipDeepItem(itemInfo){
-      if (this.item.id) {
+      if (this.editInfo.id) {
         // 编辑状态删除会员卡等级
         const result = await this.deleteEditStatusVipDeepItem(itemInfo.id)
         if (!result) return
@@ -225,10 +249,10 @@ export default {
     },
     // 修改会员卡类型名称
     async updateVipNameHandle(){
-      if (!this.item.id) return
+      if (!this.editInfo.id) return
       if (!this.form.vipName) return this.$message.warning('请输入会员卡类型')
       const params = {
-        id: this.item.id * 1,  //    int64 卡类型Id
+        id: this.editInfo.id * 1,  //    int64 卡类型Id
         name: this.form.vipName,  //  string   卡类型名称
       }
       try {
@@ -244,9 +268,9 @@ export default {
     },
     // 修改会员卡类型默认项
     async updateVipDefaultHandle(){
-      if (!this.item.id) return
+      if (!this.editInfo.id) return
       const params = {
-        id: this.item.id * 1,  //    int64 卡类型Id
+        id: this.editInfo.id * 1,  //    int64 卡类型Id
       }
       try {
         const res = await api_vip.reqUpdateDefaultVipType(params)
@@ -277,6 +301,25 @@ export default {
         console.log('会员卡等级名称修改失败', error)
       }
     },
+    // 保存经验值
+    saveExperienceHandle(itemInfo){
+      const params = {
+        id: itemInfo.id * 1,  //  int64    卡等级Id
+        exp_threshold: itemInfo.experince * 1,  // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+      }
+      try {
+        const res = api_vip.reqChgMbCardLevelExpTd(params)
+        if (res.code == 1) {
+          this.$message.success('保存成功')
+          itemInfo.disabled = true
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('会员卡等级经验值修改失败', error)
+      }
+    },
+
     // 更改等级封面图片
     updateBgiImgHandle(itemInfo){
       this.currentDeepInfo = {...itemInfo}
@@ -390,7 +433,7 @@ export default {
     // 编辑状态添加会员等级
     async addVipDeep(deepName, bgiName){
       const params = {
-        id: this.item.id * 1,  //    int64    卡类型Id
+        id: this.editInfo.id * 1,  //    int64    卡类型Id
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
         exp_threshold: 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
@@ -438,11 +481,11 @@ export default {
      */
     // 修改状态
     async changeStatus(status=1){
-      this.subStatus = this.item.id ? 3 : 1
+      this.subStatus = this.editInfo.id ? 3 : 1
       if (status == 2) {
         this.getDefaultBgiImg()
         await this.getUploadedBgiImg()
-        if(!this.item.id) {
+        if(!this.editInfo.id) {
           this.activeBgiUid = ''
           this.formDeep.deepName = ''
         } else {
@@ -474,6 +517,8 @@ export default {
         const params = {
           name: this.form.vipName, // string  卡类型名称
           is_def: this.form.isDefault ? 1 : 2, //   int   是否默认 1 默认 2 不默认
+          level_pic_name: this.defaultBgiImgList.find(item => item.uid == this.activeBgiUid).name, // string  默认等级卡面图片
+          exp_threshold: this.autoUpgradeEnabled ? this.experince : '', // int64  等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
           // level_names: this.cardInfoList.map(item => item.name),  // []string    卡等级名称列表
           // level_pic_names: this.cardInfoList.map(item => item.bgiName),  // []string   卡面图片列表
         }
@@ -496,7 +541,7 @@ export default {
         if(this.subStatus == 1 || this.subStatus == 3) {
           // 新建卡等级
           let id = +new Date()
-          if (this.item.id) {
+          if (this.editInfo.id) {
             const result = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
             id = result || id
             if (!result) return
@@ -509,7 +554,7 @@ export default {
           }]
         } else if (this.subStatus == 2) {
           // 修改等级封面
-          if(this.item.id) {
+          if(this.editInfo.id) {
             // 编辑
             const result = await this.updateItemBgiImg(bgiInfo.name)
             if (!result) return 
@@ -560,17 +605,33 @@ export default {
       this.defaultBgiImgList = []
       // 自己上传的背景图片列表
       this.uploadBgiImgList = []
+
+      const result = await api_vip.reqGetLevelList({
+        id: this.editInfo.id * 1
+      })
+      console.log('result', result)
+      this.cardInfoList = result && result.data && result.data.card_levels && result.data.card_levels.map(item => ({
+        id: item.id,
+        d: item.d,
+        name: item.n,
+        disabled: true,
+        bgiName: item.p,
+        experince: item.e
+      })) || []
     }
   },
   mounted() {
     this.resetData()
   },
   props: {
-    item: {
+    editInfo: {
       default: {}  // 待编辑的会员卡类型信息
     },
     canDisabledDefault: { 
       default: false  // 是否强制设置为默认类型
+    },
+    activeTab: {
+      default: "cardLevel"  // 当前激活的tab
     }
   },
   computed: {
@@ -578,7 +639,7 @@ export default {
       let title = ''
       switch (this.status){
         case 1:
-          title = this.item.id ? '编辑卡类型' : '新增卡类型'
+          title = this.editInfo.id ? '编辑卡类型' : '新增卡类型'
           break
         case 2:
           title = this.subStatus == 1 || this.subStatus == 3 ? '新增等级' : '修改封面'
@@ -587,23 +648,14 @@ export default {
       return title;
     }
   },
-  // watch: {
-  //   showDrawer: {
-  //     handler(newVal) {
-  //       this.show = newVal;
-  //       if(newVal) {
-  //         this.resetData()
-  //         if(this.item.id) {
-  //           // 编辑
-  //           this.getEditInfoHandle()
-  //         }
-  //       } else {
-  //         this.$emit('getTableData')
-  //       }
-  //     },
-  //     immediate: true
-  //   }
-  // }
+  watch: {
+   activeTab(newVal){
+      if(newVal == 'cardLevel') {
+        this.resetData()
+      }
+      
+    }
+  }
 };
 </script>
 
@@ -614,5 +666,5 @@ export default {
 @import "../../../style/common/elementFormBtnVip.less";
 @import "../../../style/common/scrollBarVip.less";
 @import "../../../style/vip/vipBtn.less";
-@import "../../../style/vip/drawerAddOrUpdateVipType.less";
+@import "../../../style/vip/vipLevel.less";
 </style>

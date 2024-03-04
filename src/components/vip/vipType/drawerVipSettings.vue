@@ -14,19 +14,20 @@
             <el-tab-pane label="卡等级配置" name="cardLevel">
               <!-- 卡等级配置内容 -->
               <vipLevelConfig 
-              :item="item"/>
+              :activeTab="activeTab"
+              :editInfo="item"/>
             </el-tab-pane>
             <el-tab-pane label="充值配置" name="recharge">
               <!-- 充值配置内容 -->
-              <vipRecharge :item="item"/>
+              <vipRecharge :activeTab="activeTab" :item="item"/>
             </el-tab-pane>
             <el-tab-pane label="结账规则配置" name="billRules">
                 <!-- 结账规则配置内容 -->
-                <vipBillRules :item="item"/>
+                <vipBillRules :activeTab="activeTab" :item="item"/>
             </el-tab-pane>
             <el-tab-pane label="积分配置" name="points">
               <!-- 积分配置内容 -->
-                <vipPointConfig :item="item"/>
+                <vipPointConfig :activeTab="activeTab" :item="item"/>
             </el-tab-pane>
           </el-tabs>
         </div>

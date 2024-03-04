@@ -205,6 +205,10 @@ export default {
   },
   props: {
     item: {},
+    activeTab: {
+      type: String,
+      default: "billRules",
+    },
   },
   watch: {
   },
