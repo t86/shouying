@@ -13,7 +13,8 @@
             
             <el-tab-pane label="卡等级配置" name="cardLevel">
               <!-- 卡等级配置内容 -->
-              <vipLevelConfig :item="item"/>
+              <vipLevelConfig 
+              :item="item"/>
             </el-tab-pane>
             <el-tab-pane label="充值配置" name="recharge">
               <!-- 充值配置内容 -->
