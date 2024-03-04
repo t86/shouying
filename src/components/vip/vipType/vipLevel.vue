@@ -618,6 +618,7 @@ export default {
         bgiName: item.p,
         experince: item.e
       })) || []
+      this.autoUpgradeEnabled = result && result.data && result.data.auto_upgrade == 1 || false
     }
   },
   mounted() {
