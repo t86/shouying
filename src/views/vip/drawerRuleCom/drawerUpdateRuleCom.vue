@@ -69,20 +69,14 @@ export default {
       levelVal: 0,
     };
   },
-  props: {
-    levelOption: {
-      default: () => [],
-    },
-  },
   methods: {
     async submitHandle() {
       const params = {
-        prd_ids: this.addedSeatList
+        ids: this.addedSeatList
           .filter((item) => item.checked * 1)
           .map((item) => item.id),
-        card_level_id: this.levelVal,
-        type_id: this.ruleValue * 1, //   []int64   待添加商品列表
         card_type_id: this.item.id,
+        type_id: this.ruleValue * 1, //   []int64   待添加商品列表
       };
 
       try {
@@ -108,6 +102,9 @@ export default {
     },
     item: {},
     addedSeatList: {
+      default: () => [],
+    },    
+    levelOption: {
       default: () => [],
     },
   },
