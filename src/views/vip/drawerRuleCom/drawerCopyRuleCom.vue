@@ -11,6 +11,24 @@
       <div class="session p-3 fs14">
         <p class="m-b-2">复制结账配置</p>
 
+        <div style="margin: 10px 0px;">
+          <span class="red">*</span>
+          <span>选择卡等级：</span>
+          <el-select
+            v-model="targetLevelVal"
+            size="small"
+            placeholder="请选择会员卡等级"
+            style="width: 200px"
+          >
+            <el-option
+              v-for="item in levelOption"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </div>
+
         <span class="red">*</span>
         <span>请选择要复制结账配置的卡类型：</span>
         <el-select
@@ -65,8 +83,9 @@ export default {
       ruleValue: "1",
       typeVal: null,
       typeOption: [],
-      levelVal: null,
+      levelVal: 0,
       levelOption: [],
+      targetLevelVal: 0,
     };
   },
   methods: {
@@ -110,6 +129,9 @@ export default {
     item: {},
     showDrawer: {
       default: false,
+    },
+    levelOption: {
+      default: [],
     },
   },
   mounted() {},

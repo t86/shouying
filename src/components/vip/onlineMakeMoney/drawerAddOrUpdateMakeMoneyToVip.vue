@@ -156,8 +156,12 @@ export default {
           free_kq_id: this.couponId * 1, // int    赠送卡券id      
           remark: this.remark, // string    充值提示    
         };
+        if(this.editInfo.d) {
+          params.id = this.editInfo.id
+        }
         if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
         if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
+        console.log(this.editInfo.d ? '编辑': '新建', params)
         try {
           const res = this.editInfo.d ? await api_vip.reqUpdateVipCardMakeMoneyRule(params) : await api_vip.reqAddVipCardMakeMoneyRule(params)
           if (res.code == 1) {
@@ -205,8 +209,8 @@ export default {
           this.getCardTypeList();
           if (this.editInfo.d) {
             // 编辑
-            this.makeMoney = this.editInfo.d
-            this.zsMoney = this.editInfo.f
+            this.makeMoney = this.editInfo.d / 100
+            this.zsMoney = this.editInfo.f / 100
           } else {
             this.resetData();
           }

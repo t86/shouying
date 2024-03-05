@@ -161,6 +161,9 @@ export default {
     addedSeatList: {
       default: () => [],
     },
+    levelOption: {
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -182,8 +185,7 @@ export default {
         pageSize: 20,
         total: 0,
       },
-      levelOption: [],
-      levelVal: null,
+      levelVal: 0,
     };
   },
   methods: {
@@ -294,6 +296,7 @@ export default {
           .filter((item) => item.checked && !item.disabled)
           .map((item) => item.id * 1), //   []int64   待添加商品列表
         type_id: this.ruleValue * 1,
+        card_level_id: this.levelVal,
         card_type_id: this.item.id,
       };
 

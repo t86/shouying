@@ -6,7 +6,7 @@
         <div class="top-info" v-if="status==1">
           <div layout="row" layout-align="start center">
             <span class="m-r-4">卡等级自动升级:</span>
-            <el-switch v-model="autoUpgradeEnabled" title="卡等级自动升级:" @change="show"></el-switch>
+            <el-switch v-model="autoUpgradeEnabled" title="卡等级自动升级:" @change="showAutoUpdate"></el-switch>
           </div>
           
           <div style="padding-left:30px; font-size: 14px;color: gray; margin: 10px 5px;">开关开启后需配置每个等级的等级经验门槛值，达到后，客人端将自动升级</div>
@@ -140,6 +140,27 @@
         </div>
       </template>
     </div>
+    <el-dialog :visible="showDialog" append-to-body title="填写等级经验值" @close="cancelEditExperience" >
+      <el-form ref="experienceForm" :model="experienceForm" >
+        <el-form-item >
+          <div layout="row" layout-align="start center">
+            <div style="width: 200px;">等级名称</div>
+            <div style="width: 300px;" >等级经验值（达到该值后自动升级）</div>
+          </div>
+        </el-form-item>
+        <el-form-item v-for="(item, index) in cardInfoList.filter(i => i.d != 1)" :key="item.id" >
+          <div layout="row" layout-align="start center">
+            <div style="width: 200px;">{{ item.name }}</div>
+            <el-input style="width: 300px;" v-model="item.experience" :placeholder="'请输入经验阈值'" :disabled="item.id === defaultLevelId"></el-input>
+          </div>
+          
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelEditExperience">取消</el-button>
+        <el-button type="primary" :disabled="!isExperienceFormValid" @click="saveExperience">保存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
  
@@ -150,6 +171,9 @@ export default {
   data() {
     return {
       show: false,
+      showDialog: false,
+      defaultLevelId: 0, // ID of the default card level
+      experienceForm: {}, // Form data for experience thresholds
       imgBaseUrl,
       autoUpgradeEnabled: false,
       status: 1,  // 1：新增卡类型  2：新增等级
@@ -181,6 +205,56 @@ export default {
     };
   },
   methods: {
+    async showAutoUpdate() {
+      if (this.autoUpgradeEnabled) {
+        this.showDialog = true;
+      } else {
+        this.showDialog = false;
+      }
+
+      if(!this.autoUpgradeEnabled){
+        const params = {
+          id: this.editInfo.id
+        }
+        try {
+          const res = await api_vip.reqDisableAutoupd(params)
+          if (res.code == 1) {
+            this.showDialog = false;
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log('关闭会员卡类型自动升级失败', error)
+        }
+      } 
+      console.log('show auto', this.autoUpgradeEnabled, this.showDialog)
+
+    },
+    cancelEditExperience() {
+      this.showDialog = false;
+      // Reset the form data
+      this.experienceForm = {};
+      this.resetData()
+    },
+    async saveExperience() {
+      const params = {
+          id: this.editInfo.id,
+          ls: this.cardInfoList.filter(i => i.d != 1).map(i => i.id),
+          es: this.cardInfoList.filter(i => i.d != 1).map(i => i.experience * 1)
+        }
+        try {
+          const res = await api_vip.reqEnableAutopd(params)
+          if (res.code == 1) {
+            this.showDialog = false;
+          } else {
+            this.$message.warning(res.msg)
+          }
+        } catch (error) {
+          console.log('开启会员卡类型自动升级失败', error)
+        }
+        this.resetData()
+
+    },
     /*
       卡类型相关
      */
@@ -647,14 +721,16 @@ export default {
           break
       }
       return title;
-    }
+    },
+    isExperienceFormValid() {
+      return this.cardInfoList.every(item => item.d === 1 || item.experience);
+    },
   },
   watch: {
    activeTab(newVal){
       if(newVal == 'cardLevel') {
         this.resetData()
       }
-      
     }
   }
 };

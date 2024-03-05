@@ -50,8 +50,8 @@
             <el-checkbox v-if="$store.getters.vipAuth" v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             <span v-else style="color:#1A1A21">{{index + 1}}</span>
           </div>
-          <div class="td fs16-bold">{{item.d}}</div>
-          <div class="td fs16-bold">{{item.f}}</div>
+          <div class="td fs16-bold">{{item.d / 100}}</div>
+          <div class="td fs16-bold">{{item.f / 100}}</div>
           <div class="td fs16-bold">{{item.fk}}</div>
           <div class="td fs16-bold">{{item.fp}}</div>
           <div class="td" v-if="$store.getters.vipAuth"><span @click="delItemInfo(item)">删除</span></div>
@@ -153,8 +153,7 @@ export default {
 
     async delItemInfo(itemInfo) {
       const params = {
-        deposit_amt: itemInfo.d * 1,  // int    充值金额
-        free_amt: itemInfo.f * 1,  //   int    赠送金额, 用于删除的二次判断
+        id: itemInfo.id * 1,  // int    id
       };
       try {
         const res = await api_vip.reqDelVipCardMakeMoneyRule(params);

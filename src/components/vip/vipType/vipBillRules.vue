@@ -5,6 +5,28 @@
     </div>
     <!-- 现有功能内容继续 -->
     <div class="search m-t-2 m-b-4">
+      <div class="row" layout="row" layout-align="start center">
+        <div class="label m-r-2">
+          <span class="red ">*</span>
+          <span>卡等级:</span>
+        </div>
+        <div class="value">
+          <el-select
+          v-model="cardLevelVal"
+          size="small"
+          placeholder="请选择会员卡等级"
+          style="width: 200px"
+        >
+            <el-option
+              v-for="item in cardInfoList"
+              :key="item.id"
+              :label="item.n"
+              :value="item.id"
+            >
+          </el-option>
+          </el-select>
+        </div>
+      </div>
       <div class="row">
         <span class="label">商品分类:</span>
         <el-cascader
@@ -13,22 +35,6 @@
           :options="cateOptions"
           v-model="cateVal"
         ></el-cascader>
-      </div>
-      <div class="row" layout="row" layout-align="start center">
-        <el-input
-          class="m-r-2"
-          v-model="keyword"
-          size="small"
-          placeholder="商品名称/首字母"
-          style="width: 200px"
-        ></el-input>
-        <button
-          class="btn primary m-l-4"
-          @click="() => this.getTableData(false)"
-        >
-          查询
-        </button>
-        <button class="btn info m-l-4" @click="resetHandle">重置</button>
       </div>
       <div class="row" layout="row" layout-align="start center">
         <span class="label m-r-1">商品规则:</span>
@@ -47,7 +53,22 @@
           </el-option>
         </el-select>
       </div>
-      <div></div>
+      <div class="row" layout="row" layout-align="start center">
+        <el-input
+          class="m-r-2"
+          v-model="keyword"
+          size="small"
+          placeholder="商品名称/首字母"
+          style="width: 200px"
+        ></el-input>
+        <button
+          class="btn primary m-l-4"
+          @click="() => this.getTableData(false)"
+        >
+          查询
+        </button>
+        <button class="btn info m-l-4" @click="resetHandle">重置</button>
+      </div>
       <div
         class="row m-t-4"
         layout="row"
@@ -173,6 +194,7 @@
       :addedSeatList="tableData"
       @showOrHideDrawerHandle="showOrHideDrawerHandle"
       @getTableData="refresh"
+      :levelOption = "cardInfoList"
     />
     <drawerUpdateRuleCom
       :item="item"
@@ -180,6 +202,7 @@
       :addedSeatList="tableData"
       @showOrHideDrawerHandle="showOrHideUpdateDrawerHandle"
       @getTableData="refresh"
+      :levelOption = "cardInfoList"
     />
 
     <drawerCopyCom
@@ -187,6 +210,7 @@
       :showDrawer="showCopyDrawer"
       @showOrHideCopyDrawerHandle="showOrHideCopyDrawerHandle"
       @getTableData="refresh"
+      :levelOption = "cardInfoList"
     />
   </div>
 </template>
@@ -211,6 +235,12 @@ export default {
     },
   },
   watch: {
+    activeTab(newVal){
+      console.log('activeTab', this.activeTab)
+      if(newVal == 'billRules') {
+        this.resetData()
+      }
+    }
   },
   computed: {
     title() {
@@ -233,6 +263,8 @@ export default {
       show: {
         default: false,
       },
+      cardInfoList: [],
+      cardLevelVal: 0,
       cateOptions: [],
       cateVal: [],
       checked: false,
@@ -273,6 +305,13 @@ export default {
     };
   },
   methods: {
+    resetData(){
+      this.cateVal = []
+      this.keyword = ""
+      this.checked = false
+      this.ruleVal = 0
+      this.getTableData(true)
+    },
     async getTableData(rest = false) {
       if (rest) this.pageInfo.page = 1;
       const params = {
@@ -287,6 +326,7 @@ export default {
       };
       try {
         let res = await api_vip.reqGetVipBillRuleList(params);
+        console.log('reqGetVipBillRuleList', res)
         if (res.code == 1) {
           if (rest) {
             const cateOptions = res.data.cates || [];
@@ -303,6 +343,16 @@ export default {
             });
 
             this.cateOptions = cateOptions;
+
+            this.cardInfoList = res && res.data && res.data.levels.map(item => ({
+              id: item.id,
+              n: item.n,
+            })) || []
+            this.cardInfoList = [{
+              id: 0,
+              n: '全等级'
+            }, ...this.cardInfoList]
+
           }
 
           this.pageInfo.total = 1;
@@ -391,6 +441,7 @@ export default {
       this.getTableData();
     },
     showOrHideDrawerHandle() {
+      console.log('props cardInfoList ', this.cardInfoList)
       this.showAddDrawer = !this.showAddDrawer;
     },
     showOrHideUpdateDrawerHandle() {
@@ -410,7 +461,8 @@ export default {
       this.$emit("showOrHideDrawerHandle");
     },
   },
-  mounted() {},
+  mounted() {
+  },
 };
 </script>
 

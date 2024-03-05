@@ -9,6 +9,22 @@
       append-to-body
     >
       <div class="session p-3 fs14">
+        <span class="red">*</span>
+        <span>选择卡等级：</span>
+        <el-select
+          v-model="levelVal"
+          size="small"
+          placeholder="请选择会员卡等级"
+          style="width: 200px"
+        >
+          <el-option
+            v-for="item in levelOption"
+            :key="item.id"
+            :label="item.n"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+        
         <p class="m-b-2">选择扣款规则</p>
 
         <div>
@@ -50,7 +66,13 @@ export default {
     return {
       show: false,
       ruleValue: "1",
+      levelVal: 0,
     };
+  },
+  props: {
+    levelOption: {
+      default: () => [],
+    },
   },
   methods: {
     async submitHandle() {
@@ -58,6 +80,7 @@ export default {
         prd_ids: this.addedSeatList
           .filter((item) => item.checked * 1)
           .map((item) => item.id),
+        card_level_id: this.levelVal,
         type_id: this.ruleValue * 1, //   []int64   待添加商品列表
         card_type_id: this.item.id,
       };
