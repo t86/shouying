@@ -105,6 +105,11 @@ export default [
         name: "注销记录表",
         routerName: "logoutRecordForm",
       },
+      {
+        id: 49,
+        name: "更改等级记录表",
+        routerName: "changeLevelRecordForm",
+      },
     ],
   },
 ];

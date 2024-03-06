@@ -20,15 +20,15 @@
       </div>
       <div class="row">
         <div class="label">储蓄余额：</div>
-        <div class="value">{{vipInfo.val_bal}}</div>
+        <div class="value">{{vipInfo.val_balance}}</div>
       </div>
       <div class="row">
         <div class="label">赠送余额：</div>
-        <div class="value">{{vipInfo.free_bal}}</div>
+        <div class="value">{{vipInfo.free_balance}}</div>
       </div>
       <div class="row">
          <div class="label">积分余额：</div>
-         <div class="value">{{vipInfo.pt_bal}}</div>
+         <div class="value">{{vipInfo.pt_balance}}</div>
       </div>
     </div>
     <div class="content">
@@ -47,6 +47,16 @@
                 :value="item.id"
               ></el-option>
             </el-select>
+          </div>
+        </div>
+        <div></div>
+        <div v-if="vipInfo.auto_upgrade == 1" class="row">
+          <div class="label m-t-2">
+            <span style="color:#E0304F">*</span>
+            <span>等级经验值：</span>
+          </div>
+          <div class="value">
+            <span>{{ exp_bal }}</span>
           </div>
         </div>
       </div>
@@ -70,11 +80,13 @@ export default {
         id: this.currentItemInfo.id * 1 //   int64   会员卡Id
       };
       try {
-        const res = await api_vip.reqGetVipCardDeep(params);
+        const res = await api_vip.reqGetMbCardFLevelupdown(params);
         if (res.code == 1) {
           this.vipInfo = res.data.card_info || {};
           this.vipDeepVal = res.data.card_info.card_level_id;
-          this.vipDeepValOption = res.data.card_levels || [];
+          this.vipDeepValOption = res.data.card_level_dfn || [];
+
+          console.log('getVipInfo', this.vipInfo, this.vipDeepVal, this.vipDeepValOption)
         } else {
           this.$message.warning(res.msg);
         }

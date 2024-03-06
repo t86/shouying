@@ -207,6 +207,14 @@ export default {
   reqUpdateVipCardDeep: (params) =>
     axios.post(`${base.htgl}/mb/card/chg_level`, params),
 
+  // 读取会员卡信息for等级调升和调降
+  reqGetMbCardFLevelupdown: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_mb_card_f_levelupdown`, params),
+
+  // 会员等级, 调升, 调降
+  reqUpdownMbCardLevel: (params) =>
+    axios.post(`${base.htgl}/mb/card/updown_mb_card_level`, params),  
+
   // 读取会员卡信息for绑定手机
   reqUGetVipCardInfoFromBindPhoneNum: (params) =>
     axios.post(`${base.htgl}/mb/card/get_f_bind_phone`, params),

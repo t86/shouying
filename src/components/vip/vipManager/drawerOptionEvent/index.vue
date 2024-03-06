@@ -319,10 +319,10 @@ export default {
           // 更改会员等级
           params = {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
-            card_level_id: this.updateVipDeepInfoObj.vipDeepVal * 1, // int64  卡等级
+            dest_card_level_id: this.updateVipDeepInfoObj.vipDeepVal * 1, // int64  卡等级
           };
           try {
-            const res = await api_vip.reqUpdateVipCardDeep(params);
+            const res = await api_vip.reqUpdownMbCardLevel(params);
             if (res.code == 1) {
               this.$message.success("更改成功");
               this.onCancelDrawer();

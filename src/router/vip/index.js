@@ -104,6 +104,13 @@ export default [
         meta: { title: "注销记录表" },
         component: () => import("@/views/vip/logoutRecordForm.vue"),
       },
+      // 更改等级记录表
+      {
+        path: "/changeLevelRecordForm",
+        name: "changeLevelRecordForm",
+        meta: { title: "更改等级记录表" },
+        component: () => import("@/views/vip/changeLevelRecordForm.vue"),
+      },
     ],
   },
 ];
