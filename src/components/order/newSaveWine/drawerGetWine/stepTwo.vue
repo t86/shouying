@@ -200,8 +200,8 @@
         <el-button v-if="!showCheckCode || codeCheckDone" type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
         <el-button v-else type="info" @click="showCheckCode = false">取消</el-button>
         <el-button v-if="!showCheckCode || codeCheckDone" type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
-        <el-button v-else type="primary" @click="getCode">下一步</el-button>
-        <el-button v-if="isNarrow && !showCheckCode && shoppingCartWineList.length > 0" type="primary" @click="showAuth">获取验证码</el-button>
+        <el-button v-else type="primary" @click="getWineHandle">确定取酒</el-button>
+        <el-button v-if="isNarrow && !showCheckCode && shoppingCartWineList.length > 0" type="primary" @click="showAuth">下一步</el-button>
         <el-button v-if="!isNarrow || codeCheckDone" type="primary" @click="getWineHandle">确定取酒</el-button>
       </div>
     </div>
