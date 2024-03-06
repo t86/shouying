@@ -106,6 +106,8 @@ export default {
       const params = {
         src_mb_card_type_id: this.typeVal,
         dest_mb_card_type_id: this.item.id, //   []int64   待添加商品列表
+        src_mb_card_level_id: this.levelVal,//
+        dest_mb_card_level_id: this.targetLevelVal,
       };
 
       try {
