@@ -10,43 +10,59 @@
       size="720px"
     >
       <div class="session add-or-update-make-money-to-vip">
-        <div class="row" layout="row" layout-align="start center">
-          <div class="label">
-            <span class="red">*</span>
-            <span>卡等级</span>
-          </div>
-          <div class="value">
-            <el-select
-            v-model="cardTypeVal"
-            size="small"
-            placeholder="请选择会员卡等级"
-            style="width: 200px"
-          >
-            <el-option
-              v-for="item in cardTypeList"
-              :key="item.id"
-              :label="item.n"
-              :value="item.id"
+        <div class="form" >
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red">*</span>
+              <span>卡等级</span>
+            </div>
+            <div class="value">
+              <el-select
+              v-model="cardLevelVal"
+              size="small"
+              placeholder="请选择会员卡等级"
+              style="width: 200px"
             >
-            </el-option>
-          </el-select>
+              <el-option
+                v-for="item in cardLevelList"
+                :key="item.id"
+                :label="item.n"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+            </div>
           </div>
-        </div>
-        <div class="row" layout="row" layout-align="start center">
-          <div class="label">
-            <span>赠送积分规则</span>
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>赠送积分规则</span>
+            </div>
+            <div class="value">
+              <el-radio-group v-model="type_id" v-if="$store.getters.vipAuth">
+                <el-radio :label="1">不赠送积分</el-radio>
+                <!-- <el-radio :label="2">充值赠送积分</el-radio> -->
+                <el-radio :label="3">消费赠送积分</el-radio>
+              </el-radio-group>
+            </div>
           </div>
-          <div class="value">
-            <el-input v-model="makeMoney" :disabled="!!editInfo.d" size="small" style="width:284px" placeholder="请输入充值金额"></el-input>
+          <div v-if="type_id == '3'" class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>消费</span>
+
+            </div>
+            <div class="value">
+              <el-input v-model="makeMoney" size="small" style="width:284px" placeholder="输入整数"></el-input>
+              <span>元储值金额送1积分</span>
+            </div>
           </div>
-        </div>
-        <div class="row" layout="row" layout-align="start center">
-          <span>消费</span>
-          <el-input v-model="zsMoney" size="small" style="width:284px" placeholder="输入整数"></el-input>
-          <span>元储值金额送1积分</span>
-        </div>
-        <div class="row" layout="row" layout-align="start center">
-            <span class="red">说明：不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span>
+          <div v-if="type_id == '3'" class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red"></span>
+            </div>
+            <div class="value">
+              <span class="red" style="font-size: 14px;">说明：不足的部分不会赠送，例如设置消费10元储值金额赠送1积分，消费999元储值金额则赠送99积分</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
@@ -64,23 +80,29 @@ export default {
   data() {
     return {
       show: false,
-      makeMoney: "",
-      zsMoney: "",
+      makeMoney: "", // 消费金额
       zsPoint: "",
       remark: "",
-      cardTypeList: [], // 会员卡类型列表
-      cardTypeVal: "", // 会员卡类型
-      showBind: false, // 显示添加卡券/大礼包
-      couponName: "", // 卡券/大礼包名称
-      couponId: "", // 卡券/大礼包id
+      cardLevelList: [], // 会员卡等级列表
+      cardLevelVal: "0", // 会员卡等级
+      type_id: 1, // 赠送积分规则
     };
   },
   methods: {
-    async getCardTypeList() {
+    async getCardLevelList() {
       try {
-        const res = await api_vip.reqGetVipTypeList();
+        const params = {
+          card_type_id: this.cardTypeId, 
+          id: this.editInfo.id,
+        }
+
+        const res = await api_vip.reqGetPtRule(params);
+
+        console.log('res', res, this.cardTypeId)
         if (res.code == 1) {
-          this.cardTypeList = res.data.records;
+          this.cardLevelList = res.data.card_level_dfns;
+          this.cardLevelList = [{id: '0', n: '全等级'}, ...this.cardLevelList]
+          this.cardLevelVal = res.data.rule_info && res.data.rule_info.card_level_id || '0'
         } else {
           this.$message.warning(res.msg);
         }
@@ -88,61 +110,34 @@ export default {
         console.log("获取会员卡类型列表失败", error);
       }
     },
-    // 绑定
-    onBind() {
-      this.showBind = true
-    },
-    deleteCouponHandle(){
-      this.couponName = ""
-      this.couponId = ""
-    },
-    onValueChanged(item){
-      this.couponName = item.n
-      this.couponId = item.id
-      console.log("onValueChanged", item);
-    },
     // 提交
     async onSubmit() {
-      if(this.showBind) {
-        this.showBind = false
-      } else {
-        if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
-        if(this.remark.length > 30) return this.$message.warning('充值规则不可超过30个字')
-        if(this.zsPoint == '' || !this.cardTypeVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
-        const params = {
-          deposit_amt: this.makeMoney * 100, // int   充值金额
-          free_amt: this.zsMoney * 100, //   int    赠送金额
-          card_level_id: 0, // int    会员卡等级
-          card_type_id: this.cardTypeVal * 1, //  int    会员卡类型
-          free_pt_amt: this.zsPoint * 1, // int    赠送积分
-          free_kq_id: this.couponId * 1, // int    赠送卡券id      
-          remark: this.remark, // string    充值提示    
-        };
-        if(params.deposit_amt == 0) return this.$message.warning('充值金额不可为0')
-        if(params.deposit_amt.toFixed(0) * 1 != params.deposit_amt) return this.$message.warning('充值金额必须为正整数')
-        try {
-          const res = this.editInfo.d ? await api_vip.reqUpdateVipCardMakeMoneyRule(params) : await api_vip.reqAddVipCardMakeMoneyRule(params)
-          if (res.code == 1) {
-            this.$message.success(`${this.editInfo.d ? '编辑': '新建'}成功`)
-            this.onCancelDrawer()
-          } else {
-            this.$message.warning(res.msg)
-          }
-        } catch (error) {
-          console.log(`${this.editInfo.d ? '编辑': '新建'}充值规则失败`, error)
+      if((this.makeMoney == '' && this.type_id == '3') || !this.cardLevelVal ) return this.$message.warning('充值金额, 会员卡等级必须填写')
+      const params = {
+        base_amt: this.makeMoney * 100, // int   充值金额
+        card_level_id: this.cardLevelVal * 1, // int    会员卡等级
+        card_type_id: this.cardTypeId * 1, //  int    会员卡类型
+      };
+      if(this.editInfo.id) {
+        params.id = this.editInfo.id
+      }
+      try {
+        const res = this.editInfo.id ? await api_vip.reqSavePtRule(params) : await api_vip.reqNewPtRule(params)
+        if (res.code == 1) {
+          this.$message.success(`${this.editInfo.id ? '编辑': '新建'}成功`)
+          this.onCancelDrawer()
+        } else {
+          this.$message.warning(res.msg)
         }
+      } catch (error) {
+        console.log(`${this.editInfo.d ? '编辑': '新建'}积分规则失败`, error)
       }
     },
     onCancelDrawer() {
-      if(this.showBind) {
-        this.showBind = false
-      } else {
-        this.$emit("showOrHideHandle");
-      }
+      this.$emit("showOrHideHandle");
     },
     resetData() {
       this.makeMoney = "";
-      this.zsMoney = "";
     },
   },
   mounted() {},
@@ -152,6 +147,9 @@ export default {
     },
     editInfo: {
       default: {}
+    },
+    cardTypeId: {
+      default: 0
     }
   },
   computed: {
@@ -164,11 +162,10 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
-          this.getCardTypeList();
+          this.getCardLevelList();
           if (this.editInfo.d) {
             // 编辑
             this.makeMoney = this.editInfo.d
-            this.zsMoney = this.editInfo.f
           } else {
             this.resetData();
           }

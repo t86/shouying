@@ -49,9 +49,9 @@
             <el-checkbox v-if="$store.getters.vipAuth" v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             <span v-else style="color:#1A1A21">{{index + 1}}</span>
           </div>
-          <div class="td fs16-bold">{{item.d}}</div>
-          <div class="td fs16-bold">{{item.f}}</div>
-          <div class="td fs16-bold">{{item.fk}}</div>
+          <div class="td fs16-bold">{{item.n}}</div>
+          <div class="td fs16-bold">{{item.t}}</div>
+          <div class="td fs16-bold">{{item.b}}</div>
           <div class="td" v-if="$store.getters.vipAuth"><span @click="delItemInfo(item)">删除</span></div>
         </div>
         <div class="no-data" v-if="tableData.length==0">
@@ -63,6 +63,7 @@
     <drawerAddOrUpdatePointToVip
       :showDrawer="showDrawer"
       :editInfo="editInfo"
+      :cardTypeId="item.id"
       @showOrHideHandle="showDrawerHandle"
       @getTableData="getTableData"
     />
@@ -94,17 +95,18 @@ export default {
     }
   },
   watch: {
-    item: {
+    activeTab: {
       handler(newVal) {
-        this.getTableData();
-      },
-      immediate: true,
-    },
+        if (newVal == "points") {
+          this.getTableData();
+        }
+      }
+    }
   },
   methods: {
     async getTableData() {
       try {
-        const res = await api_vip.reqGetVipCardMakeMoneyListRule({
+        const res = await api_vip.reqGetPointRules({
           card_type_id: this.item.id
         });
         if (res.code == 1) {
@@ -145,17 +147,17 @@ export default {
       } else if (type == "add") {
         this.editInfo = {};
       }
-
+      console.log('item', this.item)
       this.showDrawer = !this.showDrawer;
     },
 
     async delItemInfo(itemInfo) {
       const params = {
-        deposit_amt: itemInfo.d * 1,  // int    充值金额
-        free_amt: itemInfo.f * 1,  //   int    赠送金额, 用于删除的二次判断
+        id: itemInfo.id * 1,  // int    充值金额
+        card_type_id: this.item.id * 1,  //   int    赠送金额, 用于删除的二次判断
       };
       try {
-        const res = await api_vip.reqDelVipCardMakeMoneyRule(params);
+        const res = await api_vip.reqDelPtRule(params);
         if (res.code == 1) {
           this.$message.success("删除成功");
           this.getTableData();
@@ -166,9 +168,6 @@ export default {
         console.log("删除充值规则失败", error);
       }
     }
-  },
-  created() {
-    this.getTableData();
   },
   components: {
     IconButton,

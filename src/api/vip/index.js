@@ -322,10 +322,25 @@ export default {
   reqSavePointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
 
-  // 充值积分 获取规则
-  reqGetPointRule: (params) =>
+  // 读取会员卡赠送积分规则列表
+  reqGetPointRules: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_pt_rules`, params),
+
+  // 读取会员卡赠送积分规则详情
+  reqGetPtRule: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
 
+  // 添加会员卡积分规则
+  reqNewPtRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/new_pt_rule`, params),
+  
+  // 保存会员卡赠送积分规则
+  reqSavePtRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
+
+  // 删除会员卡赠送积分规则
+  reqDelPtRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/del_pt_rule`, params), 
 
   // 下载会员信息excel
   reqExportExcelForVipManager: (params) =>
