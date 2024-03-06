@@ -157,7 +157,7 @@ export default {
           break;
         case 2:
           console.log(window.innerWidth,window.innerHeight)
-          size = window.innerWidth >= 1024 ? "95%" : "60%";
+          size = window.innerWidth >= 1024 ? "95%" : "95%";
           break;
       }
       return size;
