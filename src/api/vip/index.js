@@ -307,6 +307,15 @@ export default {
   // 充值/扣款小票重打( 新
   reqPrintTicketNew: (params) =>
     axios.post(`${base.htgl}/mb/rpt/re_print_mb_bill`, params),
+
+  // 读取更改等级记录表
+  reqGetMbCardUpdownLog: (params) => 
+    axios.post(`${base.htgl}/mb/rpt/get_mb_card_updown_log`, params),
+
+  // 下载更改等级记录表
+  reqExportMbCardUpdownLog: (params) =>
+    axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_updown_log`, params),  
+    
   /**
    * 会员卡生成规则
    */
