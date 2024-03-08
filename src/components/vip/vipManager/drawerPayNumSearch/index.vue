@@ -112,12 +112,12 @@ export default {
     },
     async validateValidateInfo(e) {
       const params = {
-        pay_code: this.keyword, //    string   付款码
+        srv_code: this.keyword, //    string   付款码
       };
-      if (params.pay_code.length != 6 && typeof e == "object") {
+      if (params.srv_code.length != 6 && typeof e == "object") {
         this.$message.warning("请输入正确的六位服务码序列号");
         return false;
-      } else if (params.pay_code.length != 6) {
+      } else if (params.srv_code.length != 6) {
         return;
       }
       try {

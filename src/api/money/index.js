@@ -352,7 +352,11 @@ export default {
 
   // 通过验证验证码,获取可用会员卡列表
   reqGetVipCardFormValidate: (params) =>
-    axios.post(`${base.htgl}/sel/valid_pay_code`, params),
+    axios.post(`${base.htgl}/sel/valid_cust_srv_code`, params),
+
+    // 通过验证验证码,获取可用会员卡列表
+  reqGetVipCardFormValidateOld: (params) =>
+    axios.post(`${base.htgl}/sel/valid_pay_code`, params),  
 
   // 通过验证手机,获取可用会员卡列表
   reqGetVipCardFormPhoneNum: (params) =>
