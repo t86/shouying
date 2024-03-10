@@ -58,33 +58,24 @@ export default {
       this.employee.id = ''
       this.employee.p = ''
       this.employee.c = ''
-      if(this.employeeList.length == 0) {
-        try {
-          const res = await api_wine.reqGetChgSalesEmpList();
-          if (res.code == 1) {
-            this.employeeList = res.data.records.map(item => { return {
-              ...item,
-              name: item.n,
-              code: item.c
-            }
-          });
-          } else {
+      const sealInfoArr =
+        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+        this.employeeList = sealInfoArr
+        this.optionEployees = query
+        ? sealInfoArr.filter(
+            (el) =>
+              el.code.toString().includes(query) ||
+              el.name.toString().includes(query) ||
+              el.namePy.toString().includes(query.toLowerCase())
+          )
+        : sealInfoArr;
 
-          }
-
-        } catch (error) {
-          console.log("订位人信息获取失败", error);
-        }
-      }
-      this.optionEployees = this.employeeList.filter((el) =>
-              el.c.toString().includes(query) ||
-              el.n.toString().includes(query) ||
-              el.p.toString().includes(query.toLowerCase()))
     },
     changeEmployeeName(info){
-      this.employee.n = info.n
+      console.log(info)
+      this.employee.n = info.name
       this.employee.id = info.id
-      this.employee.c = info.c
+      this.employee.c = info.code
       this.optionEployees = [];
     },
     selectBlurHandle(){
