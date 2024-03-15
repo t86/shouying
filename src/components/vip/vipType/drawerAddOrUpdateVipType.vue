@@ -37,112 +37,6 @@
               <div class="tips">开启后，客人申请会员卡默认为该类型；如果未设置默认卡类型，则最先创建的会员卡类型为默认类型</div>
             </div>
           </div>
-
-          <div class="bottom-info">
-            <p>
-              <span class="bold m-r-2">卡等级信息</span>
-              <span>不同的等级可享受的权益不同</span>
-            </p>
-            <div class="table">
-              <div class="thead">
-                <div class="tr" layout="row" layout-align="space-between center">
-                  <div class="th"></div>
-                  <div class="th">等级名称</div>
-                  <div class="th">等级封面</div>
-                </div>
-              </div>
-              <div class="tbody">
-                <div class="tr" layout="row" layout-align="space-between center" v-for="(item, index) in cardInfoList" :key="item.id">
-                  <div class="td" layout="row" layout-align="space-between center">
-                    <img v-if="index==0" @click="addVipDeepItem" :src="require('@/assets/vip-imgs/add.png')" alt />
-                    <img v-else @click="deleteVipDeepItem(item)" :src="require('@/assets/vip-imgs/del.png')" alt />
-                    <span class="default" v-if="index==0">默认等级</span>
-                  </div>
-                  <div class="td" layout="row" layout-align="start center">
-                    <el-input v-model="item.name" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);max-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入等级名称"></el-input>
-                    <button v-if="editInfo.id && !item.disabled" class="btn mini primary m-l-2" @click="saveDeepNameHandle(item)">保存</button>
-                    <button v-if="editInfo.id && item.disabled" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
-                  </div>
-                  <div class="td" layout="row" layout-align="start center">
-                    <img :src="imgBaseUrl + item.bgiName " alt="">
-                    <button class="btn mini info m-l-2" @click="updateBgiImgHandle(item)">更改</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-        <!-- 新增卡等级 -->
-        <template v-if="status==2">
-          <div class="top-info add-deep">
-            <div class="form" style="border:none">
-               <div class="row" v-if="subStatus==1 || subStatus==3" layout="row" layout-align="start center">
-                <div class="label">
-                  <span class="red">*</span>
-                  <span>会员卡等级:</span>
-                </div>
-                <el-input
-                  v-model="formDeep.deepName"
-                  size="small"
-                  placeholder="请输入会员卡等级(1-10字)"
-                  style="width:284px;"
-                ></el-input>
-              </div>
-               <div class="row" layout="row" layout-align="start start">
-                <div class="label">
-                  <span class="red">*</span>
-                  <span>选择封面:</span>
-                </div>
-                <div class="upload">
-                  <!-- 默认封面 -->
-                  <div class="default">
-                    <p class="title">默认封面</p>
-                    <div class="default-img" layout="row" layout-align="start center">
-                      <div class="item-bgi" v-for="(item, index) in defaultBgiImgList" :key="item.uid" @click="activeBgiUid=item.uid">
-                        <div class="top" :class="{'active': item.uid == activeBgiUid}">
-                          <div class="top-content">
-                            <img class="bgi" :src="item.url" alt="">
-                          </div>
-                          <img class="ok" v-if="item.uid == activeBgiUid" :src="require('@/assets/vip-imgs/bgi-checked.png')" alt="" >
-                        </div>
-                        <p class="bgi-name">封面{{index+1}}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 自定义封面 -->
-                  <div class="default self m-t-6">
-                    <p class="title">
-                      <span>自定义封面</span>
-                      <span class="bgi-tips">点击上传图片，仅支持：jpg、png的格式</span>
-                    </p>
-                    <div class="default-img" layout="row" layout-align="start center">
-                      <!-- 上传图片图标 -->
-                      <div class="upload item-bgi" >
-                        <div class="top">
-                          <div class="top-content" layout="column" layout-align="center center" @click="$refs.uploadRef.click()">
-                            <img class="upload-icon" :src="require(`@/assets/vip-imgs/bgi-add.png`)" alt="">
-                            <p class="upload-p">点击上传</p>
-                          </div>
-                        </div>
-                        <input ref="uploadRef" type="file" accept="image/png,image/jpg" v-show="false" @change="uploadRequest" />
-                        <p class="bgi-name">封面</p>
-                      </div>
-                      <div class="item-bgi" v-for="(item, index) in uploadBgiImgList" :key="item.uid"  @click="activeBgiUid=item.uid">
-                        <div class="top" :class="{'active': item.uid == activeBgiUid}">
-                          <div class="top-content">
-                            <img class="bgi" :src="item.url" alt="">
-                          </div>
-                          <img class="ok" v-if="item.uid==activeBgiUid" :src="require('@/assets/vip-imgs/bgi-checked.png')" alt="" >
-                          <img class="del" :src="require('@/assets/vip-imgs/del.png')" alt="" @click="deleteBgiItemHandle(item)" >
-                        </div>
-                        <p class="bgi-name">自定义封面{{index+1}}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </template>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
@@ -217,11 +111,6 @@ export default {
         console.log('获取待编辑的卡类型信息失败', error)
       }
     },
-    // 添加卡等级
-    addVipDeepItem(){
-      this.currentDeepInfo = {}
-      this.changeStatus(2)
-    },
     // 删除卡等级
     async deleteVipDeepItem(itemInfo){
       if (this.editInfo.id) {
@@ -288,30 +177,7 @@ export default {
         console.log('编辑会员卡类型名称失败', error)
       }
     },
-    // 保存等级名称
-    async saveDeepNameHandle(itemInfo) {
-      const params = {
-        id : itemInfo.id * 1,  //  int64    卡等级Id
-        name : itemInfo.name,  // string   卡等级名称
-      }
-      try {
-        const res = await api_vip.reqUpdateVipDeepName(params)
-        if (res.code == 1) {
-          this.$message.success('保存成功')
-          itemInfo.disabled = true
-        } else {
-          this.$message.warning(res.msg)
-        }
-      } catch (error) {
-        console.log('会员卡等级名称修改失败', error)
-      }
-    },
-    // 更改等级封面图片
-    updateBgiImgHandle(itemInfo){
-      this.currentDeepInfo = {...itemInfo}
-      this.changeStatus(2)
-      this.changeSubStatus(2)
-    },
+    
     /*
       背景图片相关
      */

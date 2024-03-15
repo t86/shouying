@@ -30,6 +30,7 @@
             >序号</el-checkbox>
             <span v-else style="color:#1A1A21">序号</span>
           </div>
+          <div class="th">卡等级</div>
           <div class="th">充值金额</div>
           <div class="th">赠送金额</div>
           <div class="th">赠送卡券</div>
@@ -50,6 +51,7 @@
             <el-checkbox v-if="$store.getters.vipAuth" v-model="item.checked" @change="changeCheckboxHandle('item')">{{index+1}}</el-checkbox>
             <span v-else style="color:#1A1A21">{{index + 1}}</span>
           </div>
+          <div class="td fs16-bold">{{item.n}}</div>
           <div class="td fs16-bold">{{item.d / 100}}</div>
           <div class="td fs16-bold">{{item.f / 100}}</div>
           <div class="td fs16-bold">{{item.fk}}</div>
@@ -65,6 +67,7 @@
     <drawerAddOrUpdateMakeMoneyToVip
       :showDrawer="showDrawer"
       :editInfo="editInfo"
+      :selectItem="item"
       @showOrHideHandle="showDrawerHandle"
       @getTableData="getTableData"
     />
