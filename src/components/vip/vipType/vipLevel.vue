@@ -46,7 +46,7 @@
                 <div v-if="autoUpgradeEnabled" class="td" layout="row" layout-align="start center">
                   <el-input v-model="item.experince" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);max-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
                   <button v-if="item.id && !item.disabled" class="btn mini primary m-l-2" @click="saveExperienceHandle(item)">保存</button>
-                  <button v-if="item.id && item.disabled" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
+                  <button v-if="item.id && item.disabled && index != 0" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
                 </div>
               </div>
             </div>
@@ -135,7 +135,7 @@
           </div>
           <div class="form-btn" layout="row" layout-align="center center">
             <el-button type="info" @click="onCancelDrawer($event, false)">关闭</el-button>
-            <el-button v-if="!(item.id && subStatus == 1)" type="primary" @click="onSubmit">确定</el-button>
+            <el-button v-if="!(subStatus == 1)" type="primary" @click="onSubmit">确定</el-button>
           </div>
         </div>
       </template>
@@ -376,13 +376,13 @@ export default {
       }
     },
     // 保存经验值
-    saveExperienceHandle(itemInfo){
+    async saveExperienceHandle(itemInfo){
       const params = {
         id: itemInfo.id * 1,  //  int64    卡等级Id
         exp_threshold: itemInfo.experince * 1,  // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
       }
       try {
-        const res = api_vip.reqChgMbCardLevelExpTd(params)
+        const res = await api_vip.reqChgMbCardLevelExpTd(params)
         if (res.code == 1) {
           this.$message.success('保存成功')
           itemInfo.disabled = true
