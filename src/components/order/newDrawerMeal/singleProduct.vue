@@ -150,17 +150,17 @@ export default {
       this.isGQ = this.$route.name == "moneyCard" || this.$route.name == 'orderCard';
       // 小费类型4商品数量默认为1 赔偿商品数量只能为 1  切不可修改
       if (this.productInfo.prdType == 4) {
-        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : "";
       } else {
-        this.count = this.isGQ ? 0 : 1;
+        this.count = this.isGQ ? 0 : "";
       }
     },
 
     onCancelDrawer() {
       if (this.productInfo.prdType == 4) {
-        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : "";
       } else {
-        this.count = this.isGQ ? 0 : 1;
+        this.count = this.isGQ ? 0 : "";
       }
       this.requestInfoArr = [];
       this.isSubmitting = true
@@ -230,9 +230,9 @@ export default {
       this.focus = 1;
       this.amt = "";
       if (this.productInfo.prdType == 4) {
-        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : 1;
+        this.count = this.$route.name != "moneyCard" && this.$route.name != "orderCard" ? "" : "";
       } else {
-        this.count = this.isGQ ? 0 : 1;
+        this.count = this.isGQ ? 0 : "";
       }
       this.requestInfoArr = [];
 
@@ -257,23 +257,26 @@ export default {
     async onSubmit() {
 
 
+      let shopCount = this.count;
       // 如果count为空，则默认为1
-      if (this.count === "") this.count = 1;
+      if (this.count === "") {
+        shopCount = this.isGQ ? 0 : 1;
+      }
 
       if (
-        this.count.toString().indexOf(".") > -1 &&
-        this.count.toString().indexOf(".") < this.count.toString().length - 1
+        shopCount.toString().indexOf(".") > -1 &&
+        shopCount.toString().indexOf(".") < shopCount.toString().length - 1
       )
         return this.$message.warning("商品数量必须为整数");
-      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !this.count)
+      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !shopCount)
         return this.$message.warning("商品数量默认1");
-      if (isNaN(this.count * 1)) return this.$message.warning("请输入数字！");
+      if (isNaN(shopCount * 1)) return this.$message.warning("请输入数字！");
 
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
         const params = {
           prd_id: this.productInfo.id * 1, //     int64    商品Id
-          cnt: this.count * 1, //   int  数量
+          cnt: shopCount * 1, //   int  数量
         };
         try {
           const res = await api_order.reqSetGQOrder(params);
@@ -295,7 +298,7 @@ export default {
       // 判断点单数量是否超过了估清数量
       if (
         this.productInfo.outSomethingCount != "many" &&
-        this.count * 1 > this.productInfo.outSomethingCount
+        shopCount * 1 > this.productInfo.outSomethingCount
       ) {
         return this.$message.warning(
           `商品数量超过了可点最大数量${this.productInfo.outSomethingCount}`
@@ -310,7 +313,7 @@ export default {
       );
       if (
         isOutOfSomethingPrd &&
-        isOutOfSomethingPrd.cnt < this.count * 1 &&
+        isOutOfSomethingPrd.cnt < shopCount * 1 &&
         isOutOfSomethingPrd.status == 1
       ) {
         // 当前商品是估清商品,且点单数量超过了估清数量
@@ -333,7 +336,7 @@ export default {
         // 非套餐
         const resultProductInfo = {
           ...this.productInfo,
-          pc: this.count * 1,
+          pc: shopCount * 1,
           amt: this.amt * 1,
           require: this.requestInfoArr.join(";"),
         };
@@ -344,19 +347,19 @@ export default {
 
       // 收银下单
       if (this.$store.state.userInfo.authStatus == 4) {
-         this.orderMealToShoppingCart();
+         this.orderMealToShoppingCart(shopCount);
          return
       }
 
       // 服务员可点商品加入购物车
       if (this.orderMealStatus == 1) {
-        this.orderMealToShoppingCart();
+        this.orderMealToShoppingCart(shopCount);
         return
       }
 
       // 营销/花篮加入购物车
       if (this.orderMealStatus == 2 || this.orderMealStatus == 3) {
-        this.sealToShoppingCart();
+        this.sealToShoppingCart(shopCount);
         return
       }
 
@@ -370,18 +373,18 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
         this.$store.state.orderInfo.currentCardInfo.bizType == 4
       ) {
-        this.orderMealToShoppingCart();
+        this.orderMealToShoppingCart(shopCount);
         return
       }
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
     // 服务员/收银加入购物车
-    async orderMealToShoppingCart() {
+    async orderMealToShoppingCart(c) {
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
-        prd_cnt: this.count * 1, //  int   商品数量
+        prd_cnt: c * 1, //  int   商品数量
         prd_price: this.productInfo.price, //  string  商品单价,用于做二次验证
         prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
         requirement: this.requestInfoArr.join(";"), // string  要求
@@ -408,7 +411,7 @@ export default {
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
           prd_id: this.productInfo.id * 1, // int64   商品Id
-          prd_cnt: this.count * 1, //  int    商品数量 小费类商品只能=1
+          prd_cnt: c * 1, //  int    商品数量 小费类商品只能=1
           prd_amt:
             this.productInfo.prdType == 13 || this.productInfo.prdType == 14
               ? ""
@@ -445,7 +448,7 @@ export default {
     },
 
     // 营销/花篮赠送
-    async sealToShoppingCart() {
+    async sealToShoppingCart(c) {
       if (!this.formData.selectedInfo.name && this.orderMealStatus == 2)
         return this.$message.warning("请选择优惠理由");
       else if (
@@ -463,7 +466,7 @@ export default {
           auth_reason: this.formData.selectedInfo.name, // string   授权理由
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
           prd_id: this.productInfo.id * 1, // int64   商品Id
-          prd_cnt: this.count * 1, //  int    商品数量 小费类商品只能=1
+          prd_cnt: c * 1, //  int    商品数量 小费类商品只能=1
           prd_amt: this.amt.toString(), //  string  商品金额 普通商品不要传数据(系统会自动计算), 花篮/小费 需传金额
           requirement: this.requestInfoArr.join(";"), // string  要求
           pass_type: 1, // 1:账号密码， 2：刷卡
@@ -566,10 +569,15 @@ export default {
   watch: {
     count: {
       handler(newVal) {
+        console.log('count', newVal)
         if(!isNaN(newVal)) {
-          this.count = newVal * 1;
+          if (newVal == '') {
+            this.count = ''
+          } else {
+            this.count = newVal * 1;
+          }
         } else {
-          this.count = this.isGQ ? 1 : 0;
+          this.count = this.isGQ ? 0 : "";
         }
       },
       immediate: true,

@@ -14,17 +14,17 @@
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
               <span class="red">*</span>
-              <span>会员卡类型</span>
+              <span>卡等级</span>
             </div>
             <div class="value">
               <el-select
-              v-model="cardTypeVal"
+              v-model="cardLevelVal"
               size="small"
-              placeholder="请选择会员卡类型"
+              placeholder="请选择会员卡等级"
               style="width: 200px"
             >
               <el-option
-                v-for="item in cardTypeList"
+                v-for="item in cardLevelList"
                 :key="item.id"
                 :label="item.n"
                 :value="item.id"
@@ -106,19 +106,21 @@ export default {
       zsMoney: "",
       zsPoint: "",
       remark: "",
-      cardTypeList: [], // 会员卡类型列表
-      cardTypeVal: "", // 会员卡类型
+      cardLevelList: [], // 会员卡等级列表
+      cardLevelVal: "", // 会员卡等级
       showBind: false, // 显示添加卡券/大礼包
       couponName: "", // 卡券/大礼包名称
       couponId: "", // 卡券/大礼包id
     };
   },
   methods: {
-    async getCardTypeList() {
+    async getCardLevelList() {
       try {
-        const res = await api_vip.reqGetVipTypeList();
+        const res = await api_vip.reqGetLevelList({
+          id: this.selectItem.id * 1
+        })
         if (res.code == 1) {
-          this.cardTypeList = res.data.records;
+          this.cardLevelList = res.data.card_levels;
         } else {
           this.$message.warning(res.msg);
         }
@@ -146,12 +148,12 @@ export default {
       } else {
         if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
         if(this.remark.length > 30) return this.$message.warning('充值规则不可超过30个字')
-        if(this.zsPoint == '' || !this.cardTypeVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
+        if(this.zsPoint == '' || !this.cardLevelVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
         const params = {
           deposit_amt: this.makeMoney * 100, // int   充值金额
           free_amt: this.zsMoney * 100, //   int    赠送金额
           card_level_id: 0, // int    会员卡等级
-          card_type_id: this.cardTypeVal * 1, //  int    会员卡类型
+          card_type_id: this.cardLevelVal * 1, //  int    会员卡类型
           free_pt_amt: this.zsPoint * 1, // int    赠送积分
           free_kq_id: this.couponId * 1, // int    赠送卡券id      
           remark: this.remark, // string    充值提示    
@@ -194,7 +196,11 @@ export default {
     },
     editInfo: {
       default: {}
+    },
+    selectItem: {
+      default: {}
     }
+
   },
   computed: {
     title() {
@@ -206,7 +212,7 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
-          this.getCardTypeList();
+          this.getCardLevelList();
           if (this.editInfo.d) {
             // 编辑
             this.makeMoney = this.editInfo.d / 100

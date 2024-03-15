@@ -403,12 +403,12 @@ export default {
     },
     async batchDelete() {
       const params = {
-        prd_ids: this.tableData
+        ids: this.tableData
           .filter((item) => item.checked)
           .map((item) => item.id * 1), //   []int64  待删除商品列表
         card_type_id: this.item.id, //CardTypeId 会员卡类型Id
       };
-      if (params.prd_ids.length == 0)
+      if (params.ids.length == 0)
         return this.$message.warning("请选择需要删除的商品");
       try {
         const res = await api_vip.reqDelVipBillRule(params);
