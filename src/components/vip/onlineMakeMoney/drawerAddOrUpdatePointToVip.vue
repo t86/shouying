@@ -103,6 +103,8 @@ export default {
           this.cardLevelList = res.data.card_level_dfns;
           this.cardLevelList = [{id: '0', n: '全等级'}, ...this.cardLevelList]
           this.cardLevelVal = res.data.rule_info && res.data.rule_info.card_level_id || '0'
+          this.type_id = res.data.rule_info.base_amt != 0 ? 3 : 1
+          this.makeMoney = res.data.rule_info.base_amt / 100
         } else {
           this.$message.warning(res.msg);
         }

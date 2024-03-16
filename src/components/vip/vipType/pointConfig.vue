@@ -51,7 +51,7 @@
           </div>
           <div class="td fs16-bold">{{item.n}}</div>
           <div class="td fs16-bold">{{item.t}}</div>
-          <div class="td fs16-bold">{{item.b}}</div>
+          <div class="td fs16-bold">{{(item.b / 100)}}</div>
           <div class="td" v-if="$store.getters.vipAuth"><span @click="delItemInfo(item)">删除</span></div>
         </div>
         <div class="no-data" v-if="tableData.length==0">
