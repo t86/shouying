@@ -23,7 +23,7 @@
     </div>
 
     <!-- 剩余取酒详情  -->
-    <div :class="{
+    <div v-if="!showCheckCode || codeCheckDone" :class="{
       'get-list': true,
       'get-list-cloumn': !isRect
     }">
@@ -138,6 +138,7 @@
             </div>
           </div>
           <div
+          v-if="!isNarrow"
             style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px;padding-bottom:80px" >
             <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
@@ -165,15 +166,43 @@
         </div>
       </div>
     </div>
+    <div v-else
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px;padding-bottom:80px" >
+            <div v-if="tabIndex == 2" class="cap-content">
+              <div class="label">验证码</div>
+              <div class="value-content">
+                <div class="value">
+                  <input v-model="validateVal" :class="{ focus: focus == 'validateVal' }" @click="focus = 'validateVal'"
+                    placeholder="请输入验证码" />
+                </div>
+                <el-button style="margin-left: 10px;
+                                  width: 120px;
+                                  height: 44px;
+                                  background: #374368;
+                                  box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+                                  border-radius: 8px;font-size: 20px;
+                                  font-family: PingFangSC, PingFang SC;
+                                  font-weight: 500;
+                                  padding: 0;
+                                  color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                  @click="sendPhoneMessage">{{ btnText }}</el-button>
+              </div>
+
+            </div>
+            <keyBoard @changeNum="changeNumHandle" :width="389" :itemHeight="64" :itemWidth="64" :landscape="true" />
+          </div>
     <!-- 底部按钮 -->
     <div class="form-btn" layout="row" layout-align="space-between center">
       <div class="left" layout="row" layout-align="end center">
         <!-- <el-button type="primary" @click="showChooseWineParamsOfAuthDrawer=true">授权存酒</el-button> -->
       </div>
       <div class="right" layout="row" layout-align="end center">
-        <el-button type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
-        <el-button type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
-        <el-button type="primary" @click="getWineHandle">确定取酒</el-button>
+        <el-button v-if="!showCheckCode || codeCheckDone" type="info" @click="$emit('onCancelDrawer', true)">取消</el-button>
+        <el-button v-else type="info" @click="showCheckCode = false && $emit('changeStatus', 1)">返回上一步</el-button>
+        <el-button v-if="!showCheckCode || codeCheckDone" type="info" @click="$emit('changeStatus', 1)">返回上一步</el-button>
+        <el-button v-else type="primary" @click="getWineHandle">确定取酒</el-button>
+        <el-button v-if="isNarrow && !showCheckCode && shoppingCartWineList.length > 0" type="primary" @click="showAuth">下一步</el-button>
+        <el-button v-if="!isNarrow || codeCheckDone" type="primary" @click="getWineHandle">确定取酒</el-button>
       </div>
     </div>
   </div>
@@ -196,7 +225,9 @@ export default {
       count: 60, // 验证码倒计时
       validateVal: "", // 验证码
       isRect: window.innerWidth >= 1024, // 屏幕是否超过1400
-      is1920: window.innerWidth >= 1920
+      is1920: window.innerWidth >= 1920,
+      showCheckCode: false,
+      codeCheckDone: false,
     };
   },
   methods: {
@@ -334,7 +365,17 @@ export default {
         canGet: item.id == itemInfo.id ? itemInfo.c < item.c : item.canGet,
       }));
     },
-
+    getCode(){
+      if (this.tabIndex == 2 && !this.validateVal) {
+        this.$message.warning("请先验证手机验证码");
+        return;
+      }
+      this.codeCheckDone = true;
+    },
+    showAuth(){
+      this.showCheckCode = true;
+      this.focus = "validateVal";
+    },
     async getWineHandle() {
 
       try {
@@ -464,6 +505,9 @@ export default {
   computed: {
     btnText() {
       return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+    },
+    isNarrow() {
+      return window.innerWidth < 800 && this.tabIndex == 2;
     },
   },
   components: {
@@ -664,8 +708,6 @@ export default {
       }
     }
 
-    //  箭头
-
     .arrow {
       width: 120px;
       height: 60px;
@@ -704,46 +746,50 @@ export default {
       }
     }
 
-    .cap-content {
+    
+  }
+
+  
+  //  箭头
+  .cap-content {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+    .label {
+      font-size: 24px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 400;
+      color: #1A1A21;
+    }
+
+    .value-content {
       display: flex;
-      flex-direction: column;
-      margin-bottom: 24px;
+      margin-top: 16px;
+
       .label {
-        font-size: 24px;
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 400;
-        color: #1A1A21;
+        width: 100px;
       }
 
-      .value-content {
-        display: flex;
-        margin-top: 16px;
+      .value {
+        input {
+          width: 256px;
+          height: 44px;
+          background: #FAFAFC;
+          border-radius: 8px;
+          border: 1px solid #C4CBD7;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
+          box-sizing: border-box;
+          padding-left: 12px;
 
-        .label {
-          width: 100px;
-        }
+          &:focus {
+            border: 2px solid #3373E8;
+          }
 
-        .value {
-          input {
-            width: 256px;
-            height: 44px;
-            background: #FAFAFC;
-            border-radius: 8px;
-            border: 1px solid #C4CBD7;
-            font-size: 20px;
-            font-family: PingFangSC, PingFang SC;
-            font-weight: 400;
-            color: #08080A;
-            box-sizing: border-box;
-            padding-left: 12px;
-
-            &:focus {
-              border: 2px solid #3373E8;
-            }
-
-            &::placeholder {
-              color: #7A7A7A;
-            }
+          &::placeholder {
+            color: #7A7A7A;
           }
         }
       }
