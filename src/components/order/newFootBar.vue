@@ -26,6 +26,15 @@
               <span>买单</span>
             </div>
           </div>
+          <!-- 督查 特饮 服务员核销卡券按钮 -->
+          <div v-if="
+            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
+          " class="server-redeem-btn">
+            <div class="button" layout="row" layout-align="center center" @click="showRedeemCouponDrawerHandle">
+              <img :src="imgSrc.coupon" alt />
+              <span>核销卡券</span>
+            </div>
+          </div>
           <!-- 服务员充值滞留金 -->
           <div v-if="
             isShowPayBtn
@@ -204,6 +213,10 @@
       <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer"
         @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
 
+
+      <!-- 服务员核销卡券 -->
+      <drawerRedeemCoupon v-show="showRedeemCouponDrawer" v-model="showRedeemCouponDrawer" />
+
       <!-- 客人扫码支付订单费用/扫码支付订单 -->
       <drawerPayQR :showDrawer="showOrHideQRDrawer" :payType="payType" :orderInfoDetail="orderInfoDetail"
         @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle"
@@ -241,6 +254,7 @@ import choosedNav from "@/assets/money-img/choosedNav.png";
 import shoppingCart from "@/assets/order-img/newShoppingCart.png";
 import myselfNav from "@/assets/order-img/newMyselfNav.png";
 import orderQRPayIcon from "@/assets/order-img/newOrderQRPayIcon.png";
+import coupon from "@/assets/order-img/coupon.png";
 import zhiliujin from "@/assets/order-img/zhiliujin.png";
 import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
@@ -359,6 +373,7 @@ export default {
       logoutCount: 4, // 暂不支付倒计时秒数
 
       showOrderListDrawer: false, // 服务员买单显示待买单商品列表
+      showRedeemCouponDrawer: false, // 服务员核销卡券
       selectedOrderList: [], // 选择好的服务员买单列表
 
       showAddBookDrawer: false, // 新增滞留金
@@ -373,6 +388,7 @@ export default {
       scanCode: "",
 
       imgSrc: {
+        coupon,
         orderQRPayIcon,
         shoppingNav,
         giveNav,
@@ -535,6 +551,11 @@ export default {
     // 服务员买单
     showOrderListDrawerHandle() {
       this.showOrderListDrawer = true;
+    },
+
+    // 服务员核销卡券
+    showRedeemCouponDrawerHandle() {
+      this.showRedeemCouponDrawer = true;
     },
 
     // 设置选择好的服务员买单列表
@@ -802,6 +823,7 @@ export default {
     drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
     drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
+    drawerRedeemCoupon: () => import("./drawerRedeemCoupon.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
   },
   beforeDestroy() {

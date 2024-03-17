@@ -191,4 +191,14 @@ export default {
   reqGetSalesmanSeatList: (params) =>
     axios.post(`${base.htgl}/wo/get_sales_seats`, params),
 
+    // 抖音,美团,卡券人工线下核销
+  reqLocalManualKqCsm: (params) =>
+    axios.post(`${base.htgl}/sel/local_manual_kq_csm`, params),
+
+    // 验证推广卡券券码,从云端验证后,返回客户卡券Id
+  reqValidCustKqCode: (params) =>
+    axios.post(`${base.htgl}/sel/valid_cust_kq_code`, params),
+
+    // 使用券码核销卡券
+  reqUseKqCode: (params) => axios.post(`${base.htgl}/sel/kq_csm_by_code`, params),
 };
