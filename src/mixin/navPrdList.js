@@ -566,8 +566,15 @@ export default {
           }
           return true
         })
-      }
 
+
+      if (this.redeem == 0) {
+        resultProductArr = resultProductArr.filter(item => ![12,22,32].includes(item.prdType*1))
+      } else {
+        resultProductArr = resultProductArr.filter(item => [this.redeem].includes(item.prdType*1))
+      }
+    }
+      console.log('navprdlist redeem', this.redeem, resultProductArr)
       // 通过最终商品获取最终当前岗位对应的二级分类
       const secondCategoryInfoArr = [];
       secondCategoryAll.forEach((el) => {

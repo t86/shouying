@@ -584,7 +584,20 @@ export default {
     },
     show: {
       handler(newVal) {
-
+        if(newVal) {
+          if(this.productInfo.type == 2) {
+            this.$emit("changeType", 2);
+            const params = {
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
+              prd_id: this.productInfo.id * 1, //  int64  商品Id
+              prd_cnt: 1, //  int   商品数量
+              prd_price: this.productInfo.price, //  string  商品单价,用于做二次验证
+              prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
+              requirement: this.requestInfoArr.join(";"), // string  要求
+            };
+            this.$emit("setSingleInfo", params);
+          }
+        }
         this.$nextTick(() => {
           if (newVal) {
             this.isSubmitting = false;

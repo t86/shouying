@@ -311,10 +311,21 @@ export default {
       */
 
       this.productsList = this.productsListTotal || []
-      this.productsList = this.productsList.filter((item, index) => {
-        // 非抖音，美团，推广套餐
-        return ![12,22,32].includes(item.prdType*1)
-      })
+
+      if(this.redeem == 0) {
+        this.productsList = this.productsList.filter((item, index) => {
+          // 非抖音，美团，推广套餐
+          return ![12,22,32].includes(item.prdType*1)
+        })
+      } else {
+        this.productsList = this.productsList.filter((item, index) => {
+          // 抖音，美团，推广套餐
+          return [this.redeem].includes(item.prdType*1)
+        })
+      }
+      console.log('redeem', this.redeem, this.productsList, this.currentCategoryProductList)
+
+
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
       let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
       this.pic_show = showAmt && showAmt.param1 === '1';
@@ -405,18 +416,25 @@ export default {
     },
     // 点击商品/套餐
     setMealForProduct(productInfo) {
-      if (productInfo.outSomethingCount == 0) {
-        if (productInfo.prdType == 2 && productInfo.outSomethingName) {
-          return this.$message.warning(`当前套餐内: ${productInfo.outSomethingName} 已售罄`)
-        } else {
-          return this.$message.warning('当前商品已售罄')
+      if(this.redeem != 0) {
+        console.log('product', productInfo)
+        this.currentProductInfo = {...productInfo, type:2, requireInfo:[]};
+        this.showOrHideDrawer(true);
+      } else {
+        if (productInfo.outSomethingCount == 0) {
+          if (productInfo.prdType == 2 && productInfo.outSomethingName) {
+            return this.$message.warning(`当前套餐内: ${productInfo.outSomethingName} 已售罄`)
+          } else {
+            return this.$message.warning('当前商品已售罄')
+          }
         }
+        productInfo.requireInfo = common_order.getRequireInfo(
+          productInfo.twoCateId
+        );
+        this.currentProductInfo = productInfo;
+        this.showOrHideDrawer(true);
       }
-      productInfo.requireInfo = common_order.getRequireInfo(
-        productInfo.twoCateId
-      );
-      this.currentProductInfo = productInfo;
-      this.showOrHideDrawer(true);
+      
     },
 
     showOrHideDrawer(value) {
@@ -586,7 +604,17 @@ export default {
     // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
     this.checkOverflow();
   },
-  props: ["allProductsList", "currentCategoryProductList"],
+  props: {
+    allProductsList: {
+      default: []
+    },
+    currentCategoryProductList: {
+      default: []
+    },
+    redeem: {
+      default: 0 // 12:抖音 ,22：美团,32：推广 
+    }
+  },
   computed: {
     isTerminal() {
       let termType = ''

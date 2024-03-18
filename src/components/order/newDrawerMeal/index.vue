@@ -6,6 +6,7 @@
       :visible.sync="show"
       :before-close="closeDrawerHandle"
       direction="rtl"
+      append-to-body
       :size="size"
     >
       <!-- 点单品 -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="nav" layout="row" layout-align="start start">
+  <div class="nav" :style="customStyle" layout="row" layout-align="start start" >
     <div class="nav-left">
       <div class="ul first-menu" ref="firstMenuRef"
         :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)' }">
@@ -143,6 +143,13 @@ export default {
     },
     isGQ: {
       default: false
+    },
+    customStyle: {
+      default: {}
+    },
+    // 是否核销卡券, 22.美团 12:抖音 32:小程序卡券
+    redeem: {
+      default: 0,
     }
   },
   watch: {

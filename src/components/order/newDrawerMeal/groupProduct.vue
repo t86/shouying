@@ -107,7 +107,7 @@
     <!-- 提交按钮 -->
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-      <el-button type="primary" @click.stop="onSubmit">确认</el-button>
+      <el-button type="primary" @click.stop="onSubmit">{{productInfo.prdType * 1 == 12 || productInfo.prdType == 22 ? '核销卡券' : '确认'}}</el-button>
     </div>
 
     <drawerChooseRequireInfo
@@ -302,17 +302,20 @@ export default {
     },
 
     async onSubmit() {
+
+
+
       // 校验可选明细数量是否选够
       const validateCanSelectPrdCount = this.groupCanSelectArr.every(item => item.groupSelectCount == item.hadSelectedCount)
       if(!validateCanSelectPrdCount) return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
 
-      const params = {
+      let params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         prd_id: this.groupInfo.id * 1, //     int64  商品Id
         prd_cnt: this.groupInfo.count * 1, //    int    商品数量 赔偿类商品只能=1
-        prd_price: this.groupInfo.price, //  string 商品单价,用于做二次验证
+        prd_price: this.groupInfo.price * 100, //  string 商品单价,用于做二次验证
         grp_ids: [...canNotSelectInfo.grpId, ...canSelectInfo.grpId], //    []int  套餐组Ids
         dtl_prd_ids: [...canNotSelectInfo.dtlPrdId, ...canSelectInfo.dtlPrdId], // []int  套餐组Id对应的选中明细商品
         dtl_prd_cnts: [...canNotSelectInfo.prdCnt, ...canSelectInfo.prdCnt], // []int  选中明细商品项的商品数, 用于二次验证
@@ -322,7 +325,26 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-
+      if(this.productInfo.prdType * 1 == 22 || this.productInfo.prdType * 1 == 12) {
+        try {
+            params = {
+              ...params,
+              type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
+              relate_csm_id: 0,
+            };
+            const res = api_order.reqLocalManualKqCsm(params)
+            if (res.code === 1) {
+              this.$message.success("卡券核销成功");
+              this.$store.dispatch("getShoppingCount", this);
+              this.onCancelDrawer();
+            } else this.$message.warning(res.msg);
+          } catch (error) {
+            console.log("卡券核销失败", error);
+          }
+          // 确定核销
+          this.onCancelDrawer();
+          return 
+      }
       // 判断是否为补交台
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = {...params}
