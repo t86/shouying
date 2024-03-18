@@ -440,7 +440,11 @@ export default {
     showOrHideDrawer(value) {
       this.drawer.showDrawer = value;
       if (!value) {
-        this.getShoppingCartData();
+        if(this.redeem == 0) {
+          this.getShoppingCartData();
+        } else {
+          this.$emit("onRedeem");
+        }
       }
     },
 

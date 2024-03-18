@@ -332,12 +332,10 @@ export default {
               type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
               relate_csm_id: 0,
             };
-            const res = api_order.reqLocalManualKqCsm(params)
-            if (res.code === 1) {
+            api_order.reqLocalManualKqCsm(params)
               this.$message.success("卡券核销成功");
               this.$store.dispatch("getShoppingCount", this);
               this.onCancelDrawer();
-            } else this.$message.warning(res.msg);
           } catch (error) {
             console.log("卡券核销失败", error);
           }

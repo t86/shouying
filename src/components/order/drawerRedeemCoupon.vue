@@ -35,6 +35,7 @@
         <div class="order-meal-list">
           <mealNav :redeem="tabIndex" @updateProductsList="updateProductsList" :customStyle="{ 'left':'20%', 'top':'65px', 'heigth':'calc(100vh - 125px)' }"/>
           <productList
+            @onRedeem="onCancelDrawer"
             :redeem="tabIndex"
             :allProductsList="allProductsList"
             :currentCategoryProductList="currentCategoryProductList"
@@ -42,10 +43,9 @@
         </div>
       </div>
 
-      <!-- <div class="form-btn" layout="row" layout-align="center center">
+      <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定核销</el-button>
-      </div> -->
+      </div>
     </el-drawer>
   </div>
 </template>
