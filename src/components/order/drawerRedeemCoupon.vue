@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="next-step" v-if="step != 0">
+      <div class="next-step" v-if="step > 1">
         <div class="order-meal-list">
           <mealNav :redeem="tabIndex" @updateProductsList="updateProductsList" :customStyle="{ 'left':'20%', 'top':'65px', 'heigth':'calc(100vh - 125px)' }"/>
           <productList
@@ -43,6 +43,16 @@
         </div>
       </div>
 
+      <div class="next-step" v-if="step == 1">
+        <div class="order-meal-list">
+          <!-- 点套餐 -->
+          <groupProduct
+              ref="groupProduct"
+              :productInfo="productInfo"
+              :singleInfo="singleInfo"
+            />
+        </div>
+      </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
       </div>
@@ -59,6 +69,8 @@ import common_order from "@/utils/common/order";
 import mealNav from "@/components/order/orderMealNav.vue";
 import productList from "@/components/order/productList.vue";
 import navPrdList from '@/mixin/navPrdList'
+import groupProduct from "@/components/order/drawerMeal/groupProduct";
+
 export default {
   data() {
     return {
@@ -68,10 +80,22 @@ export default {
       checkAll: false,
       checkedList: [],
       allProductsList: [],
-      currentCategoryProductList: []
+      currentCategoryProductList: [],
+      custKqId: "",
+      prdId: "",
+      authCode: "",
+      productInfo: {},
+      singleInfo: {},
+
     };
   },
   methods: {
+    // 开始扫码
+    startScan() {
+      if (window.atool && "startScan" in window.atool) {
+        window.atool.startScan("scan_callback");
+      }
+    },
     async getTableData(){
      
     },
@@ -88,11 +112,36 @@ export default {
     },
     tabClick(step, tabIndex){
       this.step = step
+      if(step == 1) {
+        this.startScan()
+      }
     },
+    changeFirstCategory(firstCategoryId = "") {},
   },
   created() {},
   mounted() {
     this.getMenuInfo(false);
+    const that = this;
+    function scan_callback(value) {
+      try {
+        if (value && value.code === 0) {
+          that.$message.success("扫码成功：" + value.data);
+          const res = api_order.reqValidCustKqCode({
+            cust_kq_code: value.data,
+          })
+          this.custKqId = res.cust_kq_id
+          this.prdId = res.prd_id
+          this.authCode = res.auth_code
+          
+        } else {
+          that.$message.warning("扫码取消");
+        }
+      } catch (error) {
+        console.log("扫码失败：", error);
+        that.$message.warning("扫码失败：" + error);
+      }
+    }
+    window.scan_callback = scan_callback;
   },
   props: {
     value: {

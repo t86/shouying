@@ -1887,6 +1887,7 @@ export default {
           break;
       }
     },
+    changeFirstCategory(firstCategoryId = "") {}
   },
   created() {},
   mounted() {

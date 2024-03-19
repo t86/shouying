@@ -253,6 +253,8 @@ import giveNav from "@/assets/money-img/give.png";
 import choosedNav from "@/assets/money-img/choosedNav.png";
 import shoppingCart from "@/assets/order-img/newShoppingCart.png";
 import myselfNav from "@/assets/order-img/newMyselfNav.png";
+import redeem from "@/assets/order-img/redeem.png";
+import redeemActive from "@/assets/order-img/redeemActive.png";
 import orderQRPayIcon from "@/assets/order-img/newOrderQRPayIcon.png";
 import coupon from "@/assets/order-img/coupon.png";
 import zhiliujin from "@/assets/order-img/zhiliujin.png";
@@ -293,6 +295,14 @@ const orderNavList = [
     icon: myselfNav,
     icon1: sanJiao,
     activeIcon: myselfNavActive
+  },
+  {
+    id: 5,
+    name: "核销卡券",
+    routeName: "redeem",
+    icon: redeem,
+    icon1: sanJiao,
+    activeIcon: redeemActive
   },
 ];
 const payNavList = [
@@ -408,6 +418,11 @@ export default {
   methods: {
     footNavBarClick(item) {
       if (this.$route.name === item.routeName) return; // 重复点击同一个tab
+      if(item.id == 5) {
+        this.activeRouteName = this.navList[item.id - 1].routeName;
+        this.showRedeemCouponDrawerHandle()
+        return
+      }
       item.id === 1
         ? this.$store.state.userInfo.authStatus == 4
           ? this.$router.replace({ name: "moneyCard" })
@@ -538,6 +553,7 @@ export default {
             this.navList[1],
             this.navList[2],
             this.navList[3],
+            this.navList[4],
           ];
       } else {
         this.navList[0]["name"] = "返回首页";

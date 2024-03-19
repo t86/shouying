@@ -145,7 +145,7 @@ export default {
       default: false
     },
     customStyle: {
-      default: {}
+      default: () => { }
     },
     // 是否核销卡券, 22.美团 12:抖音 32:小程序卡券
     redeem: {
