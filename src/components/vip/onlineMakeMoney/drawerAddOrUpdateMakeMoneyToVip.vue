@@ -116,11 +116,12 @@ export default {
   methods: {
     async getCardLevelList() {
       try {
+
         const res = await api_vip.reqGetLevelList({
           id: this.selectItem.id * 1
         })
         if (res.code == 1) {
-          this.cardLevelList = res.data.card_levels;
+          this.cardLevelList = [{id: 0, n: '全等级'}, ...res.data.card_levels];
         } else {
           this.$message.warning(res.msg);
         }
@@ -152,8 +153,8 @@ export default {
         const params = {
           deposit_amt: this.makeMoney * 100, // int   充值金额
           free_amt: this.zsMoney * 100, //   int    赠送金额
-          card_level_id: 0, // int    会员卡等级
-          card_type_id: this.cardLevelVal * 1, //  int    会员卡类型
+          card_level_id: this.cardLevelVal * 1, // int    会员卡等级
+          card_type_id: this.selectItem.id * 1, //  int    会员卡类型
           free_pt_amt: this.zsPoint * 1, // int    赠送积分
           free_kq_id: this.couponId * 1, // int    赠送卡券id      
           remark: this.remark, // string    充值提示    

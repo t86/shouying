@@ -182,14 +182,14 @@
           >
             立即出品
           </div>
-          <div
+          <!-- <div
             class="button change-pay-type"
             :class="{ gray: hasChooseClockOrder }"
             v-if="payTabInfo.activePayId == 0"
             @click="changePayType"
           >
             转为线下支付
-          </div>
+          </div> -->
           <div
             class="button"
             v-if="payTabInfo.activePayId == 0"

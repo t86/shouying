@@ -10,7 +10,6 @@
           </div>
           
           <div style="padding-left:30px; font-size: 14px;color: gray; margin: 10px 5px;">开关开启后需配置每个等级的等级经验门槛值，达到后，客人端将自动升级</div>
-        </div>
 
         <div class="bottom-info">
           <p>
@@ -52,6 +51,7 @@
             </div>
           </div>
         </div>
+      </div>
       </template>
       <!-- 新增卡等级 -->
       <template v-if="status==2">
@@ -128,7 +128,7 @@
                 <span>等级经验值:</span>
               </div>
               <div>
-                <el-input v-model="experince" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);min-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
+                <el-input v-model="experince" :disabled="formDeep.disabled" size="mini" style="width:calc(100% - 100px);min-width:300px;border-radius:4px" :style="{background:formDeep.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
                 <div class="m-t-2" style="color: gray; font-size: 14px;">达到该值后自动升级</div>
               </div>
             </div>
@@ -288,7 +288,9 @@ export default {
     },
     // 添加卡等级
     addVipDeepItem(){
-      this.currentDeepInfo = {}
+      this.formDeep = {
+        disabled: false
+      }
       this.changeStatus(2)
     },
     // 删除卡等级
@@ -510,7 +512,7 @@ export default {
         id: this.editInfo.id * 1,  //    int64    卡类型Id
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
-        exp_threshold: 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+        exp_threshold: this.experince * 1, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
       }
 
       try {
@@ -598,6 +600,7 @@ export default {
         }
         try {
           const res = await api_vip.reqAddVipType(params)
+          console.log('on sumbit', res)
           if (res.code == 1) {
             this.$message.success('新建成功')
             this.onCancelDrawer()
@@ -605,7 +608,7 @@ export default {
             this.$message.warning(res.msg)
           }
         } catch (error) {
-          console.log('新增会员卡等级失败', error)
+          console.log('新增会员卡失败', error)
         }
       } else if(this.status == 2) {
         // 会员卡等级
@@ -613,13 +616,15 @@ export default {
         if(!this.activeBgiUid) return this.$message.warning('请选择会员卡背景图')
         const bgiInfo = this.defaultBgiImgList.find(item => item.uid == this.activeBgiUid) || this.uploadBgiImgList.find(item => item.uid == this.activeBgiUid)
         if(this.subStatus == 1 || this.subStatus == 3) {
-          // 新建卡等级
-          let id = +new Date()
-          if (this.editInfo.id) {
-            const result = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
-            id = result || id
-            if (!result) return
+          try {
+            const res = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
+            console.log('等级新建', res)
+            this.$message.success('新建等级成功')
+          } catch (error) {
+            console.log('新增会员卡等级失败', error)
           }
+            
+          let id = +new Date()
           this.cardInfoList = [...this.cardInfoList, {
             id,
             name: this.formDeep.deepName,
@@ -628,11 +633,6 @@ export default {
           }]
         } else if (this.subStatus == 2) {
           // 修改等级封面
-          if(this.editInfo.id) {
-            // 编辑
-            const result = await this.updateItemBgiImg(bgiInfo.name)
-            if (!result) return 
-          }
           const cardInfoList = [...this.cardInfoList]
           cardInfoList.forEach(el => {
             if(el.id == this.currentDeepInfo.id) {
@@ -640,6 +640,7 @@ export default {
             }
           })
           this.cardInfoList = [...cardInfoList]
+          this.updateItemBgiImg(bgiInfo.name)
         }
         this.currentDeepInfo = {}
         this.changeStatus(1)
