@@ -147,9 +147,10 @@ export default {
       if(this.showBind) {
         this.showBind = false
       } else {
+        console.log('cardLevelVal', this.cardLevelVal)
         if(this.zsPoint != '' && this.zsPoint * 1 != this.zsPoint) return this.$message.warning('赠送积分必须为正整数')
         if(this.remark.length > 30) return this.$message.warning('充值规则不可超过30个字')
-        if(this.zsPoint == '' || !this.cardLevelVal ) return this.$message.warning('赠送积分, 会员卡类型必须填写')
+        if(this.cardLevelVal * 1 != this.cardLevelVal) return this.$message.warning('会员卡等级必须填写')
         const params = {
           deposit_amt: this.makeMoney * 100, // int   充值金额
           free_amt: this.zsMoney * 100, //   int    赠送金额
@@ -218,6 +219,8 @@ export default {
             // 编辑
             this.makeMoney = this.editInfo.d / 100
             this.zsMoney = this.editInfo.f / 100
+
+            this.cardLevelVal = (this.cardLevelList.find(item => item.n == this.editInfo.n) || {id:0})['id']
           } else {
             this.resetData();
           }
