@@ -83,7 +83,7 @@
                   <div class="td w120" 
                     v-if="$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ?
                     $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true"
-                    >{{format(item.om)}}</div>
+                    >{{(item.om / 100).toFixed(2)}}</div>
                   <div class="td w120">{{item.cp}}</div>
                   <div class="td w90">{{item.cn}}</div>
                   <div class="td w90">{{item.cc}}</div>
@@ -148,13 +148,13 @@ export default {
     };
   },
   methods: {
-    format (number) {
-      if (number == 0) return number.toString();
-      number = number.toString();
+    // format (number) {
+    //   if (number == 0) return number.toString();
+    //   number = number.toString();
 
-      let decimalIndex = number.length - 2;
-      return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
-    },
+    //   let decimalIndex = number.length - 2;
+    //   return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
+    // },
     getReloadTime () {
       const date = new Date();
       const Y = date.getFullYear();
