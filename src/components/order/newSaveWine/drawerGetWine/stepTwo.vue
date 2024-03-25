@@ -139,7 +139,7 @@
           </div>
           <div
           v-if="!isNarrow"
-            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px;padding-bottom:80px" >
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px;padding-bottom:0px" >
             <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
               <div class="value-content">
@@ -167,7 +167,7 @@
       </div>
     </div>
     <div v-else
-            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px;padding-bottom:80px" >
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 10px;padding-bottom:0px" >
             <div v-if="tabIndex == 2" class="cap-content">
               <div class="label">验证码</div>
               <div class="value-content">
@@ -583,7 +583,7 @@ export default {
   // 列表
   .get-list {
     padding: 0 20px;
-    height: calc(100vh - 178px);
+    height: calc(100vh - 168px);
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -595,6 +595,7 @@ export default {
     // 左侧
     .left {
       overflow: auto;
+      height: calc(100vh - 168px);
       box-sizing: border-box;
       flex-basis: 350px;
       flex-grow: 1;
@@ -640,6 +641,7 @@ export default {
     // 取酒侧
     .right {
       overflow: auto;
+      height: calc(100vh - 168px);
       box-sizing: border-box;
       margin-left: 10px;
       flex-basis: 280px;
@@ -652,56 +654,60 @@ export default {
         color: #1A1A21;
       }
 
-      .table {
-        width: 100%;
-        height: calc(100vh - 400px);
+      .table-content{
+        height: calc(100vh - 262px);
+        .table {
+          width: 100%;
+          height: calc(100vh - 300px);
 
-        .tbody {
-          height: 200px;
-          overflow: auto;
-          scroll-behavior: smooth;
-        }
-
-        .th,
-        .td {
-          width: 20%;
-
-          &:nth-child(4) {
-            width: 30%;
-
-            img {
-              width: 32px;
-              cursor: pointer;
-            }
-
-            input {
-              width: 68px;
-              height: 32px;
-              background: #FAFAFC;
-              border-radius: 24px;
-              border: 1px solid #C4CBD7;
-              margin: 0 4px;
-              font-size: 24px;
-              font-family: PingFangSC, PingFang SC;
-              font-weight: 500;
-              color: #08080A;
-              text-align: center;
-              line-height: 32px;
-            }
-
-            // .onFocus {
-            //   border: 1px solid #32b9ff;
-            // }
+          .tbody {
+            height: 200px;
+            overflow: auto;
+            scroll-behavior: smooth;
           }
 
-          &:nth-child(5) {
-            img {
-              width: 32px;
-              cursor: pointer;
+          .th,
+          .td {
+            width: 20%;
+
+            &:nth-child(4) {
+              width: 30%;
+
+              img {
+                width: 32px;
+                cursor: pointer;
+              }
+
+              input {
+                width: 68px;
+                height: 32px;
+                background: #FAFAFC;
+                border-radius: 24px;
+                border: 1px solid #C4CBD7;
+                margin: 0 4px;
+                font-size: 24px;
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 500;
+                color: #08080A;
+                text-align: center;
+                line-height: 32px;
+              }
+
+              // .onFocus {
+              //   border: 1px solid #32b9ff;
+              // }
+            }
+
+            &:nth-child(5) {
+              img {
+                width: 32px;
+                cursor: pointer;
+              }
             }
           }
         }
       }
+      
 
       .arrow {
         right: 300px;
