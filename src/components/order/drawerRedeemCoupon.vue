@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="next-step" v-if="step > 1">
+      <div class="next-step" v-if="step > 2">
         <div class="order-meal-list">
           <mealNav :redeem="tabIndex" @updateProductsList="updateProductsList" :customStyle="{ 'left':'20%', 'top':'65px', 'heigth':'calc(100vh - 125px)' }"/>
           <productList
@@ -43,8 +43,26 @@
         </div>
       </div>
 
-      <div class="next-step" v-if="step == 1">
-        <div class="order-meal-list">
+      <div class="next-step" v-if="step == 1 || step == 2">
+        <div layout="row" layout-align="start center" v-if="step == 1">
+          <div>{{ scanCode == 0 ? '请扫描券码' : scanCode ==  1 ? '券码识别中' : scanCode == 3 ? '扫码失败，请重试' : `券码编号：${authCode}` }}</div>
+        </div>
+        <div layout="row" layout-align="start center" v-if="step == 2" style="padding: 10px;">
+          <div>券码：</div>
+          <el-input v-model="authCode" type="number" placeholder="请输入券码" style="width: 200px;margin-right: 20px;"></el-input>
+          <el-button type="primary" @click="checkCode" style="margin-right: 20px;">确定</el-button>
+          <keyBoard
+            class="key"
+            :landscape="true"
+            :itemHeight="44"
+            :itemWidth="44"
+            :width="270"
+            @changeNum="changeNumHandle"
+          />
+        </div>
+
+        <div class="order-meal-list" v-if="custKqId">
+          <div >券详情：请选择套餐明细</div>
           <!-- 点套餐 -->
           <groupProduct
               ref="groupProduct"
@@ -55,6 +73,7 @@
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
+        <el-button type="info" @click="doRedeem">核销卡券</el-button>
       </div>
     </el-drawer>
   </div>
@@ -69,7 +88,8 @@ import common_order from "@/utils/common/order";
 import mealNav from "@/components/order/orderMealNav.vue";
 import productList from "@/components/order/productList.vue";
 import navPrdList from '@/mixin/navPrdList'
-import groupProduct from "@/components/order/drawerMeal/groupProduct";
+import groupProduct from "@/components/order/newDrawerMeal/groupProduct";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 
 export default {
   data() {
@@ -86,10 +106,28 @@ export default {
       authCode: "",
       productInfo: {},
       singleInfo: {},
+      scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
 
     };
   },
   methods: {
+    changeNumHandle(value) {
+      switch (value) {
+        case 11: // 清空
+          this.authCode = "";
+          break;
+        case 10: // 回退(
+          this.authCode =
+          this.authCode
+                .toString()
+                .slice(0, currentInfo.c.toString().length - 1) * 1;
+          break;
+        default:
+          this.authCode = this.authCode + value * 1;
+          break;
+      }
+      this.$forceUpdate();
+    },
     // 开始扫码
     startScan() {
       if (window.atool && "startScan" in window.atool) {
@@ -104,8 +142,25 @@ export default {
       this.step = 0
       this.show = false;
     },
-    onSubmit() {
-
+    checkCode() {
+      window.scan_callback({code: 0, data: this.authCode})
+    },
+    doRedeem() {
+      try {
+          params = {
+            ...params,
+            type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
+            relate_csm_id: 0,
+          };
+          api_order.reqLocalManualKqCsm(params)
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+        } catch (error) {
+          console.log("卡券核销失败", error);
+        }
+        // 确定核销
+        this.onCancelDrawer();
+        return 
     },
     updateProductsList({ key, value }) {
       this[key] = value;
@@ -125,7 +180,7 @@ export default {
     function scan_callback(value) {
       try {
         if (value && value.code === 0) {
-          that.$message.success("扫码成功：" + value.data);
+          that.$message.success("券码识别成功：" + value.data);
           const res = api_order.reqValidCustKqCode({
             cust_kq_code: value.data,
           })
@@ -137,8 +192,8 @@ export default {
           that.$message.warning("扫码取消");
         }
       } catch (error) {
-        console.log("扫码失败：", error);
-        that.$message.warning("扫码失败：" + error);
+        console.log("券码识别失败：", error);
+        that.$message.warning("券码识别失败：" + error);
       }
     }
     window.scan_callback = scan_callback;
@@ -175,6 +230,8 @@ export default {
   components: {
     mealNav,
     productList,
+    groupProduct,
+    keyBoard
   }
 };
 </script>
@@ -194,7 +251,7 @@ export default {
   .nav {
     padding: 20px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
+    gap: 10px;
     div {
       width: 100px;
       height: 100px;
@@ -203,13 +260,17 @@ export default {
       justify-content: center;
       text-align: center;
       cursor: pointer;
-      background-color: gray;
-      border: 1px solid gray;
+      background-color: #cccccc;
+      border: 1px solid rgba(0, 0, 255, 0.1);
+      &:active {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 255, 0.1);
+      }
     }
   }
   .on-focus {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 100, 100, 0.2);
+    background-color: rgba(0, 0, 255, 0.1) !important;
+    border: 1px solid rgba(0, 0, 255, 0.5) !important;
   }
 }
 .redeem-sel {
@@ -228,9 +289,19 @@ export default {
       background-color: #cccccc;
       border: 1px solid #cccccc;
       &:active {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(100, 100, 100, 0.2);
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 255, 0.5);
       }
     }
+  }
+
+  /deep/input {
+    height: 36px;
+    padding: 0 40px 0 12px;
+    box-sizing: border-box;
+    background: #FFFFFF;
+    color: black;
+    border-radius: 22px;
+    border: 1px solid #C4CBD7;
   }
 </style>

@@ -302,9 +302,6 @@ export default {
     },
 
     async onSubmit() {
-
-
-
       // 校验可选明细数量是否选够
       const validateCanSelectPrdCount = this.groupCanSelectArr.every(item => item.groupSelectCount == item.hadSelectedCount)
       if(!validateCanSelectPrdCount) return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
@@ -334,7 +331,6 @@ export default {
             };
             api_order.reqLocalManualKqCsm(params)
               this.$message.success("卡券核销成功");
-              this.$store.dispatch("getShoppingCount", this);
               this.onCancelDrawer();
           } catch (error) {
             console.log("卡券核销失败", error);
