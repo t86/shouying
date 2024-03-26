@@ -44,7 +44,7 @@
                       />
                       <div
                         class="btn"
-                        :class="{ disabled: count < 60 }"
+                        :class="{ disabled: count != 0 }"
                         @click="sendPhoneMessage"
                       >
                         {{ btnText }}
@@ -237,7 +237,7 @@ export default {
     return {
       timer: null,
       show: false,
-      count: 60,
+      count: 0,
       phoneNumVal: "",
       validateVal: "",
       authCodeStr: "",
@@ -269,12 +269,13 @@ export default {
           ) * 1;
         this.loopSecond();
       } else {
-        this.count = 60;
+        this.count = 0;
       }
     },
     // 发送验证码
     async sendPhoneMessage() {
-      if (this.count != 60) return;
+      if (this.count != 0) return;
+      this.count = 60
       const params = {
         t: 200, //  int   200  验证获取客人会员卡结账
         m: this.phoneNumVal, //  string   手机号
@@ -375,7 +376,6 @@ export default {
         this.count--;
         if (this.count == 0) {
           clearInterval(this.timer);
-          this.count = 60;
         }
       }, 1000);
     },
@@ -516,7 +516,7 @@ export default {
   },
   computed: {
     btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+      return this.count == 0 ? "发送验证码" : this.count + "s后发送";
     },
     // 已收金额
     chooseAmt() {
