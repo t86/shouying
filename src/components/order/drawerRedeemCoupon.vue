@@ -182,7 +182,7 @@ export default {
         if (value && value.code === 0) {
           that.$message.success("券码识别成功：" + value.data);
           const res = api_order.reqValidCustKqCode({
-            cust_kq_code: value.data,
+            cust_kq_code: value.data * 1,
           })
           this.custKqId = res.cust_kq_id
           this.prdId = res.prd_id
