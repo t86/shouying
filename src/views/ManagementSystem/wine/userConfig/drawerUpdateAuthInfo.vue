@@ -43,8 +43,8 @@
                 placeholder="请输入手机号"
               ></el-input>
               <el-button
-                :type="count == 60 ? 'primary' : 'info'"
-                :disabled="count != 60"
+                :type="count == 0 ? 'primary' : 'info'"
+                :disabled="count != 0"
                 size="small"
                 style="width:100px;height:30px"
                 @click="sendPhoneMessage"
@@ -82,7 +82,7 @@ export default {
   data() {
     return {
       timer: null,
-      count: 60, // 验证码倒计时
+      count: 0, // 验证码倒计时
       userName: "",
       phoneNum: "",
       validate: ""
@@ -98,7 +98,7 @@ export default {
         this.count = ((oneMinute - (now - storageSecondCount)) / (oneMinute / 60)).toFixed(0) * 1;
         this.loopSecond();
       } else {
-        this.count = 60;
+        this.count = 0;
       }
     },
 
@@ -144,7 +144,8 @@ export default {
 
     // 发送验证码
     async sendPhoneMessage() {
-      if (this.count != 60) return;
+      if (this.count != 0) return;
+      this.count = 60
 
       if (this.phoneNum.length != 11)
         return this.$message.warning("请输入正确的11位手机号");
@@ -179,7 +180,6 @@ export default {
         this.count--;
         if (this.count == 0) {
           clearInterval(this.timer);
-          this.count = 60;
         }
       }, 1000);
     },
@@ -239,7 +239,7 @@ export default {
       } else if (this.status == 2) {
         this.updateUserPhoneNum(() => {
           clearInterval(this.timer);
-          this.count = 60;
+          this.count = 0;
           this.$sessionStorage.setItem("secondCount", this.count.toString());
           this.onCancelDrawer();
           this.$emit("getTableData");
@@ -278,7 +278,7 @@ export default {
     },
 
     btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+      return this.count == 0 ? "发送验证码" : this.count + "s后发送";
     }
   },
   watch: {

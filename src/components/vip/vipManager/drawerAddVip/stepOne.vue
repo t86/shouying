@@ -20,7 +20,7 @@
           <el-input v-model="phoneNum" size="small" style="width:284px" :maxlength="11"  placeholder="请输入手机号"></el-input>
           <button
             class="btn primary m-l-2"
-            :class="{'disabled': count != 60}"
+            :class="{'disabled': count != 0}"
             style="width:100px;height:30px"
             @click="sendPhoneMessage"
           >{{btnText}}</button>
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       timer: null,
-      count: 60, // 验证码倒计时
+      count: 0, // 验证码倒计时
       radioVal: "1",
       phoneNum: "",
       validateVal: ""
@@ -69,12 +69,13 @@ export default {
         this.count = ((oneMinute - (now - storageSecondCount)) / (oneMinute / 60)).toFixed(0) * 1;
         this.loopSecond();
       } else {
-        this.count = 60;
+        this.count = 0;
       }
     },
     // 发送验证码
     async sendPhoneMessage() {
-      if (this.count != 60) return;
+      if (this.count != 0) return;
+      this.count = 60
       const params = {
         t: 101, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机
         m: this.phoneNum //  string   手机号
@@ -103,7 +104,6 @@ export default {
         this.count--;
         if (this.count == 0) {
           clearInterval(this.timer);
-          this.count = 60;
         }
       }, 1000);
     }
@@ -118,7 +118,7 @@ export default {
   },
   computed: {
     btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+      return this.count == 0 ? "发送验证码" : this.count + "s后发送";
     }
   },
   watch: {

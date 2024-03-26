@@ -156,7 +156,7 @@
                                   font-family: PingFangSC, PingFang SC;
                                   font-weight: 500;
                                   padding: 0;
-                                  color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                                  color: #FFFFFF;" :type="count == 0 ? 'primary' : 'info'" :disabled="count != 0"
                   @click="sendPhoneMessage">{{ btnText }}</el-button>
               </div>
 
@@ -184,7 +184,7 @@
                                   font-family: PingFangSC, PingFang SC;
                                   font-weight: 500;
                                   padding: 0;
-                                  color: #FFFFFF;" :type="count == 60 ? 'primary' : 'info'" :disabled="count != 60"
+                                  color: #FFFFFF;" :type="count == 0 ? 'primary' : 'info'" :disabled="count != 0"
                   @click="sendPhoneMessage">{{ btnText }}</el-button>
               </div>
 
@@ -222,7 +222,7 @@ export default {
       focus: -1,
 
       timer: null,
-      count: 60, // 验证码倒计时
+      count: 0, // 验证码倒计时
       validateVal: "", // 验证码
       isRect: window.innerWidth >= 1024, // 屏幕是否超过1400
       is1920: window.innerWidth >= 1920,
@@ -433,7 +433,8 @@ export default {
 
     // 发送验证码
     async sendPhoneMessage() {
-      if (this.count != 60) return;
+      if (this.count != 0) return;
+      this.count = 60
       const params = {
         t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
         m: this.phoneNum, //  string   手机号
@@ -465,7 +466,6 @@ export default {
         this.count--;
         if (this.count == 0) {
           clearInterval(this.timer);
-          this.count = 60;
         }
       }, 1000);
     },
@@ -504,7 +504,7 @@ export default {
   },
   computed: {
     btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+      return this.count == 0 ? "发送验证码" : this.count + "s后发送";
     },
     isNarrow() {
       return window.innerWidth < 800 && this.tabIndex == 2;

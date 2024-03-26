@@ -185,8 +185,8 @@
               </div>
               <el-button
                 style="margin-left: 10px"
-                :type="count == 60 ? 'primary' : 'info'"
-                :disabled="count != 60"
+                :type="count == 0 ? 'primary' : 'info'"
+                :disabled="count != 0"
                 size="small"
                 @click="sendPhoneMessage"
                 >{{ btnText }}</el-button
@@ -236,7 +236,7 @@ export default {
       focus: -1,
 
       timer: null,
-      count: 60, // 验证码倒计时
+      count: 0, // 验证码倒计时
       validateVal: "", // 验证码
     };
   },
@@ -432,7 +432,8 @@ export default {
 
     // 发送验证码
     async sendPhoneMessage() {
-      if (this.count != 60) return;
+      if (this.count != 0) return;
+      this.count = 60
       const params = {
         t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
         m: this.phoneNum, //  string   手机号
@@ -463,8 +464,7 @@ export default {
       this.timer = setInterval(() => {
         this.count--;
         if (this.count == 0) {
-          clearInterval(this.timer);
-          this.count = 60;
+          clearInterval(this.timer);0
         }
       }, 1000);
     },
@@ -503,7 +503,7 @@ export default {
   },
   computed: {
     btnText() {
-      return this.count == 60 ? "发送验证码" : this.count + "s后发送";
+      return this.count == 0 ? "发送验证码" : this.count + "s后发送";
     },
   },
   components: {
