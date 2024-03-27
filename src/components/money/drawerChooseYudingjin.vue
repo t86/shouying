@@ -102,10 +102,10 @@
                     <div class="td one-txt-cut">{{ (item.a/100).toFixed(2) }}</div>
                     <div class="td one-txt-cut">
                       <el-button
+                        v-if="!item.checked"
                         type="primary"
                         @click="intoChannel(item)"
                         size="small"
-                        :disabled="item.selected"
                         style="
                           width: 50px;
                           padding-top: 0px !important;
@@ -157,7 +157,7 @@
                   <div class="close">
                     <i
                       class="el-icon-error"
-                      @click.stop="delPayList(item.id)"
+                      @click.stop="delPayList(item)"
                     ></i>
                   </div>
                 </li>
@@ -202,7 +202,7 @@ export default {
     },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem(
-        "secondCountFormChooseVip"
+        "secondCountFormYuding"
       ); // 获取发送短信时的时间戳
       const now = +new Date();
       const oneMinute =
@@ -235,7 +235,7 @@ export default {
           this.count--;
           this.loopSecond();
           this.$sessionStorage.setItem(
-            "secondCountFormChooseVip",
+            "secondCountFormYuding",
             (+new Date()).toString()
           );
         } else {
@@ -259,6 +259,7 @@ export default {
       };
       const res = await api_money.reqCartAddPrepayCnl(param);
       if (res.code == 1 || res.code == 2) {
+        item.checked = true
         this.$message.success("加入成功");
         this.getChoosePayList();
         this.cardPayInfo();
@@ -408,13 +409,16 @@ export default {
       }
     },
     // 删除已选择好的支付渠道
-    async delPayList(id) {
+    async delPayList(item) {
       try {
         const res = await api_money.reqDelPayListFromShopping({
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64   卡台Id
-          id: id * 1, //         int64      //Id 支付Id
+          id: item.id * 1, //         int64      //Id 支付Id
         });
         if (res.code === 1) {
+          this.tableData.filter(i => i.id == item.bid).forEach(i => {
+            i.checked = false
+          })
           this.$message.success("删除成功");
           this.getChoosePayList();
           this.cardPayInfo();
