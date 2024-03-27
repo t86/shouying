@@ -354,6 +354,14 @@ export default {
   reqGetVipCardFormValidate: (params) =>
     axios.post(`${base.htgl}/sel/valid_cust_srv_code`, params),
 
+  // 手机验证码(服务码)选可用预订金(通过授权信息),用于结算(
+  reqGetPhonePrepaysFCsm: (params) =>
+    axios.post(`${base.htgl}/sel/get_phone_prepays_f_csm`, params),  
+
+  // 将预付金渠道加入结账渠道购物车
+  reqCartAddPrepayCnl: (params) =>
+    axios.post(`${base.htgl}/sel/cart_add_prepay_cnl`, params),  
+
     // 通过验证验证码,获取可用会员卡列表
   reqGetVipCardFormValidateOld: (params) =>
     axios.post(`${base.htgl}/sel/valid_pay_code`, params),  
@@ -361,6 +369,7 @@ export default {
   // 通过验证手机,获取可用会员卡列表
   reqGetVipCardFormPhoneNum: (params) =>
     axios.post(`${base.htgl}/sel/get_phone_mb_cards`, params),
+
 
   // 会员卡支付渠道批量加入待结算流水购物车
   reqAddVipCardFormPhoneNumInPayBefore: (params) =>
@@ -396,11 +405,11 @@ export default {
 
   // 获取会员卡余额和可结账金额信息
   reqGetVipCardAmountInfo: (params) =>
-    axios.post(`${base.htgl}/sel/chk_mb_card_cnl`, params),
+    axios.post(`${base.htgl}/sel/get_usable_mb_card_cnl`, params),
 
   // 将会员卡渠道更新入结账渠道购物车
   reqUpdateVipCardIntoBillChannel: (params) =>
-    axios.post(`${base.htgl}/sel/cart_merge_mb_card_cnl`, params),
+    axios.post(`${base.htgl}/sel/cart_add_mb_card_cnl`, params),
 
   // 滞留金转台
   reqChangeMerchantMoney: (params) =>

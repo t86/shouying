@@ -210,6 +210,66 @@
               </span>
             </div>
           </div>
+             <!-- 预订金 -->
+          <div class="vip-pay vip-com" v-else-if="payActiveInfo.id == 202">
+            <div
+              class="form-item"
+              layout="row"
+              layout-align="space-around center"
+              style="padding: 0 15%"
+            >
+              <span
+                style="width: 130px; color: #4b89ff; cursor: pointer"
+                @click="showOrHideChooseYudingjinDraw(1)"
+                >服务码选择预订金</span
+              >
+              <span
+                style="width: 130px; color: #4b89ff; cursor: pointer"
+                @click="showOrHideChooseYudingjinDraw(2)"
+                >手机号选择预订金</span
+              >
+            </div>
+            <div class="form-item" v-if="!yudingjinInfo.show">
+              <span>请选择预订金</span>
+            </div>
+
+            <div class="form-item">
+              <span>本次使用金额:</span>
+              <span
+                class="count value"
+                layout="row"
+                layout-align="start center"
+                style="position: relative"
+              >
+                <input
+                  class="count m-l-1"
+                  ref="moneyCountRef"
+                  disabled
+                  v-model="yudingjinInfo.amt"
+                  style="
+                    width: calc(100% - 50px);
+                    height: 100%;
+                    border: none;
+                    transform: translateY(-8px);
+                  "
+                  placeholder="请输入金额"
+                />
+                <i
+                  class="el-icon-circle-close"
+                  :style="{ visibility: yudingjinInfo.amt ? 'visible' : 'hidden' }"
+                  style="
+                    position: absolute;
+                    right: -26px;
+                    top: 10px;
+                    color: rgba(255, 255, 255, 0.3);
+                    transform: translateX(-30px);
+                    cursor: pointer;
+                  "
+                  @click="count = ''"
+                ></i>
+              </span>
+            </div>
+          </div>
 
           <!-- 滞留金 -->
           <div v-else-if="payActiveInfo.id == 9999" class="center-center m-t-3">
@@ -352,7 +412,7 @@
             </p>
           </div>
           <div
-            v-if="payActiveInfo.id != 9999"
+            v-if="![9999, 202].includes(payActiveInfo.id * 1)"
             class="center-bottom"
             layout="row"
             layout-align="center center"
@@ -513,6 +573,14 @@
         @showOrHideDrawer="showOrHideChooseVipCardDrawer"
       />
 
+      <drawerChooseYudingjin
+        :showDrawer="showChooseYudingjinDrawer"
+        :maxPayMoney="notPayAmt"
+        :allAmt="allAmt"
+        :type="chooseYudingjinType"
+        @nextHandle="getChoosePayList"
+        @showOrHideDrawer="showOrHideChooseYudingjinDraw"
+      />
     </el-drawer>
 
     <el-dialog class="custom-dialog" title="提示" :visible="showConsumed" append-to-body @close="closeConsume">
@@ -531,6 +599,7 @@ import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
 
 import drawerChooseVipCard from "./drawerChooseVipCard.vue";
+import drawerChooseYudingjin from "./drawerChooseYudingjin.vue";
 import keyBoard from "@/components/common/keyBoard";
 import authComponent from "@/components/money/drawerPayMoneyAuth";
 import mySelect from "@/components/book/select";
@@ -544,7 +613,9 @@ export default {
       show: false,
       showAuthDrawer: false, // 显示授权
       chooseVipCardType: 1, // 1：二维码  2：手机号
+      chooseYudingjinType: 1, // 1:服务码选择预订金 2:手机号选择预订金
       showChooseVipCardDrawer: false, // 显示选择会员卡
+      showChooseYudingjinDrawer: false, //显示选择预订金
       payList: [],
       payActiveInfo: {},
       count: "", // 金额
@@ -568,6 +639,15 @@ export default {
         authCode: "", // 认证扣款字符串
         name: "", // 会员卡名称
         show: false, //
+      },
+      // 预订金
+      yudingjinInfo: {
+        id: "", // 预订金id
+        amt: "0", // 预订金金额,单位分
+        date: "", // 营业日
+        type: "", // 预订金类型
+        show: false, //
+        seatName: "", // 卡台名称
       },
       // 挂账
       GZInfo: {
@@ -612,7 +692,7 @@ export default {
       // 注：id<200为线下支付方式  >=200为线上支付方式
       let allPayList = this.$store.state.cardPageInfo.resResultDataObj[
         "payList"
-      ].filter((item) => item.status == 1 && (item.id < 200 || item.id == 500));
+      ].filter((item) => item.status == 1 && (item.id < 200 || item.id == 500 || item.id == 202));
       // 滞留金信息
       let bookPayInfo = {};
       if (bookAmtList.length > 0) {
@@ -636,6 +716,7 @@ export default {
       const canConfigPayList = allPayList.filter((item) => item.id < 100);
       const canNotConfigPayList = allPayList.filter((item) => item.id >= 100); // 自适应（暂时不需要配置到支付渠道中）
       const vipPayList = allPayList.filter((item) => item.id == 500); // 会员卡
+      const yudingPayList = allPayList.filter((item) => item.id == 202); // 预订金
 
       let payList = [];
       if (effectPayList.length > 0) {
@@ -648,10 +729,10 @@ export default {
       }
       // 线下支付订单
       this.payList = bookPayInfo.id
-        ? [{ ...bookPayInfo }, ...payList, ...vipPayList].sort(
+        ? [{ ...bookPayInfo }, ...payList, ...vipPayList, ...yudingPayList].sort(
             (a, b) => a.dsp - b.dsp
           )
-        : [...payList, ...vipPayList].sort((a, b) => a.dsp - b.dsp);
+        : [...payList, ...vipPayList, ...yudingPayList].sort((a, b) => a.dsp - b.dsp);
       this.payActiveInfo = this.payList.length > 0 ? this.payList[0] : {};
     },
     // 获取已选择好的支付渠道（购物车）
@@ -993,6 +1074,18 @@ export default {
       }
     },
 
+    showOrHideChooseYudingjinDraw(type) {
+      this.showChooseYudingjinDrawer = !this.showChooseYudingjinDrawer
+
+      if(type && typeof type === 'number' && this.showChooseYudingjinDrawer) {
+        this.chooseYudingjinType = type;
+      }
+      if(!this.showChooseYudingjinDrawer) {
+        this.chooseYudingjinType = ""
+        this.getChoosePayList()
+      }
+    },
+
     /**
      * 读卡相关
      */
@@ -1095,7 +1188,7 @@ export default {
         auth_type: 1,
         auth_code: this.vipPayInfo.authCodeStr,
         mb_card_id: this.vipPayInfo.id,
-        amt: this.count.toString(),
+        amt: this.count.toString() * 100,
       };
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
       if (res.code == 1) {
@@ -1190,6 +1283,7 @@ export default {
     keyBoard,
     authComponent,
     drawerChooseVipCard,
+    drawerChooseYudingjin,
     mySelect,
   },
   watch: {
@@ -1257,6 +1351,8 @@ export default {
               (item) => item.status == 1
             );
         }
+
+        console.log('payActiveInfo', this.payActiveInfo)
       },
       deep: true,
     },

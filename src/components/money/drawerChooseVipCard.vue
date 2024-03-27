@@ -108,10 +108,10 @@
                     <div class="td one-txt-cut">{{ item.vb }}</div>
                     <div class="td one-txt-cut">{{ item.fb }}</div>
                     <div class="td one-txt-cut">
-                      {{ (item.va * 1 + item.fa * 1).toFixed(2) }}
+                      {{ ((item.uv * 1 + item.uf * 1) / 100).toFixed(2) }}
                     </div>
-                    <div class="td one-txt-cut">{{ item.va }}</div>
-                    <div class="td one-txt-cut">{{ item.fa }}</div>
+                    <div class="td one-txt-cut">{{ (item.uv/100).toFixed(2) }}</div>
+                    <div class="td one-txt-cut">{{ (item.uf/100).toFixed(2) }}</div>
                     <div class="td one-txt-cut">
                       <div>
                         <input
@@ -310,7 +310,7 @@ export default {
         auth_type: 2,
         auth_code: this.authCodeStr,
         mb_card_id: item.id,
-        amt: item.useAmt,
+        amt: item.useAmt * 100,
       };
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
       if (res.code == 1 || res.code == 2) {
@@ -416,7 +416,7 @@ export default {
       const cardIds = this.tableData.map((item) => item.id * 1);
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
-        mb_card_ids: cardIds,
+        all_mb_card_ids: cardIds,
       };
       const res = await api_money.reqGetVipCardAmountInfo(params);
       this.tableData = this.tableData.map((item) => {

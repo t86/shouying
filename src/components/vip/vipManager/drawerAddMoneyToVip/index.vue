@@ -38,7 +38,7 @@
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer()">取消</el-button>
-        <el-button type="primary" v-if="step==2" @click="onSubmit">确定</el-button>
+        <el-button type="primary" v-if="step==2" @click="onSubmit" :disabled="charging" >确定</el-button>
       </div>
     </el-drawer>
   </div>
@@ -58,7 +58,8 @@ export default {
       tableData: [],
       currentInfo: {}, // 当前手动选择充值的会员卡相关信息
       vipIdOfSwiper: "",
-      stepTwoInfo: {}
+      stepTwoInfo: {},
+      charging: false, //充值处理中
     };
   },
   methods: {
@@ -85,6 +86,7 @@ export default {
     },
     // 提交
     async onSubmit() {
+      this.charging = true
       const isCustom = this.stepTwoInfo.makeAmtInfo.d == '自定义'
       const makeAmt = isCustom ? this.stepTwoInfo.makeAmt : this.stepTwoInfo.makeAmtInfo.d
       const freeAmt = isCustom ? this.stepTwoInfo.freeAmt : this.stepTwoInfo.makeAmtInfo.f
@@ -112,6 +114,7 @@ export default {
       } catch (error) {
         console.log("充值失败", error);
       }
+      this.charging = false
     },
 
     changeStep(step = 1) {
