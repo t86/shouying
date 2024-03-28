@@ -35,7 +35,7 @@
         <div class="order-meal-list">
           <mealNav :redeem="tabIndex" @updateProductsList="updateProductsList" :customStyle="{ 'left':'20%', 'top':'65px', 'heigth':'calc(100vh - 125px)' }"/>
           <productList
-            @onRedeem="onCancelDrawer"
+            @onRedeem="onRedeemSuccess"
             :redeem="tabIndex"
             :allProductsList="allProductsList"
             :currentCategoryProductList="currentCategoryProductList"
@@ -69,7 +69,7 @@
               ref="groupProduct"
               :productInfo="productInfo"
               :singleInfo="singleInfo"
-              @closeDrawerHandle="onCancelDrawer"
+              @closeDrawerHandle="onRedeemSuccess"
             />
         </div>
       </div>
@@ -139,10 +139,17 @@ export default {
     async getTableData(){
      
     },
+    onRedeemSuccess(){
+      this.step = 0
+      this.productInfo = {}
+      this.singleInfo = {}
+    },
     onCancelDrawer() {
       this.tabIndex = 22
       this.step = 0
       this.show = false;
+      this.productInfo = {}
+      this.singleInfo = {}
     },
     checkCode() {
       window.scan_callback({code: 0, data: this.authCode})

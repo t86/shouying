@@ -126,12 +126,12 @@ export default {
         "点击暂不支付后，如果客人已经成功付款，则该金额将进入到滞留金列表，是否确认暂不支付？"
       );
       if (res == "confirm") {
-        const result = await this.cancelPayOrder();
+        // const result = await this.cancelPayOrder();
         this.reloadMyOrderTableData();
         this.onCancelDrawer();
-        if (result == "success") {
+        // if (result == "success") {
           this.$emit("subSecondLogoutHandle");
-        }
+        // }
       }
     },
 
