@@ -69,6 +69,7 @@
               ref="groupProduct"
               :productInfo="productInfo"
               :singleInfo="singleInfo"
+              @closeDrawerHandle="onCancelDrawer"
             />
         </div>
       </div>
