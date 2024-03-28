@@ -329,15 +329,39 @@ export default {
               type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
               relate_csm_id: 0,
             };
-            api_order.reqLocalManualKqCsm(params)
+            const res = await api_order.reqLocalManualKqCsm(params)
+            if(res.code == 1) {
               this.$message.success("卡券核销成功");
               this.onCancelDrawer();
+            } else {
+              this.$message.warning(res.msg);
+            }
+
+          } catch (error) {
+            this.$message.warning("卡券核销失败" + error);
+          }
+          return 
+      }
+      if(this.productInfo.prdType * 1 == 32) {
+        try {
+            params = {
+              ...params,
+              auth_code: this.singleInfo.authCode,
+              relate_csm_id: 0,
+            };
+            const res = await api_order.reqUseKqCode(params)
+            if(res.code == 1) {
+              this.$message.success("卡券核销成功");
+              this.onCancelDrawer();
+            } else {
+              this.$message.warning(res.msg);
+            }
           } catch (error) {
             console.log("卡券核销失败", error);
+            this.$message.warning("卡券核销失败" + error);
           }
-          // 确定核销
-          this.onCancelDrawer();
           return 
+
       }
       // 判断是否为补交台
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {

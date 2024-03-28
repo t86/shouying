@@ -146,22 +146,9 @@ export default {
     checkCode() {
       window.scan_callback({code: 0, data: this.authCode})
     },
+    
     doRedeem() {
-      try {
-          params = {
-            ...params,
-            type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
-            relate_csm_id: 0,
-          };
-          api_order.reqLocalManualKqCsm(params)
-            this.$message.success("卡券核销成功");
-            this.onCancelDrawer();
-        } catch (error) {
-          console.log("卡券核销失败", error);
-        }
-        // 确定核销
-        this.onCancelDrawer();
-        return 
+      this.$refs.groupProduct.onSubmit()
     },
     updateProductsList({ key, value }) {
       this[key] = value;
@@ -190,6 +177,8 @@ export default {
             that.prdId = res.data.prd_id
             that.authCode = res.data.auth_code
             that.productInfo = that.$store.state.orderInfo.allProductsList.find(item => item.id == res.data.prd_id)
+            that.singleInfo.prd_cnt = 1
+            that.singleInfo.authCode = that.authCode
             that.$message.success("券码识别成功：" + value.data);
             console.log("券码识别成功：", that.custKqId , res)
           } else {
