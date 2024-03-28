@@ -50,8 +50,9 @@
         <div layout="row" layout-align="start center" v-if="step == 2" style="padding: 10px;">
           <div>券码：</div>
           <el-input v-model="authCode" type="number" placeholder="请输入券码" style="width: 200px;margin-right: 20px;"></el-input>
-          <el-button type="primary" @click="checkCode" style="margin-right: 20px;">确定</el-button>
-          <keyBoard
+        </div>
+        <div layout="row" layout-align="start center" v-if="step == 2" style="padding: 10px;">
+        <keyBoard
             class="key"
             :landscape="true"
             :itemHeight="44"
@@ -59,8 +60,8 @@
             :width="270"
             @changeNum="changeNumHandle"
           />
+          <el-button type="primary" @click="checkCode" style="margin-left: 20px;">确定</el-button>
         </div>
-
         <div class="order-meal-list" v-if="custKqId">
           <div >券详情：请选择套餐明细</div>
           <!-- 点套餐 -->
@@ -120,7 +121,7 @@ export default {
           this.authCode =
           this.authCode
                 .toString()
-                .slice(0, currentInfo.c.toString().length - 1) * 1;
+                .slice(0, this.authCode.toString().length - 1) * 1;
           break;
         default:
           this.authCode = this.authCode + value * 1;
@@ -177,17 +178,23 @@ export default {
   mounted() {
     this.getMenuInfo(false);
     const that = this;
-    function scan_callback(value) {
+    async function scan_callback(value) {
       try {
         if (value && value.code === 0) {
-          that.$message.success("券码识别成功：" + value.data);
-          const res = api_order.reqValidCustKqCode({
-            cust_kq_code: value.data * 1,
+
+          const res = await api_order.reqValidCustKqCode({
+            cust_kq_code: value.data,
           })
-          this.custKqId = res.cust_kq_id
-          this.prdId = res.prd_id
-          this.authCode = res.auth_code
-          
+          if(res.code == 1) {
+            that.custKqId = res.data.cust_kq_id
+            that.prdId = res.data.prd_id
+            that.authCode = res.data.auth_code
+            that.productInfo = that.$store.state.orderInfo.allProductsList.find(item => item.id == res.data.prd_id)
+            that.$message.success("券码识别成功：" + value.data);
+            console.log("券码识别成功：", that.custKqId , res)
+          } else {
+            that.$message.warning(res.msg);
+          }
         } else {
           that.$message.warning("扫码取消");
         }
