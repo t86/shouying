@@ -96,7 +96,7 @@ export default {
           id: this.editInfo.id,
         }
 
-        const res = await api_vip.reqGetPtRule(params);
+        const res = await api_vip.reqGetPointRule(params);
 
         console.log('res', res, this.cardTypeId)
         if (res.code == 1) {

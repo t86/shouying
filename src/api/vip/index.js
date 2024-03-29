@@ -339,6 +339,14 @@ export default {
   reqSavePointRule: (params) =>
     axios.post(`${base.htgl}/mb/card/save_pt_rule`, params),
 
+  // 根据会员卡id读取会员卡赠送积分规则列表
+  reqGetMbCardCsmPtRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_mb_card_csm_pt_rule`, params),
+    
+  // 读取会员卡赠送积分规则列表
+  reqGetPointRule: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_pt_rule`, params),
+
   // 读取会员卡赠送积分规则列表
   reqGetPointRules: (params) =>
     axios.post(`${base.htgl}/mb/card/get_pt_rules`, params),

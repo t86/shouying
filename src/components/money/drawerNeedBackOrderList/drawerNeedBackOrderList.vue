@@ -62,10 +62,11 @@
                     <span v-if="activeId==3">{{item.rs}}</span>
                     <div
                       v-else
+                      v-for="(cd, index) in item.cd"
                       class="btn"
                       :class="{'gray': item.disabled}"
-                      @click="toBackHandle(item)"
-                    >{{activeId==0?'发起退款':'重试退款'}}</div>
+                      @click="toBackHandle(item, cd.k)"
+                    >{{ cd.m }}</div>
                   </div>
                 </div>
               </div>
@@ -115,6 +116,8 @@ export default {
               el.personInfo =
                 el.se == 0 ? "" : common_book.getOrderPersonInfo(el.se);
               el.payInfo = common_money.getPayInfo(el.pc);
+              console.log('退款数据', el, el.cd)
+              el.cd = el.cd ? JSON.parse(el.cd) : {};
             });
           }
 
@@ -135,7 +138,7 @@ export default {
       this.tableData = [...this.pageDataList[keyList[this.activeId]]];
     },
 
-    toBackHandle(orderInfo) {
+    toBackHandle(orderInfo, k) {
       if (orderInfo.disabled)
         return this.$message.warning("退款处理中，请稍后...");
       this.showConfirmHandle(
@@ -148,7 +151,8 @@ export default {
             const res =
               this.activeId == 0
                 ? await api_money.reqBackOrder({
-                    id: orderInfo.id * 1 // int64   异议单Id
+                    id: orderInfo.id * 1, // int64   异议单Id
+                    req_cmd: k //  string  操作命令
                   })
                 : await api_money.reqTryBackSecond({
                     id: orderInfo.id * 1 //  int64   异议单Id

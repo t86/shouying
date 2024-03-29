@@ -110,7 +110,9 @@ export default {
 
       this.resetHandle()
 
-      const res = await api_vip.reqGetPointRule();
+      const res = await api_vip.reqGetMbCardCsmPtRule({
+        id: this.currentItemInfo.id * 1
+      });
       if (res.code == 1) {
         // 充值赠送积分
         if(res.data.type_id == 2) {
