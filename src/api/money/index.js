@@ -489,4 +489,39 @@ export default {
 
   // 修改订单服务员
   reqChgWkorderWaiter: (params) => axios.post(`${base.htgl}/sel/chg_wkorder_waiter`, params),
+
+  
+  // 读取客人预订金流水记录
+  reqGetCustPrePayLog: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_cust_prepay_log`, params),
+
+  // 导出客人预订金流水记录
+  /**
+   * 
+   */
+  reqExpCustPrePayLog: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/get_cust_prepay_log`, params),
+
+  // 读取客人预订金余额表
+  reqGetCustPrePayBal: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_cust_prepay_bal`, params),
+
+  // 导出客人预订金余额表
+  /**
+   * 
+   */
+  reqExpCustPrePayBal: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_cust_prepay_bal`, params),    
+
+  // 读取指定客人的预付金流水
+  reqGetOneCustPrePayLog: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_one_cust_prepay_log`, params),
+
+  // 导出指定客人的预付金流水
+  /**
+   * 
+   */
+  reqExpOneCustPrePayLog: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_one_cust_prepay_log`, params), 
+
 };

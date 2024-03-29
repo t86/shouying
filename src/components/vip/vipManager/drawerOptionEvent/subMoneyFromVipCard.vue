@@ -28,7 +28,7 @@
       </div>
       <div class="row">
         <div class="label">积分余额：</div>
-        <div class="value">{{ vipInfo.pt_bal }}</div>
+        <div class="value">{{ vipInfo.pt_bal || 0 }}</div>
       </div>
     </div>
     <div class="content">
@@ -70,7 +70,7 @@
           </div>
           <div class="value">
             <div v-if="form.subType == '1'">
-              {{ vipInfo.consume_base_amt == 0 ? '---' : form.point }}
+              {{ vipInfo.consume_base_amt == 0 ? '---' : form.point || 0 }}
             </div>
             <div v-else>
               <el-input v-model="form.point" size="small" style="width:284px" placeholder="请输入扣除积分" type="number"
@@ -151,17 +151,17 @@ export default {
             this.form.point = 0;
           } else {
             const num = e * 1 / this.vipInfo.consume_base_amt;
-            this.form.point = Math.floor(num);
+            this.form.point = Math.floor(num) || 0;
           }
         } else if (this.form.subType == '2') {
           if (this.form.kkAmt == 0) {
             this.form.point = 0;
           } else {
             const num = e * 1 / this.form.kkAmt;
-            this.form.point = Math.floor(num);
+            this.form.point = Math.floor(num) || 0;
           }
           if(this.form.point > this.vipInfo.pt_bal){
-              this.form.point = this.vipInfo.pt_bal;
+              this.form.point = this.vipInfo.pt_bal || 0;
               this.$message.warning("积分余额不足") 
           }
         }

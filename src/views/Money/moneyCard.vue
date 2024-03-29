@@ -651,6 +651,26 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click="showOrHideSetYDJDrawerHandle()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/yh-detail-icon.png')"
+                    alt
+                  />
+                  <span>预订金流水表</span>
+                </div>
+                <div
+                  class="option-item line"
+                  @click="showOrHideSetYDJYEDrawerHandle()"
+                >
+                  <img
+                    :src="require('@/assets/money-img/yh-detail-icon.png')"
+                    alt
+                  />
+                  <span>预订金余额表</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click.stop="endStoreHandle('stop')"
                 >
                   <img :src="imgSrc.updatepwd" alt />
@@ -940,7 +960,18 @@
         @showOrHideSetGZHKDrawerHandle="showOrHideSetGZHKDrawerHandle"
       />
     </div>
-      
+    <!-- 客人预订金流水记录表 -->
+    <div class="day-report" v-if="showSetYDJDrawer">
+      <drawerSetYDJ
+        @showOrHideSetYDJDrawerHandle="showOrHideSetYDJDrawerHandle"
+      />
+    </div>
+    <!-- 客人预订金余额记录表 -->
+    <div class="day-report" v-if="showSetYDJYEDrawer">
+      <drawerSetYDJYE
+        @showOrHideSetYDJYEDrawerHandle="showOrHideSetYDJYEDrawerHandle"
+      />
+    </div>
     <!-- 部门销售汇总表 -->
     <drawerXSAllInfo
       :showDrawer="showXSAllInfoDrawer"
@@ -1053,6 +1084,11 @@ import drawerXSDetail from "../../components/money/drawerXSDetail.vue";
 // 挂账还款记录表
 import drawerSetGZHK from "../../components/money/drawerSetGZHK.vue";
 
+// 客人预订金流水记录表
+import drawerSetYDJ from "../../components/money/drawerSetYDJHistory.vue";
+// 客人预订金余额记录表
+import drawerSetYDJYE from "../../components/money/drawerSetYDJYE.vue";
+
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import eventVue from "@/utils/eventVue";
@@ -1114,6 +1150,8 @@ export default {
       showDetailDrawer: false, // 部门销售明细表
       showSetCountDrawer: false, // 套餐统计表
       showSetGZHKDrawer: false, // 挂账还款记录表
+      showSetYDJDrawer: false, // 客人预订金流水记录表
+      showSetYDJYEDrawer: false, // 客人预订金余额记录表
       showXSAllInfoDrawer: false, // 部门销售汇总表
       keyWord: "",
       tab: {
@@ -1568,6 +1606,15 @@ export default {
       this.showSetGZHKDrawer = !this.showSetGZHKDrawer;
     },
 
+    // 显示或隐藏客人预订金流水记录表
+    showOrHideSetYDJDrawerHandle() {
+      this.showSetYDJDrawer = !this.showSetYDJDrawer;
+    },
+    
+    // 显示或隐藏客人预订金余额记录表
+    showOrHideSetYDJYEDrawerHandle() {
+      this.showSetYDJYEDrawer = !this.showSetYDJYEDrawer;
+    },
     // 更多功能
     endStoreHandle(type) {
       switch (type) {
@@ -2286,6 +2333,8 @@ export default {
     drawerXSAllInfo,
     drawerSetCount,
     drawerSetGZHK,
+    drawerSetYDJ,
+    drawerSetYDJYE,
   },
 
   watch: {
