@@ -447,7 +447,7 @@
                     :src="require('@/assets/money-img/online-booking-icon.png')"
                     alt
                   />
-                  <span>线上预定记录</span>
+                  <span>线上预订记录</span>
                 </div>
                 <div
                   class="option-item line"
@@ -821,7 +821,7 @@
       @showOrHideKpiReportHandle="showOrHideKpiReportHandle"
     />
 
-    <!-- 线上预定记录 -->
+    <!-- 线上预订记录 -->
     <drawerOnlineBooking
       :showDrawer="showOrHideOnlineBooking"
       @showOrHideOnlineBookingDrawer="showOrHideOnlineBookingDrawer"
@@ -1009,7 +1009,7 @@ import drawerOnlinePayDetail from "../../components/money/drawerOnlinePayDetail.
 // 业绩日报表
 import drawerKpiReport from "../../components/money/drawerKpiReport.vue";
 
-// 线上预定记录
+// 线上预订记录
 import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue";
 
 // 优惠明细表
@@ -1128,7 +1128,7 @@ export default {
       showOrHideOnlinePayTotal: false, // 线上支付汇总
       showOrHideOnlinePayDetail: false, // 线上支付记录
       showOrHideKpiReport: false, // 业绩日报表
-      showOrHideOnlineBooking: false, // 线上预定记录
+      showOrHideOnlineBooking: false, // 线上预订记录
       showOrHideYHDetail: false, // 优惠明细表
       showOrHideKTSalesDetail: false, // 商品卡台销售表
       showOrHideTYDetail: false, // 鸡尾酒明细表
@@ -1660,7 +1660,7 @@ export default {
       this.showOrHideKpiReport = !this.showOrHideKpiReport;
     },
 
-    // 线上预定记录
+    // 线上预订记录
     showOrHideOnlineBookingDrawer() {
       this.showOrHideOnlineBooking = !this.showOrHideOnlineBooking;
     },

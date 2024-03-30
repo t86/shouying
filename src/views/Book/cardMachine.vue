@@ -368,6 +368,13 @@
                 <img :src="imgSrc.openCard" alt />
                 <span>预留记录</span>
               </div>
+              <div
+                class="option-item"
+                @click="showOrHideOnlineBookingDrawerHandle"
+              >
+                <img :src="imgSrc.openCard" alt />
+                <span>线上预订记录</span>
+              </div>
               <img :src="imgSrc.sanJiao" alt />
             </div>
 
@@ -449,6 +456,13 @@
       @showOrHideDrawer="showOrHideReservedRecordDrawerHandle"
     />
 
+    <!-- 线上预订记录 -->
+    <drawerOnlineBooking
+      :showDrawer="showOrHideOnlineBookingDrawer"
+      @showOrHideDrawer="showOrHideOnlineBookingDrawerHandle"
+    />
+
+
     <!-- 修改密码 -->
     <updatePassword
       ref="updatePassword"
@@ -466,6 +480,8 @@ import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏�
 import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"; // 开台记录
 import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"; // 转台记录
 import drawerReservedRecord from '@/components/book/machine/drawerReservedRecord.vue'; // 预留记录
+// 线上预订记录
+import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue";
 import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
 
 import api_card from "@/api/Book";
@@ -503,6 +519,7 @@ export default {
       showOpenCardDrawer: false, // 是否显示卡台记录drawer
       showTurnOverDrawer: false, // 是否显示转台记录drawer
       showReservedRecordDrawer: false, // 是否显示预留记录drawer
+      showOrHideOnlineBookingDrawer: false, // 是否显示线上预订记录drawer
       dateTab: {
         dateTabList: [],
         activeIndex: 0,
@@ -1434,6 +1451,13 @@ export default {
       this.showReservedRecordDrawer = !this.showReservedRecordDrawer;
     },
 
+      /**
+     * 显示或隐藏线上预订记录
+     */
+     showOrHideOnlineBookingDrawerHandle() {
+      this.showOrHideOnlineBookingDrawer = !this.showOrHideOnlineBookingDrawer;
+    },
+
     /**
      * 开启营业日
      */
@@ -1695,6 +1719,7 @@ export default {
     drawerTurnOver, // 转台记录
     updatePassword, // 修改密码
     drawerReservedRecord, // 预留记录
+    drawerOnlineBooking, // 线上预订记录
   },
 
   filters: {

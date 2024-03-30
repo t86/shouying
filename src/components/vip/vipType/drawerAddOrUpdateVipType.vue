@@ -87,29 +87,33 @@ export default {
      */
     // 获取待编辑的类型信息
     async getEditInfoHandle(){
-      const params = {
-        id: this.editInfo.id * 1 //  int64   会员卡类型Id
-      }
-      try {
-        const res = await api_vip.reqGetVipTypeDetail(params)
-        if (res.code == 1) {
-          this.form.vipName = res.data.name
-          this.form.isDefault = res.data.is_def == 1
-          this.imgBaseUrl = res.data.pic_url_prefix || imgBaseUrl
-          const cardInfoList = (res.data.card_levels || []).map(item => ({
-            id: item.id,
-            d: item.d,
-            name: item.n,
-            disabled: true,
-            bgiName: item.p
-          }))
-          cardInfoList.length == 0 ? '' : this.cardInfoList = [...cardInfoList]
-        } else {
-          this.$message.warning(res.msg)
-        }
-      } catch (error) {
-        console.log('获取待编辑的卡类型信息失败', error)
-      }
+
+      this.form.vipName = this.editInfo.n
+      this.form.isDefault = this.editInfo.d == 1
+      console.log('this.editInfo', this.editInfo,this.form)
+      // const params = {
+      //   id: this.editInfo.id * 1 //  int64   会员卡类型Id
+      // }
+      // try {
+      //   const res = await api_vip.reqGetVipTypeDetail(params)
+      //   if (res.code == 1) {
+      //     this.form.vipName = res.data.name
+      //     this.form.isDefault = res.data.is_def == 1
+      //     this.imgBaseUrl = res.data.pic_url_prefix || imgBaseUrl
+      //     const cardInfoList = (res.data.card_levels || []).map(item => ({
+      //       id: item.id,
+      //       d: item.d,
+      //       name: item.n,
+      //       disabled: true,
+      //       bgiName: item.p
+      //     }))
+      //     cardInfoList.length == 0 ? '' : this.cardInfoList = [...cardInfoList]
+      //   } else {
+      //     this.$message.warning(res.msg)
+      //   }
+      // } catch (error) {
+      //   console.log('获取待编辑的卡类型信息失败', error)
+      // }
     },
     // 删除卡等级
     async deleteVipDeepItem(itemInfo){
@@ -455,6 +459,7 @@ export default {
       this.defaultBgiImgList = []
       // 自己上传的背景图片列表
       this.uploadBgiImgList = []
+      console.log('resetData')
     }
   },
   mounted() {},
@@ -485,10 +490,10 @@ export default {
   },
   watch: {
     showDrawer: {
-      handler(newVal) {
+      async handler(newVal) {
         this.show = newVal;
         if(newVal) {
-          this.resetData()
+          await this.resetData()
           if(this.editInfo.id) {
             // 编辑
             this.getEditInfoHandle()

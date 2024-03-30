@@ -160,11 +160,11 @@ export default {
   reqExportExcelOfKpiReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_yj_rpt`, params),
 
-  // 收银读取线上预定记录
+  // 收银读取线上预订记录
   reqGetBookingList: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_ol_book_list`, params),
 
-  //  收银导出线上预定记录
+  //  收银导出线上预订记录
   reqExportBookingListReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_ol_book_list`, params),
 

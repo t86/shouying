@@ -1,8 +1,8 @@
 <template>
   <div>
-    <!-- 线上预定记录 -->
+    <!-- 线上预订记录 -->
     <el-drawer
-      title="线上预定记录"
+      title="线上预订记录"
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
