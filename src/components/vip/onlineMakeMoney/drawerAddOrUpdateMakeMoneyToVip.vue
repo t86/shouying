@@ -39,7 +39,7 @@
               <span>充值金额</span>
             </div>
             <div class="value">
-              <el-input v-model="makeMoney" :disabled="!!editInfo.d" size="small" style="width:284px" placeholder="请输入充值金额"></el-input>
+              <el-input v-model="makeMoney" size="small" style="width:284px" placeholder="请输入充值金额"></el-input>
             </div>
           </div>
           <div class="row" layout="row" layout-align="start center">
