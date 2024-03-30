@@ -2,7 +2,7 @@ export default [{
   name: "存酒管理",
   sys_priv: [3],
   auth: ["wine"],
-  system: ["org_mgr"],
+  system: ["wine"],
   needAuth: true,  // 需要权限配置
   img: "save_wine_manage.png",
   content: [
@@ -35,7 +35,7 @@ export default [{
   name: "充公管理",
   sys_priv: [3],
   auth: ["wine"],
-  system: ["org_mgr"],
+  system: ["wine"],
   needAuth: true,  // 需要权限配置
   img: "confiscation_manage.png",
   content: [
@@ -57,7 +57,7 @@ export default [{
   name: "用户管理",
   sys_priv: [3],
   auth: ["wine"],
-  system: ["org_mgr"],
+  system: ["wine"],
   needAuth: true,  // 需要权限配置
   img: "user_manage1.png",
   content: [
@@ -71,7 +71,7 @@ export default [{
   name: "客户中心存酒",
   sys_priv: [3],
   auth: ["wine"],
-  system: ["org_mgr"],
+  system: ["wine"],
   needAuth: true,  // 需要权限配置
   img: "customer_center_store_wine.png",
   content: [
