@@ -6,7 +6,7 @@
       <div class="content" v-if="[1, 2, 3].includes(payType)">
         <p class="label">
           <span class="label-title">线下订单待支付金额:</span>
-          <span class="amt">¥{{ orderInfoDetail.pay_amt }}</span>
+          <span class="amt">¥{{ (orderInfoDetail.pay_amt / 100).toFixed(2) }}</span>
         </p>
         <div class="qr" layout="column" layout-align="center center">
           <vue-qr ref="qrCode" :text="textValue" :size="240" :margin="8" />
@@ -55,7 +55,7 @@ export default {
   },
   methods: {
     init() {
-      if (this.orderInfoDetail.r !== 2 && this.orderInfoDetail.ol_pay_lock_id) {
+      if (this.orderInfoDetail.r !== 2) {
         this.setQRCodeInfo();
       }
       this.reloadMyOrderTableData();
