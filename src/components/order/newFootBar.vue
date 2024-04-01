@@ -26,9 +26,9 @@
               <span>买单</span>
             </div>
           </div>
-          <!-- 督查 特饮 服务员核销卡券按钮 -->
+          <!-- 收银核销卡券按钮 -->
           <div v-if="
-            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
+            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0 && isMoneyClient
           " class="server-redeem-btn">
             <div class="button" layout="row" layout-align="center center" @click="showRedeemCouponDrawerHandle">
               <img :src="imgSrc.coupon" alt />

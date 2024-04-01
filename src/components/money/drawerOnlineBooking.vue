@@ -121,7 +121,7 @@ export default {
     },
 
     onCancelDrawer() {
-      this.$emit("showOrHideOnlineBookingDrawer");
+      this.$emit("showOrHideDrawer");
     },
   },
   props: {
