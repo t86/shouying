@@ -104,9 +104,9 @@
                     </div>
                     <div class="td one-txt-cut">{{ item.c }}</div>
                     <div class="td one-txt-cut">{{ item.n }}</div>
-                    <div class="td one-txt-cut">{{ item.b }}</div>
-                    <div class="td one-txt-cut">{{ item.vb }}</div>
-                    <div class="td one-txt-cut">{{ item.fb }}</div>
+                    <div class="td one-txt-cut">{{ (((item.vb || 0)* 1  + (item.fb || 0)* 1 ) / 100).toFixed(2)  }}</div>
+                    <div class="td one-txt-cut">{{  ((item.vb || 0)/100).toFixed(2)  }}</div>
+                    <div class="td one-txt-cut">{{  ((item.fb || 0)/100).toFixed(2)  }}</div>
                     <div class="td one-txt-cut">
                       {{ (((item.uv || 0)* 1  + (item.uf || 0)* 1 ) / 100).toFixed(2) }}
                     </div>
