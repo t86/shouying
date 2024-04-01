@@ -36,7 +36,13 @@
                 :class="{'fixed': activeId<2}"
                 v-if="activeId!=1 && activeId!= 2"
               >{{activeId==3 ? '失败原因':'操作'}}</div>
+              <div
+                class="th fixed"
+                v-if="activeId == 3"
+              >操作
+              </div>
             </div>
+
           </div>
           <div class="tbody" ref="scrollDom">
             <div
@@ -67,6 +73,15 @@
                       :class="{'gray': item.disabled}"
                       @click="toBackHandle(item, cd.k)"
                     >{{ cd.m }}</div>
+                  </div>
+                  <div class="td" :class="{'fixed': activeId<1}" v-if="activeId ==3">
+                    <div
+                      v-if="activeId==3"
+                      v-for="(cd, index) in item.cd"
+                      class="btn"
+                      :class="{'gray': item.disabled}"
+                      @click="toBackHandle(item, cd.k)"
+                    >退款重试</div>
                   </div>
                 </div>
               </div>

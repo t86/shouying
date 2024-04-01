@@ -157,6 +157,35 @@ ul.tab {
     .th:nth-child(13),
     .td:nth-child(13) {
       right: 0;
+      width: 120px;
+      height: 40px;
+      line-height: 40px;
+
+      &.fixed {
+        position: sticky;
+      }
+
+      .btn {
+        width: 68px;
+        height: 26px;
+        margin-top: 7px;
+        line-height: 26px;
+        text-align: center;
+        background: #4B89FF;
+        // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+
+        &.gray {
+          filter: grayscale(1);
+        }
+      }
+    }
+
+    .th:nth-child(14),
+    .td:nth-child(14) {
+      right: 0;
       width: 92px;
       height: 40px;
       line-height: 40px;
