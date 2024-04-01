@@ -108,10 +108,10 @@
                     <div class="td one-txt-cut">{{ item.vb }}</div>
                     <div class="td one-txt-cut">{{ item.fb }}</div>
                     <div class="td one-txt-cut">
-                      {{ ((item.uv * 1 + item.uf * 1) / 100).toFixed(2) }}
+                      {{ (((item.uv || 0)* 1  + (item.uf || 0)* 1 ) / 100).toFixed(2) }}
                     </div>
-                    <div class="td one-txt-cut">{{ (item.uv/100).toFixed(2) }}</div>
-                    <div class="td one-txt-cut">{{ (item.uf/100).toFixed(2) }}</div>
+                    <div class="td one-txt-cut">{{ ((item.uv || 0)/100).toFixed(2) }}</div>
+                    <div class="td one-txt-cut">{{ ((item.uf || 0)/100).toFixed(2) }}</div>
                     <div class="td one-txt-cut">
                       <div>
                         <input
