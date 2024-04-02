@@ -107,8 +107,10 @@
                 <!-- 线下订单 -->
                 <div class="another-order" v-else>
                   <div class="detail tr">
-                    <div class="td" layout="row" layout-align="start center">
-                      <el-checkbox  v-model="item.checked" @change="changeCheckBoxHandle('item', item)">{{i + 1}}</el-checkbox>
+                  <div class="td" layout="row" layout-align="start center">
+                      <el-checkbox  v-model="item.checked" 
+                      :disabled="item.back"
+                      @change="changeCheckBoxHandle('item', item)">{{i + 1}}</el-checkbox>
                     </div>
                     <div class="td" layout="row" layout-align="start center">
                       <span class="red" v-if="item.back">退</span>
@@ -378,12 +380,20 @@ export default {
           ...item,
           checked: item.wei == this.$store.state.userInfo.emp_id
         }))
+        this.tableData.filter(item => item.back).forEach(item => {
+          let parent = this.tableData.find(i => i.id == item.parentOrderId)
+          item.checked = parent && parent.checked
+        })
       } else if (index == 3) {
         // 勾选我和客人未结
         this.tableData = this.originTableData.map(item => ({
           ...item,
           checked: item.wei == this.$store.state.userInfo.emp_id || (!item.oid && item.io == 1)
         }))
+        this.tableData.filter(item => item.back).forEach(item => {
+          let parent = this.tableData.find(i => i.id == item.parentOrderId)
+          item.checked = parent && parent.checked
+        })
       }
       
       this.sortOrderHandle()
@@ -402,6 +412,10 @@ export default {
             itemInfo.checked = false
             this.$message.warning('线上支付订单无法线下结账')
           }
+          this.tableData.filter(item => item.back).forEach(item => {
+            let parent = this.tableData.find(i => i.id == item.parentOrderId)
+            item.checked = parent && parent.checked
+          })
           this.checkAll = this.tableData.every(item => item.checked)
           break
       }

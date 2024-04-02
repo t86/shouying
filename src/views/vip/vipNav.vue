@@ -25,6 +25,7 @@
           <span>{{ item.name }}</span>
         </li>
 
+        <el-button v-if="showKeyboard" type="primary" @click.stop="changeKeyboard">{{ isKeyBoard ? '关闭系统键盘' : '开启系统键盘' }}</el-button>
         <div
           class="options-contain cursor"
           @click.stop="showOption = !showOption"
