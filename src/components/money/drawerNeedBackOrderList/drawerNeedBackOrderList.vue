@@ -64,24 +64,26 @@
                   <div class="td">{{item.tn}}</div>
                   <div class="td">{{item.bi}}</div>
                   <div class="td">{{item.pr}}</div>
-                  <div class="td" :class="{'fixed': activeId<1}" v-if="activeId!=1 && activeId!= 2">
-                    <span v-if="activeId==3">{{item.rs}}</span>
+                  <div class="td fixed" style="height: 40px; line-height: 40px;" v-if="activeId == 0">
                     <div
-                      v-else
                       v-for="(cd, index) in item.cd"
                       class="btn"
                       :class="{'gray': item.disabled}"
                       @click="toBackHandle(item, cd.k)"
                     >{{ cd.m }}</div>
                   </div>
-                  <div class="td" :class="{'fixed': activeId<1}" v-if="activeId ==3">
+                  <div class="td" v-if="activeId == 3">
+                    {{item.rs}}
+                  </div>
+
+                  <div class="td fixed" style="height: 40px; line-height: 40px;" v-if="activeId ==3">
                     <div
                       v-if="activeId==3"
                       v-for="(cd, index) in item.cd"
                       class="btn"
                       :class="{'gray': item.disabled}"
                       @click="toBackHandle(item, cd.k)"
-                    >退款重试</div>
+                    >{{ cd.m }}</div>
                   </div>
                 </div>
               </div>
@@ -164,14 +166,10 @@ export default {
           this.$forceUpdate();
           try {
             const res =
-              this.activeId == 0
-                ? await api_money.reqBackOrder({
+              await api_money.reqBackOrder({
                     id: orderInfo.id * 1, // int64   异议单Id
                     req_cmd: k //  string  操作命令
                   })
-                : await api_money.reqTryBackSecond({
-                    id: orderInfo.id * 1 //  int64   异议单Id
-                  });
             res.code == 1
               ? this.$message.success("操作成功")
               : this.$message.warning(res.msg);
