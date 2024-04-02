@@ -116,6 +116,7 @@ export default {
       dialogFormVisible: false,
       Theoldpassword: "", // 旧密码
       Thenewpassword: "", // 新密码
+      isKeyBoard: localStorage.getItem('keyboard') == '1',
     };
   },
   methods: {
