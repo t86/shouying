@@ -414,7 +414,9 @@ export default {
           }
           this.tableData.filter(item => item.back).forEach(item => {
             let parent = this.tableData.find(i => i.id == item.parentOrderId)
-            item.checked = parent && parent.checked
+            if(parent) {
+              item.checked = parent.checked
+            }
           })
           this.checkAll = this.tableData.every(item => item.checked)
           break
