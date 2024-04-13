@@ -373,7 +373,7 @@ export default {
         }
         
       }
-      this.ShowThelistof = s
+      this.ShowThelistof = [...new Set(s)]
     },
     liseg(index, i, each) {
       console.log(index, i, each.url, each.name);
