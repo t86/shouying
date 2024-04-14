@@ -101,7 +101,10 @@ export default {
         sales_emp_id: this.stepTwoInfo.personVal * 1, // int64    推荐人(员工)
         remark: this.stepTwoInfo.remark //     string    充值备注
       };
-      if (!params.deposit_cnl) return this.$message.warning("请选择充值方式");
+      if (!params.deposit_cnl)  {
+        this.charging = false
+        return this.$message.warning("请选择充值方式");
+      } 
       try {
         const res = await api_vip.reqMakeMoneyToCard(params);
         if (res.code == 1) {

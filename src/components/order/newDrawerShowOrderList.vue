@@ -252,6 +252,7 @@ export default {
               (a, b) => b.orderTime * 1 - a.orderTime * 1
             );
 
+            console.log('onlineNotPayOrderList, anotherNotPayOrderList', onlineNotPayOrderList, anotherNotPayOrderList)
             // 处理未支付订单数据
             this.getOrderDetailInfo([
               ...anotherNotPayOrderList,
@@ -306,6 +307,9 @@ export default {
                   // 部分退单
                   el.resultNotPayData.push(ele);
                 } 
+                ele.bs.forEach(e => {
+                  e.opc = ele.pc;
+                });
                 el.resultNotPayData.push(...ele.bs);
               } else {
                 el.resultNotPayData.push(ele);
@@ -338,7 +342,9 @@ export default {
                 // 部分退单
                 resultNotPayData.push(el);
               } 
-
+              el.bs.forEach(e => {
+                  e.opc = el.pc;
+                });
               resultNotPayData.push(...el.bs);
             } else {
               resultNotPayData.push(el);
@@ -384,6 +390,7 @@ export default {
           let parent = this.tableData.find(i => i.id == item.parentOrderId)
           item.checked = parent && parent.checked
         })
+
       } else if (index == 3) {
         // 勾选我和客人未结
         this.tableData = this.originTableData.map(item => ({
@@ -426,7 +433,7 @@ export default {
     onSubmit() {
       const selectedOrderIdList = []
       this.tableData.forEach(el => {
-        if(el.checked && !el.oid) {
+        if((el.checked && el.opc != 0) && !el.oid) {
           // 勾选的非线上订单
           if(el.back && el.parentOrderId) {
             // 退单商品
