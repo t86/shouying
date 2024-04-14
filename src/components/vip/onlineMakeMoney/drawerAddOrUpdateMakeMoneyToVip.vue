@@ -84,6 +84,7 @@
         <div v-else>
           <couponViewCom
             @value-changed="onValueChanged"
+            :id="couponId + ''"
           />
         </div>
       </div>
@@ -111,6 +112,8 @@ export default {
       showBind: false, // 显示添加卡券/大礼包
       couponName: "", // 卡券/大礼包名称
       couponId: "", // 卡券/大礼包id
+      tmpId: "", // 临时id
+      tmpName: "", // 临时name
     };
   },
   methods: {
@@ -138,13 +141,15 @@ export default {
       this.couponId = ""
     },
     onValueChanged(item){
-      this.couponName = item.n
-      this.couponId = item.id
+      this.tmpId = item.id
+      this.tmpName = item.n
       console.log("onValueChanged", item);
     },
     // 提交
     async onSubmit() {
       if(this.showBind) {
+        this.couponId = this.tmpId
+        this.couponName = this.tmpName
         this.showBind = false
       } else {
         console.log('cardLevelVal', this.cardLevelVal)
@@ -219,7 +224,8 @@ export default {
             // 编辑
             this.makeMoney = this.editInfo.d / 100
             this.zsMoney = this.editInfo.f / 100
-
+            this.couponId = this.editInfo.id
+            this,this.couponName = this.editInfo.fk
             this.cardLevelVal = (this.cardLevelList.find(item => item.n == this.editInfo.n) || {id:0})['id']
           } else {
             this.resetData();

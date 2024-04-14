@@ -80,6 +80,14 @@
          {{sendPoint == 0?'---':sendPoint}}
         </div>
       </div>
+      <div class="row">
+        <div class="label ">
+          <span>赠送卡券:</span>
+        </div>
+        <div class="value" layout="row" layout-align="start center">
+         {{depositRules[form.activeDetailId || 0].kn}}
+        </div>
+      </div>
       <div class="row" v-if="form.activeDetailId == makeMoneyList.length - 1">
         <div class="label m-t-2">
           <span>充值金额:</span>
@@ -178,6 +186,7 @@ export default {
       vipInfo: {},
       makeMoneyList: [], // 充值详情
       typeOption: [], // 充值方式
+      depositRules: [], // 充值规则
       remoteLoading: false,
       personOptions: [], // 充值推荐人
       form: {
@@ -218,7 +227,9 @@ export default {
           );
           this.form.personVal = this.personOptions.length > 0 && this.personOptions[0].id || ''
           this.typeOption = res.data.depoist_cnls || [];
+          this.depositRules = res.data.deposit_rules || [];
           this.base_amt = res.data.base_amt;
+          console.log("获取充值前会员卡信息成功", this.depositRules);
         } else {
           this.$message.warning(res.msg);
         }

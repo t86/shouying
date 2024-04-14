@@ -160,7 +160,7 @@
 
         <!-- 查看详情 -->
         <div v-show="cfdetails" class="viewdetailscls">
-            <el-dialog title="查看详情" :visible.sync="cfdetails" @close="cfdetails = false" :close-on-click-modal="false">
+            <el-dialog width="80%" title="查看详情" :visible.sync="cfdetails" @close="cfdetails = false" :close-on-click-modal="false">
                 <div id="print">
                     <div class="printsindyy">
                         <div class="monad">异议订单</div>

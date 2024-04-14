@@ -89,9 +89,13 @@ export default {
     };
   },
   props: {
-
+    id: {
+      type: String,
+      default: "",
+    },
   },
   mounted() {
+    this.radioValue = this.id;
     this.getTableData();
   },
   methods: {
@@ -123,7 +127,13 @@ export default {
   watch: {
     radioValue(newValue) {
       console.log("radioValue", newValue);
-      this.$emit("value-changed", this.tableData[newValue]);
+      if(newValue && this.tableData.length > 0) {
+        this.$emit("value-changed", this.tableData[newValue]);
+      }
+    },
+    id(newValue) {
+      console.log("id", newValue);
+      this.radioValue = newValue;
     },
   },
 };
