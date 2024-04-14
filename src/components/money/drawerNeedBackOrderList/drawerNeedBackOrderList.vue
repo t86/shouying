@@ -129,9 +129,8 @@ export default {
           for (let key in res.data) {
             res.data[key] = res.data[key] || [];
             res.data[key].forEach(el => {
-              el.cardInfo = common_book.getCardInfo(el.s);
-              el.personInfo =
-                el.se == 0 ? "" : common_book.getOrderPersonInfo(el.se);
+              el.cardInfo = el.s;
+              el.personInfo = el.se;
               el.payInfo = common_money.getPayInfo(el.pc);
               console.log('退款数据', el, el.cd)
               el.cd = el.cd ? JSON.parse(el.cd) : {};
