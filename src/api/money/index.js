@@ -176,6 +176,14 @@ export default {
   reqExportYHListReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_yh_list`, params),
 
+  // 读取卡券核销报表
+  reqGetKqCsmList: (params) =>
+  axios.post(`${base.htgl}/sel/rpt/get_kq_csm_list`, params),
+
+  //  收银导出卡券核销报表
+  reqExpKqCsmList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_kq_csm_list`, params),
+
   // 收银读取特饮/小费记录
   reqGetTYList: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_hl_list`, params),
