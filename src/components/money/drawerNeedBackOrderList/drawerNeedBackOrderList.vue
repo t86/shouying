@@ -54,8 +54,8 @@
                 <div class="detail tr">
                   <div class="td">{{i+1}}</div>
                   <div class="td">{{item.id}}</div>
-                  <div class="td">{{item.cardInfo ? item.cardInfo.name : ''}}</div>
-                  <div class="td">{{item.personInfo ? item.personInfo.name : '自助'}}</div>
+                  <div class="td">{{item.cardInfo}}</div>
+                  <div class="td">{{item.personInfo}}</div>
                   <div class="td">{{item.cn}}</div>
                   <div class="td">{{item.cp}}</div>
                   <div class="td">{{item.payInfo ? item.payInfo.name : ''}}</div>
