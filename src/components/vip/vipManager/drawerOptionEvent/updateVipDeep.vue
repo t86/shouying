@@ -30,6 +30,10 @@
          <div class="label">积分余额：</div>
          <div class="value">{{vipInfo.pt_balance}}</div>
       </div>
+      <div class="row" v-if="vipInfo.auto_upgrade == 1">
+         <div class="label">经验值：</div>
+         <div class="value">{{exp_bal}}</div>
+      </div>
     </div>
     <div class="content">
       <div class="form-grid m-t-6" style="border:none">
@@ -50,15 +54,6 @@
           </div>
         </div>
         <div></div>
-        <div v-if="vipInfo.auto_upgrade == 1" class="row">
-          <div class="label m-t-2">
-            <span style="color:#E0304F">*</span>
-            <span>等级经验值：</span>
-          </div>
-          <div class="value">
-            <span>{{ exp_bal }}</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>

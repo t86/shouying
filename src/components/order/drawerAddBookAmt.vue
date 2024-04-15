@@ -201,11 +201,6 @@ const payTypeList =
           icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
         },
-        {
-          id: 3,
-          icon: weixinxiaochengxu,
-          name: "微信小程序自助",
-        },
       ]
     : [
         {
@@ -218,11 +213,7 @@ const payTypeList =
           icon: zhifubao_kerensaowo,
           name: "客人扫我-支付宝",
         },
-        {
-          id: 3,
-          icon: weixinxiaochengxu,
-          name: "微信小程序自助",
-        },
+
       ];
 export default {
   data() {
