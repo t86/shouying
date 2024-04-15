@@ -176,7 +176,7 @@
       </div>
     </div>
 
-    <div class="pagination">
+    <!-- <div class="pagination">
       <el-pagination
         background
         layout="prev, pager, next"
@@ -186,7 +186,7 @@
         @current-change="changePageHandle"
       >
       </el-pagination>
-    </div>
+    </div> -->
 
     <drawerAddRuleCom
       :item="item"
@@ -315,13 +315,14 @@ export default {
     async getTableData(rest = false) {
       if (rest) this.pageInfo.page = 1;
       const params = {
-        page_num: this.pageInfo.page, //   int   第几页
-        page_size: this.pageInfo.pageSize, //  int     每页行数
+        // page_num: this.pageInfo.page, //   int   第几页
+        // page_size: this.pageInfo.pageSize, //  int     每页行数
         init: rest ? 1 : 2, //    int    初始化标记 1 初始化, 会返回一级分类的结构    2 非初始化, 不返回一级分类结构
         one_cate_id: this.cateVal[0] || 0, // string   一级分类id =0 代表不限制
         two_cate_id: this.cateVal[1] || 0, // string 二级分类id =0 代表不限制
         name: this.keyword,
         card_type_id: this.item.id,
+        card_level_id: this.cardLevelVal,
         type_id: this.ruleVal,
       };
       try {
