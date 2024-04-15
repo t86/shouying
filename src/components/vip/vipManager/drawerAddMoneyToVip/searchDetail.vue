@@ -64,10 +64,10 @@
           >
             <div class="item-top">
               <span>¥</span>
-              {{ item.d }}
+              {{ isNaN(item.d) ? item.d : (item.d / 100).toFixed(2)}}
             </div>
             <div class="item-bottom" v-if="item.f * 1 > 0">
-              赠 ¥ {{ item.f }}
+              赠 ¥ {{ (item.f/100).toFixed(2) }}
             </div>
           </div>
         </div>
