@@ -85,7 +85,7 @@
           <span>赠送卡券:</span>
         </div>
         <div class="value" layout="row" layout-align="start center">
-         {{depositRules[form.activeDetailId || 0].kn}}
+         {{form.activeDetailId >= depositRules.length ? '---':depositRules[form.activeDetailId].kn }}
         </div>
       </div>
       <div class="row" v-if="form.activeDetailId == makeMoneyList.length - 1">
