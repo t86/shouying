@@ -88,12 +88,12 @@ export default {
     async onSubmit() {
       this.charging = true
       const isCustom = this.stepTwoInfo.makeAmtInfo.d == '自定义'
-      const makeAmt = isCustom ? this.stepTwoInfo.makeAmt : this.stepTwoInfo.makeAmtInfo.d
-      const freeAmt = isCustom ? this.stepTwoInfo.freeAmt : this.stepTwoInfo.makeAmtInfo.f
+      const makeAmt = isCustom ? (this.stepTwoInfo.makeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.d / 100).toFixed(2)
+      const freeAmt = isCustom ? (this.stepTwoInfo.freeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.f / 100).toFixed(2)
       const params = {
         id: (this.currentInfo.id || this.vipIdOfSwiper) * 1 , //    int64    会员卡Id
-        val_amt: makeAmt ? (makeAmt/100).toFixed() : "0", //    string   有价金额(最多支持两位小数)
-        free_amt: freeAmt ? (freeAmt/100).toFixed() : "0", //   string  赠送金额(最多支持两位小数)
+        val_amt: makeAmt ? makeAmt : "0", //    string   有价金额(最多支持两位小数)
+        free_amt: freeAmt ? freeAmt : "0", //   string  赠送金额(最多支持两位小数)
         pt_amt: this.stepTwoInfo.sendPoint ? this.stepTwoInfo.sendPoint * 1 : 0, //   string  赠送积分
         m: isCustom ? 2 : 1,//  int   充值模式 1 规则模式, 2 自定义模式
         oper_emp_id: this.$store.state.userInfo.emp_id * 1, // int64    操作员工
