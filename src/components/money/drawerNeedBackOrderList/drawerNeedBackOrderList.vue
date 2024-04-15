@@ -64,11 +64,12 @@
                   <div class="td">{{item.tn}}</div>
                   <div class="td">{{item.bi}}</div>
                   <div class="td">{{item.pr}}</div>
-                  <div class="td fixed" style="height: 40px; line-height: 40px;" v-if="activeId == 0">
+                  <div class="td fixed" v-if="activeId == 0">
                     <div
                       v-for="(cd, index) in item.cd"
                       class="btn"
                       :class="{'gray': item.disabled}"
+                      style="padding: 0px 5px;"
                       @click="toBackHandle(item, cd.k)"
                     >{{ cd.m }}</div>
                   </div>
@@ -76,11 +77,12 @@
                     {{item.rs}}
                   </div>
 
-                  <div class="td fixed" style="height: 40px; line-height: 40px;" v-if="activeId ==3">
+                  <div class="td fixed" v-if="activeId ==3">
                     <div
                       v-if="activeId==3"
                       v-for="(cd, index) in item.cd"
                       class="btn"
+                      style="padding: 0px 5px;"
                       :class="{'gray': item.disabled}"
                       @click="toBackHandle(item, cd.k)"
                     >{{ cd.m }}</div>
