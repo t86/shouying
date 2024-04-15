@@ -83,7 +83,7 @@
                 $store.state.userInfo.roleIds[0] == 4
               ),
           }">
-            <p>{{ cardInfo.name }}</p>
+            <p @click="showChangeFwyDialog">{{ cardInfo.name }}</p>
             <p>{{ cardInfo.chgSeatInfo }}</p>
           </div>
 
@@ -263,6 +263,22 @@
       <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
       <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
     </div>
+
+    <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
+        <h3>修改服务员</h3>
+        <el-select v-model="selFwy">
+          <el-option
+            v-for="item in empList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"></el-option>
+        </el-select>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+          <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -377,6 +393,10 @@ const payTypeList =
 export default {
   data() {
     return {
+      showChangeFwy: false, // 修改服务员
+      selFwy: "", // 选择服务员
+      empList: [], // 服务员列表
+
       canLookOrderAmt: false,
 
       isRect: window.innerWidth > 1024,
@@ -433,6 +453,13 @@ export default {
     };
   },
   methods: {
+    closeChangeFwy() {
+      this.showChangeFwy = false;
+    },
+    submitChangeFwy() {
+      this.showChangeFwy = false;
+
+    },
     footNavBarClick(item) {
       if (this.$route.name === item.routeName) return; // 重复点击同一个tab
       item.id === 1
