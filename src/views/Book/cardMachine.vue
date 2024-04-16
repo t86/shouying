@@ -459,7 +459,7 @@
     <!-- 线上预订记录 -->
     <drawerOnlineBooking
       :showDrawer="showOrHideOnlineBookingDrawer"
-      @showOrHideDrawer="showOrHideOnlineBookingDrawerHandle"
+      @showOrHideOnlineBookingDrawer="showOrHideOnlineBookingDrawerHandle"
     />
 
 
