@@ -7,7 +7,7 @@
         <p class="label">
           <span>线下订单待支付金额:</span>
           <span class="amt" style="font-size: 28px">¥</span>
-          <span class="amt">{{ orderInfoDetail.pay_amt }}</span>
+          <span class="amt">{{ (orderInfoDetail.pay_amt / 100).toFixed(2) }}</span>
         </p>
         <div class="qr" layout="column" layout-align="center center">
           <vue-qr ref="qrCode" :text="textValue" :size="240" :margin="8" />
