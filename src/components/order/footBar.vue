@@ -839,10 +839,10 @@ export default {
           isHaveAuth = true
         }
       }
-      if (this.$store.state.userInfo.authStatus == 4 &&
-        this.terminalType == 'android') {
-        isHaveAuth = true
-      }
+//      if (this.$store.state.userInfo.authStatus == 4 &&
+//        this.terminalType == 'android') {
+//        isHaveAuth = true
+//      }
       return isHaveAuth;
     },
     authTips() {
