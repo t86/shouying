@@ -41,8 +41,8 @@
             {{ item.name }}
           </li>
         </ul>
-        <span v-if="showEmp" :class="{asBtn: showEmp && selFwy != ''}">{{ selFwy != '' 
-        ? empList.filter(item => item.id == selFwy)[0].name : '绑定当台服务员' }}</span>
+        <span v-if="showEmp" :class="{asBtn: showEmp && selFwy != ''}" @click="showChangeFwy = true">{{ selFwy != '' 
+        ? '服务员： ' + empList.filter(item => item.id == selFwy)[0].name : '绑定当台服务员' }}</span>
       </div>
 
       <!-- 表格内容 -->
@@ -524,7 +524,6 @@ export default {
       }
 
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
-      this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
       this.showEmp = [1,2].includes(businessData.find(ite => 
         ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).seat_biz_type * 1)
     },
@@ -735,6 +734,8 @@ export default {
       try {
         const res = await api_money.reqGetCardPayInfo(params);
         if (res.code === 1) {
+
+          this.selFwy = res.data.waiter_emp_id || ''
           // 获取翻台记录
           // 最左边的记录，如果是清台状态，和翻台一样处理
           if (
