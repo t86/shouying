@@ -41,6 +41,8 @@
             {{ item.name }}
           </li>
         </ul>
+        <span v-if="showEmp" :class="{asBtn: showEmp && selFwy != ''}">{{ selFwy != '' 
+        ? empList.filter(item => item.id == selFwy)[0].name : '绑定当台服务员' }}</span>
       </div>
 
       <!-- 表格内容 -->
@@ -393,6 +395,22 @@
         <el-button type="primary" @click="exportData">确定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
+      <h3>修改服务员</h3>
+      <el-select v-model="selFwy">
+        <el-option
+          v-for="item in empList"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"></el-option>
+      </el-select>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+        <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -426,6 +444,13 @@ const ctrlAndShiftCode = [17, 16];
 export default {
   data() {
     return {
+
+      showChangeFwy: false, // 修改服务员
+      selFwy: "", // 选择服务员
+      empList: [], // 服务员列表
+      showEmp: false,
+
+
       isRect: window.innerWidth > 1024,
       empId: 0, // 订位人id
       flag: false, // 递归节流阀（用于请求到订单数据后更新结账前结账后数据）
@@ -497,7 +522,42 @@ export default {
           this.changeTab("order", this.payTabInfo.payTabList[0].id);
         }, 300);
       }
+
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+      this.showEmp = [1,2].includes(businessData.find(ite => 
+        ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).seat_biz_type * 1)
     },
+    showChangeFwyDialog() {
+      this.showChangeFwy = true;
+    },
+    closeChangeFwy() {
+      this.showChangeFwy = false;
+    },
+    async submitChangeFwy() {
+      this.showChangeFwy = false;
+      try {
+        if (!this.selFwy) {
+          this.$message.warning("请选择服务员");
+          return;
+        }
+        const res =
+          await api_order.reqChgCsmWaiter({
+          seatId: this.$store.state.orderInfo.currentCardInfo.seatId,
+          waiter_emp_id : this.selFwy,
+        });
+        if(res.code == 1) {
+          this.$message.success("修改服务员成功");
+          
+        } else {
+          this.$message.warning("修改服务员失败");
+        }
+      } catch(error) {
+        this.$message.warning("修改服务员失败");
+      }
+
+    },
+
     async exportData(){
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id

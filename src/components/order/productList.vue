@@ -109,8 +109,8 @@
           authInfo.minute
         }}
       </p>
-      <p class="author" :class="{ rect: !isRect }">
-        {{ authTips }}: {{authInfo.name}}
+      <p class="author" :class="{ rect: !isRect, asBtn: showEmp && empId*1 == 0}" @click="showChangeFwy = true">
+        {{ authTips }}{{authInfo.name}}
       </p>
     </div>
 
@@ -127,6 +127,14 @@
       @showOrHideDrawer="showOrHideDrawer" />
 
     <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
+
+    <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
+        <h3>绑定当台服务员？</h3>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+          <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -151,6 +159,7 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
+      showChangeFwy: false, // 是否显示绑定服务员弹窗
       isRect: true, // 是否为横屏
 
       centerType: 100, // 卡台版心宽度
@@ -190,9 +199,32 @@ export default {
       isNarrowWidth: window.innerWidth < 850,
       pic_show: false,
       openTime: "",
+      empId: '',
+      showEmp: false,
     };
   },
   methods: {
+    closeChangeFwy() {
+      this.showChangeFwy = false;
+    },
+    async submitChangeFwy() {
+      this.showChangeFwy = false;
+      try {
+        const res = await api_order.reqSetCsmWaiter({
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+        })
+        if (res.code === 1) {
+          this.empId = this.$store.state.userInfo.emp_id;
+          this.getAuthInfo();
+          this.$message.success('绑定成功');
+          console.log(res.data, '绑定成功')
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('绑定服务员失败', error)
+      }
+    },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
       const titleElement = this.$refs.cardNameTitle;
@@ -225,7 +257,7 @@ export default {
         day: date.getDate().toString().padStart(2, 0),
         hour: date.getHours().toString().padStart(2, 0),
         minute: date.getMinutes().toString().padStart(2, 0),
-        name: this.$store.state.userInfo.name,
+        name: this.$store.state.userInfo.name && (": " + this.$store.state.userInfo.name) || '',
       };
     },
     keyboardShow(refString) {
@@ -260,7 +292,6 @@ export default {
         const res = await api_order.reqGetShoppingList(params);
         if (res.code === 1) {
           this.shoppingCartList = res.data;
-          console.log(res.data, '?????')
         } else {
           this.$message.warning(res.msg);
         }
@@ -595,13 +626,19 @@ export default {
     }, 200);
   },
   mounted() {
-
+    console.log('mounted')
     firstLoad = true;
     this.getShoppingCartData()
     this.getCenterType();
     this.getAuthInfo();
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+    const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+    this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+    this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
+    if (this.showEmp && this.empId * 1 == 0) {
+      this.authInfo.name = '';
+    }
     this.getOpenTime(); //开台时间
     this.adjustFontSize(); // 在组件加载后调整一次字体大小
     window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
@@ -630,7 +667,7 @@ export default {
       return termType == 'android' || termType == 'pc'
     },
     authTips() {
-      return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
+      return this.showEmp ? (this.empId * 1 != 0 ? '服务员' : '绑定当台服务员'): this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },
   },
   components: {

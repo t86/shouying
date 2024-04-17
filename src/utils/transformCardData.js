@@ -209,6 +209,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           isOwnBookedCard: false, // 是否是自己或自己下属预定的卡台   此字段用于点单系统营销确认卡台是否为自己或自己下属一定的卡台判断
           chgSeatInfo: el[32],  //  转台信息
           seat_biz_type: el[33], // 卡台类型字段(1 实体台 2 虚拟台 3 关联功能台 4 功能台)
+          waiter_emp_id: el[34], // 当台点单服务员
         })
       })
       break
