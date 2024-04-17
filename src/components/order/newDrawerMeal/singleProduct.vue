@@ -77,7 +77,7 @@
       @showOrHideDrawer="showOrHideRequireDrawer" />
 
     <!-- 补交 -->
-    <drawerBj v-model="showBJDrawer" :productInfo="productInfo" :count="count" :amt="amt" :requestInfoArr="requestInfoArr"
+    <drawerBj v-model="showBJDrawer" :productInfo="productInfo" :count="shopCount" :amt="amt" :requestInfoArr="requestInfoArr"
       @onCancelDrawer="onCancelDrawer" />
 
     <div class="modal" v-if="showModal">
@@ -142,6 +142,8 @@ export default {
 
       // 补交
       showBJDrawer: false,
+      shopCount: '', // 商品数量
+
     };
   },
   methods: {
@@ -257,26 +259,26 @@ export default {
     async onSubmit() {
 
 
-      let shopCount = this.count;
+      this.shopCount = this.count;
       // 如果count为空，则默认为1
       if (this.count === "") {
-        shopCount = this.isGQ ? 0 : 1;
+        this.shopCount = this.isGQ ? 0 : 1;
       }
 
       if (
-        shopCount.toString().indexOf(".") > -1 &&
-        shopCount.toString().indexOf(".") < shopCount.toString().length - 1
+        this.shopCount.toString().indexOf(".") > -1 &&
+        this.shopCount.toString().indexOf(".") < this.shopCount.toString().length - 1
       )
         return this.$message.warning("商品数量必须为整数");
-      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !shopCount)
+      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !this.shopCount)
         return this.$message.warning("商品数量默认1");
-      if (isNaN(shopCount * 1)) return this.$message.warning("请输入数字！");
+      if (isNaN(this.shopCount * 1)) return this.$message.warning("请输入数字！");
 
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
         const params = {
           prd_id: this.productInfo.id * 1, //     int64    商品Id
-          cnt: shopCount * 1, //   int  数量
+          cnt: this.shopCount * 1, //   int  数量
         };
         try {
           const res = await api_order.reqSetGQOrder(params);
@@ -298,7 +300,7 @@ export default {
       // 判断点单数量是否超过了估清数量
       if (
         this.productInfo.outSomethingCount != "many" &&
-        shopCount * 1 > this.productInfo.outSomethingCount
+        this.shopCount * 1 > this.productInfo.outSomethingCount
       ) {
         return this.$message.warning(
           `商品数量超过了可点最大数量${this.productInfo.outSomethingCount}`
@@ -313,7 +315,7 @@ export default {
       );
       if (
         isOutOfSomethingPrd &&
-        isOutOfSomethingPrd.cnt < shopCount * 1 &&
+        isOutOfSomethingPrd.cnt < this.shopCount * 1 &&
         isOutOfSomethingPrd.status == 1
       ) {
         // 当前商品是估清商品,且点单数量超过了估清数量
@@ -336,7 +338,7 @@ export default {
         // 非套餐
         const resultProductInfo = {
           ...this.productInfo,
-          pc: shopCount * 1,
+          pc: this.shopCount * 1,
           amt: this.amt * 1,
           require: this.requestInfoArr.join(";"),
         };
@@ -347,19 +349,19 @@ export default {
 
       // 收银下单
       if (this.$store.state.userInfo.authStatus == 4) {
-         this.orderMealToShoppingCart(shopCount);
+         this.orderMealToShoppingCart(this.shopCount);
          return
       }
 
       // 服务员可点商品加入购物车
       if (this.orderMealStatus == 1) {
-        this.orderMealToShoppingCart(shopCount);
+        this.orderMealToShoppingCart(this.shopCount);
         return
       }
 
       // 营销/花篮加入购物车
       if (this.orderMealStatus == 2 || this.orderMealStatus == 3) {
-        this.sealToShoppingCart(shopCount);
+        this.sealToShoppingCart(this.shopCount);
         return
       }
 
@@ -373,7 +375,7 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
         this.$store.state.orderInfo.currentCardInfo.bizType == 4
       ) {
-        this.orderMealToShoppingCart(shopCount);
+        this.orderMealToShoppingCart(this.shopCount);
         return
       }
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)

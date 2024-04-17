@@ -122,7 +122,7 @@
                 </div>
               </div>
             </div>
-            <div v-if="subStatus==1 || subStatus==3" class="row" layout="row" layout-align="start start" >
+            <div v-if="(subStatus==1 || subStatus==3) && autoUpgradeEnabled" class="row" layout="row" layout-align="start start" >
               <div class="label">
                 <span class="red">*</span>
                 <span>等级经验值:</span>
@@ -381,7 +381,7 @@ export default {
     async saveExperienceHandle(itemInfo){
       const params = {
         id: itemInfo.id * 1,  //  int64    卡等级Id
-        exp_threshold: itemInfo.experince * 1,  // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+        exp_threshold: this.autoUpgradeEnabled ? itemInfo.experince * 1 : 0,  // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
       }
       try {
         const res = await api_vip.reqChgMbCardLevelExpTd(params)
@@ -393,6 +393,8 @@ export default {
         }
       } catch (error) {
         console.log('会员卡等级经验值修改失败', error)
+        this.$message.warning("会员卡等级经验值修改失败: " + error)
+        
       }
     },
 
@@ -512,7 +514,7 @@ export default {
         id: this.editInfo.id * 1,  //    int64    卡类型Id
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
-        exp_threshold: this.experince * 1, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+        exp_threshold: this.autoUpgradeEnabled ? this.experince * 1 : 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
       }
 
       try {
@@ -523,6 +525,7 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
+        this.$message.warning("编辑状态添加卡等级失败: " + error)
         console.log('编辑状态添加卡等级失败', error)
       }
     },
@@ -594,7 +597,7 @@ export default {
           name: this.form.vipName, // string  卡类型名称
           is_def: this.form.isDefault ? 1 : 2, //   int   是否默认 1 默认 2 不默认
           level_pic_name: this.defaultBgiImgList.find(item => item.uid == this.activeBgiUid).name, // string  默认等级卡面图片
-          exp_threshold: this.autoUpgradeEnabled ? this.experince : '', // int64  等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+          exp_threshold: this.autoUpgradeEnabled ? this.experince * 1 : 0, // int64  等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
           // level_names: this.cardInfoList.map(item => item.name),  // []string    卡等级名称列表
           // level_pic_names: this.cardInfoList.map(item => item.bgiName),  // []string   卡面图片列表
         }
@@ -608,6 +611,7 @@ export default {
             this.$message.warning(res.msg)
           }
         } catch (error) {
+          this.$message.warning("新增会员卡失败: " + error)
           console.log('新增会员卡失败', error)
         }
       } else if(this.status == 2) {
@@ -619,7 +623,11 @@ export default {
           try {
             const res = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
             console.log('等级新建', res)
-            this.$message.success('新建等级成功')
+            if(res.code == 1) {
+              this.$message.success('新建等级成功')
+            } else {
+              this.$message.warning(res.msg)
+            }
           } catch (error) {
             console.log('新增会员卡等级失败', error)
           }

@@ -84,6 +84,10 @@ export default {
   reqReprtCp: (params) =>
     axios.post(`${base.htgl}/wo/reprt_cp`, params),
 
+  // 设置流水服务员
+  reqSetCsmWaiter: (params) =>
+    axios.post(`${base.htgl}/wo/set_csm_waiter`, params),
+
   // 手工打印消费单
   reqPrintOrder: (params) => axios.post(`${base.htgl}/wo/prt_csm_bill`, params),
   // 手工补打消费单

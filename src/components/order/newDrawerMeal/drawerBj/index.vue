@@ -67,6 +67,7 @@ export default {
         this.orderInfo = {...this.tempOrderInfo}
         this.changeStatus(1)
       }
+      console.log('onSubmit',this.cardInfo, this.orderInfo , this.count, this.amt)
     },
 
     async addShoppingCartHandle(){
