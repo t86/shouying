@@ -42,9 +42,14 @@
           </li>
         </ul>
         <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
-        <span>服务员： {{ selFwyName || '-'}}</span>
-          <el-button type="primary" style="height: 25px; line-height: 20px; padding: 2px 10px;margin-left: 10px" @click="showChangeFwy = true">{{ selFwyName ? '修改绑定': '绑定服务员' }}</el-button>
-      </div>
+          <span style="font-weight: 400;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">服务员： {{ selFwyName || '-'}}</span>
+          <div class="bind-emp" layout="row" layout-align="end center" >
+            <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
+            <div @click="showChangeFwy = true" class="bind-emp-text">修改</div>
+          </div>
+        </div>
+
+          
       </div>
 
       <!-- 表格内容 -->

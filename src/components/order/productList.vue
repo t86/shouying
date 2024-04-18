@@ -109,9 +109,13 @@
           authInfo.minute
         }}
       </p>
-      <p class="author" :class="{ rect: !isRect, asBtn: showEmp && empId*1 == 0}" @click="showChangeFwy = true">
+      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
+        <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
+        绑定当台服务员</div>
+      <p v-else class="author">
         {{ authTips }}{{authInfo.name}}
       </p>
+
     </div>
 
 
@@ -199,11 +203,17 @@ export default {
       isNarrowWidth: window.innerWidth < 850,
       pic_show: false,
       openTime: "",
-      empId: '',
+      empId: 0,
       showEmp: false,
     };
   },
   methods: {
+    showEmpDialog() {
+      console.log('showEmpDialog', this.showEmp, this.empId)
+      if (this.showEmp && !this.empId) {
+        this.showChangeFwy = true;
+      }
+    },
     closeChangeFwy() {
       this.showChangeFwy = false;
     },
