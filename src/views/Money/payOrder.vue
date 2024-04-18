@@ -43,9 +43,9 @@
         </ul>
         <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
           <span style="font-weight: 400;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">服务员： {{ selFwyName || '-'}}</span>
-          <div class="bind-emp" layout="row" layout-align="end center" >
+          <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
             <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
-            <div @click="showChangeFwy = true" class="bind-emp-text">修改</div>
+            <div class="bind-emp-text">修改</div>
           </div>
         </div>
 
