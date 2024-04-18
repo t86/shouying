@@ -103,7 +103,7 @@ export default {
     async cancelPayOrder() {
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64   卡台Id
-        ol_pay_lock_id: this.orderInfoDetail.ol_pay_lock_id * 1, // int64   锁定订单Id
+        ol_pay_id: this.orderInfoDetail.ol_pay_id * 1, // int64   锁定订单Id
       };
 
       try {
