@@ -41,8 +41,10 @@
             {{ item.name }}
           </li>
         </ul>
-        <span v-if="showEmp" :class="{asBtn: showEmp && selFwy != ''}" @click="showChangeFwy = true">{{ selFwy != '' 
-        ? '服务员： ' + empList.filter(item => item.id == selFwy)[0].name : '绑定当台服务员' }}</span>
+        <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
+        <span>服务员： {{ selFwyName || '-'}}</span>
+          <el-button type="primary" style="height: 25px; line-height: 20px; padding: 2px 10px;margin-left: 10px" @click="showChangeFwy = true">{{ selFwyName ? '修改绑定': '绑定服务员' }}</el-button>
+      </div>
       </div>
 
       <!-- 表格内容 -->
@@ -396,15 +398,20 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
-      <h3>修改服务员</h3>
-      <el-select v-model="selFwy">
-        <el-option
-          v-for="item in empList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"></el-option>
-      </el-select>
+    <el-dialog title="修改服务员" width="50%"  :style="{ height: '500px' }" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
+      <div>
+        <input-select
+          :autoFocus="true"
+          style="width: 60%"
+          :value="selFwyName"
+          placeholder="请选择服务员"
+          :optionsList="empList"
+          @selectInputHandle="inputSealName"
+          @selectOptionItem="changeSealName"
+          @selectBlurHandle="selectBlurHandle"
+        ></input-select>
+      </div>
+
 
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
@@ -416,6 +423,7 @@
 
 <script>
 import eventVue from "@/utils/eventVue";
+import inputSelect from "@/components/book/inputSelect";
 
 import api_order from "@/api/order";
 import api_money from "@/api/money";
@@ -447,6 +455,7 @@ export default {
 
       showChangeFwy: false, // 修改服务员
       selFwy: "", // 选择服务员
+      selFwyName: "", // 选择服务员名称
       empList: [], // 服务员列表
       showEmp: false,
 
@@ -527,9 +536,35 @@ export default {
       this.showEmp = [1,2].includes(businessData.find(ite => 
         ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).seat_biz_type * 1)
     },
-    showChangeFwyDialog() {
-      this.showChangeFwy = true;
+    selectBlurHandle() {
+      this.empList = [];
     },
+
+    // 获取服务员信息
+    inputSealName(query) {
+      console.log('inputSealName', query)
+      this.selFwyName = query;
+      this.selFwy = "";
+      const sealInfoArr =
+        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      const results = query
+        ? sealInfoArr.filter(
+            (el) =>
+              el.code.toString().includes(query) ||
+              el.name.toString().includes(query) ||
+              el.namePy.toString().includes(query.toLowerCase())
+          )
+        : sealInfoArr;
+      this.empList = results;
+    },
+    // 选择服务员信息
+    changeSealName(info) {
+      console.log('changeSealName', info)
+      this.selFwyName = info.name;
+      this.selFwy = info.id;
+      this.empList = [];
+    },
+    
     closeChangeFwy() {
       this.showChangeFwy = false;
     },
@@ -542,8 +577,9 @@ export default {
         }
         const res =
           await api_order.reqChgCsmWaiter({
-          seatId: this.$store.state.orderInfo.currentCardInfo.seatId,
-          waiter_emp_id : this.selFwy,
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId *1,
+          waiter_emp_id: this.selFwy * 1,
+          turnover_cnt: this.turnOverInfo.activeTurnOverCount,
         });
         if(res.code == 1) {
           this.$message.success("修改服务员成功");
@@ -736,6 +772,9 @@ export default {
         if (res.code === 1) {
 
           this.selFwy = res.data.waiter_emp_id || ''
+          let fwyList = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
+          this.selFwyName = fwyList.findIndex(item => item.id * 1 == this.selFwy) > 0 ? fwyList.find(item => item.id * 1 == this.selFwy).name : ''
+          console.log('getEmpList', this.selFwy, this.selFwyName)
           // 获取翻台记录
           // 最左边的记录，如果是清台状态，和翻台一样处理
           if (
@@ -1974,6 +2013,7 @@ export default {
     drawerOrderBack,
     fullPageTable,
     drawerPrintOrder,
+    inputSelect,
   },
   computed: {
     hasChooseClockOrder() {

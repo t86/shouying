@@ -1,7 +1,7 @@
 <template>
   <!-- 基于element-ui2.x版本input写的input模糊查询组件 -->
   <div>
-    <div ref="selectOption">
+    <div ref="selectOption" style="position: relative;">
       <el-input v-model="selectInputVal" :type="inputType" ref="selectInput" :placeholder="placeholder" min="0" @input="inputHandle"></el-input>
       <ul class="options" ref="optionRef" 
         :style="'width:' + selectOptionWidth + 'px;top:' + selectOptionTop + 'px'">
