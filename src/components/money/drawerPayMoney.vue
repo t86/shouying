@@ -150,7 +150,7 @@
               <span>卡余额:</span>
               <span class="value"
                 >￥{{
-                  `${vipPayInfo.totalAmt} (储：￥${vipPayInfo.pb}; 赠：￥${vipPayInfo.fb})`
+                  `${(vipPayInfo.totalAmt/100).toFixed(2)} (储：￥${(vipPayInfo.pb/100).toFixed(2)}; 赠：￥${(vipPayInfo.fb/100).toFixed(2)})`
                 }}</span
               >
             </div>
@@ -169,7 +169,7 @@
               >
               <span class="value"
                 >￥{{
-                  `${vipPayInfo.availableAmt} (储：￥${vipPayInfo.pv}; 赠：￥${vipPayInfo.fv})`
+                  `${(vipPayInfo.availableAmt/100).toFixed(2)} (储：￥${(vipPayInfo.pv/100).toFixed(2)}; 赠：￥${(vipPayInfo.fv/100).toFixed(2)})`
                 }}</span
               >
             </div>
