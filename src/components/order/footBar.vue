@@ -220,7 +220,7 @@
             <div class="button info cursor" @click="showChoosePayType = false">
               取消
             </div>
-            <div class="button primary cursor" @click="getPayQRCode(2)">
+            <div class="button primary cursor" @click="getPayQRCode(1)">
               确定
             </div>
           </div>
@@ -672,16 +672,16 @@ export default {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
             order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
           };
-          const res = await api_order.reqCheckPayOrder(params);
-          if (res.code == 2) {
+          // const res = await api_order.reqCheckPayOrder(params);
+          // if (res.code == 2) {
             const result = await this.showConfirmHandle("买单", res.msg);
-            if (result != "confirm") {
-              return;
-            }
-          } else if (res.code != 1) {
-            this.$message.warning(res.msg);
-            return;
-          }
+          //   if (result != "confirm") {
+          //     return;
+          //   }
+          // } else if (res.code != 1) {
+          //   this.$message.warning(res.msg);
+          //   return;
+          // }
         }
         if (this.qrResult == null) {
           try {
@@ -695,7 +695,7 @@ export default {
       }
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
-        force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
+        // force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
         pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助  5:扫客人-支付宝 6:扫客人-微信
         order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
         auth_code: this.qrResult ? this.qrResult.toString() : "", //  string   扫码结果
