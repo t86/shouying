@@ -67,11 +67,11 @@
                   " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
                   <img :src="imgSrc.sanJiao" v-if="
                     item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
+                    (!item.back || item.productInfo.prdType == 2 || hasChgOrderWaiterAuth)
                   " class="sanJiao" alt />
                   <div class="do-list" v-if="
                     item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
+                    (!item.back || item.productInfo.prdType == 2 || hasChgOrderWaiterAuth)
                   ">
                     <div class="li" v-if="item.s != 5 && !item.back && hasOrderBackAuth"
                       @click.stop="showOrHideDrawer(1, item)">
@@ -88,6 +88,10 @@
                       @click.stop="showOrHideDrawer(5, item)">
                       查看套餐明细
                     </div>
+                    <div class="li" v-if="hasChgOrderWaiterAuth" @click.stop="showOrHideDrawer(11, item)">
+                      修改服务员
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -467,6 +471,22 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(4)
+      );
+    },
+
+    // 是否有修改订单
+    hasChgOrderWaiterAuth () {
+      console.log(this.$store.state.userInfo.sys_modules)
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(8)
+      );
+    },
+    // 是否有修改卡台
+    hasChgKTWaiterAuth () {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(9)
       );
     },
     // 是否有查单权限

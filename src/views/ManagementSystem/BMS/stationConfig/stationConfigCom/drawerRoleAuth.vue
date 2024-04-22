@@ -170,7 +170,8 @@ export default {
                   return {
                     ...m,
                     rId: d.id,
-                    row: m.m && m.m.length > 0,
+                    // row: m.m && m.m.length > 0,
+                    row: true,
                     checked: m.st == 1,
                   };
                 }),
@@ -184,6 +185,7 @@ export default {
 
           const haveSub = this.erpList.filter((e) => (e.st == 1 || e.st == 3) && e.subList);
           this.subList = haveSub.map((e) => e.subList);
+          console.log(this.subList)
         } else {
           this.$message.warning(res.msg);
         }

@@ -1108,6 +1108,9 @@ export default {
         case 10: // 取消优惠
           this.orderCancelDiscounts()
           break;
+        case 11: //订单修改服务员
+          console.log('TODO:订单修改服务员')
+          break;
       }
     },
 

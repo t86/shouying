@@ -112,6 +112,9 @@
       <p class="author" :class="{ rect: !isRect }">
         {{ authTips }}: {{authInfo.name}}
       </p>
+      
+      <img class="item-img" v-if="hasChgKTWaiterAuth" @click.stop="changeDiandan()" :src="require('@/assets/img/btn_edit.png')" />
+      
     </div>
 
 
@@ -211,6 +214,16 @@ export default {
         this.seatFontSize = `${f}px`
 
       }
+    },
+        // 是否有修改卡台
+    hasChgKTWaiterAuth () {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(9)
+      );
+    },
+    changeDiandan () {
+      console.log("TODO:change diandan");
     },
     empInfoFilter(empId) {
       empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
