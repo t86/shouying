@@ -52,6 +52,7 @@ export default {
       show: false,
       textValue: "",
       timer: "",
+      startTimer: 15*60,
     };
   },
   methods: {
@@ -66,7 +67,16 @@ export default {
     setQRCodeInfo() {
       this.textValue = this.orderInfoDetail.pay_url;
       if (this.timer) clearInterval(this.timer);
+      this.startTimer = 15*60;
       this.timer = setInterval(() => {
+        if(this.startTimer <= 0) {
+          clearInterval(this.timer);
+          this.onCancelDrawer();
+          this.reloadMyOrderTableData();
+          this.$emit("subSecondLogoutHandle");
+          return;
+        }
+        this.startTimer--;
         this.getOrderPayStatus();
       }, 1000);
     },
