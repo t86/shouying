@@ -131,7 +131,8 @@ export default {
       search: {
         keyWord: ""
       },
-
+      shoppingCartList:[],
+      
       drawer: {
         showDrawer: false
       },

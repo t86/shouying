@@ -50,7 +50,7 @@ export default {
       if (true) {
         if ((this.$store.state.userInfo.roleIds.includes(2) 
         || this.$store.state.userInfo.roleIds.includes(4)) 
-        && this.$store.state.orderInfo.currentCardInfo.isWaiter) {
+        && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
           // 服务员 特饮 且是服务员可点卡台
           // 查看是否为不限可点
           if (
@@ -151,7 +151,7 @@ export default {
        */
       if ((this.$store.state.userInfo.roleIds.includes(2) 
       || this.$store.state.userInfo.roleIds.includes(4)) 
-      && this.$store.state.orderInfo.currentCardInfo.isWaiter) {
+      && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
         // 当前区域下服务员可点商品
         const FWYAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
@@ -202,7 +202,7 @@ export default {
        * 营销
        */
       if (this.$store.state.userInfo.roleIds.includes(3) 
-        && (this.$store.state.orderInfo.currentCardInfo.isYX)) {
+        && (this.$store.state.orderInfo.currentCardInfo.isYX) && !isGQ) {
         // 营销在当前区域下可点商品
         const YXAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
@@ -488,7 +488,7 @@ export default {
       }
 
       // 判断是否当前卡台为补交卡台（不能点优惠/优惠2）
-      if (this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
+      if (this.$store.state.orderInfo.currentCardInfo.bizType == 3 && !isGQ) {
         resultProductArr = resultProductArr.filter(
           (item) =>
             (!item.canSeal && !item.canSealYH2) ||
@@ -509,7 +509,7 @@ export default {
       if (sessionStorage.getItem("client") == "order" 
       && (this.$store.state.userInfo.roleIds.includes(2) 
       || this.$store.state.userInfo.roleIds.includes(4)) 
-      && this.$store.state.orderInfo.currentCardInfo.isWaiter){
+      && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
         resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
         ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
@@ -518,7 +518,7 @@ export default {
       }
 
       if (sessionStorage.getItem("client") == "order" 
-      && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4')) {
+      && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4') && !isGQ) {
         let tmpArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "funcOrderPrdConfig"
         ].findIndex(i => i.prd_id == item.id && i.seat_id == this.$store.state.orderInfo.currentCardInfo.id && i.status == '1') >= 0).map(item => {
