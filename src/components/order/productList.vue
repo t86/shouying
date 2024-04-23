@@ -109,12 +109,13 @@
           authInfo.minute
         }}
       </p>
-      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
-        <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
-        绑定当台服务员</div>
-      <p v-else class="author">
-        {{ authTips }}{{authInfo.name}}
-      </p>
+
+      <div layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
+        {{ authTips }}: {{authInfo.name}}
+<!--        <el-button size='mini' round v-if="hasChgKTWaiterAuth" icon="el-icon-edit" @click="dialogFormVisible=!dialogFormVisible"></el-button>-->
+        <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
+      </div>
+
 
     </div>
 
@@ -125,6 +126,35 @@
       </div>
 
     </el-dialog> -->
+
+    <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
+        <el-form-item label="原服务员:">
+          {{this.$store.state.userInfo.name}}
+        </el-form-item>
+        <el-form-item label="绑定服务员:" required prop="waiter">
+          <el-select
+              v-model="ruleForm.waiter"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="输入工号或者姓名搜索"
+              :remote-method="remoteMethod"
+              :loading="loading">
+            <el-option
+                v-for="item in ruleForm.waiters"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="changeDiandan">确 定</el-button>
+      </div>
+    </el-dialog>
 
     <!-- 单品点单 -->
     <mealDrawer ref="mealDrawerRef" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
@@ -163,9 +193,20 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
-      showChangeFwy: false, // 是否显示绑定服务员弹窗
-      isRect: true, // 是否为横屏
 
+      ruleForm: {
+        waiter: '',
+        waiters:[],
+      },
+      rules: {
+        waiter: [
+          {required: true, message: '请输入卡台服务员', trigger: 'change'}
+        ],
+      },
+      loading: false,
+
+      isRect: true, // 是否为横屏
+      dialogFormVisible: false,
       centerType: 100, // 卡台版心宽度
 
       productsList: [], // 页面卡台分页后展示在页面的数据
@@ -208,32 +249,43 @@ export default {
     };
   },
   methods: {
-    showEmpDialog() {
-      console.log('showEmpDialog', this.showEmp, this.empId)
-      if (this.showEmp && !this.empId) {
-        this.showChangeFwy = true;
-      }
-    },
-    closeChangeFwy() {
-      this.showChangeFwy = false;
-    },
-    async submitChangeFwy() {
-      this.showChangeFwy = false;
-      try {
-        const res = await api_order.reqSetCsmWaiter({
-          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
-        })
-        if (res.code === 1) {
-          this.empId = this.$store.state.userInfo.emp_id;
-          this.getAuthInfo();
-          this.$message.success('绑定成功');
-          console.log(res.data, '绑定成功')
+    async chgDiandan() {
+      this.$refs['ruleForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            waiter_emp_id: this.ruleForm.waiter * 1
+          };
+          const res =  api_order.chg_csm_waiter_inord(params);
+          res.then( r => {
+            if (r.code === 1) {
+              this.$message.success('修改卡台服务员成功');
+            } else {
+              this.$message.warning(r.msg);
+            }
+            this.dialogFormVisible = false
+          })
         } else {
-          this.$message.warning(res.msg);
+          console.log('error submit!!');
+          return false;
         }
-      } catch (error) {
-        console.log('绑定服务员失败', error)
-      }
+      });
+    },
+    remoteMethod(query) {
+      this.loading = true;
+      this.ruleForm.waiters = []
+      const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      const results = query ? sealInfoArr.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : sealInfoArr;
+      console.log('waiters:', results)
+      this.ruleForm.waiters = results;
+      this.loading = false;
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
@@ -254,6 +306,16 @@ export default {
 
       }
     },
+        // 是否有修改卡台
+    hasChgKTWaiterAuth () {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(9)
+      );
+    },
+    changeDiandan () {
+      console.log("TODO:change diandan");
+    },
     empInfoFilter(empId) {
       empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
       const empInfo = common_book.getOrderPersonInfo(empId) || { name: "散客" };
@@ -267,7 +329,7 @@ export default {
         day: date.getDate().toString().padStart(2, 0),
         hour: date.getHours().toString().padStart(2, 0),
         minute: date.getMinutes().toString().padStart(2, 0),
-        name: this.$store.state.userInfo.name && (": " + this.$store.state.userInfo.name) || '',
+        name: this.$store.state.userInfo.name && ( + this.$store.state.userInfo.name) || '',
       };
     },
     keyboardShow(refString) {

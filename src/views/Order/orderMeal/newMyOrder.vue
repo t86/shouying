@@ -59,20 +59,11 @@
                 </div>
                 <div class="td">
                   <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
-                  <img v-if="
-                    (item.s != 5 && !item.back && hasOrderBackAuth) || (item.productInfo.prdType == 2 &&
-                      !item.back &&
-                      hasChangeDetailAuth) || 
-                      (item.productInfo.prdType == 2 && item.back)
-                  " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
+                  <img v-if=" (item.s != 5 && !item.back && hasOrderBackAuth) || (item.productInfo.prdType == 2 && !item.back && hasChangeDetailAuth) || (item.productInfo.prdType == 2 && item.back) || hasChgOrderWaiterAuth"
+                       :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
                   <img :src="imgSrc.sanJiao" v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
-                  " class="sanJiao" alt />
-                  <div class="do-list" v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2)
-                  ">
+                    (item.showList && (!item.back || item.productInfo.prdType == 2))" class="sanJiao" alt />
+                  <div class="do-list" v-if="(item.showList && (!item.back || item.productInfo.prdType == 2))">
                     <div class="li" v-if="item.s != 5 && !item.back && hasOrderBackAuth"
                       @click.stop="showOrHideDrawer(1, item)">
                       退单
@@ -88,6 +79,10 @@
                       @click.stop="showOrHideDrawer(5, item)">
                       查看套餐明细
                     </div>
+                    <div class="li" v-if="hasChgOrderWaiterAuth" @click.stop="showOrHideDrawer(11, item)">
+                      修改服务员
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -338,6 +333,10 @@ export default {
       // status 1：退单 2：优惠  3：自用  4：修改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2
       this.drawer.status = status;
       this.drawer.currentItemInfo = objInfo;
+
+      if( status === 11) {
+        this.getOrderedData()
+      }
     },
 
     // 检测是否为横屏
@@ -467,6 +466,22 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(4)
+      );
+    },
+
+    // 是否有修改订单
+    hasChgOrderWaiterAuth () {
+      console.log(this.$store.state.userInfo.sys_modules)
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(8)
+      );
+    },
+    // 是否有修改卡台
+    hasChgKTWaiterAuth () {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(9)
       );
     },
     // 是否有查单权限

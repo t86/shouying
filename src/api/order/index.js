@@ -209,4 +209,12 @@ export default {
 
     // 使用券码核销卡券
   reqUseKqCode: (params) => axios.post(`${base.htgl}/sel/kq_csm_by_code`, params),
+  // 修改订单服务员
+  chg_wk_order_waiter_inord: (params) =>
+      axios.post(`${base.htgl}/wo/chg_wk_order_waiter_inord`, params),
+
+  // 修改订单服务员
+  chg_csm_waiter_inord: (params) =>
+      axios.post(`${base.htgl}/wo/chg_csm_waiter_inord`, params),
+
 };
