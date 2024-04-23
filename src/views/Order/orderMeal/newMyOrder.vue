@@ -59,20 +59,11 @@
                 </div>
                 <div class="td">
                   <!-- <div class="bg" v-if="item.showList" @click="showOrHideList(item)"></div> -->
-                  <img v-if="
-                    (item.s != 5 && !item.back && hasOrderBackAuth) || (item.productInfo.prdType == 2 &&
-                      !item.back &&
-                      hasChangeDetailAuth) || 
-                      (item.productInfo.prdType == 2 && item.back)
-                  " :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
+                  <img v-if=" (item.s != 5 && !item.back && hasOrderBackAuth) || (item.productInfo.prdType == 2 && !item.back && hasChangeDetailAuth) || (item.productInfo.prdType == 2 && item.back) || hasChgOrderWaiterAuth"
+                       :src="imgSrc.shoppingCarMore" @click.stop="showOrHideList(item)" alt />
                   <img :src="imgSrc.sanJiao" v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2 || hasChgOrderWaiterAuth)
-                  " class="sanJiao" alt />
-                  <div class="do-list" v-if="
-                    item.showList &&
-                    (!item.back || item.productInfo.prdType == 2 || hasChgOrderWaiterAuth)
-                  ">
+                    (item.showList && (!item.back || item.productInfo.prdType == 2))" class="sanJiao" alt />
+                  <div class="do-list" v-if="(item.showList && (!item.back || item.productInfo.prdType == 2))">
                     <div class="li" v-if="item.s != 5 && !item.back && hasOrderBackAuth"
                       @click.stop="showOrHideDrawer(1, item)">
                       退单

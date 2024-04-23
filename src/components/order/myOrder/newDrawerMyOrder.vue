@@ -321,8 +321,36 @@
                       @click="formData.reason = item.name">{{ item.name }}</li>
                   </ul>
                 </el-form-item>
+
               </el-form>
             </div>
+          </div>
+        </div>
+
+        <div v-if="status == 11" >
+          <div class="form">
+            <el-form label-position="right" :model="formData" @submit.native.prevent label-width="150px">
+              <el-form-item label="原服务员:">
+                {{this.$store.state.userInfo.name}}
+              </el-form-item>
+              <el-form-item label="绑定服务员:" required>
+                <el-select
+                    v-model="selWaiter"
+                    filterable
+                    remote
+                    reserve-keyword
+                    placeholder="输入工号或者姓名搜索"
+                    :remote-method="remoteMethod"
+                    :loading="loading">
+                  <el-option
+                      v-for="item in waiters"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
 
@@ -369,7 +397,7 @@ export default {
   data() {
     return {
       backOrderIndex: 0,  // 批量退单的数量下标
-
+      loading: false,
       show: false,
       // 赠送、自用、更改套餐明细
       subStatus: 1, // 1: 自用、授权处于第一步选择商品及数量页面  2：自用、授权处于授权页面  3:更改套餐明细授权
@@ -394,6 +422,8 @@ export default {
         userName: "",
         passWord: ""
       },
+      selWaiter: '',
+      waiters:[],
 
       // 更改明细
       updateDetail: {
@@ -440,6 +470,21 @@ export default {
     };
   },
   methods: {
+    remoteMethod(query) {
+      this.loading = true;
+      this.waiters = []
+      const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      const results = query ? sealInfoArr.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : sealInfoArr;
+      console.log('waiters:', results)
+      this.waiters = results;
+      this.loading = false;
+    },
     /**
      * 退单
      */
@@ -1110,6 +1155,21 @@ export default {
           break;
         case 11: //订单修改服务员
           console.log('TODO:订单修改服务员')
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            order_id: this.currentItemInfo.id * 1, // int64   订单项Id
+            waiter_emp_id: this.selWaiter * 1
+          };
+          console.log('=============订单修改服务员 params',params)
+
+          const api = 'chg_wk_order_waiter_inord'
+          const res = await api_order[api](params);
+          if (res.code === 1) {
+            this.$message.success("订单修改服务员成功");
+          } else {
+            this.$message.error("订单修改服务员成功");
+          }
+          this.onCancelDrawer(true);
           break;
       }
     },
@@ -1291,6 +1351,8 @@ export default {
           break
         case 10:
           title = '取消优惠'
+        case 11:
+          title = '修改服务员'
       }
       if (this.status != 4 && this.subStatus != 1) title = "授权";
       return title;
