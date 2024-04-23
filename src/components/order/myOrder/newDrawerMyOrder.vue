@@ -472,6 +472,7 @@ export default {
   methods: {
     remoteMethod(query) {
       this.loading = true;
+      this.selWaiter=''
       this.waiters = []
       const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
       const results = query ? sealInfoArr.filter(
@@ -1155,6 +1156,7 @@ export default {
           break;
         case 11: //订单修改服务员
           console.log('TODO:订单修改服务员')
+          if (!this.selWaiter) return this.$message.warning('请输入修改服务员');
           const params = {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
             order_id: this.currentItemInfo.id * 1, // int64   订单项Id

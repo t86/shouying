@@ -333,6 +333,10 @@ export default {
       // status 1：退单 2：优惠  3：自用  4：修改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2
       this.drawer.status = status;
       this.drawer.currentItemInfo = objInfo;
+
+      if( status === 11) {
+        this.getOrderedData()
+      }
     },
 
     // 检测是否为横屏
