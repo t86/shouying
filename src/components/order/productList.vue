@@ -249,6 +249,33 @@ export default {
     };
   },
   methods: {
+    showEmpDialog() {
+      console.log('showEmpDialog', this.showEmp, this.empId)
+      if (this.showEmp && !this.empId) {
+        this.showChangeFwy = true;
+      }
+    },
+    closeChangeFwy() {
+      this.showChangeFwy = false;
+    },
+    async submitChangeFwy() {
+      this.showChangeFwy = false;
+      try {
+        const res = await api_order.reqSetCsmWaiter({
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+        })
+        if (res.code === 1) {
+          this.empId = this.$store.state.userInfo.emp_id;
+          this.getAuthInfo();
+          this.$message.success('绑定成功');
+          console.log(res.data, '绑定成功')
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('绑定服务员失败', error)
+      }
+    },
     async chgDiandan() {
       this.$refs['ruleForm'].validate((valid) => {
         console.log(valid)
@@ -260,6 +287,8 @@ export default {
           const res =  api_order.chg_csm_waiter_inord(params);
           res.then( r => {
             if (r.code === 1) {
+              this.empId = this.ruleForm.waiter * 1
+              this.getAuthInfo();
               this.$message.success('修改卡台服务员成功');
             } else {
               this.$message.warning(r.msg);
@@ -326,8 +355,13 @@ export default {
         day: date.getDate().toString().padStart(2, 0),
         hour: date.getHours().toString().padStart(2, 0),
         minute: date.getMinutes().toString().padStart(2, 0),
-        name: this.$store.state.userInfo.name && ( + this.$store.state.userInfo.name) || '',
+        name: '',
       };
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+      this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
+          (item) => item.id == this.empId
+      ).map((item) => item.name).join("");
     },
     keyboardShow(refString) {
       if (
