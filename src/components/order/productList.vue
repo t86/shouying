@@ -109,14 +109,14 @@
           authInfo.minute
         }}
       </p>
-
-      <div layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
+      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
+        <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
+        绑定当台服务员
+      </div> 
+      <div v-else layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
         {{ authTips }}: {{authInfo.name}}
-<!--        <el-button size='mini' round v-if="hasChgKTWaiterAuth" icon="el-icon-edit" @click="dialogFormVisible=!dialogFormVisible"></el-button>-->
         <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
-
-
     </div>
 
 
@@ -127,6 +127,7 @@
 
     </el-dialog> -->
 
+    
     <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
         <el-form-item label="原服务员:">
@@ -159,9 +160,7 @@
     <!-- 单品点单 -->
     <mealDrawer ref="mealDrawerRef" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
       @showOrHideDrawer="showOrHideDrawer" />
-
     <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
-
     <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
         <h3>绑定当台服务员？</h3>
         <div slot="footer" class="dialog-footer">
@@ -193,7 +192,8 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
-
+      showChangeFwy: false, // 是否显示绑定服务员弹窗
+      isRect: true, // 是否为横屏
       ruleForm: {
         waiter: '',
         waiters:[],
