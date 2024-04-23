@@ -152,7 +152,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="changeDiandan">确 定</el-button>
+        <el-button type="primary" @click="chgDiandan">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -300,9 +300,6 @@ export default {
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(9)
       );
-    },
-    changeDiandan () {
-      console.log("TODO:change diandan");
     },
     empInfoFilter(empId) {
       empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
