@@ -111,9 +111,11 @@
       </p>
       <p class="author" :class="{ rect: !isRect }">
         {{ authTips }}: {{authInfo.name}}
+<!--        <el-button size='mini' round v-if="hasChgKTWaiterAuth" icon="el-icon-edit" @click="dialogFormVisible=!dialogFormVisible"></el-button>-->
+        <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth" @click="dialogFormVisible=!dialogFormVisible" :src="require('@/assets/img/btn_edit.png')" />
       </p>
-      
-      <img class="item-img" v-if="hasChgKTWaiterAuth" @click="dialogFormVisible=!dialogFormVisible" :src="require('@/assets/img/btn_edit.png')" />
+
+
       
     </div>
 
