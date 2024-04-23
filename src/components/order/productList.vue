@@ -358,10 +358,11 @@ export default {
         name: '',
       };
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
-      this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+      this.empId = this.empId || businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
       this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
           (item) => item.id == this.empId
       ).map((item) => item.name).join("");
+      this.authInfo = { ...this.authInfo };
     },
     keyboardShow(refString) {
       if (
