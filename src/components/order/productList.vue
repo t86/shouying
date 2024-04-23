@@ -128,13 +128,13 @@
     </el-dialog> -->
 
     <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
-      <el-form label-position="right" @submit.native.prevent label-width="150px">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
         <el-form-item label="原服务员:">
           {{this.$store.state.userInfo.name}}
         </el-form-item>
-        <el-form-item label="绑定服务员:" required>
+        <el-form-item label="绑定服务员:" required prop="waiter">
           <el-select
-              v-model="selWaiter"
+              v-model="ruleForm.waiter"
               filterable
               remote
               reserve-keyword
@@ -142,7 +142,7 @@
               :remote-method="remoteMethod"
               :loading="loading">
             <el-option
-                v-for="item in waiters"
+                v-for="item in ruleForm.waiters"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id">
@@ -152,7 +152,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="chgDiandan">确 定</el-button>
+        <el-button type="primary" @click="changeDiandan">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -185,9 +185,16 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
+      ruleForm: {
+        waiter: '',
+        waiters:[],
+      },
+      rules: {
+        waiter: [
+          {required: true, message: '请输入卡台服务员', trigger: 'change'}
+        ],
+      },
       loading: false,
-      selWaiter: '',
-      waiters:[],
       isRect: true, // 是否为横屏
       dialogFormVisible: false,
       centerType: 100, // 卡台版心宽度
@@ -231,21 +238,31 @@ export default {
   },
   methods: {
     async chgDiandan() {
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
-        waiter_emp_id: this.selWaiter * 1
-      };
-      const res = await api_order.chg_csm_waiter_inord(params);
-      if (res.code === 1) {
-        this.$message.success('修改卡台服务员成功');
-      } else {
-        this.$message.warning(res.msg);
-      }
-      this.dialogFormVisible = false
+      this.$refs['ruleForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            waiter_emp_id: this.ruleForm.waiter * 1
+          };
+          const res =  api_order.chg_csm_waiter_inord(params);
+          res.then( r => {
+            if (r.code === 1) {
+              this.$message.success('修改卡台服务员成功');
+            } else {
+              this.$message.warning(r.msg);
+            }
+            this.dialogFormVisible = false
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
     remoteMethod(query) {
       this.loading = true;
-      this.waiters = []
+      this.ruleForm.waiters = []
       const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
       const results = query ? sealInfoArr.filter(
               (el) =>
@@ -255,7 +272,7 @@ export default {
           )
           : sealInfoArr;
       console.log('waiters:', results)
-      this.waiters = results;
+      this.ruleForm.waiters = results;
       this.loading = false;
     },
     adjustFontSize() {
