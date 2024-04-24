@@ -1159,7 +1159,13 @@ export default {
             return
           }
           this.payTabInfo.activePayId = id;
-          if (isReset) this.payTabInfo.payTabShow = false;
+          if (isReset) {
+            this.payTabInfo.showPayTabList = this.payTabInfo.payTabList.slice(
+                0,
+                this.payTabInfo.otherIndex
+              );
+            this.payTabInfo.payTabShow = false;
+          } 
           this.getPayedOrderInfo(id);
           break;
       }
