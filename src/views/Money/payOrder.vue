@@ -34,7 +34,7 @@
         >
           <li
             :class="{ active: item.id == payTabInfo.activePayId }"
-            v-for="(item, i) in payTabInfo.payTabList"
+            v-for="(item, i) in payTabInfo.showPayTabList"
             :key="i"
             @click.stop="changeTab('order', item.id)"
           >
@@ -42,7 +42,7 @@
           </li>
         </ul>
         <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
-          <span style="font-weight: 400;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
+          <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
           <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
             <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
             <div class="bind-emp-text">修改</div>
@@ -481,8 +481,10 @@ export default {
       payTabInfo: {
         // 当前卡台选中翻台后的结账次数详情tab
         payTabList: [],
+        showPayTabList: [],
         activePayId: 0,
         payTabShow: false,
+        otherIndex: 0,
       },
       // 当前卡台所有订单信息
       cardAllOrderInfo: [],
@@ -754,15 +756,20 @@ export default {
 
       setTimeout(() => {
         const payTableRef = this.$refs.payTableRef;
-        const offsetWidth = payTableRef.offsetWidth - 32; // padding占据32px
+        const offsetWidth = payTableRef.offsetWidth - 32 - 200; // padding占据32px
         const maxCountOfOneLine = Math.floor(offsetWidth / payTabWidth);
-
+        console.log('sortTab', maxCountOfOneLine, this.payTabInfo.payTabList.length, offsetWidth, payTableRef.offsetWidth)
         if (this.payTabInfo.payTabList.length > maxCountOfOneLine) {
           // 换行
           this.payTabInfo.payTabList.splice(maxCountOfOneLine - 1, 0, {
             name: `其它`,
             id: "-2",
           });
+          this.payTabInfo.showPayTabList = this.payTabInfo.payTabList.slice(
+            0,
+            maxCountOfOneLine
+          );
+          this.payTabInfo.otherIndex = maxCountOfOneLine;
         }
       }, 200);
     },
@@ -1140,7 +1147,16 @@ export default {
         case "order": // 点击结账tab
           if (id == -2) {
             // 点击的显示隐藏
-            return (this.payTabInfo.payTabShow = !this.payTabInfo.payTabShow);
+            this.payTabInfo.payTabShow = !this.payTabInfo.payTabShow;
+            if (!this.payTabInfo.payTabShow) {
+              this.payTabInfo.showPayTabList = this.payTabInfo.payTabList.slice(
+                0,
+                this.payTabInfo.otherIndex
+              );
+            } else {
+              this.payTabInfo.showPayTabList = this.payTabInfo.payTabList;
+            }
+            return
           }
           this.payTabInfo.activePayId = id;
           if (isReset) this.payTabInfo.payTabShow = false;
