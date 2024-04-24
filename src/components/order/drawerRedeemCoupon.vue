@@ -69,6 +69,7 @@
               ref="groupProduct"
               :productInfo="productInfo"
               :singleInfo="singleInfo"
+              :key="componentKey"
               @closeDrawerHandle="onRedeemSuccess"
             />
         </div>
@@ -96,6 +97,7 @@ import keyBoard from "@/components/common/newKeyBoard.vue";
 export default {
   data() {
     return {
+      componentKey:0,
       step:0, 
       tabIndex: 22,
       tableData: [],
@@ -185,6 +187,7 @@ export default {
             that.prdId = res.data.prd_id
             that.authCode = res.data.auth_code
             that.productInfo = that.$store.state.orderInfo.allProductsList.find(item => item.id == res.data.prd_id)
+            that.componentKey += 1
             that.singleInfo.prd_cnt = 1
             that.singleInfo.authCode = that.authCode
             that.$message.success("券码识别成功：" + value.data);
