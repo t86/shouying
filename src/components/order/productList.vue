@@ -114,7 +114,10 @@
         绑定当台服务员
       </div> 
       <div v-else layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
-        {{ authTips }}: {{authInfo.name}}
+<!--        {{ authTips }}: {{authInfo.name}}-->
+        <span>
+                  {{authInfo.name}}
+        </span>
         <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
     </div>
