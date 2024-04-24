@@ -465,10 +465,16 @@ export default {
         waiter: '',
         waiters:[],
       },
+      rules: {
+        waiter: [
+          {required: true, message: '请输入卡台服务员', trigger: 'change'}
+        ],
+      },
       diandanDialogFormVisible: false,
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       empId: 0,
       showEmp: false,
+      loading: false,
     };
   },
   methods: {
