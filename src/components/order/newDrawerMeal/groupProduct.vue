@@ -145,6 +145,7 @@ import drawerBj from "@/components/order/newDrawerMeal/drawerBj/index.vue";
 export default {
   data() {
     return {
+      isSubmitting: false,
       groupInfo: {}, // 当前选择的套餐信息
       groupDetailArr: [], // 当前套餐中的商品明细
       groupCanSelectArr: [], // 可选的商品明细列表
@@ -302,9 +303,19 @@ export default {
     },
 
     async onSubmit() {
+
+      if(!this.isSubmitting) {
+        this.isSubmitting = true;
+      } else {
+        return this.$message.warning('请勿重复提交')
+      }
+
       // 校验可选明细数量是否选够
       const validateCanSelectPrdCount = this.groupCanSelectArr.every(item => item.groupSelectCount == item.hadSelectedCount)
-      if(!validateCanSelectPrdCount) return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
+      if(!validateCanSelectPrdCount) {
+        this.isSubmitting = false;
+        return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
+      }
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
 
@@ -340,6 +351,7 @@ export default {
           } catch (error) {
             this.$message.warning("卡券核销失败" + error);
           }
+          this.isSubmitting = false;
           return 
       }
       if(this.productInfo.prdType * 1 == 32) {
@@ -360,12 +372,14 @@ export default {
             console.log("卡券核销失败", error);
             this.$message.warning("卡券核销失败" + error);
           }
+          this.isSubmitting = false;
           return 
 
       }
       // 判断是否为补交台
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = {...params}
+        this.isSubmitting = false;
         return this.showBJDrawer = true
       }
 
@@ -379,6 +393,7 @@ export default {
       } catch (error) {
         console.log("套餐加入购物车失败", error);
       }
+      this.isSubmitting = false;
     },
 
     // -----------------套餐定制单品 start --------------------
