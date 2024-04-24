@@ -178,7 +178,7 @@
             <p
               layout="row"
               layout-align="space-between center"
-              style="margin-top: 4px"
+              style="margin-top: 2px"
             >
               <!-- tips -->
               <span layout="row" layout-align="space-between center">
@@ -190,7 +190,7 @@
                   >{{ items }}</span
                 >
                 <!-- remark -->
-                <span>{{ item.remark && item.remark.slice(0, 6) }}</span>
+                <span class="card-remark">{{ item.remark && item.remark.slice(0, 6) }}</span>
               </span>
               <!-- 翻台数 -->
               <span>
