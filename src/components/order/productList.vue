@@ -115,9 +115,9 @@
       </div> 
       <div v-else layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
 <!--        {{ authTips }}: {{authInfo.name}}-->
-        <span>
+        <div class = 'text-ellipsis' >
                   {{authInfo.name}}
-        </span>
+        </div>
         <img style="margin-left: 10px;" class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
     </div>
