@@ -114,7 +114,10 @@
         绑定当台服务员
       </div> 
       <div v-else layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (dialogFormVisible=!dialogFormVisible)">
-        {{ authTips }}: {{authInfo.name}}
+<!--        {{ authTips }}: {{authInfo.name}}-->
+        <span>
+                  {{authInfo.name}}
+        </span>
         <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
     </div>
@@ -131,7 +134,8 @@
     <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
         <el-form-item label="原服务员:">
-          {{this.$store.state.userInfo.name}}
+<!--          {{this.$store.state.userInfo.name}}-->
+          {{authInfo.name}}
         </el-form-item>
         <el-form-item label="绑定服务员:" required prop="waiter">
           <el-select

@@ -42,7 +42,7 @@
           </li>
         </ul>
         <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
-          <span style="font-weight: 400;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">服务员： {{ selFwyName || '-'}}</span>
+          <span style="font-weight: 400;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
           <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
             <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
             <div class="bind-emp-text">修改</div>
@@ -734,6 +734,7 @@ export default {
       });
       allOrderInfo.list = [...notPayOrderInfo.list, ...payedOrderInfo.list];
       allOrderInfo.ps = [...notPayOrderInfo.ps, ...payedOrderInfo.ps];
+
 
       // 拼接全部结账数据
       // if (hasPayed) {
