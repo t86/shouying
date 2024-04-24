@@ -4,123 +4,87 @@
     <div style="width: 100%" :layout="isRect ? 'row' : 'column'" :layout-align="isRect ? 'start center' : 'start start'">
       <div style="margin-bottom: -2px; width: 100%; display: flex; " :layout="isRect ? 'row' : 'column'"
         :layout-align="isRect ? 'start center' : 'start start'">
-        <div style="flex: 1" class="ul" layout="row" layout-align="start center">
-          <div class="li line" v-for="(item, index) in navList" :key="index"
-            :class="{ active: item.routeName === activeRouteName }" @click="footNavBarClick(item)">
-            <div class="shopping-count" v-if="
-              item.id === 3 &&
-              $store.state.orderInfo.shoppingCartInfo.shoppingCount
-            ">
-              {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
-            </div>
-            <img width="20" :src="item.routeName === activeRouteName ? item.activeIcon : item.icon" alt />
-            <img class="sanJiao" v-if="item.routeName === activeRouteName" :src="item.icon1" alt />
-            <p>{{ item.name }}</p>
+      <div style="flex: 1" class="ul" layout="row" layout-align="start center">
+        <div class="li line" v-for="(item, index) in navList" :key="index"
+          :class="{ active: item.routeName === activeRouteName }" @click="footNavBarClick(item)">
+          <div class="shopping-count" v-if="
+            item.id === 3 &&
+            $store.state.orderInfo.shoppingCartInfo.shoppingCount
+          ">
+            {{ $store.state.orderInfo.shoppingCartInfo.shoppingCount }}
           </div>
-          <!-- 督查 特饮 服务员买单结账按钮 -->
-          <div v-if="
-            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
-          " class="server-pay-btn">
-            <div class="button" layout="row" layout-align="center center" @click="showOrderListDrawerHandle">
-              <img :src="imgSrc.orderQRPayIcon" alt />
-              <span>买单</span>
-            </div>
-          </div>
-          <!-- 收银核销卡券按钮 -->
-          <div v-if="
-            isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0 && isMoneyClient
-          " class="server-redeem-btn">
-            <div class="button" layout="row" layout-align="center center" @click="showRedeemCouponDrawerHandle">
-              <img :src="imgSrc.coupon" alt />
-              <span>核销卡券</span>
-            </div>
-          </div>
-          <!-- 服务员充值滞留金 -->
-          <div v-if="
-            isShowPayBtn
-          " class="server-pay-btn line">
-            <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">
-              <img :src="imgSrc.zhiliujin" alt />
-              <span>滞留金</span>
-            </div>
-          </div>
-          <!-- 收银系统按钮 -->
-          <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
-            $store.state.userInfo.authStatus == 4 &&
-            !this.$route.path.startsWith('/orderMeal') &&
-            $store.state.orderInfo.currentCardInfo.bizStatus != 1
-          " layout="row">
-            <div class="button" layout="row" layout-align="center center"
-              @click="$router.push({ name: 'orderMealList' })">
-              <img :src="imgSrc.shoppingNav" alt />
-              <span>点单</span>
-            </div>
-            <!-- <div
-          class="button"
-          @click="$router.push({name:'orderMealList', query:{give:true}})"
-          layout="row"
-          layout-align="center center"
-        >
-          <img :src="imgSrc.giveNav" alt />
-          <span>优惠2</span>
-        </div> -->
-            <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
-              <img :src="imgSrc.clearNav" alt />
-              <span>清台</span>
-            </div>
-
-            <div class="button" @click.stop="showMerchantConfig = true" style="width: 140px" layout="row"
-              layout-align="center center">
-              <img :src="require('@/assets/money-img/merchant-btn-icon.png')" alt />
-              <span style="transform: translateX(-2px)">滞留金管理</span>
-            </div>
+          <img width="20" :src="item.routeName === activeRouteName ? item.activeIcon : item.icon" alt />
+          <img class="sanJiao" v-if="item.routeName === activeRouteName" :src="item.icon1" alt />
+          <p>{{ item.name }}</p>
+        </div>
+        <!-- 督查 特饮 服务员买单结账按钮 -->
+        <div v-if="
+          isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0
+        " class="server-pay-btn">
+          <div class="button" layout="row" layout-align="center center" @click="showOrderListDrawerHandle">
+            <img :src="imgSrc.orderQRPayIcon" alt />
+            <span>买单</span>
           </div>
         </div>
-        <div>
-          <!-- v-if="
-            isRect &&
-            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
-          "  -->
-          <!-- 消费情况 -->
-          <div class="new-one" v-if="isRect &&
-            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)" style="padding-top: 8px; " layout="row"
-            layout-align="start start">
-            <p class="new-one-txt-cut">
-              <!-- 折前：当太总消费的应收金额（不含赠送） -->
-              <span class="new-one-txt-title">折前金额:</span>
-              <span class="new-one-txt-price">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
-            </p>
-            <p class="new-one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span class="new-one-txt-title ">折后金额:</span>
-              <span class="new-one-txt-price payed-val-amt">￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
-            </p>
-            <p class="new-one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
-              <span class="new-one-txt-title">主营点单金额:</span>
-              <span class="new-one-txt-price order-zy-amt">￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
-            </p>
+        <!-- 收银核销卡券按钮 -->
+        <div v-if="
+          isShowPayBtn && cardInfo.orderAmt - cardInfo.payedAmt > 0 && isMoneyClient
+        " class="server-redeem-btn">
+          <div class="button" layout="row" layout-align="center center" @click="showRedeemCouponDrawerHandle">
+            <img :src="imgSrc.coupon" alt />
+            <span>核销卡券</span>
+          </div>
+        </div>
+        <!-- 服务员充值滞留金 -->
+        <div v-if="
+          isShowPayBtn
+        " class="server-pay-btn line">
+          <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">
+            <img :src="imgSrc.zhiliujin" alt />
+            <span>滞留金</span>
+          </div>
+        </div>
+        <!-- 收银系统按钮 -->
+        <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
+          $store.state.userInfo.authStatus == 4 &&
+          !this.$route.path.startsWith('/orderMeal') &&
+          $store.state.orderInfo.currentCardInfo.bizStatus != 1
+        " layout="row">
+          <div class="button" layout="row" layout-align="center center"
+            @click="$router.push({ name: 'orderMealList' })">
+            <img :src="imgSrc.shoppingNav" alt />
+            <span>点单</span>
+          </div>
+          <!-- <div
+        class="button"
+        @click="$router.push({name:'orderMealList', query:{give:true}})"
+        layout="row"
+        layout-align="center center"
+      >
+        <img :src="imgSrc.giveNav" alt />
+        <span>优惠2</span>
+      </div> -->
+          <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
+            <img :src="imgSrc.clearNav" alt />
+            <span>清台</span>
+          </div>
 
-            <p class="new-one-txt-cut">
-              <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
-              <span class="new-one-txt-title">已收金额:</span>
-              <span class="new-one-txt-price">￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
-            </p>
-            <p class="new-one-txt-cut">
-              <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
-              <span class="new-one-txt-title">主营实收:</span>
-              <span class="new-one-txt-price">￥{{
-                Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
-              }}</span>
-            </p>
+          <div class="button" @click.stop="showMerchantConfig = true" style="width: 140px" layout="row"
+            layout-align="center center">
+            <img :src="require('@/assets/money-img/merchant-btn-icon.png')" alt />
+            <span style="transform: translateX(-2px)">滞留金管理</span>
           </div>
         </div>
       </div>
-
-      <div layout="row" layout-align="center center" style="padding-top: 8px; " v-if="(!isRect) &&
-        ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
+      <div>
+        <!-- v-if="
+          isRect &&
+          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
+        "  -->
         <!-- 消费情况 -->
-        <div class="new-one" layout="row" layout-align="start start">
+        <div class="new-one" v-if="isRect &&
+          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)" style="padding-top: 8px; " layout="row"
+          layout-align="start start">
           <p class="new-one-txt-cut">
             <!-- 折前：当太总消费的应收金额（不含赠送） -->
             <span class="new-one-txt-title">折前金额:</span>
@@ -150,86 +114,169 @@
             }}</span>
           </p>
         </div>
-
       </div>
-      <!-- 暂不支付倒计时退出 -->
-      <div class="num-sub-tips" v-show="showNumSubTips">
-        <div class="contain">
-          <i class="el-icon-close" style="
-                                      position: absolute;
-                                      top: 10px;
-                                      right: 20px;
-                                      color: #08080A;
-                                      cursor: pointer;
-                                    " @click="hideTimeSubHandle()"></i>
-          {{ logoutCount }}秒后将退出登录！
+    </div>
+
+    <div layout="row" layout-align="center center" style="padding-top: 8px; width: 100%;" v-if="(!isRect) &&
+      ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
+      <!-- 消费情况 -->
+      <div class="new-one" layout="row" layout-align="start start">
+        <p class="new-one-txt-cut">
+          <!-- 折前：当太总消费的应收金额（不含赠送） -->
+          <span class="new-one-txt-title">折前金额:</span>
+          <span class="new-one-txt-price">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+        </p>
+        <p class="new-one-txt-cut">
+          <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+          <span class="new-one-txt-title ">折后金额:</span>
+          <span class="new-one-txt-price payed-val-amt">￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
+        </p>
+        <p class="new-one-txt-cut">
+          <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
+          <span class="new-one-txt-title">主营点单金额:</span>
+          <span class="new-one-txt-price order-zy-amt">￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
+        </p>
+
+        <p class="new-one-txt-cut">
+          <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
+          <span class="new-one-txt-title">已收金额:</span>
+          <span class="new-one-txt-price">￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
+        </p>
+        <p class="new-one-txt-cut">
+          <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
+          <span class="new-one-txt-title">主营实收:</span>
+          <span class="new-one-txt-price">￥{{
+            Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
+          }}</span>
+        </p>
+      </div>
+      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
+        <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
+        绑定当台服务员
+      </div> 
+      <div layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (diandanDialogFormVisible=!diandanDialogFormVisible)">
+      <span>
+      {{authInfo.name}}
+      </span>
+      <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
+    </div>
+    </div>
+    <!-- 暂不支付倒计时退出 -->
+    <div class="num-sub-tips" v-show="showNumSubTips">
+      <div class="contain">
+        <i class="el-icon-close" style="
+                                    position: absolute;
+                                    top: 10px;
+                                    right: 20px;
+                                    color: #08080A;
+                                    cursor: pointer;
+                                  " @click="hideTimeSubHandle()"></i>
+        {{ logoutCount }}秒后将退出登录！
+      </div>
+    </div>
+
+    <!-- 选择支付渠道方式 -->
+    <div class="choose-pay-type" v-show="showChoosePayType">
+      <div class="contain">
+        <div class="top" layout="row" layout-align="space-between center">
+          <div>选择支付方式</div>
+          <i class="el-icon-close cursor" style="color: #1A1A21;" @click="showChoosePayType = false"></i>
+        </div>
+
+        <div class="center" layout="row" layout-align="start center">
+          <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
+            @click="payType = item.id">
+            <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
+            <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
+              class="tuijian">推荐</span>
+          </div>
+        </div>
+
+        <div class="bottom" layout="row" layout-align="center center">
+          <div class="button info cursor" @click="showChoosePayType = false">
+            取消
+          </div>
+          <div class="button primary cursor" @click="getPayQRCode(1)">
+            确定
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 选择支付渠道方式 -->
-      <div class="choose-pay-type" v-show="showChoosePayType">
-        <div class="contain">
-          <div class="top" layout="row" layout-align="space-between center">
-            <div>选择支付方式</div>
-            <i class="el-icon-close cursor" style="color: #1A1A21;" @click="showChoosePayType = false"></i>
-          </div>
-
-          <div class="center" layout="row" layout-align="start center">
-            <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
-              @click="payType = item.id">
-              <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
-              <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
-                class="tuijian">推荐</span>
-            </div>
-          </div>
-
-          <div class="bottom" layout="row" layout-align="center center">
-            <div class="button info cursor" @click="showChoosePayType = false">
-              取消
-            </div>
-            <div class="button primary cursor" @click="getPayQRCode(1)">
-              确定
-            </div>
-          </div>
+    <!-- 扫码输入支付码 -->
+    <div class="scan_input" v-if="scanStart">
+      <div class="contain">
+        <div class="top center" layout="row" layout-align="space-between center">
+          <input style="width: 260px" v-model="scanCode" class="value focus" size="small" placeholder="请输入支付码" />
+        </div>
+        <div class="m-t-6">
+          <keyBoard @changeNum="changeCode" />
+        </div>
+        <div class="bottom" layout="row" layout-align="center center">
+          <div class="button info cursor" @click="onCancelScan">取消</div>
+          <div class="button primary cursor" @click="onSubmitScan">确定</div>
         </div>
       </div>
+    </div>
+    <!-- 服务员买单选择商品列表 -->
+    <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer"
+      @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
 
-      <!-- 扫码输入支付码 -->
-      <div class="scan_input" v-if="scanStart">
-        <div class="contain">
-          <div class="top center" layout="row" layout-align="space-between center">
-            <input style="width: 260px" v-model="scanCode" class="value focus" size="small" placeholder="请输入支付码" />
-          </div>
-          <div class="m-t-6">
-            <keyBoard @changeNum="changeCode" />
-          </div>
-          <div class="bottom" layout="row" layout-align="center center">
-            <div class="button info cursor" @click="onCancelScan">取消</div>
-            <div class="button primary cursor" @click="onSubmitScan">确定</div>
-          </div>
-        </div>
+
+    <!-- 服务员核销卡券 -->
+    <drawerRedeemCoupon v-show="showRedeemCouponDrawer" v-model="showRedeemCouponDrawer" />
+
+    <!-- 客人扫码支付订单费用/扫码支付订单 -->
+    <drawerPayQR :showDrawer="showOrHideQRDrawer" :payType="payType" :orderInfoDetail="orderInfoDetail"
+      @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle"
+      @reloadQrRequest="showChoosePayTypeHandle" />
+
+    <!-- 服务员让客人扫码添加滞留金 -->
+    <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
+    <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
+      @subSecondLogoutHandle="subSecondLogoutHandle" />
+
+    <!-- 收银系统滞留金管理 -->
+    <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
+    <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
+
+    <el-dialog append-to-body title="修改卡台服务员" :visible.sync="diandanDialogFormVisible">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
+        <el-form-item label="原服务员:">
+<!--          {{this.$store.state.userInfo.name}}-->
+          {{authInfo.name}}
+        </el-form-item>
+        <el-form-item label="绑定服务员:" required prop="waiter">
+          <el-select
+              v-model="ruleForm.waiter"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="输入工号或者姓名搜索"
+              :remote-method="remoteMethod"
+              :loading="loading">
+            <el-option
+                v-for="item in ruleForm.waiters"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="diandanDialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="chgDiandan">确 定</el-button>
       </div>
-      <!-- 服务员买单选择商品列表 -->
-      <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer"
-        @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
+    </el-dialog>
 
-
-      <!-- 服务员核销卡券 -->
-      <drawerRedeemCoupon v-show="showRedeemCouponDrawer" v-model="showRedeemCouponDrawer" />
-
-      <!-- 客人扫码支付订单费用/扫码支付订单 -->
-      <drawerPayQR :showDrawer="showOrHideQRDrawer" :payType="payType" :orderInfoDetail="orderInfoDetail"
-        @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle"
-        @reloadQrRequest="showChoosePayTypeHandle" />
-
-      <!-- 服务员让客人扫码添加滞留金 -->
-      <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-      <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
-        @subSecondLogoutHandle="subSecondLogoutHandle" />
-
-      <!-- 收银系统滞留金管理 -->
-      <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
-      <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
+    <el-dialog append-to-body title="提示" :visible="showChangeFwy" @close="closeChangeFwy">
+        <h3>绑定当台服务员？</h3>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+          <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -413,9 +460,86 @@ export default {
       isMoneyClient: false,
       // 是否是点单系统
       isOrderMeal: false,
+
+      ruleForm: {
+        waiter: '',
+        waiters:[],
+      },
+      diandanDialogFormVisible: false,
+      showChangeFwy: false, // 是否显示绑定服务员弹窗
+      empId: 0,
+      showEmp: false,
     };
   },
   methods: {
+    showEmpDialog() {
+      console.log('showEmpDialog', this.showEmp, this.empId)
+      if (this.showEmp && !this.empId) {
+        this.showChangeFwy = true;
+      }
+    },
+    closeChangeFwy() {
+      this.showChangeFwy = false;
+    },
+    async submitChangeFwy() {
+      this.showChangeFwy = false;
+      try {
+        const res = await api_order.reqSetCsmWaiter({
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+        })
+        if (res.code === 1) {
+          this.empId = this.$store.state.userInfo.emp_id;
+          this.getAuthInfo();
+          this.$message.success('绑定成功');
+          console.log(res.data, '绑定成功')
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('绑定服务员失败', error)
+      }
+    },
+    async chgDiandan() {
+      this.$refs['ruleForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          const params = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+            waiter_emp_id: this.ruleForm.waiter * 1
+          };
+          const res =  api_order.chg_csm_waiter_inord(params);
+          res.then( r => {
+            if (r.code === 1) {
+              this.empId = this.ruleForm.waiter * 1
+              this.getAuthInfo();
+              this.$message.success('修改卡台服务员成功');
+            } else {
+              this.$message.warning(r.msg);
+            }
+            this.diandanDialogFormVisible = false
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    remoteMethod(query) {
+      this.loading = true;
+      this.ruleForm.waiters = []
+      const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      const results = query ? sealInfoArr.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : sealInfoArr;
+      console.log('waiters:', results)
+      this.ruleForm.waiters = results;
+      this.loading = false;
+    },
+
     footNavBarClick(item) {
       if (this.$route.name === item.routeName) return; // 重复点击同一个tab
       if(item.id == 5) {
@@ -452,6 +576,12 @@ export default {
         minute: date.getMinutes().toString().padStart(2, 0),
         name: this.$store.state.userInfo.name,
       };
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      this.empId = this.empId || businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+      this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
+          (item) => item.id == this.empId
+      ).map((item) => item.name).join("");
+      this.authInfo = { ...this.authInfo };
     },
 
     // 清台
@@ -832,6 +962,13 @@ export default {
         isHaveAuth = true
       }
       return isHaveAuth;
+    },
+    // 是否有修改卡台
+    hasChgKTWaiterAuth () {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        this.$store.state.userInfo.sys_modules.includes(9)
+      );
     },
   },
   components: {

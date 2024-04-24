@@ -70,7 +70,7 @@
 
 
 
-    <div class="card-name-top" ref="cardNameTop">
+    <div class="card-name-top" ref="cardNameTop" :style="{ right: isRect ? (isMediumWidth ? '300px' : '400px') : '300px'}">
       <div class="card-name-title" ref="cardNameTitle">
         <span :style="{ fontSize: titleFontSize }">{{ cardInfo.name }}</span>
         <span :style="{ fontSize: titleFontSize1 }">
@@ -118,7 +118,7 @@
         <span>
                   {{authInfo.name}}
         </span>
-        <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
+        <img style="margin-left: 10px;" class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
     </div>
 
@@ -165,13 +165,13 @@
     <mealDrawer ref="mealDrawerRef" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
       @showOrHideDrawer="showOrHideDrawer" />
     <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
-    <el-dialog title="提示" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
-        <h3>绑定当台服务员？</h3>
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
-          <el-button type="primary" @click="submitChangeFwy">确定</el-button>
-        </div>
-      </el-dialog>
+    <el-dialog append-to-body title="提示" :visible="showChangeFwy"@close="closeChangeFwy">
+      <h3>绑定当台服务员？</h3>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+        <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -246,6 +246,7 @@ export default {
       titleFontSize1: '24px',
       seatFontSize: '18px',
       isNarrowWidth: window.innerWidth < 850,
+      isMediumWidth: window.innerWidth < 1200,
       pic_show: false,
       openTime: "",
       empId: 0,
