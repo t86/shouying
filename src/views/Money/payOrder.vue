@@ -772,6 +772,7 @@ export default {
           this.payTabInfo.otherIndex = maxCountOfOneLine;
         } else {
           this.payTabInfo.showPayTabList = this.payTabInfo.payTabList
+          this.payTabInfo.otherIndex = this.payTabInfo.payTabList.length;
         }
       }, 200);
     },
@@ -1167,7 +1168,7 @@ export default {
                 this.payTabInfo.otherIndex
               );
             this.payTabInfo.payTabShow = false;
-          } 
+          }
           this.getPayedOrderInfo(id);
           break;
       }

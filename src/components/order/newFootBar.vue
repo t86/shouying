@@ -154,12 +154,12 @@
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
       </div> 
-      <div layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
-      <span>
-      {{authInfo.name}}
-      </span>
-      <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
-    </div>
+      <div v-else layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
+        <span>
+        {{authInfo.name}}
+        </span>
+        <img class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
+      </div>
     </div>
     <!-- 暂不支付倒计时退出 -->
     <div class="num-sub-tips" v-show="showNumSubTips">
@@ -615,6 +615,7 @@ export default {
         name: this.$store.state.userInfo.name,
       };
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
       this.empId = this.empId || businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
       this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
           (item) => item.id == this.empId
