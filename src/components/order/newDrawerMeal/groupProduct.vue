@@ -333,7 +333,7 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-      if(this.productInfo.prdType * 1 == 22 || this.productInfo.prdType * 1 == 12) {
+      if(this.productInfo.prdType * 1 == 22) {
         try {
             params = {
               ...params,
@@ -376,6 +376,31 @@ export default {
           return 
 
       }
+      if (this.productInfo.prdType * 1 === 12) {
+        try {
+          params = {
+            ...params,
+            order_id: this.dyInfo.order_id,
+            dy_order_id: this.dyInfo.dy_order_id,
+            verify_token: this.dyInfo.verify_token,
+            relate_csm_id: 0,
+          };
+          const res = await api_order.reqUseDyCode(params)
+          if(res.code === 1) {
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("卡券核销失败", error);
+          this.$message.warning("卡券核销失败" + error);
+        }
+        this.isSubmitting = false;
+        return
+      }
+
+
       // 判断是否为补交台
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = {...params}
@@ -493,7 +518,7 @@ export default {
     drawerChooseRequireInfo,
     drawerBj
   },
-  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate"],
+  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo"],
   watch: {
     selectedInfoObj: {
       deep: true,

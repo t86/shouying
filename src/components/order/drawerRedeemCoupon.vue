@@ -1,13 +1,13 @@
 <template>
-<!-- 点单系统服务员买单选择商品列表 -->
+  <!-- 点单系统服务员买单选择商品列表 -->
   <div>
     <el-drawer
-      title="核销方式"
-      :visible.sync="show"
-      :before-close="onCancelDrawer"
-      direction="rtl"
-      append-to-body
-      size="80%"
+        title="核销方式"
+        :visible.sync="show"
+        :before-close="onCancelDrawer"
+        direction="rtl"
+        append-to-body
+        size="80%"
     >
       <div class="redeem-container" v-if="step == 0">
         <div layout="row" layout-align="start center" class="nav" >
@@ -16,11 +16,11 @@
           <div :class="tabIndex == 32 && 'on-focus' " @click="tabIndex = 32">小程序卡券</div>
         </div>
         <div layout="row" layout-align="start center" class="redeem-sel">
-          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(1, tabIndex)">
+          <div v-if="tabIndex == 32 || tabIndex == 12" layout="column" layout-align="start center" @click="tabClick(1, tabIndex)">
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
-          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
+          <div v-if="tabIndex == 32 || tabIndex == 12" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
@@ -35,10 +35,10 @@
         <div class="order-meal-list">
           <mealNav :redeem="tabIndex" @updateProductsList="updateProductsList" :customStyle="{ 'left':'20%', 'top':'65px', 'heigth':'calc(100vh - 125px)' }"/>
           <productList
-            @onRedeem="onRedeemSuccess"
-            :redeem="tabIndex"
-            :allProductsList="allProductsList"
-            :currentCategoryProductList="currentCategoryProductList"
+              @onRedeem="onRedeemSuccess"
+              :redeem="tabIndex"
+              :allProductsList="allProductsList"
+              :currentCategoryProductList="currentCategoryProductList"
           />
         </div>
       </div>
@@ -52,13 +52,13 @@
           <el-input v-model="authCode" type="number" placeholder="请输入券码" style="width: 200px;margin-right: 20px;"></el-input>
         </div>
         <div layout="row" layout-align="start center" v-if="step == 2" style="padding: 10px;">
-        <keyBoard
-            class="key"
-            :landscape="true"
-            :itemHeight="44"
-            :itemWidth="44"
-            :width="270"
-            @changeNum="changeNumHandle"
+          <keyBoard
+              class="key"
+              :landscape="true"
+              :itemHeight="44"
+              :itemWidth="44"
+              :width="270"
+              @changeNum="changeNumHandle"
           />
           <el-button type="primary" @click="checkCode" style="margin-left: 20px;">确定</el-button>
         </div>
@@ -70,8 +70,9 @@
               :productInfo="productInfo"
               :singleInfo="singleInfo"
               :key="componentKey"
+              :dy-info="dyInfo"
               @closeDrawerHandle="onRedeemSuccess"
-            />
+          />
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
@@ -81,7 +82,7 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
 import api_order from "@/api/order";
@@ -98,7 +99,7 @@ export default {
   data() {
     return {
       componentKey:0,
-      step:0, 
+      step:0,
       tabIndex: 22,
       tableData: [],
       checkAll: false,
@@ -110,6 +111,7 @@ export default {
       authCode: "",
       productInfo: {},
       singleInfo: {},
+      dyInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
 
     };
@@ -122,9 +124,9 @@ export default {
           break;
         case 10: // 回退(
           this.authCode =
-          this.authCode
-                .toString()
-                .slice(0, this.authCode.toString().length - 1) * 1;
+              this.authCode
+                  .toString()
+                  .slice(0, this.authCode.toString().length - 1) * 1;
           break;
         default:
           this.authCode = this.authCode + value * 1;
@@ -139,12 +141,13 @@ export default {
       }
     },
     async getTableData(){
-     
+
     },
     onRedeemSuccess(){
       this.step = 0
       this.productInfo = {}
       this.singleInfo = {}
+      this.dyInfo = {}
     },
     onCancelDrawer() {
       this.tabIndex = 22
@@ -152,11 +155,12 @@ export default {
       this.show = false;
       this.productInfo = {}
       this.singleInfo = {}
+      this.dyInfo = {}
     },
     checkCode() {
-      window.scan_callback({code: 0, data: this.authCode})
+      window.scan_callback({code: this.tabIndex, data: this.authCode})
     },
-    
+
     doRedeem() {
       this.$refs.groupProduct.onSubmit()
     },
@@ -176,26 +180,49 @@ export default {
     this.getMenuInfo(false);
     const that = this;
     async function scan_callback(value) {
+      console.log('scan_callback value', value)
       try {
-        if (value && value.code === 0) {
-
+        if (value && value.code === 32) {
           const res = await api_order.reqValidCustKqCode({
             cust_kq_code: value.data,
           })
-          if(res.code == 1) {
+          if(res.code === 1) {
             that.custKqId = res.data.cust_kq_id
             that.prdId = res.data.prd_id
             that.authCode = res.data.auth_code
-            that.productInfo = that.$store.state.orderInfo.allProductsList.find(item => item.id == res.data.prd_id)
+            that.productInfo = that.$store.state.orderInfo.allProductsList.find(item => item.id === res.data.prd_id.toString())
+            console.log("query product=============:", that.productInfo)
             that.componentKey += 1
             that.singleInfo.prd_cnt = 1
             that.singleInfo.authCode = that.authCode
             that.$message.success("券码识别成功：" + value.data);
             console.log("券码识别成功：", that.custKqId , res)
-          } else {
-            that.$message.warning(res.msg);
           }
-        } else {
+        } else if  (value && value.code === 12) {
+          let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
+          let params = {
+            seat_id: seat_id,
+            relate_csm_id: 0,
+            dy_url: 'https://v.douyin.com/iYTyV1KN/' //TODO:  hardcode for test
+          }
+          console.log('csm_dy_coupon_prepare params', params)
+          const res = await api_order.csm_dy_coupon_prepare(params)
+          if (res.code === 1) {
+            that.prdId = res.data.prd_id
+            that.dyInfo.coupon_pay_amt = res.data.coupon_pay_amt
+            that.dyInfo.dy_order_id = res.data.dy_order_id
+            that.dyInfo.order_id = res.data.order_id
+            that.dyInfo.verify_token = res.data.verify_token
+            let finder = res.data.prd_id.toString()
+            console.log("finder===========:", finder)
+            that.productInfo = that.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(item => item.id === finder)
+            console.log("query product=============:", that.productInfo )
+            that.componentKey += 1
+            that.$message.success("抖音券码识别成功：" + value.data);
+            console.log("券码识别成功：", res)
+          }
+        }
+        else {
           that.$message.warning("扫码取消");
         }
       } catch (error) {
@@ -284,31 +311,31 @@ export default {
   padding: 20px 20px;
   gap: 20px;
   div {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      padding: 10px;
-      gap: 5px;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      cursor: pointer;
-      background-color: #cccccc;
-      border: 1px solid #cccccc;
-      &:active {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        border: 1px solid rgba(0, 0, 255, 0.5);
-      }
+    width: 100px;
+    height: 100px;
+    display: flex;
+    padding: 10px;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    background-color: #cccccc;
+    border: 1px solid #cccccc;
+    &:active {
+      background-color: rgba(255, 255, 255, 0.3) !important;
+      border: 1px solid rgba(0, 0, 255, 0.5);
     }
   }
+}
 
-  /deep/input {
-    height: 36px;
-    padding: 0 40px 0 12px;
-    box-sizing: border-box;
-    background: #FFFFFF;
-    color: black;
-    border-radius: 22px;
-    border: 1px solid #C4CBD7;
-  }
+/deep/input {
+  height: 36px;
+  padding: 0 40px 0 12px;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  color: black;
+  border-radius: 22px;
+  border: 1px solid #C4CBD7;
+}
 </style>
