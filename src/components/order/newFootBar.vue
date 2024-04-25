@@ -154,7 +154,7 @@
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
       </div> 
-      <div layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="hasChgKTWaiterAuth && (diandanDialogFormVisible=!diandanDialogFormVisible)">
+      <div layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
       <span>
       {{authInfo.name}}
       </span>
@@ -248,6 +248,7 @@
         </el-form-item>
         <el-form-item label="绑定服务员:" required prop="waiter">
           <el-select
+              ref="waiter"
               v-model="ruleForm.waiter"
               filterable
               remote
@@ -478,6 +479,37 @@ export default {
     };
   },
   methods: {
+    keyboardShow() {
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        atool.showSoftInput();
+        atool.executeJs(`this.$refs.waiter.focus()`)
+
+      }
+    },
+    keyboardLeave() {
+      setTimeout(() => {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.hideSoftInput();
+          atool.restart();
+        }
+      }, 10)
+    },
+    showDiandanEmpChange() {
+      if (this.hasChgKTWaiterAuth) {
+        this.diandanDialogFormVisible = true;
+        setTimeout(() => {
+          this.keyboardShow()
+        }, 100)
+      }
+    },
     showEmpDialog() {
       console.log('showEmpDialog', this.showEmp, this.empId)
       if (this.showEmp && !this.empId) {

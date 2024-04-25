@@ -770,6 +770,8 @@ export default {
             maxCountOfOneLine
           );
           this.payTabInfo.otherIndex = maxCountOfOneLine;
+        } else {
+          this.payTabInfo.showPayTabList = this.payTabInfo.payTabList
         }
       }, 200);
     },
