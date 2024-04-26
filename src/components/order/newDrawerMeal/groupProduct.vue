@@ -174,6 +174,7 @@ export default {
   methods: {
     init() {
       const groupInfo = JSON.parse(JSON.stringify(this.productInfo));
+      console.log('groupInfo', groupInfo)
       groupInfo.count = this.singleInfo.prd_cnt;
       groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
       this.groupInfo = groupInfo;

@@ -206,7 +206,7 @@ export default {
           let params = {
             seat_id: seat_id,
             relate_csm_id: 0,
-            dy_url: 'https://v.douyin.com/iYTyV1KN/' //TODO:  hardcode for test
+            dy_url: 'https://v.douyin.com/iYKr4fev/' //TODO:  hardcode for test
           }
           console.log('csm_dy_coupon_prepare params', params)
           const res = await api_order.csm_dy_coupon_prepare(params)
@@ -217,6 +217,7 @@ export default {
             that.dyInfo.order_id = res.data.order_id
             that.dyInfo.verify_token = res.data.verify_token
             let finder = res.data.prd_id.toString()
+            that.singleInfo.prd_cnt = 1
             console.log("finder===========:", finder)
             that.productInfo = that.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(item => item.id === finder)
             console.log("query product=============:", that.productInfo )
