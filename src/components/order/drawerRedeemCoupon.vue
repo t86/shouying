@@ -20,7 +20,7 @@
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
-          <div v-if="tabIndex == 32 || tabIndex == 12" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
+          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
@@ -182,7 +182,7 @@ export default {
     async function scan_callback(value) {
       console.log('scan_callback value', value)
       try {
-        if (value && value.code === 32) {
+        if (value && that.tabIndex === 32) {
           const res = await api_order.reqValidCustKqCode({
             cust_kq_code: value.data,
           })
@@ -201,7 +201,7 @@ export default {
             console.log("券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
-        } else if  (value && value.code === 12) {
+        } else if  (value && that.tabIndex === 12) {
           let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
           let params = {
             seat_id: seat_id,
