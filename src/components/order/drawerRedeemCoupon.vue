@@ -62,7 +62,7 @@
           />
           <el-button type="primary" @click="checkCode" style="margin-left: 20px;">确定</el-button>
         </div>
-        <div class="order-meal-list" v-if="custKqId">
+        <div class="order-meal-list">
           <div >券详情：请选择套餐明细</div>
           <!-- 点套餐 -->
           <groupProduct
@@ -197,6 +197,9 @@ export default {
             that.singleInfo.authCode = that.authCode
             that.$message.success("券码识别成功：" + value.data);
             console.log("券码识别成功：", that.custKqId , res)
+          } else {
+            console.log("券码识别失败：", res);
+            that.$message.warning("券码识别失败：" + res.msg);
           }
         } else if  (value && value.code === 12) {
           let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
