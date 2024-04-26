@@ -182,7 +182,7 @@ export default {
     async function scan_callback(value) {
       console.log('scan_callback value', value)
       try {
-        if (value && that.tabIndex === 32) {
+        if (value && that.tabIndex === 32 && value.code === 0) {
           const res = await api_order.reqValidCustKqCode({
             cust_kq_code: value.data,
           })
@@ -201,7 +201,7 @@ export default {
             console.log("券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
-        } else if  (value && that.tabIndex === 12) {
+        } else if  (value && that.tabIndex === 12 && value.code === 0) {
           let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
           let params = {
             seat_id: seat_id,
@@ -224,6 +224,9 @@ export default {
             that.componentKey += 1
             that.$message.success("抖音券码识别成功：" + value.data);
             console.log("券码识别成功：", res)
+          } else {
+            console.log("券码识别失败：", res);
+            that.$message.warning("券码识别失败：" + res.msg);
           }
         }
         else {
