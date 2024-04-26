@@ -206,7 +206,7 @@ export default {
           let params = {
             seat_id: seat_id,
             relate_csm_id: 0,
-            dy_url: 'https://v.douyin.com/iYKr4fev/' //TODO:  hardcode for test
+            dy_url: value.data
           }
           console.log('csm_dy_coupon_prepare params', params)
           const res = await api_order.csm_dy_coupon_prepare(params)
