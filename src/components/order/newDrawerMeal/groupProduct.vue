@@ -107,7 +107,7 @@
     <!-- 提交按钮 -->
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-      <el-button type="primary" @click.stop="onSubmit">{{productInfo.prdType * 1 == 12 || productInfo.prdType == 22 ? '核销卡券' : '确认'}}</el-button>
+      <el-button type="primary" @click.stop="onSubmit" :loading="isSubmitting">{{productInfo.prdType * 1 == 12 || productInfo.prdType == 22 ? '核销卡券' : '确认'}}</el-button>
     </div>
 
     <drawerChooseRequireInfo
