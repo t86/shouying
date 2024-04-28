@@ -2,7 +2,7 @@
     <div v-if="isLoading" class="loading-overlay">
         <div class="loading-spinner">
             <img class="loading-img" src='../assets/order-img/loading.png' />
-            <span class="loading-span">页面加载中...</span>
+            <span class="loading-span">请求处理中...</span>
 
         </div>
     </div>

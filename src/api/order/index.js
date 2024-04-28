@@ -201,7 +201,7 @@ export default {
 
     // 抖音,美团,卡券人工线下核销
   reqLocalManualKqCsm: (params) =>
-    axios.post(`${base.htgl}/sel/local_manual_kq_csm`, params),
+    axios.post(`${base.htgl}/sel/local_manual_kq_csm`, params, true),
 
     // 验证推广卡券券码,从云端验证后,返回客户卡券Id
   reqValidCustKqCode: (params) =>
