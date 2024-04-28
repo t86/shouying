@@ -70,6 +70,7 @@
                   <div class="th">岗位</div>
                   <div class="th">性别</div>
                   <div class="th">电话</div>
+                  <div class="th">真实姓名</div>
                   <div class="th">结果反馈</div>
                 </div>
               </div>
