@@ -182,7 +182,7 @@ export default {
     async function scan_callback(value) {
       console.log('scan_callback value', value)
       try {
-        if (value && that.tabIndex === 32 && value.code === 0) {
+        if (value && that.tabIndex === 32) {
           const res = await api_order.reqValidCustKqCode({
             cust_kq_code: value.data,
           })
