@@ -136,6 +136,14 @@
               <el-input v-model="phoneNum"  @change="limitingRule('phoneNum')" size="small" placeholder="请输入电话"></el-input>
             </div>
           </div>
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span>真实姓名：</span>
+            </div>
+            <div class="value">
+              <el-input v-model="realName"  size="small" placeholder="请输入真实姓名"></el-input>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -222,6 +230,7 @@ export default {
       cloneEmpId: '', // 替身
       cloneEmpOption: [], // 替身option
       phoneNum: '',
+      realName: '',
       loading: false, // 远程搜索的时候是否显示loading
 
       showBindEmpDrawer: false, // 绑定员工微信
@@ -262,6 +271,7 @@ export default {
               this.empName = res.data.emp.name || ''
               this.pyName = res.data.emp.name_py || ''
               this.phoneNum = res.data.emp.phone_num
+              this.realName = res.data.emp.real_name || ''
             }
             this.upperEmpId = res.data.emp.upper_emp_id ? res.data.emp.upper_emp_id + "" : ""
             this.upperEmpOption = res.data.emp.upper_emp_id ? [{
@@ -639,6 +649,7 @@ export default {
           phone_num: this.phoneNum,   //PhoneNum 联系电话
           upper_emp_id: this.upperEmpId * 1,   //UpperEmpId 直属上级
           clone_emp_id: this.cloneEmpId * 1, // int64  替身
+          real_name: this.realName, // 真实姓名
         }
         method = 'emp'
         api = 'requestEmpNew'
@@ -658,6 +669,7 @@ export default {
           phone_num: this.phoneNum,   //string  联系电话
           upper_emp_id: this.upperEmpId * 1,   //int64 直属上级
           clone_emp_id: this.cloneEmpId * 1, // int64  替身
+          real_name: this.realName, // 真实姓名
         }
         method = 'emp'
         api = 'requestEmpSave'
@@ -704,6 +716,7 @@ export default {
       this.cloneEmpId = ''
       this.cloneEmpOption = []
       this.phoneNum = ''
+      this.realName = ''
     },
     
     onCancelDrawer() {

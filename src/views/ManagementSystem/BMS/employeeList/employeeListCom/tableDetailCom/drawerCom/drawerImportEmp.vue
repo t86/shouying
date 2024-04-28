@@ -93,6 +93,7 @@
                   <div class="td">{{item.stations}}</div>
                   <div class="td">{{item.sexes}}</div>
                   <div class="td">{{item.phones}}</div>
+                  <div class="td">{{item.real_names}}</div>
                   <div class="td" layout="row" layout-align="start center">
                     <div
                       v-if="!whetherForbidden[i]"
@@ -182,7 +183,8 @@ export default {
               stations: response.data.stations[key] || "",
               sexes: response.data.sexes[key] || "",
               codes: response.data.codes[key] || "",
-              depts: response.data.depts[key] || ""
+              depts: response.data.depts[key] || "",
+              real_names: response.data.real_names[key] || ""
             }
             // 错误信息
             const findIndex = response.data.err_ids.findIndex(
@@ -223,7 +225,8 @@ export default {
               stations: response.data.stations[key] || "",
               sexes: response.data.sexes[key] || "",
               codes: response.data.codes[key] || "",
-              depts: response.data.depts[key] || ""
+              depts: response.data.depts[key] || "",
+              real_names: response.data.real_names[key] || ""
             }
             this.ImportData.push(s)
 
@@ -291,7 +294,8 @@ export default {
           depts: [],
           stations: [],
           sexes: [],
-          phones: []
+          phones: [],
+          real_names: [],
         }
         for (const i in this.whetherForbidden) {
           if (!this.whetherForbidden[i]) {
@@ -304,6 +308,7 @@ export default {
                 s.stations.push(this.ImportData[i].stations)
                 s.sexes.push(this.ImportData[i].sexes)
                 s.phones.push(this.ImportData[i].phones)
+                s.real_names.push(this.ImportData[i].real_names)
               }
             }
           }
