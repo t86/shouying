@@ -223,7 +223,7 @@ export default {
             that.productInfo = that.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(item => item.id === finder)
             console.log("query product=============:", that.productInfo )
             that.componentKey += 1
-            that.$message.success("抖音券码识别成功：" + value.data);
+            // that.$message.success("抖音券码识别成功：" + value.data);
             console.log("券码识别成功：", res)
           } else {
             that.step = 0
