@@ -198,6 +198,7 @@ export default {
             that.$message.success("券码识别成功：" + value.data);
             console.log("券码识别成功：", that.custKqId , res)
           } else {
+            that.step = 0
             console.log("券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
@@ -225,14 +226,17 @@ export default {
             that.$message.success("抖音券码识别成功：" + value.data);
             console.log("券码识别成功：", res)
           } else {
+            that.step = 0
             console.log("券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
         }
         else {
+          that.step = 0
           that.$message.warning("扫码取消");
         }
       } catch (error) {
+        that.step = 0
         console.log("券码识别失败：", error);
         that.$message.warning("券码识别失败：" + error);
       }
