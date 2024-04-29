@@ -28,19 +28,6 @@
             <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>
             <span>线下核销</span>
           </div>
-
-          <el-button type="primary" @click="loading=true" :loading="loading">
-            点我转圈1
-          </el-button>
-
-          <el-button type="primary" @click="loading=false">
-            点我关闭转圈1
-          </el-button>
-
-          <el-button type="primary" @click="fullloading">
-            点我全屏转圈
-          </el-button>
-
         </div>
       </div>
 
@@ -113,7 +100,6 @@ import keyBoard from "@/components/common/newKeyBoard.vue";
 export default {
   data() {
     return {
-      loading:false,
       componentKey:0,
       step:0,
       tabIndex: 22,
