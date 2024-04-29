@@ -201,11 +201,11 @@ export default {
 
     // 抖音,美团,卡券人工线下核销
   reqLocalManualKqCsm: (params) =>
-    axios.post(`${base.htgl}/sel/local_manual_kq_csm`, params, true),
+    axios.post(`${base.htgl}/sel/local_manual_kq_csm`, params),
 
     // 验证推广卡券券码,从云端验证后,返回客户卡券Id
   reqValidCustKqCode: (params) =>
-    axios.post(`${base.htgl}/sel/valid_cust_kq_code`, params),
+    axios.post(`${base.htgl}/sel/valid_cust_kq_code`, params, true),
 
   csm_dy_coupon_prepare: (params) =>
       axios.post(`${base.htgl}/wo/csm_dy_coupon_prepare`, params),
