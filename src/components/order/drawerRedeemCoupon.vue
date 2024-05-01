@@ -20,14 +20,14 @@
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
-          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
+          <div v-if="tabIndex == 32 " layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
-          <div v-if="tabIndex != 32" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">
-            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>
-            <span>线下核销</span>
-          </div>
+<!--          <div v-if="tabIndex != 32" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">-->
+<!--            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>-->
+<!--            <span>线下核销</span>-->
+<!--          </div>-->
         </div>
       </div>
 
@@ -71,13 +71,14 @@
               :singleInfo="singleInfo"
               :key="componentKey"
               :dy-info="dyInfo"
+              @submitting="submitLoading"
               @closeDrawerHandle="onRedeemSuccess"
           />
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="info" @click="doRedeem">核销卡券</el-button>
+        <el-button type="info" @click="doRedeem" :loading="subIsloading">核销卡券</el-button>
       </div>
     </el-drawer>
   </div>
@@ -115,10 +116,15 @@ export default {
       singleInfo: {},
       dyInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
+      subIsloading: false,
 
     };
   },
   methods: {
+    submitLoading(value) {
+      console.log('from child:',value)
+      this.subIsloading = value
+    },
     changeNumHandle(value) {
       switch (value) {
         case 11: // 清空
@@ -265,7 +271,7 @@ export default {
     },
     isIndeterminate(){
       return !this.checkAll && this.tableData.some(item => item.checked)
-    }
+    },
   },
   watch: {
     value: {
@@ -275,7 +281,7 @@ export default {
         }
       },
       immediate: true
-    }
+    },
   },
   components: {
     mealNav,

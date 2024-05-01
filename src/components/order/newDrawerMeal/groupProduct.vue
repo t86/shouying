@@ -307,6 +307,7 @@ export default {
 
       if(!this.isSubmitting) {
         this.isSubmitting = true;
+        this.$emit('submitting', true);
       } else {
         return this.$message.warning('请勿重复提交')
       }
@@ -315,6 +316,7 @@ export default {
       const validateCanSelectPrdCount = this.groupCanSelectArr.every(item => item.groupSelectCount == item.hadSelectedCount)
       if(!validateCanSelectPrdCount) {
         this.isSubmitting = false;
+        this.$emit('submitting', false);
         return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
       }
 
@@ -353,6 +355,7 @@ export default {
             this.$message.warning("卡券核销失败" + error);
           }
           this.isSubmitting = false;
+          this.$emit('submitting', true);
           return 
       }
       if(this.productInfo.prdType * 1 == 32) {
@@ -374,6 +377,7 @@ export default {
             this.$message.warning("卡券核销失败" + error);
           }
           this.isSubmitting = false;
+          this.$emit('submitting', true);
           return 
 
       }
@@ -398,6 +402,7 @@ export default {
           this.$message.warning("卡券核销失败" + error);
         }
         this.isSubmitting = false;
+        this.$emit('submitting', false);
         return
       }
 
@@ -406,6 +411,7 @@ export default {
       if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = {...params}
         this.isSubmitting = false;
+        this.$emit('submitting', false);
         return this.showBJDrawer = true
       }
 
@@ -420,6 +426,7 @@ export default {
         console.log("套餐加入购物车失败", error);
       }
       this.isSubmitting = false;
+      this.$emit('submitting', false);
     },
 
     // -----------------套餐定制单品 start --------------------
