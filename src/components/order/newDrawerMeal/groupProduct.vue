@@ -336,7 +336,8 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-      if(this.productInfo.prdType * 1 == 22) {
+      // if(this.productInfo.prdType * 1 == 22 ) {
+      if(step === 3 ) {
         try {
             params = {
               ...params,

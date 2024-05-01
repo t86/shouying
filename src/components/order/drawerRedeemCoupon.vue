@@ -37,6 +37,7 @@
           <productList
               @onRedeem="onRedeemSuccess"
               :redeem="tabIndex"
+              :step = "step"
               :allProductsList="allProductsList"
               :currentCategoryProductList="currentCategoryProductList"
           />

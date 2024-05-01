@@ -795,6 +795,9 @@ export default {
     },
     redeem: {
       default: 0 // 12:抖音 ,22：美团,32：推广 
+    },
+    step :{
+      default: 0 //step 3 线下核销， 1 扫码核销 ， 2输入券码核销
     }
   },
   computed: {
