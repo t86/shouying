@@ -24,10 +24,10 @@
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
-          <div v-if="tabIndex != 32 && clientType === 'money'" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">
-            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>
-            <span>线下核销</span>
-          </div>
+<!--          <div v-if="tabIndex != 32 && clientType === 'money'" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">-->
+<!--            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>-->
+<!--            <span>线下核销</span>-->
+<!--          </div>-->
         </div>
       </div>
 
