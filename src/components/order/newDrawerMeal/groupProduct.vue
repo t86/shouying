@@ -355,7 +355,7 @@ export default {
             this.$message.warning("卡券核销失败" + error);
           }
           this.isSubmitting = false;
-          this.$emit('submitting', true);
+          this.$emit('submitting', false);
           return 
       }
       if(this.productInfo.prdType * 1 == 32) {
@@ -377,7 +377,7 @@ export default {
             this.$message.warning("卡券核销失败" + error);
           }
           this.isSubmitting = false;
-          this.$emit('submitting', true);
+          this.$emit('submitting', false);
           return 
 
       }
