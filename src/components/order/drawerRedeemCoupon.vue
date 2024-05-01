@@ -24,10 +24,10 @@
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
-<!--          <div v-if="tabIndex != 32" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">-->
-<!--            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>-->
-<!--            <span>线下核销</span>-->
-<!--          </div>-->
+          <div v-if="tabIndex != 32 && clientType === 'money'" layout="column" layout-align="start center" @click="tabClick(3, tabIndex)">
+            <img src="@/assets/img/offline.svg" alt="" style="width:50px;height:50px"/>
+            <span>线下核销</span>
+          </div>
         </div>
       </div>
 
@@ -117,6 +117,7 @@ export default {
       dyInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
       subIsloading: false,
+      clientType: 'order'
 
     };
   },
@@ -188,6 +189,7 @@ export default {
   },
   created() {},
   mounted() {
+    this.clientType = this.$store.state.client
     this.getMenuInfo(false);
     const that = this;
     async function scan_callback(value) {
