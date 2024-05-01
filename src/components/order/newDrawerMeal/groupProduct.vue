@@ -336,7 +336,9 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-      if(this.productInfo.prdType * 1 == 22 ) {
+      let isDyOffline = (typeof (this.dyInfo) === 'undefined')
+      console.log('--------------------isDyOffline',isDyOffline)
+      if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
         try {
             params = {
               ...params,
@@ -381,7 +383,7 @@ export default {
           return 
 
       }
-      if (this.productInfo.prdType * 1 === 12) {
+      if (this.productInfo.prdType * 1 === 12 && isDyOffline) {
         try {
           params = {
             ...params,
