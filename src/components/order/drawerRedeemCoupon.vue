@@ -20,7 +20,7 @@
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
-          <div v-if="tabIndex == 32 " layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
+          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
@@ -63,7 +63,7 @@
           />
           <el-button type="primary" @click="checkCode" style="margin-left: 20px;">确定</el-button>
         </div>
-        <div class="order-meal-list">
+        <div class="order-meal-list" v-if="Object.keys(productInfo).length > 0">
           <div >券详情：请选择套餐明细</div>
           <!-- 点套餐 -->
           <groupProduct

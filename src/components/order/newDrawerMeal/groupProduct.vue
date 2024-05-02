@@ -336,7 +336,8 @@ export default {
         ] // []string  要求
       };
       let isDyOffline = (typeof (this.dyInfo) === 'undefined')
-      console.log('--------------------isDyOffline',isDyOffline)
+      console.log('--------------------offline', isDyOffline)
+      //抖音，美团线下核销
       if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
         try {
             params = {
@@ -359,6 +360,7 @@ export default {
           this.$emit('submitting', false);
           return 
       }
+      //小程序核销
       if(this.productInfo.prdType * 1 == 32) {
         try {
             params = {
@@ -382,6 +384,7 @@ export default {
           return 
 
       }
+      //抖音线下核销
       if (this.productInfo.prdType * 1 === 12 && isDyOffline) {
         try {
           params = {
