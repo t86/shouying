@@ -208,7 +208,7 @@ export default {
     axios.post(`${base.htgl}/sel/valid_cust_kq_code`, params, true),
 
   csm_dy_coupon_prepare: (params) =>
-      axios.post(`${base.htgl}/wo/csm_dy_coupon_prepare`, params),
+      axios.post(`${base.htgl}/wo/csm_dy_coupon_prepare`, params, true),
 
     // 使用券码核销卡券
   reqUseKqCode: (params) => axios.post(`${base.htgl}/sel/kq_csm_by_code`, params),

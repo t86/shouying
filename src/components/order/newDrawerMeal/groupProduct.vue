@@ -321,7 +321,6 @@ export default {
       }
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
-
       let params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         prd_id: this.groupInfo.id * 1, //     int64  商品Id
@@ -418,6 +417,7 @@ export default {
       }
 
       try {
+        params.prd_price = Math.round(this.groupInfo.price * 100)
         const res = await api_order.reqAddGroupToShopping(params);
         if (res.code === 1) {
           this.$message.success("加入购物车成功");
