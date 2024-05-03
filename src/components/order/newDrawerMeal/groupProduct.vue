@@ -384,14 +384,16 @@ export default {
           return 
 
       }
-      //抖音线下核销
-      if (this.productInfo.prdType * 1 === 12 && isDyOffline) {
+      //抖音扫码核销
+      if (this.productInfo.prdType * 1 === 12 && !isDyOffline) {
         try {
           params = {
             ...params,
             order_id: this.dyInfo.order_id,
             dy_order_id: this.dyInfo.dy_order_id,
             verify_token: this.dyInfo.verify_token,
+            use_cnt_per_csm: this.dyInfo.use_cnt_per_csm,
+            use_exclusive_mode: this.dyInfo.use_exclusive_mode,
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseDyCode(params)
