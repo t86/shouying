@@ -231,7 +231,7 @@ export default {
             that.dyInfo.dy_order_id = res.data.dy_order_id
             that.dyInfo.order_id = res.data.order_id
             that.dyInfo.verify_token = res.data.verify_token
-            that.dyInfo.csm_dy_coupon_prepare = res.data.csm_dy_coupon_prepare
+            that.dyInfo.use_cnt_per_csm = res.data.use_cnt_per_csm
             that.dyInfo.use_exclusive_mode = res.data.use_exclusive_mode
             let finder = res.data.prd_id.toString()
             that.singleInfo.prd_cnt = 1

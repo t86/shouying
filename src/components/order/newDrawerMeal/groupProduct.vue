@@ -396,6 +396,7 @@ export default {
             use_exclusive_mode: this.dyInfo.use_exclusive_mode,
             relate_csm_id: 0,
           };
+          params.prd_price = Math.round(this.groupInfo.price * 100)
           const res = await api_order.reqUseDyCode(params)
           if(res.code === 1) {
             this.$message.success("卡券核销成功");
