@@ -31,7 +31,7 @@
           <el-date-picker style="width:140px" v-model="end_day" type="date" :clearable="false" size="small"
             value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
-        <span class="label fs14 m-l-2">入库仓库：</span>
+        <span class="label fs14 m-l-2">出库仓库：</span>
         <el-select v-model="inLibVal" size="small" style="width:120px">
           <el-option label="全部" :value='0'></el-option>
           <el-option v-for="(item, i) in inLibOption" :key="i" :label="item.n" :value="item.id"></el-option>
