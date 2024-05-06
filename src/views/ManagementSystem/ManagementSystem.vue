@@ -201,12 +201,14 @@ export default {
     },
 
     initNavBarActive(paramsStr = "") {
+
       if (localStorage.getItem("navigation")) {
         var nums = localStorage.getItem("navigation").split(",");
         this.activeNames = nums[0];
         this.nr = nums;
         this.header = this.ShowThelistof[nums[0]].content[nums[1]].name;
 
+        console.log('initNavBarActive', paramsStr, nums, this.ShowThelistof[nums[0]].content[nums[1]].url + paramsStr, this.ShowThelistof)
         this.$router.push(
           {
             path: this.ShowThelistof[nums[0]].content[nums[1]].url + paramsStr

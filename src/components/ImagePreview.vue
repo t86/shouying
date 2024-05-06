@@ -1,5 +1,5 @@
 <template>
-    <div class="image-container" v-if="dialogVisible">
+    <div class="image-container" v-if="dialogVisible" style="z-index:9999">
         <img :src="imgSrc" alt="Image Preview" class="preview-image">
         <img :src="require('@/assets/img/pre-close.png')" @click="handleClose()" class="close-img">
     </div>
@@ -14,8 +14,8 @@ export default {
     },
     data() {
         return {
-            imgSrc: "",
-            dialogVisible: false
+            // imgSrc: "",
+            // dialogVisible: false
         }
     },
     methods: {

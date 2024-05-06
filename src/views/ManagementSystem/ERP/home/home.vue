@@ -128,7 +128,12 @@ export default {
     },
 
     doSomeThingHandle(itemObj) {
-      localStorage.setItem("navigation", "4,1,/ERP/changeOutLib,调拨出库");
+      if (sessionStorage.getItem("client") == "erp") {
+        localStorage.setItem("navigation", "2,1,/ERP/changeOutLib,调拨出库");
+      } else {
+        localStorage.setItem("navigation", "4,1,/ERP/changeOutLib,调拨出库");
+      }
+
       this.$parent &&
         this.$parent.$parent.initNavBarActive &&
         this.$parent.$parent.initNavBarActive('?itemObj=' + JSON.stringify(itemObj));

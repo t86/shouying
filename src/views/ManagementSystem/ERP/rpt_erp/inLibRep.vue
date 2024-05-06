@@ -351,12 +351,14 @@ export default {
         .tr {
           &:nth-child(2n) {
             .td {
+              min-height: 32px;
               background-color: #f5f5f5;
             }
           }
 
           &:nth-child(2n + 1) {
             .td {
+              min-height: 32px;
               background-color: #f9f9f9;
             }
           }
@@ -374,19 +376,19 @@ export default {
         &:nth-child(2) {
           width: 900px;
           position: sticky;
-          left: 50px;
+          left: 46px;
         }
 
         &:nth-child(3) {
           width: 600px;
           position: sticky;
-          left: 179px;
+          left: 166px;
         }
 
         &:nth-child(4) {
           width: 600px;
           position: sticky;
-          left: 268px;
+          left: 249px;
         }
       }
     }
