@@ -150,7 +150,7 @@
                 layout="row"
                 layout-align="space-between center"
               >
-                <div class="primary-link cursor" @click="showImgDetails = true">
+                <div class="primary-link cursor" @click="showPreImage">
                   查看
                 </div>
                 <div class="primary-link cursor" @click="deleteImgHandle">
@@ -450,10 +450,14 @@
         <el-button type="primary" @click="onSubmit(2)">确定</el-button>
       </div>
     </el-drawer>
+
+    <ImagePreview :dialogVisible="showImgDetails" :imgSrc="http + picUrl" @handleCloseClick="handleCloseClick" />
   </div>
 </template>
 
 <script>
+import ImagePreview from "@/components/ImagePreview";
+
 export default {
   data() {
     return {
@@ -482,6 +486,12 @@ export default {
     };
   },
   methods: {
+    showPreImage() {
+      this.showImgDetails = true;
+    },
+    handleCloseClick() {
+      this.showImgDetails = false;
+    },
     // 获取修改前数据
     async getPrdDetail() {
       const params = {
@@ -872,7 +882,8 @@ export default {
   },
   components: {
     drawerAddPrd: () => import("./drawerAddPrd.vue"),
-    EllipsisTooltip: () => import("@/components/EllipsisTooltip.vue"), //根据路径导入组件
+    EllipsisTooltip: () => import("@/components/EllipsisTooltip.vue"), //根据路径导入组件，
+    ImagePreview,
   },
   watch: {
     value: {
