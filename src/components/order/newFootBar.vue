@@ -36,14 +36,26 @@
           </div>
         </div>
         <!-- 服务员充值滞留金 -->
-        <div v-if="
-          isShowPayBtn
-        " class="server-pay-btn line">
-          <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">
-            <img :src="imgSrc.zhiliujin" alt />
-            <span>滞留金</span>
-          </div>
+<!--        <div v-if="-->
+<!--          isShowPayBtn-->
+<!--        " class="server-pay-btn line">-->
+<!--          <div class="button" layout="row" layout-align="center center" @click="showAddBookDrawer = true">-->
+<!--            <img :src="imgSrc.zhiliujin" alt />-->
+<!--            <span>滞留金</span>-->
+<!--          </div>-->
+<!--        </div>-->
+
+        <div class='li line' style="margin-left: 4px">
+          <el-dropdown @command="moreClick" type="primary">
+            <p style="margin-top:10px;margin-bottom: 10px;">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a">滞留金</el-dropdown-item>
+              <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b">清台</el-dropdown-item>
+              <el-dropdown-item v-if="hasZhuantaiAuth" icon="el-icon-s-unfold" command="c">转台</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
+
         <!-- 收银系统按钮 -->
         <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
           $store.state.userInfo.authStatus == 4 &&
@@ -412,6 +424,7 @@ const payTypeList =
 export default {
   data() {
     return {
+      authInfo: {},
       canLookOrderAmt: false,
 
       isRect: window.innerWidth >= 1024,
@@ -479,6 +492,14 @@ export default {
     };
   },
   methods: {
+    moreClick(command) {
+      // alert('button click' + command);
+      if ('a' === command) {
+        this.showAddBookDrawer = true
+      } else if ('b' === command) {
+        this.clearCardHandle()
+      }
+    },
     keyboardShow() {
       if (
         window.atool
@@ -613,13 +634,21 @@ export default {
         hour: date.getHours().toString().padStart(2, 0),
         minute: date.getMinutes().toString().padStart(2, 0),
         name: this.$store.state.userInfo.name,
+        bindWaiterId: this.$store.state.userInfo.empId,
       };
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
       this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
       this.empId = this.empId || businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
-      this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
-          (item) => item.id == this.empId
-      ).map((item) => item.name).join("");
+      // this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
+      //     (item) => item.id == this.empId
+      // ).map((item) => item.name).join("");
+      let bindWaiters =  this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(item => item.id === this.empId)
+      let bindWaiter
+      if (bindWaiters.length > 0) {
+        bindWaiter = bindWaiters[0]
+        this.authInfo.name = bindWaiter.name
+        this.authInfo.bindWaiterId = bindWaiter.id
+      }
       this.authInfo = { ...this.authInfo };
     },
 
@@ -1007,6 +1036,20 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(9)
+      );
+    },
+    hasQingTaiAuth() {
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(71) &&
+          this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+      );
+    },
+    hasZhuantaiAuth() {
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(72) &&
+          this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
       );
     },
   },
