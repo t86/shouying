@@ -889,8 +889,8 @@ export default {
     value: {
       handler(newVal) {
         if (newVal) {
+          this.resetHandle();
           if (this.type == 1) {
-            this.resetHandle();
             this.getTableData();
           } else {
             this.getPrdDetail();
