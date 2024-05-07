@@ -132,7 +132,7 @@
 
         <!-- 异议项列表 -->
         <div v-if="yyTableData.length > 0">
-          <h4 class="m-t-6 m-b-2">异议项</h4>
+          <h4 class="table-title">异议项</h4>
           <div class="table-content">
             <div class="table border">
               <div class="thead">
@@ -332,15 +332,28 @@ export default {
 .show {
   display: none;
 }
-
+.table-title {
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
 </style>
 
 
 <style scoped media="print">
 
 @media print {
-  #print .show {
+  .show {
     display: block;
+  }
+
+  .table-title {
+    font-size: 10px;
+    margin-top: 0px;
+    margin-bottom: 4px;
+  }
+  .form{
+    padding: 10px;
   }
 }
   </style>

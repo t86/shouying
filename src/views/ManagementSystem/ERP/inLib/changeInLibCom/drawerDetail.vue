@@ -308,8 +308,11 @@ export default {
 
   .table-title {
     font-size: 10px;
-    margin-top: 10px;
+    margin-top: 0px;
     margin-bottom: 4px;
+  }
+  .form{
+    padding: 10px;
   }
 }
   </style>
