@@ -193,7 +193,7 @@
                 layout="row"
                 layout-align="space-between center"
               >
-                <div class="primary-link cursor" @click="showImgDetails = true">
+                <div class="primary-link cursor" @click="showPreImage">
                   查看
                 </div>
                 <div class="primary-link cursor" @click="deleteImgHandle">
@@ -278,6 +278,7 @@
         <el-button type="primary" @click="onSubmit">确定</el-button>
       </div>
     </el-drawer>
+    <ImagePreview :dialogVisible="showImgDetails" :imgSrc="http + picUrl" @handleCloseClick="handleCloseClick" />
   </div>
 </template>
 
@@ -302,13 +303,18 @@ export default {
       http: "",
       showBindPrd: false,
       showImgDetails: false, // 是否显示商品图片预览
-
       tableData: [], // 区域出品库表格数据
       checkAll: false, // 出品库全选
       outLibOption: [], // 区域出品库下拉option
     };
   },
   methods: {
+    showPreImage() {
+      this.showImgDetails = true;
+    },
+    handleCloseClick() {
+      this.showImgDetails = false;
+    },
     // 获取修改前数据
     async getPrdDetail() {
       const params = {
@@ -597,6 +603,7 @@ export default {
   },
   components: {
     drawerBindPrd: () => import("./drawerBindPrd.vue"),
+    ImagePreview: () =>  import("@/components/ImagePreview"),
   },
   watch: {
     value: {
