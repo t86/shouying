@@ -332,7 +332,7 @@ export default {
     },
 
     addedSeatListId() {
-      return this.addedSeatList.map((item) => item.id * 1);
+      return this.addedSeatList.filter(item => item.li == this.levelVal || item.li == 0).map((item) => item.pi * 1);
     },
 
     isIndeterminate() {
