@@ -226,6 +226,7 @@ export default {
 
             this.searchFormData.options = [...options];
           }
+          const ids = this.addedSeatList.filter(item => item.li == this.levelVal || item.li == 0).map((item) => item.pi * 1)
           this.tableData = (res.data.prds || []).map((item) => {
             item.on = this.searchFormData.options.find(
               (i) => i.value == item.oi
@@ -233,10 +234,11 @@ export default {
             item.tn = this.searchFormData.options
               .find((i) => i.value == item.oi)
               .children.find((i) => i.value == item.ti).n;
+
             return {
               ...item,
-              disabled: this.addedSeatListId.includes(item.id * 1),
-              checked: this.addedSeatListId.includes(item.id * 1),
+              disabled: ids.includes(item.id * 1),
+              checked: ids.includes(item.id * 1),
             };
           });
 
@@ -275,6 +277,8 @@ export default {
       this.searchFormData.valueArr = [0, 0];
       this.searchFormData.keyword = "";
       this.step = 1;
+      this.levelVal = 0
+      this.ruleValue = ''
     },
 
     // 重置
@@ -288,6 +292,22 @@ export default {
         if (!this.ruleValue) {
           return this.$message.warning("请选择需要添加的商品");
         }
+        const ids = this.addedSeatList.filter(item => item.li == this.levelVal || item.li == 0).map((item) => item.pi * 1)
+        this.tableData = (this.tableData || []).map((item) => {
+            item.on = this.searchFormData.options.find(
+              (i) => i.value == item.oi
+            ).n;
+            item.tn = this.searchFormData.options
+              .find((i) => i.value == item.oi)
+              .children.find((i) => i.value == item.ti).n;
+            return {
+              ...item,
+              disabled: ids.includes(item.id * 1),
+              checked: ids.includes(item.id * 1),
+            };
+          });
+        this.checked = this.tableData.every((item) => item.checked);
+
         this.step = 2;
         return;
       }
@@ -331,9 +351,9 @@ export default {
       return this.step == 1 ? "选择扣款规则" : "选择商品";
     },
 
-    addedSeatListId() {
-      return this.addedSeatList.filter(item => item.li == this.levelVal || item.li == 0).map((item) => item.pi * 1);
-    },
+    // addedSeatListId() {
+    //   return this.addedSeatList.filter(item => item.li == this.levelVal || item.li == 0).map((item) => item.pi * 1);
+    // },
 
     isIndeterminate() {
       if (
@@ -351,7 +371,7 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       if (newVal) {
-        this.getTableData(1);
+        this.restSearchData();
       }
     },
   },

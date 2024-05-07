@@ -1,3 +1,4 @@
+
 // erp后台
 .table-content {
   user-select: text;
@@ -13,7 +14,6 @@
 
       .th {
         font-weight: 600;
-
         /deep/.el-checkbox__label {
           font-weight: 600;
         }
@@ -79,4 +79,23 @@
 .link {
   cursor: pointer;
   color: #2170ff;
+}
+
+@media print {
+  .table-content {
+    .table {
+      .thead .tr {
+        min-height: 20px!important;
+        line-height: 1.1;
+      }
+      .tbody .tr{
+        min-height: 20px!important;
+        line-height: 1.1;
+      }
+      .th,
+      .td {
+        padding: 5px;
+      }
+    }
+  }
 }

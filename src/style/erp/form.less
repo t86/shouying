@@ -24,3 +24,24 @@
   }
 
 }
+
+@media print {
+  .coll {
+    margin-top: 2px;
+
+    .label {
+      font-size: 10px;
+      width: 100px;
+    }
+    .value {
+      font-size: 10px;
+    }
+
+    /deep/.el-input__inner,
+    /deep/.el-textarea__inner {
+      &::placeholder {
+        font-size: 10px;
+      }
+    }
+  }
+}

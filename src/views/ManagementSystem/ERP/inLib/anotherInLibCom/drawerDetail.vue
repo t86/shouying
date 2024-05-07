@@ -58,7 +58,7 @@
 
         <!-- 明细单列表 -->
         <div v-if="tableData.length > 0">
-          <h4 class="m-t-6 m-b-2">明细单列表：</h4>
+          <div class="table-title" style="font-weight: 600;">明细单列表：</div>
           <div class="table-content">
             <div class="table border">
               <div class="thead">
@@ -125,13 +125,13 @@
         </div>
 
         <div class="show">
-          <div class="sign m-t-10">
+          <div class="sign m-t-2">
             <div class="coll" layout="row" layout-align="start center">
               <div class="label">总金额：</div>
               <div class="value">{{allAmt.toFixed(2)}}元</div>
             </div>
           </div>
-          <div class="sign m-t-3" layout="row" layout-align="start center">
+          <div class="sign m-t-2" layout="row" layout-align="start center">
             <div class="coll" layout="row" layout-align="start center">
               <div class="label">签收人：</div>
               <div class="value line"></div>
@@ -263,6 +263,11 @@ export default {
   }
 }
 
+.table-title {
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
 .table-content {
   width: 100%;
   overflow: auto;
@@ -292,11 +297,21 @@ export default {
 </style>
 
 
-<style scoped media="print">
+<style scoped lang="less" media="print">
 
 @media print {
-  #print .show {
+  
+  .show {
     display: block;
+  }
+
+  .table-title {
+    font-size: 10px;
+    margin-top: 0px;
+    margin-bottom: 4px;
+  }
+  .form{
+    padding: 10px;
   }
 }
   </style>
