@@ -425,6 +425,8 @@ export default {
   data() {
     return {
       authInfo: {},
+      hasQingTaiAuth: false,
+      hasZhuantaiAuth: false,
       canLookOrderAmt: false,
 
       isRect: window.innerWidth >= 1024,
@@ -1052,6 +1054,19 @@ export default {
           this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
       );
     },
+  },
+  watch: {
+    "authInfo.bindWaiterId": {
+      handler(newVal, oldVal) {
+        console.log("changed auth:", newVal, oldVal)
+        this.hasQingTaiAuth = this.$store.state.userInfo.sys_modules &&
+            this.$store.state.userInfo.sys_modules.includes(71) &&
+            this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+        this.hasZhuantaiAuth = this.$store.state.userInfo.sys_modules &&
+            this.$store.state.userInfo.sys_modules.includes(72) &&
+            this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+      }
+    }
   },
   components: {
     drawerPayQR,
