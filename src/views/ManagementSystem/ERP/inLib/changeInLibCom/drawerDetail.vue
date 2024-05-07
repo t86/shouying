@@ -58,7 +58,7 @@
 
         <!-- 明细单列表 -->
         <div v-if="tableData.length > 0">
-          <h4 class="m-t-6 m-b-2">正常订单</h4>
+          <h4 class="table-title">正常订单</h4>
           <div class="table-content">
             <div class="table border">
               <div class="thead">
@@ -93,7 +93,7 @@
 
         <!-- 异议记录 -->
         <div v-if="applyForTableData.length > 0">
-          <h4 class="m-t-6 m-b-2">异议记录</h4>
+          <h4 class="table-title">异议记录</h4>
           <div class="table-content">
             <div class="table border">
               <div class="thead">
@@ -290,6 +290,12 @@ export default {
   display: none;
 }
 
+.table-title {
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
 </style>
 
 
@@ -298,6 +304,12 @@ export default {
 @media print {
   #print .show {
     display: block;
+  }
+
+  .table-title {
+    font-size: 10px;
+    margin-top: 10px;
+    margin-bottom: 4px;
   }
 }
   </style>

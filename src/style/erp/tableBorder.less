@@ -29,3 +29,29 @@
     border-right: 1px solid @borderColor;
   }
 }
+
+@media print {
+  .table-content {
+    .table.border {
+      border: 1px solid #000;
+      .thead {
+        border-bottom: 1px solid #000;
+      }
+      .tr {
+        font-size: 10px;
+        min-height: 20px;
+        line-height: 20px;
+        border-bottom: 1px solid #000;
+      }
+      .th,.td {
+        min-height: 20px;
+        line-height: 20px;
+        border-right: 1px solid #000;
+      }
+    }
+  
+    .no-data {
+      border-right: 1px solid #000;
+    }
+  }
+}
