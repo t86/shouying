@@ -7,7 +7,12 @@ import eventVue from "@/utils/eventVue";
 
 export const cardPageMixins = {
   methods: {
-
+    hasForbidUnTipTableAuth() {
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(70)
+      );
+    },
     // 根据当前用户角色，权限，设备限制等判断条件获取区域及卡台列表
     getAreaAndCardList(){
       const areaAndCardListType = [

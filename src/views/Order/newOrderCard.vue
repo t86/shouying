@@ -730,6 +730,12 @@ export default {
         }
       }
 
+      if (this.hasForbidUnTipTableAuth()) {
+        cardList = cardList.filter(item => {
+          return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
+        })
+      }
+
       // 没有配置任何权限同时不具有全场查单权限
       if (this.isUserWithoutRoles()) {
         cardListInfoArr = [];
