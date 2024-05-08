@@ -336,7 +336,9 @@ import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
 import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
 import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
 import Observer, { BIND_EMP } from "@/observer";
-import fullPageTable from "@/components/book/machine/fullPageTable.vue";
+import fullPageTable from "@/components/book/machine/fullPageZTOrder.vue";
+import {cardPageMixins} from "@/mixin/cardPage";
+import {cardOptions} from "@/utils/config/card";
 
 const orderNavList = [
   {
@@ -544,31 +546,329 @@ export default {
     };
   },
   methods: {
-    // // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
-    // async getAllData() {
-    //   try {
-    //     resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
-    //     if (
-    //         !resResultDataObj &&
-    //         (!resResultDataObj["areaInfo"] ||
-    //             !resResultDataObj["cardInfo"] ||
-    //             !resResultDataObj["businessData"])
-    //     )
-    //       return;
-    //
-    //     // 日期tab
-    //     this.getTimeTabData(JSON.parse(JSON.stringify(resResultDataObj["canDoList"])));
-    //     await this.getCardList(
-    //         resResultDataObj["cardInfo"],
-    //         resResultDataObj["businessData"]
-    //     );
-    //     // 区域tab
-    //     this.getTabList(resResultDataObj["areaInfo"]);
-    //     // 获取卡台数据
-    //   } catch (error) {
-    //     console.log("全量数据请求失败", error);
-    //   }
-    // },
+    // 筛选卡台数据
+    filterCardList(key, id) {
+      cardListInfoArr.forEach((el) => {
+        el.showOption = false;
+      });
+      if (key === "keyword"){
+        const result = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        let orderPersons = result.filter(
+            (item) => item.code.includes(this.keyWord) ||
+                item.name.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) ||
+                item.namePy.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase())
+        );
+        return cardListInfoArr.filter(
+            (item) =>
+                item.customerName
+                    .toLocaleUpperCase()
+                    .includes(this.keyWord.toLocaleUpperCase()) ||
+                item.customerPhone.slice(-4).includes(this.keyWord) ||
+                item.customer_name_py
+                    .toLocaleUpperCase()
+                    .includes(this.keyWord.toLocaleUpperCase()) ||
+                item.name
+                    .toLocaleUpperCase()
+                    .includes(this.keyWord.toLocaleUpperCase()) ||
+                orderPersons.filter(p => p.id && p.id * 1 > 0 && p.id == item.salesEmpId).length > 0
+        );
+      }
+
+      if (key === "regionId" && id === 0) return cardListInfoArr; // 点击全部按钮
+      return cardListInfoArr.filter((item) => item[key] == id);
+    },
+    // 获取当天年月日
+    getCurrentDay() {
+      const Y = new Date().getFullYear().toString().padStart(2, 0);
+      const M = (new Date().getMonth() + 1).toString().padStart(2, 0);
+      const D = new Date().getDate().toString().padStart(2, 0);
+      return `${Y}${M}${D}`;
+    },
+    // 获取卡台options
+    getCardOptions(status, platform_id, showOnlineText, turnoverCnt, topNum) {
+      // 卡台状态status：1 空台 2 锁定 3 预订 4 开台 5 点单未结账 6 部分结账 7 已结账 8 小程序预留 22 无效 33 删除
+      // 订单来源platform_id：0 代表本地系统 1 代表微信小程序
+      let optionsIdArr = [];
+      const cardResultOptions = [];
+      switch (Number(status)) {
+        case 1: // 空台
+          if (
+              this.modelVisible ||
+              this.$store.state.cardPageInfo.resResultDataObj.canDoList[
+                  this.dateTab.activeIndex
+                  ].id > this.getCurrentDay()
+          ) {
+            // 未开启营业日 或 自然日日期为未来日期
+            optionsIdArr = [1];
+          } else if (
+              this.$store.state.cardPageInfo.resResultDataObj.canDoList[
+                  this.dateTab.activeIndex
+                  ].id <= this.getCurrentDay()
+          ) {
+            // 自然日日期小于等于为当天
+            if (this.dateTab.activeIndex == 0) {
+              optionsIdArr = showOnlineText
+                  ? [17]
+                  : turnoverCnt > 0
+                      ? [1, 2, 4, 5]
+                      : [1, 2, 5];
+            } else {
+              optionsIdArr = [1];
+            }
+          }
+          break;
+        case 2: // 锁定台
+          optionsIdArr =
+              this.modelVisible || this.dateTab.activeIndex != 0 ? [] : [6];
+          break;
+        case 4: // 开台
+          optionsIdArr = [10, 11, 7, 12, 14, 4, 20];
+          break;
+        case 5: // 点单未结账
+          optionsIdArr = [10, 11, 7, 14, 4, 20];
+          break;
+        case 6: // 点单部分结账
+          optionsIdArr = [10, 11, 7, 14, 4, 20];
+          break;
+        case 7: // 已结账
+          optionsIdArr = [10, 11, 7, 14, 4, 20];
+          if (
+              this.$store.state.cardPageInfo.resResultDataObj.showAmt.length >
+              0 &&
+              this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(
+                  (item) => item.id == 5
+              ) &&
+              this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(
+                  (item) => item.id == 5
+              ).param1 == 2
+          ) {
+            // 有清台权限
+            optionsIdArr.push(16);
+          }
+          break;
+        case 8: // 预留
+          if (platform_id == 0) {
+            // 线下预留
+            optionsIdArr =
+                this.modelVisible || this.dateTab.activeIndex != 0
+                    ? [8, 15]
+                    : [2, 7, 15, 8, 4]; // [2, 7, 15, 8, 3, 4]
+          } else {
+            // 线上预留
+            if (!this.modelVisible) {
+              optionsIdArr = this.dateTab.activeIndex != 0 ? [8, 15] : [2, 7];
+            } else {
+              optionsIdArr = [];
+            }
+          }
+          break;
+      }
+      optionsIdArr.push(18);
+      if (topNum > 0) optionsIdArr.push(19);
+      optionsIdArr.forEach((el) => {
+        cardResultOptions.push(cardOptions.find((ele) => ele.id === el));
+      });
+      return cardResultOptions;
+    },
+    getTimeTabData(nextDayDataArr = []) {
+      this.dateTab.dateTabList = nextDayDataArr.map((item) => ({
+        ...item,
+      }));
+    },
+    async getAllData() {
+      console.log('------------------')
+      try {
+        resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
+        if (
+            !resResultDataObj &&
+            (!resResultDataObj["areaInfo"] ||
+                !resResultDataObj["cardInfo"] ||
+                !resResultDataObj["businessData"])
+        )
+          return;
+
+        // 日期tab
+        this.getTimeTabData(JSON.parse(JSON.stringify(resResultDataObj["canDoList"])));
+        await this.getCardList(
+            resResultDataObj["cardInfo"],
+            resResultDataObj["businessData"]
+        );
+        // 区域tab
+        this.getTabList(resResultDataObj["areaInfo"]);
+        // 获取卡台数据
+      } catch (error) {
+        console.log("全量数据请求失败", error);
+      }
+    },
+    // 获取全量数据
+    getCardList(cardInfo = [], businessData = []) {
+      // // 获取设备可操作区域或卡台
+      const currentMachineId = this.$localStorage.getItem("machineId");
+      const currentAreaAndCardList = (
+          this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
+      ).filter(
+          (item) => item.license_id == currentMachineId && item.status == 1
+      );
+      const isNoLimit = currentAreaAndCardList.filter(
+          (item) => item.type_id == 3
+      );
+      if (isNoLimit.length <= 0) {
+        // 有限制
+        const areaList = currentAreaAndCardList.filter(
+            (item) => item.type_id == 1
+        );
+        const cardListNew = currentAreaAndCardList.filter(
+            (item) => item.type_id == 2
+        );
+        // 当前配置的区域id
+        let areaIdList = areaList.map((item) => item.region_o_seat_id);
+
+        // 通过cardList反推出对应的区域，并添加到区域id中
+        const allCardInfo =
+            [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
+
+        // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
+        let resultCardList = [];
+
+        areaIdList.forEach((el) => {
+          // 存储配置区域的区域下所有卡台
+          const currentAreaCardList = allCardInfo.filter(
+              (item) => item.regionId == el
+          );
+          resultCardList = [...resultCardList, ...currentAreaCardList];
+        });
+
+        cardListNew.forEach((el) => {
+          const find = allCardInfo.find(
+              (item) => item.id == el.region_o_seat_id
+          );
+          if (find) {
+            resultCardList.push(find);
+            if (!areaIdList.find((item) => item == find.regionId)) {
+              areaIdList.push(find.regionId);
+            }
+          }
+        });
+        cardInfo = resultCardList;
+      }
+      cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
+      let cardList = [];
+      cardInfo.forEach((item, index) => {
+        if (item.status == "1") {
+          const cardOnlineStatus =
+              this.$store.state.cardPageInfo.resResultDataObj[
+                  "lineOrBookCard"
+                  ].find((items) => items.seat_id == item.id) || {};
+
+          // 查找对应的业务数据
+          let data = businessData.find((el) => el.seatId === item.id) || {};
+          // 初始化卡台状态（空台）
+          data.bizStatus = data.bizStatus || "1";
+          // 卡台是线上还是线下
+          data.cardStatus = cardOnlineStatus.cardStatus || "";
+          // 是否是线上转线下卡台
+          data.isTurnBottomCard =
+              this.$store.state.cardPageInfo.resResultDataObj[
+                  "turnLineBottomCard"
+                  ].find((items) => items.seat_id == item.id);
+          // ‘线’字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
+          data.showOnlineText =
+              data.bizStatus > 2
+                  ? data.platform_id == 1 && !data.isTurnBottomCard
+                  : cardOnlineStatus.cardStatus == 1 && !data.isTurnBottomCard;
+
+          // 是否有置顶
+          const topNumInfo = this.$store.state.cardPageInfo.resResultDataObj[
+              "topCard"
+              ].find((items) => items.seat_id == item.id && items.status == 1);
+
+          data.topNum = topNumInfo ? topNumInfo.seq_id : "0";
+
+          if (data.bizStatus != "22" && data.bizStatus != "33") {
+            cardList.push({
+              // 卡台数据
+              ...item,
+              // 业务数据
+              ...data,
+              // 卡台名称放大倍数
+              cardNameScale: this.getScaleCardName(item.name),
+              // 赠送金额
+              zengSongAmt: (Number(data.yhAmt) + Number(data.yh2Amt)).toFixed(
+                  2
+              ),
+              totalAmt: Number(data.orderAmt).toFixed(2),
+              // 当前卡台所处状态的小卡片
+              tipsArr: this.getTips(data.bizStatus),
+              // 低消进度
+              diXiaoJindu:
+                  Number(data.assignMinCsmAmt) > 0
+                      ? (Number(data.order_zy_amt - data.payed_zy_free_amt) /
+                          Number(data.assignMinCsmAmt)) *
+                      100 >
+                      100
+                          ? "100%"
+                          : (
+                          (Number(data.order_zy_amt - data.payed_zy_free_amt) /
+                              Number(data.assignMinCsmAmt)) *
+                          100
+                      ).toFixed(0) + "%"
+                      : "",
+              // 点击卡台出现的可操作选项
+              options: this.getCardOptions(
+                  data.bizStatus,
+                  data.platform_id,
+                  data.showOnlineText,
+                  data.turnoverCnt,
+                  data.topNum
+              ),
+              // 是否显示卡台的操作按钮选项
+              // showOption: this.card.cardList[index] && this.card.cardList[index].showOption
+              showOption:
+                  cardListInfoArr[index] && cardListInfoArr[index].showOption,
+              isLeftArrow: false, // 操作选项列表是否显示在左边
+            });
+          }
+        }
+      });
+
+      // 设置图例中显示的抵达数量
+      // this.setLegendCount(this.tab.activeIndex);
+
+      cardList = cardList.sort((a, b) => b.topNum - a.topNum);
+
+      cardListInfoArr = cardList;
+      this.card.cardListInfoArr = JSON.parse(JSON.stringify(cardList));
+      this.$store.commit("updateCardList", this.card.cardListInfoArr);
+      this.card.cardList = JSON.parse(JSON.stringify(cardList));
+      this.$forceUpdate();
+    },
+
+    // 获取区域tab数据
+    getTabList(arr = []) {
+      arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
+      let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
+      tabList = tabList.filter(
+          (e) => this.filterCardList("regionId", e.id).length > 0
+      );
+      this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
+      this.$store.commit("updateTabList", this.tab.tabListOrigin);
+      // 数量大于0 再添加全部
+      if (tabList.length > 0) {
+        tabList.unshift({
+          id: 0,
+          name: "全部",
+        });
+      }
+
+      if (tabList.length > this.tab.tabMaxCount) {
+        this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
+        tabList.push({
+          id: 999,
+          name: "其它",
+        });
+      }
+      this.tab.tabList = tabList;
+    },
     /**
      * 全屏table(转台)
      */
@@ -855,6 +1155,8 @@ export default {
       // 是否为收银系统查看翻台记录
       if (this.$store.state.orderInfo.currentCardInfo.bizStatus != 1)
         this.getOrderedData(); // 通过后台获取当前当前账号是否有查单权限
+
+      this.getAllData()
     },
 
     // 服务员买单
@@ -1172,6 +1474,7 @@ export default {
   beforeDestroy() {
     clearInterval(this.timer);
   },
+  mixins: [cardPageMixins],
 };
 </script>
 
