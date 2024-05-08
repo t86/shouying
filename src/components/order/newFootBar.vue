@@ -527,6 +527,8 @@ export default {
     showDiandanEmpChange() {
       if (this.hasChgKTWaiterAuth) {
         this.diandanDialogFormVisible = true;
+        this.remoteMethod();
+        this.ruleForm.waiter = this.empId + ""
         setTimeout(() => {
           this.keyboardShow()
         }, 100)

@@ -280,8 +280,10 @@ export default {
       }, 10)
     },
     showDiandanEmpChange() {
-      if (this.hasChgKTWaiterAuth) {
+      if (this.hasChgKTWaiterAuth()) {
         this.dialogFormVisible = true;
+        this.remoteMethod();
+        this.ruleForm.waiter = this.empId + ""
         setTimeout(() => {
           this.keyboardShow()
         }, 100)
