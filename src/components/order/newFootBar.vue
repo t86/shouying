@@ -47,11 +47,11 @@
 
         <div class='li line' style="margin-left: 4px">
           <el-dropdown @command="moreClick" type="primary">
-            <p style="margin-top:10px;margin-bottom: 10px;">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
+            <p style="margin-top:10px;margin-bottom: 10px; font-size: 16px">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a">滞留金</el-dropdown-item>
-              <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b">清台</el-dropdown-item>
-              <el-dropdown-item v-if="hasZhuantaiAuth" icon="el-icon-s-unfold" command="c">转台</el-dropdown-item>
+              <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a" style="font-size: 16px">滞留金</el-dropdown-item>
+              <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b" style="font-size: 16px">清台</el-dropdown-item>
+              <el-dropdown-item v-if="hasZhuantaiAuth" icon="el-icon-s-unfold" command="c" style="font-size: 16px">转台</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
