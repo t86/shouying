@@ -24,6 +24,7 @@
                 :options="deptOption"
                 :props="optionProp"
                 v-model="deptIds"
+                change-on-select
                 >
               </el-cascader>
             </div>
