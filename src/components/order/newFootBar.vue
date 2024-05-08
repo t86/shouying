@@ -290,6 +290,16 @@
           <el-button type="primary" @click="submitChangeFwy">确定</el-button>
         </div>
       </el-dialog>
+
+      <!-- 全屏表格 -->
+      <fullPageTable
+          ref="fullPageTable"
+          :tabList="tab.tabListOrigin"
+          :cardList="card.cardListInfoArr"
+          @showOrHideFullPageHandle="showOrHideFullPageHandle"
+          v-if="showFullPageTable"
+      />
+
     </div>
   </div>
 </template>
@@ -326,6 +336,7 @@ import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
 import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
 import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
 import Observer, { BIND_EMP } from "@/observer";
+import fullPageTable from "@/components/book/machine/fullPageTable.vue";
 
 const orderNavList = [
   {
@@ -373,6 +384,10 @@ const payNavList = [
     icon: goBack,
   },
 ];
+const cardOptionHos = 164; // 卡台选项横向偏移量
+let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
+let cardListInfoArr = []; // 卡台总数据
+
 
 const payTypeList =
   window.atool &&
@@ -425,6 +440,42 @@ const payTypeList =
 export default {
   data() {
     return {
+      dateTab: {
+        dateTabList: [],
+        activeIndex: 0,
+      },
+      showFullPageTable: false, // 是否显示全屏表格（转台等操作）
+      tab: {
+        tabListOrigin: [], // 原始数据（只经过排序处理的数据）
+        tabList: [],
+        activeIndex: 0,
+        tabMaxCount: 0,
+        anotherInfo: [],
+        showAnotherInfo: false,
+        anotherInfoActiveId: 0,
+      },
+      card: {
+        centerTypeWidth: 0, // 版心宽度
+        cardList: [],
+        cardListInfoArr: [],
+        optionsPosition: {
+          top: "50%",
+          bottom: "",
+          transform: "translate(0,-50%)",
+          left: cardOptionHos + "px",
+          right: "",
+        },
+      },
+      drawer: {
+        showDrawer: false,
+        cardId: "", // 操作的卡台id
+        bookId: "", // 操作的预定id
+        cardInfoIndex: 0, // 当前操作卡台的索引值
+        formStatus: 0, // 所选选项的表单状态
+        // 1:预定 2：开台 3：查看卡台消费 4：修改翻台订位人 5：锁定 6：取消锁定 7：转台 8：修改预定 9：修改翻台定位人
+        // 10：修改低消  11:修改订位人  12：撤台  13：修改开台类型（已删除此功能）  14：查看卡台详情  15：取消预定
+        cardInfo: {}, // 数据修改等相关操作时当前卡台的信息
+      },
       authInfo: {},
       canLookOrderAmt: false,
 
@@ -493,12 +544,52 @@ export default {
     };
   },
   methods: {
+    // // 请求全量基础数据(首次页面加载在父组件中调用(返回到此页面数据由mounted加载))
+    // async getAllData() {
+    //   try {
+    //     resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
+    //     if (
+    //         !resResultDataObj &&
+    //         (!resResultDataObj["areaInfo"] ||
+    //             !resResultDataObj["cardInfo"] ||
+    //             !resResultDataObj["businessData"])
+    //     )
+    //       return;
+    //
+    //     // 日期tab
+    //     this.getTimeTabData(JSON.parse(JSON.stringify(resResultDataObj["canDoList"])));
+    //     await this.getCardList(
+    //         resResultDataObj["cardInfo"],
+    //         resResultDataObj["businessData"]
+    //     );
+    //     // 区域tab
+    //     this.getTabList(resResultDataObj["areaInfo"]);
+    //     // 获取卡台数据
+    //   } catch (error) {
+    //     console.log("全量数据请求失败", error);
+    //   }
+    // },
+    /**
+     * 全屏table(转台)
+     */
+    showOrHideFullPageHandle({ showFullPage, showDrawer }) {
+      this.showFullPageTable = showFullPage;
+      this.drawer.showDrawer = showDrawer;
+      if (showDrawer) {
+        this.$nextTick(() => {
+          this.$children[0].getNewCardInfo &&
+          this.$children[0].getNewCardInfo();
+        });
+      }
+    },
     moreClick(command) {
       // alert('button click' + command);
       if ('a' === command) {
         this.showAddBookDrawer = true
       } else if ('b' === command) {
         this.clearCardHandle()
+      } else if ('c' === command) {
+        this.showFullPageTable = true
       }
     },
     keyboardShow() {
@@ -1076,6 +1167,7 @@ export default {
     drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
     drawerRedeemCoupon: () => import("./drawerRedeemCoupon.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
+    fullPageTable, // 全屏表格数据
   },
   beforeDestroy() {
     clearInterval(this.timer);
