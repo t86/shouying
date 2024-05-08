@@ -1,5 +1,6 @@
 export const CODE_INVALID = "code-invaid";
 export const SCROLL_BOTTOM = "scroll-bottom";
+export const BIND_EMP = "bind_emp";
 
 class Observer {
   constructor() {
@@ -23,6 +24,7 @@ class Observer {
   }
 
   send(type, data) {
+    console.log('send observer', type, data)
     const observers = this.observers[type];
     if (!observers) return;
     observers.forEach((fn) => {

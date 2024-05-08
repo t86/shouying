@@ -325,6 +325,7 @@ import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
 import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
 import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
 import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
+import Observer, { BIND_EMP } from "@/observer";
 
 const orderNavList = [
   {
@@ -425,8 +426,6 @@ export default {
   data() {
     return {
       authInfo: {},
-      hasQingTaiAuth: false,
-      hasZhuantaiAuth: false,
       canLookOrderAmt: false,
 
       isRect: window.innerWidth >= 1024,
@@ -644,6 +643,7 @@ export default {
       // this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
       //     (item) => item.id == this.empId
       // ).map((item) => item.name).join("");
+      console.log('getAuthInfo', this.empId)
       let bindWaiters =  this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(item => item.id === this.empId)
       let bindWaiter
       if (bindWaiters.length > 0) {
@@ -1012,11 +1012,13 @@ export default {
   },
   mounted() {
     this.init();
+    Observer.subscribe(BIND_EMP, (empId) => {
+      console.log('bind emp', empId)
+      this.empId = empId;
+    });
   },
   props: {
-    empId: {
-      default: 0,
-    },
+
   },
   computed: {
     isShowPayBtn() {
@@ -1041,17 +1043,19 @@ export default {
       );
     },
     hasQingTaiAuth() {
+      console.log('hasQingTaiAuth', this.$store.state.userInfo)
       return (
           this.$store.state.userInfo.sys_modules &&
           this.$store.state.userInfo.sys_modules.includes(71) &&
-          this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+          this.$store.state.userInfo.emp_id * 1 === this.empId * 1
       );
     },
     hasZhuantaiAuth() {
+      console.log('hasZhuantaiAuth', this.$store.state.userInfo)
       return (
           this.$store.state.userInfo.sys_modules &&
           this.$store.state.userInfo.sys_modules.includes(72) &&
-          this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+          this.$store.state.userInfo.emp_id * 1 === this.empId * 1
       );
     },
   },
@@ -1059,12 +1063,7 @@ export default {
     "authInfo.bindWaiterId": {
       handler(newVal, oldVal) {
         console.log("changed auth:", newVal, oldVal)
-        this.hasQingTaiAuth = this.$store.state.userInfo.sys_modules &&
-            this.$store.state.userInfo.sys_modules.includes(71) &&
-            this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
-        this.hasZhuantaiAuth = this.$store.state.userInfo.sys_modules &&
-            this.$store.state.userInfo.sys_modules.includes(72) &&
-            this.$store.state.userInfo.emp_id.toString() === this.authInfo.bindWaiterId
+
       }
     }
   },

@@ -184,6 +184,7 @@ import mealDrawer from "@/components/order/newDrawerMeal";
 import ImagePreview from "@/components/ImagePreview"
 import common_order from "@/utils/common/order";
 import { cloneDeep } from "lodash-es";
+import Observer, { BIND_EMP } from "@/observer";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -326,6 +327,7 @@ export default {
             if (r.code === 1) {
               this.empId = this.ruleForm.waiter * 1
               this.getAuthInfo();
+              Observer.send(BIND_EMP, this.empId);
               this.$message.success('修改卡台服务员成功');
             } else {
               this.$message.warning(r.msg);
