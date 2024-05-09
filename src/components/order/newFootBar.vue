@@ -45,13 +45,28 @@
 <!--          </div>-->
 <!--        </div>-->
 
-        <div class='li line' style="margin-left: 4px">
+<!--        <div class='li line' style="margin-left: 4px">-->
+<!--          <el-dropdown @command="moreClick" type="primary">-->
+<!--            <p style="margin-top:10px;margin-bottom: 10px; font-size: 16px; color: #1A1A21">更多功能<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i></p>-->
+<!--            <el-dropdown-menu slot="dropdown">-->
+<!--              <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a" style="font-size: 16px">滞留金</el-dropdown-item>-->
+<!--              <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b" style="font-size: 16px">清台</el-dropdown-item>-->
+<!--              <el-dropdown-item v-if="hasZhuantaiAuth" icon="el-icon-s-unfold" command="c" style="font-size: 16px">转台</el-dropdown-item>-->
+<!--            </el-dropdown-menu>-->
+<!--          </el-dropdown>-->
+<!--        </div>-->
+
+        <!-- 更多功能 -->
+        <div class="server-more-btn">
           <el-dropdown @command="moreClick" type="primary">
-            <p style="margin-top:10px;margin-bottom: 10px; font-size: 16px; color: #1A1A21">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a" style="font-size: 16px">滞留金</el-dropdown-item>
-              <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b" style="font-size: 16px">清台</el-dropdown-item>
-              <el-dropdown-item v-if="hasZhuantaiAuth" icon="el-icon-s-unfold" command="c" style="font-size: 16px">转台</el-dropdown-item>
+            <div class="button" layout="row" layout-align="center center">
+              <img :src="imgSrc.orderQRPayIcon" alt />
+              <span>更多功能</span>
+            </div>
+            <el-dropdown-menu slot="dropdown" class="button">
+              <el-dropdown-item v-if="isShowPayBtn" style="font-size: 18px; font-weight: bold" command="a"><img :src="imgSrc.caozuo_zhiliujin" style="margin-right: 8px" alt />滞留金</el-dropdown-item>
+              <el-dropdown-item v-if="hasQingTaiAuth" style="font-size: 18px; font-weight: bold" command="b"><img :src="imgSrc.caozuo_qingtai" style="margin-right: 8px" alt />清台</el-dropdown-item>
+              <el-dropdown-item v-if="hasZhuantaiAuth" style="font-size: 18px; font-weight: bold" command="c"><img :src="imgSrc.caozuo_zhuantai" style="margin-right: 8px" alt />转台</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -339,7 +354,9 @@ import orderQRPayIcon from "@/assets/order-img/newOrderQRPayIcon.png";
 import coupon from "@/assets/order-img/coupon.png";
 import zhiliujin from "@/assets/order-img/zhiliujin.png";
 import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
-
+import caozuo_zhiliujin from "@/assets/order-img/caozuo_zhiliujin.png";
+import caozuo_zhuantai from "@/assets/order-img/caozuo_zhuantai.png";
+import caozuo_qingtai from "@/assets/order-img/caozuo_qingtai.png";
 import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
 import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
 import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
@@ -530,7 +547,10 @@ export default {
         giveNav,
         choosedNav,
         clearNav,
-        zhiliujin
+        zhiliujin,
+        caozuo_zhiliujin,
+        caozuo_zhuantai,
+        caozuo_qingtai
       },
 
       payTypeList, // 支付方式
@@ -865,7 +885,6 @@ export default {
 
     // 获取区域tab数据
     getTabList(arr = []) {
-      debugger;
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
       const roleIds = this.$store.state.userInfo.roleIds;
       let tabList = [];
