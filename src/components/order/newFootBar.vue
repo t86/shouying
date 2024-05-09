@@ -325,6 +325,25 @@
           @showOrHideFullPageHandle="showOrHideFullPageHandle"
       />
 
+<!--      TODO://-->
+<!--      <el-dialog append-to-body title="转台" :visible="drawer.showDrawer" width="40%">-->
+<!--        <el-form ref="form" :model="form" label-width="200px">-->
+<!--          <el-form-item label="从xxx转到xxx">-->
+<!--            <el-button type="primary">更换目标台</el-button>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="老卡台0001低消">-->
+<!--            <el-input></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="新卡台0003低消">-->
+<!--            <el-input></el-input>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--        <div slot="footer" class="dialog-footer" style="text-align: center">-->
+<!--          <el-button type="primary" style="background: #374368;">取消</el-button>-->
+<!--          <el-button type="primary">确定</el-button>-->
+<!--        </div>-->
+<!--      </el-dialog>-->
+
     </div>
   </div>
 </template>

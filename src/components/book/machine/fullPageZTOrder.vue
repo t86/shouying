@@ -1,5 +1,5 @@
 <template>
-  <div class="fullPageTable white">
+  <div class="fullPageTable white" ref="fullPageZTOrder">
     <!-- 标题 -->
     <div
         class="title p-l-5 p-r-5"
@@ -8,6 +8,16 @@
     >
       <span>{{ title }}</span>
       <i class="el-icon-close" @click.stop="closeFullPageHandle(false)"></i>
+    </div>
+    <div class="arrow">
+      <div class="bg" layout="row" layout-align="center center">
+        <div class="bg-left" @click="scrollArrowHandle('up')">
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
+        </div>
+        <div class="bg-right" @click="scrollArrowHandle('down')">
+          <img :src="require('@/assets/card-imgs/new-arrow-bottom.png')" alt />
+        </div>
+      </div>
     </div>
     <!-- 内容 -->
     <div class="contain">
@@ -61,27 +71,30 @@
         </ul>
       </div>
     </div>
-    <!-- 所选卡台信息 -->
-    <div class="selected" layout="row" layout-align="end center">
-      <span class="selected-info m-r-8">
+    <div class="selected" layout="column" layout-align="end center">
+      <span class="selected-info">
         <span>当前选中卡台:</span>
         <span class="card-name">{{ selectedInfo.name }}</span>
       </span>
-      <el-button
-          type="info"
-          class="m-r-5"
-          @click.stop="closeFullPageHandle(false)"
-      >取消</el-button
-      >
-      <el-button type="primary" class="m-r-5" @click.stop="submitHandle"
-      >确定</el-button
-      >
+      <div>
+        <el-button
+            type="info"
+            class="m-r-5"
+            @click.stop="closeFullPageHandle(false)"
+        >取消</el-button
+        >
+        <el-button type="primary" class="m-r-5" @click.stop="submitHandle"
+        >确定</el-button
+        >
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import selectActiveSrc from "@/assets/card-imgs/zhuantaiduigou.png";
+import arrow_bottom from "@/assets/card-imgs/new-arrow-bottom.png";
+
 let originPageData = [];
 export default {
   data() {
@@ -92,9 +105,21 @@ export default {
       selectedInfo: {}, // 所选中的卡台信息
       activeId: "",
       selectActiveSrc,
+      imgSrc: {
+        arrow_bottom,
+      }
     };
   },
   methods: {
+    scrollArrowHandle(direction) {
+      let dom = this.$refs.fullPageZTOrder;
+      const step = 100;
+      console.log('before:', dom.scrollTop)
+      const scrollTop =
+          direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
+      dom.scrollTo(0, scrollTop);
+      console.log('after:', dom.scrollTop)
+    },
     getPageData() {
       const tabList = this.tabList || this.$store.state.cardPageInfo.tabList;
       const cardList = (
