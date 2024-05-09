@@ -47,7 +47,7 @@
 
         <div class='li line' style="margin-left: 4px">
           <el-dropdown @command="moreClick" type="primary">
-            <p style="margin-top:10px;margin-bottom: 10px; font-size: 16px">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
+            <p style="margin-top:10px;margin-bottom: 10px; font-size: 16px; color: #1A1A21">更多功能<i class="el-icon-arrow-down el-icon--right"></i></p>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="isShowPayBtn" icon="el-icon-coin" command="a" style="font-size: 16px">滞留金</el-dropdown-item>
               <el-dropdown-item v-if="hasQingTaiAuth" icon="el-icon-refresh-right" command="b" style="font-size: 16px">清台</el-dropdown-item>
@@ -865,29 +865,50 @@ export default {
 
     // 获取区域tab数据
     getTabList(arr = []) {
+      debugger;
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
-      let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
-      tabList = tabList.filter(
-          (e) => this.filterCardList("regionId", e.id).length > 0
-      );
+      const roleIds = this.$store.state.userInfo.roleIds;
+      let tabList = [];
+      if (roleIds.includes(2)) {
+        // 有服务员权限
+        tabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
+      }
+      tabList = tabList.filter((item) => item.status == 1)
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
-      this.$store.commit("updateTabList", this.tab.tabListOrigin);
-      // 数量大于0 再添加全部
-      if (tabList.length > 0) {
-        tabList.unshift({
-          id: 0,
-          name: "全部",
-        });
-      }
-
-      if (tabList.length > this.tab.tabMaxCount) {
-        this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
-        tabList.push({
-          id: 999,
-          name: "其它",
-        });
-      }
       this.tab.tabList = tabList;
+    },
+    // 服务员身份权限返回可点的对应区域及可查单区域列表
+    getAuthArea(arr) {
+      // 可点区域tab
+      const canPayOrderAreaList = [];
+      // 筛选可用的可点区域岗位(服务员)可点区域
+      const authStationArea =
+          this.$store.state.cardPageInfo.resResultDataObj.stationArea.filter(
+              (el) => el.status == 1
+          );
+      const authStationId = this.$store.state.userInfo.station_id || "";
+      // 将要展示在页面上的最终岗位可点区域
+      const resultAreaInfo = authStationArea.filter(
+          (el) => el.station_id == authStationId
+      );
+      resultAreaInfo.forEach((el) => {
+        const info = arr.find((ele) => ele.id == el.region_id);
+        if (info) canPayOrderAreaList.push(info);
+      });
+
+      // 可查单区域tab
+      let canGetOrderAreaList = [];
+
+      // 用户配置可查单区域
+      const configAreaIdList = this.$store.state.userInfo.check_regions || [];
+      canGetOrderAreaList = arr.filter((item) =>
+          configAreaIdList.find((items) => items == item.id)
+      );
+
+      const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
+      return tabList.filter(
+          (item, i, array) => array.findIndex((items) => items.id == item.id) == i
+      );
     },
     /**
      * 全屏table(转台)
@@ -1050,6 +1071,7 @@ export default {
         minute: date.getMinutes().toString().padStart(2, 0),
         name: this.$store.state.userInfo.name,
         bindWaiterId: this.$store.state.userInfo.empId,
+        bindWaiterStation: this.$store.state.userInfo.station_id
       };
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
       this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
@@ -1064,9 +1086,11 @@ export default {
         bindWaiter = bindWaiters[0]
         this.authInfo.name = bindWaiter.name
         this.authInfo.bindWaiterId = bindWaiter.id
+        this.authInfo.bindWaiterStation = bindWaiter.stationId
       }
       this.authInfo = { ...this.authInfo };
     },
+
 
     // 清台
     clearCardHandle() {
