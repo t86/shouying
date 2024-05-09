@@ -1272,6 +1272,7 @@ export default {
         //   this.$children[0].cardInfoChange &&
         //   this.$children[0].cardInfoChange();
       }
+      console.log('-------------', optionsInfo, index)
       this.drawer.cardInfo = {...cardInfo};
       this.drawer.formStatus = optionsInfo.id;
       this.drawer.cardId = cardInfo.id;

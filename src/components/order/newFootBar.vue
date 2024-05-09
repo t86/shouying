@@ -299,6 +299,16 @@
           @showOrHideFullPageHandle="showOrHideFullPageHandle"
           v-if="showFullPageTable"
       />
+      <cardDrawer
+          ref="cardDrawer"
+          :showDrawer="drawer.showDrawer"
+          :formStatus=7
+          :cardId="cardInfo.id"
+          :bookId="cardInfo.wkBookId"
+          :cardInfo="cardInfo"
+          @changeShowDrawer="changeShowDrawer"
+          @showOrHideFullPageHandle="showOrHideFullPageHandle"
+      />
 
     </div>
   </div>
@@ -337,6 +347,7 @@ import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
 import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
 import Observer, { BIND_EMP } from "@/observer";
 import fullPageTable from "@/components/book/machine/fullPageZTOrder.vue";
+import cardDrawer from "@/components/book/machine/cardDrawerZTOrder.vue";
 import {cardPageMixins} from "@/mixin/cardPage";
 import {cardOptions} from "@/utils/config/card";
 
@@ -546,6 +557,15 @@ export default {
     };
   },
   methods: {
+    // 是否显示drawer
+    changeShowDrawer(val) {
+      this.drawer.showDrawer = val;
+      if (val)
+        this.$nextTick(() => {
+          const sessionDom = document.querySelector(".el-drawer__body");
+          sessionDom.scrollTo(0, 0);
+        });
+    },
     // 筛选卡台数据
     filterCardList(key, id) {
       cardListInfoArr.forEach((el) => {
@@ -873,12 +893,13 @@ export default {
      * 全屏table(转台)
      */
     showOrHideFullPageHandle({ showFullPage, showDrawer }) {
+      console.log('-----showFullPage, showDrawer', showFullPage, showDrawer)
       this.showFullPageTable = showFullPage;
       this.drawer.showDrawer = showDrawer;
       if (showDrawer) {
         this.$nextTick(() => {
-          this.$children[0].getNewCardInfo &&
-          this.$children[0].getNewCardInfo();
+          let cd = this.$refs['cardDrawer']
+          cd.getNewCardInfo && cd.getNewCardInfo()
         });
       }
     },
@@ -1470,6 +1491,7 @@ export default {
     drawerRedeemCoupon: () => import("./drawerRedeemCoupon.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
     fullPageTable, // 全屏表格数据
+    cardDrawer
   },
   beforeDestroy() {
     clearInterval(this.timer);

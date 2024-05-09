@@ -9,15 +9,6 @@
       <span>{{ title }}</span>
       <i class="el-icon-close" @click.stop="closeFullPageHandle(false)"></i>
     </div>
-    <!-- 筛选 -->
-    <div class="search" v-if="title != '转单'">
-      <span>最低消费：</span>
-      <input type="number" min="0" v-model="minAmt" /> 元
-      <span>-</span>
-      <input type="number" min="0" v-model="maxAmt" /> 元
-      <button class="search" @click="search">查询</button>
-      <button class="reset" @click="reset">重置</button>
-    </div>
     <!-- 内容 -->
     <div class="contain">
       <div class="contain-content">
@@ -104,26 +95,6 @@ export default {
     };
   },
   methods: {
-    // 筛选卡台
-    search() {
-      const maxAmt = this.maxAmt === "" ? 2 ** 53 : this.maxAmt;
-      const minAmt = this.minAmt === "" ? 0 : this.minAmt;
-      const result = JSON.parse(JSON.stringify(originPageData));
-      result.forEach((el) => {
-        el.cardList = el.cardList.filter(
-            (ele) => ele.grpMinCsmAmt >= minAmt && ele.grpMinCsmAmt <= maxAmt
-        );
-      });
-      this.pageData = result;
-    },
-
-    // 重置卡台
-    reset() {
-      this.pageData = JSON.parse(JSON.stringify(originPageData));
-      this.maxAmt = "";
-      this.minAmt = "";
-    },
-
     getPageData() {
       const tabList = this.tabList || this.$store.state.cardPageInfo.tabList;
       const cardList = (
@@ -166,14 +137,19 @@ export default {
 
     // 点击确定按钮
     submitHandle() {
-      if (!this.activeId) return this.$message.warning("请选择卡台！");
+      if (!this.activeId) {
+        return this.$message.warning("请选择卡台！");
+      }
       this.$store.commit("updateNewCardInfo", this.selectedInfo);
       this.$emit("setChoosedCardInfo", this.selectedInfo);
-      if (this.titleText != "并台") this.closeFullPageHandle(true, true);
+      if (this.titleText != "并台") {
+        this.closeFullPageHandle(true, true);
+      }
     },
 
     // 关闭当前组件
     closeFullPageHandle(showDrawer, isSubmit = false) {
+      console.log('fullpage-----showDrawer, isSubmit', showDrawer, isSubmit)
       this.$emit("showOrHideFullPageHandle", {
         showFullPage: false,
         showDrawer,
