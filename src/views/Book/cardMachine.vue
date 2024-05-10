@@ -1070,7 +1070,7 @@ export default {
             this.modelVisible || this.dateTab.activeIndex != 0 ? [] : [6];
           break;
         case 4: // 开台
-          optionsIdArr = [10, 11, 7, 12, 14, 4, 20];
+          optionsIdArr = [10, 11, 7, 12, 14, 4, 20, 21];
           break;
         case 5: // 点单未结账
           optionsIdArr = [10, 11, 7, 14, 4, 20];
@@ -1100,7 +1100,7 @@ export default {
             optionsIdArr =
               this.modelVisible || this.dateTab.activeIndex != 0
                 ? [8, 15]
-                : [2, 7, 15, 8, 4]; // [2, 7, 15, 8, 3, 4]
+                : [2, 7, 15, 8, 4, 21]; // [2, 7, 15, 8, 3, 4]
           } else {
             // 线上预留
             if (!this.modelVisible) {

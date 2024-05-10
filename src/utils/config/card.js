@@ -23,6 +23,7 @@ import icon16 from '@/assets/card-imgs/cardOptions/clear.png'
 import icon18 from '@/assets/card-imgs/cardOptions/top-card.png'
 import icon19 from '@/assets/card-imgs/cardOptions/cancel-top-card.png'
 import icon20 from '@/assets/card-imgs/cardOptions/update-card-tips.png'
+import icon21 from '@/assets/card-imgs/cardOptions/remark.png'
 
 
 // 后台返回数据对应key值的字段名称
@@ -204,6 +205,11 @@ export const cardOptions = [
     id: 20,
     name: '修改卡台标记',
     icon: icon20
+  },
+  {
+    id: 21,
+    name: '修改备注',
+    icon: icon21
   }
 ]
 

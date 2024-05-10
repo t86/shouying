@@ -493,7 +493,7 @@ export default {
 
         remarkInfo: {
           remark: "", // 备注
-          remark_status_arr: [1, 2, 8],
+          remark_status_arr: [1, 2, 8, 21],
         },
       },
     };
@@ -770,6 +770,9 @@ export default {
         case 20: // 修改卡台标签
           this.updateCardTips();
           break;
+        case 21:
+          this.updateRemark();
+          break;
       }
     },
 
@@ -967,6 +970,20 @@ export default {
       }
     },
 
+    
+    async updateRemark() {
+      const params = {
+        id: this.cardInfo.seatId * 1, //     int64     待操作卡台Id
+        remark: this.formData.remarkInfo.remark, //   string    卡台标记
+      };
+      try {
+        const res = await api_card.reqUpdateCardRemark(params);
+        this.formResponseHandle(res, "修改卡台备注成功！", false);
+      } catch (error) {
+        console.log("修改卡台备注失败", error);
+      }
+    },
+
     // 验证提交参数是否合法
     isValidParams(key) {
       if (this.formStatus === 1 || this.formStatus === 8) {
@@ -1104,6 +1121,9 @@ export default {
           this.formData.openType.open_type = Number(newVal.openType);
           this.formData.openType.reason = "";
           break;
+        case 21:
+          this.formData.remarkInfo.remark = this.cardInfo.remark;
+          break
       }
       this.$forceUpdate();
     },
@@ -1150,7 +1170,7 @@ export default {
   computed: {
     // 是否展示form
     showType() {
-      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20]; // 展示form表单的formStatus
+      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20, 21]; // 展示form表单的formStatus
       const tableType = [3, 4]; // 展示table表格的formStatus  3：查看卡台消费  4：修改翻台订位人
       if (formType.indexOf(this.formStatus) > -1) {
         this.$nextTick(() => {

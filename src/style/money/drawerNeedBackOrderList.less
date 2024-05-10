@@ -88,6 +88,9 @@ ul.tab {
       padding: 0 4px;
       box-sizing: border-box;
       flex-shrink: 0;
+      white-space: normal; /* 设置自动换行 */
+      word-wrap: break-word; /* 防止单词被拆分 */
+      overflow-wrap: break-word; /* 同 word-wrap，是较新的属性名 */
     }
 
     .th:nth-child(1),
