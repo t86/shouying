@@ -866,11 +866,13 @@ export default {
       });
       targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
-      return id == 2001
-        ? this.getMyCardList()
-        : id == 0
-          ? JSON.parse(JSON.stringify(targetCardList))
-          : filterArr;
+      let result = (id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr)
+      if (this.hasForbidUnTipTableAuth()) {
+        result = result.filter(item => {
+          return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
+        })
+      }
+      return result
     },
 
 
@@ -1521,6 +1523,13 @@ export default {
         // console.log(result);
         // 合并点单和半结
         result["5"] = result["6"] || 0 + result["5"] || 0;
+
+        console.log("result", result)
+        if (this.hasForbidUnTipTableAuth()){
+          result["1"] = 0
+          result["8"] = 0
+        }
+
         this.cardStatusNoInfo = result;
       }, 200);
     },
