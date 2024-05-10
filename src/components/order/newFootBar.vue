@@ -64,9 +64,9 @@
               <span>更多功能</span>
             </div>
             <el-dropdown-menu slot="dropdown" class="button">
-              <el-dropdown-item v-if="isShowPayBtn" style="font-size: 18px; font-weight: bold" command="a"><img :src="imgSrc.caozuo_zhiliujin" style="margin-right: 8px" alt />滞留金</el-dropdown-item>
-              <el-dropdown-item v-if="hasQingTaiAuth" style="font-size: 18px; font-weight: bold" command="b"><img :src="imgSrc.caozuo_qingtai" style="margin-right: 8px" alt />清台</el-dropdown-item>
-              <el-dropdown-item v-if="hasZhuantaiAuth" style="font-size: 18px; font-weight: bold" command="c"><img :src="imgSrc.caozuo_zhuantai" style="margin-right: 8px" alt />转台</el-dropdown-item>
+              <el-dropdown-item v-if="isShowPayBtn" style="font-size: 20px; font-weight: bold; height: 45px" command="a"><img :src="imgSrc.caozuo_zhiliujin" style="margin-right: 10px;" alt />滞留金</el-dropdown-item>
+              <el-dropdown-item v-if="hasQingTaiAuth" style="font-size: 20px; font-weight: bold; height: 45px" command="b"><img :src="imgSrc.caozuo_qingtai" style="margin-right: 10px" alt />清台</el-dropdown-item>
+              <el-dropdown-item v-if="hasZhuantaiAuth" style="font-size: 20px; font-weight: bold; height: 45px" command="c"><img :src="imgSrc.caozuo_zhuantai" style="margin-right: 10px" alt />转台</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -314,35 +314,41 @@
           @showOrHideFullPageHandle="showOrHideFullPageHandle"
           v-if="showFullPageTable"
       />
-      <cardDrawer
-          ref="cardDrawer"
-          :showDrawer="drawer.showDrawer"
-          :formStatus=7
-          :cardId="cardInfo.id"
-          :bookId="cardInfo.wkBookId"
-          :cardInfo="cardInfo"
-          @changeShowDrawer="changeShowDrawer"
-          @showOrHideFullPageHandle="showOrHideFullPageHandle"
-      />
+<!--      <cardDrawer-->
+<!--          ref="cardDrawer"-->
+<!--          :showDrawer="drawer.showDrawer"-->
+<!--          :formStatus=7-->
+<!--          :cardId="cardInfo.id"-->
+<!--          :bookId="cardInfo.wkBookId"-->
+<!--          :cardInfo="cardInfo"-->
+<!--          @changeShowDrawer="changeShowDrawer"-->
+<!--          @showOrHideFullPageHandle="showOrHideFullPageHandle"-->
+<!--      />-->
 
-<!--      TODO://-->
-<!--      <el-dialog append-to-body title="转台" :visible="drawer.showDrawer" width="40%">-->
-<!--        <el-form ref="form" :model="form" label-width="200px">-->
-<!--          <el-form-item label="从xxx转到xxx">-->
-<!--            <el-button type="primary">更换目标台</el-button>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="老卡台0001低消">-->
-<!--            <el-input></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="新卡台0003低消">-->
-<!--            <el-input></el-input>-->
-<!--          </el-form-item>-->
-<!--        </el-form>-->
-<!--        <div slot="footer" class="dialog-footer" style="text-align: center">-->
-<!--          <el-button type="primary" style="background: #374368;">取消</el-button>-->
-<!--          <el-button type="primary">确定</el-button>-->
-<!--        </div>-->
-<!--      </el-dialog>-->
+      <el-dialog append-to-body title="转台" :visible="drawer.showDrawer" width="40%" :show-close="false">
+        <el-form ref="form" label-width="180px">
+          <el-form-item :label="chgTabLabel">
+            <el-button type="primary" @click="showFullPageTable=true;drawer.showDrawer=false">更换目标台</el-button>
+          </el-form-item>
+          <el-form-item :label="`老卡台 ${cardInfo.name} 低消`">
+            {{cardInfo.assignMinCsmAmt}} 元
+          </el-form-item>
+          <el-form-item :label="`新卡台 ${changeCard.newCardName} 低消`">
+            <el-input
+                v-model="changeCard.new_min_csm_amt"
+                min="0"
+                placeholder="请输入新卡台低消"
+                type="number"
+                style="width: 80%"
+            ></el-input>
+            <span class="m-l-1">元</span>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer" style="text-align: center">
+          <el-button type="primary" style="background: #374368;" @click="drawer.showDrawer = false">取消</el-button>
+          <el-button type="primary" @click="reserveOrOpenToChange">确定</el-button>
+        </div>
+      </el-dialog>
 
     </div>
   </div>
@@ -354,6 +360,7 @@ import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import api_money from "@/api/money";
+import api_card from "@/api/Book";
 
 import drawerPayQR from "./newDrawerPayQR.vue";
 
@@ -489,6 +496,13 @@ const payTypeList =
 export default {
   data() {
     return {
+      changeCard: {
+        originAmt: "", // 原卡台低消
+        originCardName: "", // 原卡台名称
+        new_min_csm_amt: "", // 新卡台低消
+        newCardName: "", // 新卡台名称
+        change_card_status_arr: [7],
+      },
       dateTab: {
         dateTabList: [],
         activeIndex: 0,
@@ -596,6 +610,36 @@ export default {
     };
   },
   methods: {
+    // 预定或开台转台
+    async reserveOrOpenToChange() {
+      this.reserveOrOpenToChangeParams.new_min_csm_amt = Number(
+          this.reserveOrOpenToChangeParams.new_min_csm_amt
+      );
+      try {
+        // cardInfo.bizStatus: 8:预定转台  4：开台转台
+        const res =
+            this.cardInfo.bizStatus == 8
+                ? await api_card.reqReserveToChangeCard(
+                    this.reserveOrOpenToChangeParams
+                )
+                : await api_card.reqOpenToChange(this.reserveOrOpenToChangeParams);
+        if (res.code === 1) {
+          this.$message.success('转台成功');
+          this.drawer.showDrawer = false
+          this.$store.commit("updateNewCardInfo", {});
+          this.$sessionStorage.removeItem("newCardInfo");
+        }
+      } catch (error) {
+        console.log("转台失败", error);
+      }
+    },
+    getNewCardInfo() {
+      this.changeCard.new_min_csm_amt =
+          this.$store.state.cardPageInfo.newCardInfo.grpMinCsmAmt; // 新卡台最基础低消
+      this.changeCard.newCardName =
+          this.$store.state.cardPageInfo.newCardInfo.name;
+      console.log(this.formData)
+    },
     // 是否显示drawer
     changeShowDrawer(val) {
       this.drawer.showDrawer = val;
@@ -956,10 +1000,11 @@ export default {
       this.showFullPageTable = showFullPage;
       this.drawer.showDrawer = showDrawer;
       if (showDrawer) {
-        this.$nextTick(() => {
-          let cd = this.$refs['cardDrawer']
-          cd.getNewCardInfo && cd.getNewCardInfo()
-        });
+        // this.$nextTick(() => {
+        //   let cd = this.$refs['cardDrawer']
+        //   cd.getNewCardInfo && cd.getNewCardInfo()
+        // });
+        this.getNewCardInfo()
       }
     },
     moreClick(command) {
@@ -1535,6 +1580,20 @@ export default {
           this.$store.state.userInfo.sys_modules.includes(72) &&
           this.$store.state.userInfo.emp_id * 1 === this.empId * 1
       );
+    },
+    chgTabLabel() {
+      return `从 ${this.cardInfo.name} 到 ${this.changeCard.newCardName}`
+    },
+    reserveOrOpenToChangeParams() {
+      return {
+        // cardInfo.bizStatus: 8:预定转台  4：开台转台
+        id:
+            this.cardInfo.bizStatus == 8
+                ? Number(this.cardInfo.wkBookId)
+                : Number(this.cardInfo.id), // int 待操作卡台Id
+        dest_seat_id: Number(this.$store.state.cardPageInfo.newCardInfo.seatId), // int64  目标卡台Id
+        new_min_csm_amt: this.changeCard.new_min_csm_amt, // int  抵消金额(元)
+      };
     },
   },
   watch: {
