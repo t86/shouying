@@ -67,6 +67,9 @@
                   <div layout="row" layout-align="space-between center">
                     <p layout="row" layout-align="space-between center"><span>会员卡线下充值金额：</span><span>¥{{dataInfo.mb_of_dep_amt||0}}</span></p>
                   </div>
+                  <div layout="row" layout-align="space-between center">
+                    <p layout="row" layout-align="space-between center"><span>会员充值汇总金额：</span><span>¥{{dataInfo.act_rtn_amt||0}}</span></p>
+                  </div>
                 </div>
                 <!-- 支付渠道 -->
                 <div class="contain-content-pay-list line">

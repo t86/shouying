@@ -114,6 +114,8 @@ export default {
    */
   // 修改卡台标记
   reqUpdateCardTips: params => axios.post(`${base.htgl}/bk/set_seat_mark`, params),
+  // 修改卡台备注
+  reqUpdateCardRemark: params => axios.post(`${base.htgl}/bk/chg_open_seat_remark`, params),
 
   // 读取预留记录表
   reqGetBookList: params => axios.post(`${base.htgl}/sel/rpt/get_book_list`, params),
