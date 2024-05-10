@@ -325,23 +325,27 @@
 <!--          @showOrHideFullPageHandle="showOrHideFullPageHandle"-->
 <!--      />-->
 
-      <el-dialog append-to-body title="转台" :visible="drawer.showDrawer" width="40%" :show-close="false">
-        <el-form ref="form" label-width="180px">
+      <el-dialog append-to-body title="转台" :visible="drawer.showDrawer" width="35%" :show-close="false">
+        <el-form ref="form" label-width="200px">
           <el-form-item :label="chgTabLabel">
             <el-button type="primary" @click="showFullPageTable=true;drawer.showDrawer=false">更换目标台</el-button>
           </el-form-item>
-          <el-form-item :label="`老卡台 ${cardInfo.name} 低消`">
-            {{cardInfo.assignMinCsmAmt}} 元
+          <el-form-item :label="`老卡台 ${cardInfo.name} 低消:`">
+            <span style="color: #0D9940;font-weight: bold">
+              {{cardInfo.assignMinCsmAmt}} 元
+            </span>
           </el-form-item>
-          <el-form-item :label="`新卡台 ${changeCard.newCardName} 低消`">
+          <el-form-item :label="`新卡台 ${changeCard.newCardName} 低消:`">
             <el-input
                 v-model="changeCard.new_min_csm_amt"
                 min="0"
                 placeholder="请输入新卡台低消"
                 type="number"
-                style="width: 80%"
+                style="width: 50%"
             ></el-input>
-            <span class="m-l-1">元</span>
+            <span style="color: #0D9940;font-weight: bold">
+              元
+            </span>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer" style="text-align: center">
@@ -1620,6 +1624,45 @@ export default {
   mixins: [cardPageMixins],
 };
 </script>
+<style>
+  .el-dialog__header{
+    background-color: rgb(183, 192, 205) !important;
+  }
+  .el-dialog__title {
+    line-height: 24px;
+    font-size: 20px;
+    color: #303133;
+  }
+  .el-dialog__body {
+    padding: 30px 20px;
+    color: #303133;
+    word-break: break-all;
+    background-color: rgb(212, 219, 228) !important;
+  }
+  .el-form-item {
+    margin-bottom: 18px;
+  }
+  .el-form-item__label {
+    text-align: right;
+    vertical-align: middle;
+    float: left;
+    font-size: 18px;
+    color: #303133;
+    line-height: 30px;
+    padding: 0 12px 0 0;
+    box-sizing: border-box;
+  }
+  .el-form-item__content {
+    line-height: 30px;
+    position: relative;
+    font-size: 18px;
+  }
+  .el-input__inner {
+    color: #0D9940;
+    font-weight: bold;
+    font-size: 18px;
+  }
+</style>
 
 <style scoped lang="less">
 @import "../../style/order/orderMeal/newFootBar.less";
@@ -1628,3 +1671,4 @@ export default {
 <style lang="less">
 @import "../../style/common/elementConfirm.less";
 </style>
+
