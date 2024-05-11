@@ -1018,6 +1018,10 @@ export default {
       } else if ('b' === command) {
         this.clearCardHandle()
       } else if ('c' === command) {
+        if (this.hasForbidUnTipTableAuth) {
+          this.$message.error('没有转台权限')
+          return
+        }
         this.showFullPageTable = true
       }
     },
@@ -1583,6 +1587,12 @@ export default {
           this.$store.state.userInfo.sys_modules &&
           this.$store.state.userInfo.sys_modules.includes(72) &&
           this.$store.state.userInfo.emp_id * 1 === this.empId * 1
+      );
+    },
+    hasForbidUnTipTableAuth() {
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(70)
       );
     },
     chgTabLabel() {
