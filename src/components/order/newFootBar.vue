@@ -1197,7 +1197,7 @@ export default {
             });
             if (res.code === 1) {
               this.$message.success("清台成功");
-              this.$router.replace({ name: "moneyCard" });
+              await this.$router.replace({name: "orderCard"});
             } else {
               this.$message.warning(res.msg);
             }
