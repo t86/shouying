@@ -278,6 +278,7 @@
               ref="waiter"
               v-model="ruleForm.waiter"
               filterable
+              @focus="handleFocus"
               remote
               reserve-keyword
               placeholder="输入工号或者姓名搜索"
@@ -614,6 +615,18 @@ export default {
     };
   },
   methods: {
+    handleFocus(){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        const dropdown = document.querySelector('.el-select-dropdown');
+        if (dropdown) {
+          dropdown.style.transform = 'translateX(150px)';
+        }
+      }
+    },
     // 预定或开台转台
     async reserveOrOpenToChange() {
       this.reserveOrOpenToChangeParams.new_min_csm_amt = Number(
@@ -1033,11 +1046,6 @@ export default {
       ) {
         atool.showSoftInput();
         atool.executeJs(`this.$refs.waiter.focus()`)
-        setTimeout(()=> {
-          const dropdown = document.querySelector('.el-select-dropdown');
-          dropdown.style.transform = 'translateX(150px)';
-        }, 100)
-
       }
     },
     keyboardLeave() {

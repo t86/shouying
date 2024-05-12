@@ -141,6 +141,7 @@
           <el-select
               v-model="ruleForm.waiter"
               ref="waiter"
+              @focus="handleFocus"
               filterable
               remote
               reserve-keyword
@@ -256,6 +257,18 @@ export default {
     };
   },
   methods: {
+    handleFocus(){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        const dropdown = document.querySelector('.el-select-dropdown');
+        if (dropdown) {
+          dropdown.style.transform = 'translateX(150px)';
+        }
+      }
+    },
     keyboardShow() {
       if (
         window.atool
@@ -264,13 +277,8 @@ export default {
       ) {
         atool.showSoftInput();
         atool.executeJs(`this.$refs.waiter.focus()`)
-        setTimeout(()=> {
-          const dropdown = document.querySelector('.el-select-dropdown');
-          dropdown.style.transform = 'translateX(150px)';
-        }, 100)
-
-
       }
+
     },
     keyboardLeave() {
       setTimeout(() => {
@@ -285,6 +293,7 @@ export default {
       }, 10)
     },
     showDiandanEmpChange() {
+      console.log('showDiandanEmpChange')
       if (this.hasChgKTWaiterAuth()) {
         this.dialogFormVisible = true;
         this.remoteMethod();
@@ -410,30 +419,6 @@ export default {
       ).map((item) => item.name).join("");
       this.authInfo = { ...this.authInfo };
     },
-    keyboardShow(refString) {
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-        ("showSoftInput" in window.atool)
-      ) {
-        atool.showSoftInput();
-        atool.executeJs(`this.$refs.${refString}.focus()`)
-
-      }
-    },
-    keyboardLeave() {
-      setTimeout(() => {
-        if (
-          window.atool
-          && window.atool.getTermType() == "android" &&
-          ("hideSoftInput" in window.atool)
-        ) {
-          atool.hideSoftInput();
-          atool.restart();
-        }
-      }, 10)
-    },
-
     async getShoppingCartData() {
       try {
         const params = {
