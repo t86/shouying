@@ -278,7 +278,6 @@ export default {
         atool.showSoftInput();
         atool.executeJs(`this.$refs.waiter.focus()`)
       }
-
     },
     keyboardLeave() {
       setTimeout(() => {
@@ -287,8 +286,10 @@ export default {
           && window.atool.getTermType() == "android" &&
           ("hideSoftInput" in window.atool)
         ) {
+          atool.executeJs(`this.$refs.waiter.blur()`);
           atool.hideSoftInput();
           atool.restart();
+
         }
       }, 10)
     },

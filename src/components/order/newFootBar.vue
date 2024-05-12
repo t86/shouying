@@ -1055,6 +1055,7 @@ export default {
           && window.atool.getTermType() == "android" &&
           ("hideSoftInput" in window.atool)
         ) {
+          atool.executeJs(`this.$refs.waiter.blur()`);
           atool.hideSoftInput();
           atool.restart();
         }
