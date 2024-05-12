@@ -177,11 +177,11 @@
           }}</span>
         </p>
       </div>
-      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
+      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0 && isValidCard" @click="showChangeFwy = true">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
       </div> 
-      <div v-else layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
+      <div v-if="isValidCard" layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
         <span>
         {{authInfo.name}}
         </span>
@@ -1062,7 +1062,7 @@ export default {
       }, 10)
     },
     showDiandanEmpChange() {
-      if (this.hasChgKTWaiterAuth) {
+      if (this.hasChgKTWaiterAuth && isValidCard) {
         this.diandanDialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
@@ -1622,6 +1622,9 @@ export default {
         new_min_csm_amt: this.changeCard.new_min_csm_amt, // int  抵消金额(元)
       };
     },
+    isValidCard() {
+      return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
+    }
   },
   watch: {
     "authInfo.bindWaiterId": {

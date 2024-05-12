@@ -109,7 +109,7 @@
           authInfo.minute
         }}
       </p>
-      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0" @click="showChangeFwy = true">
+      <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0 && isValidCard" @click="showChangeFwy = true">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
       </div> 
@@ -118,7 +118,7 @@
         <div class = 'text-ellipsis' >
                   {{authInfo.name}}
         </div>
-        <img style="margin-left: 10px;" class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth"  :src="require('@/assets/img/btn_edit.png')" />
+        <img style="margin-left: 10px;" class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth && isValidCard"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
     </div>
 
@@ -295,7 +295,7 @@ export default {
     },
     showDiandanEmpChange() {
       console.log('showDiandanEmpChange')
-      if (this.hasChgKTWaiterAuth()) {
+      if (this.isValidCard && this.hasChgKTWaiterAuth()) {
         this.dialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
@@ -808,6 +808,9 @@ export default {
     authTips() {
       return this.showEmp ? (this.empId * 1 != 0 ? '服务员' : '绑定当台服务员'): this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
     },
+    isValidCard() {
+      return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
+    }
   },
   components: {
     mealDrawer,
