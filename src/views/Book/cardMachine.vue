@@ -426,6 +426,9 @@
     <drawerReserved
       ref="drawerReserved"
       :dateTabActiveIndex="dateTab.activeIndex"
+      :dateVal="dateTab.dateTabList.length > 0 ? dateTab.dateTabList[dateTab.activeIndex].name : ''"
+      :cardList="card.cardListInfoArr"
+      :tabList="tab.tabListOrigin"
       :showDrawer="reserved.showDrawer"
       @changeShowDrawer="changeReservedShowDrawer"
     />

@@ -43,6 +43,9 @@ export default {
   // 新增预留
   reqAddReservedInfo: params => axios.post(`${base.htgl}/bk/new`, params),
 
+  // 本地批量预留/预订
+  reqAddBatchReservedInfo: params => axios.post(`${base.htgl}/bk/batch_new`, params),
+  
   // 编辑预留
   reqUpdateReservedInfo: params => axios.post(`${base.htgl}/bk/save`, params),
 

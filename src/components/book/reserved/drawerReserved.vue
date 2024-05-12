@@ -20,6 +20,25 @@
           </label>
         </el-form-item>
 
+        <el-form-item label="多台预定">
+          <div layout="row" layout-align="start center">
+              <div
+                v-for="item in orderedCardList"
+                :key="item.id"
+                class="label"
+                @click="deleteCard(item)"
+              >
+                {{ item.name }}
+              </div>
+              <div
+                style="color: cornflowerblue; cursor: pointer"
+                @click="addCard"
+              >
+                添加卡台
+              </div>
+            </div>
+        </el-form-item>
+
         <el-form-item label="客人电话">
           <input-select
             style="width: 80%"
@@ -162,6 +181,9 @@
         </div>
       </el-form>
     </el-drawer>
+    <chooseCard ref="chooseCard" :showDrawer="showChooseCard" :cardList="allCardList" :dateVal="dateVal" 
+    :tabList="tabList" :seatId="this.$store.state.orderInfo.currentCardInfo.id" 
+     @changeShowDrawer="changeShowCardDrawer" @chooseCardHandle="chooseCardHandle" />
   </div>
 </template>
 
@@ -173,6 +195,8 @@ import formSelect from "@/components/book/select";
 import { cardOptions, openTypeList } from "@/utils/config/card";
 import api_book from "@/api/Book";
 import common_book from "@/utils/common/book";
+import chooseCard from "./chooseCard.vue";
+
 
 export default {
   data() {
@@ -180,6 +204,9 @@ export default {
       title: "新建预留",
       bookId: "", // 当前操作修改的预定id
       seatId: "", // 当前所选择预定的卡台id
+      orderedCardList: [], // 预定卡台id列表，当前卡台默认添加
+      allCardList: [], // 所有卡台列表,对是否选中，是否disabled进行处理
+      showChooseCard: false, // 是否显示选择卡台
       show: this.showDrawer, // 是否显示drawer
       formData: {
         //  客人信息
@@ -239,6 +266,25 @@ export default {
     };
   },
   methods: {
+    deleteCard(itemInfo){
+      console.log('item delete', itemInfo)
+      this.orderedCardList = this.orderedCardList.filter(item => item.id !== itemInfo.id)
+      this.allCardList = this.allCardList.map(item => {
+        if(item.id == itemInfo.id) {
+          item.selected = false
+        }
+        return item
+      })
+    },
+    addCard(){
+      console.log('addCard')
+      this.showChooseCard = true
+    },
+    
+    chooseCardHandle(cardInfoLst){
+      this.orderedCardList = [...cardInfoLst]
+      console.log('cardInfoLst', cardInfoLst)
+    },
     /*
      *订位人
      */
@@ -374,7 +420,7 @@ export default {
       try {
         const res = this.bookId
           ? await api_book.reqUpdateReservedInfo(this.addOrUpdateReservedParams)
-          : await api_book.reqAddReservedInfo(this.addOrUpdateReservedParams);
+          : await api_book.reqAddBatchReservedInfo(this.addOrUpdateReservedParams);
         this.formSubmitHandle(
           res,
           this.bookId ? "修改成功" : "新增成功",
@@ -385,6 +431,9 @@ export default {
       }
     },
 
+    changeShowCardDrawer(val){
+      this.showChooseCard = val
+    },
     onCancelDrawer() {
       this.$emit("changeShowDrawer", false);
     },
@@ -395,6 +444,7 @@ export default {
 
     // 初始化表单数据
     async setFomData(info) {
+      console.log('info', info)
       this.bookId = info.id || "";
       this.seatId = info.seatId || "";
       this.title = this.bookId ? "修改预留" : "新建预留";
@@ -543,6 +593,18 @@ export default {
       // 当前操作的时期tabIndex
       default: "",
     },
+    dateVal: {
+      // 当前操作的日期
+      default: "",
+    },
+    cardList: {
+      // 卡台列表
+      default: [],
+    },
+    tabList: {
+      // 卡座tab列表
+      default: [],
+    },
   },
   computed: {
     addOrUpdateReservedParams() {
@@ -566,6 +628,7 @@ export default {
         exp_min_csm_amt: formData.customPay.exp_min_csm_amt * 1, // int   预期最低消费  // 暂时用string 用于校验是否为空
         exp_region_id: 0, // int64 期望区域Id 没指定,或者指定了意向卡台Id,则传0
         exp_seat_id: this.seatId * 1, // int64  期望卡台Id 没指定传0
+        exp_seat_ids: this.orderedCardList.map(item => item.id * 1), // int64[]  期望卡台Id列表
         remark: formData.remarkInfo.remark, // string   备注信息
         mark: formData.markInfo.value, //  string   卡台标签
       };
@@ -575,6 +638,14 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       if (newVal)
+        this.orderedCardList = [this.$store.state.orderInfo.currentCardInfo]
+        this.allCardList = this.cardList.map(item => {
+          if(item.id == this.$store.state.orderInfo.currentCardInfo.id) {
+            item.selected = true
+          }
+          item.disabled = !item.options.find(item => item.id == 1)
+          return {...item}
+        })
         this.$nextTick(() => {
           const sessionDom = document.querySelector(".el-drawer__body");
           sessionDom.scrollTo(0, 0);
@@ -586,10 +657,38 @@ export default {
     inputSelect,
     subSelect,
     formSelect,
+    chooseCard,
   },
 };
 </script>
 
 <style scoped lang="less">
 @import "../../../style/common/elementDrawer.less";
+</style>
+
+<style scoped lang="less">
+
+.label {
+  position: relative;
+  margin-right: 20px;
+  padding: 0px 10px;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #356c6c;
+}
+.label::after {
+  content: "x";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  background-color: #f56c6c;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
 </style>
