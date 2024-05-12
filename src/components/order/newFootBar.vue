@@ -1033,6 +1033,10 @@ export default {
       ) {
         atool.showSoftInput();
         atool.executeJs(`this.$refs.waiter.focus()`)
+        setTimeout(()=> {
+          const dropdown = document.querySelector('.el-select-dropdown');
+          dropdown.style.transform = 'translateX(150px)';
+        }, 100)
 
       }
     },
@@ -1680,5 +1684,12 @@ export default {
 
 <style lang="less">
 @import "../../style/common/elementConfirm.less";
+</style>
+
+<style scoped lang="less">
+.el-select-dropdown {
+  transform-origin: right top;
+  transform: translateX(150px) !important;
+}
 </style>
 

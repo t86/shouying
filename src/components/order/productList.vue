@@ -264,6 +264,11 @@ export default {
       ) {
         atool.showSoftInput();
         atool.executeJs(`this.$refs.waiter.focus()`)
+        setTimeout(()=> {
+          const dropdown = document.querySelector('.el-select-dropdown');
+          dropdown.style.transform = 'translateX(150px)';
+        }, 100)
+
 
       }
     },
