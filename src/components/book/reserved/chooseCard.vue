@@ -72,7 +72,7 @@ export default {
       this.tabList.forEach(it => {
         it.ss = []
         this.cardList.forEach(item => {
-          item.disabled = !item.options.find(item => item.id == 1)
+          item.disabled = ((item.bizStatus == 1 || item.bizStatus == 8) && item.showOnlineText) || !item.options.find(item => item.id == 1)
           if(it.id == item.regionId) {
             it.ss = [...it.ss, item]
           }
@@ -87,7 +87,7 @@ export default {
       this.closeDrawerHandle()
     },
     chooseCard(cardInfo) {
-      if(!cardInfo.options.find(item => item.id == 1)) {
+      if(!cardInfo.options.find(item => item.id == 1) || ((cardInfo.bizStatus == 1 || cardInfo.bizStatus == 8) && cardInfo.showOnlineText)) {
         this.$message.error('该卡台不支持预留')
         return
       }
