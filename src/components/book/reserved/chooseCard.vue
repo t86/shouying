@@ -50,7 +50,7 @@
       </div>
       <!-- 提交按钮 -->
       <div class="form-btn">
-        <el-button type="info" @click="closeDrawerHandle">取消</el-button>
+        <el-button type="info" @click="onCancel">取消</el-button>
         <el-button type="primary" @click="onSubmit">确认</el-button>
       </div>
     </el-drawer>
@@ -63,6 +63,7 @@ export default {
     return {
       selectedList: [],
       show: this.showDrawer, // 是否显示drawer
+      originCardList: [],
     };
   },
   methods: {
@@ -77,7 +78,9 @@ export default {
           }
         })
       })
+      this.originCardList = JSON.parse(JSON.stringify(this.cardList))
       this.selectedList = this.cardList.filter(item => item.selected)
+
     },
     onSubmit(){
       this.$emit('chooseCardHandle', this.selectedList)
@@ -86,6 +89,10 @@ export default {
     chooseCard(cardInfo) {
       if(!cardInfo.options.find(item => item.id == 1)) {
         this.$message.error('该卡台不支持预留')
+        return
+      }
+      if(cardInfo.id == this.seatId) {
+        this.$message.error('当前卡台不能取消')
         return
       }
       cardInfo.selected = !cardInfo.selected
@@ -98,6 +105,12 @@ export default {
       const scrollTop =
         direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
       dom.scrollTo(0, scrollTop);
+    },
+    onCancel(){
+      this.cardList.forEach(item => {
+        item.selected = this.originCardList.find(it => it.id == item.id).selected
+      })
+      this.closeDrawerHandle()
     },
     closeDrawerHandle() {
       this.$emit("changeShowDrawer", false);
@@ -116,6 +129,9 @@ export default {
     tabList: {
       default: []
     },
+    seatId: {
+      default: ""
+    }
   },
   watch: {
     showDrawer(newVal) {

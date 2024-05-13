@@ -182,7 +182,7 @@
       </el-form>
     </el-drawer>
     <chooseCard ref="chooseCard" :showDrawer="showChooseCard" :cardList="allCardList" :dateVal="dateVal" 
-    :tabList="tabList" :seatId="this.$store.state.orderInfo.currentCardInfo.id" 
+    :tabList="tabList" :seatId="seatId"
      @changeShowDrawer="changeShowCardDrawer" @chooseCardHandle="chooseCardHandle" />
   </div>
 </template>
@@ -278,11 +278,12 @@ export default {
     },
     addCard(){
       console.log('addCard')
+      
       this.showChooseCard = true
     },
     
     chooseCardHandle(cardInfoLst){
-      this.orderedCardList = [...cardInfoLst]
+      this.orderedCardList = [...cardInfoLst.filter(item =>item.id *1 != this.seatId * 1)]
       console.log('cardInfoLst', cardInfoLst)
     },
     /*
@@ -628,7 +629,7 @@ export default {
         exp_min_csm_amt: formData.customPay.exp_min_csm_amt * 1, // int   预期最低消费  // 暂时用string 用于校验是否为空
         exp_region_id: 0, // int64 期望区域Id 没指定,或者指定了意向卡台Id,则传0
         exp_seat_id: this.seatId * 1, // int64  期望卡台Id 没指定传0
-        exp_seat_ids: this.orderedCardList.map(item => item.id * 1), // int64[]  期望卡台Id列表
+        exp_seat_ids: [...this.orderedCardList.map(item => item.id * 1), this.seatId * 1], // int64[]  期望卡台Id列表
         remark: formData.remarkInfo.remark, // string   备注信息
         mark: formData.markInfo.value, //  string   卡台标签
       };
@@ -638,13 +639,13 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       if (newVal)
-        this.orderedCardList = [this.$store.state.orderInfo.currentCardInfo]
+        this.orderedCardList = []
         this.allCardList = this.cardList.map(item => {
-          if(item.id == this.$store.state.orderInfo.currentCardInfo.id) {
-            item.selected = true
+          return {
+            ...item,
+            selected: item.id == this.$store.state.orderInfo.currentCardInfo.id,
+            disabled: !item.options.find(item => item.id == 1)
           }
-          item.disabled = !item.options.find(item => item.id == 1)
-          return {...item}
         })
         this.$nextTick(() => {
           const sessionDom = document.querySelector(".el-drawer__body");
