@@ -3,7 +3,7 @@
   <div>
     <div ref="selectOption" style="position: relative;">
       <el-input v-model="selectInputVal" :type="inputType" ref="selectInput" :placeholder="placeholder" min="0" @input="inputHandle"></el-input>
-      <ul class="options" ref="optionRef" 
+      <ul class="options" ref="optionRef" v-if="optionsList.length > 0"
         :style="'width:' + selectOptionWidth + 'px;top:' + selectOptionTop + 'px'">
         <li v-for="(item, index) in optionsList" :key="item.id" :class="{'active': index == activeIndex}" @click="clickOption(item)">
           {{ item.name }}  {{ item.code }}
