@@ -1032,7 +1032,7 @@ export default {
         this.clearCardHandle()
       } else if ('c' === command) {
         if (this.hasForbidUnTipTableAuth) {
-          this.$message.error('没有转台权限')
+          this.$message.error('您当前暂无查看空台权限, 不支持操作转台!')
           return
         }
         this.showFullPageTable = true
