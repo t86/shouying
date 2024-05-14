@@ -141,7 +141,8 @@
           <el-select
               v-model="ruleForm.waiter"
               ref="waiter"
-              @focus="handleFocus"
+              @focus="handleFocus('waiter')"
+              @blur="keyboardLeave"
               filterable
               remote
               reserve-keyword
@@ -257,7 +258,7 @@ export default {
     };
   },
   methods: {
-    handleFocus(){
+    handleFocus(refString){
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -267,17 +268,21 @@ export default {
         if (dropdown) {
           dropdown.style.transform = 'translateX(150px)';
         }
+        setTimeout(() => {
+          this.keyboardShow(refString)
+        }, 100)
       }
     },
-    keyboardShow() {
+    keyboardShow(refString){
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
-        ("showSoftInput" in window.atool)
-      ) {
-        atool.showSoftInput();
-        atool.executeJs(`this.$refs.waiter.focus()`)
-      }
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+
+          }
     },
     keyboardLeave() {
       setTimeout(() => {
@@ -299,9 +304,6 @@ export default {
         this.dialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
-        setTimeout(() => {
-          this.keyboardShow()
-        }, 100)
       }
     },
     showEmpDialog() {

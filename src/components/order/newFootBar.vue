@@ -181,7 +181,7 @@
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
       </div> 
-      <div v-if="isValidCard" layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
+      <div v-if="isValidCard"  layout="row" layout-align="end center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
         <span>
         {{authInfo.name}}
         </span>
@@ -279,6 +279,7 @@
               v-model="ruleForm.waiter"
               filterable
               @focus="handleFocus"
+              @blur="keyboardLeave"
               remote
               reserve-keyword
               placeholder="输入工号或者姓名搜索"
@@ -625,6 +626,9 @@ export default {
         if (dropdown) {
           dropdown.style.transform = 'translateX(150px)';
         }
+        setTimeout(() => {
+          this.keyboardShow()
+        }, 100)
       }
     },
     // 预定或开台转台
@@ -1066,9 +1070,6 @@ export default {
         this.diandanDialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
-        setTimeout(() => {
-          this.keyboardShow()
-        }, 100)
       }
     },
     showEmpDialog() {
