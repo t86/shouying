@@ -473,6 +473,7 @@ export default {
   },
   methods: {
     handleFocus(refString){
+      console.log('handleFocus', refString)
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -1334,6 +1335,7 @@ export default {
         this.$emit("showOrHideDrawer", this.status);
       }
       this.keyboardLeave('waiter');
+      console.log('onCancelDrawer', this.status)
     }
   },
   created() { },

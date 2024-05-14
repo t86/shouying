@@ -178,7 +178,7 @@
                 <span
                   style="word-break: keep-all;"
                   v-if="
-                    this.typeModule != 2 && (item.turnoverCnt > 0 &&
+                    typeModule != 2 && (item.turnoverCnt > 0 &&
                     ($store.state.userInfo.roleIds.includes(2) ||
                       $store.state.userInfo.roleIds.includes(3)))
                   "
