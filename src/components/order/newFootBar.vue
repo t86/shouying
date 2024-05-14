@@ -279,7 +279,6 @@
               v-model="ruleForm.waiter"
               filterable
               @focus="handleFocus"
-              @blur="keyboardLeave"
               remote
               reserve-keyword
               placeholder="输入工号或者姓名搜索"
@@ -295,7 +294,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="diandanDialogFormVisible = false">取 消</el-button>
+        <el-button @click="hideChgDiandan">取 消</el-button>
         <el-button type="primary" @click="chgDiandan">确 定</el-button>
       </div>
     </el-dialog>
@@ -1117,12 +1116,17 @@ export default {
               this.$message.warning(r.msg);
             }
             this.diandanDialogFormVisible = false
+            this.keyboardLeave()
           })
         } else {
           console.log('error submit!!');
           return false;
         }
       });
+    },
+    hideChgDiandan(){
+      this.diandanDialogFormVisible = false
+      this.keyboardLeave()
     },
     remoteMethod(query) {
       this.loading = true;

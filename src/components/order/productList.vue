@@ -142,7 +142,6 @@
               v-model="ruleForm.waiter"
               ref="waiter"
               @focus="handleFocus('waiter')"
-              @blur="keyboardLeave"
               filterable
               remote
               reserve-keyword
@@ -159,7 +158,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="hideChgDianDan">取 消</el-button>
         <el-button type="primary" @click="chgDiandan">确 定</el-button>
       </div>
     </el-dialog>
@@ -306,6 +305,10 @@ export default {
         this.ruleForm.waiter = this.empId + ""
       }
     },
+    hideChgDianDan() {
+      this.dialogFormVisible = false;
+      this.keyboardLeave();
+    },
     showEmpDialog() {
       console.log('showEmpDialog', this.showEmp, this.empId)
       if (this.showEmp && !this.empId) {
@@ -352,6 +355,7 @@ export default {
               this.$message.warning(r.msg);
             }
             this.dialogFormVisible = false
+            this.keyboardLeave();
           })
         } else {
           console.log('error submit!!');
