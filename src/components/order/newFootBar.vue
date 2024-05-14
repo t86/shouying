@@ -1688,11 +1688,11 @@ export default {
     position: relative;
     font-size: 18px;
   }
-  .el-input__inner {
-    color: #0D9940;
-    font-weight: bold;
-    font-size: 18px;
-  }
+  /*.el-input__inner {*/
+  /*  color: #0D9940;*/
+  /*  font-weight: bold;*/
+  /*  font-size: 18px;*/
+  /*}*/
 </style>
 
 <style scoped lang="less">
