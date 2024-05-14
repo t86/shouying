@@ -625,9 +625,6 @@ export default {
         if (dropdown) {
           dropdown.style.transform = 'translateX(150px)';
         }
-        setTimeout(() => {
-          this.keyboardShow()
-        }, 100)
       }
     },
     // 预定或开台转台
@@ -1069,6 +1066,9 @@ export default {
         this.diandanDialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
+        setTimeout(() => {
+          this.keyboardShow()
+        }, 100)
       }
     },
     showEmpDialog() {
@@ -1112,11 +1112,11 @@ export default {
               this.empId = this.ruleForm.waiter * 1
               this.getAuthInfo();
               this.$message.success('修改卡台服务员成功');
+              this.diandanDialogFormVisible = false
+              this.keyboardLeave()
             } else {
               this.$message.warning(r.msg);
             }
-            this.diandanDialogFormVisible = false
-            this.keyboardLeave()
           })
         } else {
           console.log('error submit!!');
