@@ -268,7 +268,7 @@ export default {
           dropdown.style.transform = 'translateX(150px)';
         }
         setTimeout(() => {
-          this.keyboardShow()
+          this.keyboardShow(refString)
         }, 100)
       }
     },
@@ -303,7 +303,7 @@ export default {
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
         setTimeout(() => {
-          this.keyboardShow(refString)
+          this.keyboardShow('waiter')
         }, 100)
       }
     },
@@ -736,8 +736,8 @@ export default {
     getOpenTime() {
       let cardInfo = this.$store.state.orderInfo.currentCardInfo;
       if (cardInfo && cardInfo.openTime) {
-        let h = parseInt(cardInfo.openTime.substring(8, 10)); // 时
-        let s = parseInt(cardInfo.openTime.substring(10, 12)); // 分
+        let h = cardInfo.openTime.substring(8, 10); // 时
+        let s = cardInfo.openTime.substring(10, 12); // 分
         this.openTime = `${h}:${s}`
       }
     },
