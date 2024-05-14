@@ -2,7 +2,7 @@
   <!-- 点单商品/套餐列表 -->
   <div class="product-list" ref="productListRef">
     <div class="search" layout="row" layout-align="start center">
-      <input @blur="keyboardLeave" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
+      <input @blur="keyboardLeave('searchInputRef')" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
         :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
         v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
@@ -282,14 +282,14 @@ export default {
             atool.executeJs(`this.$refs.${refString}.focus()`)
           }
     },
-    keyboardLeave() {
+    keyboardLeave(refString) {
       setTimeout(() => {
         if (
           window.atool
           && window.atool.getTermType() == "android" &&
           ("hideSoftInput" in window.atool)
         ) {
-          atool.executeJs(`this.$refs.waiter.blur()`);
+          atool.executeJs(`this.$refs.${refString}.blur()`);
           atool.hideSoftInput();
           atool.restart();
 
@@ -309,7 +309,7 @@ export default {
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
-      this.keyboardLeave();
+      this.keyboardLeave('waiter');
     },
     showEmpDialog() {
       console.log('showEmpDialog', this.showEmp, this.empId)
@@ -354,7 +354,7 @@ export default {
               Observer.send(BIND_EMP, this.empId);
               this.$message.success('修改卡台服务员成功');
               this.dialogFormVisible = false
-              this.keyboardLeave();
+              this.keyboardLeave('waiter');
             } else {
               this.$message.warning(r.msg);
             }

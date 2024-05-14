@@ -4,7 +4,8 @@
     <div class="pro-list">
       <div class="search" layout="row" layout-align="start center" @input="getPageData(1)">
         <!-- <span>全局搜索：</span> -->
-        <input type="text" v-model="search.keyWord" placeholder="请输入商品名称或简写" />
+        <input @blur="keyboardLeave('searchInputRef')" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
+        v-model="search.keyWord" placeholder="请输入商品名称或简写" />
         <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
         <img class="icon" :src="imgSrc.search" alt />
       </div>
@@ -154,6 +155,30 @@ export default {
     };
   },
   methods: {
+    keyboardShow(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+          }
+    },
+    keyboardLeave(refString) {
+      setTimeout(() => {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.executeJs(`this.$refs.${refString}.blur()`);
+          atool.hideSoftInput();
+          atool.restart();
+
+        }
+      }, 10)
+    },
     getPicUrl() {
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
       let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
