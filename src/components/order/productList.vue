@@ -268,7 +268,7 @@ export default {
           dropdown.style.transform = 'translateX(150px)';
         }
         setTimeout(() => {
-          this.keyboardShow(refString)
+          this.keyboardShow()
         }, 100)
       }
     },
@@ -280,7 +280,6 @@ export default {
           ) {
             atool.showSoftInput();
             atool.executeJs(`this.$refs.${refString}.focus()`)
-
           }
     },
     keyboardLeave() {
@@ -303,6 +302,9 @@ export default {
         this.dialogFormVisible = true;
         this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
+        setTimeout(() => {
+          this.keyboardShow(refString)
+        }, 100)
       }
     },
     hideChgDianDan() {
@@ -351,11 +353,11 @@ export default {
               this.getAuthInfo();
               Observer.send(BIND_EMP, this.empId);
               this.$message.success('修改卡台服务员成功');
+              this.dialogFormVisible = false
+              this.keyboardLeave();
             } else {
               this.$message.warning(r.msg);
             }
-            this.dialogFormVisible = false
-            this.keyboardLeave();
           })
         } else {
           console.log('error submit!!');
