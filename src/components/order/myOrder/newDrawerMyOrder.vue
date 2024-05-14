@@ -338,6 +338,8 @@
                     v-model="selWaiter"
                     filterable
                     remote
+                    ref="waiter"
+                    @focus="handleFocus('waiter')"
                     reserve-keyword
                     placeholder="输入工号或者姓名搜索"
                     :remote-method="remoteMethod"
@@ -470,6 +472,45 @@ export default {
     };
   },
   methods: {
+    handleFocus(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        const dropdown = document.querySelector('.el-select-dropdown');
+        if (dropdown) {
+          dropdown.style.transform = 'translateX(150px)';
+        }
+        setTimeout(() => {
+          this.keyboardShow(refString)
+        }, 100)
+      }
+    },
+    keyboardShow(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+          }
+    },
+    keyboardLeave(refString) {
+      setTimeout(() => {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.executeJs(`this.$refs.${refString}.blur()`);
+          atool.hideSoftInput();
+          atool.restart();
+
+        }
+      }, 10)
+    },
     remoteMethod(query) {
       this.loading = true;
       this.selWaiter=''
@@ -1292,6 +1333,7 @@ export default {
         };
         this.$emit("showOrHideDrawer", this.status);
       }
+      this.keyboardLeave('waiter');
     }
   },
   created() { },
