@@ -120,9 +120,9 @@
                 <span v-else></span>
                 <!-- 翻台数 -->
                 <span style="word-break: keep-all;" v-if="
-                  item.turnoverCnt > 0 &&
+                  typeModule == 1 && (item.turnoverCnt > 0 &&
                   ($store.state.userInfo.roleIds.includes(2) ||
-                    $store.state.userInfo.roleIds.includes(3))
+                    $store.state.userInfo.roleIds.includes(3)))
                 ">
                   翻{{ item.turnoverCnt }}
                 </span>
