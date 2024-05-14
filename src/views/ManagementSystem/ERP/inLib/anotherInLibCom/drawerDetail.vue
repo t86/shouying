@@ -46,8 +46,8 @@
               <div class="value">{{info.store_time}}</div>
             </div>
             <div class="item fs14" layout="row" layout-align="start center">
-              <div class="label">状态：</div>
-              <div class="value">{{info.status}}</div>
+              <div class="label">发票类型：</div>
+              <div class="value">{{info.fapiao_type}}</div>
             </div>
             <div class="item fs14" layout="row" layout-align="start center">
               <div class="label">备注：</div>
@@ -154,6 +154,7 @@
   </div>
 </template>
  
+
 <script>
 export default {
   data() {
