@@ -68,7 +68,9 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.getImgData();
-      } 
+      } else {
+        this.imgSrc = ''
+      }
     }
   }
 };
