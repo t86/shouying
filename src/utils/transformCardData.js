@@ -86,6 +86,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           code: el[8],  // 员工工号
           upper_emp_id: el[9],  // 直属上级员工Id
           clone_emp_id: el[10],  // 替身Id
+          real_name: el[11], // 真实姓名
         })
       })
       break
