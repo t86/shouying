@@ -69,7 +69,7 @@
               <div class="td">{{item.s}}</div>
               <div class="td">{{item.e}}</div>
               <div class="td">{{item.w}}</div>
-              <div class="td">{{item.t}}</div>
+              <div class="td">{{item.it}}</div>
             </div>
             <div class="detail-list" v-if="item.show">
               <div class="tr-thead" layout="row" layout-align="space-between center">
