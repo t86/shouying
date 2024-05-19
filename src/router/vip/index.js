@@ -13,6 +13,13 @@ export default [
         meta: { title: "会员管理" },
         component: () => import("@/views/vip/vipManager.vue"),
       },
+      // 企微会员
+      {
+        path: "/qwVip",
+        name: "qwVip",
+        meta: { title: "会员卡类型" },
+        component: () => import("@/views/vip/qwVip.vue"),
+      },
       // 会员卡管理
       {
         path: "/vipType",

@@ -5,6 +5,24 @@
       <el-input v-model="keyword" style="width:300px" class="m-r-2" size="small" placeholder="输入客人手姓名/手机号/商品/卡台/订位人"></el-input>
       <span>过期天数大于</span>
       <el-input v-model="passDay" style="width:70px" class="m-r-2" size="small" placeholder="数字：单位天"></el-input>
+      <div class="item m-r-2" layout="row" layout-align="start center">
+        <div class="label fs14">排序：</div>
+        <div class="value">
+          <el-select
+            style="width: 100px"
+            size="small"
+            v-model="sortVal"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in sortOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </div>
+      </div>
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
     </div>
@@ -134,13 +152,25 @@ export default {
       allChecked: false,
       showLongDrawer: false,  // 延期drawer
       isIndeterminate: false, //
+      sortVal: 1,
+      sortOptions: [
+        {
+          value: 1,
+          label: "过期天数",
+        },
+        {
+          value: 2,
+          label: "存酒日期",
+        },
+      ],
     };
   },
   methods: {
     async getTableData(){
       const params = {
         key: this.keyword || '',  //  string  搜索关键字
-        expired_day: this.passDay * 1 // 过期时间
+        expired_day: this.passDay * 1, // 过期时间
+        ord_type: this.sortVal //  int    排序类型 1:过期天数 2:存酒日期
       }
 
       try {
@@ -241,7 +271,8 @@ export default {
     
     async exportExcelHandle(){
       const params = {
-        key: this.keyword  //  string   商品名称关键字 
+        key: this.keyword,  //  string   商品名称关键字 
+        ord_type: this.sortVal //  int    排序类型 1:过期天数 2:存酒日期
       }
       try {
         const res = await api_wine.reqExportWineInvtExpired(params);

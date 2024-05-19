@@ -25,6 +25,11 @@ export default [
         routerName: "vipManager",
       },
       {
+        id: 23,
+        name: "企微会员",
+        routerName: "qwVip",
+      },
+      {
         id: 22,
         name: "会员卡类型",
         routerName: "vipType",

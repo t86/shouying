@@ -68,7 +68,6 @@
       <div class="label">线上结算单小票打印机：</div>
       <div class="value">
         <el-select
-          :disabled="onlineOrderCount <= 0"
           clearable
           v-model="onlineOrderPrint"
         >

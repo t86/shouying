@@ -280,6 +280,11 @@ export default {
   /**
    * 报表管理
    */
+  // 读取企业会员列表
+  reqGetQwMbList: (params) =>
+    axios.post(`${base.htgl}/mb/rpt/get_qw_mb_list`, params),
+
+    
   // 读取充值记录
   reqGetVipCardMakeMoneyListReport: (params) =>
     axios.post(`${base.htgl}/mb/rpt/get_deposit_log`, params),
