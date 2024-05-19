@@ -108,16 +108,6 @@
       </div>
     </div>
 
-    <div class="pagination">
-      <el-pagination
-        background
-        layout="prev, pager, next"
-        :total="pageInfo.total"
-        :page-size="pageInfo.pageSize"
-        :current-page="pageInfo.page"
-        @current-change="changePageHandle"
-      ></el-pagination>
-    </div>
     <!-- 编辑待充公 -->
     <drawerEditToStoreInfo
       v-model="showEditDrawer"
@@ -142,12 +132,6 @@ export default {
       tableData: [],
       showEditDrawer: false,
       currentWineInfo: {},
-      
-      pageInfo: {
-        page: 1,
-        pageSize: 20,
-        total: 0
-      }
     };
   },
   methods: {
