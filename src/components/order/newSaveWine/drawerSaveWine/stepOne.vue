@@ -523,9 +523,9 @@ export default {
                 padding: 0 10px;
                 box-sizing: border-box;
                 margin-right: 10px;
-                font-size: 20px;
+                font-size: 30px;
                 font-family: PingFangSC, PingFang SC;
-                font-weight: 400;
+                font-weight: 600;
                 color: #08080A;
 
                 &::placeholder {

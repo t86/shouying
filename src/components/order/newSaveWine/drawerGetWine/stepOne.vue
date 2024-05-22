@@ -31,7 +31,7 @@
                   <div class="value">
                     <input-select
                      :class="{ focus: focus == 2 }"
-                      style="width:300px;"
+                      style="width:300px"
                       :value="phoneNum"
                       placeholder="请输入手机号"
                       :optionsList="phoneList"
@@ -49,7 +49,7 @@
                   <div class="value">
                     <input-select
                      :class="{ focus: focus == 2 }"
-                      style="width:300px;"
+                      style="width:300px"
                       :value="phoneNum"
                       placeholder="请输入手机号"
                       :optionsList="phoneList"
@@ -80,7 +80,7 @@
 <script>
 import keyBoard from "@/components/common/newKeyBoard.vue";
 import api_saveWine from "@/api/saveWine";
-import inputSelect from "@/components/book/inputSelect";
+import inputSelect from "@/components/book/inputSelect2";
 export default {
   data() {
     return {
@@ -311,9 +311,9 @@ export default {
                   padding: 0 10px;
                   box-sizing: border-box;
                   margin-right: 10px;
-                  font-size: 20px;
+                  font-size: 30px;
                   font-family: PingFangSC, PingFang SC;
-                  font-weight: 400;
+                  font-weight: 600;
                   color: #08080A;
 
                   &::placeholder {
