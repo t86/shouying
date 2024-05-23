@@ -210,7 +210,12 @@ export const cardOptions = [
     id: 21,
     name: '修改备注',
     icon: icon21
-  }
+  },
+  {
+    id: 22,
+    name: '多台预留',
+    icon: icon1
+  },
 ]
 
 // 开台类型

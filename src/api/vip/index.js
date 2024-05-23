@@ -261,6 +261,11 @@ export default {
   // 读取指定手机号会员的卡券列表
   reqMyKQList: (params) => axios.post(`${base.htgl}/mb/info/get_mb_my_kq_list`, params),
 
+  // 读取绑定手机号的会员的可用存酒
+  reqMyWineList: (params) => axios.post(`${base.htgl}/mb/info/get_mb_my_wine_list`, params),
+
+
+
   // 注销会员卡
   reqDestroyVipCard: (params) =>
     axios.post(`${base.htgl}/mb/card/close`, params),

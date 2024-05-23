@@ -4,14 +4,12 @@
       <div class="thead">
         <div class="tr" layout="row" layout-align="space-between center">
           <div class="th">序号</div>
-          <div class="th">卡券名称</div>
-          <div class="th">卡券来源</div>
-          <div class="th">操作人</div>
-          <div class="th">领取时间</div>
-          <div class="th">使用时间</div>
-          <div class="th">使用卡台</div>
+          <div class="th">酒水名称</div>
+          <div class="th">规格</div>
+          <div class="th">每瓶重量</div>
+          <div class="th">数量</div>
+          <div class="th">入库时间</div>
           <div class="th">到期时间</div>
-          <div class="th">卡券状态</div>
         </div>
       </div>
       <div class="tbody">
@@ -24,27 +22,15 @@
         >
           <div class="td">{{index + 1}}</div>
           <div class="td">{{item.n}}</div>
-          <div class="td">{{item.c}}</div>
           <div class="td">{{item.u}}</div>
           <div class="td">{{item.g}}</div>
-          <div class="td fs16-bold">{{item.ct}}</div>
-          <div class="td fs16-bold">{{item.sn}}</div>
-          <div class="td">{{item.e}}</div>
-          <div class="th">{{item.s}}</div>
+          <div class="td">{{item.c}}</div>
+          <div class="td">{{item.i}}</div>
+          <div class="th">{{item.e}}</div>
         </div>
       </div>
     </div>
 
-    <div class="pagination">
-      <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="pageInfo.total"
-          :page-size="pageInfo.pageSize"
-          :current-page="pageInfo.page"
-          @current-change="changePageHandle"
-      ></el-pagination>
-    </div>
   </div>
 </template>
 
@@ -77,25 +63,16 @@ export default {
       ],
       selectedStatus: 0,
       tableData: [],
-      pageInfo: {
-        page: 1,
-        pageSize: 20,
-        total: 0
-      }
     };
   },
   methods: {
     async getTableData(reset) {
-      if (reset) this.pageInfo.page = 1;
       const params = {
-        page_num: this.pageInfo.page, //   int    第几页
-        page_size: this.pageInfo.pageSize, //  int    每页行数
-        status: this.selectedStatus, // 状态
         ...(this.info.bp && { bind_phone: this.info.bp }), // string  绑定手机号(用于查询有绑定手机的会员信息,里面可能包含多张卡)
       };
 
       try {
-        const res = await api_vip.reqMyKQList(params);
+        const res = await api_vip.reqMyWineList(params);
         if (res.code == 1) {
           this.tableData = res.data.datas || [];
           this.pageInfo.total = res.data.row_cnt || 0;
@@ -106,11 +83,6 @@ export default {
         console.log("优惠剩余存酒失败", error);
       }
     },
-
-    changePageHandle(page) {
-      this.pageInfo.page = page;
-      this.getTableData();
-    }
   },
   props: {
     info: {

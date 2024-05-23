@@ -17,6 +17,7 @@
           <li @click="step=2" :class="{'active': step==2}">会员卡详情</li>
           <li @click="step=3" :class="{'active': step==3}">交易明细</li>
           <li @click="step=4" :class="{'active': step==4}">优惠券</li>
+          <li @click="step=5" :class="{'active': step==5}">剩余存酒</li>
         </ul>
         <div class="content m-t-4">
           <component :is="stepName" :info="stepInfo" ref="detailRef" />
@@ -35,6 +36,7 @@ import vipInfo from "./vipInfo.vue";
 import vipCardInfo from "./vipCardInfo.vue";
 import vipPayInfo from "./vipPayInfo.vue";
 import vipCoupons from "./vipCoupons.vue";
+import vipRemainWine from "./vipRemainWine.vue";
 export default {
   data() {
     return {
@@ -44,6 +46,7 @@ export default {
       stepTwoInfo: [],
       stepThreeInfo: {},
       stepCoupon: {},
+      stepRemainWain: {},
     };
   },
   methods: {
@@ -103,7 +106,8 @@ export default {
     vipInfo,
     vipCardInfo,
     vipPayInfo,
-    vipCoupons
+    vipCoupons,
+    vipRemainWine
   },
   computed: {
     stepName() {
@@ -111,7 +115,8 @@ export default {
         "1": "vipInfo",
         "2": "vipCardInfo",
         "3": "vipPayInfo",
-        "4": "vipCoupons"
+        "4": "vipCoupons",
+        "5": "vipRemainWine"
       };
       return componentNameInfo[this.step];
     },
@@ -125,6 +130,8 @@ export default {
           return this.stepThreeInfo;
         case 4:
           return this.stepCoupon;
+        case 5:
+          return this.stepRemainWain;
       }
     }
   },
@@ -158,6 +165,11 @@ export default {
           break;
         case 4:
           this.stepCoupon = JSON.parse(JSON.stringify(this.preVipInfo))
+          this.$nextTick(() => {
+            this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
+          } )
+        case 5:
+          this.stepRemainWain = JSON.parse(JSON.stringify(this.preVipInfo))
           this.$nextTick(() => {
             this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
           } )
