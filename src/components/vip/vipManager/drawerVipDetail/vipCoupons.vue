@@ -1,13 +1,11 @@
 <template>
   <div class="vip-pay-info">
     状态:
-    <el-select v-model="selectedStatus" placeholder="请选择">
+    <el-select v-model="selectedStatus" placeholder="请选择"  @change="statusChanged(true)">
       <el-option
           v-for="item in options"
           :key="item.value"
           :label="item.label"
-          @change="statusChanged(true)"
-          v-on:change="statusChanged(true)"
           :value="item.value">
       </el-option>
     </el-select>
