@@ -61,11 +61,11 @@
               <div class="td one-txt-cut"  v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%"> {{item.e || '-'}}</div>
               <div class="td one-txt-cut" v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%">{{item.n || '-'}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{item.o || '-'}}</div>
-              <div class="td one-txt-cut" style="width: 10%">{{format(item.z)}}</div>
-              <div class="td one-txt-cut" style="width: 10%">{{format(item.v)}}</div>
-              <div class="td one-txt-cut" style="width: 10%">{{format(item.y)}}</div>
-              <div class="td one-txt-cut" style="width: 10%">{{format(item.u)}}</div>
-              <div class="td one-txt-cut" style="width: 10%;padding-right: 0;">{{format(item.h)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format2(item.z)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format2(item.v)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format2(item.y)}}</div>
+              <div class="td one-txt-cut" style="width: 10%">{{format2(item.u)}}</div>
+              <div class="td one-txt-cut" style="width: 10%;padding-right: 0;">{{format2(item.h)}}</div>
              
             </div>
           </div>
@@ -128,6 +128,10 @@ export default {
         let decimalIndex = number.length - 2; 
         return number.substring(0, decimalIndex) + "." + number.substring(decimalIndex);
       },
+    format2(number) {
+      if(number == 0 || !number) return '-';
+      return (number/100.0).toFixed(2)
+    },
     // 获取数据
     async getTableData() {
       const params = {
