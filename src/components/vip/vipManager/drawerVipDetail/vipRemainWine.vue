@@ -1,17 +1,5 @@
 <template>
   <div class="vip-pay-info">
-    状态:
-    <el-select v-model="selectedStatus" placeholder="请选择">
-      <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          @change="statusChanged(true)"
-          v-on:change="statusChanged(true)"
-          :value="item.value">
-      </el-option>
-    </el-select>
-
     <div class="table">
       <div class="thead">
         <div class="tr" layout="row" layout-align="space-between center">
@@ -39,8 +27,8 @@
           <div class="td">{{item.c}}</div>
           <div class="td">{{item.u}}</div>
           <div class="td">{{item.g}}</div>
-          <div class="td">{{item.ct}}</div>
-          <div class="td">{{item.sn}}</div>
+          <div class="td fs16-bold">{{item.ct}}</div>
+          <div class="td fs16-bold">{{item.sn}}</div>
           <div class="td">{{item.e}}</div>
           <div class="th">{{item.s}}</div>
         </div>
@@ -97,10 +85,6 @@ export default {
     };
   },
   methods: {
-    async statusChanged(){
-      console.log('----------------------')
-      await this.getTableData(true)
-    },
     async getTableData(reset) {
       if (reset) this.pageInfo.page = 1;
       const params = {
@@ -119,7 +103,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("优惠券获取失败", error);
+        console.log("优惠剩余存酒失败", error);
       }
     },
 
