@@ -258,6 +258,9 @@ export default {
   // 退卡
   reqBackVipCard: (params) => axios.post(`${base.htgl}/mb/card/return`, params),
 
+  // 读取指定手机号会员的卡券列表
+  reqMyKQList: (params) => axios.post(`${base.htgl}/mb/info/get_mb_my_kq_list`, params),
+
   // 注销会员卡
   reqDestroyVipCard: (params) =>
     axios.post(`${base.htgl}/mb/card/close`, params),

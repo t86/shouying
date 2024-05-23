@@ -8,11 +8,15 @@
       direction="rtl"
       size="800px"
     >
+      <div class="content m-t-4">
+        <component is="vipInfo" :info="stepOneInfo" ref="_detailRef" />
+      </div>
       <div class="session p-5">
         <ul class="tab" layout="row" layout-align="start center">
-          <li @click="step=1" :class="{'active': step==1}">基本信息</li>
+<!--          <li @click="step=1" :class="{'active': step==1}">基本信息</li>-->
           <li @click="step=2" :class="{'active': step==2}">会员卡详情</li>
           <li @click="step=3" :class="{'active': step==3}">交易明细</li>
+          <li @click="step=4" :class="{'active': step==4}">优惠券</li>
         </ul>
         <div class="content m-t-4">
           <component :is="stepName" :info="stepInfo" ref="detailRef" />
@@ -30,14 +34,16 @@ import api_vip from "@/api/vip";
 import vipInfo from "./vipInfo.vue";
 import vipCardInfo from "./vipCardInfo.vue";
 import vipPayInfo from "./vipPayInfo.vue";
+import vipCoupons from "./vipCoupons.vue";
 export default {
   data() {
     return {
       show: false,
-      step: 1,
+      step: 2,
       stepOneInfo: {},
       stepTwoInfo: [],
       stepThreeInfo: {},
+      stepCoupon: {},
     };
   },
   methods: {
@@ -77,7 +83,8 @@ export default {
         console.log("vip卡片列表获取失败", error);
       }
     },
-    changeStep(step = 1) {
+    async getMyCoupons(){},
+    changeStep(step = 2) {
       this.step = step;
     },
     onCancelDrawer() {
@@ -95,25 +102,29 @@ export default {
   components: {
     vipInfo,
     vipCardInfo,
-    vipPayInfo
+    vipPayInfo,
+    vipCoupons
   },
   computed: {
     stepName() {
       const componentNameInfo = {
         "1": "vipInfo",
         "2": "vipCardInfo",
-        "3": "vipPayInfo"
+        "3": "vipPayInfo",
+        "4": "vipCoupons"
       };
       return componentNameInfo[this.step];
     },
     stepInfo() {
       switch (this.step * 1) {
-        case 1:
-          return this.stepOneInfo;
+        // case 1:
+        //   return this.stepOneInfo;
         case 2:
           return this.stepTwoInfo;
         case 3:
           return this.stepThreeInfo;
+        case 4:
+          return this.stepCoupon;
       }
     }
   },
@@ -122,8 +133,9 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
-          this.step = 1;
-          this.getVipDetail();
+          this.step = 2;
+          this.getVipDetail()
+          this.getVipCardList()
         }
       },
       immediate: true
@@ -132,12 +144,20 @@ export default {
       switch (newVal * 1) {
         case 1:
           this.getVipDetail();
+          this.getVipCardList()
+          this.step = 2
           break;
         case 2:
           this.getVipCardList()
           break;
         case 3:
           this.stepThreeInfo = JSON.parse(JSON.stringify(this.preVipInfo))
+          this.$nextTick(() => {
+            this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
+          } )
+          break;
+        case 4:
+          this.stepCoupon = JSON.parse(JSON.stringify(this.preVipInfo))
           this.$nextTick(() => {
             this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
           } )
