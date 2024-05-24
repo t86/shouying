@@ -264,6 +264,9 @@ export default {
   // 读取绑定手机号的会员的可用存酒
   reqMyWineList: (params) => axios.post(`${base.htgl}/mb/info/get_mb_my_wine_list`, params),
 
+  //  通过姓名模糊查询会员手机号
+  reqMbNameList: (params) => axios.post(`${base.htgl}/mb/info/get_mb_name_items`, params),
+
 
 
   // 注销会员卡

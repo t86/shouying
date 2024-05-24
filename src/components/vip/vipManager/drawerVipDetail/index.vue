@@ -9,7 +9,7 @@
       size="800px"
     >
       <div class="content m-t-4">
-        <component is="vipInfo" :info="stepOneInfo" ref="_detailRef" />
+        <component is="vipInfo" :info="stepOneInfo" ref="_detailRef" @phoneChanged="phoneChanged" />
       </div>
       <div class="session p-5">
         <ul class="tab" layout="row" layout-align="start center">
@@ -92,6 +92,13 @@ export default {
     },
     onCancelDrawer() {
       this.$emit("showOrHideDrawer");
+    },
+    phoneChanged(value){
+      console.log("phoneChanged from sub:", value)
+      this.preVipInfo.bp = value
+      this.getVipDetail();
+      this.getVipCardList()
+      this.step = 2
     }
   },
   props: {
