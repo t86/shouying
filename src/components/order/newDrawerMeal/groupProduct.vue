@@ -325,7 +325,7 @@ export default {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         prd_id: this.groupInfo.id * 1, //     int64  商品Id
         prd_cnt: this.groupInfo.count * 1, //    int    商品数量 赔偿类商品只能=1
-        prd_price: this.groupInfo.price * 100, //  string 商品单价,用于做二次验证
+        prd_price: Math.round(this.groupInfo.price * 100), //  string 商品单价,用于做二次验证
         grp_ids: [...canNotSelectInfo.grpId, ...canSelectInfo.grpId], //    []int  套餐组Ids
         dtl_prd_ids: [...canNotSelectInfo.dtlPrdId, ...canSelectInfo.dtlPrdId], // []int  套餐组Id对应的选中明细商品
         dtl_prd_cnts: [...canNotSelectInfo.prdCnt, ...canSelectInfo.prdCnt], // []int  选中明细商品项的商品数, 用于二次验证
@@ -396,7 +396,6 @@ export default {
             use_exclusive_mode: this.dyInfo.use_exclusive_mode,
             relate_csm_id: 0,
           };
-          params.prd_price = Math.round(this.groupInfo.price * 100)
           const res = await api_order.reqUseDyCode(params)
           if(res.code === 1) {
             this.$message.success("卡券核销成功");
