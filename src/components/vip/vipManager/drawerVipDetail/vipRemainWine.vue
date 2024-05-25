@@ -73,9 +73,10 @@ export default {
 
       try {
         const res = await api_vip.reqMyWineList(params);
+        console.log(res)
         if (res.code == 1) {
-          this.tableData = res.data.datas || [];
-          this.pageInfo.total = res.data.row_cnt || 0;
+          this.tableData = res.data.records || [];
+          // this.pageInfo.total = res.data.row_cnt || 0;
         } else {
           this.$message.warning(res.msg);
         }
