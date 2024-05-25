@@ -45,22 +45,22 @@
         <div class="value">{{info.contact_phone}}</div>
       </div>
       <div class="row">
-        <div class="label">累计消费次数:</div>
+        <div class="label">会员卡消费次数:</div>
         <div class="value">{{info.consume_cnt}}次</div>
       </div>
       <div class="row">
-        <div class="label">累计消费金额:</div>
+        <div class="label">会员卡消费金额:</div>
         <div class="value">{{info.consume_amt}}</div>
       </div>
       <div class="row">
-        <div class="label">最后消费日期:</div>
+        <div class="label">会员卡最后消费日期:</div>
         <div class="value">{{info.last_consume_day}}</div>
       </div>
     </div>
-    <div class="row-another">
-      <div class="label">消费喜好:</div>
-      <div class="value">{{info.interest}}</div>
-    </div>
+<!--    <div class="row-another">-->
+<!--      <div class="label">消费喜好:</div>-->
+<!--      <div class="value">{{info.interest}}</div>-->
+<!--    </div>-->
   </div>
 </template>
  
@@ -123,7 +123,7 @@ export default {
 
     .row {
       display: grid;
-      grid-template-columns: 120px 1fr;
+      grid-template-columns: 130px 1fr;
     }
   }
 
