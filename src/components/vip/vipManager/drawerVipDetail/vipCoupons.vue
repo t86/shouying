@@ -145,7 +145,7 @@ export default {
     overflow-y: auto;
     .th:nth-child(1),
     .td:nth-child(1) {
-      width: 60px;
+      width: 50px;
     }
     .th:nth-child(2),
     .td:nth-child(2) {
@@ -153,7 +153,7 @@ export default {
     }
     .th:nth-child(3),
     .td:nth-child(3) {
-      width: 120px;
+      width: 80px;
     }
     .th:nth-child(4),
     .td:nth-child(4) {
@@ -161,7 +161,7 @@ export default {
     }
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 200px;
+      width: 180px;
       // span {
       //   color: #2362d5;
       //   cursor: pointer;
@@ -169,15 +169,19 @@ export default {
     }
     .th:nth-child(6),
     .td:nth-child(6) {
-      width: 120px;
+      width: 180px;
     }
     .th:nth-child(7),
     .td:nth-child(7) {
-      width: 120px;
+      width: 80px;
     }
     .th:nth-child(8),
     .td:nth-child(8) {
-      width: 100px;
+      width: 180px;
+    }
+    .th:nth-child(9),
+    .td:nth-child(9) {
+      width: 90px;
     }
   }
 
