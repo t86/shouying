@@ -95,6 +95,7 @@
                   <p class="title">
                     <span>自定义封面</span>
                     <span class="bgi-tips">点击上传图片，仅支持：jpg、png的格式</span>
+                    <span class="bgi-tips">图片尺寸建议718×340像素</span>
                   </p>
                   <div class="default-img" layout="row" layout-align="start center">
                     <!-- 上传图片图标 -->
@@ -111,7 +112,7 @@
                     <div class="item-bgi" v-for="(item, index) in uploadBgiImgList" :key="item.uid"  @click="activeBgiUid=item.uid">
                       <div class="top" :class="{'active': item.uid == activeBgiUid}">
                         <div class="top-content">
-                          <img class="bgi" :src="imgBaseUrl + item.url" alt="">
+                          <img class="bgi" :src="item.url" alt="">
                         </div>
                         <img class="ok" v-if="item.uid==activeBgiUid" :src="require('@/assets/vip-imgs/bgi-checked.png')" alt="" >
                         <img class="del" :src="require('@/assets/vip-imgs/del.png')" alt="" @click="deleteBgiItemHandle(item)" >
@@ -426,7 +427,8 @@ export default {
     },
     // 上传自定义封面背景图片
     uploadRequest(e) {
-      let file =  e.path[0].files[0]
+      let file =  e.target.files[0]
+      console.log('----------------------------upload files:', file)
       this.$api.BMS.Prd.requestOssPt().then(item => {
         let res = item.data,
           imgName =
@@ -449,6 +451,7 @@ export default {
     },
     // 发送自定义封面背景至服务器
     async addUploadBgiImgToServer(picName){
+      console.log('pic nameeeeeee', picName)
       const params = {
         pic_name: picName  //   string  卡面图片名称,去掉url前缀后的名称
       }
