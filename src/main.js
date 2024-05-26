@@ -15,6 +15,7 @@ import "./style/flex.less";
 import { sessionStorage, localStorage } from "./utils/common/storage";
 import WebSocketClient from "./websocket/websocket";
 import Observer from "./observer";
+import disableClick from './directives/v-disable-click';
 
 Vue.prototype.$observer = Observer;
 Vue.prototype.$sessionStorage = sessionStorage;
@@ -52,6 +53,8 @@ Vue.component("treeCom", treeCom);
 // erp
 import secondMenu from "@/components/erp/mats/secondMenu/secondMenu.vue";
 Vue.component("secondMenu", secondMenu);
+
+Vue.directive('disable-click', disableClick);
 
 Vue.prototype.$overall = overall;
 Vue.prototype.$tool = tool;
