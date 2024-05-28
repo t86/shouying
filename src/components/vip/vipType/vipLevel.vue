@@ -247,13 +247,13 @@ export default {
           const res = await api_vip.reqEnableAutopd(params)
           if (res.code == 1) {
             this.showDialog = false;
+            this.resetData()
           } else {
             this.$message.warning(res.msg)
           }
         } catch (error) {
           console.log('开启会员卡类型自动升级失败', error)
         }
-        this.resetData()
 
     },
     /*
@@ -522,8 +522,10 @@ export default {
 
       try {
         const res = await api_vip.reqAddVipTypeDeep(params)
+        console.log('add vip type res:', res)
         if (res.code == 1) {
-          return res.data.id
+          // return res.data.id
+          this.$message.success('新建等级成功')
         } else {
           this.$message.warning(res.msg)
         }
@@ -623,17 +625,19 @@ export default {
         if(!this.activeBgiUid) return this.$message.warning('请选择会员卡背景图')
         const bgiInfo = this.defaultBgiImgList.find(item => item.uid == this.activeBgiUid) || this.uploadBgiImgList.find(item => item.uid == this.activeBgiUid)
         if(this.subStatus == 1 || this.subStatus == 3) {
-          try {
-            const res = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
-            console.log('等级新建', res)
-            if(res.code == 1) {
-              this.$message.success('新建等级成功')
-            } else {
-              this.$message.warning(res.msg)
-            }
-          } catch (error) {
-            console.log('新增会员卡等级失败', error)
-          }
+          // try {
+          //   const res = await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
+          //   console.log('等级新建', res)
+          //   if(res.code == 1) {
+          //     this.$message.success('新建等级成功')
+          //   } else {
+          //     this.$message.warning(res.msg)
+          //   }
+          // } catch (error) {
+          //   console.log('新增会员卡等级失败', error)
+          // }
+
+          await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
             
           let id = +new Date()
           this.cardInfoList = [...this.cardInfoList, {
@@ -641,6 +645,7 @@ export default {
             name: this.formDeep.deepName,
             disabled: true,
             bgiName: bgiInfo.name,
+            experince: this.experince * 1,
           }]
         } else if (this.subStatus == 2) {
           // 修改等级封面
