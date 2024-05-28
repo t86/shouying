@@ -60,6 +60,19 @@ module.exports = {
       .rule("images")
       .use("url-loader")
       .loader("url-loader")
-      .tap((options) => Object.assign(options, { limit: 1 }));
+      .tap((options) => Object.assign(options, { limit: 10240 }));
+      // config.module
+      // .rule('images')
+      // .use('url-loader')
+      // .loader('url-loader')
+      // .tap(options => {
+      //   return {
+      //     ...options,
+      //     // Limit file size to 10kb for inlining as base64
+      //     limit: 10240,
+      //     // Keep original name and include [hash] for uniqueness
+      //     name: path.posix.join('static', '[name].[hash:8].[ext]')
+      //   };
+      // });
   },
 };
