@@ -580,7 +580,9 @@ export default {
               this.activeBgiUid = isDefaultBgi.uid
             } else {
               const selfBgi = this.uploadBgiImgList.find(item => item.name == this.currentDeepInfo.bgiName)
-              this.activeBgiUid = selfBgi.id
+              if(selfBgi){
+                this.activeBgiUid = selfBgi.id
+              }
             }
           } else {
             // 新增
