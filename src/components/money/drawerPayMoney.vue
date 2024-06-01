@@ -1295,7 +1295,17 @@ export default {
           this.isOrderGZ = this.$store.state.orderInfo.currentCardInfo.salesEmpId != '0'
           if(this.isOrderGZ) {
             let employee = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.find(item => item.id == this.$store.state.orderInfo.currentCardInfo.salesEmpId)
-            this.GZInfo.selectInfo.orderVal = '订位-' + (employee ? (employee.name + employee.real_name ? ( '(' + employee.real_name + ')') : '') : this.$store.state.orderInfo.currentCardInfo.salesEmpId)
+            console.log('------------------------------------selected employee', employee)
+            if (employee) {
+              if(employee.real_name){
+                this.GZInfo.selectInfo.orderVal = '订位-' + employee.name + '(' + employee.real_name + ')'
+              } else {
+                this.GZInfo.selectInfo.orderVal = '订位-' + employee.name
+              }
+            } else {
+              this.GZInfo.selectInfo.orderVal = '订位-' + this.$store.state.orderInfo.currentCardInfo.salesEmpId;
+            }
+            // this.GZInfo.selectInfo.orderVal = '订位-' + (employee ? (employee.name + employee.real_name ? ( '(' + employee.real_name + ')') : '') : this.$store.state.orderInfo.currentCardInfo.salesEmpId)
           }
           setTimeout(() => {
             this.count = (this.allAmt - this.chooseAmt).toFixed(2) * 1;
