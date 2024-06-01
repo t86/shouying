@@ -233,6 +233,7 @@ export default {
             that.dyInfo.verify_token = res.data.verify_token
             that.dyInfo.use_cnt_per_csm = res.data.use_cnt_per_csm
             that.dyInfo.use_exclusive_mode = res.data.use_exclusive_mode
+            that.dyInfo.pt_sku_id = res.data.pt_sku_id
             let finder = res.data.prd_id.toString()
             that.singleInfo.prd_cnt = 1
             console.log("finder===========:", finder)

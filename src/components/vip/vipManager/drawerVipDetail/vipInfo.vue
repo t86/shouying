@@ -123,7 +123,7 @@ export default {
 
     .row {
       display: grid;
-      grid-template-columns: 130px 1fr;
+      grid-template-columns: 150px 1fr;
     }
   }
 
@@ -137,7 +137,7 @@ export default {
 
   .row-another {
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 140px 1fr;
   }
   .el-button--mini {
     background-color: #d1d5e0;

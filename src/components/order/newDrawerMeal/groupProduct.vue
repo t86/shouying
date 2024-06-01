@@ -394,6 +394,7 @@ export default {
             verify_token: this.dyInfo.verify_token,
             use_cnt_per_csm: this.dyInfo.use_cnt_per_csm,
             use_exclusive_mode: this.dyInfo.use_exclusive_mode,
+            pt_sku_id: this.dyInfo.pt_sku_id,
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseDyCode(params)
