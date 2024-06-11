@@ -76,8 +76,8 @@
               :style="{'opacity': items.outSomethingCount == 0 || items.prdCnt * groupInfo.count > items.outSomethingCount ? '.3' : '1'}"
             >
               <span>{{items.productInfo.name}} * {{items.prdCnt * groupInfo.count}}</span>
+<!--              v-if="items.productInfo.requireInfo.length>0"-->
               <span
-                v-if="items.productInfo.requireInfo.length>0"
                 class="m-l-2 cursor require-btn"
                 @click="requireBtnClickHandle('can',items, item)"
               >定制</span>

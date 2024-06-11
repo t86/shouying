@@ -4,10 +4,20 @@
       size="50%">
       <!-- 定制数量 -->
       <div class="require-count" v-if="showSelectedCount">
-        <span>选择次数：</span>
+        <span>数量：</span>
         <img :src="selectedCount == 1 ? imgSrc.subDisabled : imgSrc.sub" @click="changeCount('sub')" />
         <input type="number" min="1" v-model="selectedCount" @input="changeCount('input')" />
         <img :src="selectedCount >= maxCount ? imgSrc.addDisabled : imgSrc.add" @click="changeCount('add')" />
+      </div>
+      <div>
+        <keyBoard
+            class="key"
+            :landscape="true"
+            :itemHeight="44"
+            :itemWidth="44"
+            :width="270"
+            @changeNum="changeNumHandle"
+        />
       </div>
       <!-- 定制要求 -->
       <div class="m-b-10">
@@ -43,6 +53,7 @@ import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new_sub.png";
 import addDisabled from "@/assets/order-img/new-add-disabled.png";
 import subDisabled from "@/assets/order-img/new-sub-disabled.png";
+import keyBoard from "@/components/common/newKeyBoard.vue";
 
 export default {
   data() {
@@ -93,6 +104,25 @@ export default {
       this.closeDrawerHandle();
     },
 
+    changeNumHandle(value) {
+      switch (value) {
+        case 11: // 清空
+          this.selectedCount = 0
+          break;
+        case 10: // 回退(
+          if(this.selectedCount - 1 > 0) {
+            this.selectedCount -= 1
+          }
+          break;
+        default:
+          let code = this.selectedCount.toString() + value;
+          this.selectedCount = Math.min(parseInt(code), this.maxCount);
+          console.log(this.selectedCount)
+          break;
+      }
+      this.$forceUpdate();
+      this.$emit("updateRequireCount", this.selectedCount);
+    },
     changeRequire(item, item1) {
       if (item.mode_type == 1) {
         // 单选
@@ -120,8 +150,9 @@ export default {
           this.selectedCount = Math.max(this.selectedCount - 1, 1);
           break;
         case "input":
+          console.log(this.selectedCount);
           this.selectedCount = Math.min(this.selectedCount, this.maxCount);
-          this.selectedCount = Math.max(this.maxCount, 1);
+          // this.selectedCount = Math.max(this.maxCount, 1);
           this.$forceUpdate();
           break;
       }
@@ -164,6 +195,9 @@ export default {
     showSelectedCount: {
       default: false
     }
+  },
+  components: {
+    keyBoard
   },
   watch: {
     showDrawer(newVal) {
@@ -237,12 +271,17 @@ export default {
     cursor: pointer;
   }
 
+  span {
+    font-size: 20px;
+    margin-left: 8px;
+  }
+
   input {
 
     color: #08080A;
     vertical-align: middle;
-    width: 56px;
-    height: 28px;
+    width: 60px;
+    height: 30px;
     padding: 0 10px;
     text-align: center;
     box-sizing: border-box;
