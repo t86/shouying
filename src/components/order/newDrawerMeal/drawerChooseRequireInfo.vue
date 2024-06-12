@@ -8,15 +8,18 @@
         <img :src="selectedCount == 1 ? imgSrc.subDisabled : imgSrc.sub" @click="changeCount('sub')" />
         <input type="number" min="1" v-model="selectedCount" @input="changeCount('input')" />
         <img :src="selectedCount >= maxCount ? imgSrc.addDisabled : imgSrc.add" @click="changeCount('add')" />
+        <span>不填默认为1</span>
       </div>
       <div>
         <keyBoard
+            :left=true
             class="key"
             :landscape="true"
             :itemHeight="44"
             :itemWidth="44"
             :width="270"
             @changeNum="changeNumHandle"
+            style="text-align: left"
         />
       </div>
       <!-- 定制要求 -->
@@ -110,9 +113,13 @@ export default {
           this.selectedCount = 0
           break;
         case 10: // 回退(
-          if(this.selectedCount - 1 > 0) {
-            this.selectedCount -= 1
+          let selected = this.selectedCount.toString()
+          selected = selected.slice(0, -1) * 1
+            console.log(selected)
+          if (selected <= 0) {
+            selected = 1
           }
+          this.selectedCount = selected
           break;
         default:
           let code = this.selectedCount.toString() + value;
@@ -280,7 +287,7 @@ export default {
 
     color: #08080A;
     vertical-align: middle;
-    width: 60px;
+    width: 80px;
     height: 30px;
     padding: 0 10px;
     text-align: center;
@@ -327,6 +334,12 @@ export default {
     }
   }
 }
+
+
+.ul {
+  margin: 15px!important;
+}
+
 
 .textarea {
   width: 90%;
