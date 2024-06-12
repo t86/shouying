@@ -53,7 +53,7 @@
                       : imgSrc.add
                   " @click="changeCount('add', item)" alt />
                 </div>
-                <div class="td">{{ item.pp }}</div>
+                <div class="td">{{ item.pp * 1 === 0 ?'时价': item.pp }}</div>
                 <div class="td">{{ item.pa }}</div>
                 <div class="td">{{ item.personInfo.name }}</div>
                 <div class="td">
