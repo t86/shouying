@@ -425,7 +425,7 @@ export default {
             pt_sku_id: this.mtInfo.pt_sku_id,
             relate_csm_id: 0,
           };
-          const res = await api_order.reqUseDyCode(params)
+          const res = await api_order.reqUseMtCode(params)
           if(res.code === 1) {
             this.$message.success("卡券核销成功");
             this.onCancelDrawer();

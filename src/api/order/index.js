@@ -216,6 +216,8 @@ export default {
   reqUseKqCode: (params) => axios.post(`${base.htgl}/sel/kq_csm_by_code`, params),
   //抖音核销卡券
   reqUseDyCode: (params) => axios.post(`${base.htgl}/wo/csm_dy_coupon`, params),
+  //美团扫码核销
+  reqUseMtCode: (params) => axios.post(`${base.htgl}/wo/csm_mt_coupon`, params),
   // 修改订单服务员
   chg_wk_order_waiter_inord: (params) =>
       axios.post(`${base.htgl}/wo/chg_wk_order_waiter_inord`, params),
