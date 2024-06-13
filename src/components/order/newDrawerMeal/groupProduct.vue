@@ -336,6 +336,7 @@ export default {
         ] // []string  要求
       };
       let isDyOffline = (typeof (this.dyInfo) === 'undefined')
+      let isMtScan = (typeof (this. ) !== 'undefined')
       console.log('--------------------offline', isDyOffline)
       //抖音，美团线下核销
       if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
@@ -395,6 +396,33 @@ export default {
             use_cnt_per_csm: this.dyInfo.use_cnt_per_csm,
             use_exclusive_mode: this.dyInfo.use_exclusive_mode,
             pt_sku_id: this.dyInfo.pt_sku_id,
+            relate_csm_id: 0,
+          };
+          const res = await api_order.reqUseDyCode(params)
+          if(res.code === 1) {
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("卡券核销失败", error);
+          this.$message.warning("卡券核销失败" + error);
+        }
+        this.isSubmitting = false;
+        this.$emit('submitting', false);
+        return
+      }
+      //美团扫码核销
+      if (this.productInfo.prdType * 1 === 22 && isMtScan) {
+        try {
+          params = {
+            ...params,
+            order_id: this.mtInfo.order_id,
+            receipt_code: this.mtInfo.receipt_code,
+            use_cnt_per_csm: this.mtInfo.use_cnt_per_csm,
+            use_exclusive_mode: this.mtInfo.use_exclusive_mode,
+            pt_sku_id: this.mtInfo.pt_sku_id,
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseDyCode(params)
@@ -534,7 +562,7 @@ export default {
     drawerChooseRequireInfo,
     drawerBj
   },
-  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo"],
+  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo", "mtInfo"],
   watch: {
     selectedInfoObj: {
       deep: true,
