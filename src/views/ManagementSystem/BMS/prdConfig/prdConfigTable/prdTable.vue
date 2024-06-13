@@ -10,6 +10,7 @@
       <icon-button @click.native="showImportDrawer = true" text="批量导入" img="btn_batch_import.png" colors="#f5f5f5"></icon-button>
       <characters-button @click.native="showOrHideAreaLibraryHandle" colors="#f5f5f5" wz="批量设置区域出品库"></characters-button>
       <characters-button @click.native="editTwoCategoryHandle" colors="#383943" wz='批量修改商品分类'></characters-button>
+      <characters-button @click.native="setMp" colors="#383943" wz='批量设置小程序可见'></characters-button>
       <characters-button @click.native="$message.info('上下拖动商品可调整顺序')" colors="#383943" wz='调整顺序'></characters-button>
       <characters-button @click.native="updatePrdOrGroupHandle(3)" colors="#383943" wz='类似创建'></characters-button>
     </div>
@@ -36,6 +37,7 @@
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
             <div class="th">状态</div>
+            <div class="th">小程序可见</div>
           </div>
         </div>
         <div class="tbody">
@@ -73,6 +75,7 @@
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
             <div class="td">{{item.s}}</div>
+            <div class="td">{{item.mp}}</div>
           </div>
           <div class="no-data" v-if="tableData.length==0">
             <img :src="require('@/assets/img/wu.png')" alt />
@@ -104,6 +107,19 @@
         />
       </div>
     </div>
+    <el-dialog
+        title="批量设置小程序可见"
+        :visible.sync="dialogVisible"
+        width="30%"
+        center>
+        <el-radio v-model="showInMp" label="1">可见</el-radio>
+        <el-radio v-model="showInMp" label="2">不可见</el-radio>
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setMpOK">确 定</el-button>
+        </span>
+    </el-dialog>
+
   </div>
 </template>
  
@@ -120,6 +136,8 @@ import drawerImportAll from './prdTableCom/drawerImportAll.vue'
 export default {
   data() {
     return {
+      dialogVisible: false,
+      showInMp: '1',
       oldItem: {}, // 拖拽初始信息
       newItem: {}, // 拖拽过程中信息
       tableData: [],
@@ -329,6 +347,31 @@ export default {
       if(checkList.length == 0) return this.$message.warning('请选择需要修改分类的商品')
       this.showOrHideSetSecondCategoryHandle();
     },
+    setMp(){
+      const checkList = this.tableData.filter(item => item.checked)
+      if(checkList.length == 0) return this.$message.warning('请选择需要设置小程序可见的商品')
+      this.dialogVisible = true
+    },
+    async setMpOK(){
+      let checkList = this.tableData.filter(item => item.checked)
+      const params = {
+        ids: checkList.map(item => item.id * 1),
+        show_in_mp: parseInt(this.showInMp)
+      }
+      try {
+        const res = await this.$api.BMS.Prd['reqSetMp'](params)
+        if(res.code == 1) {
+          this.getTableData()
+          this.$message.success('操作成功')
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('', error);
+      } finally {
+        this.dialogVisible = false
+      }
+    },
 
     // 显示或隐藏修改商品分类
     showOrHideSetSecondCategoryHandle(){
@@ -436,19 +479,6 @@ export default {
         }
       }
       .th,.td {
-        &:nth-child(1),
-        &:nth-child(5),
-        &:nth-child(6),
-        &:nth-child(7),
-        &:nth-child(12){
-          width: 30%;
-        }
-        
-        &:nth-child(2),
-        &:nth-child(8){
-          width: 80%;
-        }
-
         &:nth-child(1){
           position: sticky;
           left: 0;
@@ -470,7 +500,7 @@ export default {
         }
         &:nth-child(2){
           position: sticky;
-          left: 99px;
+          left: 90px;
         }
       }
     }
