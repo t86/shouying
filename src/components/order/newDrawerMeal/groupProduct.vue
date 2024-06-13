@@ -336,7 +336,7 @@ export default {
         ] // []string  要求
       };
       let isDyOffline = (typeof (this.dyInfo) === 'undefined')
-      let isMtScan = (typeof (this. ) !== 'undefined')
+      let isMtScan = (typeof (this.mtInfo) !== 'undefined')
       console.log('--------------------offline', isDyOffline)
       //抖音，美团线下核销
       if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
