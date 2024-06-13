@@ -72,6 +72,7 @@
               :singleInfo="singleInfo"
               :key="componentKey"
               :dy-info="dyInfo"
+              :mt-info="mtInfo"
               @submitting="submitLoading"
               @closeDrawerHandle="onRedeemSuccess"
           />
@@ -195,7 +196,10 @@ export default {
     this.getMenuInfo(false);
     const that = this;
     async function scan_callback(value) {
-      console.log('scan_callback value', value)
+      // for mt test
+      // value.code = 0
+      // value.data = '8789985300'
+      // console.log('scan_callback value', value)
       try {
         if (value && that.tabIndex === 32) {
           const res = await api_order.reqValidCustKqCode({

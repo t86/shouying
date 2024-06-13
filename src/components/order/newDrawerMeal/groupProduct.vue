@@ -96,7 +96,7 @@
             >
               <span>{{items.productInfo.name}} * {{items.selectedCount * items.prdCnt * groupInfo.count}}</span>
               <span v-if="items.requireText">({{items.requireText}})</span>
-              <img :src="imgSrc.sub" @click="changeChecked('sub',item,items,i)" />
+              <img :src="imgSrc.del" @click="changeChecked('sub',item,items,i)" />
               <p class="selected-count">{{items.selectedCount}}</p>
             </li>
           </ul>
@@ -137,6 +137,7 @@ import common_order from "@/utils/common/order";
 
 import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new-meal-sub.png";
+import del from "@/assets/order-img/new-delete.png";
 
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 // 补交
@@ -152,7 +153,8 @@ export default {
       groupCanNotSelectArr: [], // 不可选的商品明细
       imgSrc: {
         add,
-        sub
+        sub,
+        del
       },
 
       requireDrawerInfo: {
@@ -277,9 +279,12 @@ export default {
           if (!selectedInfo) item.selectedProductsArr.push(items);
           break;
         case "sub":
-          items.selectedCount = Math.max(items.selectedCount - 1, 0);
-          if (items.selectedCount == 0)
-            item.selectedProductsArr.splice(index, 1);
+          // items.selectedCount = Math.max(items.selectedCount - 1, 0);
+          // if (items.selectedCount == 0)
+          //   item.selectedProductsArr.splice(index, 1);
+
+          items.selectedCount = 0
+          item.selectedProductsArr.splice(index, 1);
           break;
       }
 
@@ -335,11 +340,12 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-      let isDyOffline = (typeof (this.dyInfo) === 'undefined')
-      let isMtScan = (typeof (this.mtInfo) !== 'undefined')
-      console.log('--------------------offline', isDyOffline)
+
+      let dyScan = Object.keys(this.dyInfo).length !== 0
+      let mtScan = Object.keys(this.mtInfo).length !== 0
+
       //抖音，美团线下核销
-      if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
+      if( (this.productInfo.prdType * 1 == 22 && !mtScan)  || (this.productInfo.prdType * 1 === 12 && !dyScan)) {
         try {
             params = {
               ...params,
@@ -386,7 +392,7 @@ export default {
 
       }
       //抖音扫码核销
-      if (this.productInfo.prdType * 1 === 12 && !isDyOffline) {
+      if (this.productInfo.prdType * 1 === 12 && dyScan) {
         try {
           params = {
             ...params,
@@ -414,7 +420,7 @@ export default {
         return
       }
       //美团扫码核销
-      if (this.productInfo.prdType * 1 === 22 && isMtScan) {
+      if (this.productInfo.prdType * 1 === 22 && mtScan) {
         try {
           params = {
             ...params,
