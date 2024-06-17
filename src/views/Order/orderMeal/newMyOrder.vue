@@ -43,7 +43,7 @@
                   {{ item.pc }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
-                  {{ item.pp }}
+                  {{ item.pp * 1 === 0 ? '时价': item.pp  }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
                   {{ item.at == 2 || item.at == 3 ? "0.00" : item.pa }}

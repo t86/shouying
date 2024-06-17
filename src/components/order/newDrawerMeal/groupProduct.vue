@@ -76,8 +76,8 @@
               :style="{'opacity': items.outSomethingCount == 0 || items.prdCnt * groupInfo.count > items.outSomethingCount ? '.3' : '1'}"
             >
               <span>{{items.productInfo.name}} * {{items.prdCnt * groupInfo.count}}</span>
+<!--              v-if="items.productInfo.requireInfo.length>0"-->
               <span
-                v-if="items.productInfo.requireInfo.length>0"
                 class="m-l-2 cursor require-btn"
                 @click="requireBtnClickHandle('can',items, item)"
               >定制</span>
@@ -96,7 +96,7 @@
             >
               <span>{{items.productInfo.name}} * {{items.selectedCount * items.prdCnt * groupInfo.count}}</span>
               <span v-if="items.requireText">({{items.requireText}})</span>
-              <img :src="imgSrc.sub" @click="changeChecked('sub',item,items,i)" />
+              <img :src="imgSrc.del" @click="changeChecked('sub',item,items,i)" />
               <p class="selected-count">{{items.selectedCount}}</p>
             </li>
           </ul>
@@ -137,6 +137,7 @@ import common_order from "@/utils/common/order";
 
 import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new-meal-sub.png";
+import del from "@/assets/order-img/new-delete.png";
 
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 // 补交
@@ -152,7 +153,8 @@ export default {
       groupCanNotSelectArr: [], // 不可选的商品明细
       imgSrc: {
         add,
-        sub
+        sub,
+        del
       },
 
       requireDrawerInfo: {
@@ -277,9 +279,12 @@ export default {
           if (!selectedInfo) item.selectedProductsArr.push(items);
           break;
         case "sub":
-          items.selectedCount = Math.max(items.selectedCount - 1, 0);
-          if (items.selectedCount == 0)
-            item.selectedProductsArr.splice(index, 1);
+          // items.selectedCount = Math.max(items.selectedCount - 1, 0);
+          // if (items.selectedCount == 0)
+          //   item.selectedProductsArr.splice(index, 1);
+
+          items.selectedCount = 0
+          item.selectedProductsArr.splice(index, 1);
           break;
       }
 
@@ -335,10 +340,12 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       };
-      let isDyOffline = (typeof (this.dyInfo) === 'undefined')
-      console.log('--------------------offline', isDyOffline)
+
+      let dyScan = Object.keys(this.dyInfo).length !== 0
+      let mtScan = Object.keys(this.mtInfo).length !== 0
+
       //抖音，美团线下核销
-      if(this.productInfo.prdType * 1 == 22 || (this.productInfo.prdType * 1 === 12 && isDyOffline)) {
+      if( (this.productInfo.prdType * 1 == 22 && !mtScan)  || (this.productInfo.prdType * 1 === 12 && !dyScan)) {
         try {
             params = {
               ...params,
@@ -385,7 +392,7 @@ export default {
 
       }
       //抖音扫码核销
-      if (this.productInfo.prdType * 1 === 12 && !isDyOffline) {
+      if (this.productInfo.prdType * 1 === 12 && dyScan) {
         try {
           params = {
             ...params,
@@ -398,6 +405,33 @@ export default {
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseDyCode(params)
+          if(res.code === 1) {
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("卡券核销失败", error);
+          this.$message.warning("卡券核销失败" + error);
+        }
+        this.isSubmitting = false;
+        this.$emit('submitting', false);
+        return
+      }
+      //美团扫码核销
+      if (this.productInfo.prdType * 1 === 22 && mtScan) {
+        try {
+          params = {
+            ...params,
+            order_id: this.mtInfo.order_id,
+            receipt_code: this.mtInfo.receipt_code,
+            use_cnt_per_csm: this.mtInfo.use_cnt_per_csm,
+            use_exclusive_mode: this.mtInfo.use_exclusive_mode,
+            pt_sku_id: this.mtInfo.pt_sku_id,
+            relate_csm_id: 0,
+          };
+          const res = await api_order.reqUseMtCode(params)
           if(res.code === 1) {
             this.$message.success("卡券核销成功");
             this.onCancelDrawer();
@@ -534,7 +568,7 @@ export default {
     drawerChooseRequireInfo,
     drawerBj
   },
-  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo"],
+  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo", "mtInfo"],
   watch: {
     selectedInfoObj: {
       deep: true,
