@@ -160,6 +160,15 @@
             </div>
           </div>
         </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>小程序可见：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <el-radio v-model="showInMp" label="1">可见</el-radio>
+            <el-radio v-model="showInMp" label="2">不可见</el-radio>
+          </div>
+        </div>
         <div class="coll">
           <div class="label">
             <span>固定单品：</span>
@@ -461,6 +470,7 @@ import ImagePreview from "@/components/ImagePreview";
 export default {
   data() {
     return {
+      showInMp: '1',
       menuList: [], // 一二级菜单列表
       oneCateInfo: {},
       twoCateInfo: {},
@@ -526,6 +536,7 @@ export default {
               tableData: item.items || [],
             })
           );
+          this.showInMp = res.data.show_in_mp.toString()
 
           this.getTableData(res.data.sel_region_ids || []);
         } else {
@@ -751,6 +762,7 @@ export default {
       });
 
       const params = {
+        show_in_mp: parseInt(this.showInMp),
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
         two_cate_id: this.twoCateInfo.id * 1, // 二级分类id

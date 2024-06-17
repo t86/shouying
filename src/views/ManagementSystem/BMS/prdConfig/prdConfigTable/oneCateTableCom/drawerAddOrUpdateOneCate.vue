@@ -39,16 +39,16 @@
             </el-select>
           </div>
         </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span class="red">*</span>
-            <span>微信小程序可见：</span>
-          </div>
-          <div class="value">
-            <el-radio v-model="isShowRadio" :label="1">可见</el-radio>
-            <el-radio v-model="isShowRadio" :label="2">不可见</el-radio>
-          </div>
-        </div>
+<!--        <div class="coll" layout="row" layout-align="start center">-->
+<!--          <div class="label">-->
+<!--            <span class="red">*</span>-->
+<!--            <span>微信小程序可见：</span>-->
+<!--          </div>-->
+<!--          <div class="value">-->
+<!--            <el-radio v-model="isShowRadio" :label="1">可见</el-radio>-->
+<!--            <el-radio v-model="isShowRadio" :label="2">不可见</el-radio>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
@@ -65,7 +65,7 @@ export default {
       oneCateName: "",
       outLibVal: '',
       outLibOption: [],
-      isShowRadio: 1
+      // isShowRadio: 1
     };
   },
   methods: {
@@ -80,7 +80,7 @@ export default {
           this.outLibOption = res.data.mklibs || []
           this.oneCateName = res.data.prd_one_cate.name
           this.outLibVal = res.data.prd_one_cate.first_mklib_id * 1
-          this.isShowRadio = res.data.prd_one_cate.show_in_mp * 1
+          // this.isShowRadio = res.data.prd_one_cate.show_in_mp * 1
         } else {
           this.$message.warning(res.msg)
         }
@@ -121,7 +121,7 @@ export default {
       const params = {
         name: this.oneCateName || '',
         first_mklib_id: this.outLibVal * 1,
-        show_in_mp: this.isShowRadio * 1,
+        // show_in_mp: this.isShowRadio * 1,
         ...this.type == 2 && {id : this.currentInfo.id}
       };
       try {
@@ -151,7 +151,7 @@ export default {
     resetHandle() {
       this.oneCateName = ''
       this.outLibVal = ''
-      this.isShowRadio = 1
+      // this.isShowRadio = 1
     }
   },
   mounted() {},

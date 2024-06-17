@@ -106,6 +106,11 @@
       </div>
     </div>
 
+    <div style="color:red;font-size: 24px; margin: 10px;">鼠标点击可调整门店位置</div>
+    <el-card>
+      <div id="map" style="height: 400px;"></div>
+    </el-card>
+
     <el-button class="button" type="primary" @click.stop="submitHandle">保存</el-button>
   </div>
 </template>
@@ -131,7 +136,8 @@ export default {
         countyOptions: [],
         addressOptions: [], // 百度地图检索到的详细地址options
         addressPosition: {} // 详细地址经纬度
-      }
+      },
+      map: null,
     };
   },
   methods: {
@@ -153,6 +159,8 @@ export default {
             lat: res.data.lat,
             lng: res.data.lng
           };
+          this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
+          this.map.centerAndZoom(new BMapGL.Point(res.data.lng, res.data.lat), 18);
           if (this.addressInfo.provinceValue) {
             this.addressInfo.cityOptions = this.addressInfo.provinceOptions.find(
               item => item.id == this.addressInfo.provinceValue
@@ -299,15 +307,55 @@ export default {
             lat: res.result.location.lat.toString(),
             lng: res.result.location.lng.toString()
           }
+          console.log('设置经纬度')
+          this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
+          this.map.centerAndZoom(new BMapGL.Point(res.result.location.lng.toString(), res.result.location.lat.toString()), 18);
+          
         }else{
           this.$message.warning('经纬度获取失败')
         }
       } catch (error) {
         console.log('经纬度获取失败',error)
       }
-    }
+    },
+    loadBaiduMapScript() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://api.map.baidu.com/api?type=webgl&v=3.0&ak=zICyh8JkVSjbGkn9oFAwuRvBidULFutP';
+        script.onload = () => {
+          // 百度地图API加载完成
+          resolve();
+        };
+        script.onerror = () => {
+          // 加载百度地图API失败
+          reject(new Error('加载百度地图API失败'));
+        };
+        document.head.appendChild(script);
+      });
+    },
+    initMap() {
+      this.map = new BMapGL.Map('map');
+      this.marker = new BMapGL.Marker(new BMapGL.Point(0, 0));
+      this.map.addOverlay(this.marker);
+      var geoc = new BMapGL.Geocoder();
+      this.map.addEventListener('click', (e) => {
+          var pt = e.latlng;
+          geoc.getLocation(pt, (rs) => {
+            this.addressInfo.addressPosition = {
+              lat: rs.point.lat,
+              lng: rs.point.lng
+            }
+            this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
+          })
+      })
+    },
   },
   mounted() {
+    this.loadBaiduMapScript().then(() => {
+      this.initMap();
+
+    });
     this.getOptions();
     this.reqGetCityList(this.getPageData);
   }

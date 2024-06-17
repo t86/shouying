@@ -16,7 +16,7 @@
           <div :class="tabIndex == 32 && 'on-focus' " @click="tabIndex = 32">小程序卡券</div>
         </div>
         <div layout="row" layout-align="start center" class="redeem-sel">
-          <div v-if="tabIndex == 32 || tabIndex == 12" layout="column" layout-align="start center" @click="tabClick(1, tabIndex)">
+          <div layout="column" layout-align="start center" @click="tabClick(1, tabIndex)">
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
@@ -72,6 +72,7 @@
               :singleInfo="singleInfo"
               :key="componentKey"
               :dy-info="dyInfo"
+              :mt-info="mtInfo"
               @submitting="submitLoading"
               @closeDrawerHandle="onRedeemSuccess"
           />
@@ -116,6 +117,7 @@ export default {
       productInfo: {},
       singleInfo: {},
       dyInfo: {},
+      mtInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
       subIsloading: false,
       clientType: 'order'
@@ -194,7 +196,10 @@ export default {
     this.getMenuInfo(false);
     const that = this;
     async function scan_callback(value) {
-      console.log('scan_callback value', value)
+      // for mt test
+      // value.code = 0
+      // value.data = '8789985300'
+      // console.log('scan_callback value', value)
       try {
         if (value && that.tabIndex === 32) {
           const res = await api_order.reqValidCustKqCode({
@@ -245,6 +250,35 @@ export default {
           } else {
             that.step = 0
             console.log("券码识别失败：", res);
+            that.$message.warning("券码识别失败：" + res.msg);
+          }
+        } else if  (value && that.tabIndex === 22 && value.code === 0) {
+          let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
+          let params = {
+            seat_id: seat_id,
+            relate_csm_id: 0,
+            mt_code: value.data
+          }
+          const res = await api_order.csm_mt_coupon_prepare(params)
+          console.log('csm_mt_coupon_prepare res', res)
+          if (res.code === 1) {
+            that.prdId = res.data.prd_id
+            that.mtInfo.receipt_code = res.data.receipt_code
+            that.mtInfo.order_id = res.data.order_id
+            that.mtInfo.use_cnt_per_csm = res.data.use_cnt_per_csm
+            that.mtInfo.use_exclusive_mode = res.data.use_exclusive_mode
+            that.mtInfo.pt_sku_id = res.data.pt_sku_id
+
+            let finder = res.data.prd_id.toString()
+            that.singleInfo.prd_cnt = 1
+            console.log("finder===========:", finder)
+            that.productInfo = that.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(item => item.id === finder)
+            console.log("query product=============:", that.productInfo )
+            that.componentKey += 1
+            console.log("mt券码识别成功：", res)
+          } else {
+            that.step = 0
+            console.log("mt券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
         }

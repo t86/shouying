@@ -204,6 +204,18 @@
           </div>
         </div>
 
+
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>小程序可见：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <el-radio v-model="showInMp" label="1">可见</el-radio>
+            <el-radio v-model="showInMp" label="2">不可见</el-radio>
+          </div>
+        </div>
+
+
         <div class="table-content m-t-3">
           <div class="table">
             <div class="thead">
@@ -287,7 +299,7 @@ export default {
   data() {
     return {
       loaded: false, // 首次请求的数据是否加载完成
-
+      showInMp: '1',
       menuList: [], // 一二级菜单列表
       oneCateInfo: {},
       twoCateInfo: {},
@@ -352,6 +364,7 @@ export default {
             : [];
           this.picUrl = res.data.prd.pic_name || "";
           this.http = res.data.prd.pic_prefix || "";
+          this.showInMp = res.data.prd.show_in_mp.toString()
 
           this.getTableData(res.data.region_prds || []);
 
@@ -476,6 +489,7 @@ export default {
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
       const params = {
+        show_in_mp: parseInt(this.showInMp),
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
         two_cate_id: this.twoCateInfo.id * 1, // 二级分类id

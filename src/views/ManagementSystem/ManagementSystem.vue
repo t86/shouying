@@ -5,9 +5,9 @@
         <img src="@/assets/img/logo.png" style="visibility:hidden" alt />
         <div class="header">{{header}}</div>
       </div>
-      
       <div class="orso">
         <el-button v-if="showKeyboard" type="primary" @click.stop="changeKeyboard">{{ isKeyBoard ? '关闭系统键盘' : '开启系统键盘' }}</el-button>
+        <div v-if="showStatus" style="margin-right: 20px; color: red">营业状态: {{openStatus}}</div>
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
             <!-- {{activeNames}} -->
@@ -114,6 +114,8 @@ export default {
   name: "ManagementSystem",
   data() {
     return {
+      showStatus: sessionStorage.getItem('client') === 'wine',
+      openStatus: '未营业',
       op: localStorage.getItem("client") == "appinfo",
       wa: xzbjt, //图片控制
       header: "", //头部展示内容
@@ -154,6 +156,14 @@ export default {
     };
   },
   mounted() {
+    let statusNode = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0]
+    if (statusNode.wkday_id === 0) {
+      this.openStatus = '未营业'
+    } else {
+      if (statusNode.status === '1') {
+        this.openStatus = '营业中'
+      }
+    }
     this.authority();
     this.initNavBarActive();
   },
@@ -440,6 +450,7 @@ export default {
 
 .ManagementSystem .orso {
   line-height: 48px;
+  display: flex;
 }
 
 .ManagementSystem .ziti {

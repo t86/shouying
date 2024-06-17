@@ -1,6 +1,6 @@
 <template>
   <div class="new-keyboard">
-    <div class="ul" :style="{width:width+'px'}">
+    <div :class="[ left? 'left': 'ul' ]" class="ul" :style="{width:width+'px'}">
       <div class="li" v-for="(item, index) in keyBoardData" :key="index" >
         <div v-if="!!landscape" layout="row" layout-align="center center">
           <div  class="item" :class="{'active': items.click}" v-for="items in item" :key="items.id" @click.stop="clickKeyBoardHandle(items)" :style="{
@@ -133,6 +133,9 @@
       width:{
         default: 270  // 整个键盘的宽度
       },
+      left: {
+        default: false
+      },
       landscape: {
         default: false
       },
@@ -156,4 +159,9 @@
 
 <style scoped lang="less">
   @import '../../style/common/newKeyboard.less';
+</style>
+<style scoped lang="less">
+.left {
+    margin: 20px !important;
+}
 </style>

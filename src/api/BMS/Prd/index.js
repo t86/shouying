@@ -141,6 +141,8 @@ const article = {
    * 批量设置二级分类
    */
   reqSetSecondCategory: params => axios.post(`${base.htgl}/prd/batch_upd_two_cate`, params),
+
+  reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
   
 
 }
