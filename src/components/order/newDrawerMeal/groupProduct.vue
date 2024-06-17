@@ -341,8 +341,9 @@ export default {
         ] // []string  要求
       };
 
-      let dyScan = Object.keys(this.dyInfo).length !== 0
-      let mtScan = Object.keys(this.mtInfo).length !== 0
+
+      let dyScan = this.dyInfo && Object.keys(this.dyInfo).length !== 0
+      let mtScan = this.mtInfo && Object.keys(this.mtInfo).length !== 0
 
       //抖音，美团线下核销
       if( (this.productInfo.prdType * 1 == 22 && !mtScan)  || (this.productInfo.prdType * 1 === 12 && !dyScan)) {
