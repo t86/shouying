@@ -255,8 +255,8 @@ export default {
         contact_phone: this.phoneNum, // string   联系人电话
         addr_dtl: this.addressInfo.detailAddress, //   string   详细地址
         addr_district_id: this.addressInfo.countyValue, // int    区Id
-        lat: this.addressInfo.addressPosition.lat, //   string   纬度
-        lng: this.addressInfo.addressPosition.lng //   string    经度
+        lat: this.addressInfo.addressPosition.lat.toString(), //   string   纬度
+        lng: this.addressInfo.addressPosition.lng.toString() //   string    经度
       };
       try {
         const res = await this.$api.BMS.Org.reqSubmitInfo(params);
