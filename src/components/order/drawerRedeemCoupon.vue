@@ -46,7 +46,7 @@
 
       <div class="next-step" v-if="step == 1 || step == 2">
         <div layout="row" layout-align="start center" v-if="step == 1">
-          <div>{{ scanCode == 0 ? '请扫描券码' : scanCode ==  1 ? '券码识别中' : scanCode == 3 ? '扫码失败，请重试' : `券码编号：${authCode}` }}</div>
+<!--          <div>{{ scanCode == 0 ? '请扫描券码' : scanCode ==  1 ? '券码识别中' : scanCode == 3 ? '扫码失败，请重试' : `券码编号：${authCode}` }}</div>-->
         </div>
         <div layout="row" layout-align="start center" v-if="step == 2" style="padding: 10px;">
           <div>券码：</div>
@@ -64,7 +64,7 @@
           <el-button type="primary" @click="checkCode" style="margin-left: 20px;">确定</el-button>
         </div>
         <div class="order-meal-list" v-if="Object.keys(productInfo).length > 0">
-          <div >券详情：请选择套餐明细</div>
+<!--          <div >券详情：请选择套餐明细</div>-->
           <!-- 点套餐 -->
           <groupProduct
               ref="groupProduct"
@@ -401,3 +401,67 @@ export default {
   border: 1px solid #C4CBD7;
 }
 </style>
+
+
+By the seaside, in the countryside
+The summer breeze is gentle
+The sunlight is warm and pleasant
+The lush green forest sways with the wind
+The edges of the leaves reflect a faint glimmer of gold
+Thousands of leaves sway and ripple
+As if adorned with a series of dancing golden threads
+The white clouds in the sky slowly drift
+From time to time, a few birds fly by in groups
+Passing through the entangled power lines in mid-air
+Heading towards the distant horizon
+Shattering the tranquility of this summer sky
+My name is Mia
+I am 23 years old this year
+This summer vacation, my parents went on a trip
+They were afraid I would be bored at home alone
+So they let me go to my grandfather's house in the countryside to cool off
+It's also a way to clear my mind
+It's too boring when I come to my grandfather's house
+I think of my girlfriends
+They are all picking up shells on the beach with their boyfriends
+Surfing, right?
+But I can only eat popsicles at home
+Taking selfies
+It's so boring
+Until I met this brother
+This is my first time meeting this brother
+The brother brought a box of vegetables to give to my grandfather
+But that day, my grandfather was not at home
+He went out for a walk
+The moment the door opened
+The brother came face to face
+As soon as I saw the brother's green and yellow hair
+Loose and drooping on his forehead
+With a few sweat drops hanging on the side
+It seems like he has traveled a long way today
+I feel a touch in my heart
+Perhaps this is love at first sight
+After all, the summer vacation is coming to an end
+The Pacific Ocean breeze blows away the hot summer
+My summer vacation is also over
+I will go home tomorrow
+Today is also the last day to stay at my grandfather's house
+Sitting in front of the house eating my favorite mango popsicle
+Sour and sweet
+Just like the taste of love and the side of ignorance
+The brother came again
+Carefully let the brother take a bite of the popsicle
+He actually ate it all in one bite
+This straight guy fool
+How could he not leave a little for me
+I had a very happy summer with the brother
+After all, summer is over
+And the story with the brother is also coming to an end
+Back to the city
+Everything seems like nothing happened
+Everything seems to have reached an end
+Like what a young literary writer would write
+Many things we think
+We will never forget in our lifetime
+Are forgotten by us in the days we keep remembering
+Forgotten
