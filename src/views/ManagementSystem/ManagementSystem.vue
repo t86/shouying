@@ -110,6 +110,7 @@ import { mapState, mapMutations } from "vuex";
 import { sessionStorage, localStorage } from "@/utils/common/storage";
 import md5 from "js-md5";
 import xzbjt from "@/assets/img/selected_bg.png";
+import eventVue from "@/utils/eventVue";
 export default {
   name: "ManagementSystem",
   data() {
@@ -155,15 +156,15 @@ export default {
       isKeyBoard: localStorage.getItem('keyboard') == '1' // 是否开启系统键盘
     };
   },
+  beforeDestroy() {
+    eventVue.$off("reloadData")
+  },
   mounted() {
-    let statusNode = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0]
-    if (statusNode.wkday_id === 0) {
-      this.openStatus = '未营业'
-    } else {
-      if (statusNode.status === '1') {
-        this.openStatus = '营业中'
-      }
-    }
+    this.getOpenStatus()
+    eventVue.$on("reloadData", (e) => {
+      console.log("get reload data event emit...")
+      this.getOpenStatus();
+    });
     this.authority();
     this.initNavBarActive();
   },
@@ -184,6 +185,17 @@ export default {
     ...mapState(["name"])
   },
   methods: {
+    getOpenStatus() {
+      let statusNode = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0]
+      if (statusNode.wkday_id * 1 === 0) {
+        this.openStatus = '未营业'
+      } else {
+        if (statusNode.status * 1 === 1) {
+          this.openStatus = '营业中'
+        }
+      }
+    },
+
     changeKeyboard() {
       if(localStorage.getItem('keyboard') == '1') {
         if (window.atool&& window.atool.getTermType() == "android" &&
