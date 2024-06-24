@@ -24,6 +24,13 @@
       </div>
     </div>
 
+    <h4 class="m-b-2">扫码点单配置</h4>
+    <div class="m-l-4 fs14">
+      <span>客人扫码点单未达低消不允许下单:</span>
+      <el-switch v-model="scanOrderMustDx"></el-switch>
+      <p class="red-color">开关开启后，客人扫码点单时，如果点单金额未达到当前卡台的低消，则不允许下单</p>
+    </div>
+
     <h4 class="m-b-2">营业日时间配置</h4>
     <div class="m-l-4 fs14">
       <div>
@@ -100,6 +107,7 @@ export default {
       orderAutoMake: true, // 下单自动出品 true自动 false不自动
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
       notShowAmt: false,  // 是否不显示金额
+      scanOrderMustDx: false,
       chooseTime: {
         hour: "",
         hourOption: [],
@@ -150,6 +158,7 @@ export default {
             .toString()
             .padStart(2, 0);
           this.notShowAmt = res.data.limit_book_csm_amt == 1
+          this.scanOrderMustDx = res.data.scan_order_must_dx == 1
           this.canClearCard = res.data.book_no_clean_seat == 1
           this.orderAutoMake = res.data.order_auto_mk == 1
           this.disableChgPass = res.data.disable_chg_pass == 1
@@ -173,6 +182,8 @@ export default {
         book_no_clean_seat: this.canClearCard ? 1 : 2, // int   是否禁止预订系统清台 1 禁止 2 不禁止
         order_auto_mk: this.orderAutoMake ? 1 : 2, // int   是否下单自动开启 1 开启 2 关闭
         disable_chg_pass: this.disableChgPass ? 1 : 2, // int   是否禁止自助修改密码 1 开启 2 关闭
+        scan_order_must_dx: this.scanOrderMustDx ? 1 : 2,
+
       };
 
       try {
