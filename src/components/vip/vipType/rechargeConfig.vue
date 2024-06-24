@@ -147,6 +147,7 @@ export default {
           return this.$message.warning("请选择一个操作");
         }
         this.editInfo = checkedList[0];
+        this.editInfo.card_type_id = this.item.id
       } else if (type == "add") {
         this.editInfo = {};
       }

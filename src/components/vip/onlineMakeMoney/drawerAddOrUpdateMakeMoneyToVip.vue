@@ -119,7 +119,6 @@ export default {
   methods: {
     async getCardLevelList() {
       try {
-
         const res = await api_vip.reqGetLevelList({
           id: this.selectItem.id * 1
         })
@@ -130,6 +129,22 @@ export default {
         }
       } catch (error) {
         console.log("获取会员卡类型列表失败", error);
+      }
+    },
+    async getKqDetail() {
+      try {
+        const res = await api_vip.reqGetKqDetail({
+          id: this.editInfo.id,
+          card_type_id:this.editInfo.card_type_id
+        })
+        if (res.code == 1) {
+          this.couponId = res.data.rule_info.free_kq_id
+          // this.cardLevelList = [{id: 0, n: '全等级'}, ...res.data.card_levels];
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取会员detail失败", error);
       }
     },
     // 绑定
@@ -162,7 +177,7 @@ export default {
           card_level_id: this.cardLevelVal * 1, // int    会员卡等级
           card_type_id: this.selectItem.id * 1, //  int    会员卡类型
           free_pt_amt: this.zsPoint * 1, // int    赠送积分
-          free_kq_id: this.couponId * 1, // int    赠送卡券id      
+          free_kq_id: this.couponId ? this.couponId * 1 : 0, // int    赠送卡券id
           remark: this.remark, // string    充值提示    
         };
         if(this.editInfo.d) {
@@ -219,12 +234,13 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
+          this.getKqDetail()
           this.getCardLevelList();
           if (this.editInfo.d) {
             // 编辑
             this.makeMoney = this.editInfo.d / 100
             this.zsMoney = this.editInfo.f / 100
-            this.couponId = this.editInfo.id
+            // this.couponId = this.editInfo.id
             this,this.couponName = this.editInfo.fk
             this.cardLevelVal = (this.cardLevelList.find(item => item.n == this.editInfo.n) || {id:0})['id']
           } else {

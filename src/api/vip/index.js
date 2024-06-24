@@ -77,6 +77,10 @@ export default {
   reqGetKqItems: (params) =>
     axios.post(`${base.htgl}/mb/deposit_rule/get_kq_items`, params),
 
+  // 读取卡券/大礼包列表用于配置充值赠送规则
+  reqGetKqDetail: (params) =>
+      axios.post(`${base.htgl}/mb/deposit_rule/get`, params),
+
   /**
    * 会员管理
    */
