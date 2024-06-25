@@ -81,7 +81,7 @@
                   <div class="td">{{item.moc}}</div>
                   <div class="td">{{item.mtc}}</div>
                   <div class="td">{{item.un}}</div>
-                  <div class="td">{{item.a/item.c}}</div>
+                  <div class="td">{{(item.a/item.c).toFixed(2)}}</div>
                   <div class="td">{{item.c}}</div>
                   <div class="td">{{item.a}}</div>
                   <div class="td">{{item.s}}</div>
