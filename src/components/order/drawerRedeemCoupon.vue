@@ -20,7 +20,7 @@
             <img src="@/assets/img/scan.svg" alt="" style="width:50px;height:50px"/>
             <span>扫码核销</span>
           </div>
-          <div v-if="tabIndex == 32" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
+          <div v-if="tabIndex == 32 || tabIndex == 22" layout="column" layout-align="start center" @click="tabClick(2, tabIndex)">
             <img src="@/assets/img/input-coupon.svg" alt=""  style="width:50px;height:50px"/>
             <span>输入券码核销</span>
           </div>
@@ -214,7 +214,7 @@ export default {
             that.componentKey += 1
             that.singleInfo.prd_cnt = 1
             that.singleInfo.authCode = that.authCode
-            that.$message.success("券码识别成功：" + value.data);
+            // that.$message.success("券码识别成功：" + value.data);
             console.log("券码识别成功：", that.custKqId , res)
           } else {
             that.step = 0
@@ -252,12 +252,16 @@ export default {
             console.log("券码识别失败：", res);
             that.$message.warning("券码识别失败：" + res.msg);
           }
-        } else if  (value && that.tabIndex === 22 && value.code === 0) {
+        } else if  (value && that.tabIndex === 22) {
+          let mt_code = value.code
+          if (value.code === 0) {
+              mt_code = value.data
+          }
           let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
           let params = {
             seat_id: seat_id,
             relate_csm_id: 0,
-            mt_code: value.data
+            mt_code: mt_code
           }
           const res = await api_order.csm_mt_coupon_prepare(params)
           console.log('csm_mt_coupon_prepare res', res)
