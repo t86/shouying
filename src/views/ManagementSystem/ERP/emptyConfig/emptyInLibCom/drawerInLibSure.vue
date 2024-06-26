@@ -107,8 +107,8 @@ export default {
         itemInfo.count = itemInfo.c
       }
 
-      if(itemInfo.count < 1) {
-        itemInfo.count = 1
+      if(itemInfo.count < 0) {
+        itemInfo.count = 0
       }
     },
 
