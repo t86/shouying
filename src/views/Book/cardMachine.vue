@@ -1076,13 +1076,13 @@ export default {
           optionsIdArr = [10, 11, 7, 12, 14, 4, 20, 21, 23];
           break;
         case 5: // 点单未结账
-          optionsIdArr = [10, 11, 7, 14, 4, 20, 23];
+          optionsIdArr = [10, 11, 7, 14, 4, 20,21, 23];
           break;
         case 6: // 点单部分结账
-          optionsIdArr = [10, 11, 7, 14, 4, 20, 23];
+          optionsIdArr = [10, 11, 7, 14, 4, 20, 21,23];
           break;
         case 7: // 已结账
-          optionsIdArr = [10, 11, 7, 14, 4, 20, 23];
+          optionsIdArr = [10, 11, 7, 14, 4, 20, 21, 23];
           if (
             this.$store.state.cardPageInfo.resResultDataObj.showAmt.length >
               0 &&
