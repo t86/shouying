@@ -389,6 +389,7 @@ import formSelect from "@/components/book/select";
 import { cardOptions, openTypeList } from "@/utils/config/card";
 import common_book from "@/utils/common/book";
 import api_card from "@/api/Book";
+import api_order from "@/api/order";
 
 const drawerWidth = "60%";
 const drawerBigWidth = "80%";
@@ -823,6 +824,30 @@ export default {
         case 21:
           this.updateRemark();
           break;
+        case 23:
+          try {
+            if (!this.formData.waiter.waiter_emp_id) {
+              this.$message.warning("请选择服务员");
+              return;
+            }
+            let params ={
+              seat_id: this.cardId * 1,
+              waiter_emp_id: this.formData.waiter.waiter_emp_id * 1,
+              turnover_cnt: this.cardInfo.turnoverCnt * 1
+            }
+            console.log(params)
+            api_order.reqChgCsmWaiter(params).then(res => {
+              if(res.code === 1) {
+                this.formResponseHandle(res, "修改服务员成功！", false);
+
+              } else {
+                this.$message.warning("修改服务员失败:" + res.msg);
+              }
+            })
+          } catch(error) {
+            this.$message.warning("修改服务员失败" + error);
+          }
+          break
       }
     },
 
