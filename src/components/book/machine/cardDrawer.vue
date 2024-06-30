@@ -15,6 +15,7 @@
         :model="formData"
         ref="drawerRef"
       >
+
       <el-form-item label="卡台名称">
         <span class="white">{{ cardInfo.name }}</span>
       </el-form-item>
@@ -236,11 +237,15 @@
               style="width: 80%"
             ></el-input>
           </el-form-item>
+        </div>
+
+        <div v-if="formData.waiter.waiter_status_arr.indexOf(formStatus) >-1">
           <el-form-item label="服务员">
             <input-select
+                :autoFocus="true"
                 style="width: 80%"
                 :value="formData.waiter.waiter_name"
-                placeholder="请输入服务员姓名或工号"
+                placeholder="请输入姓名或工号"
                 :optionsList="formData.waiter.waiters"
                 @selectInputHandle="inputWaiter"
                 @selectOptionItem="changeWaiter"
@@ -485,7 +490,8 @@ export default {
         waiter : {
           waiter_name: "",
           waiter_emp_id: "",
-          waiters : []
+          waiters : [],
+          waiter_status_arr: [2, 23],
         },
 
         /*
@@ -1119,6 +1125,7 @@ export default {
 
     // 点击操作选项后进来之后赋值
     cardInfoChange(value) {
+      console.log('-----------------------------', this.formStatus)
       const newVal = value || this.cardInfo;
       switch (this.formStatus) {
         case 2: // 空台开台或预定开台   newVal.bizStatus:1 空台开台  2：预定开台
@@ -1168,6 +1175,12 @@ export default {
         case 21:
           this.formData.remarkInfo.remark = this.cardInfo.remark;
           break
+        case 23:
+          this.formData.waiter.waiter_emp_id = this.cardInfo.waiter_emp_id
+          let p = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.find(item=>item.id === this.cardInfo.waiter_emp_id)
+          this.formData.waiter.waiter_name = p.name
+
+          break
       }
       this.$forceUpdate();
     },
@@ -1214,7 +1227,7 @@ export default {
   computed: {
     // 是否展示form
     showType() {
-      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20, 21]; // 展示form表单的formStatus
+      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20, 21, 23]; // 展示form表单的formStatus
       const tableType = [3, 4]; // 展示table表格的formStatus  3：查看卡台消费  4：修改翻台订位人
       if (formType.indexOf(this.formStatus) > -1) {
         this.$nextTick(() => {
