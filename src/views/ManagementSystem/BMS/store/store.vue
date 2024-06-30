@@ -322,7 +322,7 @@ export default {
       return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = 'https://api.map.baidu.com/api?type=webgl&v=3.0&ak=zICyh8JkVSjbGkn9oFAwuRvBidULFutP';
+        script.src = 'https://api.map.baidu.com/api?type=webgl&v=3.0&ak=BhteLO6flMZteTIkxiSwTB9lvEMAR9YU';
         script.onload = () => {
           // 百度地图API加载完成
           resolve();
