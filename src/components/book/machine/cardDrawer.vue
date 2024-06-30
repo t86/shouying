@@ -236,6 +236,17 @@
               style="width: 80%"
             ></el-input>
           </el-form-item>
+          <el-form-item label="服务员">
+            <input-select
+                style="width: 80%"
+                :value="formData.waiter.waiter_name"
+                placeholder="请输入服务员姓名或工号"
+                :optionsList="formData.waiter.waiters"
+                @selectInputHandle="inputWaiter"
+                @selectOptionItem="changeWaiter"
+                @selectBlurHandle="selectWaiterBlurHandle"
+            ></input-select>
+          </el-form-item>
         </div>
 
         <!-- 修改低消金额 -->
@@ -471,6 +482,11 @@ export default {
           second_sales_info_option: [], // 联合订位人下拉选项
           second_sales_status_arr: [1, 2, 8, 11],
         },
+        waiter : {
+          waiter_name: "",
+          waiter_emp_id: "",
+          waiters : []
+        },
 
         /*
             卡台低消数据
@@ -694,6 +710,34 @@ export default {
     },
 
     selectBlurHandle() {
+      this.formData.sales.sales_info_option = [];
+      this.formData.customInfo.custom_info_option = [];
+      this.formData.secondSales.second_sales_info_option = [];
+      this.formData.customArriveInfo.exp_arrive_time_option = [];
+      this.formData.markInfo.option = [];
+    },
+    inputWaiter(query) {
+      let options = [];
+      this.formData.waiter.waiter_name = query;
+      this.formData.waiter.waiter_emp_id = "";
+      this.formData.secondSales.second_sales_emp_id = "";
+      const all = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
+      const results = query ? all.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : all;
+      this.formData.waiter.waiters = results;
+    },
+    changeWaiter(info) {
+      this.formData.waiter.waiter_name = info.name;
+      this.formData.waiter.waiter_emp_id = info.id;
+      this.formData.waiter.waiters = [];
+    },
+
+    selectWaiterBlurHandle() {
       this.formData.sales.sales_info_option = [];
       this.formData.customInfo.custom_info_option = [];
       this.formData.secondSales.second_sales_info_option = [];
@@ -1241,6 +1285,7 @@ export default {
         remark: formData.remarkInfo.remark, // string  备注信息
         mark: formData.markInfo.value, //  string   卡台标签
         old_sales_emp_id: Number(this.oldSalesEmpId), // int64 元订位人Id
+        waiter_emp_id: Number(formData.waiter.waiter_emp_id),
       };
     },
 
