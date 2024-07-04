@@ -15,6 +15,7 @@
         :model="formData"
         ref="drawerRef"
       >
+
       <el-form-item label="卡台名称">
         <span class="white">{{ cardInfo.name }}</span>
       </el-form-item>
@@ -238,6 +239,21 @@
           </el-form-item>
         </div>
 
+        <div v-if="formData.waiter.waiter_status_arr.indexOf(formStatus) >-1">
+          <el-form-item label="服务员">
+            <input-select
+                :autoFocus="true"
+                style="width: 80%"
+                :value="formData.waiter.waiter_name"
+                placeholder="请输入姓名或工号"
+                :optionsList="formData.waiter.waiters"
+                @selectInputHandle="inputWaiter"
+                @selectOptionItem="changeWaiter"
+                @selectBlurHandle="selectWaiterBlurHandle"
+            ></input-select>
+          </el-form-item>
+        </div>
+
         <!-- 修改低消金额 -->
         <div
           v-if="
@@ -373,6 +389,7 @@ import formSelect from "@/components/book/select";
 import { cardOptions, openTypeList } from "@/utils/config/card";
 import common_book from "@/utils/common/book";
 import api_card from "@/api/Book";
+import api_order from "@/api/order";
 
 const drawerWidth = "60%";
 const drawerBigWidth = "80%";
@@ -470,6 +487,12 @@ export default {
           second_sales_emp_id: "", // 联合订位人id
           second_sales_info_option: [], // 联合订位人下拉选项
           second_sales_status_arr: [1, 2, 8, 11],
+        },
+        waiter : {
+          waiter_name: "",
+          waiter_emp_id: "",
+          waiters : [],
+          waiter_status_arr: [2, 23],
         },
 
         /*
@@ -700,6 +723,34 @@ export default {
       this.formData.customArriveInfo.exp_arrive_time_option = [];
       this.formData.markInfo.option = [];
     },
+    inputWaiter(query) {
+      let options = [];
+      this.formData.waiter.waiter_name = query;
+      this.formData.waiter.waiter_emp_id = "";
+      this.formData.secondSales.second_sales_emp_id = "";
+      const all = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
+      const results = query ? all.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : all;
+      this.formData.waiter.waiters = results;
+    },
+    changeWaiter(info) {
+      this.formData.waiter.waiter_name = info.name;
+      this.formData.waiter.waiter_emp_id = info.id;
+      this.formData.waiter.waiters = [];
+    },
+
+    selectWaiterBlurHandle() {
+      this.formData.sales.sales_info_option = [];
+      this.formData.customInfo.custom_info_option = [];
+      this.formData.secondSales.second_sales_info_option = [];
+      this.formData.customArriveInfo.exp_arrive_time_option = [];
+      this.formData.markInfo.option = [];
+    },
 
     /**
      * 转台更改台位信息
@@ -773,6 +824,30 @@ export default {
         case 21:
           this.updateRemark();
           break;
+        case 23:
+          try {
+            if (!this.formData.waiter.waiter_emp_id) {
+              this.$message.warning("请选择服务员");
+              return;
+            }
+            let params ={
+              seat_id: this.cardId * 1,
+              waiter_emp_id: this.formData.waiter.waiter_emp_id * 1,
+              turnover_cnt: this.cardInfo.turnoverCnt * 1
+            }
+            console.log(params)
+            api_order.reqChgCsmWaiter(params).then(res => {
+              if(res.code === 1) {
+                this.formResponseHandle(res, "修改服务员成功！", false);
+
+              } else {
+                this.$message.warning("修改服务员失败:" + res.msg);
+              }
+            })
+          } catch(error) {
+            this.$message.warning("修改服务员失败" + error);
+          }
+          break
       }
     },
 
@@ -1075,6 +1150,7 @@ export default {
 
     // 点击操作选项后进来之后赋值
     cardInfoChange(value) {
+      console.log('-----------------------------', this.formStatus)
       const newVal = value || this.cardInfo;
       switch (this.formStatus) {
         case 2: // 空台开台或预定开台   newVal.bizStatus:1 空台开台  2：预定开台
@@ -1124,6 +1200,12 @@ export default {
         case 21:
           this.formData.remarkInfo.remark = this.cardInfo.remark;
           break
+        case 23:
+          this.formData.waiter.waiter_emp_id = this.cardInfo.waiter_emp_id
+          let p = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.find(item=>item.id === this.cardInfo.waiter_emp_id)
+          this.formData.waiter.waiter_name = p.name
+
+          break
       }
       this.$forceUpdate();
     },
@@ -1170,7 +1252,7 @@ export default {
   computed: {
     // 是否展示form
     showType() {
-      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20, 21]; // 展示form表单的formStatus
+      const formType = [1, 2, 7, 8, 10, 11, 13, 14, 20, 21, 23]; // 展示form表单的formStatus
       const tableType = [3, 4]; // 展示table表格的formStatus  3：查看卡台消费  4：修改翻台订位人
       if (formType.indexOf(this.formStatus) > -1) {
         this.$nextTick(() => {
@@ -1241,6 +1323,7 @@ export default {
         remark: formData.remarkInfo.remark, // string  备注信息
         mark: formData.markInfo.value, //  string   卡台标签
         old_sales_emp_id: Number(this.oldSalesEmpId), // int64 元订位人Id
+        waiter_emp_id: Number(formData.waiter.waiter_emp_id),
       };
     },
 

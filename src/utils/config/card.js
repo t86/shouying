@@ -216,6 +216,11 @@ export const cardOptions = [
     name: '多台预留',
     icon: icon1
   },
+  {
+    id: 23,
+    name: '修改服务员',
+    icon: icon11
+  },
 ]
 
 // 开台类型
