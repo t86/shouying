@@ -50,6 +50,11 @@
       showDrawer: {
         handler(newVal) {
           this.show = newVal;
+          if(newVal) {
+            this.activeTab = "cardLevel"
+          } else {
+            this.activeTab = ""
+          }
         },
         immediate: true,
       },

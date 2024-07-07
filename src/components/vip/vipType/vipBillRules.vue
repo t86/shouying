@@ -136,7 +136,7 @@
               {{
                 cateOptions
                   .find((i) => i.id == item.oc)
-                  .children.find((i) => (i.id = item.tc)).n
+                  .children.find((i) => (i.id == item.tc)).n
               }}
             </div>
             <div class="td">{{ item.p }}</div>
