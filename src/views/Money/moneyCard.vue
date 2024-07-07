@@ -694,6 +694,11 @@
                   <span>自动结束营业日</span>
                 </div>
 
+                <div class="option-item line" @click.stop="showOrHideShangpinchukuDrawer">
+                  <img :src="imgSrc.shangpinchuku" alt />
+                  <span>商品出库表</span>
+                </div>
+
               </div>
 
               <img
@@ -885,6 +890,13 @@
       @showOrHideOrderDetailDrawer="showOrHideOrderDetailDrawer"
     />
 
+    <drawer-shangpinchuku
+        :showDrawer="showOrHideShangpinchuku"
+        @showOrHideShangpinchukuDrawer="showOrHideShangpinchukuDrawer"
+    />
+
+
+
     <!-- 非鸡尾酒类补交报表 -->
     <drawerNotTYOrXF
       :showDrawer="showOrHideNotTYOrXF"
@@ -1051,6 +1063,8 @@ import drawerTurnOverDetail from "../../components/money/drawerTurnOver.vue";
 // 点单记录
 import drawerOrderDetail from "../../components/money/drawerOrder.vue";
 
+import drawerShangpinchuku from "../../components/money/drawerShangpinchuku.vue";
+
 // 非特饮消费类补交报表
 import drawerNotTYOrXF from "../../components/money/drawerNotTYOrXF.vue";
 
@@ -1123,6 +1137,7 @@ import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 import orderBack from "@/assets/money-img/order-back.png";
 import backList from "@/assets/money-img/back-list.png";
+import shangpinchuku from "@/assets/money-img/shangpinchuku.png";
 const TabWidth = 100; // tab固定宽度
 const cardWidth = 168; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
@@ -1156,6 +1171,7 @@ export default {
       showOrHideGZDetail: false, // 挂账详情
       showOrHideTurnOverDetail: false, // 翻台记录
       showOrHideOrderDetail: false, // 点单记录
+      showOrHideShangpinchuku: false,
       showOrHideNotTYOrXF: false, // 非鸡尾酒类补交报表
       showOrHideUpdateEmp: false, // 修改订位人操作记录
       showTurnOverDrawer: false, // 转台记录
@@ -1208,6 +1224,7 @@ export default {
         sanJiao,
         orderBack,
         backList,
+        shangpinchuku,
       },
       legendList: legendList.filter((item) => item.id !== 2),
       legendActive: 0,
@@ -1725,6 +1742,10 @@ export default {
     // 点单记录
     showOrHideOrderDetailDrawer() {
       this.showOrHideOrderDetail = !this.showOrHideOrderDetail;
+    },
+
+    showOrHideShangpinchukuDrawer() {
+      this.showOrHideShangpinchuku = !this.showOrHideShangpinchuku;
     },
 
     // 非鸡尾酒类补交报表
@@ -2343,6 +2364,7 @@ export default {
     drawerGZDetail,
     drawerTurnOverDetail,
     drawerOrderDetail,
+    drawerShangpinchuku,
     drawerNotTYOrXF,
     drawerUpdateBookEmp,
     updatePassword,

@@ -213,9 +213,16 @@ export default {
   reqGetOrderDetailList: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_order_prd_list`, params),
 
+  reRptPrdOutList: (params) =>
+      axios.post(`${base.htgl}/sel/rpt/get_rpt_prd_out_list`, params),
+
   // 导出点单明细记录
   reqExportOrderDetailReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_order_prd_list`, params),
+
+  // 导出点单明细记录
+  reqExportRptPrdOutList: (params) =>
+      axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_rpt_prd_out_list`, params),
 
   // 读取修改订位人操作记录
   reqGetUpdateEmpList: (params) =>
