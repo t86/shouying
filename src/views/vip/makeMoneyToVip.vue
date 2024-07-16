@@ -14,8 +14,8 @@
             value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
         </div>
         <div class="row">
-          <span class="label">卡类型:</span>
-          <el-select v-model="form.typeVal" size="small" placeholder="请选择卡类型" style="width: 200px">
+          <span class="label">充值类型:</span>
+          <el-select v-model="form.typeVal" size="small" placeholder="请选择充值类型" style="width: 200px">
             <el-option v-for="item in form.typeOption" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </div>
@@ -90,7 +90,7 @@
               <div class="td fs16-bold">{{ item.fa }}</div>
               <div class="td">{{ item.p }}</div>
               <div class="td">{{ item.c }}</div>
-              <div class="td">{{ item.s }}</div>
+              <div class="td">{{item.sd}}-{{ item.s }}</div>
               <div class="td" :style="{
                 visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
               }">
