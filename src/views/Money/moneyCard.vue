@@ -385,6 +385,7 @@
                   <img :src="require('@/assets/money-img/stopClass.png')" alt />
                   <span>班结表</span>
                 </div>
+
                 <div
                   class="option-item line"
                   @click="showOrHideDayReportHandle()"
@@ -395,6 +396,12 @@
                   />
                   <span>售出日报表</span>
                 </div>
+
+                <div class="option-item line" @click.stop="showOrHideShangpinchukuDrawer">
+                  <img :src="imgSrc.shangpinchuku" alt />
+                  <span>商品出库表</span>
+                </div>
+
                 <div
                   class="option-item line"
                   @click="showOrHideYHCountDrawerHandle()"
@@ -692,11 +699,6 @@
                 >
                   <img :src="imgSrc.loginOut" alt />
                   <span>自动结束营业日</span>
-                </div>
-
-                <div class="option-item line" @click.stop="showOrHideShangpinchukuDrawer">
-                  <img :src="imgSrc.shangpinchuku" alt />
-                  <span>商品出库表</span>
                 </div>
 
               </div>
