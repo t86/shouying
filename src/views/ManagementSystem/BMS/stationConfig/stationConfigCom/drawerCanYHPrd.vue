@@ -9,6 +9,28 @@
       size="900px"
     >
       <div class="session p-5 erp-lib-detail fs14">
+        <div class="discount-form">
+          <el-form>
+            <el-form-item label="主营点单达当前台低消才可优惠：">
+                <el-radio v-model="zyorder_over_seat_min_csm" :label="2">否</el-radio>
+                <el-radio v-model="zyorder_over_seat_min_csm" :label="1">是</el-radio>
+              <div class="note">
+                选择“是”后，主营点单金额未达当台低消时不允许赠送商品
+              </div>
+            </el-form-item>
+
+            <el-form-item label="优惠比例限制：">
+              优惠金额不得超过当前前台的主营点单的
+              <el-input type="number" v-model="zyorder_free_percent" placeholder="输入1-100" class="input-with-append">
+                <template slot="append">%</template>
+              </el-input>
+              <div class="note">
+                不配置则以限额限量为准，配置后优先以比例限制为准；填写0则默认为未配置
+              </div>
+            </el-form-item>
+          </el-form>
+        </div>
+
         <!-- 选择限额限量 -->
         <div class="tips">
           <span class="red-color">*</span>
@@ -116,6 +138,8 @@
 export default {
   data() {
     return {
+      zyorder_over_seat_min_csm : 2,
+      zyorder_free_percent: 0,
       checkAll: false,
       tableData: [], 
       tableDataPrd: [], 
@@ -130,7 +154,10 @@ export default {
         const res = this.type == 1
             ? await this.$api.BMS.station.reqGetGiveCateConfig(params)
             : await this.$api.BMS.station.reqGetGive2CateConfig(params)
+
         if (res.code == 1) {
+          this.zyorder_over_seat_min_csm = res.data.zyorder_over_seat_min_csm
+          this.zyorder_free_percent = res.data.zyorder_free_percent
           this.tableData = (res.data.free_limits || []).map(item => ({
             ...item,
             checked: item.st == 1
@@ -185,10 +212,14 @@ export default {
       };
 
       try {
-        const res =
-          this.type == 1
-            ? await this.$api.BMS.station.reqSetGiveCateConfig(params)
-            : await this.$api.BMS.station.reqSetGive2CateConfig(params);
+        let res
+        if (this.type === 1) {
+          params.zyorder_over_seat_min_csm  = this.zyorder_over_seat_min_csm * 1
+          params.zyorder_free_percent  = this.zyorder_free_percent * 1
+          res = await this.$api.BMS.station.reqSetGiveCateConfig(params)
+        } else {
+          res = await this.$api.BMS.station.reqSetGive2CateConfig(params)
+        }
 
         if (res.code == 1) {
           this.$message.success('操作成功')
@@ -206,7 +237,8 @@ export default {
       this.show = false;
     }
   },
-  mounted() {},
+  mounted() {
+  },
   props: {
     value: {
       default: false // 是否显示drawer
@@ -284,5 +316,28 @@ export default {
       overflow: auto;
     }
   }
+}
+.discount-form {
+  margin-bottom: 10px;
+}
+
+.el-form-item {
+  margin-bottom: 20px;
+}
+
+.default-note {
+  background-color: yellow;
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-with-append {
+  width: 150px;
+}
+
+.note {
+  color: red;
+  font-size: 14px;
 }
 </style>

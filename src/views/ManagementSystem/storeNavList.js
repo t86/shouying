@@ -141,6 +141,10 @@ export default [
               name: "门店信息",
               url: "/BMS/store"
             },
+            {
+              name: "营业日管理",
+              url: "/BMS/restore"
+            },
           ]
         }, //门店管理
         {

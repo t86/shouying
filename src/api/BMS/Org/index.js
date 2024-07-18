@@ -8,6 +8,10 @@ const article = {
     return axios.post(`${base.htgl}/org/get_info`, data);
   },
 
+  reqRestore(data) {
+    return axios.post(`${base.htgl}/wkd/restore`, data);
+  },
+
   // 读取省市列表
   reqGetCityList(data) {
     return axios.post(`${base.htgl}/cfg/addr/provinces`, data);

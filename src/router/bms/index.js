@@ -78,6 +78,12 @@ export default [
     path: '/BMS/store', name: "store", meta: { title: '门店信息' },
     component: () => import('@/views/ManagementSystem/BMS/store/store.vue')
   },
+
+  // 门店信息
+  {
+    path: '/BMS/restore', name: "store", meta: { title: '营业日管理' },
+    component: () => import('@/views/ManagementSystem/BMS/store/restore.vue')
+  },
  
   /**
    * 支付管理
