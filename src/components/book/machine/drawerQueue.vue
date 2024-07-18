@@ -51,7 +51,7 @@
               </div>
               <div class="queue-status-layout">
                 <div class="label">状态：</div>
-                <div class="btn" v-for="item in statusList" :key="index" @click="onStatusClick(item)" :class="[ index == checkStatus && 'btn-selected']">{{ item.name }}</div>
+                <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="[ index == checkStatus && 'btn-selected']">{{ item.name }}</div>
               </div>
            </div>
 
@@ -83,10 +83,6 @@
                   <div class="td w90">{{item.e}}</div>
                   <div class="td w120">{{item.r}}</div>
                   <div class="td w120">{{item.sn}}</div>
-                  <div class="td w90">{{item.m}}</div>
-                  <div class="td w90">{{item.s}}</div>
-                  <div class="td w120">{{item.c}}</div>
-                  <div class="td w120">{{item.rm}}</div>
                 </div>
               </div>
             </div>
@@ -162,6 +158,7 @@ export default {
     };
   },
   mounted() {
+    this.vue.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
     this.vue.$observer.unsubscribe(QUEUE_TASK, this.callback);
@@ -225,7 +222,6 @@ export default {
 
         }
       }
-      this.vue.$observer.subscribe(QUEUE_TASK, this.callback);
     }
   },
   props: {

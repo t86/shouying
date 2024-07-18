@@ -542,9 +542,7 @@ export default class WebSocketClient {
             }
 
             if(key == 48 || key == 49){
-              this.vue.$observer.subscribe(QUEUE_TASK, () => {
-                
-              });
+              this.vue.$observer.send(QUEUE_TASK);
             }
           });
         }
