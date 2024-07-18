@@ -74,6 +74,11 @@ export const resResultDataArr = [
   'frontVersion',       // 43-前端版本号
   'funcOrderPrdConfig', // 44-功能台可点商品配置
   'shopManagerConfig', // 45-店长配置
+  'queueConfig', // 46-排队配置
+  'queueType', // 47-排队类型
+  'queueRecord', // 48-排队记录
+  'queueCurNumber', // 49-当前取号
+
 ]
 
 // 图例列表

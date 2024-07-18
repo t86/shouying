@@ -5,7 +5,7 @@ import { transformCardDataHandle } from "@/utils/transformCardData";
 import { localStorage } from "@/utils/common/storage";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
-import { CODE_INVALID } from "@/observer";
+import { CODE_INVALID, QUEUE_TASK } from "@/observer";
 import { globalError } from "../utils/globalError";
 
 let keys = {
@@ -23,6 +23,7 @@ let keys = {
   41: ["station_id", "sys_module_id"],
   42: ["station_id", "prd_id"],
   44: ["prd_id", "seat_id"],
+  48: ["queue_type_id", "queue_no"],
 };
 export default class WebSocketClient {
   constructor(vue) {
@@ -450,14 +451,30 @@ export default class WebSocketClient {
                   return ele.station_id == el.station_id;
                 } else if (Number(key) == 37) {
                   return ele.free_limit_id == el.free_limit_id;
-                } else if (Number(key) == 39) {
-                  // 卡台状态数量统计
-                  return ele.id == el.id && ele.region_id == el.region_id;
+                } else if (Number(key) == 38) {
+                  // 商户号收款金额汇总
+                  return ele.id == el.id;
                 }else if (Number(key) == 39) {
                   // 卡台状态数量统计
                   return ele.id == el.id && ele.region_id == el.region_id;
+                  return ele.id == el.id;
+                }else if (Number(key) == 40) {
+                  // 设备可操作区域或卡台
+                  return ele.license_id == el.license_id;
                 }else if(Number(key) == 41){
                   return ele.station_id == el.station_id;
+                }else if(Number(key) == 42){
+                  return ele.station_id == el.station_id;
+                }else if(Number(key) == 43 || Number(key) == 46){
+                  return true;
+                }else if(Number(key) == 44){
+                  return ele.seat_id == el.seat_id;
+                }else if(Number(key) == 45){
+                  return ele.emp_id == el.emp_id;
+                }else if(Number(key) == 47){
+                  return ele.id == el.id;
+                } else {
+                  return ele.id == el.id;
                 }
               }
             );
@@ -522,6 +539,12 @@ export default class WebSocketClient {
               )
             ) {
               eventVue.$emit("reloadPayOrderList");
+            }
+
+            if(key == 48 || key == 49){
+              this.vue.$observer.subscribe(QUEUE_TASK, () => {
+                
+              });
             }
           });
         }

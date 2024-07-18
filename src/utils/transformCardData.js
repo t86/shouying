@@ -525,6 +525,57 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
+    case 46:  //  排队配置
+      arr.forEach(el => {  
+        resultArr.push({
+          status : el[0], // 小程序排队功能开关  1 开启 2 未开启
+          sound_on: el[1], //  语音播报开关 1 开启 2 未开启
+          sound_cnt: el[2], //  语音播报次数
+          sound_text: el[3], //  语音播报文案, 使用 {排队类型编号} 对应排队号码变量
+          number_type: el[4], // 号码样式,1 A1 2 A01 3 A001
+        })
+      })
+      break
+    case 47: // 排队类型(主键id)
+      arr.forEach(el => {  
+        resultArr.push({
+          id : el[0], // 主键
+          status : el[1], // 状态 1 有效 3 删除
+          name: el[2], //  类型名称
+          num_prefix: el[3], //  类型编码
+          min_cnt: el[4], //  起始人数
+          max_cnt : el[5], //  截止人数
+          min_csm_amt: el[6], // 抵消金额(单位元)
+        })
+      })
+      break
+    case 48: // 排队记录(主键queue_type_id,queue_no)
+      arr.forEach(el => {  
+        resultArr.push({
+          wkday_id : el[0], // 营业日id
+          phone_num: el[1], // 客人手机号
+          name: el[2], // 客人姓名
+          queue_type_id: el[3], // 排队类型id
+          queue_no: el[4], // 排队号
+          status: el[5], // 状态1 排队中 2 已过号 5 已叫号 3 已取消
+          obtain_time: el[6], // 取号时间 取号时间(格式:yyyymmddhh24miss)
+          update_time: el[7], // 更新时间(格式:yyyymmddhh24miss) 对应 到店时间 取消时间 过号时间 叫号时间
+        })
+      })
+      break
+    case 49: // 当前取号(可用于大屏,可用于咨客操作面板界面)(主键:queue_type_id)
+      arr.forEach(el => {  
+        resultArr.push({
+          wkday_id : el[0], // 营业日id
+          queue_type_id: el[1], //  排队类型id
+          num: el[2], //  当前取到几号了
+          curr_num: el[3], //  当前轮到哪个号了=0代表没有了
+          curr_cust_name: el[4], //  当前轮到的客户名称
+          curr_cust_phone: el[5], //  当前轮到的客户电话
+          num_cnt: el[6], //  有多少人排队
+        })
+      })
+      break
   }
   return resultArr
 }

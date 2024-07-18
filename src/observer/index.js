@@ -1,6 +1,7 @@
 export const CODE_INVALID = "code-invaid";
 export const SCROLL_BOTTOM = "scroll-bottom";
 export const BIND_EMP = "bind_emp";
+export const QUEUE_TASK = "queue_task"; // 获取到排队任务相关消息
 
 class Observer {
   constructor() {

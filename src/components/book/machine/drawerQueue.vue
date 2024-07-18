@@ -1,0 +1,284 @@
+<template>
+  <div>
+    <el-drawer
+      title="排队详情"
+      :visible.sync="show"
+      :before-close="closeDrawerHandle"
+      direction="rtl"
+      size="90%"
+    >
+    <!-- 添加tab 排队叫号 排队列表 -->
+    <el-tabs v-model="activeTab" @tab-click="handleClick" class="tab-list" >
+      <el-tab-pane label="排队叫号" name="1" class="tab-pane">
+        <div class="content">
+          <div class="thead">
+            <div class="tr">
+              <th class="th w80">类型</th>
+              <th class="th w90">当前叫号</th>
+              <th class="th w120">当前取号</th>
+              <th class="th w120">等待桌数</th>
+              <th class="th w120">等待叫号</th>
+              <th class="th w90">操作</th>
+            </div>
+          </div>
+          <div class="tbody" ref="scrollDom">
+            <div
+              v-if="tableData.length==0"
+              style="text-align:center;transform:translateY(40px)"
+            >暂无数据</div>
+            <div v-else ref="scrollItem">
+              <div class="coll" v-for="(item,i) in tableData" :key="i">
+                <div class="detail tr">
+                  <div class="td w80">{{i+1}}</div>
+                  <div class="td w90">{{item.b}}</div>
+                  <div class="td w120">{{item.n}}</div>
+                  <div class="td w120">{{item.p}}</div>
+                  <div class="td w120">{{item.d}}</div>
+                  <div class="td w90">{{item.e}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-tab-pane>
+      <el-tab-pane label="排队列表" name="2" class="tab-pane">
+        <div class="content">
+           <div class="header">
+              <div class="queue-type-layout">
+                <div class="label">排队类型：</div>
+                <div class="btn" v-for="(item, index) in typeList" :key="index" @click="onTypeClick(item)" :class="[ index == checkType && 'btn-selected']">{{ item.name }}</div>
+
+              </div>
+              <div class="queue-status-layout">
+                <div class="label">状态：</div>
+                <div class="btn" v-for="item in statusList" :key="index" @click="onStatusClick(item)" :class="[ index == checkStatus && 'btn-selected']">{{ item.name }}</div>
+              </div>
+           </div>
+
+          <div class="thead">
+            <div class="tr">
+              <th class="th w80">排队号码</th>
+              <th class="th w90">排队类型</th>
+              <th class="th w120">客人姓名</th>
+              <th class="th w120">前方桌数</th>
+              <th class="th w120">状态</th>
+              <th class="th w90">电话</th>
+              <th class="th w120">等待时间</th>
+              <th class="th w120">取号时间</th>
+            </div>
+          </div>
+          <div class="tbody" ref="scrollDom">
+            <div
+              v-if="tableData.length==0"
+              style="text-align:center;transform:translateY(40px)"
+            >暂无数据</div>
+            <div v-else ref="scrollItem">
+              <div class="coll" v-for="(item,i) in tableData" :key="i">
+                <div class="detail tr">
+                  <div class="td w80">{{i+1}}</div>
+                  <div class="td w90">{{item.b}}</div>
+                  <div class="td w120">{{item.n}}</div>
+                  <div class="td w120">{{item.p}}</div>
+                  <div class="td w120">{{item.d}}</div>
+                  <div class="td w90">{{item.e}}</div>
+                  <div class="td w120">{{item.r}}</div>
+                  <div class="td w120">{{item.sn}}</div>
+                  <div class="td w90">{{item.m}}</div>
+                  <div class="td w90">{{item.s}}</div>
+                  <div class="td w120">{{item.c}}</div>
+                  <div class="td w120">{{item.rm}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-tab-pane>
+
+    </el-tabs>
+      <!-- 订单表格
+      预留时间、预留客人姓名、客人电话、订位人部门、订位人、区域、台号、卡台标记、状态（开台、预留、拉台）、状态变更时间、备注
+          records    []*ResGetBookListItem //Records 记录列表
+            --------------------------------
+            引用 ResGetBookListItem 格式:
+              b          string     //BookTime 预留时间
+              n          string     //CustomerName 客户姓名
+              p          string     //CustomerPhone 客户手机
+              d          string     //SalesDeptName 订位部门
+              e          string     //SalesEmpName 订位人姓名
+              r          string     //RegionName 区域名称
+              sn         string     //SeatName 卡台名称
+              m          string     //Mark 标签
+              s          string     //Status 状态
+              c          string     //StatusChgTime 状态变更时间
+              rm         string     //Remark 备注
+        普通失败, 返回编码<>1, 数据为空
+     -->
+      
+
+      <!-- 提交按钮 -->
+      <div class="form-btn" layout="row" layout-align="center center">
+        <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+      </div>
+    </el-drawer>
+  </div>
+</template>
+
+<script>
+import api_book from "@/api/Book";
+
+export default {
+  data () {
+    return {
+      show: false,
+      loadTime: '',
+      tableData: [],
+      activeTab: '1', // 排队叫号 1 排队列表 2
+      typeList: [], // 排队类型
+      checkType: 0, // 选中的排队类型
+      statusList: [
+        {
+          name: '全部',
+          id: 0,
+        },
+        {
+          name: '排队中',
+          id: 1
+        },
+        {
+          name: '已过号',
+          id: 2
+        },
+        {
+          name: '已取消',
+          id: 3
+        },
+        {
+          name: '已进店',
+          id: 5
+        },
+      ], // 状态
+      checkStatus: 0, // 选中的状态
+      callback: null
+    };
+  },
+  mounted() {
+  },
+  beforeDestroy() {
+    this.vue.$observer.unsubscribe(QUEUE_TASK, this.callback);
+  },
+  methods: {
+    getReloadTime () {
+      const date = new Date();
+      const Y = date.getFullYear();
+      const M = (date.getMonth() + 1).toString().padStart(2, 0);
+      const D = date.getDate().toString().padStart(2, 0);
+      const hour = date.getHours().toString().padStart(2, 0);
+      const minute = date.getMinutes().toString().padStart(2, 0);
+      const second = date.getSeconds().toString().padStart(2, 0);
+      this.loadTime = `${Y}-${M}-${D} ${hour}:${minute}:${second}`
+    },
+
+
+    closeDrawerHandle () {
+      this.$emit("showOrHideDrawer", false);
+    },
+
+    onCancelDrawer () {
+      this.closeDrawerHandle();
+    },
+
+    handleClick(tab, event) {
+      console.log(tab, event);
+      this.activeTab = tab.name;
+    },
+    onTypeClick(item) {
+      console.log('item', item)
+      this.typeList.forEach((i) => {
+        i.checked = false;
+      });
+      item.checked = true;
+      this.typeList = [...this.typeList];
+    },
+    onStatusClick (item) {
+      this.statusList.forEach((i) => {
+        i.checked = false;
+      });
+      item.checked = true;
+      this.statusList = [...this.statusList];
+    },
+    getTableData(){
+      this.typeList = this.$store.state.cardPageInfo.resResultDataObj.queueType
+      this.typeList = [
+        {
+          name: '全部',
+          id: 0,
+        },
+        ...this.typeList
+      ]
+      console.log('this.typeList', this.typeList)
+      this.callback =  () => {
+        this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]
+        if (this.checkType > 0) {
+
+        }
+        if(this.checkStatus > 0) {
+
+        }
+      }
+      this.vue.$observer.subscribe(QUEUE_TASK, this.callback);
+    }
+  },
+  props: {
+    showDrawer: {
+      default: false // 是否显示drawer
+    }
+  },
+  components: {
+  },
+  watch: {
+    showDrawer (newVal) {
+      this.show = newVal;
+      if (newVal) this.getTableData();
+    }
+  }
+};
+</script>
+
+<style scoped lang="less">
+@import "../../../style/common/elementDrawer.less";
+@import "../../../style/common/elementDrawerHeaderAndSession.less";
+@import "../../../style/common/elementFormBtn.less";
+@import "../../../style/common/scrollBar.less";
+@import "../../../style/book/machine/drawerQueue.less";
+</style>
+
+<style scoped lang="less">
+/deep/.select-com {
+  font-size: 14px;
+}
+
+/deep/.options li {
+  font-size: 14px;
+}
+</style>
+
+<style>
+.el-cascader__dropdown {
+  background-color: #202c4a;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.el-cascader-node {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.el-cascader-node:not(.is-disabled):focus,
+.el-cascader-node:not(.is-disabled):hover {
+  background-color: rgba(90, 90, 90, 0.5);
+}
+
+.el-cascader-panel {
+  border: none;
+}
+</style>

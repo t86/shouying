@@ -124,4 +124,10 @@ export default {
   reqGetBookList: params => axios.post(`${base.htgl}/sel/rpt/get_book_list`, params),
   // 导出预留记录表
   reqExportBookList: params => axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_book_list`, params),
+
+  // 到店
+  reqArrive: params => axios.post(`${base.htgl}/custq/arrive`, params),
+
+  // 过号
+  reqExpired: params => axios.post(`${base.htgl}/custq/expired`, params),
 }
