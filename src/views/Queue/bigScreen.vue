@@ -3,6 +3,8 @@
         <div class="header">
             <div class="title">上海Amanda阿曼达酒吧</div>
             <div class="date">2024-07-13 星期六 22:00</div>
+            <!-- 全屏按钮 全屏时隐藏-->
+            <div class="btn" @click="toggleFullScreen">全屏</div>
         </div>
         <div class="table">
             <div class="thead">
@@ -36,12 +38,12 @@
 export default {
     data() {
         return {
-            isFullScreen: true,
+            isFullScreen: false,
             tableData: []
         }
     },
     mounted() {
-        this.fullScreen()
+        // this.fullScreen()
     },
     methods: {
         toggleFullScreen() {
@@ -97,6 +99,10 @@ export default {
     background-image: url('../../assets/img/bigscreen.png');
     padding: 16px;
     .header {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
         .title {
             font-weight: normal;
             font-size: 48px;

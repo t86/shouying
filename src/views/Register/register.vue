@@ -146,7 +146,7 @@ export default {
         {
           name: "叫号大屏",
           client: "queue",
-          code: "iwucvjiwnvio24qyxtaocx0",
+          code: "dfdfjliwijfojoenmfcvnei",
           disabled: false,
         },
       ],

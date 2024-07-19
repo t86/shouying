@@ -306,14 +306,13 @@ export default {
           systemName: "会员系统",
           url: "/vipManager",
         },
-        // {
-        //   name: "wine",
-        //   systemName: "存酒仓库",
-        //   url: "/wine/saveNeedToLib",
-        // },
         {
-          // name: "queue",
           name: "wine",
+          systemName: "存酒仓库",
+          url: "/wine/saveNeedToLib",
+        },
+        {
+          name: "queue",
           systemName: "叫号大屏",
           url: "/queue/bigScreen",
         },
@@ -343,7 +342,8 @@ export default {
           this.$localStorage.setItem("tk", res.data.tk);
           this.$localStorage.setItem("am", res.data.am.toString());
           this.$localStorage.setItem("machineId", res.data.id.toString());
-          this.clientName = clientInfo[res.data.am.toString()];
+          // this.clientName = clientInfo[res.data.am.toString()];
+          this.clientName="queue"
           this.$store.commit("updateClient", this.clientName);
         } else {
           this.$message.warning(res.msg);
