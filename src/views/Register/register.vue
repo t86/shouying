@@ -143,6 +143,12 @@ export default {
           code: "iwucvjiwnvio24qyxtaocx0",
           disabled: false,
         },
+        {
+          name: "叫号大屏",
+          client: "queue",
+          code: "iwucvjiwnvio24qyxtaocx0",
+          disabled: false,
+        },
       ],
       timer: null,
       count: 0,

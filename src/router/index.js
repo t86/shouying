@@ -8,6 +8,7 @@ import orderRouter from './order'
 import moneyRouter from './money'
 import vipRouter from './vip'
 import wineRouter from './wine'
+import queueRouter from './queue'
 
 const originalPush = VueRouter.prototype.push;
 const originalReplace = VueRouter.prototype.replace;
@@ -83,7 +84,10 @@ const routes = [
           ...erpRouter,
 
           // wine
-          ...wineRouter
+          ...wineRouter,
+
+          //queue
+          ...queueRouter
         ]
       },
       // appinfo 超级账号  

@@ -306,10 +306,16 @@ export default {
           systemName: "会员系统",
           url: "/vipManager",
         },
+        // {
+        //   name: "wine",
+        //   systemName: "存酒仓库",
+        //   url: "/wine/saveNeedToLib",
+        // },
         {
+          // name: "queue",
           name: "wine",
-          systemName: "存酒仓库",
-          url: "/wine/saveNeedToLib",
+          systemName: "叫号大屏",
+          url: "/queue/bigScreen",
         },
       ],
 
