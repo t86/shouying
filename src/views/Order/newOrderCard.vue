@@ -108,7 +108,7 @@
                   typeModule == 1 &&
                   item.bizStatus != 1 &&
                   item.bizStatus != 2
-                " class="one-txt-cut" style="width: 160px; 
+                " class="one-txt-cut" style="
                   word-break: normal;
                   white-space: normal; overflow: hidden; text-overflow: ellipsis; 
                   display: -webkit-box; -webkit-line-clamp: 2; 
