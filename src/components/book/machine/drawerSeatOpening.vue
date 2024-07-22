@@ -153,7 +153,7 @@ export default {
 @import "../../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../../style/common/elementFormBtn.less";
 @import "../../../style/common/scrollBar.less";
-@import "../../../style/book/machine/DrawerSeatOpening.less";
+@import "../../../style/book/machine/drawerSeatOpening.less";
 </style>
 
 <style scoped lang="less">
