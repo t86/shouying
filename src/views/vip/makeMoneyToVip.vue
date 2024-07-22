@@ -222,7 +222,7 @@ export default {
             dep_sk_amt : res.data.dep_sk_amt,    //DepSkAmt 刷卡总金额
             dep_zfb_amt: res.data.dep_zfb_amt,   //DepZfbAmt 支付宝总金额
             dep_wechat_amt: res.data.dep_wechat_amt,     //DepWechatAmt 微信总金额
-            dep_cashier_amt: res.data.dep_wechat_amt,     //DepCashierAmt 现金总金额
+            dep_cashier_amt: res.data.dep_cashier_amt,     //DepCashierAmt 现金总金额
             dep_trans_val_amt: res.data.dep_trans_val_amt,    //DepTransValAmt 迁移充值总金额
             dep_trans_free_amt: res.data.dep_trans_free_amt     //DepTransFreeAmt 迁移充值赠送总金额
           };
