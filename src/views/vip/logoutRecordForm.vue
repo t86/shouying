@@ -52,7 +52,7 @@
               <div class="td">{{ item.n }}</div>
               <div class="td">{{ item.t }}</div>
               <div class="td">{{ item.l }}</div>
-              <div class="td">{{ item.vb }}</div>
+              <div class="td">{{ (item.vb/100.0).toFixed(2) }}</div>
               <div class="td">{{ item.fb }}</div>
               <div class="td">{{ item.pb }}</div>
             </div>

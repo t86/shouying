@@ -1236,6 +1236,11 @@ export default {
         JSON.stringify(this.GZInfo.originOption)
       );
     },
+    keydownHandle(e) {
+      if (e.keyCode === 32) {
+        this.onSubmit()
+      }
+    },
   },
   mounted() {
     this.init();
@@ -1314,6 +1319,7 @@ export default {
           }, 200);
 
         this.getChoosePayList();
+        document.onkeydown = this.keydownHandle
       }
     },
     notPayAmt() {
