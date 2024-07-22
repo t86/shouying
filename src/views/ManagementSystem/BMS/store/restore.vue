@@ -10,14 +10,13 @@
       <p style="color: red" class="warning">连续点击七次可操作该功能</p>
     </div>
 
-    <el-dialog title="恢复营业日" :visible.sync="dialogVisible">
+    <el-dialog title="恢复营业日" :visible.sync="dialogVisible" :show-close="false" :close-on-click-modal="false">
       <span style="font-size: 18px">是否确定恢复营业日</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="doRestore">确 定</el-button>
       </span>
     </el-dialog>
-
   </div>
 
 </template>
@@ -36,6 +35,7 @@ export default {
         const res = await this.$api.BMS.Org.reqRestore();
         if (res.code === 1) {
           this.detailInfo = res.data;
+          this.$message.success("恢复营业日成功");
         } else {
           this.$message.warning(res.msg);
         }

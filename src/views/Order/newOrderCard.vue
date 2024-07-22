@@ -108,7 +108,7 @@
                   typeModule == 1 &&
                   item.bizStatus != 1 &&
                   item.bizStatus != 2
-                " class="one-txt-cut" style="width: 160px; 
+                " class="one-txt-cut" style="
                   word-break: normal;
                   white-space: normal; overflow: hidden; text-overflow: ellipsis; 
                   display: -webkit-box; -webkit-line-clamp: 2; 
@@ -126,6 +126,17 @@
                 ">
                   翻{{ item.turnoverCnt }}
                 </span>
+              </p>
+              <p
+                layout="row"
+                layout-align="start center"
+                style="
+                margin-top: 4px;
+                overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;"
+              >
+                  <span>{{ item.remark }}</span>
               </p>
             </div>
           </div>
