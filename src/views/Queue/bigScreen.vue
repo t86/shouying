@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="header">
-            <div class="title">上海Amanda阿曼达酒吧</div>
+            <div class="title">{{ orgName }}</div>
             <div class="date">{{ formattedDate }}</div>
         </div>
         <div class="table">
@@ -39,7 +39,8 @@ export default {
         return {
             isFullScreen: false,
             tableData: [],
-            formattedDate: ''
+            formattedDate: '',
+            orgName: '',
         }
     },
 
@@ -62,6 +63,7 @@ export default {
       }
       this.$observer.subscribe(QUEUE_TASK, this.callback);
       setInterval(this.updateTime, 1000);
+      this.orgName = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo.org_name
     },
     beforeDestroy() {
       this.$observer.unsubscribe(QUEUE_TASK, this.callback);
