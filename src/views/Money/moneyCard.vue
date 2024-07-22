@@ -232,6 +232,17 @@
                   关闭
                 </div>
               </div>
+              <p
+                layout="row"
+                layout-align="start center"
+                style="
+                  margin-top: 4px;
+                   overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;"
+              >
+                  <span>{{ item.remark }}</span>
+              </p>
             </div>
           </div>
           <!-- 无数据 -->
