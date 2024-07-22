@@ -121,6 +121,7 @@
 
 <script>
 import api_book from "@/api/Book";
+import { QUEUE_TASK } from "@/observer";
 
 export default {
   data () {
@@ -158,10 +159,13 @@ export default {
     };
   },
   mounted() {
-    this.vue.$observer.subscribe(QUEUE_TASK, this.callback);
+    this.callback =  () => {
+
+    }
+    this.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
-    this.vue.$observer.unsubscribe(QUEUE_TASK, this.callback);
+    this.$observer.unsubscribe(QUEUE_TASK, this.callback);
   },
   methods: {
     getReloadTime () {

@@ -196,6 +196,7 @@ const clientInfo = {
   32: "erp",
   64: "erpAdmin",
   256: "wine",
+  512: "queuedsp"
 };
 export default {
   data() {
@@ -312,8 +313,8 @@ export default {
           url: "/wine/saveNeedToLib",
         },
         {
-          name: "queue",
-          systemName: "叫号大屏",
+          name: "queuedsp",
+          systemName: "排队大屏",
           url: "/queue/bigScreen",
         },
       ],
@@ -323,6 +324,20 @@ export default {
     };
   },
   methods: {
+    fullScreen() {
+        let element = document.documentElement
+        if (element.requestFullscreen) {
+            element.requestFullscreen()
+        } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen()
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen()
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen()
+        }
+        this.isFullScreen = true
+    },
+    
     // 设备终端授权
     async term() {
       let code = "";
@@ -342,8 +357,7 @@ export default {
           this.$localStorage.setItem("tk", res.data.tk);
           this.$localStorage.setItem("am", res.data.am.toString());
           this.$localStorage.setItem("machineId", res.data.id.toString());
-          // this.clientName = clientInfo[res.data.am.toString()];
-          this.clientName="queue"
+          this.clientName = clientInfo[res.data.am.toString()];
           this.$store.commit("updateClient", this.clientName);
         } else {
           this.$message.warning(res.msg);
@@ -528,6 +542,12 @@ export default {
                             });
                           }
                           break;
+                        case "queuedsp":
+                          if (this.clientName == "queuedsp") {
+                            this.fullScreen();
+                            this.routerGo();
+                          }
+                          break;  
                         default:
                           this.routerGo();
                           break;
@@ -535,6 +555,7 @@ export default {
                     return
                   }
               }
+
             } else {
               if (res.code == 12 || res.code == 11) {
                 this.term();

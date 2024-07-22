@@ -145,7 +145,7 @@ export default {
         },
         {
           name: "叫号大屏",
-          client: "queue",
+          client: "queuedsp",
           code: "dfdfjliwijfojoenmfcvnei",
           disabled: false,
         },

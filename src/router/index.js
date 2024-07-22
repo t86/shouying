@@ -62,6 +62,8 @@ const routes = [
 
       // 会员
       ...vipRouter,
+      //queue
+      ...queueRouter,
     ]
   },
 
@@ -86,8 +88,7 @@ const routes = [
           // wine
           ...wineRouter,
 
-          //queue
-          ...queueRouter
+
         ]
       },
       // appinfo 超级账号  

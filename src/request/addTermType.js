@@ -12,7 +12,8 @@ const termTypeInfo = {
   vip: 16, 
   erp: 32,
   erpAdmin: 64,
-  wine: 256
+  wine: 256,
+  queuedsp: 512,
 }
 // 加入公共参数，需要特殊处理的接口
 const urlInitArr = [

@@ -81,6 +81,7 @@ router.beforeEach((to, from, next) => {
   if (
     (to.name === "orderCard" ||
       to.name == "cardMachine" ||
+      to.name == "bigscreen" ||
       to.name == "moneyCard") &&
     authId
   ) {
