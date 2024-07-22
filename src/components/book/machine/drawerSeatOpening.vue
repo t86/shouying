@@ -15,7 +15,7 @@
         <div class="content">
           <div class="thead">
             <div class="tr">
-              <div class="th w150">部门/区域</div>
+              <div class="th w150" style="background-color: #182037;">部门/区域</div>
               <div class="th w120">20点(含前)</div>
               <div class="th w120">21点</div>
               <div class="th w120">22点</div>
@@ -37,7 +37,7 @@
             <div v-else ref="scrollItem">
               <div class="coll" v-for="(item,i) in tableData" :key="i">
                 <div class="detail tr">
-                  <div class="td w150">{{item.n}}</div>
+                  <div class="td w150" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.n}}</div>
                   <div class="td w120">{{item.c20}}</div>
                   <div class="td w120">{{item.c21}}</div>
                   <div class="td w120">{{item.c22}}</div>

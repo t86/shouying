@@ -75,7 +75,7 @@
     color: rgba(255, 255, 255, .8);
 
     .coll:nth-child(2n) {
-      background-color: rgba(255, 255, 255, .04);
+      background-color: #293449;
     }
   }
 
@@ -85,15 +85,16 @@
     justify-content: start;
     align-items: center;
     min-height: 40px;
-    padding: 0 16px;
     box-sizing: border-box;
     text-align: left;
+    position: relative;
 
     .th,
     .td {
-      padding: 0 4px;
+      padding: 0 20px;
       box-sizing: border-box;
       flex-shrink: 0;
+      height: 100%;
       &.w80 {
         width: 80px;
       }
@@ -118,8 +119,8 @@
     .td:nth-child(1) {
       flex-wrap: wrap;
       position: sticky;
-      left: 20px;
-      //background: #182037;
+      left: 0px;
+      z-index:99;
       //color: rgba(255, 255, 255, .5);
 
     }
