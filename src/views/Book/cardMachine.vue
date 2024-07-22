@@ -375,6 +375,13 @@
                 <img :src="imgSrc.openCard" alt />
                 <span>线上预订记录</span>
               </div>
+              <div
+                  class="option-item"
+                  @click="showOrHideSeatOpeningDrawer"
+              >
+                <img :src="imgSrc.openCard" alt />
+                <span>入客数据实时汇总</span>
+              </div>
               <img :src="imgSrc.sanJiao" alt />
             </div>
 
@@ -447,6 +454,11 @@
       @showOrHideDrawer="showOrHideOpenCardDrawerHandle"
     />
 
+    <drawer-seat-opening
+        :showDrawer="showSeatOpeningDrawer"
+        @showOrHideDrawer="showOrHideSeatOpeningDrawer"
+    />
+
     <!-- 转台记录 -->
     <drawerTurnOver
       :showDrawer="showTurnOverDrawer"
@@ -481,6 +493,7 @@ import drawerReserved from "@/components/book/reserved/drawerReserved.vue";
 import cardDrawer from "@/components/book/machine/cardDrawer"; // 抽屉组件
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏表格
 import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"; // 开台记录
+import drawerSeatOpening from "@/components/book/machine/drawerSeatOpening"; // 开台记录
 import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"; // 转台记录
 import drawerReservedRecord from '@/components/book/machine/drawerReservedRecord.vue'; // 预留记录
 // 线上预订记录
@@ -523,6 +536,7 @@ export default {
       showTurnOverDrawer: false, // 是否显示转台记录drawer
       showReservedRecordDrawer: false, // 是否显示预留记录drawer
       showOrHideOnlineBookingDrawer: false, // 是否显示线上预订记录drawer
+      showSeatOpeningDrawer: false, //客数据时实汇总表
       dateTab: {
         dateTabList: [],
         activeIndex: 0,
@@ -1443,6 +1457,9 @@ export default {
       this.showOpenCardDrawer = !this.showOpenCardDrawer;
     },
 
+    showOrHideSeatOpeningDrawer () {
+      this.showSeatOpeningDrawer = !this.showSeatOpeningDrawer
+    },
     /**
      * 显示或隐藏转台记录
      */
@@ -1722,6 +1739,7 @@ export default {
     cardDrawer, // 右侧弹出框
     fullPageTable, // 全屏表格数据
     drawerOpenCard, // 开台记录
+    drawerSeatOpening,
     drawerTurnOver, // 转台记录
     updatePassword, // 修改密码
     drawerReservedRecord, // 预留记录

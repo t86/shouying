@@ -1,0 +1,134 @@
+
+  .search{
+    input {
+      color: #fff;
+      padding-left: 10px;
+      width: 250px;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, .5);
+      outline: none;
+      &:focus {
+        border: 1px solid #5C9FFF
+      }
+    }
+
+    // search  reset
+    button {
+      width: 80px;
+      height: 32px;
+      background: #4B89FF;
+      // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+      box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+      border-radius: 30px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 14px;
+      margin-left: 10px;
+
+      &.reset {
+        background: #374368;
+        box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+      }
+
+      &.export{
+        width: 100px;
+      }
+    }
+  }
+
+// 表格数据
+.table {
+  // width: 100%;
+  width: calc(100% - 40px);
+  margin: 0 20px;
+  font-size: 14px;
+  color: #fff;
+  overflow-x: auto;
+
+  .content {
+    min-width: 2300px;
+  }
+
+  .thead {
+    position: sticky;
+    top: 0;
+    background: #182037;
+    // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+    border-radius: 10px 10px 0 0;
+    color: rgba(255, 255, 255, .5);
+
+    .tr {
+      position: relative;
+      width: 100%;
+      background: #182037;
+      // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
+      color: rgba(255, 255, 255, .5);
+    }
+  }
+
+  .tbody {
+    height: calc(100vh - 320px);
+    color: rgba(255, 255, 255, .8);
+
+    .coll:nth-child(2n) {
+      background-color: rgba(255, 255, 255, .04);
+    }
+  }
+
+
+  .tr {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    text-align: left;
+
+    .th,
+    .td {
+      padding: 0 4px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      &.w80 {
+        width: 80px;
+      }
+      &.w90 {
+        width: 90px;
+      }
+      &.w120{
+        width: 120px;
+      }
+      &.w150{
+        width: 150px;
+      }
+      &.w170{
+        width: 170px;
+      }
+      &.w200{
+        width: 200px;
+      }
+    }
+
+    .th:nth-child(1),
+    .td:nth-child(1) {
+      flex-wrap: wrap;
+      position: sticky;
+      left: 20px;
+      //background: #182037;
+      //color: rgba(255, 255, 255, .5);
+
+    }
+  }
+}
+
+/deep/.el-input--suffix .el-input__inner{
+  height: 32px;
+  border-radius: 8px;
+  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(0, 0, 0, 0.2);
+}
