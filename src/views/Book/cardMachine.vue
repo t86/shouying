@@ -383,14 +383,14 @@
                 <span>入客数据实时汇总</span>
               </div>
               <img :src="imgSrc.sanJiao" alt />
-              <!-- <div
+              <div
                 class="option-item"
                 @click="showOrHideQueueDrawerHandle"
               >
                 <img :src="imgSrc.openCard" alt />
                 <span>排队详情</span>
               </div>
-              <img :src="imgSrc.sanJiao" alt /> -->
+              <img :src="imgSrc.sanJiao" alt />
             </div>
 
           </div>
