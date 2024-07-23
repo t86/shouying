@@ -1237,8 +1237,12 @@ export default {
       );
     },
     keydownHandle(e) {
-      if (e.keyCode === 32) {
+      if (e.keyCode === 13) {
         this.onSubmit()
+      } else if (e.keyCode == 32) {
+        this.addChooseList()
+      } else if (e.keyCode == 9) {
+        this.addChooseList()
       }
     },
   },
