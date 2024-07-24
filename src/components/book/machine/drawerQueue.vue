@@ -7,34 +7,46 @@
       direction="rtl"
       size="90%"
     >
+<!--      item.curr_num = item.num_prefix + current.curr_num-->
+<!--      item.num = item.num_prefix + current.num-->
+<!--      item.num_cnt = item.num_cnt-->
+<!--      item.wait =  ''-->
     <!-- 添加tab 排队叫号 排队列表 -->
     <el-tabs v-model="activeTab" @tab-click="handleClick" class="tab-list" >
       <el-tab-pane label="排队叫号" name="1" class="tab-pane">
-        <div class="content">
-          <div class="thead">
-            <div class="tr">
-              <th class="th w80">类型</th>
-              <th class="th w90">当前叫号</th>
-              <th class="th w120">当前取号</th>
-              <th class="th w120">等待桌数</th>
-              <th class="th w120">等待叫号</th>
-              <th class="th w90">操作</th>
+        <div class="table">
+          <div class="content">
+            <div class="thead">
+              <div class="tr">
+                <div class="th w120" style="background-color: #182037;">类型</div>
+                <div class="th w120">当前叫号</div>
+                <div class="th w120">当前取号</div>
+                <div class="th w120">等待桌数</div>
+                <div class="th w120">等待叫号</div>
+                <div class="th w200">操作</div>
+              </div>
             </div>
-          </div>
-          <div class="tbody" ref="scrollDom">
-            <div
-              v-if="tableData.length==0"
-              style="text-align:center;transform:translateY(40px)"
-            >暂无数据</div>
-            <div v-else ref="scrollItem">
-              <div class="coll" v-for="(item,i) in tableData" :key="i">
-                <div class="detail tr">
-                  <div class="td w80">{{i+1}}</div>
-                  <div class="td w90">{{item.b}}</div>
-                  <div class="td w120">{{item.n}}</div>
-                  <div class="td w120">{{item.p}}</div>
-                  <div class="td w120">{{item.d}}</div>
-                  <div class="td w90">{{item.e}}</div>
+            <div class="tbody" ref="scrollDom">
+              <div
+                  v-if="typeList.length==0"
+                  style="text-align:center;transform:translateY(40px)"
+              >暂无数据</div>
+              <div v-else ref="scrollItem">
+                <div class="coll" v-for="(item,i) in typeList" :key="i">
+                  <div class="detail tr">
+                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.name}}</div>
+                    <div class="td w120">{{item.curr_num}}</div>
+                    <div class="td w120">{{item.num}}</div>
+                    <div class="td w120">{{item.num_cnt}}</div>
+                    <div class="td w120">{{item.wait}}</div>
+                    <div class="td w120">
+                      <div class="action">
+                        <el-button type="primary" class="btn" size="mini">叫号</el-button>
+                        <el-button type="primary" class="btn" size="mini">进店</el-button>
+                        <el-button type="primary" class="btn" size="mini">过号</el-button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -131,12 +143,9 @@ export default {
       tableData: [],
       activeTab: '1', // 排队叫号 1 排队列表 2
       typeList: [], // 排队类型
+      currents: [],
       checkType: 0, // 选中的排队类型
       statusList: [
-        {
-          name: '全部',
-          id: 0,
-        },
         {
           name: '排队中',
           id: 1
@@ -208,15 +217,45 @@ export default {
       this.statusList = [...this.statusList];
     },
     getTableData(){
-      this.typeList = this.$store.state.cardPageInfo.resResultDataObj.queueType
-      this.typeList = [
-        {
-          name: '全部',
-          id: 0,
-        },
-        ...this.typeList
-      ]
+      // curr_cust_name:"trump"
+      // curr_cust_phone:"17721067513"
+      // curr_num:"1"
+      // num:"1"
+      // num_cnt:"1"
+      // queue_type_id:"21"
+
+      let types = this.$store.state.cardPageInfo.resResultDataObj.queueType
+      let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber
+
+      // checked:true
+      // id:"21"
+      // max_cnt:"999"
+      // min_cnt:"10"
+      // min_csm_amt:"1001"
+      // name:"小桌"
+      // num_prefix:"A"
+      // status:"1"
+
+      console.log('currents', currents)
+      for(let _type of types) {
+        let idx = currents.findIndex(current => current.queue_type_id === _type.id)
+        if (idx >= 0) {
+          let finder = currents[idx]
+          _type.curr_num = _type.num_prefix + finder.curr_num
+          _type.num = _type.num_prefix + finder.num
+          _type.num_cnt = finder.num_cnt
+          _type.wait =  ''
+        } else {
+          _type.curr_num = '-'
+          _type.num = '-'
+          _type.num_cnt = '-'
+          _type.wait =  '-'
+        }
+      }
+      this.typeList = types
+
       console.log('this.typeList', this.typeList)
+
       this.callback =  () => {
         this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]
         if (this.checkType > 0) {
@@ -238,7 +277,9 @@ export default {
   watch: {
     showDrawer (newVal) {
       this.show = newVal;
-      if (newVal) this.getTableData();
+      if (newVal) {
+        this.getTableData();
+      }
     }
   }
 };
@@ -247,7 +288,7 @@ export default {
 <style scoped lang="less">
 @import "../../../style/common/elementDrawer.less";
 @import "../../../style/common/elementDrawerHeaderAndSession.less";
-@import "../../../style/common/elementFormBtn.less";
+//@import "../../../style/common/elementFormBtn.less";
 @import "../../../style/common/scrollBar.less";
 @import "../../../style/book/machine/drawerQueue.less";
 </style>
