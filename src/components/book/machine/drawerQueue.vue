@@ -41,9 +41,9 @@
                     <div class="td w120">{{item.wait}}</div>
                     <div class="td w120">
                       <div class="action">
-                        <el-button type="primary" class="btn" size="mini">叫号</el-button>
-                        <el-button type="primary" class="btn" size="mini">进店</el-button>
-                        <el-button type="primary" class="btn" size="mini">过号</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="call">叫号</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="enter">进店</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="overdue">过号</el-button>
                       </div>
                     </div>
                   </div>
@@ -54,47 +54,44 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="排队列表" name="2" class="tab-pane">
-        <div class="content">
-           <div class="header">
-              <div class="queue-type-layout">
-                <div class="label">排队类型：</div>
-                <div class="btn" v-for="(item, index) in typeList" :key="index" @click="onTypeClick(item)" :class="[ index == checkType && 'btn-selected']">{{ item.name }}</div>
-
+        <div class="table">
+          <div class="content">
+            <div class="thead">
+              <div class="tr">
+<!--                // name:"trump"-->
+<!--                // obtain_time:"20240724142324"-->
+<!--                // phone_num:"17721067513"-->
+<!--                // queue_no:"1"-->
+<!--                // queue_type_id:"21"-->
+<!--                // status:"3"-->
+<!--                // update_time:"20240724225937"-->
+                <div class="th w120" style="background-color: #182037;">排队号码</div>
+                <div class="th w120">排队类型</div>
+                <div class="th w120">客户姓名</div>
+                <div class="th w120">前方桌数</div>
+                <div class="th w120">状态</div>
+                <div class="th w200">电话</div>
+                <div class="th w200">等待时间</div>
+                <div class="th w200">取号时间</div>
               </div>
-              <div class="queue-status-layout">
-                <div class="label">状态：</div>
-                <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="[ index == checkStatus && 'btn-selected']">{{ item.name }}</div>
-              </div>
-           </div>
-
-          <div class="thead">
-            <div class="tr">
-              <th class="th w80">排队号码</th>
-              <th class="th w90">排队类型</th>
-              <th class="th w120">客人姓名</th>
-              <th class="th w120">前方桌数</th>
-              <th class="th w120">状态</th>
-              <th class="th w90">电话</th>
-              <th class="th w120">等待时间</th>
-              <th class="th w120">取号时间</th>
             </div>
-          </div>
-          <div class="tbody" ref="scrollDom">
-            <div
-              v-if="tableData.length==0"
-              style="text-align:center;transform:translateY(40px)"
-            >暂无数据</div>
-            <div v-else ref="scrollItem">
-              <div class="coll" v-for="(item,i) in tableData" :key="i">
-                <div class="detail tr">
-                  <div class="td w80">{{i+1}}</div>
-                  <div class="td w90">{{item.b}}</div>
-                  <div class="td w120">{{item.n}}</div>
-                  <div class="td w120">{{item.p}}</div>
-                  <div class="td w120">{{item.d}}</div>
-                  <div class="td w90">{{item.e}}</div>
-                  <div class="td w120">{{item.r}}</div>
-                  <div class="td w120">{{item.sn}}</div>
+            <div class="tbody" ref="scrollDom">
+              <div
+                  v-if="queues.length===0"
+                  style="text-align:center;transform:translateY(40px)"
+              >暂无数据</div>
+              <div v-else ref="scrollItem">
+                <div class="coll" v-for="(item,i) in queues" :key="i">
+                  <div class="detail tr">
+                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">todo:{{item.queue_no}}</div>
+                    <div class="td w120">todo:{{item.queue_type_id}}</div>
+                    <div class="td w120">{{item.name}}</div>
+                    <div class="td w120">todo</div>
+                    <div class="td w120">{{item.status}}</div>
+                    <div class="td w120">{{item.phone_num}}</div>
+                    <div class="td w120">todo:</div>
+                    <div class="td w120">todo:{{item.obtain_time}}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -103,25 +100,6 @@
       </el-tab-pane>
 
     </el-tabs>
-      <!-- 订单表格
-      预留时间、预留客人姓名、客人电话、订位人部门、订位人、区域、台号、卡台标记、状态（开台、预留、拉台）、状态变更时间、备注
-          records    []*ResGetBookListItem //Records 记录列表
-            --------------------------------
-            引用 ResGetBookListItem 格式:
-              b          string     //BookTime 预留时间
-              n          string     //CustomerName 客户姓名
-              p          string     //CustomerPhone 客户手机
-              d          string     //SalesDeptName 订位部门
-              e          string     //SalesEmpName 订位人姓名
-              r          string     //RegionName 区域名称
-              sn         string     //SeatName 卡台名称
-              m          string     //Mark 标签
-              s          string     //Status 状态
-              c          string     //StatusChgTime 状态变更时间
-              rm         string     //Remark 备注
-        普通失败, 返回编码<>1, 数据为空
-     -->
-      
 
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
@@ -134,6 +112,8 @@
 <script>
 import api_book from "@/api/Book";
 import { QUEUE_TASK } from "@/observer";
+import {cardPageMixins} from "@/mixin/cardPage";
+import api_card from "@/api/Book";
 
 export default {
   data () {
@@ -145,6 +125,7 @@ export default {
       typeList: [], // 排队类型
       currents: [],
       checkType: 0, // 选中的排队类型
+      queues: [],
       statusList: [
         {
           name: '排队中',
@@ -188,6 +169,33 @@ export default {
       this.loadTime = `${Y}-${M}-${D} ${hour}:${minute}:${second}`
     },
 
+    async call(){
+      this.showConfirmHandle(
+          "叫号",
+          "是否确认叫号",
+          async () => {
+            console.log('------call 叫号')
+          }
+      );
+    },
+    async enter(){
+      this.showConfirmHandle(
+          "进店",
+          "是否确认客人已进店",
+          async () => {
+            console.log('------call 进店')
+          }
+      );
+    },
+    async overdue(){
+      this.showConfirmHandle(
+          "过号",
+          "是否设置为过号?操作后不可撤销",
+          async () => {
+            console.log('------call 过号')
+          }
+      );
+    },
 
     closeDrawerHandle () {
       this.$emit("showOrHideDrawer", false);
@@ -227,6 +235,11 @@ export default {
       let types = this.$store.state.cardPageInfo.resResultDataObj.queueType
       let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber
 
+      this.queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord
+      console.log('------------queues', this.queues)
+
+
+
       // checked:true
       // id:"21"
       // max_cnt:"999"
@@ -257,13 +270,15 @@ export default {
       console.log('this.typeList', this.typeList)
 
       this.callback =  () => {
-        this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]
-        if (this.checkType > 0) {
+        // this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]
 
-        }
-        if(this.checkStatus > 0) {
 
-        }
+        // if (this.checkType > 0) {
+        //
+        // }
+        // if(this.checkStatus > 0) {
+        //
+        // }
       }
     }
   },
@@ -281,7 +296,8 @@ export default {
         this.getTableData();
       }
     }
-  }
+  },
+  mixins: [cardPageMixins],
 };
 </script>
 
