@@ -70,7 +70,7 @@
                 <div class="th w120">客户姓名</div>
                 <div class="th w120">前方桌数</div>
                 <div class="th w120">状态</div>
-                <div class="th w200">电话</div>
+                <div class="th w120">电话</div>
                 <div class="th w200">等待时间</div>
                 <div class="th w200">取号时间</div>
               </div>
@@ -83,14 +83,14 @@
               <div v-else ref="scrollItem">
                 <div class="coll" v-for="(item,i) in queues" :key="i">
                   <div class="detail tr">
-                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">todo:{{item.queue_no}}</div>
-                    <div class="td w120">todo:{{item.queue_type_id}}</div>
+                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no}}</div>
+                    <div class="td w120">{{item.queue_name}}</div>
                     <div class="td w120">{{item.name}}</div>
-                    <div class="td w120">todo</div>
-                    <div class="td w120">{{item.status}}</div>
+                    <div class="td w120">{{item.desk_cnt}}</div>
+                    <div class="td w120">{{item.status_name}}</div>
                     <div class="td w120">{{item.phone_num}}</div>
-                    <div class="td w120">todo:</div>
-                    <div class="td w120">todo:{{item.obtain_time}}</div>
+                    <div class="td w200">{{item.wait_time_t }}</div>
+                    <div class="td w200">{{item.obtain_time_t}}</div>
                   </div>
                 </div>
               </div>
@@ -119,6 +119,7 @@ export default {
   data () {
     return {
       show: false,
+      numberType: 1,
       loadTime: '',
       tableData: [],
       activeTab: '1', // 排队叫号 1 排队列表 2
@@ -225,39 +226,71 @@ export default {
       this.statusList = [...this.statusList];
     },
     getTableData(){
-      // curr_cust_name:"trump"
-      // curr_cust_phone:"17721067513"
-      // curr_num:"1"
-      // num:"1"
-      // num_cnt:"1"
-      // queue_type_id:"21"
+      let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
+      let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
+      let queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord //48 排队记录
+      let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber //49 当前取号
 
-      let types = this.$store.state.cardPageInfo.resResultDataObj.queueType
-      let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber
+      console.log('------------config', config)
+      console.log('------------types', types)
+      console.log('------------queues', queues)
+      console.log('------------scurrents', currents)
 
-      this.queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord
-      console.log('------------queues', this.queues)
+      if (config && config.length > 0) {
+        this.numberType = config[0].number_type
+      }
+
+      /*
+      type:
+           id : el[0], // 主键
+          status : el[1], // 状态 1 有效 3 删除
+          name: el[2], //  类型名称
+          num_prefix: el[3], //  类型编码
+          min_cnt: el[4], //  起始人数
+          max_cnt : el[5], //  截止人数
+          min_csm_amt: el[6], // 抵消金额(单位元)
+      queue:
+          phone_num: el[1], // 客人手机号
+          name: el[2], // 客人姓名
+          queue_type_id: el[3], // 排队类型id
+          queue_no: el[4], // 排队号
+          status: el[5], // 状态1 排队中 2 已过号 5 已叫号 3 已取消
+          obtain_time: el[6], // 取号时间 取号时间(格式:yyyymmddhh24miss)
+          update_time: el[7], // 更新时间(格式:yyyymmddhh24miss) 对应 到店时间 取消时间 过号时间 叫号时间
+      current:
+          queue_type_id: el[1], //  排队类型id
+          last_gen_num: el[2], //  当前取到几号了
+          curr_no: el[3], //  当前轮到哪个号了=0代表没有了
+          curr_no_status: el[4], //  当前叫号状态 1 排队中(可以叫号,过号,入场), 2,5 已过号,已入场(只能叫号)
+          wait_cnt: el[5], //  等待桌数
+          wait_no: el[6], //  等待叫号
+       */
 
 
-
-      // checked:true
-      // id:"21"
-      // max_cnt:"999"
-      // min_cnt:"10"
-      // min_csm_amt:"1001"
-      // name:"小桌"
-      // num_prefix:"A"
-      // status:"1"
-
-      console.log('currents', currents)
+      // 计算排队叫号
       for(let _type of types) {
         let idx = currents.findIndex(current => current.queue_type_id === _type.id)
         if (idx >= 0) {
           let finder = currents[idx]
-          _type.curr_num = _type.num_prefix + finder.curr_num
-          _type.num = _type.num_prefix + finder.num
-          _type.num_cnt = finder.num_cnt
-          _type.wait =  ''
+
+          let cur_num
+          let last_gen_num
+          if(this.numberType * 1 === 1) {
+            // cur_num = _type.num_prefix + finder.curr_no
+            cur_num = finder.curr_no
+            last_gen_num = finder.last_gen_num.padStart(2, 0)
+          } else if (this.numberType * 1 === 2) {
+            cur_num = finder.curr_no.padStart(2, 0)
+            last_gen_num = finder.last_gen_num.padStart(2, 0)
+          } else if (this.numberType * 1 === 3) {
+            cur_num = finder.curr_no.padStart(3, 0)
+            last_gen_num = finder.last_gen_num.padStart(3, 0)
+          }
+
+          _type.curr_num = _type.num_prefix  + cur_num
+          _type.num = _type.num_prefix + last_gen_num
+          _type.num_cnt = finder.wait_cnt
+          _type.wait =  finder.wait_no
         } else {
           _type.curr_num = '-'
           _type.num = '-'
@@ -265,9 +298,54 @@ export default {
           _type.wait =  '-'
         }
       }
-      this.typeList = types
+      //计算队列
+      /* name:"trump"
+      // obtain_time:"20240725134736"
+      // phone_num:"17721067513"
+      // queue_no:"1"
+      // queue_type_id:"24"
+      // status:"1"
+      // update_time:"20240725134736" */
 
-      console.log('this.typeList', this.typeList)
+      for(let queue of queues) {
+        let idx = types.findIndex(t => t.id === queue.queue_type_id)
+        if (idx >= 0) {
+          let finder = types[idx]
+          console.log('finder: ', finder)
+          let queue_number
+          if(this.numberType * 1 === 1) {
+            queue_number = queue.queue_no
+          } else if(this.numberType * 1 === 2) {
+            queue_number = queue.queue_no.padStart(2, 0)
+          } else if(this.numberType * 1 === 3) {
+            queue_number = queue.queue_no.padStart(3, 0)
+          }
+          queue.queue_no = finder.num_prefix + queue_number
+          queue.queue_name = finder.name
+          //todo:
+          queue.desk_cnt = 10
+          //
+          if (queue.status * 1 === 1) {
+            queue.status_name = '排队中'
+          } else if (queue.status * 1 === 2) {
+            queue.status_name = '已过号'
+          } else if (queue.status * 1 === 5) {
+            queue.status_name = '已叫号'
+          } else if (queue.status * 1 === 3) {
+            queue.status_name = '已取消'
+          }
+
+          queue.obtain_time_t = '2024-01-01 12:00:00'
+          queue.wait_time_t = '1小时20分钟'
+
+
+        }
+      }
+
+      this.typeList = types
+      this.queues = queues
+
+      console.log('======this.typeList', this.typeList)
 
       this.callback =  () => {
         // this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]

@@ -551,6 +551,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       })
       break
     case 48: // 排队记录(主键queue_type_id,queue_no)
+        console.log('===========排队记录trans============', arr)
       arr.forEach(el => {  
         resultArr.push({
           wkday_id : el[0], // 营业日id
@@ -565,15 +566,16 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       })
       break
     case 49: // 当前取号(可用于大屏,可用于咨客操作面板界面)(主键:queue_type_id)
+      console.log('===========当前取号 trans============', arr)
       arr.forEach(el => {  
         resultArr.push({
           wkday_id : el[0], // 营业日id
           queue_type_id: el[1], //  排队类型id
-          num: el[2], //  当前取到几号了
-          curr_num: el[3], //  当前轮到哪个号了=0代表没有了
-          curr_cust_name: el[4], //  当前轮到的客户名称
-          curr_cust_phone: el[5], //  当前轮到的客户电话
-          num_cnt: el[6], //  有多少人排队
+          last_gen_num: el[2], //  当前取到几号了
+          curr_no: el[3], //  当前轮到哪个号了=0代表没有了
+          curr_no_status: el[4], //  当前叫号状态 1 排队中(可以叫号,过号,入场), 2,5 已过号,已入场(只能叫号)
+          wait_cnt: el[5], //  等待桌数
+          wait_no: el[6], //  等待叫号
         })
       })
       break

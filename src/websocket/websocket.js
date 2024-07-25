@@ -541,7 +541,7 @@ export default class WebSocketClient {
               eventVue.$emit("reloadPayOrderList");
             }
 
-            if(key == 47 ||key == 48 || key == 49){
+            if(key == 47 ||key == 48 || key == 49 || key == 46){
               this.vue.$observer.send(QUEUE_TASK);
             }
           });
