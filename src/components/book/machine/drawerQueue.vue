@@ -71,7 +71,7 @@
               <div v-else ref="scrollItem">
                 <div class="coll" v-for="(item,i) in queues" :key="i">
                   <div class="detail tr">
-                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no}}</div>
+                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no_name}}</div>
                     <div class="td w120">{{item.queue_name}}</div>
                     <div class="td w120">{{item.name}}</div>
                     <div class="td w120">{{item.desk_cnt}}</div>
@@ -286,6 +286,7 @@ export default {
       console.log('------------queues', queues)
       console.log('------------scurrents', currents)
 
+
       if (config && config.length > 0) {
         this.numberType = config[0].number_type
       }
@@ -343,7 +344,7 @@ export default {
           if(this.numberType * 1 === 1) {
             // cur_num = _type.num_prefix + finder.curr_no
             cur_num = finder.curr_no
-            last_gen_num = finder.last_gen_num.padStart(2, 0)
+            last_gen_num = finder.last_gen_num
           } else if (this.numberType * 1 === 2) {
             cur_num = finder.curr_no.padStart(2, 0)
             last_gen_num = finder.last_gen_num.padStart(2, 0)
@@ -385,7 +386,7 @@ export default {
           } else if(this.numberType * 1 === 3) {
             queue_number = queue.queue_no.padStart(3, 0)
           }
-          queue.queue_no = finder.num_prefix + queue_number
+          queue.queue_no_name = finder.num_prefix + queue_number
           queue.queue_name = finder.name
           queue.desk_cnt = this.countElementsBeforeQueueNo(queues, queue.queue_no)
 
