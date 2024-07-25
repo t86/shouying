@@ -7,11 +7,6 @@
       direction="rtl"
       size="90%"
     >
-<!--      item.curr_num = item.num_prefix + current.curr_num-->
-<!--      item.num = item.num_prefix + current.num-->
-<!--      item.num_cnt = item.num_cnt-->
-<!--      item.wait =  ''-->
-    <!-- 添加tab 排队叫号 排队列表 -->
     <el-tabs v-model="activeTab" @tab-click="handleClick" class="tab-list" >
       <el-tab-pane label="排队叫号" name="1" class="tab-pane">
         <div class="table">
@@ -58,13 +53,6 @@
           <div class="content">
             <div class="thead">
               <div class="tr">
-<!--                // name:"trump"-->
-<!--                // obtain_time:"20240724142324"-->
-<!--                // phone_num:"17721067513"-->
-<!--                // queue_no:"1"-->
-<!--                // queue_type_id:"21"-->
-<!--                // status:"3"-->
-<!--                // update_time:"20240724225937"-->
                 <div class="th w120" style="background-color: #182037;">排队号码</div>
                 <div class="th w120">排队类型</div>
                 <div class="th w120">客户姓名</div>
@@ -116,6 +104,7 @@ import {cardPageMixins} from "@/mixin/cardPage";
 export default {
   data () {
     return {
+      timer: null,
       show: false,
       numberType: 1,
       loadTime: '',
@@ -147,27 +136,19 @@ export default {
       callback: null
     };
   },
-  mounted() {
+  async mounted() {
     this.callback =  () => {
 
     }
     this.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
     this.$observer.unsubscribe(QUEUE_TASK, this.callback);
   },
   methods: {
-    getReloadTime () {
-      const date = new Date();
-      const Y = date.getFullYear();
-      const M = (date.getMonth() + 1).toString().padStart(2, 0);
-      const D = date.getDate().toString().padStart(2, 0);
-      const hour = date.getHours().toString().padStart(2, 0);
-      const minute = date.getMinutes().toString().padStart(2, 0);
-      const second = date.getSeconds().toString().padStart(2, 0);
-      this.loadTime = `${Y}-${M}-${D} ${hour}:${minute}:${second}`
-    },
-
     async call(){
       this.showConfirmHandle(
           "叫号",
@@ -202,6 +183,24 @@ export default {
 
     onCancelDrawer () {
       this.closeDrawerHandle();
+      if (this.timer) {
+        clearInterval(this.timer);
+      }
+    },
+
+    async updateQueueWait() {
+      this.timer = setInterval(async () => { // 使用箭头函数，确保this指向正确
+        try {
+          console.log('updateQueueWait....')
+          this.queues.forEach(a => a.wait_time_t = this.formatTimeDifference(a.obtain_time))
+          this.queues = [...this.queues]
+        } catch (e) {
+          if (this.timer) {
+            clearInterval(this.timer);
+          }
+          this.timer = null;
+        }
+      }, 1000*60)
     },
 
     handleClick(tab, event) {
@@ -388,10 +387,8 @@ export default {
           }
           queue.queue_no = finder.num_prefix + queue_number
           queue.queue_name = finder.name
-          //todo:
-
           queue.desk_cnt = this.countElementsBeforeQueueNo(queues, queue.queue_no)
-          //
+
           if (queue.status * 1 === 1) {
             queue.status_name = '排队中'
           } else if (queue.status * 1 === 2) {
@@ -437,6 +434,7 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.getTableData();
+        this.updateQueueWait();
       }
     }
   },
