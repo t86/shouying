@@ -110,10 +110,8 @@
 </template>
 
 <script>
-import api_book from "@/api/Book";
-import { QUEUE_TASK } from "@/observer";
+import {QUEUE_TASK} from "@/observer";
 import {cardPageMixins} from "@/mixin/cardPage";
-import api_card from "@/api/Book";
 
 export default {
   data () {
@@ -225,6 +223,59 @@ export default {
       item.checked = true;
       this.statusList = [...this.statusList];
     },
+    formatTimeDifference(timestamp) {
+      // 将时间字符串解析为Date对象
+      const year = parseInt(timestamp.substring(0, 4), 10);
+      const month = parseInt(timestamp.substring(4, 6), 10) - 1; // 月份从0开始
+      const day = parseInt(timestamp.substring(6, 8), 10);
+      const hour = parseInt(timestamp.substring(8, 10), 10);
+      const minute = parseInt(timestamp.substring(10, 12), 10);
+      const second = parseInt(timestamp.substring(12, 14), 10);
+
+      const targetDate = new Date(year, month, day, hour, minute, second);
+      const now = new Date();
+
+      // 计算时间差值（以毫秒为单位）
+      const diffMilliseconds = Math.abs(now - targetDate);
+
+      // 将毫秒转换为分钟和小时
+      const diffMinutes = Math.floor(diffMilliseconds / 1000 / 60);
+      const diffHours = Math.floor(diffMinutes / 60);
+      const remainingMinutes = diffMinutes % 60;
+
+      // 构造返回的字符串
+      let result = '';
+      if (diffHours > 0) {
+        result += `${diffHours}小时`;
+      }
+      if (remainingMinutes > 0) {
+        result += `${remainingMinutes}分钟`;
+      }
+
+      return result || '0分钟';
+    },
+    formatTimestamp(timestamp) {
+      const year = timestamp.substring(0, 4);
+      const month = timestamp.substring(4, 6);
+      const day = timestamp.substring(6, 8);
+      const hour = timestamp.substring(8, 10);
+      const minute = timestamp.substring(10, 12);
+      const second = timestamp.substring(12, 14);
+      return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    },
+    countElementsBeforeQueueNo(queue, targetQueueNo) {
+      const targetElement = queue.find(element => element.queue_no === targetQueueNo);
+      if (!targetElement) {
+        return 0;
+      }
+      const targetObtainTime = targetElement.obtain_time;
+      const count = queue.filter(element =>
+          element.status === "1" &&
+          element.obtain_time < targetObtainTime
+      ).length;
+
+      return count;
+    },
     getTableData(){
       let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
       let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
@@ -257,6 +308,21 @@ export default {
           status: el[5], // 状态1 排队中 2 已过号 5 已叫号 3 已取消
           obtain_time: el[6], // 取号时间 取号时间(格式:yyyymmddhh24miss)
           update_time: el[7], // 更新时间(格式:yyyymmddhh24miss) 对应 到店时间 取消时间 过号时间 叫号时间
+          {
+            "wkday_id": "242061247418275",
+            "phone_num": "17721067513",
+            "name": "trump",
+            "queue_type_id": "23",
+            "queue_no": "ZZ1",
+            "status": "1",
+            "obtain_time": "20240725233927",
+            "update_time": "20240725233927",
+            "queue_name": "包厢",
+            "desk_cnt": 10,
+            "status_name": "排队中",
+            "obtain_time_t": "2024-01-01 12:00:00",
+            "wait_time_t": "12分钟"
+        }
       current:
           queue_type_id: el[1], //  排队类型id
           last_gen_num: el[2], //  当前取到几号了
@@ -323,7 +389,8 @@ export default {
           queue.queue_no = finder.num_prefix + queue_number
           queue.queue_name = finder.name
           //todo:
-          queue.desk_cnt = 10
+
+          queue.desk_cnt = this.countElementsBeforeQueueNo(queues, queue.queue_no)
           //
           if (queue.status * 1 === 1) {
             queue.status_name = '排队中'
@@ -335,10 +402,8 @@ export default {
             queue.status_name = '已取消'
           }
 
-          queue.obtain_time_t = '2024-01-01 12:00:00'
-          queue.wait_time_t = '1小时20分钟'
-
-
+          queue.obtain_time_t = this.formatTimestamp(queue.obtain_time)
+          queue.wait_time_t = this.formatTimeDifference(queue.obtain_time)
         }
       }
 
