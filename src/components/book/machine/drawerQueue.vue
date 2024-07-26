@@ -49,6 +49,18 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="排队列表" name="2" class="tab-pane">
+        <div class="header">
+          <div class="queue-type-layout">
+            <div class="label">排队类型：</div>
+            <div class="btn" v-for="(item, index) in typeList" :key="index" @click="onTypeClick(item)" :class="{'btn-selected': item.id === checkType}">{{ item.name }}</div>
+
+          </div>
+          <div class="queue-status-layout">
+            <div class="label">状态：</div>
+            <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="{'btn-selected': item.id === checkStatus}">{{ item.name }}</div>
+          </div>
+        </div>
+
         <div class="table">
           <div class="content">
             <div class="thead">
@@ -69,7 +81,7 @@
                   style="text-align:center;transform:translateY(40px)"
               >暂无数据</div>
               <div v-else ref="scrollItem">
-                <div class="coll" v-for="(item,i) in queues" :key="i">
+                <div class="coll" v-for="(item,i) in queues" :key="i" :style="{ display: item.show ? '' : 'none'}">
                   <div class="detail tr">
                     <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no_name}}</div>
                     <div class="td w120">{{item.queue_name}}</div>
@@ -112,37 +124,39 @@ export default {
       activeTab: '1', // 排队叫号 1 排队列表 2
       typeList: [], // 排队类型
       currents: [],
-      checkType: 0, // 选中的排队类型
+      checkType: -1, // 选中的排队类型
       queues: [],
       statusList: [
         {
           name: '排队中',
-          id: 1
+          id: "1"
         },
         {
           name: '已过号',
-          id: 2
+          id: "2"
         },
         {
           name: '已取消',
-          id: 3
+          id: "3"
         },
         {
           name: '已进店',
-          id: 5
+          id: "5"
         },
       ], // 状态
-      checkStatus: 0, // 选中的状态
+      checkStatus: -1, // 选中的状态
       callback: null
     };
   },
   async mounted() {
+    console.log('mountedmountedmountedmountedmountedmountedmounted')
     this.callback =  () => {
 
     }
     this.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
+    console.log('beforeDestroybeforeDestroybeforeDestroy')
     if (this.timer) {
       clearInterval(this.timer);
     }
@@ -213,6 +227,7 @@ export default {
         i.checked = false;
       });
       item.checked = true;
+      this.checkType = item.id
       this.typeList = [...this.typeList];
     },
     onStatusClick (item) {
@@ -220,6 +235,7 @@ export default {
         i.checked = false;
       });
       item.checked = true;
+      this.checkStatus = item.id
       this.statusList = [...this.statusList];
     },
     formatTimeDifference(timestamp) {
@@ -389,6 +405,7 @@ export default {
           queue.queue_no_name = finder.num_prefix + queue_number
           queue.queue_name = finder.name
           queue.desk_cnt = this.countElementsBeforeQueueNo(queues, queue.queue_no)
+          queue.show = true
 
           if (queue.status * 1 === 1) {
             queue.status_name = '排队中'
@@ -437,6 +454,30 @@ export default {
         this.getTableData();
         this.updateQueueWait();
       }
+    },
+    checkType(newVal) {
+      console.log('checkType changed', newVal)
+      this.queues.map(queue => {
+        if(queue.queue_type_id === newVal) {
+          queue.show = true
+        } else {
+          queue.show = false
+        }
+      })
+      this.queues = [...this.queues]
+      console.log('after queue:', this.queues)
+    },
+    checkStatus(newVal) {
+      console.log('checkStatus changed', newVal)
+      this.queues.map(queue => {
+        if(queue.status === newVal) {
+          queue.show = true
+        } else {
+          queue.show = false
+        }
+      })
+      this.queues = [...this.queues]
+      console.log('after queue:', this.queues)
     }
   },
   mixins: [cardPageMixins],
