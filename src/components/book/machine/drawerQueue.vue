@@ -149,18 +149,16 @@ export default {
     };
   },
   async mounted() {
-    console.log('mountedmountedmountedmountedmountedmountedmounted')
-    this.callback =  () => {
-
-    }
-    this.$observer.subscribe(QUEUE_TASK, this.callback);
+    // console.log('mountedmountedmountedmountedmountedmountedmounted')
+    // this.callback =  () => {
+    // }
+    // this.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
-    console.log('beforeDestroybeforeDestroybeforeDestroy')
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-    this.$observer.unsubscribe(QUEUE_TASK, this.callback);
+    // if (this.timer) {
+    //   clearInterval(this.timer);
+    // }
+    // this.$observer.unsubscribe(QUEUE_TASK, this.callback);
   },
   methods: {
     async call(){
@@ -200,6 +198,7 @@ export default {
       if (this.timer) {
         clearInterval(this.timer);
       }
+      this.$observer.unsubscribe(QUEUE_TASK, this.callback);
     },
 
     async updateQueueWait() {
@@ -222,21 +221,19 @@ export default {
       this.activeTab = tab.name;
     },
     onTypeClick(item) {
-      console.log('item', item)
-      this.typeList.forEach((i) => {
-        i.checked = false;
-      });
-      item.checked = true;
-      this.checkType = item.id
-      this.typeList = [...this.typeList];
+      if (this.checkType === item.id) {
+        this.checkType = -1
+      } else {
+        this.checkType = item.id;
+      }
     },
     onStatusClick (item) {
-      this.statusList.forEach((i) => {
-        i.checked = false;
-      });
-      item.checked = true;
-      this.checkStatus = item.id
-      this.statusList = [...this.statusList];
+      console.log('onStatusClick', item);
+      if (this.checkStatus === item.id) {
+        this.checkStatus = -1
+      } else {
+        this.checkStatus = item.id;
+      }
     },
     formatTimeDifference(timestamp) {
       // 将时间字符串解析为Date对象
@@ -291,7 +288,7 @@ export default {
 
       return count;
     },
-    getTableData(){
+    getData(){
       let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
       let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
       let queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord //48 排队记录
@@ -306,48 +303,6 @@ export default {
       if (config && config.length > 0) {
         this.numberType = config[0].number_type
       }
-
-      /*
-      type:
-           id : el[0], // 主键
-          status : el[1], // 状态 1 有效 3 删除
-          name: el[2], //  类型名称
-          num_prefix: el[3], //  类型编码
-          min_cnt: el[4], //  起始人数
-          max_cnt : el[5], //  截止人数
-          min_csm_amt: el[6], // 抵消金额(单位元)
-      queue:
-          phone_num: el[1], // 客人手机号
-          name: el[2], // 客人姓名
-          queue_type_id: el[3], // 排队类型id
-          queue_no: el[4], // 排队号
-          status: el[5], // 状态1 排队中 2 已过号 5 已叫号 3 已取消
-          obtain_time: el[6], // 取号时间 取号时间(格式:yyyymmddhh24miss)
-          update_time: el[7], // 更新时间(格式:yyyymmddhh24miss) 对应 到店时间 取消时间 过号时间 叫号时间
-          {
-            "wkday_id": "242061247418275",
-            "phone_num": "17721067513",
-            "name": "trump",
-            "queue_type_id": "23",
-            "queue_no": "ZZ1",
-            "status": "1",
-            "obtain_time": "20240725233927",
-            "update_time": "20240725233927",
-            "queue_name": "包厢",
-            "desk_cnt": 10,
-            "status_name": "排队中",
-            "obtain_time_t": "2024-01-01 12:00:00",
-            "wait_time_t": "12分钟"
-        }
-      current:
-          queue_type_id: el[1], //  排队类型id
-          last_gen_num: el[2], //  当前取到几号了
-          curr_no: el[3], //  当前轮到哪个号了=0代表没有了
-          curr_no_status: el[4], //  当前叫号状态 1 排队中(可以叫号,过号,入场), 2,5 已过号,已入场(只能叫号)
-          wait_cnt: el[5], //  等待桌数
-          wait_no: el[6], //  等待叫号
-       */
-
 
       // 计算排队叫号
       for(let _type of types) {
@@ -381,14 +336,6 @@ export default {
         }
       }
       //计算队列
-      /* name:"trump"
-      // obtain_time:"20240725134736"
-      // phone_num:"17721067513"
-      // queue_no:"1"
-      // queue_type_id:"24"
-      // status:"1"
-      // update_time:"20240725134736" */
-
       for(let queue of queues) {
         let idx = types.findIndex(t => t.id === queue.queue_type_id)
         if (idx >= 0) {
@@ -424,21 +371,31 @@ export default {
 
       this.typeList = types
       this.queues = queues
-
       console.log('======this.typeList', this.typeList)
-
-      this.callback =  () => {
-        // this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueRecord]
-
-
-        // if (this.checkType > 0) {
-        //
-        // }
-        // if(this.checkStatus > 0) {
-        //
-        // }
+    },
+    filterQueue(queueType, queryStatus){
+      console.log('queueType, queryStatus', queueType, queryStatus)
+      if(queueType > 0 && queryStatus > 0) {
+        this.queues.map(queue => {
+          queue.show = (queue.status === queryStatus && queue.queue_type_id === queueType);
+        })
+      } else if (queueType > 0) {
+        this.queues.map(queue => {
+          queue.show = (queue.queue_type_id === queueType);
+        })
+      } else if (queryStatus > 0) {
+        this.queues.map(queue => {
+          queue.show = (queue.status === queryStatus);
+        })
+      } else {
+        this.queues.map(queue => {
+          queue.show = true
+        })
       }
+      console.log('queues now', this.queues)
+      this.queues = [...this.queues]
     }
+
   },
   props: {
     showDrawer: {
@@ -451,33 +408,19 @@ export default {
     showDrawer (newVal) {
       this.show = newVal;
       if (newVal) {
-        this.getTableData();
+        this.callback =  () => {
+          this.getData();
+        }
+        this.$observer.subscribe(QUEUE_TASK, this.callback);
+        this.getData();
         this.updateQueueWait();
       }
     },
     checkType(newVal) {
-      console.log('checkType changed', newVal)
-      this.queues.map(queue => {
-        if(queue.queue_type_id === newVal) {
-          queue.show = true
-        } else {
-          queue.show = false
-        }
-      })
-      this.queues = [...this.queues]
-      console.log('after queue:', this.queues)
+      this.filterQueue(newVal, this.checkStatus)
     },
     checkStatus(newVal) {
-      console.log('checkStatus changed', newVal)
-      this.queues.map(queue => {
-        if(queue.status === newVal) {
-          queue.show = true
-        } else {
-          queue.show = false
-        }
-      })
-      this.queues = [...this.queues]
-      console.log('after queue:', this.queues)
+      this.filterQueue(this.checkType, newVal)
     }
   },
   mixins: [cardPageMixins],
