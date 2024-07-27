@@ -537,6 +537,11 @@ export default {
    * 
    */
   reqExpOneCustPrePayLog: (params) =>
-    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_one_cust_prepay_log`, params), 
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_one_cust_prepay_log`, params),
+
+
+  reqQueueCall: (params) => axios.post(`${base.htgl}/custq/call`, params),
+  reqQueueEnter: (params) => axios.post(`${base.htgl}/custq/arrive`, params),
+  reqQueueOverdue: (params) => axios.post(`${base.htgl}/custq/expired`, params),
 
 };

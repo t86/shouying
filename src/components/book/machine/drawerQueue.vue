@@ -36,9 +36,9 @@
                     <div class="td w120">{{item.wait}}</div>
                     <div class="td w120">
                       <div class="action">
-                        <el-button type="primary" class="btn" size="mini" @click="call">叫号</el-button>
-                        <el-button type="primary" class="btn" size="mini" @click="enter">进店</el-button>
-                        <el-button type="primary" class="btn" size="mini" @click="overdue">过号</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="call(item)">叫号</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="enter(item)">进店</el-button>
+                        <el-button type="primary" class="btn" size="mini" @click="overdue(item)">过号</el-button>
                       </div>
                     </div>
                   </div>
@@ -112,6 +112,8 @@
 <script>
 import {QUEUE_TASK} from "@/observer";
 import {cardPageMixins} from "@/mixin/cardPage";
+import api from "@/api";
+import api_money from "@/api/money";
 
 export default {
   data () {
@@ -161,30 +163,70 @@ export default {
     // this.$observer.unsubscribe(QUEUE_TASK, this.callback);
   },
   methods: {
-    async call(){
+    async call(item){
+      console.log(item)
       this.showConfirmHandle(
           "叫号",
           "是否确认叫号",
           async () => {
-            console.log('------call 叫号')
+            try {
+              let params = {
+                queue_type_id:  item.id * 1,    //QueueTypeId 排队类型Id
+                queue_no: item.curr_num_id * 1      //QueueNo 排队号
+              }
+              const res =  await api_money.reqQueueCall(params)
+              if (res.code === 1) {
+                this.$message.success("叫号成功");
+              } else {
+                this.$message.warning(res.msg);
+              }
+            } catch (error) {
+              console.log("叫号失败", error);
+            }
           }
       );
     },
-    async enter(){
+    async enter(item){
       this.showConfirmHandle(
           "进店",
           "是否确认客人已进店",
           async () => {
-            console.log('------call 进店')
+            try {
+              let params = {
+                queue_type_id:  item.id  * 1,    //QueueTypeId 排队类型Id
+                queue_no: item.curr_num_id  * 1     //QueueNo 排队号
+              }
+              const res =  await api_money.reqQueueEnter(params)
+              if (res.code === 1) {
+                this.$message.success("进店成功");
+              } else {
+                this.$message.warning(res.msg);
+              }
+            } catch (error) {
+              console.log("进店失败", error);
+            }
           }
       );
     },
-    async overdue(){
+    async overdue(item){
       this.showConfirmHandle(
           "过号",
           "是否设置为过号?操作后不可撤销",
           async () => {
-            console.log('------call 过号')
+            try {
+              let params = {
+                queue_type_id:  item.id * 1,    //QueueTypeId 排队类型Id
+                queue_no: item.curr_num_id *1,      //QueueNo 排队号
+              }
+              const res =  await api_money.reqQueueOverdue(params)
+              if (res.code === 1) {
+                this.$message.success("设置过号成功");
+              } else {
+                this.$message.warning(res.msg);
+              }
+            } catch (error) {
+              console.log("设置过号失败", error);
+            }
           }
       );
     },
@@ -325,11 +367,13 @@ export default {
           }
 
           _type.curr_num = _type.num_prefix  + cur_num
+          _type.curr_num_id = cur_num
           _type.num = _type.num_prefix + last_gen_num
           _type.num_cnt = finder.wait_cnt
           _type.wait =  finder.wait_no
         } else {
           _type.curr_num = '-'
+          _type.curr_num_id = -1
           _type.num = '-'
           _type.num_cnt = '-'
           _type.wait =  '-'
