@@ -18,15 +18,15 @@
               class="tr"
               layout="row"
               layout-align="start center"
-              v-for="(item, index) in tableData"
+              v-for="(item, index) in typeList"
               :key="index"
             >
-              <div class="td">{{item.queue_type_id}}</div>
-              <div class="td">{{item.curr_num > 0 || ''}}</div>
+              <div class="td">{{item.name}}</div>
+              <div class="td">{{item.curr_num}}</div>
               <div class="td">{{item.num}}</div>
-              <div class="td">{{item.num_cnt}}</div>
+              <div class="td">{{item.wait}}</div>
             </div>
-            <p v-if="tableData.length == 0" class="m-t-10 nodata" style="text-align:center">暂无数据</p>
+            <p v-if="typeList.length === 0" class="m-t-10 nodata" style="text-align:center">暂无数据</p>
           </div>
         </div>
     </div>
@@ -38,37 +38,73 @@ export default {
     data() {
         return {
             isFullScreen: false,
-            tableData: [],
             formattedDate: '',
             orgName: '',
+            typeList: [], // 排队类型
+            currents: [],
+            queues: [],
         }
     },
 
-    mounted() {
-      console.log(
-        '排队数据',
-          this.$store.state.cardPageInfo.resResultDataObj.queueConfig, 
-          this.$store.state.cardPageInfo.resResultDataObj.queueType,
-          this.$store.state.cardPageInfo.resResultDataObj.queueRecord,
-          this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber);
-
+    async mounted() {
+      await this.getData()
       this.callback = () => {
-        this.tableData = [...this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber]
-        console.log(
-          this.$store.state.cardPageInfo.resResultDataObj.queueConfig, 
-          this.$store.state.cardPageInfo.resResultDataObj.queueType,
-          this.$store.state.cardPageInfo.resResultDataObj.queueRecord,
-          this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber
-          );
+        this.getData()
       }
       this.$observer.subscribe(QUEUE_TASK, this.callback);
-      setInterval(this.updateTime, 1000);
+      setInterval(this.updateTime, 5000);
       this.orgName = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo.org_name
     },
     beforeDestroy() {
       this.$observer.unsubscribe(QUEUE_TASK, this.callback);
     },
     methods: {
+      async getData(){
+        let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
+        let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
+        let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber //49 当前取号
+
+        console.log('------------config', config)
+        console.log('------------types', types)
+        console.log('------------scurrents', currents)
+
+        if (config && config.length > 0) {
+          this.numberType = config[0].number_type
+        }
+        for(let _type of types) {
+          let idx = currents.findIndex(current => current.queue_type_id === _type.id)
+          if (idx >= 0) {
+            let finder = currents[idx]
+
+            let cur_num
+            let last_gen_num
+            if(this.numberType * 1 === 1) {
+              // cur_num = _type.num_prefix + finder.curr_no
+              cur_num = finder.curr_no
+              last_gen_num = finder.last_gen_num
+            } else if (this.numberType * 1 === 2) {
+              cur_num = finder.curr_no.padStart(2, 0)
+              last_gen_num = finder.last_gen_num.padStart(2, 0)
+            } else if (this.numberType * 1 === 3) {
+              cur_num = finder.curr_no.padStart(3, 0)
+              last_gen_num = finder.last_gen_num.padStart(3, 0)
+            }
+
+            _type.curr_num = _type.num_prefix  + cur_num
+            _type.curr_num_id = cur_num
+            _type.num = _type.num_prefix + last_gen_num
+            _type.num_cnt = finder.wait_cnt
+            _type.wait =  finder.wait_no
+          } else {
+            _type.curr_num = '-'
+            _type.curr_num_id = -1
+            _type.num = '-'
+            _type.num_cnt = '-'
+            _type.wait =  '-'
+          }
+        }
+        this.typeList = types
+      },
         toggleFullScreen() {
             if (this.isFullScreen) {
                 this.exitFullScreen()
@@ -168,28 +204,61 @@ export default {
         height: 100%;
         padding-top: 180px;
         overflow-y: auto;
+
         .tr{
           padding: 0 20px;
           box-sizing: border-box;
-          height: 36px;
+          //height: 36px;
           line-height: 36px;
           font-size: 14px;
         }
+
+        .th {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+        }
+
+        .td {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+
+        //.th:nth-child(1), .td:nth-child(1){
+        //  width: 25%;
+        //}
+        //.th:nth-child(2), .td:nth-child(2){
+        //  width: 25%;
+        //}
+        //.th:nth-child(3), .td:nth-child(3){
+        //  width: 25%;
+        //}
+        //.th:nth-child(4), .td:nth-child(4){
+        //  width: 25%;
+        //}
+
         .thead{
           font-family: 'PingFang-SC', sans-serif;
-          position: sticky;
-          top: 0;
+          //position: sticky;
+          //top: 0;
           // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
           color: rgba(255, 255, 255, .5);
           .th {
+            width: 25%;
             font-weight: 500;
             font-size: 40px;
             color: rgba(255,255,255,0.8);
             line-height: 40px;
           }
-          
+
         }
-        .tbody{
+
+      .tbody{
+          font-family: 'PingFang-SC', sans-serif;
+          //position: sticky;
+          //top: 0;
           color: rgba(255, 255, 255, .8);
           .nodata {
             font-weight: 500;
@@ -197,25 +266,17 @@ export default {
             color: rgba(255,255,255,0.8);
             line-height: 40px;
           }
-        }
-        .th,td {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+          .td {
+            width: 25%;
+            font-weight: 500;
+            font-size: 40px;
+            color: rgba(255,255,255,0.8);
+            line-height: 80px;
+          }
         }
 
-        .th:nth-child(1), .td:nth-child(1){
-          width: 25%;
-        }
-        .th:nth-child(2), .td:nth-child(2){
-          width: 25%;
-        }
-        .th:nth-child(3), .td:nth-child(3){
-          width: 25%;
-        }
-        .th:nth-child(4), .td:nth-child(4){
-          width: 25%;
-        }
+
+
     }
   }
 </style>

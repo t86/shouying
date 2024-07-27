@@ -122,7 +122,6 @@ export default {
       show: false,
       numberType: 1,
       loadTime: '',
-      tableData: [],
       activeTab: '1', // 排队叫号 1 排队列表 2
       typeList: [], // 排队类型
       currents: [],
