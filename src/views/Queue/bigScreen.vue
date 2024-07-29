@@ -47,6 +47,9 @@ export default {
     },
 
     async mounted() {
+      setTimeout(() => {
+        document.onkeydown = this.keydownHandle;
+      }, 200);
       await this.getData()
       this.callback = () => {
         this.getData()
@@ -59,6 +62,12 @@ export default {
       this.$observer.unsubscribe(QUEUE_TASK, this.callback);
     },
     methods: {
+      keydownHandle(e){
+        // console.log(e.keyCode)
+        if (e.keyCode === 13){
+          this.toggleFullScreen()
+        }
+      },
       async getData(){
         let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
         let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
