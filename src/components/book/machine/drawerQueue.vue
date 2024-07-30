@@ -36,9 +36,9 @@
                     <div class="td w120">{{item.wait}}</div>
                     <div class="td w120">
                       <div class="action">
-                        <el-button type="primary" class="btn" size="mini" @click="call(item)">叫号</el-button>
-                        <el-button type="primary" class="btn" size="mini" @click="enter(item)">进店</el-button>
-                        <el-button type="primary" class="btn" size="mini" @click="overdue(item)">过号</el-button>
+                        <el-button  type="primary" class="btn" size="mini" @click="call(item)">叫号</el-button>
+                        <el-button :disabled="item.current_status*1 !== 1" type="primary" class="btn" size="mini" @click="enter(item)">进店</el-button>
+                        <el-button :disabled="item.current_status*1 !== 1" type="primary" class="btn" size="mini" @click="overdue(item)">过号</el-button>
                       </div>
                     </div>
                   </div>
@@ -164,6 +164,14 @@ export default {
   methods: {
     async call(item){
       console.log(item)
+      let queue_no
+      if (item.current_status * 1 === 1){
+        queue_no = item.curr_num_id * 1
+      } else if (item.current_status * 1 === 2 || item.current_status * 1 === 5){
+        queue_no = item.wait_no * 1
+      } else if (item.current_status * 1 === 0){
+        queue_no = item.wait_no * 1
+      }
       this.showConfirmHandle(
           "叫号",
           "是否确认叫号",
@@ -171,7 +179,7 @@ export default {
             try {
               let params = {
                 queue_type_id:  item.id * 1,    //QueueTypeId 排队类型Id
-                queue_no: item.curr_num_id * 1      //QueueNo 排队号
+                queue_no: queue_no     //QueueNo 排队号
               }
               const res =  await api_money.reqQueueCall(params)
               if (res.code === 1) {
@@ -186,6 +194,12 @@ export default {
       );
     },
     async enter(item){
+      let queue_no
+      if (item.current_status * 1 === 1){
+        queue_no = item.curr_num_id
+      } else {
+        return
+      }
       this.showConfirmHandle(
           "进店",
           "是否确认客人已进店",
@@ -193,7 +207,7 @@ export default {
             try {
               let params = {
                 queue_type_id:  item.id  * 1,    //QueueTypeId 排队类型Id
-                queue_no: item.curr_num_id  * 1     //QueueNo 排队号
+                queue_no: queue_no     //QueueNo 排队号
               }
               const res =  await api_money.reqQueueEnter(params)
               if (res.code === 1) {
@@ -208,6 +222,12 @@ export default {
       );
     },
     async overdue(item){
+      let queue_no
+      if (item.current_status * 1 === 1){
+        queue_no = item.curr_num_id
+      } else {
+        return
+      }
       this.showConfirmHandle(
           "过号",
           "是否设置为过号?操作后不可撤销",
@@ -215,7 +235,7 @@ export default {
             try {
               let params = {
                 queue_type_id:  item.id * 1,    //QueueTypeId 排队类型Id
-                queue_no: item.curr_num_id *1,      //QueueNo 排队号
+                queue_no: queue_no,      //QueueNo 排队号
               }
               const res =  await api_money.reqQueueOverdue(params)
               if (res.code === 1) {
@@ -354,6 +374,8 @@ export default {
           let cur_num
           let wait_num
           let last_gen_num
+
+
           if(this.numberType * 1 === 1) {
             // cur_num = _type.num_prefix + finder.curr_no
             cur_num = finder.curr_no
@@ -369,17 +391,31 @@ export default {
             wait_num = finder.wait_no.padStart(3, 0)
           }
 
-          _type.curr_num = _type.num_prefix  + cur_num
-          _type.curr_num_id = cur_num
+          if(finder.curr_no * 1 === 0) {
+            _type.curr_num = '-'
+          } else {
+            _type.curr_num = _type.num_prefix  + cur_num
+          }
+          if(finder.wait_no * 1 === 0) {
+            _type.wait = '-'
+          } else {
+            _type.wait =  _type.num_prefix + wait_num
+          }
+
+          _type.curr_num_id = finder.curr_no
           _type.num = _type.num_prefix + last_gen_num
           _type.num_cnt = finder.wait_cnt
-          _type.wait =  _type.num_prefix + wait_num
+
+          _type.wait_no = finder.wait_no
+          _type.current_status = finder.curr_no_status
         } else {
           _type.curr_num = '-'
           _type.curr_num_id = -1
           _type.num = '-'
           _type.num_cnt = '-'
           _type.wait =  '-'
+          _type.wait_no  = -1
+          _type.current_status = -1
         }
       }
       //计算队列
@@ -417,9 +453,6 @@ export default {
       }
 
       this.typeList = types
-      if (this.typeList.length > 0) {
-        this.checkType = this.typeList[0].id
-      }
       this.queues = queues
       console.log('======this.typeList', this.typeList)
     },
@@ -458,7 +491,6 @@ export default {
     showDrawer (newVal) {
       this.show = newVal;
       if (newVal) {
-        this.checkStatus = "1"
         this.callback =  () => {
           this.getData();
         }
