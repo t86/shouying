@@ -330,10 +330,10 @@ export default {
       return count;
     },
     getData(){
-      let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
-      let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
-      let queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord //48 排队记录
-      let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber //49 当前取号
+      let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig || [] // 46 配置
+      let types = this.$store.state.cardPageInfo.resResultDataObj.queueType || [] //47 排队类型
+      let queues = this.$store.state.cardPageInfo.resResultDataObj.queueRecord || [] //48 排队记录
+      let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber || []//49 当前取号
 
       console.log('------------config', config)
       console.log('------------types', types)
@@ -352,24 +352,28 @@ export default {
           let finder = currents[idx]
 
           let cur_num
+          let wait_num
           let last_gen_num
           if(this.numberType * 1 === 1) {
             // cur_num = _type.num_prefix + finder.curr_no
             cur_num = finder.curr_no
+            wait_num = finder.wait_no
             last_gen_num = finder.last_gen_num
           } else if (this.numberType * 1 === 2) {
             cur_num = finder.curr_no.padStart(2, 0)
             last_gen_num = finder.last_gen_num.padStart(2, 0)
+            wait_num = finder.wait_no.padStart(2, 0)
           } else if (this.numberType * 1 === 3) {
             cur_num = finder.curr_no.padStart(3, 0)
             last_gen_num = finder.last_gen_num.padStart(3, 0)
+            wait_num = finder.wait_no.padStart(3, 0)
           }
 
           _type.curr_num = _type.num_prefix  + cur_num
           _type.curr_num_id = cur_num
           _type.num = _type.num_prefix + last_gen_num
           _type.num_cnt = finder.wait_cnt
-          _type.wait =  finder.wait_no
+          _type.wait =  _type.num_prefix + wait_num
         } else {
           _type.curr_num = '-'
           _type.curr_num_id = -1
@@ -413,6 +417,9 @@ export default {
       }
 
       this.typeList = types
+      if (this.typeList.length > 0) {
+        this.checkType = this.typeList[0].id
+      }
       this.queues = queues
       console.log('======this.typeList', this.typeList)
     },
@@ -451,6 +458,7 @@ export default {
     showDrawer (newVal) {
       this.show = newVal;
       if (newVal) {
+        this.checkStatus = "1"
         this.callback =  () => {
           this.getData();
         }
