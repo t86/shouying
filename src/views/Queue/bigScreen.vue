@@ -10,6 +10,7 @@
               <div class="th">类型</div>
               <div class="th">当前叫号</div>
               <div class="th">当前取号</div>
+              <div class="th">等待叫号</div>
               <div class="th">等待桌数</div>
             </div>
           </div>
@@ -25,6 +26,7 @@
               <div class="td">{{item.curr_num}}</div>
               <div class="td">{{item.num}}</div>
               <div class="td">{{item.wait}}</div>
+              <div class="td">{{item.num_cnt}}</div>
             </div>
             <p v-if="typeList.length === 0" class="m-t-10 nodata" style="text-align:center">暂无数据</p>
           </div>
@@ -69,9 +71,9 @@ export default {
         }
       },
       async getData(){
-        let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig // 46 配置
-        let types = this.$store.state.cardPageInfo.resResultDataObj.queueType //47 排队类型
-        let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber //49 当前取号
+        let config = this.$store.state.cardPageInfo.resResultDataObj.queueConfig || [] // 46 配置
+        let types = this.$store.state.cardPageInfo.resResultDataObj.queueType || [] //47 排队类型
+        let currents = this.$store.state.cardPageInfo.resResultDataObj.queueCurNumber || []//49 当前取号
 
         console.log('------------config', config)
         console.log('------------types', types)
@@ -86,30 +88,50 @@ export default {
             let finder = currents[idx]
 
             let cur_num
+            let wait_num
             let last_gen_num
+
+
             if(this.numberType * 1 === 1) {
               // cur_num = _type.num_prefix + finder.curr_no
               cur_num = finder.curr_no
+              wait_num = finder.wait_no
               last_gen_num = finder.last_gen_num
             } else if (this.numberType * 1 === 2) {
               cur_num = finder.curr_no.padStart(2, 0)
               last_gen_num = finder.last_gen_num.padStart(2, 0)
+              wait_num = finder.wait_no.padStart(2, 0)
             } else if (this.numberType * 1 === 3) {
               cur_num = finder.curr_no.padStart(3, 0)
               last_gen_num = finder.last_gen_num.padStart(3, 0)
+              wait_num = finder.wait_no.padStart(3, 0)
             }
 
-            _type.curr_num = _type.num_prefix  + cur_num
-            _type.curr_num_id = cur_num
+            if(finder.curr_no * 1 === 0) {
+              _type.curr_num = '-'
+            } else {
+              _type.curr_num = _type.num_prefix  + cur_num
+            }
+            if(finder.wait_no * 1 === 0) {
+              _type.wait = '-'
+            } else {
+              _type.wait =  _type.num_prefix + wait_num
+            }
+
+            _type.curr_num_id = finder.curr_no
             _type.num = _type.num_prefix + last_gen_num
             _type.num_cnt = finder.wait_cnt
-            _type.wait =  finder.wait_no
+
+            _type.wait_no = finder.wait_no
+            _type.current_status = finder.curr_no_status
           } else {
             _type.curr_num = '-'
             _type.curr_num_id = -1
             _type.num = '-'
             _type.num_cnt = '-'
             _type.wait =  '-'
+            _type.wait_no  = -1
+            _type.current_status = -1
           }
         }
         this.typeList = types
