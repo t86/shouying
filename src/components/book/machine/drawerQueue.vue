@@ -36,9 +36,9 @@
                     <div class="td w120">{{item.wait}}</div>
                     <div class="td w120">
                       <div class="action">
-                        <el-button  type="primary" class="btn" size="mini" @click="call(item)">叫号</el-button>
-                        <el-button :disabled="item.current_status*1 !== 1" type="primary" class="btn" size="mini" @click="enter(item)">进店</el-button>
-                        <el-button :disabled="item.current_status*1 !== 1" type="primary" class="btn" size="mini" @click="overdue(item)">过号</el-button>
+                        <el-button  key="1" type="primary" :disabled="!item.canCall" class="btn" size="mini" @click="call(item)">叫号</el-button>
+                        <el-button key="2" type="primary" :disabled="!item.canEnter"  class="btn" size="mini" @click="enter(item)">进店</el-button>
+                        <el-button key="3" type="primary" :disabled="!item.canOverdue"  class="btn" size="mini" @click="overdue(item)">过号</el-button>
                       </div>
                     </div>
                   </div>
@@ -196,7 +196,7 @@ export default {
     async enter(item){
       let queue_no
       if (item.current_status * 1 === 1){
-        queue_no = item.curr_num_id
+        queue_no = item.curr_num_id * 1
       } else {
         return
       }
@@ -224,7 +224,7 @@ export default {
     async overdue(item){
       let queue_no
       if (item.current_status * 1 === 1){
-        queue_no = item.curr_num_id
+        queue_no = item.curr_num_id * 1
       } else {
         return
       }
@@ -408,6 +408,26 @@ export default {
 
           _type.wait_no = finder.wait_no
           _type.current_status = finder.curr_no_status
+
+          if(_type.current_status*1 === 1){
+            _type.canCall = true
+          } else{
+            if (_type.wait_no * 1 > 0) {
+              _type.canCall = true
+            } else {
+              _type.canCall = false
+            }
+          }
+          if(_type.current_status*1 === 1){
+            _type.canEnter = true
+          } else {
+            _type.canEnter = false
+          }
+          if(_type.current_status*1 === 1){
+            _type.canOverdue = true
+          } else {
+            _type.canOverdue = false
+          }
         } else {
           _type.curr_num = '-'
           _type.curr_num_id = -1
@@ -416,6 +436,9 @@ export default {
           _type.wait =  '-'
           _type.wait_no  = -1
           _type.current_status = -1
+          _type.canCall = false
+          _type.canEnter = false
+          _type.canOverdue = false
         }
       }
       //计算队列
@@ -442,7 +465,7 @@ export default {
           } else if (queue.status * 1 === 2) {
             queue.status_name = '已过号'
           } else if (queue.status * 1 === 5) {
-            queue.status_name = '已叫号'
+            queue.status_name = '已进店'
           } else if (queue.status * 1 === 3) {
             queue.status_name = '已取消'
           }
@@ -519,32 +542,4 @@ export default {
 </style>
 
 <style scoped lang="less">
-/deep/.select-com {
-  font-size: 14px;
-}
-
-/deep/.options li {
-  font-size: 14px;
-}
-</style>
-
-<style>
-.el-cascader__dropdown {
-  background-color: #202c4a;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.el-cascader-node {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-}
-
-.el-cascader-node:not(.is-disabled):focus,
-.el-cascader-node:not(.is-disabled):hover {
-  background-color: rgba(90, 90, 90, 0.5);
-}
-
-.el-cascader-panel {
-  border: none;
-}
 </style>
