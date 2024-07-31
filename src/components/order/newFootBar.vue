@@ -1644,7 +1644,7 @@ export default {
     drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
     drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
-    drawerRedeemCoupon: () => import("./drawerRedeemCoupon.vue"),
+    drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
     fullPageTable, // 全屏表格数据
     cardDrawer
