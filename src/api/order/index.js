@@ -215,6 +215,10 @@ export default {
   csm_coupon_preparev2: (params) =>
       axios.post(`${base.htgl}/wo/csm_coupon_prepare_v2`, params, true),
 
+  csm_coupon_v2: (params) =>
+      axios.post(`${base.htgl}/wo/csm_coupon_v2`, params, true),
+
+
     // 使用券码核销卡券
   reqUseKqCode: (params) => axios.post(`${base.htgl}/sel/kq_csm_by_code`, params),
   //抖音核销卡券
