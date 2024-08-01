@@ -218,8 +218,8 @@ export default {
             console.log("券码识别成功：", that.custKqId , res)
           } else {
             that.step = 0
-            console.log("券码识别失败：", res);
-            that.$message.warning("券码识别失败：" + res.msg);
+            console.log("处理失败：", res);
+            that.$message.warning(res.msg);
           }
         } else if  (value && that.tabIndex === 12 && value.code === 0) {
           let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
@@ -249,8 +249,8 @@ export default {
             console.log("券码识别成功：", res)
           } else {
             that.step = 0
-            console.log("券码识别失败：", res);
-            that.$message.warning("券码识别失败：" + res.msg);
+            console.log("处理失败：", res);
+            that.$message.warning(res.msg);
           }
         } else if  (value && that.tabIndex === 22) {
           let mt_code = value.code
@@ -282,8 +282,8 @@ export default {
             console.log("mt券码识别成功：", res)
           } else {
             that.step = 0
-            console.log("mt券码识别失败：", res);
-            that.$message.warning("券码识别失败：" + res.msg);
+            console.log("处理失败：", res);
+            that.$message.warning( res.msg);
           }
         }
         else {
@@ -292,8 +292,8 @@ export default {
         }
       } catch (error) {
         that.step = 0
-        console.log("券码识别失败：", error);
-        that.$message.warning("券码识别失败：" + error);
+        console.log("处理失败：", error);
+        that.$message.warning( error);
       }
     }
     window.scan_callback = scan_callback;

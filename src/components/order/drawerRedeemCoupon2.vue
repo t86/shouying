@@ -30,11 +30,11 @@
           </div>
           <div class="info-item">
             <div class="info-title">原价：</div>
-            <div class="info-value">￥{{ (csmInfo.coupon_amt / 1000).toFixed(2) || '' }}</div>
+            <div class="info-value">￥{{ (csmInfo.coupon_amt / 100).toFixed(2) || '' }}</div>
           </div>
           <div class="info-item">
             <div class="info-title">购买价：</div>
-            <div class="info-value">￥{{ (csmInfo.coupon_pay_amt / 1000).toFixed(2) || '' }}</div>
+            <div class="info-value">￥{{ (csmInfo.coupon_pay_amt / 100).toFixed(2) || '' }}</div>
           </div>
         </div>
 
@@ -308,14 +308,14 @@ export default {
           that.prds = res.data.prds
           this.step = 1
         } else {
-          console.log("券码识别失败：", res);
-          that.$message.warning("券码识别失败：" + res.msg);
+          console.log("处理失败：", res);
+          that.$message.warning(res.msg);
           this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         }
       } catch (error) {
         this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
-        console.log("券码识别失败：", error);
-        that.$message.warning("券码识别失败：" + error);
+        console.log("处理失败：", error);
+        that.$message.warning("处理失败：" + error);
       }
     }
 
