@@ -422,6 +422,18 @@ export default {
     padding: 8px;
     text-align: left;
   }
+  th:nth-child(1), td:nth-child(1) {
+    width: 5%;
+  }
+  th:nth-child(2), td:nth-child(2) {
+    width: 50%;
+  }
+  th:nth-child(3), td:nth-child(3) {
+    width: 20%;
+  }
+  th:nth-child(4), td:nth-child(4) {
+    width: 25%;
+  }
 
   .voucher-footer {
     text-align: right;
