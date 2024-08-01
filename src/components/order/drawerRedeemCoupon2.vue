@@ -214,6 +214,21 @@ export default {
       this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
       this.show = false;
       this.authCode = ''
+      this.csmInfo = {
+        order_id: 0,
+        kq_order_id: "",
+        title: "",
+        coupon_amt: 0,
+        coupon_pay_amt: 0,
+        verify_token: "",
+        pt_sku_id: 0,
+        receipt_code: "",
+        prd_type: 12,
+        wkday_id: 0,
+        csm_id: 0,
+        coupon_type:''
+      }
+      this.tableData = []
 
     },
     checkCode() {
