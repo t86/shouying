@@ -34,10 +34,12 @@ export default {
       try {
         const res = await this.$api.BMS.Org.reqRestore();
         if (res.code === 1) {
-          this.detailInfo = res.data;
+          // this.detailInfo = res.data;
           this.$message.success("恢复营业日成功");
+          this.dialogVisible = false
         } else {
           this.$message.warning(res.msg);
+          this.dialogVisible = false
         }
       } catch (error) {
         this.dialogVisible = false
