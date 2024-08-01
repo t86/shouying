@@ -162,7 +162,7 @@ export default {
     },
     proceedNext() {
       if(this.step === 0) {
-        this.step == 1
+        this.step = 1
         this.getCode();
         return
       }
@@ -306,6 +306,7 @@ export default {
           }
           that.csmInfo.coupon_type = coupon_type
           that.prds = res.data.prds
+          this.step = 1
         } else {
           console.log("券码识别失败：", res);
           that.$message.warning("券码识别失败：" + res.msg);
@@ -342,7 +343,6 @@ export default {
   watch: {
     value: {
       handler(newVal) {
-        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         this.selectedPrdId = -1
         console.log('watch....val.', newVal)
         if (newVal) {
