@@ -258,6 +258,10 @@
                     <div class="li"
                       @click.stop="printPrdTicket(item)"
                     >补打出品小票</div>
+
+                    <div class="li" v-if="item.at == 8" @click.stop="showOrHideDrawer(99,item)"
+                    >修改授权人</div>
+
                   </div>
 
                 </div>
@@ -545,7 +549,7 @@ export default {
       if (!objInfo && status < 6) return;
       // status 1：退单 2：赠送  3：自用  4：更改套餐明细  5：查看套餐明细  6：批量优惠  7：批量优惠2  8：批量退单 9：修改优惠人 11：修改下单人 12：补打出品小票
       this.drawer.status = status;
-      if(status < 6 || status == 9 || status == 11) this.drawer.currentItemInfo = {...objInfo};
+      if(status < 6 || status == 9 || status == 11 || status == 99) this.drawer.currentItemInfo = {...objInfo};
     },
 
     // 商品补打出品小票

@@ -326,6 +326,7 @@
           </div>
         </div>
 
+
         <div v-if="status == 11" class="my-order-drawer-content">
           <!-- 表单 -->
           <div class="form">
@@ -343,6 +344,28 @@
                   @selectInputHandle="inputSealName"
                   @selectOptionItem="changeSealName"
                   @selectBlurHandle="selectBlurHandle"
+                ></input-select>
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+
+
+        <div v-if="status == 99" class="my-order-drawer-content">
+          <div class="form">
+            <el-form label-position="right" label-width="150px"  @submit.native.prevent>
+              <h3 class="m-b-4 m-l-4">修改授权人</h3>
+              <el-form-item  label="原授权人：">{{  }}</el-form-item>
+              <el-form-item label="授权人：">
+                <input-select
+                    :autoFocus="true"
+                    style="width: 200px"
+                    :value="formData.aes.sales_name"
+                    placeholder="请输入姓名或工号"
+                    :optionsList="formData.aes.sales_info_option"
+                    @selectInputHandle="inputAeName"
+                    @selectOptionItem="changeAeName"
+                    @selectBlurHandle="selectAeBlurHandle"
                 ></input-select>
               </el-form-item>
             </el-form>
@@ -407,11 +430,17 @@ export default {
         radio: "1",
         reason: '',  // 原因
         originName: '', // 原下单人
+        originAe:'', //原授权人
         sales: {
           sales_name: "", // 订位人名称
           sales_emp_id: "", // 订位人id
           sales_info_option: [], // 下单人下拉框选项
         }, // 下单人
+        aes: {
+          sales_name: "", // 授权人
+          sales_emp_id: "", // id
+          sales_info_option: [], // 下拉框选项
+        }, // 授权人
       },
 
       backOrder: {
@@ -484,6 +513,22 @@ export default {
         : sealInfoArr;
       this.formData.sales.sales_info_option = results;
     },
+    inputAeName(query) {
+      this.formData.aes.sales_name = query;
+      this.formData.aes.sales_phone = "";
+      this.formData.aes.sales_emp_id = "";
+      const sealInfoArr =
+          this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      const results = query
+          ? sealInfoArr.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : sealInfoArr;
+      this.formData.aes.sales_info_option = results;
+    },
     // 选择订位人的信息
     changeSealName(info) {
       this.formData.sales.sales_name = info.name;
@@ -491,8 +536,17 @@ export default {
       this.formData.sales.sales_emp_id = info.id;
       this.formData.sales.sales_info_option = [];
     },
+    changeAeName(info) {
+      this.formData.aes.sales_name = info.name;
+      this.formData.aes.sales_phone = info.phoneNum;
+      this.formData.aes.sales_emp_id = info.id;
+      this.formData.aes.sales_info_option = [];
+    },
     selectBlurHandle() {
       this.formData.sales.sales_info_option = [];
+    },
+    selectAeBlurHandle() {
+      this.formData.aes.sales_info_option = [];
     },
     /**
      * 退单
@@ -1157,9 +1211,31 @@ export default {
         case 11: // 修改订位人
           this.changeWkorderWaiter()
           break
+        case 99://修改授权人
+              this.changeShouquan()
       }
     },
 
+    async changeShouquan(){
+      console.log('---------------changeShouquan')
+      try{
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+          order_id: this.currentItemInfo.id * 1, // int64   订单项Id
+          auth_emp_id: this.formData.aes.sales_emp_id * 1, // string   订位人
+        };
+        const res = await api_money.chg_wkorder_auther(params)
+        if (res.code == 1) {
+          this.$message.success('修改授权人成功');
+          this.$parent.$parent.getOrderInfo();
+          this.onCancelDrawer(true);
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("修改授权人失败", error);
+      }
+    },
     async changeWkorderWaiter(){
       try{
         const params = {
@@ -1553,6 +1629,9 @@ export default {
           case 11: // 修改下单人
             this.formData.originName = this.currentItemInfo.personInfo.name;
             break;
+          case 99:
+            this.formData.originAe = this.currentItemInfo.authInfo.name;
+
         }
       } else {
         window.stopLoopReadCard()

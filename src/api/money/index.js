@@ -505,6 +505,8 @@ export default {
   // 修改订单服务员
   reqChgWkorderWaiter: (params) => axios.post(`${base.htgl}/sel/chg_wkorder_waiter`, params),
 
+  // 修改订单授权人
+  chg_wkorder_auther: (params) => axios.post(`${base.htgl}/sel/chg_wkorder_auther`, params),
   
   // 读取客人预订金流水记录
   reqGetCustPrePayLog: (params) =>
