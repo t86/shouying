@@ -16,7 +16,7 @@
           </div>
           <div class="info-item ">
             <div class="info-title ">券类型：</div>
-            <div class="info-value">{{ csmInfo.prd_type }}</div>
+            <div class="info-value">{{ csmInfo.coupon_type }}</div>
           </div>
           <div class="info-item">
             <div class="info-title">原价：</div>
@@ -96,17 +96,18 @@ export default {
       selectedPrdId: -1,
       prds: [],
       csmInfo: {
-        order_id: 389,
+        order_id: 0,
         kq_order_id: "",
-        title: "【中心卡座无附加费】早场啤酒薅羊毛套餐",
-        coupon_amt: 1990,
-        coupon_pay_amt: 1990,
+        title: "",
+        coupon_amt: 0,
+        coupon_pay_amt: 0,
         verify_token: "",
-        pt_sku_id: 1099976424,
-        receipt_code: "6909584274",
+        pt_sku_id: 0,
+        receipt_code: "",
         prd_type: 12,
-        wkday_id: 242082100418841,
-        csm_id: 242131306419786,
+        wkday_id: 0,
+        csm_id: 0,
+        coupon_type:''
       },
 
       componentKey: 0,
@@ -122,8 +123,6 @@ export default {
       authCode: "",
       productInfo: {},
       singleInfo: {},
-      dyInfo: {},
-      mtInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
       subIsloading: false,
       clientType: 'order'
@@ -224,7 +223,7 @@ export default {
 
     async function scan_callback(value) {
       //todo hardcode
-      value.data = '939984059'
+      value.data = '336122540'
       let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
       let params = {
         seat_id: seat_id,
@@ -263,7 +262,6 @@ export default {
         //     ]
         //   }
         // }
-        console.log('csm_coupon_preparev2', res.data.prds)
         if (res.code === 1) {
           that.csmInfo.order_id = res.data.order_id
           that.csmInfo.kq_order_id = res.data.kq_order_id
@@ -278,6 +276,15 @@ export default {
           that.csmInfo.csm_id = res.data.csm_id
           that.csmInfo.use_cnt_per_csm = res.data.use_cnt_per_csm
           that.csmInfo.use_exclusive_mode = res.data.use_exclusive_mode
+          let coupon_type = ''
+          if(res.data.prd_type === 12) {
+            coupon_type = '抖音券'
+          } else if (res.data.prd_type === 22) {
+            coupon_type = '美团券'
+          } else if (res.data.prd_type === 32) {
+            coupon_type = '推广券'
+          }
+          that.csmInfo.coupon_type = coupon_type
           that.prds = res.data.prds
         } else {
           console.log("券码识别失败：", res);
@@ -288,7 +295,6 @@ export default {
         console.log("券码识别失败：", error);
         that.$message.warning("券码识别失败：" + error);
       }
-
     }
 
     window.scan_callback = scan_callback;
@@ -319,8 +325,10 @@ export default {
         this.selectedPrdId = -1
         console.log('watch....val.', newVal)
         if (newVal) {
-          // this.startScan()
-          window.scan_callback({code: this.tabIndex, data: this.authCode})
+          this.startScan()
+
+          //for test
+          // window.scan_callback({code: 0, data: ''})
         }
       },
       immediate: true
@@ -356,7 +364,7 @@ export default {
         line-height: 32px;
         width: 25%;
         height: 30px;
-        font-size: 38px;
+        font-size: 30px;
         font-weight: 600;
         //color: white;
       }

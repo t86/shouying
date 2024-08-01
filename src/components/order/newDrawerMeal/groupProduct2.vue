@@ -361,7 +361,6 @@ export default {
         ] // []string  要求
       }
       console.log('params:==================================================', params)
-      return
 
       const res = await api_order.csm_coupon_v2(params)
       if(res.code === 1) {
