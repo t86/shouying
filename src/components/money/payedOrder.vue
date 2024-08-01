@@ -338,6 +338,11 @@
                         <div class="li"
                             @click.stop="printPrdTicket(item)"
                           >补打出品小票</div>
+
+                        <div class="li" v-if="item.showList && item.at == 8" @click.stop="showOrHideUpdateDetailDrawer(item, 99)">
+                          修改授权人
+                        </div>
+
                       </ul>
                     </div>
                   </div>
