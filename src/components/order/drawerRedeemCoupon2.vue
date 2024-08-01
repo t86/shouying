@@ -12,7 +12,7 @@
       <div class="voucher-selection" style="margin: 20px" v-if="step === 0">
         <div class='info'>
           <div class="info-item">
-            <div class="info-title">输入券码：</div>
+            <div class="info-title">券码：</div>
             <el-input type="text" v-model="authCode" style="width: 300px; height: 30px"></el-input>
           </div>
         </div>
@@ -141,7 +141,7 @@ export default {
   },
   methods: {
     getCode(){
-      window.scan_callback({code: 0, data: ''})
+      window.scan_callback({code: 0, data: this.authCode})
     },
     selectOption(value, index) {
       console.log(value, index)
@@ -247,7 +247,7 @@ export default {
       let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
       let params = {
         seat_id: seat_id,
-        kq_auth_code: value.data || this.authCode
+        kq_auth_code: value.data
       }
       try {
         let res = await api_order.csm_coupon_preparev2(params)
