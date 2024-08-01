@@ -207,7 +207,7 @@ export default {
     },
 
     onRedeemSuccess() {
-      this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
+      this.onCancelDrawer()
 
     },
     onCancelDrawer() {
