@@ -8,6 +8,16 @@
         append-to-body
         size="80%"
     >
+    
+      <div class="voucher-selection" style="margin: 20px" v-if="step === 0">
+        <div class='info'>
+          <div class="info-item">
+            <div class="info-title">输入券码：</div>
+            <el-input type="text" v-model="authCode" style="width: 300px; height: 30px"></el-input>
+          </div>
+        </div>
+      </div>
+
       <div class="voucher-selection" v-if="step === 1">
         <div class='info'>
           <div class="info-item">
@@ -72,7 +82,7 @@
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
         <!--        <el-button type="info" @click="doRedeem" :loading="subIsloading">核销卡券</el-button>-->
-        <el-button type="info" v-if="step === 1" @click="proceedNext">下一步</el-button>
+        <el-button type="info" v-if="step === 1 || step === 0" @click="proceedNext">下一步</el-button>
         <el-button type="info" v-if="step === 2" @click="doRedeem">核销卡券</el-button>
       </div>
     </el-drawer>
@@ -125,11 +135,14 @@ export default {
       singleInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
       subIsloading: false,
-      clientType: 'order'
+      clientType: 'order',
 
     };
   },
   methods: {
+    getCode(){
+      window.scan_callback({code: 0, data: ''})
+    },
     selectOption(value, index) {
       console.log(value, index)
 
@@ -148,6 +161,11 @@ export default {
       this.prds = [...this.prds]
     },
     proceedNext() {
+      if(this.step === 0) {
+        this.step == 1
+        this.getCode();
+        return
+      }
       if (this.selectedPrdId > 0) {
         this.step = 2
         this.csmInfo.prd_id = this.selectedPrdId
@@ -189,12 +207,13 @@ export default {
     },
 
     onRedeemSuccess() {
-      this.step = 1
+      this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
 
     },
     onCancelDrawer() {
-      this.step = 1
+      this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
       this.show = false;
+      this.authCode = ''
 
     },
     checkCode() {
@@ -217,17 +236,18 @@ export default {
   created() {
   },
   mounted() {
+    this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
     this.clientType = this.$store.state.client
     this.getMenuInfo(false);
     const that = this;
 
     async function scan_callback(value) {
       //todo hardcode
-      value.data = '336122540'
+      // value.data = '336122540'
       let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
       let params = {
         seat_id: seat_id,
-        kq_auth_code: value.data
+        kq_auth_code: value.data || this.authCode
       }
       try {
         let res = await api_order.csm_coupon_preparev2(params)
@@ -289,9 +309,10 @@ export default {
         } else {
           console.log("券码识别失败：", res);
           that.$message.warning("券码识别失败：" + res.msg);
+          this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         }
       } catch (error) {
-        that.step = 1
+        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         console.log("券码识别失败：", error);
         that.$message.warning("券码识别失败：" + error);
       }
@@ -321,7 +342,7 @@ export default {
   watch: {
     value: {
       handler(newVal) {
-        this.step = 1
+        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         this.selectedPrdId = -1
         console.log('watch....val.', newVal)
         if (newVal) {
