@@ -2,7 +2,7 @@
   <div>
     <!-- 优惠明细表 -->
     <el-drawer
-      title="美团/抖音核销记录表"
+      title="当日卡券核销记录表"
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
@@ -11,27 +11,6 @@
       <div class="YH-detail">
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
-<!--            <span>卡券类型：</span>-->
-<!--            <mySelect-->
-<!--              style="width:150px"-->
-<!--              :value="selectInfo.selectVal"-->
-<!--              :optionsList="selectInfo.selectOption"-->
-<!--              @selectOptionItem="setSelectValHandle"-->
-<!--              @selectBlurHandle="selectBlurHandle"-->
-<!--              @getOption="getOptionHandle"-->
-<!--            />-->
-<!--            <input v-model="keyword" placeholder="卡券名称" />-->
-<!--            <el-button-->
-<!--              class="m-l-2"-->
-<!--              type="primary"-->
-<!--              style="width:70px;height:30px;line-height:30px;padding:0"-->
-<!--              @click="getTableData"-->
-<!--            >查询</el-button>-->
-<!--            <el-button-->
-<!--              type="info"-->
-<!--              style="width:70px;height:30px;line-height:30px;padding:0"-->
-<!--              @click="resetHandle"-->
-<!--            >重置</el-button>-->
           </div>
           <el-button
             type="primary"

@@ -487,6 +487,13 @@
                   />
                   <span>卡券核销记录表</span>
                 </div>
+
+                <div class="option-item line" @click.stop="showOrHideDyMtHx">
+                  <img :src="require('@/assets/money-img/ty-detail-icon.png')" alt />
+                  <span style="width: 100px; line-height: 20px">当日卡券核销记录表</span>
+                </div>
+
+
                 <!-- 商品卡台销售表 -->
                 <div
                   class="option-item line"
@@ -711,10 +718,7 @@
                   <img :src="imgSrc.loginOut" alt />
                   <span>自动结束营业日</span>
                 </div>
-                <div class="option-item line" @click.stop="showOrHideDyMtHx">
-                  <img :src="require('@/assets/money-img/ty-detail-icon.png')" alt />
-                  <span style="width: 100px; line-height: 20px">美团/抖音核销记录表</span>
-                </div>
+
 
               </div>
 
