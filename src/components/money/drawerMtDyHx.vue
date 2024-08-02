@@ -175,12 +175,10 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1, //    int      0 全部 1 优惠 2 优惠2
-        key: this.keyword, //        string    模糊查询关键字(订台人/优惠人/商品名称)
       }
 
       try {
-        const res = await api_money.reqExportYHListReport(params);
+        const res = await api_money.exp_kq_csm_list_for_back(params);
         if (!res.msg) {
           const url = window.URL.createObjectURL(
             new Blob([res], {
