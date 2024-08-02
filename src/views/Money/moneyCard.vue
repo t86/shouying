@@ -711,6 +711,10 @@
                   <img :src="imgSrc.loginOut" alt />
                   <span>自动结束营业日</span>
                 </div>
+                <div class="option-item line" @click.stop="showOrHideDyMtHx">
+                  <img :src="require('@/assets/money-img/ty-detail-icon.png')" alt />
+                  <span style="width: 100px; line-height: 20px">美团/抖音核销记录表</span>
+                </div>
 
               </div>
 
@@ -1018,6 +1022,10 @@
       :showDrawer="showXSAllInfoDrawer"
       @showOrHideDrawer="showOrHideXSAllInfoDrawerHandle"
     />
+    <drawer-mt-dy-hx
+      :showDrawer="showMtDyHxDrawer"
+      @showOrHideMtDyHx="showOrHideDyMtHx"
+    />
   </div>
 </template>
 
@@ -1135,6 +1143,9 @@ import drawerSetYDJ from "../../components/money/drawerSetYDJHistory.vue";
 // 客人预订金余额记录表
 import drawerSetYDJYE from "../../components/money/drawerSetYDJYE.vue";
 
+import drawerMtDyHx from "../../components/money/drawerMtDyHx.vue"
+
+
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import eventVue from "@/utils/eventVue";
@@ -1202,6 +1213,7 @@ export default {
       showSetYDJDrawer: false, // 客人预订金流水记录表
       showSetYDJYEDrawer: false, // 客人预订金余额记录表
       showXSAllInfoDrawer: false, // 部门销售汇总表
+      showMtDyHxDrawer: false, //美团抖音卡券核销
       keyWord: "",
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -1664,6 +1676,10 @@ export default {
     // 显示或隐藏客人预订金余额记录表
     showOrHideSetYDJYEDrawerHandle() {
       this.showSetYDJYEDrawer = !this.showSetYDJYEDrawer;
+    },
+
+    showOrHideDyMtHx(){
+      this.showMtDyHxDrawer = !this.showMtDyHxDrawer
     },
     // 更多功能
     endStoreHandle(type) {
@@ -2397,6 +2413,7 @@ export default {
     drawerSetGZHK,
     drawerSetYDJ,
     drawerSetYDJYE,
+    drawerMtDyHx,
   },
 
   watch: {

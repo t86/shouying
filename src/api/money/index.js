@@ -180,6 +180,9 @@ export default {
   reqGetKqCsmList: (params) =>
   axios.post(`${base.htgl}/sel/rpt/get_kq_csm_list`, params),
 
+  get_kq_csm_list_for_back: (params) => axios.post(`${base.htgl}/sel/rpt/get_kq_csm_list_for_back`, params),
+  cancel_kq_csm: (params) => axios.post(`${base.htgl}/sel/cancel_kq_csm`, params),
+
   //  收银导出卡券核销报表
   reqExpKqCsmList: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_kq_csm_list`, params),
