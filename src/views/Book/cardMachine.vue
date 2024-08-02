@@ -142,7 +142,7 @@
                   layout-align="start center"
                 >
                   <span class="line-tips">主</span>
-                  <span>￥{{ item.order_zy_amt * 1 - item.payed_zy_free_amt * 1 }}</span>
+                  <span>￥{{ ((item.order_zy_amt * 1 - item.payed_zy_free_amt * 1) || 0).toFixed(2) }}</span>
                 </span>
               </span>
               <span class="card-step">{{ item.diXiaoJindu }}</span>

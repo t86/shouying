@@ -369,30 +369,9 @@ export default {
       } else {
         this.$message.warning(res.msg);
       }
-      return
-
-
-      // 判断是否为补交台
-      if (this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
-        this.groupParams = {...params}
-        this.isSubmitting = false;
-        this.$emit('submitting', false);
-        return this.showBJDrawer = true
-      }
-
-      try {
-        params.prd_price = Math.round(this.groupInfo.price * 100)
-        const res = await api_order.reqAddGroupToShopping(params);
-        if (res.code === 1) {
-          this.$message.success("加入购物车成功");
-          this.$store.dispatch("getShoppingCount", this);
-          this.onCancelDrawer();
-        } else this.$message.warning(res.msg);
-      } catch (error) {
-        console.log("套餐加入购物车失败", error);
-      }
       this.isSubmitting = false;
       this.$emit('submitting', false);
+
     },
 
     // -----------------套餐定制单品 start --------------------

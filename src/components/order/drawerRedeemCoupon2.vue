@@ -8,6 +8,16 @@
         append-to-body
         size="80%"
     >
+    
+      <div class="voucher-selection" style="margin: 20px" v-if="step === 0">
+        <div class='info'>
+          <div class="info-item">
+            <div class="info-title">券码：</div>
+            <el-input type="text" v-model="authCode" style="width: 300px; height: 30px"></el-input>
+          </div>
+        </div>
+      </div>
+
       <div class="voucher-selection" v-if="step === 1">
         <div class='info'>
           <div class="info-item">
@@ -20,11 +30,11 @@
           </div>
           <div class="info-item">
             <div class="info-title">原价：</div>
-            <div class="info-value">￥{{ (csmInfo.coupon_amt / 1000).toFixed(2) || '' }}</div>
+            <div class="info-value">￥{{ (csmInfo.coupon_amt / 100).toFixed(2) || '' }}</div>
           </div>
           <div class="info-item">
             <div class="info-title">购买价：</div>
-            <div class="info-value">￥{{ (csmInfo.coupon_pay_amt / 1000).toFixed(2) || '' }}</div>
+            <div class="info-value">￥{{ (csmInfo.coupon_pay_amt / 100).toFixed(2) || '' }}</div>
           </div>
         </div>
 
@@ -72,7 +82,7 @@
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
         <!--        <el-button type="info" @click="doRedeem" :loading="subIsloading">核销卡券</el-button>-->
-        <el-button type="info" v-if="step === 1" @click="proceedNext">下一步</el-button>
+        <el-button type="info" v-if="step === 1 || step === 0" @click="proceedNext">下一步</el-button>
         <el-button type="info" v-if="step === 2" @click="doRedeem">核销卡券</el-button>
       </div>
     </el-drawer>
@@ -125,11 +135,14 @@ export default {
       singleInfo: {},
       scanCode: 0, // 0 等待扫码 1：扫码中 2：扫码成功 3：扫码失败
       subIsloading: false,
-      clientType: 'order'
+      clientType: 'order',
 
     };
   },
   methods: {
+    getCode(){
+      window.scan_callback({code: 0, data: this.authCode})
+    },
     selectOption(value, index) {
       console.log(value, index)
 
@@ -148,6 +161,11 @@ export default {
       this.prds = [...this.prds]
     },
     proceedNext() {
+      if(this.step === 0) {
+        this.step = 1
+        this.getCode();
+        return
+      }
       if (this.selectedPrdId > 0) {
         this.step = 2
         this.csmInfo.prd_id = this.selectedPrdId
@@ -189,12 +207,28 @@ export default {
     },
 
     onRedeemSuccess() {
-      this.step = 1
+      this.onCancelDrawer()
 
     },
     onCancelDrawer() {
-      this.step = 1
+      this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
       this.show = false;
+      this.authCode = ''
+      this.csmInfo = {
+        order_id: 0,
+        kq_order_id: "",
+        title: "",
+        coupon_amt: 0,
+        coupon_pay_amt: 0,
+        verify_token: "",
+        pt_sku_id: 0,
+        receipt_code: "",
+        prd_type: 12,
+        wkday_id: 0,
+        csm_id: 0,
+        coupon_type:''
+      }
+      this.tableData = []
 
     },
     checkCode() {
@@ -217,13 +251,14 @@ export default {
   created() {
   },
   mounted() {
+    this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
     this.clientType = this.$store.state.client
     this.getMenuInfo(false);
     const that = this;
 
     async function scan_callback(value) {
       //todo hardcode
-      value.data = '336122540'
+      // value.data = '336122540'
       let seat_id = that.$store.state.orderInfo.currentCardInfo.seatId * 1
       let params = {
         seat_id: seat_id,
@@ -286,14 +321,16 @@ export default {
           }
           that.csmInfo.coupon_type = coupon_type
           that.prds = res.data.prds
+          this.step = 1
         } else {
-          console.log("券码识别失败：", res);
-          that.$message.warning("券码识别失败：" + res.msg);
+          console.log("处理失败：", res);
+          that.$message.warning(res.msg);
+          this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         }
       } catch (error) {
-        that.step = 1
-        console.log("券码识别失败：", error);
-        that.$message.warning("券码识别失败：" + error);
+        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
+        console.log("处理失败：", error);
+        that.$message.warning("处理失败：" + error);
       }
     }
 
@@ -321,7 +358,6 @@ export default {
   watch: {
     value: {
       handler(newVal) {
-        this.step = 1
         this.selectedPrdId = -1
         console.log('watch....val.', newVal)
         if (newVal) {
@@ -400,6 +436,18 @@ export default {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+  }
+  th:nth-child(1), td:nth-child(1) {
+    width: 5%;
+  }
+  th:nth-child(2), td:nth-child(2) {
+    width: 50%;
+  }
+  th:nth-child(3), td:nth-child(3) {
+    width: 20%;
+  }
+  th:nth-child(4), td:nth-child(4) {
+    width: 25%;
   }
 
   .voucher-footer {
