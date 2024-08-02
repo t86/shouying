@@ -560,7 +560,7 @@ export default {
         await this.getLookSelfCardList()
       }
       // // 获取设备可操作区域或卡台
-      const currentAreaAndCardList = this.getCurrentAreaAndCardList();;
+      const currentAreaAndCardList = this.getCurrentAreaAndCardList();
 
       const orderPersonInfo =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
@@ -769,10 +769,22 @@ export default {
         )));
         cardListInfoArr.forEach(item => item.isWaiter = true)
       }
+
       // 如果只是营销 不写在这里前面的判断会把区域弄没
-      if (this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
-        cardListInfoArr = []
+      // if (this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
+      //   cardListInfoArr = []
+      // }
+
+      //trump 2024年08月03日01:23:55 如果有全场优惠权限，取消限制
+      if (this.$store.state.userInfo.roleIds.includes(3)) {
+        if (this.hasQuanchangyouhui()){
+
+        } else if (this.$store.state.userInfo.roleIds.length == 1){
+          cardListInfoArr = []
+        }
       }
+
+
       // 如果是营销，需要根据可点卡台列表限制卡台
       if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
         cardListInfoArr = [...cardListInfoArr, ...JSON.parse(JSON.stringify(cardList.filter(
@@ -1598,6 +1610,12 @@ export default {
       return (
         this.$store.state.userInfo.roleIds &&
         this.$store.state.userInfo.roleIds.includes(11)
+      );
+    },
+    hasQuanchangyouhui() {
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(12)
       );
     },
     // 是否有存取酒
