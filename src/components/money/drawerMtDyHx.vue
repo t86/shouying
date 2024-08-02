@@ -128,12 +128,13 @@ export default {
   methods: {
     async cancelCoupon(item){
       let params = {
-        kq_order_id: item.k * 1
+        kq_order_id: item.id
       }
       try {
         const res = await api_money.cancel_kq_csm(params);
         if (res.code == 1) {
           this.$message.success('退券成功');
+          this.getTableData()
         } else {
           this.$message.warning(res.msg);
         }
