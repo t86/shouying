@@ -170,11 +170,19 @@ export default {
   .table {
     .th,.td {
       &:nth-child(1) {
-        width: 30%;
+        width: 8%;
       }
-      &:nth-child(5),
-      &:nth-child(6) {
-        width: 70%;
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
+        width: 10%;
+      }
+      //&:nth-child(5){
+      //  width: 35%;
+      //}
+      &:nth-child(6),
+      &:nth-child(7){
+        width: 12%;
       }
     }
   }
