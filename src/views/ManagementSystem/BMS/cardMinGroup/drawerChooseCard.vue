@@ -14,7 +14,7 @@
           <h3 class="m-t-3 m-b-3">{{item.n}}</h3>
           <div class="card-area" layout="row" layout-align="start center">
             <div class="card-item cursor" :class="{border: items.checked}" v-for="items in item.is" :key="items.id">
-                <div class="card-content" @click.stop="chooseCard(items)">
+                <div class="card-content" :class="{taken: items.si > 0 && !items.my}" @click.stop="chooseCard(items)">
                   <h3>{{items.n}}</h3>
                   <img v-if="items.checked" :class="{border: items.checked}" :src="require('@/assets/img/assign_cards_to_select.png')" alt />
                 </div>
@@ -39,6 +39,10 @@ export default {
   },
   methods: {
     chooseCard(itemInfo){
+      console.log(itemInfo, itemInfo.si > 0)
+      if(itemInfo.si > 0 && !itemInfo.my) {
+        return
+      }
       this.cardList = this.cardList.map(item => ({
         ...item,
         is: item.is.map(items => ({
@@ -131,6 +135,10 @@ export default {
           top: 0;
           left: 0;
         }
+      }
+      .taken {
+        background-color: gray;
+        font-weight: 200;
       }
     }
   }

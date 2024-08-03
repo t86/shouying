@@ -124,6 +124,7 @@ export default {
       money: '',
       min_amt_type: '1',
       tableData: [],
+      my_regions:[],
       cardAllList: [],
       showDrawer: false,  // 是否显示选择卡台drawer
       weeks:{
@@ -156,7 +157,8 @@ export default {
             ...item,
             is: (item.is || []).map(item => ({
               ...item,
-              checked: this.tableData.some(items => items.is.find(ite => ite.id == item.id))
+              checked: this.tableData.some(items => items.is.find(ite => ite.id == item.id)),
+              my: this.my_regions.some(items => items.is.find(ite => ite.id == item.id))
             }))
           }))
         } else {
@@ -175,6 +177,7 @@ export default {
       try {
         const res = await this.$api.BMS.seat_grp.requestseat_grpget(params)
         if(res.code == 1) {
+          this.my_regions = res.data.regions;
           this.name = res.data.name
           this.money = res.data.min_csm_amt
           this.min_csm_amt = res.data.min_csm_amt
@@ -300,6 +303,16 @@ export default {
             }
             await this.getData()
           } else {
+            this.min_amt_type = '2'
+            this.weeks = {
+              Monday: '',
+              Tuesday: '',
+              Wednesday: '',
+              Thursday: '',
+              Friday: '',
+              Saturday: '',
+              Sunday: '',
+            }
             this.name = ''
             this.money = ''
             this.tableData = []
