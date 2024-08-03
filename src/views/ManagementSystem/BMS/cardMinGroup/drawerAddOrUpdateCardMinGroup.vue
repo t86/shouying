@@ -18,7 +18,52 @@
             <el-input v-model="name" placeholder="请输入低消组名称" @input="validator" />
           </div>
         </div>
+
+
         <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span class="fs14">低消形式：</span>
+          </div>
+          <div class="value">
+                    <el-radio v-model="min_amt_type" label="1">每日固定</el-radio>
+                    <el-radio v-model="min_amt_type" label="2">自定义</el-radio>
+          </div>
+        </div>
+
+        <div  layout="row" layout-align="start center" v-if="min_amt_type * 1=== 2">
+          <div class="label" style="width:100%;margin-left: 60px;">
+            <span class="red-color">*</span>
+            <span class="fs14">最低消费金额(元)</span>
+          </div>
+          <div class="value" style="margin-top: 20px">
+            <div>
+              <el-input placeholder="请输入金额" type="number" v-model="money" style="margin-bottom: 5px">
+                <template slot="prepend">周一</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number" v-model="weeks.Tuesday" style="margin-bottom: 5px">
+                <template slot="prepend">周二</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number" v-model="weeks.Wednesday" style="margin-bottom: 5px">
+                <template slot="prepend">周三</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number"  v-model="weeks.Thursday" style="margin-bottom: 5px">
+                <template slot="prepend">周四</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number"  v-model="weeks.Friday" style="margin-bottom: 5px">
+                <template slot="prepend">周五</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number"  v-model="weeks.Saturday" style="margin-bottom: 5px">
+                <template slot="prepend">周六</template>
+              </el-input>
+              <el-input placeholder="请输入金额" type="number"  v-model="weeks.Sunday" style="margin-bottom: 5px">
+                <template slot="prepend">周日</template>
+              </el-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="coll" layout="row" layout-align="start center" v-if="this.min_amt_type * 1 === 1">
           <div class="label">
             <span class="red-color">*</span>
             <span class="fs14">最低消费金额(元)：</span>
@@ -77,9 +122,19 @@ export default {
     return {
       name: "",
       money: '',
+      min_amt_type: '1',
       tableData: [],
       cardAllList: [],
       showDrawer: false,  // 是否显示选择卡台drawer
+      weeks:{
+        Monday:'',
+        Tuesday:'',
+        Wednesday:'',
+        Thursday:'',
+        Friday:'',
+        Saturday:'',
+        Sunday:'',
+      }
     };
   },
   methods: {
@@ -122,6 +177,14 @@ export default {
         if(res.code == 1) {
           this.name = res.data.name
           this.money = res.data.min_csm_amt
+          this.min_csm_amt = res.data.min_csm_amt
+          this.min_amt_type = res.data.min_amt_type.toString()
+          this.weeks.Tuesday = res.data.w2_amt
+          this.weeks.Wednesday = res.data.w3_amt
+          this.weeks.Thursday = res.data.w4_amt
+          this.weeks.Friday = res.data.w5_amt
+          this.weeks.Saturday = res.data.w6_amt
+          this.weeks.Sunday = res.data.w7_amt
           this.tableData = (res.data.regions || []).map(item => ({
             ...item,
             is: item.is || []
@@ -154,8 +217,24 @@ export default {
         name: this.name,
         min_csm_amt: this.money * 1,
         seat_ids: this.tableData.map(item => item.is).flat().map(item => item.id),
-        ...this.type == 2 && {id: this.currentInfo.id}
+        ...this.type == 2 && {id: this.currentInfo.id},
+        min_amt_type: this.min_amt_type * 1,
       };
+      if (this.min_amt_type * 1 === 1) {
+            params.w2_amt  = 0       //W2Amt 周二最低消费金额(元)
+            params.w3_amt  = 0      //W3Amt 周三最低消费金额(元)
+            params.w4_amt  = 0       //W4Amt 周四最低消费金额(元)
+            params.w5_amt  = 0       //W5Amt 周五最低消费金额(元)
+            params.w6_amt  = 0       //W6Amt 周六最低消费金额(元)
+            params.w7_amt  = 0       //W7Amt 周日最低消费金额(元)
+      } else if (this.min_amt_type * 1 === 2) {
+          params.w2_amt  = this.weeks.Tuesday  * 1     //W2Amt 周二最低消费金额(元)
+          params.w3_amt  = this.weeks.Wednesday * 1    //W3Amt 周三最低消费金额(元)
+          params.w4_amt  = this.weeks.Thursday  * 1     //W4Amt 周四最低消费金额(元)
+          params.w5_amt  = this.weeks.Friday   * 1    //W5Amt 周五最低消费金额(元)
+          params.w6_amt  = this.weeks.Saturday  * 1     //W6Amt 周六最低消费金额(元)
+          params.w7_amt  = this.weeks.Sunday  * 1     //W7Amt 周日最低消费金额(元)
+      }
       try {
         const api = this.type == 1 ? "requestseat_grpnew" : "requestseat_grpsave";
         const res = await this.$api.BMS.seat_grp[api](params);
@@ -209,6 +288,16 @@ export default {
       async handler(newVal) {
         if (newVal) {
           if(this.type == 2) {
+            this.min_amt_type = '1'
+            this.weeks = {
+              Monday: '',
+              Tuesday: '',
+              Wednesday: '',
+              Thursday: '',
+              Friday: '',
+              Saturday: '',
+              Sunday: '',
+            }
             await this.getData()
           } else {
             this.name = ''

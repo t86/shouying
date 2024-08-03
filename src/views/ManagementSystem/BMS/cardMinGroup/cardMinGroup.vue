@@ -20,6 +20,7 @@
             </div>
             <div class="th">低消组名称</div>
             <div class="th">包含卡台数量</div>
+            <div class="th">低消形式</div>
             <div class="th">最低消费额</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
@@ -39,6 +40,7 @@
             </div>
             <div class="td">{{item.n}}</div>
             <div class="td">{{item.sc}}</div>
+            <div class="td">{{item.t}}</div>
             <div class="td">{{item.m}}</div>
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
