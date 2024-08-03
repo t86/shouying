@@ -290,32 +290,25 @@ export default {
     value: {
       async handler(newVal) {
         if (newVal) {
+          this.my_regions = []
+          this.tableData = []
+          this.weeks = {
+            Monday: '',
+            Tuesday: '',
+            Wednesday: '',
+            Thursday: '',
+            Friday: '',
+            Saturday: '',
+            Sunday: '',
+          }
+          this.name = ''
+          this.money = ''
+
           if(this.type == 2) {
             this.min_amt_type = '1'
-            this.weeks = {
-              Monday: '',
-              Tuesday: '',
-              Wednesday: '',
-              Thursday: '',
-              Friday: '',
-              Saturday: '',
-              Sunday: '',
-            }
             await this.getData()
           } else {
             this.min_amt_type = '2'
-            this.weeks = {
-              Monday: '',
-              Tuesday: '',
-              Wednesday: '',
-              Thursday: '',
-              Friday: '',
-              Saturday: '',
-              Sunday: '',
-            }
-            this.name = ''
-            this.money = ''
-            this.tableData = []
           }
           this.getCardListAll()
         }

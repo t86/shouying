@@ -11,7 +11,10 @@
     >
       <div class="session p-5 fs14">
         <div v-for="item in cardList" :key="item.id" v-show="item.is.length > 0">
-          <h3 class="m-t-3 m-b-3">{{item.n}}</h3>
+          <div style="display: flex">
+            <h3 class="m-t-3 m-b-3">{{item.n}}</h3>
+            <el-checkbox style="margin-top: 15px;margin-left: 10px" @change="checkAll($event, item)"></el-checkbox>
+          </div>
           <div class="card-area" layout="row" layout-align="start center">
             <div class="card-item cursor" :class="{border: items.checked}" v-for="items in item.is" :key="items.id">
                 <div class="card-content" :class="{taken: items.si > 0 && !items.my}" @click.stop="chooseCard(items)">
@@ -38,6 +41,15 @@ export default {
     };
   },
   methods: {
+    checkAll(value, item){
+      console.log(value, item)
+      item = item.is.map(i => {
+        if(i.si === 0 || i.si > 0 && i.my){
+          i.checked = value
+        }
+        return i
+      })
+    },
     chooseCard(itemInfo){
       console.log(itemInfo, itemInfo.si > 0)
       if(itemInfo.si > 0 && !itemInfo.my) {
