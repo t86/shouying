@@ -477,16 +477,16 @@
                   />
                   <span>优惠明细表</span>
                 </div>
-                <div
-                  class="option-item line"
-                  @click="showOrHideKQHXDrawer()"
-                >
-                  <img
-                    :src="require('@/assets/money-img/ty-detail-icon.png')"
-                    alt
-                  />
-                  <span>卡券核销记录表</span>
-                </div>
+<!--                <div-->
+<!--                  class="option-item line"-->
+<!--                  @click="showOrHideKQHXDrawer()"-->
+<!--                >-->
+<!--                  <img-->
+<!--                    :src="require('@/assets/money-img/ty-detail-icon.png')"-->
+<!--                    alt-->
+<!--                  />-->
+<!--                  <span>卡券核销记录表</span>-->
+<!--                </div>-->
 
                 <div class="option-item line" @click.stop="showOrHideDyMtHx">
                   <img :src="require('@/assets/money-img/ty-detail-icon.png')" alt />

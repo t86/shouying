@@ -92,6 +92,7 @@
 <script>
 import api_money from "@/api/money";
 import mySelect from "@/components/book/select";
+import async from "async";
 export default {
   data() {
     return {
@@ -105,21 +106,28 @@ export default {
     };
   },
   methods: {
-    async cancelCoupon(item){
-      let params = {
-        kq_order_id: item.id
-      }
-      try {
-        const res = await api_money.cancel_kq_csm(params);
-        if (res.code == 1) {
-          this.$message.success('退券成功');
-          this.getTableData()
-        } else {
-          this.$message.warning(res.msg);
+    async cancelCoupon(item) {
+      await this.$confirm("确定执行退券?", "退券确认", {
+        distinguishCancelAndClose: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      }).then(async () =>  {
+        try {
+          const res = await api_money.cancel_kq_csm({
+            kq_order_id: item.id
+          });
+          console.log('res========', res)
+          if (res.code == 1) {
+            this.$message.success('退券成功');
+            this.getTableData()
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("", error);
         }
-      } catch (error) {
-        console.log("表格数据获取失败", error);
       }
+    )
     },
     // 获取数据
     async getTableData() {
