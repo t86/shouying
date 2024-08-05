@@ -1136,6 +1136,12 @@ export default {
 
       this.formData.markInfo.value = ""; // 卡台标签
       this.oldSalesEmpId = '';
+
+
+      this.formData.waiter_emp_id = ""
+      this.formData.waiter_name = ""
+      this.formData.waiter_status_arr=[]
+      this.formData.waiters = []
     },
 
     formResponseHandle(res, successTips = "操作成功！", isResetForm = true) {
@@ -1160,6 +1166,7 @@ export default {
             this.formData.customPay.exp_min_csm_amt = newVal.grpMinCsmAmt;
           } else {
             // 预定开台
+            this.resetForm();
             this.getReservedCardInfo();
           }
           break;
