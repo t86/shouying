@@ -242,7 +242,7 @@
         <div v-if="formData.waiter.waiter_status_arr.indexOf(formStatus) >-1">
           <el-form-item label="服务员">
             <input-select
-                :autoFocus="true"
+                :autoFocus="false"
                 style="width: 80%"
                 :value="formData.waiter.waiter_name"
                 placeholder="请输入姓名或工号"
@@ -1142,6 +1142,14 @@ export default {
       this.formData.waiter_name = ""
       this.formData.waiter_status_arr=[]
       this.formData.waiters = []
+      this.formData.waiter = {
+        waiter_emp_id:"",
+        waiter_name:"",
+        waiter_status_arr:[],
+        waiters:[]
+
+      }
+      // this.formData = {...this.formData}
     },
 
     formResponseHandle(res, successTips = "操作成功！", isResetForm = true) {
@@ -1417,6 +1425,9 @@ export default {
       } else if (newVal && this.formStatus == 20) {
         // 修改卡台标签
         this.formData.markInfo.value = this.cardInfo.mark;
+      } else if (newVal && this.formStatus == 2) {
+        console.log('--------------------------reset form')
+        this.resetForm()
       }
     },
     show(newVal) {
