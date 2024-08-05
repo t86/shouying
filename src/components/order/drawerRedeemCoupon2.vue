@@ -398,20 +398,23 @@ export default {
 
       .info-title {
         line-height: 32px;
-        width: 25%;
+        width:115px;
         height: 30px;
-        font-size: 30px;
+        font-size: 20px;
         font-weight: 600;
         //color: white;
       }
 
       .info-value {
         height: 40px;
-        width: 70%;
-        font-size: 30px;
+        width: 100%;
+        font-size: 20px;
         font-weight: 600;
         color: #6a9eff;
         line-height: 40px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
@@ -557,17 +560,17 @@ export default {
 }
 
 /deep/ .el-checkbox__inner {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
 
   border: 1px solid #1A1A21;
 }
 
 /deep/ .el-checkbox__inner::after {
-  width: 5px;
-  height: 9px;
-  left: 6px;
-  top: 3px;
+  width: 10px;
+  height: 12px;
+  left: 8px;
+  top: 5px;
 }
 
 /deep/ .el-checkbox__label {
