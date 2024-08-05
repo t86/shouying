@@ -398,7 +398,7 @@ export default {
 
       .info-title {
         line-height: 32px;
-        width:115px;
+        width:95px;
         height: 30px;
         font-size: 20px;
         font-weight: 600;
