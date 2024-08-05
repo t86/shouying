@@ -1150,7 +1150,7 @@ export default {
 
     // 点击操作选项后进来之后赋值
     cardInfoChange(value) {
-      console.log('-----------------------------', this.formStatus)
+      console.log('-----------------------------', this.formStatus, value)
       const newVal = value || this.cardInfo;
       switch (this.formStatus) {
         case 2: // 空台开台或预定开台   newVal.bizStatus:1 空台开台  2：预定开台
@@ -1160,6 +1160,7 @@ export default {
             this.formData.customPay.exp_min_csm_amt = newVal.grpMinCsmAmt;
           } else {
             // 预定开台
+            this.resetForm();
             this.getReservedCardInfo();
           }
           break;
@@ -1390,12 +1391,13 @@ export default {
   },
   watch: {
     showDrawer(newVal) {
+      console.log("showDrawer", newVal)
       this.show = newVal;
       if (newVal && this.formStatus == 14) {
         const saleInfo =
-          common_book.getOrderPersonInfo(this.cardInfo.salesEmpId) || {};
+            common_book.getOrderPersonInfo(this.cardInfo.salesEmpId) || {};
         const secondSaleInfo =
-          common_book.getOrderPersonInfo(this.cardInfo.secondSalesEmpId) || {};
+            common_book.getOrderPersonInfo(this.cardInfo.secondSalesEmpId) || {};
         this.cardDetailInfo.saleName = saleInfo.name || "---";
         this.cardDetailInfo.salePhone = saleInfo.phoneNum || "---";
         this.cardDetailInfo.arriveTime = this.cardInfo.expArriveTime || "---";
