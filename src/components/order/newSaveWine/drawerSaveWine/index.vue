@@ -151,7 +151,7 @@ export default {
       try {
         if (!params.p || params.p.length != 11) {
             this.$message.warning("请输入正确的11位手机号码");
-            return fasle
+            return false
           }
         const res = await api_saveWine.reqCheckBlackPhone(params);
         if (res.code != 1) {
