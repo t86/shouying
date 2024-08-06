@@ -83,14 +83,14 @@
     </div>
     <!-- 详细地址 -->
     <div class="coll m-b-3" layout="row" layout-align="start center">
-      <div class="label"></div>
+      <div class="label">协助地图定位用:</div>
       <div class="value">
         <el-select
           v-model="addressInfo.detailAddress"
-          style="margin-left:80px;"
           class="input"
           filterable
           remote
+          auto-create
           reserve-keyword
           placeholder="请输入详细地址"
           :remote-method="searchAddressHandle"
@@ -104,6 +104,15 @@
           ></el-option>
         </el-select>
       </div>
+    </div>
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+        <div class="label">客户端展示用:</div>
+        <el-input
+          v-model="addressInfo.customAddress"
+          style="width: 424px;"
+          placeholder="或输入自定义地址"
+          @input="handleCustomAddressInput"
+        ></el-input>
     </div>
 
     <div style="color:red;font-size: 24px; margin: 10px;">鼠标点击可调整门店位置</div>
@@ -152,6 +161,7 @@ export default {
           this.personName = res.data.contact_name;
           this.phoneNum = res.data.contact_phone;
           this.addressInfo.detailAddress = res.data.addr_dtl;
+          this.addressInfo.customAddress = res.data.addr_dtl_disp;
           this.addressInfo.provinceValue = res.data.addr_province_id || "";
           this.addressInfo.cityValue = res.data.addr_city_id || "";
           this.addressInfo.countyValue = res.data.addr_district_id || "";
@@ -254,6 +264,7 @@ export default {
         contact_name: this.personName, // string   联系人名称
         contact_phone: this.phoneNum, // string   联系人电话
         addr_dtl: this.addressInfo.detailAddress, //   string   详细地址
+        addr_dtl_disp: this.addressInfo.customAddress, //   string   详细地址展示
         addr_district_id: this.addressInfo.countyValue, // int    区Id
         lat: this.addressInfo.addressPosition.lat.toString(), //   string   纬度
         lng: this.addressInfo.addressPosition.lng.toString() //   string    经度
@@ -287,6 +298,10 @@ export default {
       }
     },
 
+    handleCustomAddressInput(value){
+      console.log('自定义地址', this.addressInfo.customAddress, value)
+      this.addressInfo = {...this.addressInfo}
+    },
     // 获取详细地址所对应的经纬度
     async changeAddressHandle() {
       if(!this.addressInfo.provinceValue) return this.$message.warning('请选择省')
@@ -392,5 +407,11 @@ export default {
     margin-left: 400px;
     margin-top: 40px;
   }
+}
+
+.label {
+  width: 150px;
+  text-align: left;
+  color: #40404e;
 }
 </style>

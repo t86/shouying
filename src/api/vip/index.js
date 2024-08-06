@@ -85,6 +85,7 @@ export default {
    * 会员管理
    */
   // 发送手机验证码
+  //TypeId 操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  106 存酒待入库验证客人手机号 107 取酒验证客人手机号  200  验证客人手机会员卡结账
   reqSendPhoneMsg: (params) =>
     axios.post(`${base.htgl}/sms/valid_send`, params),
 
