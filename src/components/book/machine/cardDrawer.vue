@@ -242,7 +242,7 @@
         <div v-if="formData.waiter.waiter_status_arr.indexOf(formStatus) >-1">
           <el-form-item label="服务员">
             <input-select
-                :autoFocus="true"
+                :autoFocus="false"
                 style="width: 80%"
                 :value="formData.waiter.waiter_name"
                 placeholder="请输入姓名或工号"
@@ -1161,6 +1161,12 @@ export default {
           } else {
             // 预定开台
             this.getReservedCardInfo();
+          }
+          this.formData.waiter = {
+            waiter_name: "",
+            waiter_emp_id: "",
+            waiters: [],
+            waiter_status_arr: [2, 23],
           }
           break;
         case 7: // 转台   newVal.bizStatus:  3：预定转台   4：开台转台
