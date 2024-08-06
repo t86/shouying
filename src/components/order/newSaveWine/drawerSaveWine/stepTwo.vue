@@ -285,6 +285,9 @@ export default {
 
     async minusSaveWineDays(item){
       console.log(item)
+      if(!this.hasAuthChangeSaveWineDays){
+        return
+      }
       if(item.e > 1) {
         item.e --
         let res = await this.updateSaveWineDays(item)
@@ -300,6 +303,9 @@ export default {
     },
     async plusSaveWineDays(item){
       console.log(item)
+      if(!this.hasAuthChangeSaveWineDays){
+        return
+      }
       item.e++
       let res = await this.updateSaveWineDays(item)
       console.log(res)
@@ -312,6 +318,7 @@ export default {
       }
     },
     async changeSaveWineDays(days,item){
+
       console.log(days, item)
       let res = await this.updateSaveWineDays(item)
       console.log(res)
@@ -371,8 +378,7 @@ export default {
   computed: {
     hasAuthChangeSaveWineDays(){
       return (
-          this.$store.state.userInfo.sys_modules &&
-          this.$store.state.userInfo.sys_modules.includes(83)
+          this.$store.state.userInfo.roleIds.includes(2) && this.$store.state.userInfo.sys_modules.includes(83)
       );
     }
   },
