@@ -1136,20 +1136,6 @@ export default {
 
       this.formData.markInfo.value = ""; // 卡台标签
       this.oldSalesEmpId = '';
-
-
-      this.formData.waiter_emp_id = ""
-      this.formData.waiter_name = ""
-      this.formData.waiter_status_arr=[]
-      this.formData.waiters = []
-      this.formData.waiter = {
-        waiter_emp_id:"",
-        waiter_name:"",
-        waiter_status_arr:[],
-        waiters:[]
-
-      }
-      // this.formData = {...this.formData}
     },
 
     formResponseHandle(res, successTips = "操作成功！", isResetForm = true) {
@@ -1164,7 +1150,7 @@ export default {
 
     // 点击操作选项后进来之后赋值
     cardInfoChange(value) {
-      console.log('-----------------------------', this.formStatus, value)
+      console.log('-----------------------------', this.formStatus)
       const newVal = value || this.cardInfo;
       switch (this.formStatus) {
         case 2: // 空台开台或预定开台   newVal.bizStatus:1 空台开台  2：预定开台
@@ -1174,8 +1160,13 @@ export default {
             this.formData.customPay.exp_min_csm_amt = newVal.grpMinCsmAmt;
           } else {
             // 预定开台
-            this.resetForm();
             this.getReservedCardInfo();
+          }
+          this.formData.waiter = {
+            waiter_name: "",
+            waiter_emp_id: "",
+            waiters: [],
+            waiter_status_arr: [2, 23],
           }
           break;
         case 7: // 转台   newVal.bizStatus:  3：预定转台   4：开台转台
@@ -1405,13 +1396,12 @@ export default {
   },
   watch: {
     showDrawer(newVal) {
-      console.log("showDrawer", newVal)
       this.show = newVal;
       if (newVal && this.formStatus == 14) {
         const saleInfo =
-            common_book.getOrderPersonInfo(this.cardInfo.salesEmpId) || {};
+          common_book.getOrderPersonInfo(this.cardInfo.salesEmpId) || {};
         const secondSaleInfo =
-            common_book.getOrderPersonInfo(this.cardInfo.secondSalesEmpId) || {};
+          common_book.getOrderPersonInfo(this.cardInfo.secondSalesEmpId) || {};
         this.cardDetailInfo.saleName = saleInfo.name || "---";
         this.cardDetailInfo.salePhone = saleInfo.phoneNum || "---";
         this.cardDetailInfo.arriveTime = this.cardInfo.expArriveTime || "---";
@@ -1426,9 +1416,6 @@ export default {
       } else if (newVal && this.formStatus == 20) {
         // 修改卡台标签
         this.formData.markInfo.value = this.cardInfo.mark;
-      } else if (newVal && this.formStatus == 2) {
-        console.log('--------------------------reset form')
-        this.resetForm()
       }
     },
     show(newVal) {
