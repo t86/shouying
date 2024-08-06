@@ -186,6 +186,18 @@ export default {
           const haveSub = this.erpList.filter((e) => (e.st == 1 || e.st == 3) && e.subList);
           this.subList = haveSub.map((e) => e.subList);
           console.log(this.subList)
+
+
+          //set 83 disabled
+          for(let s of this.subList) {
+            for (let v of s.val){
+              if(v.id === 83){
+                v.disabled = true
+                break
+              }
+            }
+          }
+
         } else {
           this.$message.warning(res.msg);
         }
@@ -252,6 +264,23 @@ export default {
       this.subList = haveSub.map((e) => e.subList);
     },
     subCheckboxHandle(item) {
+      console.log('item:', item)
+      if(item.id === 1){
+        for(let s of this.subList) {
+          for (let v of s.val){
+            if(v.id === 83){
+              if (item.checked){
+                v.disabled = false
+              } else {
+                v.disabled = true
+              }
+              break
+            }
+          }
+        }
+      }
+
+
       // rId
       const erpItem = this.erpList.find((e) => e.id == item.rId);
 
