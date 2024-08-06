@@ -54,6 +54,7 @@
                 <div class="th">规格</div>
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
+                <div class="th">有效期</div>
                 <div class="th">授权人</div>
               </div>
             </div>
@@ -80,6 +81,11 @@
                       ? require('@/assets/order-img/new_order_add.png')
                       : require('@/assets/order-img/new-add-disabled.png')
                   " @click="changeShoppingCartCount(item, item.c * 1 + 1)" />
+                </div>
+                <div class="td" style="font-size: 22px; font-weight: 400;" layout="row" layout-align="start center">
+                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />
+                  <input type="number" :min="1" v-model="item.e" @input="" :disabled="!hasAuthChangeSaveWineDays" @change="changeSaveWineDays($event, item)" />
+                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
                   <span style="font-size: 22px; font-weight: 400;">{{ item.a }}</span>
@@ -118,6 +124,7 @@ import api_saveWine from "@/api/saveWine";
 
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import drawerAuthSaveWine from "./drawerAuthSaveWine.vue";
+
 export default {
   data() {
     return {
@@ -222,8 +229,18 @@ export default {
       this.showChooseWineParamsOfNotAuthDrawer = true;
     },
 
+    async updateSaveWineDays(item){
+      const params = {
+        id: item.id * 1, //   int64    购物车Id
+        c: item.c * 1, //  int    目标商品数量,0表示删除
+        d: item.e * 1
+      };
+      return await api_saveWine.reqUpdateWineCount(params)
+    },
+
     // 修改购物车数量/删除
     async changeShoppingCartCount(itemInfo, count) {
+      console.log(itemInfo);
       if (itemInfo.a == "-") {
         // 非授权酒水
         const currentWineList = this.shoppingCartWineList.filter(
@@ -249,17 +266,61 @@ export default {
       const params = {
         id: itemInfo.id * 1, //   int64    购物车Id
         c: count * 1, //  int    目标商品数量,0表示删除
+        d: itemInfo.e * 1
       };
 
       try {
         const res = await api_saveWine.reqUpdateWineCount(params);
         if (res.code == 1) {
           this.getShoppingCartWineList();
+          this.$message.success("修改成功");
         } else {
           this.$message.warning(res.msg);
+          this.getShoppingCartWineList();
         }
       } catch (error) {
         console.log("修改购物车数量失败", error);
+      }
+    },
+
+    async minusSaveWineDays(item){
+      console.log(item)
+      if(item.e > 1) {
+        item.e --
+        let res = await this.updateSaveWineDays(item)
+        console.log(res)
+        if (res.code === 1) {
+          this.$message.success('修改有效期成功');
+          await this.getShoppingCartWineList();
+        } else {
+          this.$message.warning(res.msg);
+          await this.getShoppingCartWineList();
+        }
+      }
+    },
+    async plusSaveWineDays(item){
+      console.log(item)
+      item.e++
+      let res = await this.updateSaveWineDays(item)
+      console.log(res)
+      if (res.code === 1) {
+        this.$message.success('修改有效期成功');
+        await this.getShoppingCartWineList();
+      } else {
+        this.$message.warning(res.msg);
+        await this.getShoppingCartWineList();
+      }
+    },
+    async changeSaveWineDays(days,item){
+      console.log(days, item)
+      let res = await this.updateSaveWineDays(item)
+      console.log(res)
+      if (res.code === 1) {
+        this.$message.success('修改有效期成功');
+        await this.getShoppingCartWineList();
+      } else {
+        this.$message.warning(res.msg);
+        await this.getShoppingCartWineList();
       }
     },
 
@@ -306,6 +367,14 @@ export default {
   components: {
     drawerChooseWineInfo,
     drawerAuthSaveWine,
+  },
+  computed: {
+    hasAuthChangeSaveWineDays(){
+      return (
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(83)
+      );
+    }
   },
   watch: {
     stepTwoInfo: {
@@ -450,8 +519,9 @@ export default {
         .td {
           width: 20%;
 
-          &:nth-child(4) {
-            width: 30%;
+          &:nth-child(4),
+          &:nth-child(5) {
+            width: 25%;
 
             img {
               width: 32px;
@@ -474,7 +544,7 @@ export default {
             }
           }
 
-          &:nth-child(5) {
+          &:nth-child(6) {
             img {
               width: 32px;
               cursor: pointer;
