@@ -56,6 +56,14 @@
         <div class="label">会员卡最后消费日期:</div>
         <div class="value">{{info.last_consume_day}}</div>
       </div>
+      <div class="row">
+        <div class="label">累计充值:</div>
+        <div class="value">{{ (info.deposit_val_amt/100).toFixed(2) }}</div>
+      </div>
+      <div class="row">
+        <div class="label">累计赠送:</div>
+        <div class="value">{{ (info.deposit_free_amt/100).toFixed(2) }}</div>
+      </div>
     </div>
 <!--    <div class="row-another">-->
 <!--      <div class="label">消费喜好:</div>-->

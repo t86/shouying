@@ -8,6 +8,7 @@
           <div class="th">会员卡号</div>
           <div class="th">类型</div>
           <div class="th">商品<br/><span class="fs12">(鼠标悬停可全部显示)</span></div>
+          <div class="th">卡台</div>
           <div class="th">储值金额</div>
           <div class="th">赠送金额</div>
           <div class="th">操作人</div>
@@ -28,6 +29,7 @@
           <div class="td one-txt-cut">
             <span :title="item.od">{{item.od}}</span>
           </div>
+          <div class="td fs16-bold">{{item.s}}</div>
           <div class="td fs16-bold">{{item.va}}</div>
           <div class="td fs16-bold">{{item.fa}}</div>
           <div class="td">{{item.e}}</div>
@@ -132,7 +134,7 @@ export default {
     }
     .th:nth-child(6),
     .td:nth-child(6) {
-      width: 120px;
+      width: 100px;
     }
     .th:nth-child(7),
     .td:nth-child(7) {
@@ -140,6 +142,10 @@ export default {
     }
     .th:nth-child(8),
     .td:nth-child(8) {
+      width: 120px;
+    }
+    .th:nth-child(9),
+    .td:nth-child(9) {
       width: 100px;
     }
   }
