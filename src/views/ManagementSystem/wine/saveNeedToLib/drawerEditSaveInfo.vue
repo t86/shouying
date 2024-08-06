@@ -82,6 +82,7 @@
                 <div class="th">规格</div>
                 <div class="th">每瓶克数</div>
                 <div class="th">数量</div>
+                <div class="th">有效期</div>
                 <div class="th" style="width: 220px">操作</div>
               </div>
             </div>
@@ -152,6 +153,39 @@
                     "
                     icon="el-icon-plus"
                     @click="item.c++"
+                  ></el-button>
+                </div>
+                <div class="td" layout="row" layout-align="center center">
+                  <el-button
+                    type
+                    size="small"
+                    style="
+                      width: 26px;
+                      padding: 0;
+                      height: 26px;
+                      border-radius: 50%;
+                    "
+                    icon="el-icon-minus"
+                    :disabled="item.expireDays <= 1"
+                    @click="item.expireDays = Math.max(1, item.expireDays - 1)"
+                  ></el-button>
+                  <el-input
+                    v-model="item.expireDays"
+                    size="mini"
+                    style="width: 60px; margin: 0 10px"
+                    :class="{ 'custom-color': item.isRed }"
+                  ></el-input>
+                  <el-button
+                    type
+                    size="mini"
+                    style="
+                      width: 26px;
+                      padding: 0;
+                      height: 26px;
+                      border-radius: 50%;
+                    "
+                    icon="el-icon-plus"
+                    @click="item.expireDays++"
                   ></el-button>
                 </div>
                 <div class="td" style="width: 220px">
@@ -303,6 +337,7 @@ export default {
           item.u == "整瓶" ? "1" : item.u
         ), //  []string   对应子定单修改后的规格
         prd_cnts: this.tableData.map((item) => item.c * 1), //   []int   对应子订单修改后的商品数量
+        expired_days: this.tableData.map((item) => item.expireDays * 1), //   []int   过期天数
         g_cnts: this.tableData.map((item) => item.g * 1), //     []int        //GCnts 对应子订单修改后的克数
         prd_ids:this.tableData.map((item) => item.p), //NewPrdIds 对应子订单修改后的商品Id, 预留(将来可能修改商品)
         csm_id: this.isCardBillRelated ? this.cardOrder : 0, // int64 待入库存酒对应的流水
@@ -430,6 +465,14 @@ export default {
           this.tableData = JSON.parse(
             JSON.stringify(this.currentSaveInfo.ss || [])
           );
+          this.tableData = this.tableData.map((item) => {
+            return {
+              ...item,
+              expireDays: item.ed || item.ce,
+              isRed: item.ed && item.ed * 1 != item.ce * 1,
+            }
+          }
+          );
           console.log(this.currentSaveInfo);
           this.saveTime = this.currentSaveInfo.t
           this.custName = this.currentSaveInfo.c || (this.currentSaveInfo.rn)
@@ -437,10 +480,17 @@ export default {
           this.cardOrder = this.currentSaveInfo.m
           this.seat = { n: this.currentSaveInfo.s, id: this.currentSaveInfo.si }
           this.businessDate = this.currentSaveInfo.d
+
         } else {
         }
       },
       immediate: true,
+    },
+    tableData: {
+      handler(newVal) {
+        this.$emit("update:tableData", newVal);
+      },
+      deep: true,
     },
   },
 };
@@ -454,6 +504,10 @@ export default {
 </style>
 
 <style lang="less" scoped>
+
+/deep/ .custom-color .el-input__inner {
+  color: red;
+}
 
 .grid {
   margin-top: 20px;
