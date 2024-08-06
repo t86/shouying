@@ -82,6 +82,23 @@
     </div>
 
     <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">线上清台小票打印机：</div>
+      <div class="value">
+        <el-select
+          clearable
+          v-model="onlineClearCardPrint"
+        >
+          <el-option
+            v-for="item in onlineClearCardPrintList"
+            :key="item.id"
+            :label="item.n"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
       <div class="label">会员扣款小票打印份数：</div>
       <div class="value">
         <el-input-number v-model="membersubtractCount" :min="0" :max="9" />
@@ -142,6 +159,8 @@ export default {
       onlineOrderCount: 1, // 线上结算单小票打印分书
       onlineOrderPrint: "", // 线上结算单小票打印机
       onlineOrderPrintList: [], // 线上结算单小票打印机option
+      onlineClearCardPrint: "", // 线上清台小票打印机
+      onlineClearCardPrintList: [], // 线上清台小票打印机option
       memberDepositCount: 0, // 会员充值小票份数
       memberConsumeCount: 0, // 会员消费小票份数
       memberRechargePointCount: 0, //会员充值积分小票份数
@@ -164,12 +183,16 @@ export default {
           this.clearCardCount = res.data.clean_stl_cnt;
           this.onlineOrderCount = res.data.ol_out_pay_cnt;
           this.onlineOrderPrint = res.data.ol_out_pay_prt_id || "";
+          this.onlineClearCardPrint = res.data.ol_clean_prt_id || "";
           this.memberDepositCount = res.data.mb_deposit_cnt;
           this.memberConsumeCount = res.data.mb_csm_cnt;
           this.memberRechargePointCount = res.data.mb_dept_pt_cnt;
           this.membersubtractCount = res.data.mb_sub_cnt;
           this.memberPointCount = res.data.mb_sub_pt_cnt;
           this.onlineOrderPrintList = (res.data.printers || []).filter(
+            (item) => item.s == 1
+          );
+          this.onlineClearCardPrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
           console.log(this.onlineOrderPrintList);
@@ -193,6 +216,7 @@ export default {
         chg_yh2_emp_cnt: this.changeYhRen2Count * 1, // int 修改优惠2人小票打印份数
         ol_out_pay_cnt: this.onlineOrderCount * 1, // int        //OlOutPayCnt 线上付款,小票打印份数 0表示不打印, 0的时候out_out_pay_prt_id也必须为0
         ol_out_pay_prt_id: this.onlineOrderPrint * 1, // int64      //OlOutPayPrtId 线上付款,出票打印机Id, =0 代表没有配置
+        ol_clean_prt_id: this.onlineClearCardPrint * 1, // int64      //OlCleanPrtId 线上清台,出票打印机Id, =0 代表没有配置
         mb_deposit_cnt: this.memberDepositCount * 1, // int 会员充值小票份数
         mb_csm_cnt: this.memberConsumeCount * 1, // int       会员扣款小票份数
         // TODO
