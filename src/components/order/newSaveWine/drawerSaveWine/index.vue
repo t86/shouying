@@ -149,8 +149,10 @@ export default {
       };
 
       try {
-        if (!params.p || params.p.length != 11)
-              return this.$message.warning("请输入正确的11位手机号码");
+        if (!params.p || params.p.length != 11) {
+            this.$message.warning("请输入正确的11位手机号码");
+            return fasle
+          }
         const res = await api_saveWine.reqCheckBlackPhone(params);
         if (res.code != 1) {
           this.$message.warning("该手机号是黑名单用户，不支持存酒服务");

@@ -300,8 +300,10 @@ export default {
         t: 200, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机  105 微信端客人绑定安全手机  200  验证获取客人会员卡结账
         m: this.phoneNum, //  string   手机号
       };
-      if (params.m.length != 11)
-        return this.$message.warning("请输入正确的11位手机号");
+      if (params.m.length != 11) {
+        this.$message.warning("请输入正确的11位手机号");
+        return 
+      }
       try {
         let res = await api_saveWine.reqCheckBlackPhone({
           p: this.phoneNum,
@@ -465,8 +467,10 @@ export default {
       };
 
       try {
-        if (params.p.length != 11)
-          return this.$message.warning("请输入正确的11位手机号");
+        if (params.p.length != 11) {
+          this.$message.warning("请输入正确的11位手机号");
+          return false;
+        }
         const res = await api_saveWine.reqCheckBlackPhone(params);
         if (res.code != 1) {
           this.$message.warning("该手机号是黑名单用户，不支持存酒服务");
