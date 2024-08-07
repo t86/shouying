@@ -72,7 +72,10 @@
                   " @click="
   changeShoppingCartCount(item, Math.max(1, item.c * 1 - 1))
 " />
-                  <input type="number" :min="1" v-model="item.c" @input="
+                  <input type="number" :min="1" v-model="item.c" 
+                  @blur="keyboardLeave('expireInputRef')" @click="keyboardShow('expireInputRef')" 
+                  ref="expireInputRef"
+                  @input="
                     changeShoppingCartCount(item, Math.max(item.c * 1, 1))
                   " />
                   <img :src="
@@ -139,6 +142,30 @@ export default {
     };
   },
   methods: {
+    keyboardShow(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+          }
+    },
+    keyboardLeave(refString) {
+      setTimeout(() => {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("hideSoftInput" in window.atool)
+        ) {
+          atool.executeJs(`this.$refs.${refString}.blur()`);
+          atool.hideSoftInput();
+          atool.restart();
+
+        }
+      }, 10)
+    },
     async init() {
       await this.getOrderCanSaveWine();
       await this.getShoppingCartWineList();
