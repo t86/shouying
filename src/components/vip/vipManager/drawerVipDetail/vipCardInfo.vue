@@ -47,7 +47,6 @@
       <div class="value">{{ item.df }}</div>
     </div>
   </div>
-  </div>
 </template>
  
 <script>
