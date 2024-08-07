@@ -34,11 +34,30 @@
                     <div class="td w120">{{item.num}}</div>
                     <div class="td w120">{{item.num_cnt}}</div>
                     <div class="td w120">{{item.wait}}</div>
-                    <div class="td w120">
+                    <div class="td">
                       <div class="action">
-                        <el-button  key="1" type="primary" :disabled="!item.canCall" class="btn" size="mini" @click="call(item)">叫号</el-button>
-                        <el-button key="2" type="primary" :disabled="!item.canEnter"  class="btn" size="mini" @click="enter(item)">进店</el-button>
-                        <el-button key="3" type="primary" :disabled="!item.canOverdue"  class="btn" size="mini" @click="overdue(item)">过号</el-button>
+<!--                        <el-button  key="1" type="primary" :disabled="!item.canCall" class="btn" size="medium" @click="call(item)">叫号</el-button>-->
+                        <div class="btn"
+                             :class="{ active: item.canCall }"
+                             @click.stop="call(item)">
+                          <span>叫号</span>
+                        </div>
+
+                        <div class="btn"
+                             :class="{ active: item.canEnter }"
+                             @click.stop="enter(item)">
+                          <span>进店</span>
+                        </div>
+
+
+                        <div class="btn"
+                             :class="{ active: item.canOverdue }"
+                             @click.stop="overdue(item)">
+                          <span>过号</span>
+                        </div>
+
+<!--                        <el-button key="2" type="primary" :disabled="!item.canEnter"  class="btn" size="medium" @click="enter(item)">进店</el-button>-->
+<!--                        <el-button key="3" type="primary" :disabled="!item.canOverdue"  class="btn" size="medium" @click="overdue(item)">过号</el-button>-->
                       </div>
                     </div>
                   </div>
@@ -194,6 +213,7 @@ export default {
       );
     },
     async enter(item){
+      console.log(item)
       let queue_no
       if (item.current_status * 1 === 1){
         queue_no = item.curr_num_id * 1
@@ -222,6 +242,7 @@ export default {
       );
     },
     async overdue(item){
+      console.log(item)
       let queue_no
       if (item.current_status * 1 === 1){
         queue_no = item.curr_num_id * 1
@@ -266,7 +287,20 @@ export default {
       this.timer = setInterval(async () => { // 使用箭头函数，确保this指向正确
         try {
           console.log('updateQueueWait....')
-          this.queues.forEach(a => a.wait_time_t = this.formatTimeDifference(a.obtain_time))
+          this.queues.forEach(a => {
+            let now = new Date()
+            if(a.status * 1 !== 1) {
+              let timestamp = a.update_time
+              const year = parseInt(timestamp.substring(0, 4), 10);
+              const month = parseInt(timestamp.substring(4, 6), 10) - 1; // 月份从0开始
+              const day = parseInt(timestamp.substring(6, 8), 10);
+              const hour = parseInt(timestamp.substring(8, 10), 10);
+              const minute = parseInt(timestamp.substring(10, 12), 10);
+              const second = parseInt(timestamp.substring(12, 14), 10);
+              now = new Date(year, month, day, hour, minute, second);
+            }
+            a.wait_time_t = this.formatTimeDifference(a.obtain_time, now)
+          })
           this.queues = [...this.queues]
         } catch (e) {
           if (this.timer) {
@@ -296,7 +330,7 @@ export default {
         this.checkStatus = item.id;
       }
     },
-    formatTimeDifference(timestamp) {
+    formatTimeDifference(timestamp, now= new Date()) {
       // 将时间字符串解析为Date对象
       const year = parseInt(timestamp.substring(0, 4), 10);
       const month = parseInt(timestamp.substring(4, 6), 10) - 1; // 月份从0开始
@@ -306,7 +340,7 @@ export default {
       const second = parseInt(timestamp.substring(12, 14), 10);
 
       const targetDate = new Date(year, month, day, hour, minute, second);
-      const now = new Date();
+      // const now = new Date();
 
       // 计算时间差值（以毫秒为单位）
       const diffMilliseconds = Math.abs(now - targetDate);
@@ -460,6 +494,7 @@ export default {
           queue.desk_cnt = this.countElementsBeforeQueueNo(queues, queue.queue_no)
           queue.show = true
 
+
           if (queue.status * 1 === 1) {
             queue.status_name = '排队中'
           } else if (queue.status * 1 === 2) {
@@ -471,7 +506,20 @@ export default {
           }
 
           queue.obtain_time_t = this.formatTimestamp(queue.obtain_time)
-          queue.wait_time_t = this.formatTimeDifference(queue.obtain_time)
+
+          let now = new Date()
+          if(queue.status * 1 !== 1) {
+            let timestamp = queue.update_time
+            const year = parseInt(timestamp.substring(0, 4), 10);
+            const month = parseInt(timestamp.substring(4, 6), 10) - 1; // 月份从0开始
+            const day = parseInt(timestamp.substring(6, 8), 10);
+            const hour = parseInt(timestamp.substring(8, 10), 10);
+            const minute = parseInt(timestamp.substring(10, 12), 10);
+            const second = parseInt(timestamp.substring(12, 14), 10);
+            now = new Date(year, month, day, hour, minute, second);
+          }
+
+          queue.wait_time_t = this.formatTimeDifference(queue.obtain_time, now)
         }
       }
 
