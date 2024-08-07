@@ -189,10 +189,20 @@ export default {
 
 
           //set 83 disabled
+          let hasSaveWine = 2
+          for(let s of this.subList) {
+            for (let v of s.val){
+              if(v.id === 1){
+                hasSaveWine = v.st
+                break
+              }
+            }
+          }
+
           for(let s of this.subList) {
             for (let v of s.val){
               if(v.id === 83){
-                v.disabled = true
+                v.disabled = hasSaveWine  === 2
                 break
               }
             }
@@ -272,6 +282,7 @@ export default {
               if (item.checked){
                 v.disabled = false
               } else {
+                v.checked = false;
                 v.disabled = true
               }
               break
