@@ -72,8 +72,7 @@
                   " @click="
   changeShoppingCartCount(item, Math.max(1, item.c * 1 - 1))
 " />
-                  <input type="number" :min="1" v-model="item.c" 
-                  @input="
+                  <input type="number" :min="1" v-model="item.c" @input="
                     changeShoppingCartCount(item, Math.max(item.c * 1, 1))
                   " />
                   <img :src="
@@ -85,10 +84,7 @@
                 </div>
                 <div class="td" style="font-size: 22px; font-weight: 400;" layout="row" layout-align="start center">
                   <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />
-                  <input type="number" 
-                  @blur="keyboardLeave('expireInputRef')" @click="keyboardShow('expireInputRef')" 
-                  ref="expireInputRef"
-                  :min="1" v-model="item.e" @input="" :disabled="!hasAuthChangeSaveWineDays" @change="changeSaveWineDays($event, item)" />
+                  <input type="number" :min="1" v-model="item.e" @input="" :disabled="!hasAuthChangeSaveWineDays" @change="changeSaveWineDays($event, item)" />
                   <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
@@ -143,30 +139,6 @@ export default {
     };
   },
   methods: {
-    keyboardShow(refString){
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
-          }
-    },
-    keyboardLeave(refString) {
-      setTimeout(() => {
-        if (
-          window.atool
-          && window.atool.getTermType() == "android" &&
-          ("hideSoftInput" in window.atool)
-        ) {
-          atool.executeJs(`this.$refs.${refString}.blur()`);
-          atool.hideSoftInput();
-          atool.restart();
-
-        }
-      }, 10)
-    },
     async init() {
       await this.getOrderCanSaveWine();
       await this.getShoppingCartWineList();
@@ -321,6 +293,7 @@ export default {
         let res = await this.updateSaveWineDays(item)
         console.log(res)
         if (res.code === 1) {
+          this.$message.success('修改有效期成功');
           await this.getShoppingCartWineList();
         } else {
           this.$message.warning(res.msg);
@@ -337,6 +310,7 @@ export default {
       let res = await this.updateSaveWineDays(item)
       console.log(res)
       if (res.code === 1) {
+        this.$message.success('修改有效期成功');
         await this.getShoppingCartWineList();
       } else {
         this.$message.warning(res.msg);
@@ -349,6 +323,7 @@ export default {
       let res = await this.updateSaveWineDays(item)
       console.log(res)
       if (res.code === 1) {
+        this.$message.success('修改有效期成功');
         await this.getShoppingCartWineList();
       } else {
         this.$message.warning(res.msg);
