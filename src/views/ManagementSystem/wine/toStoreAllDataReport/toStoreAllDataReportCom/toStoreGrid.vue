@@ -77,6 +77,7 @@ export default {
 
       .tr {
         display: table-row;
+        border-bottom: 1px solid #ddd;
       }
 
       .th, .td {

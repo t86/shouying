@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "../../../../../style/wine/table.less";
+@import "../../../../../style/wine/table2.less";
 </style>
 
 <style scoped lang="less">
@@ -75,6 +75,7 @@ export default {
 
       .tr {
         display: table-row;
+        border-bottom: 1px solid #ddd;
       }
 
       .th, .td {
