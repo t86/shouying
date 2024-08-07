@@ -158,7 +158,10 @@ export default {
         display: table-row;
         border-bottom: 1px solid #ddd;
       }
-
+      .link {
+        color: #2170ff;
+        cursor: pointer;
+      }
       .th, .td {
         display: table-cell;
         padding: 8px;
