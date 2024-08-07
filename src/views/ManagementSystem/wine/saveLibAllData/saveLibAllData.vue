@@ -146,23 +146,27 @@ export default {
   padding: 20px;
   .table-content {
     .table {
-      .thead .th {
-        font-size: 15px;
-      }
-      .tbody {
-        height: calc(100vh - 200px);
-        overflow-y: auto;
-      }
-      .th,.td{
+      display: table;
+      width: 100%;
+      border-collapse: collapse; /* 确保没有空白间隙 */
 
-        &:nth-child(1){
-          width: 70%;
-        }
+      .thead, .tbody {
+        display: table-row-group;
+      }
 
-        .link {
-          color: #2170ff;
-          cursor: pointer;
-        }
+      .tr {
+        display: table-row;
+      }
+
+      .th, .td {
+        display: table-cell;
+        padding: 8px;
+        border-right: 1px solid #ddd; /* 添加竖线 */
+        box-sizing: border-box; /* 包含边框的宽度 */
+      }
+
+      .th:last-child, .td:last-child {
+        border-right: none; /* 最后一列无竖线 */
       }
     }
   }

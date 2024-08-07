@@ -20,19 +20,19 @@
         </div>
         <div class="tbody">
           <div class="tr" layout="row" layout-align="space-between center" v-for="item in tableData" :key="item.id">
-            <div class="td one-txt-cut">{{item.p}}</div>
-            <div class="td">{{item.p10 || ''}}</div>
-            <div class="td">{{item.p1 || ''}}</div>
-            <div class="td">{{item.p2 || ''}}</div>
-            <div class="td">{{item.p3 || ''}}</div>
-            <div class="td">{{item.p4 || ''}}</div>
-            <div class="td">{{item.p5 || ''}}</div>
-            <div class="td">{{item.p6 || ''}}</div>
-            <div class="td">{{item.p7 || ''}}</div>
-            <div class="td">{{item.p8 || ''}}</div>
-            <div class="td">{{item.p9 || ''}}</div>
+            <div class="td one-txt-cut">{{ item.p }}</div>
+            <div class="td">{{ item.p10 || '' }}</div>
+            <div class="td">{{ item.p1 || '' }}</div>
+            <div class="td">{{ item.p2 || '' }}</div>
+            <div class="td">{{ item.p3 || '' }}</div>
+            <div class="td">{{ item.p4 || '' }}</div>
+            <div class="td">{{ item.p5 || '' }}</div>
+            <div class="td">{{ item.p6 || '' }}</div>
+            <div class="td">{{ item.p7 || '' }}</div>
+            <div class="td">{{ item.p8 || '' }}</div>
+            <div class="td">{{ item.p9 || '' }}</div>
           </div>
-          <div class="no-data" v-if="tableData.length==0">
+          <div class="no-data" v-if="tableData.length == 0">
             <img src="@/assets/img/wu.png" alt />
             <p>暂无数据</p>
           </div>
@@ -41,24 +41,21 @@
     </div>
   </div>
 </template>
- 
+
 <script>
 export default {
-  data() {
-    return {
-    };
+  props: {
+    tableData: {
+      default: () => [],
+    },
   },
-  props:{
-    tableData:{
-      default: () => ([])
-    }
-  }
 };
 </script>
 
 <style lang="less" scoped>
 @import "../../../../../style/wine/table.less";
 </style>
+
 <style scoped lang="less">
 .grid-detail {
   .table-content {
@@ -66,14 +63,29 @@ export default {
     width: 100%;
     height: calc(100vh - 220px);
     overflow: auto;
+
     .table {
-      .thead .th {
-        font-size: 15px;
+      display: table;
+      width: 100%;
+      border-collapse: collapse; /* 确保没有空白间隙 */
+
+      .thead, .tbody {
+        display: table-row-group;
       }
-      .th,.td{
-        &:nth-child(1){
-          width: 70%;
-        }
+
+      .tr {
+        display: table-row;
+      }
+
+      .th, .td {
+        display: table-cell;
+        padding: 8px;
+        border-right: 1px solid #ddd; /* 添加竖线 */
+        box-sizing: border-box; /* 包含边框的宽度 */
+      }
+
+      .th:last-child, .td:last-child {
+        border-right: none; /* 最后一列无竖线 */
       }
     }
   }

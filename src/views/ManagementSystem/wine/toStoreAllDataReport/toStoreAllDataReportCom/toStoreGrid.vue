@@ -67,13 +67,27 @@ export default {
     height: calc(100vh - 220px);
     overflow: auto;
     .table {
-      .thead .th {
-        font-size: 15px;
+      display: table;
+      width: 100%;
+      border-collapse: collapse; /* 确保没有空白间隙 */
+
+      .thead, .tbody {
+        display: table-row-group;
       }
-      .th,.td{
-        &:nth-child(1){
-          width: 70%;
-        }
+
+      .tr {
+        display: table-row;
+      }
+
+      .th, .td {
+        display: table-cell;
+        padding: 8px;
+        border-right: 1px solid #ddd; /* 添加竖线 */
+        box-sizing: border-box; /* 包含边框的宽度 */
+      }
+
+      .th:last-child, .td:last-child {
+        border-right: none; /* 最后一列无竖线 */
       }
     }
   }
