@@ -78,7 +78,8 @@
                   <div class="tr-td">{{items.u}}</div>
                   <div class="tr-td">{{items.g || '-'}}</div>
                   <div class="tr-td">{{items.c}}</div>
-                  <div class="tr-td">{{items.e}}</div>
+                  <div class="tr-td"><span>{{items.e}}</span>
+                    <span :style="{'color': items.ed!=items.ce ? 'red': ''}">({{ items.ed }}天)</span></div>
                   <div class="tr-td">{{items.a}}</div>
                 </div>
               </div>
