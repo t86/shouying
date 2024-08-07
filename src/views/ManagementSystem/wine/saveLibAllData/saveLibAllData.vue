@@ -150,8 +150,9 @@ export default {
       width: 100%;
       border-collapse: collapse; /* 确保没有空白间隙 */
 
-      .thead, .tbody {
-        display: table-row-group;
+      .tbody {
+        overflow: auto;
+        height: calc(100vh - 160px);
       }
 
       .tr {
