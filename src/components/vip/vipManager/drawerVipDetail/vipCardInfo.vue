@@ -31,7 +31,7 @@
       </div>
       <div class="row">
         <div class="label">累计充值:</div>
-        <div class="value">{{ item.dv }}</div>
+        <div class="value">{{ (item.dv/100).toFixed(2) }}</div>
       </div>
       <div class="row">
         <div class="label">赠送余额:</div>
@@ -39,7 +39,7 @@
       </div>
       <div class="row">
         <div class="label">累计赠送:</div>
-        <div class="value">{{ item.df }}</div>
+        <div class="value">{{ (item.df/100).toFixed(2) }}</div>
       </div>
       <div class="row">
         <div class="label">积分余额:</div>
