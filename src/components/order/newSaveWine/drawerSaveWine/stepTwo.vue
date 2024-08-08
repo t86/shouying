@@ -99,7 +99,7 @@
       </div>
 
       <div>
-        <Slider :visible.sync="sliderVisible"  :options="[1, 30, 40, 50, 60, 70, 80, 90, 100, 150, 300, 500, 999]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
+        <Slider :visible.sync="sliderVisible"  :options="[1, 30, 60, 90, 150, 300, 500]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
       </div>
       <drawerChooseWineInfo v-model="showChooseWineParamsOfNotAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         :currentWineInfo="currentWineInfo" :maxCount="currentWineCanAddShoppingCartMaxCount"

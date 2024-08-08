@@ -6,7 +6,7 @@
         :before-close="handleCancel"
         append-to-body
         direction="rtl"
-        size="80%"
+        size="50%"
     >
       <div class="content">
 
@@ -85,7 +85,7 @@ export default {
         const index = this.options.indexOf(this.selected);
         this.sliderMin = this.selected;
         // this.sliderMax = index === this.options.length - 1 ? this.selected : this.options[index + 1];
-        this.sliderMax = index === this.options.length - 1 ? 9999 : this.options[index + 1];
+        this.sliderMax = index === this.options.length - 1 ? 999 : this.options[index + 1];
         this.sliderValue = this.current >= this.sliderMin && this.current <= this.sliderMax ? this.current : this.sliderMin; // 确保滑块值在范围内
       },
       onRadioChange() {
@@ -131,10 +131,18 @@ export default {
 </style>
 
 <style lang="less" scoped>
+/deep/ label {
+  width: 80px !important;
+  color: rgba(255, 255, 255, 0.8);
+}
 /deep/ .el-radio-button__inner, .el-radio-group {
-  line-height: 3;
+  line-height: 1;
   vertical-align: middle;
   display: block;
+  //line-height: 1;
+  //vertical-align: middle;
+  //display: flex;
+  //justify-content: center;
 }
 /deep/ .el-radio-button__inner {
   margin-top: 10px;
@@ -153,7 +161,7 @@ export default {
   cursor: pointer;
   transition: all .3s cubic-bezier(.645,.045,.355,1);
   padding: 12px 20px;
-  font-size: 25px;
+  font-size: 20px;
   border-radius: 0;
 }
 
@@ -163,9 +171,9 @@ export default {
 }
 
 /deep/ .el-input-number__decrease {
-  width: 50px;
-  height: 50px;
-  font-size: 40px;
+  width: 40px;
+  height: 38px;
+  font-size: 30px;
   font-weight: bold;
   left: -20px;
   border-radius: 4px 0 0 4px;
@@ -173,9 +181,9 @@ export default {
 }
 
 /deep/ .el-input-number__increase {
-  width: 50px;
-  height: 50px;
-  font-size: 40px;
+  width: 30px;
+  height: 38px;
+  font-size: 30px;
   font-weight: bold;
   right: -20px;
   border-radius: 0 4px 4px 0;
@@ -188,6 +196,6 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.15);
   resize: none;
   /* margin-top: 5px; */
-  height: 45px;
+  //height: 40px;
 }
 </style>
