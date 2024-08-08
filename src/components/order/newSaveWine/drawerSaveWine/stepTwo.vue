@@ -90,7 +90,7 @@
 <!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />-->
                   <input type="number" :min="1" v-model="item.e" @input="" disabled @change="changeSaveWineDays($event, item)" />
 <!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />-->
-                  <img :src="require('@/assets/img/btn_edit.png')" @click="showSaveWineDays(item)" v-if="hasAuthChangeSaveWineDays"/>
+                  <img :src="require('@/assets/img/new-edit.png')" @click="showSaveWineDays(item)" v-if="hasAuthChangeSaveWineDays"/>
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
                   <span style="font-size: 22px; font-weight: 400;">{{ item.a }}</span>

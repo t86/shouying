@@ -11,19 +11,42 @@
     <el-dialog
         title="选择和滑动"
         :visible.sync="visible"
-        width="35%"
+        append-to-body
+        width="40%"
     >
-      <div class="content" style="margin-top: 15px;">
-        <el-radio-group  v-model="selected" @change="onRadioChange" style="margin-left: auto">
-          <el-radio-button v-for="item in options" :key="item" :label="item">
+      <div class="content" style="margin-top: 20px;">
+<!--        <el-radio-group  v-model="selected" @change="onRadioChange" style="margin-left: auto">-->
+<!--          <el-radio-button v-for="item in options" :key="item" :label="item">-->
+<!--            {{ item }}-->
+<!--          </el-radio-button>-->
+<!--        </el-radio-group>-->
+
+        <div class="number-container">
+          <div
+              v-for="(item, index) in options"
+              :key="index"
+              :class="['number-box', { selected: selected === item }]"
+              @click="toggleSelection(index)"
+          >
             {{ item }}
-          </el-radio-button>
-        </el-radio-group>
+          </div>
+        </div>
+
       </div>
-    <el-slider style="margin:20px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
-      <span slot="footer" class="dialog-footer">
-          <el-button type="info" @click.stop="handleCancel">取消</el-button>
-          <el-button type="primary" @click.stop="handleConfirm">确定</el-button>
+      <div style="display: flex; padding: 30px 0">
+        <el-slider class="slider-content" v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
+        <div class="slider-container">
+<!--          <div class="placeholder">-</div>-->
+          <img class="placeholder" :src="require('@/assets/img/minus.png')" @click="sliderValue = Math.max(1, sliderValue-1)"/>
+          <div class="value-box">{{ sliderValue }}</div>
+          <img class="placeholder" :src="require('@/assets/img/plus.png')" @click="sliderValue++"/>
+        </div>
+      </div>
+
+
+      <span class="footer">
+          <el-button class="btn-cancel" @click.stop="handleCancel">取消</el-button>
+          <el-button class="btn-confirm" @click.stop="handleConfirm">确定</el-button>
     </span>
 <!--    </el-drawer>-->
     </el-dialog>
@@ -42,6 +65,14 @@ export default {
     };
   },
   methods: {
+    toggleSelection(index) {
+      if (this.selected === this.options[index]) {
+        this.selected = null;
+      } else {
+        this.selected = this.options[index];
+        this.updateSliderRange()
+      }
+    },
       resetDialog() {
         if (this.options.length > 0) {
           this.updateSelected();
@@ -132,104 +163,129 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
-//@import "../style/common/newElementDrawer.less";
-//@import "../style/common/elementDrawerHeaderAndSession.less";
-//@import "../style/common/newElementFormBtn.less";
-</style>
 
 <style lang="less" scoped>
-///deep/ label {
-//  width: 80px !important;
-//  color: rgba(255, 255, 255, 0.8);
-//}
-///deep/ .el-radio-button__inner, .el-radio-group {
-//  line-height: 1;
-//  vertical-align: middle;
-//  display: block;
-//  //line-height: 1;
-//  //vertical-align: middle;
-//  //display: flex;
-//  //justify-content: center;
-//}
-///deep/ .el-radio-button__inner {
-//  margin-top: 10px;
-//  white-space: nowrap;
-//  background: #FFF;
-//  border: 1px solid #DCDFE6;
-//  font-weight: 500;
-//  border-left: 0;
-//  color: #606266;
-//  -webkit-appearance: none;
-//  text-align: center;
-//  box-sizing: border-box;
-//  outline: 0;
-//  margin: 0;
-//  position: relative;
-//  cursor: pointer;
-//  transition: all .3s cubic-bezier(.645,.045,.355,1);
-//  padding: 12px 20px;
-//  font-size: 20px;
-//  border-radius: 0;
-//}
-//
-///deep/ .el-input--small {
-//  font-size: 20px;
-//  top: 5px;
-//}
-//
-///deep/ .el-input-number__decrease {
-//  width: 40px;
-//  height: 38px;
-//  font-size: 30px;
-//  font-weight: bold;
-//  left: -20px;
-//  border-radius: 4px 0 0 4px;
-//  border-right: 1px solid #DCDFE6;
-//}
-//
-///deep/ .el-input-number__increase {
-//  width: 30px;
-//  height: 38px;
-//  font-size: 30px;
-//  font-weight: bold;
-//  right: -20px;
-//  border-radius: 0 4px 4px 0;
-//  border-left: 1px solid #DCDFE6;
-//}
-/deep/ .el-input__inner {
-  color: rgba(255, 255, 255, 0.8);
-  background: #3373E8;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  resize: none;
-  /* margin-top: 5px; */
-  //height: 40px;
+.footer{
+  background: rgba(236, 239, 244, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+
+  .btn-cancel{
+    border: none;
+    font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    color: #FFFFFF;
+    width: 112px;
+    height: 52px;
+    background: #374368;
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+  }
+  .btn-confirm {
+    border: none;
+    font-size: 20px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 600;
+    color: #FFFFFF;
+    width: 112px;
+    height: 52px;
+    background: #3373E8;
+    border-radius: 8px;
+  }
 }
-/deep/ .el-input--small .el-input__inner {
-  height: 32px;
-  line-height: 32px;
-  font-size: 18px;
-}
-/deep/ .el-button--primary {
-  color: #FFF;
-  background-color: #3373E8;
-  border-color: #3373E8;
+.number-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  margin: 10px 20px;
 }
 
-/deep/ .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-  color: #FFF;
-  background-color: #3373E8;
-  border-color: #3373E8;
-  box-shadow: -1px 0 0 0 #3373E8;
+.number-box {
+  padding: 10px;
+  //background-color: #f0f0f0;
+  border-radius: 4px;
+  border: 1px solid rgba(196, 203, 215, 1);
+  cursor: pointer;
+  margin: 0 5px;
+  width: 40px;
+  text-align: center;
+  font-weight: 600;
 }
-/deep/ .el-dialog {
-  position: relative;
-  margin: 0 auto 50px;
-  background: rgb(219,225,233);
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
-  box-sizing: border-box;
-  width: 50%;
+
+.number-box.selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+.slider-content{
+  width: 80%;
+  margin: 5px 15px;
+}
+.placeholder {
+  width: 45px;
+  height: 45px;
+  //background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  /* margin: 0 10px; */
+  cursor: pointer;
+}
+
+.value-box {
+  padding: 10px;
+  //background-color: #f0f0f0;
+  border-radius: 4px;
+  border: 1px solid rgba(196, 203, 215, 1);
+  cursor: pointer;
+  margin: 0 5px;
+  width: 40px;
+  text-align: center;
+  font-weight: 600;
+  background-color: #007bff;
+  color: #fff;
+}
+
+
+/deep/ .el-dialog__header {
+  padding: 20px 20px 10px;
+  background: #C4CBD7;
+  text-align: left;
+}
+
+/deep/ .el-dialog__title {
+  font-size: 18px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 600;
+  color: #1A1A21;
+}
+/deep/ .el-dialog__headerbtn {
+  font-size: x-large;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 0;
+  background: 0 0;
+  border: none;
+  outline: 0;
+  cursor: pointer;
+}
+
+/deep/ .el-dialog__body {
+  padding: 0;
+  color: #606266;
+  font-size: 20px;
+  background-color: #FFF !important;
+  word-break: break-all;
 }
 </style>
