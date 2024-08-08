@@ -48,7 +48,7 @@ export default {
           this.selected = null;
           this.sliderValue = 0;
           this.sliderMin = 0;
-          this.sliderMax = 100;
+          this.sliderMax = 30;
         }
       },
       // updateSelected() {
@@ -84,7 +84,8 @@ export default {
       updateSliderRange() {
         const index = this.options.indexOf(this.selected);
         this.sliderMin = this.selected;
-        this.sliderMax = index === this.options.length - 1 ? this.selected : this.options[index + 1];
+        // this.sliderMax = index === this.options.length - 1 ? this.selected : this.options[index + 1];
+        this.sliderMax = index === this.options.length - 1 ? 9999 : this.options[index + 1];
         this.sliderValue = this.current >= this.sliderMin && this.current <= this.sliderMax ? this.current : this.sliderMin; // 确保滑块值在范围内
       },
       onRadioChange() {
