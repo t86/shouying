@@ -206,6 +206,11 @@ export default {
   /* margin-top: 5px; */
   //height: 40px;
 }
+/deep/ .el-input--small .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+  font-size: 18px;
+}
 /deep/ .el-button--primary {
   color: #FFF;
   background-color: #3373E8;
