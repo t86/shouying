@@ -11,16 +11,16 @@
     <el-dialog
         title="选择和滑动"
         :visible.sync="visible"
-        width="40%"
+        width="35%"
     >
-      <div class="content" style="margin-top: 20px; margin-left: auto">
-        <el-radio-group  v-model="selected" @change="onRadioChange">
+      <div class="content" style="margin-top: 15px;">
+        <el-radio-group  v-model="selected" @change="onRadioChange" style="margin-left: auto">
           <el-radio-button v-for="item in options" :key="item" :label="item">
             {{ item }}
           </el-radio-button>
         </el-radio-group>
       </div>
-    <el-slider style="margin-left: 20px; margin-right: 20px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
+    <el-slider style="margin:20px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
       <span slot="footer" class="dialog-footer">
           <el-button type="info" @click.stop="handleCancel">取消</el-button>
           <el-button type="primary" @click.stop="handleConfirm">确定</el-button>
@@ -197,15 +197,15 @@ export default {
 //  border-radius: 0 4px 4px 0;
 //  border-left: 1px solid #DCDFE6;
 //}
-///deep/ .el-input__inner {
-//  color: rgba(255, 255, 255, 0.8);
-//  background: #409EFF;
-//  border-radius: 10px;
-//  border: 1px solid rgba(255, 255, 255, 0.15);
-//  resize: none;
-//  /* margin-top: 5px; */
-//  //height: 40px;
-//}
+/deep/ .el-input__inner {
+  color: rgba(255, 255, 255, 0.8);
+  background: #3373E8;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  resize: none;
+  /* margin-top: 5px; */
+  //height: 40px;
+}
 /deep/ .el-button--primary {
   color: #FFF;
   background-color: #3373E8;
@@ -217,5 +217,14 @@ export default {
   background-color: #3373E8;
   border-color: #3373E8;
   box-shadow: -1px 0 0 0 #3373E8;
+}
+/deep/ .el-dialog {
+  position: relative;
+  margin: 0 auto 50px;
+  background: rgb(219,225,233);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  box-sizing: border-box;
+  width: 50%;
 }
 </style>
