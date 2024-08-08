@@ -83,9 +83,10 @@
                   " @click="changeShoppingCartCount(item, item.c * 1 + 1)" />
                 </div>
                 <div class="td" style="font-size: 22px; font-weight: 400;" layout="row" layout-align="start center">
-                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />
+<!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />-->
                   <input type="number" :min="1" v-model="item.e" @input="" :disabled="!hasAuthChangeSaveWineDays" @change="changeSaveWineDays($event, item)" />
-                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />
+<!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />-->
+                  <img :src="require('@/assets/order-img/new_order_add.png')" @click="showSaveWineDays(item)" />
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
                   <span style="font-size: 22px; font-weight: 400;">{{ item.a }}</span>
@@ -97,6 +98,9 @@
         </div>
       </div>
 
+      <div>
+        <Slider :visible.sync="sliderVisible"  :options="[30, 40, 50, 60, 70, 80, 90, 100, 150, 300, 500, 999]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
+      </div>
       <drawerChooseWineInfo v-model="showChooseWineParamsOfNotAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         :currentWineInfo="currentWineInfo" :maxCount="currentWineCanAddShoppingCartMaxCount"
         @getShoppingCartWineList="getShoppingCartWineList" />
@@ -104,6 +108,7 @@
       <drawerAuthSaveWine v-model="showChooseWineParamsOfAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         @getShoppingCartWineList="getShoppingCartWineList" />
     </div>
+
 
     <!-- 底部按钮 -->
     <div class="form-btn" layout="row" layout-align="space-between center">
@@ -124,10 +129,13 @@ import api_saveWine from "@/api/saveWine";
 
 import drawerChooseWineInfo from "./drawerChooseWineInfo.vue";
 import drawerAuthSaveWine from "./drawerAuthSaveWine.vue";
+import Slider from "../../../slider2";
 
 export default {
   data() {
     return {
+      selectedSaveWineItem: {},
+      sliderVisible: false,
       // customName: '',
       notAuthWineList: [], // 当前流水可存酒水
       shoppingCartWineList: [], // 存酒购物车酒水
@@ -139,6 +147,22 @@ export default {
     };
   },
   methods: {
+    async handleConfirm(value) {
+      this.selectedSaveWineItem.e = value
+      let res = await this.updateSaveWineDays(this.selectedSaveWineItem)
+      console.log(res)
+      if (res.code === 1) {
+        this.$message.success('修改有效期成功');
+        await this.getShoppingCartWineList();
+      } else {
+        this.$message.warning(res.msg);
+        await this.getShoppingCartWineList();
+      }
+      console.log('确认值:', value);
+    },
+    handleCancel() {
+      console.log('取消操作');
+    },
     async init() {
       await this.getOrderCanSaveWine();
       await this.getShoppingCartWineList();
@@ -317,8 +341,11 @@ export default {
         await this.getShoppingCartWineList();
       }
     },
+    showSaveWineDays(item){
+      this.selectedSaveWineItem = item
+      this.sliderVisible = true
+    },
     async changeSaveWineDays(days,item){
-
       console.log(days, item)
       let res = await this.updateSaveWineDays(item)
       console.log(res)
@@ -372,6 +399,7 @@ export default {
     checkedOrderInfo: {},
   },
   components: {
+    Slider,
     drawerChooseWineInfo,
     drawerAuthSaveWine,
   },
