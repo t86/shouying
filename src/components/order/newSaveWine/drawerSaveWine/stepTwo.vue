@@ -84,9 +84,9 @@
                 </div>
                 <div class="td" style="font-size: 22px; font-weight: 400;" layout="row" layout-align="start center">
 <!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_sub.png'): require('@/assets/order-img/new-sub-disabled.png')" @click="minusSaveWineDays(item)" />-->
-                  <input type="number" :min="1" v-model="item.e" @input="" :disabled="!hasAuthChangeSaveWineDays" @change="changeSaveWineDays($event, item)" />
+                  <input type="number" :min="1" v-model="item.e" @input="" disabled @change="changeSaveWineDays($event, item)" />
 <!--                  <img :src="hasAuthChangeSaveWineDays? require('@/assets/order-img/new_order_add.png'): require('@/assets/order-img/new-add-disabled.png')" @click="plusSaveWineDays(item)" />-->
-                  <img :src="require('@/assets/order-img/new_order_add.png')" @click="showSaveWineDays(item)" />
+                  <img :src="require('@/assets/img/btn_edit.png')" @click="showSaveWineDays(item)" v-if="hasAuthChangeSaveWineDays"/>
                 </div>
                 <div class="td" layout="row" layout-align="space-between center">
                   <span style="font-size: 22px; font-weight: 400;">{{ item.a }}</span>
@@ -99,7 +99,7 @@
       </div>
 
       <div>
-        <Slider :visible.sync="sliderVisible"  :options="[30, 40, 50, 60, 70, 80, 90, 100, 150, 300, 500, 999]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
+        <Slider :visible.sync="sliderVisible"  :options="[1, 30, 40, 50, 60, 70, 80, 90, 100, 150, 300, 500, 999]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
       </div>
       <drawerChooseWineInfo v-model="showChooseWineParamsOfNotAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         :currentWineInfo="currentWineInfo" :maxCount="currentWineCanAddShoppingCartMaxCount"
