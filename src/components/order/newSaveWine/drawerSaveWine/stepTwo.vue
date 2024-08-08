@@ -14,6 +14,10 @@
       </div>
     </div>
 
+    <div>
+      <Slider :visible="sliderVisible" style="width: 80%; text-align: center" v-if="sliderVisible"  :options="[1, 30, 60, 90, 150, 300, 500]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
+    </div>
+
     <!-- 存酒内容 -->
     <div class="save-list" layout="row" layout-align="space-between start">
       <div class="left">
@@ -97,10 +101,6 @@
           </div>
         </div>
       </div>
-
-      <div>
-        <Slider :visible.sync="sliderVisible"  :options="[1, 30, 60, 90, 150, 300, 500]" :current="selectedSaveWineItem.e" @confirm="handleConfirm" @cancel="handleCancel" />
-      </div>
       <drawerChooseWineInfo v-model="showChooseWineParamsOfNotAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         :currentWineInfo="currentWineInfo" :maxCount="currentWineCanAddShoppingCartMaxCount"
         @getShoppingCartWineList="getShoppingCartWineList" />
@@ -148,6 +148,7 @@ export default {
   },
   methods: {
     async handleConfirm(value) {
+      this.sliderVisible = false
       this.selectedSaveWineItem.e = value
       let res = await this.updateSaveWineDays(this.selectedSaveWineItem)
       console.log(res)
@@ -161,6 +162,7 @@ export default {
       console.log('确认值:', value);
     },
     handleCancel() {
+      this.sliderVisible = false
       console.log('取消操作');
     },
     async init() {
@@ -342,6 +344,7 @@ export default {
       }
     },
     showSaveWineDays(item){
+      this.sliderVisible = false
       this.selectedSaveWineItem = item
       this.sliderVisible = true
     },

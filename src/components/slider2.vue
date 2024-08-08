@@ -1,30 +1,26 @@
 <template>
   <div>
-    <el-drawer
-        title="选择和滑动"
-        :visible.sync="visible"
-        :before-close="handleCancel"
-        append-to-body
-        direction="rtl"
-        size="50%"
-    >
-      <div class="content">
-
-        <el-radio-group style="margin-top: 100px" v-model="selected" @change="onRadioChange">
+<!--    <el-drawer-->
+<!--        title="选择和滑动"-->
+<!--        :visible.sync="visible"-->
+<!--        :before-close="handleCancel"-->
+<!--        append-to-body-->
+<!--        direction="rtl"-->
+<!--        size="50%"-->
+<!--    >-->
+      <div class="content" style="margin-top: 20px; display: flex">
+        <el-radio-group  v-model="selected" @change="onRadioChange">
           <el-radio-button v-for="item in options" :key="item" :label="item">
             {{ item }}
           </el-radio-button>
         </el-radio-group>
-        <el-slider style="margin: 150px 30px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
-        <div
-            class="form-btn"
-            layout="row"
-            layout-align="center center">
+        <div style="margin-left: 5px">
           <el-button type="info" @click.stop="handleCancel">取消</el-button>
           <el-button type="primary" @click.stop="handleConfirm">确定</el-button>
         </div>
       </div>
-    </el-drawer>
+    <el-slider style="margin-left: 20px; margin-right: 20px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
+<!--    </el-drawer>-->
   </div>
 </template>
 
@@ -100,6 +96,11 @@ export default {
         this.$emit('confirm', this.sliderValue);
       }
   },
+  mounted() {
+    console.log('mount-------------------')
+    console.log(this.current)
+    this.resetDialog();
+  },
   props: {
     visible: {
       type: Boolean,
@@ -116,6 +117,7 @@ export default {
   },
   watch: {
     visible(newVal) {
+      console.log('show-------------------')
       if (newVal) {
         this.resetDialog();
       }
