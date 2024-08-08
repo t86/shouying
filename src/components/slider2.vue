@@ -8,19 +8,25 @@
 <!--        direction="rtl"-->
 <!--        size="50%"-->
 <!--    >-->
-      <div class="content" style="margin-top: 20px; display: flex">
+    <el-dialog
+        title="选择和滑动"
+        :visible.sync="visible"
+        width="40%"
+    >
+      <div class="content" style="margin-top: 20px; margin-left: auto">
         <el-radio-group  v-model="selected" @change="onRadioChange">
           <el-radio-button v-for="item in options" :key="item" :label="item">
             {{ item }}
           </el-radio-button>
         </el-radio-group>
-        <div style="margin-left: 5px">
-          <el-button type="info" @click.stop="handleCancel">取消</el-button>
-          <el-button type="primary" @click.stop="handleConfirm">确定</el-button>
-        </div>
       </div>
     <el-slider style="margin-left: 20px; margin-right: 20px" show-input v-model="sliderValue" :min="sliderMin" :max="sliderMax"></el-slider>
+      <span slot="footer" class="dialog-footer">
+          <el-button type="info" @click.stop="handleCancel">取消</el-button>
+          <el-button type="primary" @click.stop="handleConfirm">确定</el-button>
+    </span>
 <!--    </el-drawer>-->
+    </el-dialog>
   </div>
 </template>
 
