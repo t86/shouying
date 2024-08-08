@@ -64,7 +64,7 @@ export default {
         const index = this.options.indexOf(this.selected);
         this.sliderMin = index === 0 ? 0 : this.options[index - 1] + 1;
         this.sliderMax = this.selected;
-        this.sliderValue = this.current >= this.sliderMin && this.current <= this.sliderMax ? this.current : this.sliderMin; // 确保滑块值在范围内
+        this.sliderValue = this.current >= this.sliderMin && this.current <= this.sliderMax ? this.current : this.sliderMax; // 确保滑块值在范围内
       },
       onRadioChange() {
         this.updateSliderRange();
