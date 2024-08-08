@@ -200,4 +200,16 @@ export default {
 //  /* margin-top: 5px; */
 //  //height: 40px;
 //}
+/deep/ .el-button--primary {
+  color: #FFF;
+  background-color: #3373E8;
+  border-color: #3373E8;
+}
+
+/deep/ .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  color: #FFF;
+  background-color: #3373E8;
+  border-color: #3373E8;
+  box-shadow: -1px 0 0 0 #3373E8;
+}
 </style>
