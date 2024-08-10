@@ -6,7 +6,7 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="800px"
+      size="80%"
     >
       <div class="content m-t-4">
         <component is="vipInfo" :info="stepOneInfo" ref="_detailRef" @phoneChanged="phoneChanged" />
