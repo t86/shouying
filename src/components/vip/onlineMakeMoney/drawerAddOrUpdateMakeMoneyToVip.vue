@@ -234,9 +234,9 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
-          this.getKqDetail()
           this.getCardLevelList();
           if (this.editInfo.d) {
+            this.getKqDetail()
             // 编辑
             this.makeMoney = this.editInfo.d / 100
             this.zsMoney = this.editInfo.f / 100
