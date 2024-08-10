@@ -10,8 +10,8 @@
     >
       <div class="session edit-save-info p-5">
 
-        <drawerCardOrder 
-          v-model="showCardOrderDrawer" 
+        <drawerCardOrder
+          v-model="showCardOrderDrawer"
           :productInfo="currentSaveInfo"
           :isFreeEditCard="!isCardBillRelated"
           @onSubmit="onCardOrderSubmit"
@@ -124,7 +124,6 @@
                 </div>
                 <div class="td" layout="row" layout-align="center center">
                   <el-button
-                    type
                     size="small"
                     style="
                       width: 26px;
@@ -142,7 +141,6 @@
                     style="width: 60px; margin: 0 10px"
                   ></el-input>
                   <el-button
-                    type
                     size="mini"
                     :disabled="item.a != '-' && item.c >= item.ac"
                     style="
@@ -156,27 +154,26 @@
                   ></el-button>
                 </div>
                 <div class="td" layout="row" layout-align="center center">
-                  <el-button
-                    type
-                    size="small"
-                    style="
-                      width: 26px;
-                      padding: 0;
-                      height: 26px;
-                      border-radius: 50%;
-                    "
-                    icon="el-icon-minus"
-                    :disabled="item.expireDays <= 1"
-                    @click="item.expireDays = Math.max(1, item.expireDays - 1)"
-                  ></el-button>
+<!--                  <el-button-->
+<!--                    size="small"-->
+<!--                    style="-->
+<!--                      width: 26px;-->
+<!--                      padding: 0;-->
+<!--                      height: 26px;-->
+<!--                      border-radius: 50%;-->
+<!--                    "-->
+<!--                    icon="el-icon-minus"-->
+<!--                    :disabled="item.expireDays <= 1"-->
+<!--                    @click="item.expireDays = Math.max(1, item.expireDays - 1)"-->
+<!--                  ></el-button>-->
                   <el-input
                     v-model="item.expireDays"
                     size="mini"
+                    disabled
                     style="width: 60px; margin: 0 10px"
                     :class="{ 'custom-color': item.isRed }"
                   ></el-input>
                   <el-button
-                    type
                     size="mini"
                     style="
                       width: 26px;
@@ -184,8 +181,8 @@
                       height: 26px;
                       border-radius: 50%;
                     "
-                    icon="el-icon-plus"
-                    @click="item.expireDays++"
+                    icon="el-icon-edit"
+                    @click="showSaveWineDays(item)"
                   ></el-button>
                 </div>
                 <div class="td" style="width: 220px">
@@ -256,6 +253,13 @@
           needWaiterAuth ? "服务员授权" : "确认修改信息"
         }}</el-button>
       </div>
+
+      <div>
+        <Slider :visible="sliderVisible" style="width: 80%; text-align: center" v-if="sliderVisible"  :options="[1, 30, 60, 90, 150, 300, 500]" :current="selectedSaveWineItem.expireDays" @confirm="handleConfirm" @cancel="handleCancel" />
+      </div>
+
+
+
     </el-drawer>
   </div>
 </template>
@@ -267,9 +271,15 @@ import drawerCardOrder from './saveWineOrder/index.vue'
 import drawerChgCustomerInfo from './drawerChgCustomerInfo.vue'
 import drawerChgSaveTime from './drawerChgSaveTime.vue'
 import drawerChgOrderPerson from "./drawerChgOrderPerson.vue";
+import Slider from "@/components/slider2";
+
+
 export default {
   data() {
     return {
+      selectedSaveWineItem: {},
+      sliderVisible: false,
+
       isCardBillRelated: true,
       showCardOrderDrawer: false,
       showChgCustomerInfoDrawer: false,
@@ -303,6 +313,23 @@ export default {
     };
   },
   methods: {
+    async handleConfirm(value) {
+      console.log('confirm value:', value)
+      this.sliderVisible = false
+      this.selectedSaveWineItem.expireDays = value
+      console.log('this.selectedSaveWineItem:', this.selectedSaveWineItem)
+    },
+    handleCancel() {
+      this.sliderVisible = false
+      console.log('取消操作');
+    },
+
+    showSaveWineDays(item){
+      console.log('click item:', item)
+      this.sliderVisible = false
+      this.selectedSaveWineItem = item
+      this.sliderVisible = true
+    },
     changeRelatedBill(){
       this.isCardBillRelated = !this.isCardBillRelated;
     },
@@ -452,6 +479,7 @@ export default {
     },
   },
   components: {
+    Slider,
     authCom,
     drawerCardOrder,
     drawerChgCustomerInfo,
