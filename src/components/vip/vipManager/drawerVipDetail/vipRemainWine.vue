@@ -67,8 +67,11 @@ export default {
   },
   methods: {
     async getTableData(reset) {
+      console.log(this.info)
+      let phone = this.info.bp ? this.info.bp : this.info.cp
       const params = {
-        ...(this.info.bp && { bind_phone: this.info.bp }), // string  绑定手机号(用于查询有绑定手机的会员信息,里面可能包含多张卡)
+        // ...(this.info.bp && { bind_phone: this.info.bp }), // string  绑定手机号(用于查询有绑定手机的会员信息,里面可能包含多张卡)
+        bind_phone:phone
       };
 
       try {
