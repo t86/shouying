@@ -11,11 +11,31 @@
       <div class="YH-detail">
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
+            <el-select v-model="type_id" placeholder="请选择">
+              <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+              </el-option>
+            </el-select>
+            <input v-model="keyword" placeholder="输入券码模糊搜索" />
+            <el-button
+                class="m-l-2"
+                type="primary"
+                style="width:70px;height:30px;line-height:30px;padding:0"
+                @click="getTableData"
+            >查询</el-button>
+            <el-button
+                type="info"
+                style="width:70px;height:30px;line-height:30px;padding:0"
+                @click="resetHandle"
+            >重置</el-button>
           </div>
           <el-button
-            type="primary"
-            @click="exportExcel"
-            style="width:90px;height:30px;line-height:30px;padding:0"
+              type="primary"
+              @click="exportExcel"
+              style="width:90px;height:30px;line-height:30px;padding:0"
           >导出Excel</el-button>
         </div>
 
@@ -96,6 +116,22 @@ import async from "async";
 export default {
   data() {
     return {
+      options: [{
+        value: 0,
+        label: '全部'
+      },
+        {
+          value: 12,
+          label: '抖音'
+        },{
+          value: 22,
+          label: '美团'
+        },{
+          value: 32,
+          label: '推广'
+        }
+      ],
+      type_id: 0,
       show: false,
       selectInfo: {
         selectVal: "全部",
@@ -131,7 +167,10 @@ export default {
     },
     // 获取数据
     async getTableData() {
-      const params = {}
+      const params = {
+        type_id: this.type_id,
+        key: this.keyword,
+      }
       try {
         const res = await api_money.get_kq_csm_list_for_back(params);
         if (res.code == 1) {
@@ -156,13 +195,15 @@ export default {
     
     resetHandle() {
       this.keyword = "";
-      this.selectInfo.selectVal = "全部";
+      this.type_id = 0;
       this.getTableData();
     },
 
     // 导出excel
     async exportExcel() {
       const params = {
+        type_id: this.type_id,
+        key: this.keyword,
       }
 
       try {
