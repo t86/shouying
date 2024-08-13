@@ -180,7 +180,8 @@
                 </div>
                 <div class="td">
                   <h5>{{item.productInfo.name}}</h5>
-                  <h5 v-if="item.back">{{item.b + " - " + item.be}}</h5></div>
+<!--                  <h5 v-if="item.back">{{item.b + " - " + item.be}}</h5></div>-->
+                  <h5 v-if="item.back">{{item.b}}</h5></div>
                 <div class="td">
                   <img
                     :src="item.back||item.changeCount==1||(item.at==2||item.at==3||item.at==5)||item.pp * 1==0?imgSrc.subDisabled:imgSrc.sub"

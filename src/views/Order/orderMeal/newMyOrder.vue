@@ -38,6 +38,9 @@
                   <div class="p english-name one-txt-cut">
                     {{ item.productInfo.nameEng }}
                   </div>
+                  <div class="p tui one-txt-cut">
+                    {{ item.b }}
+                  </div>
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
                   {{ item.pc }}
