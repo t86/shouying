@@ -10,6 +10,7 @@ export default {
 </script>
 <style>
     .backgrounds{
+        overflow: auto;
         height: calc(100% - 20px);
         width: calc(100% - 20px);
         min-height: calc(100% - 20px);

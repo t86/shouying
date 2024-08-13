@@ -30,6 +30,16 @@
       <el-switch v-model="scanOrderMustDx"></el-switch>
       <p class="red-color">开关开启后，客人扫码点单时，如果点单金额未达到当前卡台的低消，则不允许下单</p>
     </div>
+    <div class="m-l-4 fs14">
+      <span>扫码点单超时未支付自动退单:</span>
+      <el-switch v-model="timeoutAutoBack"></el-switch>
+      <p class="red-color">开关开启后，客人扫码点单如超时未支付，则系统自动取消该订单</p>
+      <div style="margin-bottom: 20px" v-if="timeoutAutoBack">
+        <span>超时</span>
+        <el-input style="width:150px" v-model="timeoutAutoBackTime" type="text" @input="inputHandle" />
+        <span>分钟未支付自动退单</span>
+      </div>
+    </div>
 
     <h4 class="m-b-2">营业日时间配置</h4>
     <div class="m-l-4 fs14">
@@ -41,29 +51,29 @@
       <div>
         <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选择结束时间：</span>
         <el-select
-          style="width:120px"
-          :disabled="radio==2"
-          v-model="chooseTime.hour"
-          placeholder="请选择小时"
+            style="width:120px"
+            :disabled="radio==2"
+            v-model="chooseTime.hour"
+            placeholder="请选择小时"
         >
           <el-option
-            v-for="item in chooseTime.hourOption"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+              v-for="item in chooseTime.hourOption"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
           ></el-option>
         </el-select>&nbsp;时
         <el-select
-          style="width:120px"
-          :disabled="radio==2"
-          v-model="chooseTime.minute"
-          placeholder="请选择分钟"
+            style="width:120px"
+            :disabled="radio==2"
+            v-model="chooseTime.minute"
+            placeholder="请选择分钟"
         >
           <el-option
-            v-for="item in chooseTime.minuteOption"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+              v-for="item in chooseTime.minuteOption"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
           ></el-option>
         </el-select>&nbsp;分
       </div>
@@ -95,7 +105,7 @@
     <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle">保存</el-button>
   </div>
 </template>
- 
+
 <script>
 export default {
   data() {
@@ -108,6 +118,8 @@ export default {
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
       notShowAmt: false,  // 是否不显示金额
       scanOrderMustDx: false,
+      timeoutAutoBack: false,
+      timeoutAutoBackTime: 0,
       chooseTime: {
         hour: "",
         hourOption: [],
@@ -152,16 +164,18 @@ export default {
           this.timeLine = res.data.online_settle_timeout_mins;
           this.radio = res.data.auto_close_on_off.toString();
           this.chooseTime.hour = (res.data.auto_close_hour * 1)
-            .toString()
-            .padStart(2, 0);
+              .toString()
+              .padStart(2, 0);
           this.chooseTime.minute = (res.data.auto_close_minute * 1)
-            .toString()
-            .padStart(2, 0);
+              .toString()
+              .padStart(2, 0);
           this.notShowAmt = res.data.limit_book_csm_amt == 1
           this.scanOrderMustDx = res.data.scan_order_must_dx == 1
           this.canClearCard = res.data.book_no_clean_seat == 1
           this.orderAutoMake = res.data.order_auto_mk == 1
           this.disableChgPass = res.data.disable_chg_pass == 1
+          this.timeoutAutoBack = res.data.cust_scan_order_timeout !== 0
+          this.timeoutAutoBackTime = res.data.cust_scan_order_timeout
         } else {
           this.$message.warning(res.msg);
         }
@@ -183,14 +197,15 @@ export default {
         order_auto_mk: this.orderAutoMake ? 1 : 2, // int   是否下单自动开启 1 开启 2 关闭
         disable_chg_pass: this.disableChgPass ? 1 : 2, // int   是否禁止自助修改密码 1 开启 2 关闭
         scan_order_must_dx: this.scanOrderMustDx ? 1 : 2,
+        cust_scan_order_timeout: this.timeoutAutoBack ? this.timeoutAutoBackTime * 1 : 0
 
       };
 
       try {
         const res = await this.$api.BMS.terminalRules.reqSubmitTime(params);
         res.code == 1
-          ? this.$message.success("保存成功")
-          : this.$message.warning(res.msg);
+            ? this.$message.success("保存成功")
+            : this.$message.warning(res.msg);
       } catch (error) {
         console.log("保存终端规则失败", error);
       }
