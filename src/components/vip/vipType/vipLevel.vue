@@ -133,6 +133,16 @@
                 <div class="m-t-2" style="color: gray; font-size: 14px;">达到该值后自动升级</div>
               </div>
             </div>
+            <div class="row" layout="row" layout-align="start start">
+              <div class="label">
+                <span class="red"></span>
+                <span>赠送卡券或礼包:</span>
+              </div>
+              <div>
+                <div>{{this.selectCoupon.length === 1 ? this.selectCoupon[0].n + "-" + this.selectCoupon[0].tn : ''}}</div>
+                <el-button size="mini" type="primary" @click="addCoupon">添加</el-button>
+              </div>
+            </div>
           </div>
           <div class="form-btn" layout="row" layout-align="center center">
             <el-button type="info" @click="onCancelDrawer($event, false)">关闭</el-button>
@@ -162,6 +172,49 @@
         <el-button type="primary" :disabled="!isExperienceFormValid" @click="saveExperience">保存</el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="showCoupon" append-to-body title="添加卡券或大礼包" @close="" width="50%">
+      <div style="display: flex">
+        <div style="min-width: 55px">类型:</div>
+        <el-select v-model="couponType" placeholder="请选择">
+          <el-option
+              v-for="item in couponOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+          </el-option>
+        </el-select>
+        <el-input style="width: 300px;" v-model="couponKey" placeholder="输入卡券或大礼包名称"></el-input>
+        <el-button type="primary" @click="searchCoupon">搜索</el-button>
+        <el-button>重置</el-button>
+      </div>
+      <div style="margin-top:20px">
+        <el-table
+            ref="multipleTable"
+            :data="tableCoupon"
+            tooltip-effect="dark"
+            style="width: 100%"
+            @selection-change="couponSelectionChange">
+          <el-table-column
+              type="selection"
+              width="150">
+          </el-table-column>
+          <el-table-column
+              label="名称"
+              prop="n"
+              width="150px">
+          </el-table-column>
+          <el-table-column
+              label="类型"
+              prop="tn"
+              width="150">
+          </el-table-column>
+        </el-table>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="this.showCoupon = false">取消</el-button>
+        <el-button type="primary"  @click="submitSelectCoupon">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
  
@@ -171,8 +224,34 @@ let imgBaseUrl = "";
 export default {
   data() {
     return {
+      couponType: 0,
+      selectCoupon: [],
+      couponKey: '',
+      tableCoupon: [],
+      couponOptions : [
+        {
+          value: 0,
+          label: '全部'
+        },
+        {
+          value: 1,
+          label: '兑换券'
+        },
+        {
+          value: 2,
+          label: '大礼包'
+        },
+        {
+          value: 3,
+          label: '满减券'
+        },        {
+          value: 5,
+          label: '代金券'
+        }
+      ],
       show: false,
       showDialog: false,
+      showCoupon: false,
       defaultLevelId: 0, // ID of the default card level
       experienceForm: {}, // Form data for experience thresholds
       imgBaseUrl,
@@ -206,6 +285,32 @@ export default {
     };
   },
   methods: {
+    couponSelectionChange(val) {
+      this.selectCoupon = val;
+    },
+    submitSelectCoupon(){
+      console.log(this.selectCoupon)
+      if(this.selectCoupon && this.selectCoupon.length>1){
+        this.$message.info("只能选择一个卡券或礼包")
+      } else {
+        this.showCoupon = false
+      }
+
+    },
+    async searchCoupon(){
+      let params = {
+        type_id: this.couponType,
+        key: this.couponKey,
+      }
+      const res = await api_vip.get_mb_card_level_kqs(params)
+      if (res.code === 1) {
+        this.tableCoupon = res.data.records || []
+      }
+      console.log('------------------,serach', res)
+    },
+    async addCoupon(){
+      this.showCoupon = true
+    },
     async showAutoUpdate() {
       if (this.autoUpgradeEnabled) {
         this.showDialog = true;
@@ -518,6 +623,7 @@ export default {
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
         exp_threshold: this.autoUpgradeEnabled ? this.experince * 1 : 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
+        kq_id: this.selectCoupon.length === 1? this.selectCoupon[0].id : 0
       }
 
       try {

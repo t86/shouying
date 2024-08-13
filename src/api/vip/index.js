@@ -26,6 +26,9 @@ export default {
   reqDisableAutoupd: (params) =>
     axios.post(`${base.htgl}/mb/type/disable_autoupd`, params),
 
+  get_mb_card_level_kqs: (params) =>
+      axios.post(`${base.htgl}/mb/type/get_mb_card_level_kqs`, params),
+
   // 更改会员卡等级经验阀值
   reqChgMbCardLevelExpTd: (params) =>
     axios.post(`${base.htgl}/mb/type/chg_mb_card_level_exp_td`, params),
