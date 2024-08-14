@@ -79,7 +79,14 @@ export default {
       }, {
         value: 2,
         label: "大礼包",
-      }],
+      }, {
+        value: 3,
+        label: "满减券",
+      }, {
+        value: 5,
+        label: "代金券",
+      }
+      ],
       searchFormData: {
         typeValue: 0,
         keyword: "",
