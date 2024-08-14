@@ -96,7 +96,7 @@
 
         span.default {
           display: block;
-          width: 56px;
+          width: 50px;
           height: 16px;
           background: #B48450;
           border-radius: 4px;
@@ -109,7 +109,7 @@
 
       .th:nth-child(2),
       .td:nth-child(2) {
-        width: 35%;
+        width: 20%;
       }
 
       .th:nth-child(3),
@@ -126,7 +126,11 @@
 
       .th:nth-child(4),
       .td:nth-child(4) {
-        width: 35%;
+        width: 20%;
+      }
+      .th:nth-child(5),
+      .td:nth-child(5) {
+        width: 20%;
       }
     }
   }
@@ -269,4 +273,34 @@
 
 /deep/.el-switch.is-checked .el-switch__core::after {
   margin-left: -26px;
+}
+
+/deep/ .el-dialog {
+  position: relative;
+  margin: 0 auto 50px;
+  background: #CCD1DC;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  box-sizing: border-box;
+  width: 50%;
+}
+
+/deep/ .el-table, .el-table__expanded-cell {
+   background-color: #CCD1DC;
+}
+/deep/  .el-table .el-table__cell {
+  padding: 12px 0;
+  min-width: 0;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  position: relative;
+  text-align: left;
+  background: #CCD1DC;
+}
+/deep/ .el-table .cell {
+  background: #CCD1DC;
+}
+/deep/ .el-table tr {
+  background-color: #CCD1DC;
 }

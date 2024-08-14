@@ -17,6 +17,7 @@ export default {
 
   // 获取会员卡等级列表
   reqGetLevelList: (params) => axios.post(`${base.htgl}/mb/type/get_level_list`, params),
+  chg_level_kq: (params) => axios.post(`${base.htgl}/mb/type/chg_level_kq`, params),
 
     // 开启会员卡类型自动升级
   reqEnableAutopd: (params) =>

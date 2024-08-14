@@ -23,6 +23,7 @@
                 <div class="th">等级名称</div>
                 <div class="th">等级封面</div>
                 <div class="th" v-if="autoUpgradeEnabled">等级经验值（达到该值后自动升级）</div>
+                <div class="th" >赠送卡券</div>
               </div>
             </div>
             <div class="tbody">
@@ -46,6 +47,10 @@
                   <el-input v-model="item.experince" :disabled="item.disabled" size="mini" style="width:calc(100% - 100px);max-width:300px;border-radius:4px" :style="{background:item.disabled?'rgba(138,149,176,0.3)':'#DDE0E9'}" placeholder="请输入经验门槛值"></el-input>
                   <button v-if="item.id && !item.disabled" class="btn mini primary m-l-2" @click="saveExperienceHandle(item)">保存</button>
                   <button v-if="item.id && item.disabled && index != 0" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
+                </div>
+                <div class="td" layout="row" layout-align="start center">
+                  <span class="default">{{item.coupon_name}}</span>
+                  <button  v-if="item.id && item.disabled && index != 0" class="btn mini info m-l-2" @click="editCoupon(item)">编辑</button>
                 </div>
               </div>
             </div>
@@ -133,7 +138,7 @@
                 <div class="m-t-2" style="color: gray; font-size: 14px;">达到该值后自动升级</div>
               </div>
             </div>
-            <div class="row" layout="row" layout-align="start start">
+            <div  v-if="(subStatus==1 || subStatus==3)" class="row" layout="row" layout-align="start start">
               <div class="label">
                 <span class="red"></span>
                 <span>赠送卡券或礼包:</span>
@@ -172,10 +177,10 @@
         <el-button type="primary" :disabled="!isExperienceFormValid" @click="saveExperience">保存</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showCoupon" append-to-body title="添加卡券或大礼包" @close="" width="50%">
+    <el-dialog :visible.sync="showCoupon" append-to-body :title="couponTitle" @close="showCoupon=false" width="50%">
       <div style="display: flex">
-        <div style="min-width: 55px">类型:</div>
-        <el-select v-model="couponType" placeholder="请选择">
+        <div style="min-width: 55px;margin-top: 10px;">类型:</div>
+        <el-select v-model="couponType" style="margin: 0 5px" placeholder="请选择">
           <el-option
               v-for="item in couponOptions"
               :key="item.value"
@@ -183,9 +188,9 @@
               :value="item.value">
           </el-option>
         </el-select>
-        <el-input style="width: 300px;" v-model="couponKey" placeholder="输入卡券或大礼包名称"></el-input>
+        <el-input style="width: 300px; margin: 0 10px " v-model="couponKey" placeholder="输入卡券或大礼包名称"></el-input>
         <el-button type="primary" @click="searchCoupon">搜索</el-button>
-        <el-button>重置</el-button>
+        <el-button @click="resetCoupon">重置</el-button>
       </div>
       <div style="margin-top:20px">
         <el-table
@@ -211,7 +216,7 @@
         </el-table>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="this.showCoupon = false">取消</el-button>
+        <el-button @click="showCoupon = false">取消</el-button>
         <el-button type="primary"  @click="submitSelectCoupon">确定</el-button>
       </div>
     </el-dialog>
@@ -225,6 +230,8 @@ export default {
   data() {
     return {
       couponType: 0,
+      couponEdit: false,
+      couponEditId: 0,
       selectCoupon: [],
       couponKey: '',
       tableCoupon: [],
@@ -285,17 +292,49 @@ export default {
     };
   },
   methods: {
+    editCoupon(item){
+      console.log(item)
+      this.couponEdit = true
+      this.couponEditId = item.id
+
+      this.showCoupon = true
+      this.selectCoupon = []
+      this.couponType = 0
+      this.couponKey = ''
+    },
     couponSelectionChange(val) {
       this.selectCoupon = val;
     },
-    submitSelectCoupon(){
+    async submitSelectCoupon(){
       console.log(this.selectCoupon)
-      if(this.selectCoupon && this.selectCoupon.length>1){
-        this.$message.info("只能选择一个卡券或礼包")
-      } else {
-        this.showCoupon = false
+      if(this.selectCoupon.length !== 1){
+        this.$message.info("请选择且只能选择一个卡券或礼包")
+        return
       }
-
+      if(this.couponEdit) {
+        for(let item of this.cardInfoList) {
+          if (this.couponEditId === item.id) {
+            item.coupon_id = this.selectCoupon[0].id
+            item.coupon_name = this.selectCoupon[0].n
+            break
+          }
+        }
+        let params = {
+          id: this.couponEditId,
+          kq_id: this.selectCoupon[0].id
+        }
+        let res = await  api_vip.chg_level_kq(params)
+        if (res.code === 1) {
+          this.$message.success('修改卡券或大礼包成功')
+        } else {
+          this.$message.warning(res.msg)
+        }
+      }
+      this.showCoupon = false
+    },
+    resetCoupon(){
+      this.couponType = 0
+      this.couponKey = ''
     },
     async searchCoupon(){
       let params = {
@@ -309,7 +348,11 @@ export default {
       console.log('------------------,serach', res)
     },
     async addCoupon(){
+      this.couponEdit = false
+      this.selectCoupon = []
       this.showCoupon = true
+      this.couponType = 0
+      this.couponKey = ''
     },
     async showAutoUpdate() {
       if (this.autoUpgradeEnabled) {
@@ -382,7 +425,9 @@ export default {
             name: item.n,
             disabled: true,
             bgiName: item.p,
-            experince: item.e
+            experince: item.e,
+            coupon_id: item.k,
+            coupon_name: item.kn,
           }))
           cardInfoList.length == 0 ? '' : this.cardInfoList = [...cardInfoList]
         } else {
@@ -815,7 +860,9 @@ export default {
         name: item.n,
         disabled: true,
         bgiName: item.p,
-        experince: item.e
+        experince: item.e,
+        coupon_id: item.k,
+        coupon_name: item.kn
       })) || []
       this.autoUpgradeEnabled = result && result.data && result.data.auto_upgrade == 1 || false
     }
@@ -846,6 +893,13 @@ export default {
           break
       }
       return title;
+    },
+    couponTitle(){
+      if(this.couponEdit) {
+        return "修改卡券或大礼包"
+      } else {
+        return "添加卡券或大礼包"
+      }
     },
     isExperienceFormValid() {
       return this.cardInfoList.every(item => item.d === 1 || item.experience);
