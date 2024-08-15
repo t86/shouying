@@ -50,7 +50,8 @@
               <div class="th">卡券名称</div>
               <div class="th">卡券券码</div>
               <div class="th">兑换套餐</div>
-              <div class="th">状态</div>
+              <div class="th">收银订单状态</div>
+              <div class="th">卡券状态</div>
               <div class="th">卡台</div>
               <div class="th">开台时间</div>
               <div class="th">订位人</div>
@@ -78,6 +79,7 @@
               <div class="td">{{item.l}}</div>
               <div class="td">{{item.c}}</div>
               <div class="td">{{item.p}}</div>
+              <div class="td" :class="(item.os =='未下单'|| item.os == '已退') && 'red'">{{item.os}}</div>
               <div class="td">{{item.s}}</div>
               <div class="td">{{item.sn}}</div>
               <div class="td">{{item.ot}}</div>
@@ -88,7 +90,7 @@
               <div class="td">{{item.ct}}</div>
               <div class="td">{{item.ce}}</div>
               <div class="td">
-                    <el-button :disabled="item.b === 2"
+                    <el-button v-if="item.b === 1"
                       type="info"
                       style="width:50px;height:25px;line-height:25px;padding:0"
                       @click="cancelCoupon(item)">
@@ -270,7 +272,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../style/money/drawerMtDyHx";
+@import "../../style/money/drawerMtDyHx.less";
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
