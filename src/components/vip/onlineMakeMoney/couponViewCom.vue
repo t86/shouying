@@ -40,16 +40,7 @@
         <div v-for="(item, index) in tableData" :key="index">
           <div class="tr" layout="row" layout-align="start center">
             <div class="td" layout="row">
-              <el-radio
-                v-model="radioValue"
-                :label="index"
-                style="
-                  width: 40px !important;
-                  margin-top: 5px;
-                  margin-right: 10px;
-                "
-                >{{ index + 1 }}</el-radio
-              >
+              <el-checkbox @change="couponChange($event, item)">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.t }}</div>
@@ -106,6 +97,15 @@ export default {
     this.getTableData();
   },
   methods: {
+    couponChange(e, item){
+      console.log(e, item)
+      if(e){
+        // this.radioValue = item.id
+        this.$emit("value-changed", item);
+      } else {
+        // this.radioValue = 0
+      }
+    },
     async getTableData() {
       try {
         const res = await api_vip.reqGetKqItems({
@@ -132,16 +132,16 @@ export default {
     },
   },
   watch: {
-    radioValue(newValue) {
-      console.log("radioValue", newValue);
-      if(newValue && this.tableData.length > 0) {
-        this.$emit("value-changed", this.tableData[newValue]);
-      }
-    },
-    id(newValue) {
-      console.log("id", newValue);
-      this.radioValue = newValue;
-    },
+    // radioValue(newValue) {
+    //   console.log("radioValue", newValue);
+    //   if(newValue && this.tableData.length > 0) {
+    //     this.$emit("value-changed", this.tableData[newValue]);
+    //   }
+    // },
+    // id(newValue) {
+    //   console.log("id", newValue);
+    //   this.radioValue = newValue;
+    // },
   },
 };
 </script>
