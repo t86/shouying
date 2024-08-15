@@ -218,8 +218,28 @@ export default {
           prdListId.includes(item.id * 1)
         );
 
+        /* 从  'roleLimitConfig',     // 36-角色限额限量配置 
+         'limitPrdDetail',      // 37-限额限量实际明细商品(最终效果) 
+         获取配置商品id列表， 
+         roleLimitConfig结构station_id: el[0], // 角色id
+          auth_type: el[1], // 授权类型 2 优惠 3 优惠2
+          free_limit_id: el[2], // 限额配置Id,
+          status: el[3]  // 状态 1 有效 2 无效 3 删除 
+        limitPrdDetail结构  free_limit_id: el[0], // 限额配置Id
+          prd_id: el[1], // 商品Id
+          status: el[2]  // 状态 1 有效 2 无效 3 删除
+          */
+        const limitConfig = this.$store.state.cardPageInfo.resResultDataObj["roleLimitConfig"]
+        const limitPrdDetail = this.$store.state.cardPageInfo.resResultDataObj["limitPrdDetail"]
+        const limitPrdDetailList = limitPrdDetail.filter(item => item.status == 1).filter(item => prdListId.includes(item.prd_id * 1))
+        const limitConfigList = limitConfig.filter(item => item.status == 1 && item.auth_type == 2).filter(item => limitPrdDetailList.findIndex(i => i.free_limit_id == item.free_limit_id) >= 0)
+        const limitConfigIdList = limitConfigList.map(item => item.free_limit_id * 1)
+        const limitPrdDetailIdList = limitPrdDetailList.filter(item => limitConfigIdList.includes(item.free_limit_id * 1)).map(item => item.prd_id * 1)
+        const yhPrdList = stationAllProduct.filter(item => limitPrdDetailIdList.includes(item.id * 1))
+
+
         // 营销可优惠商品
-        const YXCanSealAllPrdList = prdList.map((item) => ({
+        const YXCanSealAllPrdList = yhPrdList.map((item) => ({
           ...item,
           canSeal: true,
         }));
@@ -351,13 +371,26 @@ export default {
       if (true) {
         // 服务员、营销、花篮、优惠2
 
-        // 合并服务员 和  营销
+        // 合并服务员 和  营销，以id为唯一键合并FWYAllProductList和YXAllProductList到mergePrdList
         const mergePrdList = [];
-        // FWYAllProductList.filter(item => YXAllProductList.find(items => item.id == items.id))
-        FWYAllProductList.forEach((el) => {
-          const find = YXAllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList.push({...find});
+        const limitConfigIdList = new Set([...FWYAllProductList, ...YXAllProductList].map(item => item.id))
+        
+        limitConfigIdList.forEach((el) => {
+          const findFWYPrd = FWYAllProductList.find((item) => item.id == el);
+          const findYXPrd = YXAllProductList.find((item) => item.id == el);
+          if (findFWYPrd) {
+            mergePrdList.push({...findFWYPrd});
+          } else if(findYXPrd) {
+            mergePrdList.push({...findYXPrd});
+          }
         });
+
+
+        // // FWYAllProductList.filter(item => YXAllProductList.find(items => item.id == items.id))
+        // FWYAllProductList.forEach((el) => {
+        //   const find = YXAllProductList.find((item) => item.id == el.id);
+        //   if (find) mergePrdList.push({...find});
+        // });
 
         const tempResultProductArrList = [
           ...FWYAllProductList,
@@ -369,9 +402,11 @@ export default {
         mergePrdList.forEach((el) => {
           const findFWYPrd = FWYAllProductList.find((item) => item.id == el.id);
           const findYXPrd = YXAllProductList.find((item) => item.id == el.id);
-          if (findFWYPrd && findYXPrd) {
-            (el.canOrderMeal = findFWYPrd.canOrderMeal),
-              (el.canSeal = findYXPrd.canSeal);
+          if (findFWYPrd) {
+            el.canOrderMeal = findFWYPrd.canOrderMeal
+          }
+          if (findYXPrd) {
+            el.canSeal = findYXPrd.canSeal
           }
         });
 

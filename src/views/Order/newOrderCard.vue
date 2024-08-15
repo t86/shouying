@@ -777,7 +777,7 @@ export default {
 
       //trump 2024年08月03日01:23:55 如果有全场优惠权限，取消限制
       if (this.$store.state.userInfo.roleIds.includes(3)) {
-        if (this.hasQuanchangyouhui()){
+        if (this.hasQuanchangyouhui){
 
         } else if (this.$store.state.userInfo.roleIds.length == 1){
           cardListInfoArr = []
