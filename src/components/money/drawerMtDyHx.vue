@@ -88,7 +88,7 @@
               <div class="td">{{item.ct}}</div>
               <div class="td">{{item.ce}}</div>
               <div class="td">
-                    <el-button :disabled="item.b === 2"
+                    <el-button v-if="item.b !== 2"
                       type="info"
                       style="width:50px;height:25px;line-height:25px;padding:0"
                       @click="cancelCoupon(item)">

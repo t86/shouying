@@ -74,7 +74,7 @@
     }
     .th:nth-child(1),
     .td:nth-child(1) {
-      width: 100px;
+      width: 50px;
     }
     .th:nth-child(2),
     .td:nth-child(2) {
@@ -82,17 +82,17 @@
     }
     .th:nth-child(3),
     .td:nth-child(3) {
-      width: 120px;
+      width: 100px;
     }
 
     .th:nth-child(4),
     .td:nth-child(4) {
-      width: 120px;
+      width: 100px;
     }
 
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 200px;
+      width: 100px;
     }
 
     .th:nth-child(6),
@@ -102,12 +102,15 @@
 
     .th:nth-child(7),
     .td:nth-child(7) {
-      width: 150px;
+      width: 100px;
     }
 
     .th:nth-child(8),
     .td:nth-child(8) {
-      width: 200px;
+      width: 450px;
+      overflow:hidden;//超出的隐藏
+      text-overflow:ellipsis;//显示省略符号来代表被修剪的文本。
+      white-space:nowrap;//不换行
     }
 
     .th:nth-child(9),
