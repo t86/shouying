@@ -144,7 +144,7 @@
                 <span>赠送卡券或礼包:</span>
               </div>
               <div>
-                <div>{{this.selectCoupon.length === 1 ? this.selectCoupon[0].n + "-" + this.selectCoupon[0].tn : ''}}</div>
+                <div>{{this.selectCoupon ? this.selectCoupon.n + "-" + this.selectCoupon.tn : ''}}</div>
                 <el-button size="mini" type="primary" @click="addCoupon">添加</el-button>
               </div>
             </div>
@@ -196,17 +196,24 @@
         <el-table
             ref="multipleTable"
             :data="tableCoupon"
+            :key="tableCoupon"
             tooltip-effect="dark"
-            style="width: 100%"
-            @selection-change="couponSelectionChange">
+            style="width: 100%">
           <el-table-column
-              type="selection"
-              width="150">
+              type="index"
+              width="20">
+          </el-table-column>
+          <el-table-column
+              width="50">
+            <template slot-scope="scope">
+              <el-checkbox :key="scope.row.id" v-model="scope.row.checked" @change="couponChange($event, scope.row)"></el-checkbox>
+            </template>
           </el-table-column>
           <el-table-column
               label="名称"
               prop="n"
-              width="150px">
+              min-width="60%"
+              >
           </el-table-column>
           <el-table-column
               label="类型"
@@ -232,7 +239,7 @@ export default {
       couponType: 0,
       couponEdit: false,
       couponEditId: 0,
-      selectCoupon: [],
+      selectCoupon: {},
       couponKey: '',
       tableCoupon: [],
       couponOptions : [
@@ -292,36 +299,44 @@ export default {
     };
   },
   methods: {
+    couponChange(value, item){
+      if (value) {
+        this.selectCoupon = item
+        for(let i of this.tableCoupon) {
+          if (i.id !== item.id) {
+            i.checked = false
+          }
+        }
+        this.$nextTick(()=> {
+          this.tableCoupon = [...this.tableCoupon]
+        })
+        // console.log('-------------------:', this.tableCoupon)
+      }
+      console.log(value, item)
+    },
     editCoupon(item){
       console.log(item)
       this.couponEdit = true
       this.couponEditId = item.id
 
       this.showCoupon = true
-      this.selectCoupon = []
+      this.selectCoupon = {}
       this.couponType = 0
       this.couponKey = ''
     },
-    couponSelectionChange(val) {
-      this.selectCoupon = val;
-    },
     async submitSelectCoupon(){
       console.log(this.selectCoupon)
-      if(this.selectCoupon.length !== 1){
-        this.$message.info("请选择且只能选择一个卡券或礼包")
-        return
-      }
       if(this.couponEdit) {
         for(let item of this.cardInfoList) {
           if (this.couponEditId === item.id) {
-            item.coupon_id = this.selectCoupon[0].id
-            item.coupon_name = this.selectCoupon[0].n
+            item.coupon_id = this.selectCoupon.id
+            item.coupon_name = this.selectCoupon.n
             break
           }
         }
         let params = {
           id: this.couponEditId,
-          kq_id: this.selectCoupon[0].id
+          kq_id: this.selectCoupon.id
         }
         let res = await  api_vip.chg_level_kq(params)
         if (res.code === 1) {
@@ -349,7 +364,7 @@ export default {
     },
     async addCoupon(){
       this.couponEdit = false
-      this.selectCoupon = []
+      this.selectCoupon = {}
       this.showCoupon = true
       this.couponType = 0
       this.couponKey = ''
@@ -668,7 +683,7 @@ export default {
         level_name: deepName,  // string   卡等级名称
         level_pic_name: bgiName,  // string   卡等级卡面图片
         exp_threshold: this.autoUpgradeEnabled ? this.experince * 1 : 0, // int64 等级经验阀值(当开启自动升级的时候, 需要配置, 否则=0)
-        kq_id: this.selectCoupon.length === 1? this.selectCoupon[0].id : 0
+        kq_id: this.selectCoupon.id
       }
 
       try {
