@@ -1,0 +1,201 @@
+.fullPageTable {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  background: #202C4A;
+
+  .title {
+    height: 60px;
+    background:#222D47;
+    // background: linear-gradient(180deg, #222D47 0%, #11182D 100%);
+  }
+
+  .search {
+    padding: 10px 20px;
+    font-size: 14px;
+
+    span {
+      display: inline-block;
+    }
+
+    input {
+      width: 60px;
+      height: 24px;
+      outline: none;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 2px 4px;
+      box-sizing: border-box;
+      background-color: rgba(0, 0, 0, .2);
+      color: #fff;
+
+      &:focus {
+        border: 1px solid #5C9FFF
+      }
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    button {
+      width: 60px;
+      height: 28px;
+      padding: 0;
+      background: #4B89FF;
+      // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+      box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+      border-radius: 14px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      margin-left: 10px;
+      line-height: 0;
+
+      &.reset {
+        background: #374368;
+        box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+
+  .contain {
+    width: 100%;
+    height: calc(100% - 175px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    word-break: break-all;
+
+    .contain-content {
+      padding-bottom: 10px;
+
+      &-item {
+        background: #2A3959;
+        padding: 5px;
+        position: relative;
+        border-radius: 10px;
+        transform: translate(10px, 10px);
+        margin-bottom: 10px;
+        min-height: 100px;
+
+        &-left {
+          position: absolute;
+          height: calc(100% - 10px);
+          padding: 10px 7px;
+          // border: 5px solid #08080A;
+          border-radius: 8px;
+          text-align: center;
+          box-sizing: border-box;
+          background: #374368;
+          writing-mode: vertical-lr;
+          text-orientation: upright;
+          letter-spacing: 4px;
+          text-wrap: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        &-right {
+          width: calc(100% - 50px);
+          min-height: 100px;
+          flex-wrap: wrap;
+          align-items: center;
+          align-content: center;
+          margin-left: 51px;
+
+          >li {
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+
+            &.active {
+              border-color: #FDFF5F;
+              border-radius: 10px;
+            }
+
+            &.opacity {
+              opacity: .3;
+            }
+
+            >img {
+              position: absolute;
+              left: -2px;
+              top: -2px;
+              opacity: 0;
+
+              &.active {
+                opacity: 1;
+              }
+            }
+
+            >div {
+              padding: 0 10px;
+              margin: 3px;
+              word-break: break-word;
+              width: 120px;
+              height: 56px;
+              border-radius: 8px;
+              box-sizing: border-box;
+
+              .card-name {
+                font-size: 16px;
+                line-height: 26px;
+                word-break: keep-all;
+                overflow: hidden;
+                transform-origin: left center;
+              }
+
+              .card-amt {
+                line-height: 16px;
+                font-size: 12px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .selected {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 70px;
+    background: #161D33;
+    text-align: right;
+
+    span {
+      vertical-align: middle;
+
+      &.card-name {
+        font-size: 30px;
+      }
+    }
+  }
+}
+
+button {
+  width: 120px;
+  height: 40px;
+  border-radius: 20px;
+  border: none;
+
+  &.el-button.el-button--info {
+    width: 120px;
+    background: #374368;
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.3);
+    margin-right: 20px;
+  }
+
+  &.el-button.el-button--primary {
+    background: #4B89FF;
+    // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+    box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
+    margin-right: 30px;
+    margin-left: 0;
+  }
+}

@@ -28,6 +28,43 @@
                 不配置则以限额限量为准，配置后优先以比例限制为准；填写0则默认为未配置
               </div>
             </el-form-item>
+            <el-form-item label="优惠卡台列表：">
+              <div class="card-layout">
+                <el-button @click="showOrHideChooseCardHandle" type="primary">选择卡台</el-button>
+                <div class="note">
+                  配置的卡台有无订位人都可直接优惠
+                </div>
+                <div class="table table1">
+                  <div class="thead">
+                    <div class="tr" layout="row" layout-align="space-between center">
+                      <div class="th">区域名称</div>
+                      <div class="th">区域状态</div>
+                      <div class="th">卡台名称</div>
+                      <div class="th">卡台状态</div>
+                    </div>
+                  </div>
+                  <div class="tbody">
+                    <div
+                      class="tr"
+                      layout="row"
+                      layout-align="space-between center"
+                      v-for="(item, index) in choosedCardInfo"
+                      :key="item.id"
+                    >
+                      <div class="td">{{item.areaName}}</div>
+                      <div class="td">{{item.areaStatus * 1== 1 ? '有效' : '无效'}}</div>
+                      <div class="td">{{item.name}}</div>
+                      <div class="td">{{item.status * 1 == 1 ? '有效' : '无效'}}</div>
+                    </div>
+                    <div class="no-data" v-if="tableData.length==0">
+                      <img :src="require('@/assets/img/wu.png')" alt />
+                      <p>暂无数据</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+             
+            </el-form-item>
           </el-form>
         </div>
 
@@ -130,11 +167,22 @@
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
       </div>
+
+      <fullPageTable
+          titleText="选择卡台"
+          ref="fullPageTableRef"
+          @showOrHideFullPageHandle="showOrHideChooseCardHandle"
+          @setChoosedCardInfo="setChoosedCardInfo"
+          :selectedCardInfo="choosedCardInfo"
+          v-if="showFullPage"
+        />
     </el-drawer>
   </div>
 </template>
  
 <script>
+import fullPageTable from "./components/fullPageTable"; // 转台
+
 export default {
   data() {
     return {
@@ -143,9 +191,20 @@ export default {
       checkAll: false,
       tableData: [], 
       tableDataPrd: [], 
+      showFullPage: false,
+      choosedCardInfo: [] // 选择好的卡台信息
     };
   },
   methods: {
+    // 显示或隐藏选择卡台组件
+    showOrHideChooseCardHandle() {
+      this.showFullPage = !this.showFullPage;
+    },
+    setChoosedCardInfo(info) {
+      this.choosedCardInfo = [...info];
+      this.showFullPage = false;
+    },
+
     async getTableData() {
       const params = {
         id: this.checkedList[0].id * 1 //    []int64   待读取岗位Id列表
@@ -163,6 +222,12 @@ export default {
             checked: item.st == 1
           }));
           this.checkAll = this.tableData.every(item => item.checked)
+          const areas = res.data.sales_addition_seats || []
+          areas.forEach(area => {
+            area.ss.forEach(item => {
+              this.choosedCardInfo = [...this.choosedCardInfo, {...item, areaStatus: area.s, areaName: area.n, status: item.s, name: item.n }]
+            });
+          })
           this.getPrdTableData()
         } else {
           this.$message.warning(res.msg);
@@ -216,6 +281,7 @@ export default {
         if (this.type === 1) {
           params.zyorder_over_seat_min_csm  = this.zyorder_over_seat_min_csm * 1
           params.zyorder_free_percent  = this.zyorder_free_percent * 1
+          params.sales_addition_seats = this.choosedCardInfo.map(item => item.id * 1)
           res = await this.$api.BMS.station.reqSetGiveCateConfig(params)
         } else {
           res = await this.$api.BMS.station.reqSetGive2CateConfig(params)
@@ -270,13 +336,17 @@ export default {
   },
 
   components:{
+    fullPageTable
   },
 
   watch: {
     value: {
       handler(newVal) {
+
         if (newVal) {
           this.getTableData();
+        } else {
+          this.choosedCardInfo = []
         }
       },
       immediate: true
@@ -294,7 +364,7 @@ export default {
 </style>
 
 <style lang="less" scoped>
-.table-content{
+.table-content {
   .table {
     &.table1 {
       height: 30vh;
@@ -315,6 +385,15 @@ export default {
       height: 44vh;
       overflow: auto;
     }
+  }
+}
+.card-layout {
+  .table {
+      height: 30vh;
+      overflow: auto;
+      .th,.td {
+          width: 25% !important;
+      }
   }
 }
 .discount-form {
