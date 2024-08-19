@@ -78,7 +78,7 @@ export const resResultDataArr = [
   'queueType', // 47-排队类型
   'queueRecord', // 48-排队记录
   'queueCurNumber', // 49-当前取号
-
+  'giftableCard', // 50-岗位附加可赠送卡台列表
 ]
 
 // 图例列表

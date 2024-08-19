@@ -551,7 +551,6 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       })
       break
     case 48: // 排队记录(主键queue_type_id,queue_no)
-        console.log('===========排队记录trans============', arr)
       arr.forEach(el => {  
         resultArr.push({
           wkday_id : el[0], // 营业日id
@@ -566,7 +565,6 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       })
       break
     case 49: // 当前取号(可用于大屏,可用于咨客操作面板界面)(主键:queue_type_id)
-      console.log('===========当前取号 trans============', arr)
       arr.forEach(el => {  
         resultArr.push({
           wkday_id : el[0], // 营业日id
@@ -576,6 +574,15 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           curr_no_status: el[4], //  当前叫号状态 1 排队中(可以叫号,过号,入场), 2,5 已过号,已入场(只能叫号)
           wait_cnt: el[5], //  等待桌数
           wait_no: el[6], //  等待叫号
+        })
+      })
+      break
+    case 50: // 岗位附加可赠送卡台列表(主键station_id+seat_id)
+      arr.forEach(el => {  
+        resultArr.push({
+          station_id : el[0], // 岗位id
+          seat_id: el[1], //  附加可赠送卡台id
+          status: el[2], //  状态1有效 3删除
         })
       })
       break
