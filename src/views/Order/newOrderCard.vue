@@ -796,19 +796,20 @@ export default {
       // 如果是营销，添加可赠送卡台列表
       if (this.$store.state.userInfo.roleIds.includes(3)) {
         const giftableCardList = this.$store.state.cardPageInfo.resResultDataObj["giftableCard"]
-      // 遍历 giftableCardList，检查并添加数据
-      giftableCardList.forEach(giftableCard => {
-          // 检查 cardListInfoArr 中是否存在对应的 station_id 和 seat_id
-          const exists = cardListInfoArr.some(card => 
-              card.id *1 === giftableCard.seat_id *1
-          );
 
-          // 如果不存在，添加到 cardListInfoArr
-          if (!exists) {
-              cardListInfoArr.push(cardInfo.find(item => item.id * 1 === giftableCard.seat_id * 1));
-          }
-      });
-        
+        const giftableCardListTmp = JSON.parse(JSON.stringify(cardList)) || []
+        // 遍历 giftableCardList，检查并添加数据
+        giftableCardList.forEach(giftableCard => {
+            // 检查 cardListInfoArr 中是否存在对应的 station_id 和 seat_id
+            const exists = cardListInfoArr.some(card => 
+                card.id *1 === giftableCard.seat_id *1
+            );
+
+            // 如果不存在，添加到 cardListInfoArr
+            if (!exists) {
+                cardListInfoArr.push(giftableCardListTmp.find(item => item.id * 1 === giftableCard.seat_id * 1));
+            }
+        });
       }
 
       try {
