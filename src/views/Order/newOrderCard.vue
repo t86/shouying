@@ -794,7 +794,7 @@ export default {
       }
 
       // 如果是营销，添加可赠送卡台列表
-      if (this.$store.state.userInfo.roleIds.includes(3) && this.salesCanLookCardInfo.all_seat != 1) {
+      if (this.$store.state.userInfo.roleIds.includes(3)) {
         const giftableCardList = this.$store.state.cardPageInfo.resResultDataObj["giftableCard"]
       // 遍历 giftableCardList，检查并添加数据
       giftableCardList.forEach(giftableCard => {
