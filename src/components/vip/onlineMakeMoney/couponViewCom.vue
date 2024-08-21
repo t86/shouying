@@ -40,7 +40,7 @@
         <div v-for="(item, index) in tableData" :key="index">
           <div class="tr" layout="row" layout-align="start center">
             <div class="td" layout="row">
-              <el-checkbox @change="couponChange($event, item)">{{ index + 1 }}</el-checkbox>
+              <el-checkbox @change="couponChange($event, item)" :id="item.id" v-model="item.checked">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.t }}</div>
@@ -101,6 +101,25 @@ export default {
       console.log(e, item)
       if(e){
         // this.radioValue = item.id
+        this.tableData.forEach(t => {
+          if (t.id === item.id) {
+            t.checked = true
+          } else {
+            t.checked = false
+          }
+        })
+        // this.tableData = [...this.tableData]
+
+        // this.$nextTick(()=>{
+        //   this.tableData.forEach(t => {
+        //     if (t.id === item.id) {
+        //       t.checked = true
+        //     } else {
+        //       t.checked = false
+        //     }
+        //   })
+        // })
+
         this.$emit("value-changed", item);
       } else {
         // this.radioValue = 0
@@ -116,6 +135,7 @@ export default {
         this.tableData = (res.data.records || []).map((item) => {
           return {
             ...item,
+            checked: false,
           };
         });
       } catch (e) {
