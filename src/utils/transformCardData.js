@@ -211,6 +211,8 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           chgSeatInfo: el[32],  //  转台信息
           seat_biz_type: el[33], // 卡台类型字段(1 实体台 2 虚拟台 3 关联功能台 4 功能台)
           waiter_emp_id: el[34], // 当台点单服务员
+          csm_cust_phone: el[35], // 流水台指定的客人手机号
+          csm_cust_name: el[36], // 流水台对应的客人姓名(可能为空)
         })
       })
       break
