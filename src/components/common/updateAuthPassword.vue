@@ -10,7 +10,10 @@
     >
       <el-form style="margin-top:20px" label-position="right" label-width="150px" ref="drawerRef" @submit.native.prevent>
         <el-form-item label="开启授权密码">
-          <el-switch v-model="form.show"></el-switch>
+          <el-switch v-model="form.show"
+                     active-text="是"
+                     inactive-text="否"
+          ></el-switch>
         </el-form-item>
         <el-form-item v-show="form.show" label="登录密码">
           <div

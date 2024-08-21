@@ -51,6 +51,8 @@
             <div class="value" layout="column" layout-align="start start">
               <el-switch
                 v-model="isTimelimit"
+                active-text="是"
+                inactive-text="否"
               ></el-switch>
               <span class="color-red m-t-2">说明：开关关闭则表示全部时段都可以供应，开启后需配置供应时间段</span>
             </div>

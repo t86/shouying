@@ -19,7 +19,10 @@
     <div class="m-l-4 fs14">
       <div>
         <span>限制预定系统显示金额</span>
-        <el-switch v-model="notShowAmt"></el-switch>
+        <el-switch v-model="notShowAmt"
+                   active-text="是"
+                   inactive-text="否"
+        ></el-switch>
         <p class="red-color">开关开启后预定系统卡台列表和报表中不显示金额</p>
       </div>
     </div>
@@ -27,12 +30,18 @@
     <h4 class="m-b-2">扫码点单配置</h4>
     <div class="m-l-4 fs14">
       <span>客人扫码点单未达低消不允许下单:</span>
-      <el-switch v-model="scanOrderMustDx"></el-switch>
+      <el-switch v-model="scanOrderMustDx"
+                 active-text="是"
+                 inactive-text="否"
+      ></el-switch>
       <p class="red-color">开关开启后，客人扫码点单时，如果点单金额未达到当前卡台的低消，则不允许下单</p>
     </div>
     <div class="m-l-4 fs14">
       <span>扫码点单超时未支付自动退单:</span>
-      <el-switch v-model="timeoutAutoBack"></el-switch>
+      <el-switch v-model="timeoutAutoBack"
+                 active-text="是"
+                 inactive-text="否"
+      ></el-switch>
       <p class="red-color">开关开启后，客人扫码点单如超时未支付，则系统自动取消该订单</p>
       <div style="margin-bottom: 20px" v-if="timeoutAutoBack">
         <span>超时</span>
@@ -83,7 +92,10 @@
     <div class="fs14">
       <div>
         <span class="m-l-4">关闭咨客台清台功能：</span>
-        <el-switch v-model="canClearCard"></el-switch>
+        <el-switch v-model="canClearCard"
+                   active-text="是"
+                   inactive-text="否"
+        ></el-switch>
       </div>
     </div>
 
@@ -91,14 +103,20 @@
     <div class="fs14">
       <div>
         <span class="m-l-4">下单自动出品：</span>
-        <el-switch v-model="orderAutoMake"></el-switch>
+        <el-switch v-model="orderAutoMake"
+                   active-text="是"
+                   inactive-text="否"
+        ></el-switch>
       </div>
     </div>
     <h4 class="m-b-2 m-t-3">账户密码管理</h4>
     <div class="fs14">
       <div>
         <span class="m-l-4">禁止自助修改密码：</span>
-        <el-switch v-model="disableChgPass"></el-switch>
+        <el-switch v-model="disableChgPass"
+                   active-text="是"
+                   inactive-text="否"
+        ></el-switch>
       </div>
     </div>
 

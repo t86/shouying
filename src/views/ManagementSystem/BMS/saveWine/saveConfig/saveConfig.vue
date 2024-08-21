@@ -86,14 +86,20 @@
     <div class="coll" layout="row" layout-align="start center">
       <div class="label">客人手机号存酒需要验证码：</div>
       <div class="value" layout="row" layout-align="start center">
-        <el-switch v-model="needPhoneValidate" active-color="#2170ff">
+        <el-switch v-model="needPhoneValidate" active-color="#2170ff"
+                   active-text="是"
+                   inactive-text="否"
+        >
         </el-switch>
       </div>
     </div>
     <div class="coll" layout="row" layout-align="start center">
       <div class="label">存酒仓库修改存取酒需要授权：</div>
       <div class="value" layout="row" layout-align="start center">
-        <el-switch v-model="needAuthValidate" active-color="#2170ff">
+        <el-switch v-model="needAuthValidate" active-color="#2170ff"
+                   active-text="是"
+                   inactive-text="否"
+        >
         </el-switch>
       </div>
     </div>
