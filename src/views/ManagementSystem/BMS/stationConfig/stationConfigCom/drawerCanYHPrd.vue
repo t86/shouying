@@ -37,26 +37,33 @@
                 <div class="table table1">
                   <div class="thead">
                     <div class="tr" layout="row" layout-align="space-between center">
-                      <div class="th">区域名称</div>
-                      <div class="th">区域状态</div>
-                      <div class="th">卡台名称</div>
-                      <div class="th">卡台状态</div>
+                      <div class="th" style="text-align: center;">区域名称</div>
+                      <div class="th" style="text-align: center;">区域状态</div>
+                      <div class="th" style="text-align: center;">卡台名称</div>
+                      <div class="th" style="text-align: center;">卡台状态</div>
                     </div>
                   </div>
-                  <div class="tbody">
-                    <div
-                      class="tr"
-                      layout="row"
-                      layout-align="space-between center"
-                      v-for="(item, index) in choosedCardInfo"
-                      :key="item.id"
-                    >
-                      <div class="td">{{item.areaName}}</div>
-                      <div class="td">{{item.areaStatus * 1== 1 ? '有效' : '无效'}}</div>
-                      <div class="td">{{item.name}}</div>
-                      <div class="td">{{item.status * 1 == 1 ? '有效' : '无效'}}</div>
-                    </div>
-                    <div class="no-data" v-if="tableData.length==0">
+                  <div class="tbody merged">
+                    <table class="merged-table">
+                      <tbody>
+                        <template  v-for="(group, areaName) in groupedData">
+                          <tr >
+                            <td :rowspan="group.length">{{ areaName }}</td>
+                            <td :rowspan="group.length">
+                              {{ group[0].areaStatus * 1 == 1 ? '有效' : '无效' }}
+                            </td>
+                            <td>{{ group[0].name }}</td>
+                            <td>{{ group[0].status * 1 == 1 ? '有效' : '无效' }}</td>
+                          </tr>
+                          <tr v-for="(item, index) in group.slice(1)" :key="item.id">
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.status * 1 == 1 ? '有效' : '无效' }}</td>
+                          </tr>
+                        </template >
+                      </tbody>
+                    </table>
+                
+                    <div class="no-data" v-if="tableData.length === 0">
                       <img :src="require('@/assets/img/wu.png')" alt />
                       <p>暂无数据</p>
                     </div>
@@ -332,6 +339,17 @@ export default {
     },
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);
+    },
+    groupedData() {
+      const groups = this.choosedCardInfo.reduce((acc, item) => {
+        if (!acc[item.areaName]) {
+          acc[item.areaName] = [];
+        }
+        acc[item.areaName].push(item);
+        return acc;
+      }, {});
+
+      return groups;
     }
   },
 
@@ -419,4 +437,25 @@ export default {
   color: red;
   font-size: 14px;
 }
+
+.merged-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 使用固定布局确保列宽均匀 */
+  tr{
+    width: 100%;
+  }
+}
+
+.merged-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  height: 40px;
+  width: 25%; /* 每列占 25%，确保 4 列平均分配 */
+  box-sizing: border-box; /* 确保 padding 不会影响总宽度 */
+  word-wrap: break-word; /* 允许长文本换行 */
+  overflow: hidden; /* 防止内容溢出 */
+}
+
 </style>
