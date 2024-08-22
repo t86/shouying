@@ -15,6 +15,7 @@
     </div>
     <!-- 内容 -->
     <div class="contain">
+      <el-checkbox style="margin-left: 20px; color: white;" v-model="allSelected" @change="selectChanged" >全选/全部取消</el-checkbox>
       <div class="contain-content">
         <ul>
           <li
@@ -82,6 +83,7 @@ export default {
       pageData: [], // 页面数据
       selectedInfo: {}, // 所选中的卡台信息
       selectActiveSrc,
+      allSelected: false,
     };
   },
   methods: {
@@ -120,7 +122,6 @@ export default {
 
     // 点击确定按钮
     submitHandle() {
-      if (!this.selectedInfo || this.selectedInfo.length == 0) return this.$message.warning("请选择卡台！");
       this.$emit("setChoosedCardInfo", this.selectedInfo);
     },
 
@@ -132,6 +133,16 @@ export default {
         isSubmit,
       });
     },
+    selectChanged(){
+      console.log('selectChanged', this.allSelected);
+      if(this.allSelected){
+        this.selectedInfo = this.pageData.reduce((pre, cur) => {
+          return [...pre, ...cur.cardList];
+        }, []);
+      } else {
+        this.selectedInfo = [];
+      }
+    }
   },
   mounted() {
     this.getPageData();
