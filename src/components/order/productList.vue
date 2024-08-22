@@ -70,7 +70,7 @@
 
 
 
-    <div class="card-name-top" ref="cardNameTop" :style="{ right: isRect ? (isMediumWidth ? '300px' : '400px') : '300px'}">
+    <div class="card-name-top" ref="cardNameTop" :style="{ right: isRect ? (isMediumWidth ? '300px' : '420px') : '300px'}">
       <div class="card-name-title" ref="cardNameTitle">
         <span :style="{ fontSize: titleFontSize }">{{ cardInfo.name }}</span>
         <span :style="{ fontSize: titleFontSize1 }">
@@ -81,6 +81,16 @@
       </div>
       <div class="card-name-seat" v-if="cardInfo.chgSeatInfo">
         <p :style="{ fontSize: seatFontSize }">{{ cardInfo.chgSeatInfo }}</p>
+      </div>
+    </div>
+
+    <div class="card-name-top2" ref="cardNameTop2">
+      <div class="card-name-title" ref="cardNameTitle" v-if="showGuest">
+        <span style="font-size: 16px">客人姓名</span>
+      </div>
+      <div  class="bind-guest" v-else @click="bindGuest">
+        <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
+        绑定客人
       </div>
     </div>
 
@@ -174,6 +184,18 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
+    <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="closeChangeFwy">
+      <el-form ref="formguest"  label-width="110px">
+        <el-form-item label="客人手机号">
+          <el-input v-model="guestPhone"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
+        <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -199,7 +221,9 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
+      guestPhone: '',
       showChangeFwy: false, // 是否显示绑定服务员弹窗
+      showBindGuest: false,
       isRect: true, // 是否为横屏
       ruleForm: {
         waiter: '',
@@ -211,8 +235,6 @@ export default {
         ],
       },
       loading: false,
-
-      isRect: true, // 是否为横屏
       dialogFormVisible: false,
       centerType: 100, // 卡台版心宽度
 
@@ -254,6 +276,7 @@ export default {
       openTime: "",
       empId: 0,
       showEmp: false,
+      showGuest: false
     };
   },
   methods: {
@@ -306,6 +329,10 @@ export default {
           this.keyboardShow('waiter')
         }, 100)
       }
+    },
+    bindGuest(){
+      console.log('bindGuest', this.empId)
+      this.showBindGuest = true;
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
@@ -456,6 +483,7 @@ export default {
     getRectVal() {
       const width = screen.availWidth
       const height = screen.availHeight
+      console.log('width, height', width, height)
       this.isRect = width >= height
     },
 
