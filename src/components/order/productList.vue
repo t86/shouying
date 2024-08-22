@@ -187,7 +187,24 @@
     <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="closeChangeFwy">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
-          <el-input v-model="guestPhone"></el-input>
+<!--          <el-input v-model="formguest.guest"></el-input>-->
+          <el-select
+              v-model="formguest.guest"
+              ref="guest"
+              @focus="handleFocus('guest')"
+              filterable
+              remote
+              reserve-keyword
+              placeholder="输入客人手机号后四位搜索"
+              :remote-method="remoteMethod"
+              :loading="loading">
+            <el-option
+                v-for="item in formguest.guests"
+                :key="item.p"
+                :label="item.n"
+                :value="item.p">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -221,7 +238,10 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
-      guestPhone: '',
+      formguest:{
+        guest:"",
+        guests:[],
+      },
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       showBindGuest: false,
       isRect: true, // 是否为横屏
@@ -406,6 +426,9 @@ export default {
       console.log('waiters:', results)
       this.ruleForm.waiters = results;
       this.loading = false;
+    },
+    searchGuestPhone(query){
+
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
