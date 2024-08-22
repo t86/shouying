@@ -88,6 +88,9 @@ export default {
   reqSetCsmWaiter: (params) =>
     axios.post(`${base.htgl}/wo/set_csm_waiter`, params),
 
+  get_cust_items_for_csm: (params) =>
+      axios.post(`${base.htgl}/wo/get_cust_items_for_csm`, params),
+
   // 修改流水服务员
   reqChgCsmWaiter: (params) =>
     axios.post(`${base.htgl}/sel/chg_csm_waiter`, params),

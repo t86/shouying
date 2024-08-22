@@ -196,12 +196,12 @@
               remote
               reserve-keyword
               placeholder="输入客人手机号后四位搜索"
-              :remote-method="remoteMethod"
+              :remote-method="searchGuestPhone"
               :loading="loading">
             <el-option
                 v-for="item in formguest.guests"
                 :key="item.p"
-                :label="item.n"
+                :label="item.n + ' ' + item.p"
                 :value="item.p">
             </el-option>
           </el-select>
@@ -427,8 +427,22 @@ export default {
       this.ruleForm.waiters = results;
       this.loading = false;
     },
-    searchGuestPhone(query){
-
+    async searchGuestPhone(query){
+      if (query && query.length === 4) {
+        try {
+          const params = {
+            cust_phone: query
+          };
+          const res = await api_order.get_cust_items_for_csm(params);
+          if (res.code === 1) {
+            this.formguest.guests = res.data.records;
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("get_cust_items_for_csm", error);
+        }
+      }
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
