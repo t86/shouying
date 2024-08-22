@@ -63,6 +63,8 @@
             style=",margin: 16px 0"
           >
             <el-switch
+                active-text="是"
+                inactive-text="否"
               v-model="monopoly"
             >
             </el-switch>

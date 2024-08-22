@@ -15,6 +15,8 @@
           </div>
           <div class="value">
             <el-switch
+                active-text="是"
+                inactive-text="否"
               v-model="merchantVal"
               active-color="#409EFF"
               inactive-color="#ccc">
