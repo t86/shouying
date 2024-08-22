@@ -85,8 +85,8 @@
     </div>
 
     <div class="card-name-top2" ref="cardNameTop2">
-      <div class="card-name-title" ref="cardNameTitle" v-if="showGuest">
-        <span style="font-size: 16px">客人姓名</span>
+      <div class="card-name-title" ref="cardNameTitle" v-if="formguest.phone !== '' ">
+        <span style="font-size: 16px; margin-right: 3px">{{formguest.name + formguest.phone}}</span>
       </div>
       <div  class="bind-guest" v-else @click="bindGuest">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
@@ -189,7 +189,8 @@
         <el-form-item label="客人手机号">
 <!--          <el-input v-model="formguest.guest"></el-input>-->
           <el-select
-              v-model="formguest.guest"
+              style="width: 90%"
+              v-model="formguest.phone"
               ref="guest"
               @focus="handleFocus('guest')"
               filterable
@@ -208,8 +209,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="closeChangeFwy">关闭</el-button>
-        <el-button type="primary" @click="submitChangeFwy">确定</el-button>
+        <el-button type="primary" @click="cancelBindGuest">关闭</el-button>
+        <el-button type="primary" @click="submitBindGuest">确定</el-button>
       </div>
     </el-dialog>
 
@@ -239,8 +240,10 @@ export default {
   data() {
     return {
       formguest:{
-        guest:"",
+        phone:"",
         guests:[],
+        guestinfo: "",
+        name: ""
       },
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       showBindGuest: false,
@@ -300,6 +303,29 @@ export default {
     };
   },
   methods: {
+    async submitBindGuest(){
+      this.showBindGuest = false
+      try {
+        const res = await api_order.set_csm_cust({
+          cust_phone: this.formguest.phone,
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+        })
+        if (res.code === 1) {
+          this.$message.success('绑定成功');
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('绑定服务员失败', error)
+        this.formguest.phone = ""
+        this.formguest.name = ""
+      }
+    },
+    cancelBindGuest(){
+      this.showBindGuest = false
+      this.formguest.phone = ""
+      this.formguest.name = ""
+    },
     handleFocus(refString){
       if (
         window.atool
@@ -835,7 +861,7 @@ export default {
     }, 200);
   },
   mounted() {
-    console.log('mounted')
+    console.log('mounted================')
     firstLoad = true;
     this.getShoppingCartData()
     this.getCenterType();
@@ -843,7 +869,11 @@ export default {
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
     const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
-    this.empId = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+    let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
+    console.log('-'.repeat(30), currentBusiness)
+    this.empId = currentBusiness.waiter_emp_id
+    this.formguest.phone = currentBusiness.csm_cust_phone
+    this.formguest.name = currentBusiness.csm_cust_name
     this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
     if (this.showEmp && this.empId * 1 == 0) {
       this.authInfo.name = '';
@@ -853,6 +883,9 @@ export default {
     window.addEventListener('resize', this.adjustFontSize); // 在窗口大小改变时再次调整字体大小
     // this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
     this.checkOverflow();
+
+    let seat_id =  this.$store.state.orderInfo.currentCardInfo.seatId
+
   },
   props: {
     allProductsList: {
