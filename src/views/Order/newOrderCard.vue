@@ -795,7 +795,7 @@ export default {
 
       // 如果是营销，添加可赠送卡台列表
       if (this.$store.state.userInfo.roleIds.includes(3)) {
-        const giftableCardList = this.$store.state.cardPageInfo.resResultDataObj["giftableCard"].filter(item => item.station_id * 1 === this.$store.state.userInfo.station_id * 1)
+        const giftableCardList = this.$store.state.cardPageInfo.resResultDataObj["giftableCard"].filter(item => item.station_id * 1 === this.$store.state.userInfo.station_id * 1 && item.status * 1=== 1)
 
         const giftableCardListTmp = JSON.parse(JSON.stringify(cardList)) || []
         // 遍历 giftableCardList，检查并添加数据
