@@ -18,6 +18,7 @@
           <li @click="step=3" :class="{'active': step==3}">交易明细</li>
           <li @click="step=4" :class="{'active': step==4}">优惠券</li>
           <li @click="step=5" :class="{'active': step==5}">剩余存酒</li>
+          <li @click="step=6" :class="{'active': step==6}">消费喜好</li>
         </ul>
         <div class="content m-t-4">
           <component :is="stepName" :info="stepInfo" ref="detailRef" />
@@ -37,6 +38,7 @@ import vipCardInfo from "./vipCardInfo.vue";
 import vipPayInfo from "./vipPayInfo.vue";
 import vipCoupons from "./vipCoupons.vue";
 import vipRemainWine from "./vipRemainWine.vue";
+import vipFav from "./vipFav.vue";
 export default {
   data() {
     return {
@@ -47,6 +49,7 @@ export default {
       stepThreeInfo: {},
       stepCoupon: {},
       stepRemainWain: {},
+      stepFav: {}
     };
   },
   methods: {
@@ -114,7 +117,8 @@ export default {
     vipCardInfo,
     vipPayInfo,
     vipCoupons,
-    vipRemainWine
+    vipRemainWine,
+    vipFav,
   },
   computed: {
     stepName() {
@@ -123,7 +127,8 @@ export default {
         "2": "vipCardInfo",
         "3": "vipPayInfo",
         "4": "vipCoupons",
-        "5": "vipRemainWine"
+        "5": "vipRemainWine",
+        "6": "vipFav",
       };
       return componentNameInfo[this.step];
     },
@@ -139,6 +144,8 @@ export default {
           return this.stepCoupon;
         case 5:
           return this.stepRemainWain;
+        case 6:
+            return this.stepFav;
       }
     }
   },
@@ -177,6 +184,12 @@ export default {
           } )
         case 5:
           this.stepRemainWain = JSON.parse(JSON.stringify(this.preVipInfo))
+          this.$nextTick(() => {
+            this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
+          } )
+          break;
+        case 6:
+          this.stepFav = JSON.parse(JSON.stringify(this.preVipInfo))
           this.$nextTick(() => {
             this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
           } )

@@ -297,6 +297,9 @@ export default {
   reqGetVipCarPayMoneyListDetail: (params) =>
     axios.post(`${base.htgl}/mb/info/get_bal_logs`, params),
 
+  get_mb_csm_top_prds: (params) =>
+      axios.post(`${base.htgl}/mb/info/get_mb_csm_top_prds`, params),
+
   /**
    * 报表管理
    */
