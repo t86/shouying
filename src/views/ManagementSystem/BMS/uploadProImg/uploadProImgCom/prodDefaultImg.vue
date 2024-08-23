@@ -3,13 +3,11 @@
 
     <div class="coll" layout="row" layout-align="start center">
       <div class="label">菜单显示图片：</div>
-      <div class="value" layout="row" layout-align="start center">
-        <el-switch v-model="mode" active-color="#2170ff"
-                   active-text="是"
-                   inactive-text="否"
-        >
-        </el-switch>
-      </div>
+      <el-switch v-model="mode" active-color="#2170ff"
+                  active-text="是"
+                  inactive-text="否"
+      >
+      </el-switch>
     </div>
     <div class="coll" layout="row" layout-align="start center">
       <div class="label" style=""></div>
