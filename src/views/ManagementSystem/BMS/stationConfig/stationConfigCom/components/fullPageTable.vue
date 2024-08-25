@@ -15,7 +15,6 @@
     </div>
     <!-- 内容 -->
     <div class="contain">
-      <el-checkbox style="margin-left: 20px; color: white;" v-model="allSelected" @change="selectChanged" >全选/全部取消</el-checkbox>
       <div class="contain-content">
         <ul>
           <li
@@ -23,7 +22,8 @@
             v-for="(item, index) in pageData"
             :key="index"
           >
-            <div class="contain-content-item-left">{{ item.name }}</div>
+          
+            <div class="contain-content-item-left"><el-checkbox style="margin-left: 20px; color: white;" v-model="item.allSelected" @change="selectChanged(item)" ></el-checkbox>{{ item.name }}</div>
             <ul
               class="contain-content-item-right"
               layout="row"
@@ -108,7 +108,10 @@ export default {
           }
         });
       });
-      this.pageData = resultData;
+      this.pageData = resultData.map((item) => ({
+        ...item,
+        allSelected: false,
+      }));
     },
 
     // 选择卡台
@@ -133,15 +136,13 @@ export default {
         isSubmit,
       });
     },
-    selectChanged(){
-      console.log('selectChanged', this.allSelected);
-      if(this.allSelected){
-        this.selectedInfo = this.pageData.reduce((pre, cur) => {
-          return [...pre, ...cur.cardList];
-        }, []);
+    selectChanged(item){
+      if(item.allSelected){
+        this.selectedInfo = [...this.selectedInfo, ...item.cardList];
       } else {
-        this.selectedInfo = [];
+        this.selectedInfo = this.selectedInfo.filter(card => !item.cardList.map(item => item.id * 1).includes(card.id * 1));
       }
+
     }
   },
   mounted() {

@@ -55,7 +55,7 @@
                             <td>{{ group[0].name }}</td>
                             <td>{{ group[0].status * 1 == 1 ? '有效' : '无效' }}</td>
                           </tr>
-                          <tr v-for="(item, index) in group.slice(1)" :key="item.id">
+                          <tr v-for="item in group.slice(1)" :key="item.id">
                             <td>{{ item.name }}</td>
                             <td>{{ item.status * 1 == 1 ? '有效' : '无效' }}</td>
                           </tr>
@@ -449,7 +449,6 @@ export default {
 
 .merged-table td {
   border: 1px solid #ccc;
-  padding: 10px;
   text-align: center;
   height: 40px;
   width: 25%; /* 每列占 25%，确保 4 列平均分配 */
