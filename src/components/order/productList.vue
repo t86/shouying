@@ -195,9 +195,11 @@
               @focus="handleFocus('guest')"
               filterable
               remote
+              allow-create
               reserve-keyword
               placeholder="输入客人手机号后四位搜索"
               :remote-method="searchGuestPhone"
+              :filter-method="filterMethod"
               :loading="loading">
             <el-option
                 v-for="item in formguest.guests"
@@ -303,6 +305,10 @@ export default {
     };
   },
   methods: {
+    filterMethod(value) {
+      // 这个方法允许保留用户输入的内容
+      return true; // 返回 true 以保留输入内容
+    },
     async submitBindGuest(){
       if (!this.formguest.phone) {
         this.$message.warning('请输入客人手机号');
