@@ -86,7 +86,7 @@
 
     <div class="card-name-top2" ref="cardNameTop2">
       <div class="card-name-title" ref="cardNameTitle" v-if="formguest.phone !== '' ">
-        <span style="font-size: 16px; margin-right: 3px">{{formguest.name}}</span>
+        <span style="font-size: 16px; margin-right: 3px">{{formguest.name || maskedPhone}}</span>
       </div>
       <div  class="bind-guest" v-else @click="bindGuest">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
@@ -304,6 +304,10 @@ export default {
   },
   methods: {
     async submitBindGuest(){
+      if (!this.formguest.phone) {
+        this.$message.warning('请输入客人手机号');
+        return;
+      }
       this.showBindGuest = false
       try {
         const res = await api_order.set_csm_cust({
@@ -902,6 +906,17 @@ export default {
     }
   },
   computed: {
+    maskedPhone() {
+      if (this.formguest.phone && this.formguest.phone.length === 11) {
+      // 只对11位中国手机号掩码
+        return (
+          this.formguest.phone.slice(0, 3) +
+          '****' +
+          this.formguest.phone.slice(7)
+          );
+      }
+      return this.formguest.phone; // 如果手机号不符合条件，直接返回
+    },
     isTerminal() {
       let termType = ''
       try {
