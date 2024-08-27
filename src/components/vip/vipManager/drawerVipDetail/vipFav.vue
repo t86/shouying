@@ -101,7 +101,7 @@ export default {
     }
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 50px;
+      width: 80px;
       // span {
       //   color: #2362d5;
       //   cursor: pointer;
