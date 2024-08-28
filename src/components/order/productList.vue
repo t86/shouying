@@ -85,8 +85,8 @@
     </div>
 
     <div class="card-name-top2" ref="cardNameTop2">
-      <div class="card-name-title" ref="cardNameTitle" v-if="formguest.phone !== '' ">
-        <span style="font-size: 16px; margin-right: 3px">{{formguest.name || maskedPhone}}</span>
+      <div class="card-name-title" ref="cardNameTitle" v-if="formguest.phone !== '' " @click="bindGuest">
+        <span style="font-size: 16px; margin-right: 3px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{formguest.name || maskedPhone}}</span>
       </div>
       <div  class="bind-guest" v-else @click="bindGuest">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
