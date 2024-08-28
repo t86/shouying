@@ -132,7 +132,7 @@
       <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle"
                  style="
                 position: fixed;
-                left: 700px;
+                left: 400px;
                 bottom: 5px;
               "
       >保存
