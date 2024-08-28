@@ -403,6 +403,10 @@ export default {
     bindGuest(){
       console.log('bindGuest', this.empId)
       this.showBindGuest = true;
+      this.formguest.guests = [{
+        p: this.formguest.phone,
+        n: this.formguest.name
+      }]
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
