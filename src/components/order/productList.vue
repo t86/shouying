@@ -245,8 +245,8 @@ export default {
         guestinfo: "",
         name: "",
         new_guest: false,
-        displayCustName: '',
       },
+      displayCustName: "",
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       showBindGuest: false,
       isRect: true, // 是否为横屏
