@@ -193,6 +193,7 @@
               v-model="formguest.phone"
               ref="guest"
               @focus="handleFocus('guest')"
+              @blur="handleBlur"
               filterable
               remote
               reserve-keyword
@@ -301,7 +302,8 @@ export default {
       openTime: "",
       empId: 0,
       showEmp: false,
-      showGuest: false
+      showGuest: false,
+      currentInputValue: ''
     };
   },
   methods: {
@@ -345,8 +347,41 @@ export default {
       this.displayCustName = this.formguest.name || this.maskedPhone || ""
 
     },
+    handleBlur(){
+    // 移除输入事件监听
+    const inputEl = this.$refs.guest.$el.querySelector('input');
+    inputEl.removeEventListener('input', this.handleInput);
+
+    // 使用当前输入值更新 formguest.phone
+    if (this.currentInputValue) {
+      this.formguest.phone = this.currentInputValue;
+    }
+
+    // 重置 currentInputValue
+    this.currentInputValue = '';
+      // 保存当前输入的内容
+      console.log(this.formguest)
+    },
+    handleInput(event){
+      console.log('handleinput', event.target.value)
+      const inputEl = event.target;
+      let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
+      
+      if (value.length > 11) {
+        value = value.slice(0, 11); // 限制最大长度为11位
+      }
+      
+      this.currentInputValue = value;
+      inputEl.value = value; // 更新输入框的值
+
+
+    },
     handleFocus(refString){
       if(refString === 'guest') {
+        this.$nextTick(() => {
+          const inputEl = this.$refs.guest.$el.querySelector('input');
+          inputEl.addEventListener('input', this.handleInput);
+        });
         if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
           this.formguest.guests = []
         }
@@ -483,6 +518,9 @@ export default {
     },
     async searchGuestPhone(query){
       this.formguest.guests = []
+      if(query.length > 11) {
+        query = query.slice(0, 11)
+      }
       if (query && (query.length === 4 || query.length === 11)) {
         try {
           const params = {
@@ -494,7 +532,7 @@ export default {
               this.formguest.guests = res.data.records
               this.formguest.new_guest = false
             } else if (query.length === 11){
-              this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
+              // this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
               this.formguest.new_guest = true
             }
           } else {
