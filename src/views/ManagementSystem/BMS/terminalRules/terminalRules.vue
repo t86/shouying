@@ -120,7 +120,12 @@
       </div>
     </div>
 
-    <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle">保存</el-button>
+    <div style="position: fixed;
+            bottom: 16px;
+            left: 450px;"
+    >
+      <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle">保存</el-button>
+    </div>
   </div>
 </template>
 
