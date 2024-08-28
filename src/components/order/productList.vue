@@ -321,6 +321,8 @@ export default {
         })
         if (res.code === 1) {
           this.$message.success('绑定成功');
+          this.formguest.name = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).n : ""
+          this.formguest.phone = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).p : this.formguest.phone
         } else {
           this.$message.warning(res.msg);
         }
