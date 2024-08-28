@@ -85,8 +85,8 @@
     </div>
 
     <div class="card-name-top2" ref="cardNameTop2">
-      <div class="card-name-title" ref="cardNameTitle" v-if="formguest.phone !== '' " @click="bindGuest">
-        <span style="font-size: 16px; margin-right: 3px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{formguest.name || maskedPhone}}</span>
+      <div class="card-name-title" ref="cardNameTitle" v-if="displayCustName !== '' " @click="bindGuest">
+        <span style="font-size: 16px; margin-right: 3px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{ displayCustName }}</span>
       </div>
       <div  class="bind-guest" v-else @click="bindGuest">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
@@ -245,6 +245,7 @@ export default {
         guestinfo: "",
         name: "",
         new_guest: false,
+        displayCustName: '',
       },
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       showBindGuest: false,
@@ -323,6 +324,7 @@ export default {
           this.$message.success('绑定成功');
           this.formguest.name = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).n : ""
           this.formguest.phone = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).p : this.formguest.phone
+          this.displayCustName = this.formguest.name || this.maskedPhone || ""
         } else {
           this.$message.warning(res.msg);
         }
@@ -330,6 +332,7 @@ export default {
         console.log('绑定服务员失败', error)
         this.formguest.phone = ""
         this.formguest.name = ""
+        this.displayCustName = ""
       }
     },
     cancelBindGuest(){
@@ -339,9 +342,15 @@ export default {
       console.log('-'.repeat(30), currentBusiness)
       this.formguest.phone = currentBusiness.csm_cust_phone
       this.formguest.name = currentBusiness.csm_cust_name
+      this.displayCustName = this.formguest.name || this.maskedPhone || ""
 
     },
     handleFocus(refString){
+      if(refString === 'guest') {
+        if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
+          this.formguest.guests = []
+        }
+      }
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -896,6 +905,7 @@ export default {
     this.empId = currentBusiness.waiter_emp_id
     this.formguest.phone = currentBusiness.csm_cust_phone
     this.formguest.name = currentBusiness.csm_cust_name
+    this.displayCustName = this.formguest.name || this.maskedPhone || ""
     this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
     if (this.showEmp && this.empId * 1 == 0) {
       this.authInfo.name = '';
