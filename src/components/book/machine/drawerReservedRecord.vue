@@ -44,7 +44,8 @@
               <th class="th w90">卡台标记</th>
               <th class="th w90">状态</th>
               <th class="th w120">状态变更时间</th>
-              <th class="th w120">备注</th>
+              <th class="th w150">备注</th>
+              <th class="th w150">咨客</th>
             </div>
           </div>
           <div class="tbody" ref="scrollDom">
@@ -67,6 +68,7 @@
                   <div class="td w90">{{item.s}}</div>
                   <div class="td w120">{{item.c}}</div>
                   <div class="td w120">{{item.rm}}</div>
+                  <div class="td w120">{{item.on}}</div>
                 </div>
               </div>
             </div>

@@ -63,6 +63,7 @@
               <div class="th w170">联合订位人</div>
               <div class="th w170">联合订位人部门</div>
               <div class="th w200">备注</div>
+              <div class="th w150">咨客</div>
             </div>
           </div>
           <div class="tbody" ref="scrollDom">
@@ -94,6 +95,7 @@
                   <div class="td w170">{{item.s}}</div>
                   <div class="td w170">{{item.d}}</div>
                   <div class="td w200">{{item.r}}</div>
+                  <div class="td w200">{{item.on}}</div>
                 </div>
               </div>
             </div>

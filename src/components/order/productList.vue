@@ -195,16 +195,14 @@
               @focus="handleFocus('guest')"
               filterable
               remote
-              allow-create
               reserve-keyword
               placeholder="输入客人手机号后四位搜索"
               :remote-method="searchGuestPhone"
-              :filter-method="filterMethod"
               :loading="loading">
             <el-option
                 v-for="item in formguest.guests"
                 :key="item.p"
-                :label="item.n + ' ' + item.p"
+                :label="item.n"
                 :value="item.p">
             </el-option>
           </el-select>
@@ -333,8 +331,12 @@ export default {
     },
     cancelBindGuest(){
       this.showBindGuest = false
-      this.formguest.phone = ""
-      this.formguest.name = ""
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
+      console.log('-'.repeat(30), currentBusiness)
+      this.formguest.phone = currentBusiness.csm_cust_phone
+      this.formguest.name = currentBusiness.csm_cust_name
+
     },
     handleFocus(refString){
       if (
@@ -464,14 +466,19 @@ export default {
       this.loading = false;
     },
     async searchGuestPhone(query){
-      if (query && query.length === 4) {
+      this.formguest.guests = []
+      if (query && (query.length === 4 || query.length === 11)) {
         try {
           const params = {
             cust_phone: query
           };
           const res = await api_order.get_cust_items_for_csm(params);
           if (res.code === 1) {
-            this.formguest.guests = res.data.records;
+            if (res.data.records && res.data.records.length > 0) {
+              this.formguest.guests = res.data.records
+            } else if (query.length === 11){
+              this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
+            }
           } else {
             this.$message.warning(res.msg);
           }

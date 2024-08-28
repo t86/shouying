@@ -12,7 +12,7 @@
           <div class="th">商品</div>
           <div class="th">一级分类</div>
           <div class="th">二级分类</div>
-          <div class="th">点击次数</div>
+          <div class="th">点单次数</div>
         </div>
       </div>
       <div class="tbody">
