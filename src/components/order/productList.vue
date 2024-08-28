@@ -210,7 +210,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancelBindGuest">关闭</el-button>
-        <el-button type="primary" @click="submitBindGuest">确定</el-button>
+        <el-button type="primary" @click="submitBindGuest">{{ this.formguest.new_guest ? "注册并绑定" : "确定" }}</el-button>
       </div>
     </el-dialog>
 
@@ -243,7 +243,8 @@ export default {
         phone:"",
         guests:[],
         guestinfo: "",
-        name: ""
+        name: "",
+        new_guest: false,
       },
       showChangeFwy: false, // 是否显示绑定服务员弹窗
       showBindGuest: false,
@@ -476,8 +477,10 @@ export default {
           if (res.code === 1) {
             if (res.data.records && res.data.records.length > 0) {
               this.formguest.guests = res.data.records
+              this.formguest.new_guest = false
             } else if (query.length === 11){
               this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
+              this.formguest.new_guest = true
             }
           } else {
             this.$message.warning(res.msg);
