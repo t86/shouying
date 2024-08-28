@@ -203,7 +203,7 @@
             <el-option
                 v-for="item in formguest.guests"
                 :key="item.p"
-                :label="item.n"
+                :label="item.n + '  ' + item.p "
                 :value="item.p">
             </el-option>
           </el-select>
