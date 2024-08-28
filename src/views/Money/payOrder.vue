@@ -548,7 +548,17 @@ export default {
     selectBlurHandle() {
       this.empList = [];
     },
-
+    maskedPhone(phone) {
+      if (phone && phone === 11) {
+      // 只对11位中国手机号掩码
+        return (
+          phone.slice(0, 3) +
+          '****' +
+          phone.slice(7)
+          );
+      }
+      return phone || ''; // 如果手机号不符合条件，直接返回
+    },
     // 获取服务员信息
     inputSealName(query) {
       console.log('inputSealName', query)
@@ -2050,17 +2060,6 @@ export default {
     inputSelect,
   },
   computed: {
-    maskedPhone(phone) {
-      if (phone && phone === 11) {
-      // 只对11位中国手机号掩码
-        return (
-          phone.slice(0, 3) +
-          '****' +
-          phone.slice(7)
-          );
-      }
-      return phone || ''; // 如果手机号不符合条件，直接返回
-    },
     hasChooseClockOrder() {
       return this.notPayData.choosePayOrderList
         .filter((item) => !item.oid)
