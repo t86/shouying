@@ -122,7 +122,7 @@
 
     <div style="position: fixed;
             bottom: 16px;
-            left: 450px;"
+            left: 750px;"
     >
       <el-button class="m-l-10 m-t-10" type="primary" @click.native="submitHandle">保存</el-button>
     </div>
