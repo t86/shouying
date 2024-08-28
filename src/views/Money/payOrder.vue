@@ -42,6 +42,7 @@
           </li>
         </ul>
         <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
+          <span style="font-weight: 400; width: 150px;font-size: 16px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">客人：{{ customName || '-'}}</span>
           <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
           <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
             <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
@@ -461,6 +462,7 @@ export default {
       showChangeFwy: false, // 修改服务员
       selFwy: "", // 选择服务员
       selFwyName: "", // 选择服务员名称
+      customName: "", // 客人姓名
       empList: [], // 服务员列表
       showEmp: false,
 
@@ -790,6 +792,7 @@ export default {
           this.selFwy = res.data.waiter_emp_id || ''
           let fwyList = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
           this.selFwyName = fwyList.findIndex(item => item.id * 1 == this.selFwy) > 0 ? fwyList.find(item => item.id * 1 == this.selFwy).name : ''
+          this.customName = res.data.csm_cust_name || this.maskedPhone(res.data.csm_cust_phone)
           console.log('getEmpList', this.selFwy, this.selFwyName)
           // 获取翻台记录
           // 最左边的记录，如果是清台状态，和翻台一样处理
@@ -2047,6 +2050,17 @@ export default {
     inputSelect,
   },
   computed: {
+    maskedPhone(phone) {
+      if (phone && phone === 11) {
+      // 只对11位中国手机号掩码
+        return (
+          phone.slice(0, 3) +
+          '****' +
+          phone.slice(7)
+          );
+      }
+      return phone || ''; // 如果手机号不符合条件，直接返回
+    },
     hasChooseClockOrder() {
       return this.notPayData.choosePayOrderList
         .filter((item) => !item.oid)
