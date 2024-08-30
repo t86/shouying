@@ -203,7 +203,7 @@
             <el-option
                 v-for="item in formguest.guests"
                 :key="item.p"
-                :label="item.n + '  ' + item.p "
+                :label=" formguest.editing ? item.n + '  ' + item.p: item.n "
                 :value="item.p">
             </el-option>
           </el-select>
@@ -241,6 +241,7 @@ export default {
   data() {
     return {
       formguest:{
+        editing: false,
         phone:"",
         guests:[],
         guestinfo: "",
@@ -348,6 +349,7 @@ export default {
 
     },
     handleBlur(){
+      this.formguest.editing = false
     // 移除输入事件监听
     const inputEl = this.$refs.guest.$el.querySelector('input');
     inputEl.removeEventListener('input', this.handleInput);
@@ -378,6 +380,7 @@ export default {
     },
     handleFocus(refString){
       if(refString === 'guest') {
+        console.log('handleFocus....')
         this.$nextTick(() => {
           const inputEl = this.$refs.guest.$el.querySelector('input');
           inputEl.addEventListener('input', this.handleInput);
@@ -528,6 +531,7 @@ export default {
           };
           const res = await api_order.get_cust_items_for_csm(params);
           if (res.code === 1) {
+            this.formguest.editing = true
             if (res.data.records && res.data.records.length > 0) {
               this.formguest.guests = res.data.records
               this.formguest.new_guest = false
@@ -1008,6 +1012,11 @@ export default {
     ImagePreview
   },
   watch: {
+    "formguest.phone"(newVal){
+      console.log("formguest.phone changed")
+      this.formguest.editing = false
+      this.formguest = {...this.formguest}
+    },
     currentCategoryProductList(newVal) {
       this.search.keyWord = firstLoad
         ? this.$route.query.mustPrdName || ""
