@@ -344,7 +344,7 @@ export default {
       let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
       console.log('-'.repeat(30), currentBusiness)
       this.formguest.phone = currentBusiness.csm_cust_phone
-      this.formguest.name = currentBusiness.csm_cust_name
+      this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
       this.displayCustName = this.formguest.name || this.maskedPhone || ""
 
     },
