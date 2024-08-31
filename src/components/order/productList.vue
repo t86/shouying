@@ -950,7 +950,7 @@ export default {
     console.log('-'.repeat(30), currentBusiness)
     this.empId = currentBusiness.waiter_emp_id
     this.formguest.phone = currentBusiness.csm_cust_phone
-    this.formguest.name = currentBusiness.csm_cust_name
+    this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
     this.displayCustName = this.formguest.name || this.maskedPhone || ""
     this.showEmp = [1,2].includes(businessData.find(ite => ite.seatId == this.cardInfo.id).seat_biz_type * 1)
     if (this.showEmp && this.empId * 1 == 0) {
