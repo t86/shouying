@@ -31,6 +31,7 @@
             <div class="th">一级分类</div>
             <div class="th">二级分类</div>
             <div class="th">库存数量</div>
+            <div class="th">预扣库存数</div>
             <div class="th">实时加权单价</div>
             <div class="th">成本金额小计</div>
           </div>
@@ -44,6 +45,7 @@
             <div class="th">{{item.moc}}</div>
             <div class="th">{{item.mtc}}</div>
             <div class="th">{{item.c}}</div>
+            <div class="th">{{item.rc}}</div>
             <div class="th">{{item.p}}</div>
             <div class="th">{{item.a}}</div>
           </div>
