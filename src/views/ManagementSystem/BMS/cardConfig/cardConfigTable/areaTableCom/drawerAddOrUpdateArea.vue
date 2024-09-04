@@ -28,22 +28,23 @@
             <span>必点商品</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <div v-if="choosePrdInfo.n" layout="row" layout-align="start center">
+            <div
+                v-for="(item, index) in musts" layout="row" layout-align="start center">
               <div
                 style="padding:5px;border-radius:2px"
                 layout="row"
                 layout-align="start center"
                 class="m-r-1"
               >
-                <span style="color:#40404e">{{choosePrdInfo.n}}</span>
-                <i class="el-icon-error cursor" @click="choosePrdInfo={}"></i>
+                <span style="color:#40404e">{{item.n}}</span>
+                <i class="el-icon-error cursor" @click="deleteMust(item)"></i>
               </div>
             </div>
-            <el-button type="primary" size="mini" @click="showDrawer = true">{{choosePrdInfo.n ? '修改商品' : '添加商品'}}</el-button>
+            <el-button type="primary" size="mini" @click="showDrawer = true">{{musts.length > 0 ? '修改商品' : '添加商品'}}</el-button>
           </div>
         </div>
         <p v-if="type == 2" class="m-t-3 m-l-10 red-color fs12">启用必点商品后，该区域的卡台需要点单该商品后才可下单</p>
-        <drawerChoosePrd v-model="showDrawer" :currentInfo="choosePrdInfo" @getChoosePrdHandle="getChoosePrdHandle" />
+        <drawerChoosePrd v-model="showDrawer" :currentInfo="musts" @getChoosePrdHandle="getChoosePrdHandle" />
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">取消</el-button>
@@ -60,11 +61,15 @@ export default {
     return {
       areaName: "",
       
-      choosePrdInfo: {}, // 必点商品
+      // choosePrdInfo: {}, // 必点商品
+      musts:[],
       showDrawer: false,
     };
   },
   methods: {
+    deleteMust(item){
+      this.musts = this.musts.filter(i => i.id !== item.id)
+    },
     async getAreaInfo(){
       const params = {
         id: this.currentInfo.id * 1
@@ -74,9 +79,30 @@ export default {
         if(res.code == 1) {
           console.log(res);
           this.areaName = res.data.name
-          this.choosePrdInfo = {
-            n: res.data.must_order_prd_name,
-            id: res.data.must_order_prd_id
+          // this.choosePrdInfo = {
+          //   n: res.data.must_order_prd_name,
+          //   id: res.data.must_order_prd_id
+          // }
+          let m0 = {
+            id: res.data.must_order_prd_id,
+            n: res.data.must_order_prd_name
+          }
+          if(m0.id > 0){
+            this.musts.push(m0)
+          }
+          let m1 = {
+            id: res.data.must_order_prd_id2,
+            n: res.data.must_order_prd_name2
+          }
+          if(m1.id > 0){
+            this.musts.push(m1)
+          }
+          let m2 = {
+            id: res.data.must_order_prd_id3,
+            n: res.data.must_order_prd_name3
+          }
+          if(m2.id > 0){
+            this.musts.push(m2)
           }
         } else {
           this.$message.warning(res.msg)
@@ -98,7 +124,9 @@ export default {
     },
 
     getChoosePrdHandle(info){
-      this.choosePrdInfo = {...info}
+      console.log("getChoosePrdHandle", info)
+      // this.choosePrdInfo = {...info}
+      this.musts = info
     },
 
     async onSubmit() {
@@ -106,8 +134,43 @@ export default {
       const params = {
         name: this.areaName || '',
         ...this.type == 2 && {id : this.currentInfo.id},
-        ...this.type == 2 && {must_order_prd_id : this.choosePrdInfo.id || 0},
+        // ...this.type == 2 && {must_order_prd_id : this.choosePrdInfo.id || 0},
       };
+      let must_order_prd_id = 0      //MustOrderPrdId 必点商品Id,没有=0
+      let must_order_prd_name = ''     //MustOrderPrdName 必点商品名称,没有=空
+      let must_order_prd_id2 = 0      //MustOrderPrdId2 必点商品2Id,没有=0
+      let must_order_prd_name2 = ''     //MustOrderPrdName2 必点商品2名称,没有=空
+      let must_order_prd_id3 = 0      //MustOrderPrdId3 必点商品3Id,没有=0
+      let must_order_prd_name3 = ''     //MustOrderPrdName3 必点商品3名称,没有=空
+      if (this.type === 2){
+        if(this.musts.length === 1){
+          must_order_prd_id = this.musts[0].id
+          must_order_prd_name = this.musts[0].n
+        } else if (this.musts.length === 2){
+          let m0 = this.musts[0]
+          let m1 = this.musts[1]
+          must_order_prd_id = m0.id
+          must_order_prd_name = m0.n
+          must_order_prd_id2 = m1.id
+          must_order_prd_name2 = m1.n
+        } else if (this.musts.length === 3){
+          let m0 = this.musts[0]
+          let m1 = this.musts[1]
+          let m2 = this.musts[2]
+          must_order_prd_id = m0.id
+          must_order_prd_name = m0.n
+          must_order_prd_id2 = m1.id
+          must_order_prd_name2 = m1.n
+          must_order_prd_id3 = m2.id
+          must_order_prd_name3 = m2.n
+        }
+        params.must_order_prd_id = must_order_prd_id      //MustOrderPrdId 必点商品Id,没有=0
+        params.must_order_prd_name = must_order_prd_name     //MustOrderPrdName 必点商品名称,没有=空
+        params.must_order_prd_id2 = must_order_prd_id2      //MustOrderPrdId2 必点商品2Id,没有=0
+        params.must_order_prd_name2 = must_order_prd_name2     //MustOrderPrdName2 必点商品2名称,没有=空
+        params.must_order_prd_id3 = must_order_prd_id3      //MustOrderPrdId3 必点商品3Id,没有=0
+        params.must_order_prd_name3 = must_order_prd_name3     //MustOrderPrdName3 必点商品3名称,没有=空
+      }
       try {
         const api = this.type == 1 ? 'requestregionnew' : 'requestregionsave'
         const res = await this.$api.BMS.region[api](params)
@@ -165,6 +228,7 @@ export default {
           if (this.type == 1) {
             this.areaName = "";
           } else {
+            this.musts = []
             this.getAreaInfo()
           }
         }

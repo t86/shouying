@@ -43,7 +43,8 @@
                 <div class="td">
                   <el-checkbox
                     v-model="item.checked"
-                    @change="changeCheckBoxHandle(item)"
+                    :key="item.id"
+                    @change="changeCheckBoxHandle($event, item)"
                   >{{i+1}}</el-checkbox>
                 </div>
                 <div class="td">{{item.n}}</div>
@@ -125,13 +126,15 @@ export default {
             isInit == 1
               ? tableData.map(item => ({
                   ...item,
-                  checked: item.id == this.currentInfo.id
+                  // checked: item.id == this.currentInfo.id
+                    checked:false,
                 }))
               : [
                   ...this.tableData,
                   ...tableData.map(item => ({
                     ...item,
-                    checked: item.id == this.currentInfo.id
+                    // checked: item.id == this.currentInfo.id
+                    checked:false,
                   }))
                 ];
         } else {
@@ -142,16 +145,30 @@ export default {
       }
     },
     
-    changeCheckBoxHandle(itemInfo){
-      this.tableData = this.tableData.map(item => ({
-        ...item,
-        checked: item.id == itemInfo.id
-      }))
+    changeCheckBoxHandle(e, itemInfo){
+      // // this.tableData = this.tableData.map(item => ({
+      // //   ...item,
+      // //   checked: item.id == itemInfo.id
+      // // }))
+      // console.log(e)
+      // console.log("itemInfo checked:", itemInfo.checked)
+      // // for(let item of this.tableData){
+      // //   if(item.id === itemInfo.id){
+      // //     item.checked = !item.checked
+      // //     break
+      // //   }
+      // // }
+      // console.log(this.tableData)
+      // this.tableData = [...this.tableData]
     },
 
     onSubmit() {
-      const prdInfo = this.tableData.find(item => item.checked)
-      if(prdInfo) {
+      const prdInfo = this.tableData.filter(item => item.checked)
+      if(prdInfo && prdInfo.length > 0 ){
+        if(prdInfo.length > 3){
+          this.$message.warning('最多选择三个商品')
+          return
+        }
         this.$emit('getChoosePrdHandle', prdInfo)
         this.onCancelDrawer()
       } else {
@@ -174,12 +191,12 @@ export default {
       default: false // 是否显示drawer
     },
     currentInfo: {
-      default: () => ({})
+      default: () => ([])
     }
   },
   computed: {
     title() {
-      return this.currentInfo.n ? "编辑商品" : "添加商品";
+      return this.currentInfo.length > 0 ? "编辑商品" : "添加商品";
     },
 
     show: {
