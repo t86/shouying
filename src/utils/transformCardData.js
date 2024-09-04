@@ -8,7 +8,9 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           name: el[1],  // 区域名称
           status: el[2],  // 区域状态:1有效 2无效 3删除
           dsp: el[3],      // 区域显示顺序
-          mustOrderPrdId: el[4]    // 必点商品id
+          mustOrderPrdId: el[4],    // 必点商品id
+          mustOrderPrdId2: el[5],    // 必点商品id
+          mustOrderPrdId3: el[6],    // 必点商品id
         })
       })
       break
@@ -213,6 +215,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           waiter_emp_id: el[34], // 当台点单服务员
           csm_cust_phone: el[35], // 流水台指定的客人手机号
           csm_cust_name: el[36], // 流水台对应的客人姓名(可能为空)
+          disable_must_order: el[37], // 临时关闭流水必点开关
         })
       })
       break
