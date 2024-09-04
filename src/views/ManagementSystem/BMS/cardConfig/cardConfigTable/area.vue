@@ -21,6 +21,7 @@
             </div>
             <div class="th">区域名称</div>
             <div class="th">卡台数量</div>
+            <div class="th">必点商品</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
             <div class="th">状态</div>
@@ -49,6 +50,7 @@
             </div>
             <div class="td">{{item.n}}</div>
             <div class="td">{{item.sc}}</div>
+            <div class="td">{{item.p}}</div>
             <div class="td">{{item.c}}</div>
             <div class="td">{{item.u}}</div>
             <div class="td">{{item.s}}</div>
@@ -259,11 +261,14 @@ export default {
       max-height: calc(100vh - 160px);
       overflow: auto;
       .th,.td{
-        &:nth-child(1),
-        &:nth-child(3),
-        &:nth-child(6){
-          width: 30%;
+        &:nth-child(4){
+          width: 100%
         }
+        //&:nth-child(1),
+        //&:nth-child(3),
+        //&:nth-child(6){
+        //  width: 30%;
+        //}
       }
     }
   }
