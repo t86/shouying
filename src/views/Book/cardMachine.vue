@@ -231,10 +231,16 @@
                 :key="i"
                 @click.stop="optionsClickHandle(el, item, index)"
               >
-                <div class="options-item-contain">
+                <div v-if='el.id === 24' class="options-item-contain"   :class="item.mustDisabled ?'disabled': '' " >
                   <img :src="el.icon" alt />
                   <span>{{ el.name }}</span>
                 </div>
+
+                <div v-else class="options-item-contain" >
+                  <img :src="el.icon" alt />
+                  <span>{{ el.name }}</span>
+                </div>
+
               </div>
               <div class="close">
                 <i class="el-icon-close fs14"></i>
@@ -533,6 +539,7 @@ import loginOut from "@/assets/card-imgs/loginout.png";
 import updatepwd from "@/assets/card-imgs/updatepwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
+import store from "../../store";
 const TabWidth = 100; // tab固定宽度
 const cardWidth = 168; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
@@ -921,6 +928,8 @@ export default {
                 data.turnoverCnt,
                 data.topNum
               ),
+              mustDisabled: this.getMustDisabled(data.seatId, item.regionId, data.disable_must_order),
+
               // 是否显示卡台的操作按钮选项
               // showOption: this.card.cardList[index] && this.card.cardList[index].showOption
               showOption:
@@ -1065,6 +1074,38 @@ export default {
       }
     },
 
+    getMustDisabled(seatId,regionId, disable_must_order) {
+      // console.log('getMustDisabled'.repeat(10), seatId,regionId, disable_must_order)
+      let hasMust = false
+
+      let areaInfo = store.state.cardPageInfo.resResultDataObj.areaInfo.find(el => el.id == regionId)
+      if (areaInfo) {
+        if (areaInfo.mustOrderPrdId * 1 > 0 || areaInfo.mustOrderPrdId2 * 1 > 0 || areaInfo.mustOrderPrdId3 * 1 > 0) {
+          hasMust = false
+        } else {
+          hasMust = true
+        }
+      }
+
+      if(hasMust) {
+        if (disable_must_order * 1 === 1){
+          return true
+        } else if ( disable_must_order * 1 === 2) {
+          return false
+        }
+        // const bd = this.$store.state.cardPageInfo.resResultDataObj.businessData.find(el=> el.seatId * 1 === cardId * 1)
+        // if(bd) {
+        //   if(bd.disable_must_order * 1 === 1){
+        //     return true
+        //   } else if (bd.disable_must_order * 1 === 2){
+        //     return false
+        //   }
+        // }
+      } else {
+        return true
+      }
+      return true
+    },
     // 获取卡台options
     getCardOptions(status, platform_id, showOnlineText, turnoverCnt, topNum) {
       // 卡台状态status：1 空台 2 锁定 3 预订 4 开台 5 点单未结账 6 部分结账 7 已结账 8 小程序预留 22 无效 33 删除
@@ -1103,7 +1144,7 @@ export default {
             this.modelVisible || this.dateTab.activeIndex != 0 ? [] : [6];
           break;
         case 4: // 开台
-          optionsIdArr = [10, 11, 7, 12, 14, 4, 20, 21, 23];
+          optionsIdArr = [10, 11, 7, 12, 14, 4, 20, 21, 23, 24];
           break;
         case 5: // 点单未结账
           optionsIdArr = [10, 11, 7, 14, 4, 20,21, 23];
@@ -1292,6 +1333,31 @@ export default {
           } catch (error) {
             console.log(error);
             this.$message.warning("临时转为线下卡台失败");
+          }
+          return;
+        case 24:
+          if (cardInfo.mustDisabled) {
+            return
+          }
+          try {
+            this.showConfirmHandle(
+                "取消必点商品",
+                "是否确认取消必点商品?",
+            async() => {
+
+              const res = await api_card.disable_csm_must_ord({
+                id: Number(cardInfo.id), // int64  待操作卡台Id
+              });
+              if (res.code == 1) {
+                cardInfo.mustDisabled = true
+                this.$message.success("取消必点商品成功");
+              } else {
+                this.$message.warning(res.msg);
+              }
+            })
+          } catch (error) {
+            console.log(error);
+            this.$message.warning("取消必点商品失败");
           }
           return;
         case 23:

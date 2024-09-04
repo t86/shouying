@@ -114,6 +114,7 @@ export default {
 
   // 咨客台取消置顶卡台,将常用卡台置顶便于操作
   reqCancelTopCard: params => axios.post(`${base.htgl}/bk/cancel_top_seat_dsp`, params),
+  disable_csm_must_ord: params => axios.post(`${base.htgl}/bk/disable_csm_must_ord`, params),
 
   /**
    * 修改卡台标记
