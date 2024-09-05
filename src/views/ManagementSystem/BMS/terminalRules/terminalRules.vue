@@ -120,6 +120,14 @@
           ></el-switch>
         </div>
       </div>
+      <h4 class="m-b-2 m-t-3">卡台绑定服务员配置</h4>
+      <div class="fs14">
+        <el-radio-group v-model="csm_waiter_flag" class="m-l-4 m-t-4">
+          <el-radio :label="1">不带出</el-radio>
+          <el-radio :label="2">带出</el-radio>
+          <el-radio :label="3">当前营业日带出</el-radio>
+        </el-radio-group>
+      </div>
     </div>
     <div style="
       position: fixed;
@@ -153,6 +161,7 @@ export default {
       orderAutoMake: true, // 下单自动出品 true自动 false不自动
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
       notShowAmt: false,  // 是否不显示金额
+      csm_waiter_flag: 1,
       scanOrderMustDx: false,
       timeoutAutoBack: false,
       timeoutAutoBackTime: 0,
@@ -208,6 +217,7 @@ export default {
           this.notShowAmt = res.data.limit_book_csm_amt == 1
           this.scanOrderMustDx = res.data.scan_order_must_dx == 1
           this.canClearCard = res.data.book_no_clean_seat == 1
+          this.csm_waiter_flag = res.data.csm_waiter_flag
           this.orderAutoMake = res.data.order_auto_mk == 1
           this.disableChgPass = res.data.disable_chg_pass == 1
           this.timeoutAutoBack = res.data.cust_scan_order_timeout !== 0
@@ -233,7 +243,9 @@ export default {
         order_auto_mk: this.orderAutoMake ? 1 : 2, // int   是否下单自动开启 1 开启 2 关闭
         disable_chg_pass: this.disableChgPass ? 1 : 2, // int   是否禁止自助修改密码 1 开启 2 关闭
         scan_order_must_dx: this.scanOrderMustDx ? 1 : 2,
-        cust_scan_order_timeout: this.timeoutAutoBack ? this.timeoutAutoBackTime * 1 : 0
+        cust_scan_order_timeout: this.timeoutAutoBack ? this.timeoutAutoBackTime * 1 : 0,
+        csm_waiter_flag: this.csm_waiter_flag
+
 
       };
 
