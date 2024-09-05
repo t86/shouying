@@ -1,6 +1,6 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202408281511",
+  "version": "1.0.202409051321",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -41,6 +41,7 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "autoprefixer": "^9.8.8",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-decorators": "^6.24.1",
@@ -52,8 +53,10 @@
     "html-webpack-plugin": "^4.5.0",
     "less-loader": "^5.0.0",
     "node-sass": "^7.0.0",
+    "postcss": "^7.0.39",
     "script-loader": "^0.7.2",
     "style-loader": "^3.3.1",
+    "tailwindcss": "^1.9.6",
     "vue-hot-reload-api": "^2.3.4",
     "vue-loader": "^15.9.8",
     "vue-template-compiler": "^2.6.11",

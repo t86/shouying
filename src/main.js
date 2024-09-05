@@ -4,6 +4,7 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./style/common/elementDateTimePicker.less";
 
+
 import { projectName } from "./utils/config/projectConfig";
 import VConsole from "vconsole";
 import { globalError } from "./utils/globalError";
@@ -11,6 +12,7 @@ import { globalError } from "./utils/globalError";
 import './style/autocomplete.less' // 导入 CSS 文件
 import "./style/base.less";
 import "./style/flex.less";
+import './assets/css/main.css';
 
 import { sessionStorage, localStorage } from "./utils/common/storage";
 import WebSocketClient from "./websocket/websocket";
@@ -65,12 +67,10 @@ Vue.config.productionTip = false;
 import VueClipboard from "vue-clipboard2";
 Vue.use(VueClipboard);
 
-
 Vue.config.errorHandler = function (err, vm, info) {
   console.error(err);
   globalError.handleError(err);
 }
-
 
 router.beforeEach((to, from, next) => {
   // store.dispatch('setLoading', true); 
@@ -138,3 +138,5 @@ Vue.prototype.$websocket = new WebSocketClient(
     render: (h) => h(App),
   }).$mount("#app")
 );
+
+

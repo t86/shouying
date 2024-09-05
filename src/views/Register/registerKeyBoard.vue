@@ -2,7 +2,7 @@
   <div class="keyboard">
     <ul>
       <li v-for="item in keyBoardData" :key="item.id" layout="row" layout-align="center center">
-        <div class="item" :class="{'active': items.click}" v-for="items in item" :key="items.id" @click.stop="clickKeyBoardHandle(items)">
+        <div class="item flex items-center justify-center" :class="{'active': items.click}" v-for="items in item" :key="items.id" @click.stop="clickKeyBoardHandle(items)">
           <img v-if="items.icon" :src="items.icon" alt="">
           <span :class="{'hasIcon': items.icon}">{{items.name}}</span>
         </div>

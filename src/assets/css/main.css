@@ -1,0 +1,9 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* 您的自定义样式 */
+.table {
+    display: table;
+    width: 100%;
+}

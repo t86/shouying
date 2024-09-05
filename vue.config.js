@@ -33,6 +33,14 @@ module.exports = {
       filename: `css/[name].${packageJson.version}.css`,
       chunkFilename: `css/[name].${packageJson.version}.css`,
     },
+    loaderOptions: {
+      postcss: {
+        plugins: [
+          require('tailwindcss'),
+          require('autoprefixer')
+        ]
+      }
+    }
   },
   chainWebpack: (config) => {
     // 解决 页面中的空格占位符被清除的问题
