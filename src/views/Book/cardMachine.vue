@@ -1075,9 +1075,6 @@ export default {
     },
 
     getMustDisabled(seatId,regionId, disable_must_order) {
-      console.log('-'.repeat(10), seatId,regionId, disable_must_order)
-      console.log(seatId, disable_must_order)
-
       let hasMust = false
 
       let areaInfo = store.state.cardPageInfo.resResultDataObj.areaInfo.find(el => el.id == regionId)
