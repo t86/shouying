@@ -1075,15 +1075,17 @@ export default {
     },
 
     getMustDisabled(seatId,regionId, disable_must_order) {
-      // console.log('getMustDisabled'.repeat(10), seatId,regionId, disable_must_order)
+      console.log('-'.repeat(10), seatId,regionId, disable_must_order)
+      console.log(seatId, disable_must_order)
+
       let hasMust = false
 
       let areaInfo = store.state.cardPageInfo.resResultDataObj.areaInfo.find(el => el.id == regionId)
       if (areaInfo) {
         if (areaInfo.mustOrderPrdId * 1 > 0 || areaInfo.mustOrderPrdId2 * 1 > 0 || areaInfo.mustOrderPrdId3 * 1 > 0) {
-          hasMust = false
-        } else {
           hasMust = true
+        } else {
+          hasMust = false
         }
       }
 
@@ -1102,9 +1104,9 @@ export default {
         //   }
         // }
       } else {
-        return true
+        return false
       }
-      return true
+      return false
     },
     // 获取卡台options
     getCardOptions(status, platform_id, showOnlineText, turnoverCnt, topNum) {
