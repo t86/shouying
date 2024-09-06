@@ -120,7 +120,12 @@
           ></el-switch>
         </div>
       </div>
-      <h4 class="m-b-2 m-t-3">卡台绑定服务员配置</h4>
+      <h4
+          class="m-b-2 m-t-3">卡台绑定服务员配置
+          <el-tooltip class="item" effect="dark" content="不带出:每次开台需要重新绑定服务员 带出: 每次开台带出上次绑定的服务员(不受营业日影响) 当前营业带出:每次开台带出上次绑定的服务员(仅当前营业日有效)" placement="bottom">
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+      </h4>
       <div class="fs14">
         <el-radio-group v-model="csm_waiter_flag" class="m-l-4 m-t-4">
           <el-radio :label="1">不带出</el-radio>
