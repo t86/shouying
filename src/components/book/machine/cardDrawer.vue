@@ -1168,6 +1168,19 @@ export default {
             waiters: [],
             waiter_status_arr: [2, 23],
           }
+          let waiterConfigs = this.$store.state.cardPageInfo.resResultDataObj["waiterConfig"]
+          if(waiterConfigs && waiterConfigs.length > 0) {
+            let currentWaiter = waiterConfigs.find(item=> item.seat_id*1 === this.cardId*1)
+            if (currentWaiter) {
+              let emp_id = currentWaiter.waiter_emp_id;
+              this.formData.waiter.waiter_emp_id = emp_id
+              const all_emps = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
+              let finder = all_emps.find(item=>item.id * 1 === emp_id * 1)
+              if(finder) {
+                this.formData.waiter.waiter_name = finder.name
+              }
+            }
+          }
           break;
         case 7: // 转台   newVal.bizStatus:  3：预定转台   4：开台转台
           this.formData.changeCard.originAmt = newVal.assignMinCsmAmt; // 老卡台被修改过的低消
@@ -1396,6 +1409,7 @@ export default {
   },
   watch: {
     showDrawer(newVal) {
+      console.log('showDrawer', newVal, this.formStatus)
       this.show = newVal;
       if (newVal && this.formStatus == 14) {
         const saleInfo =
