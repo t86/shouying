@@ -1092,16 +1092,8 @@ export default {
         } else if ( disable_must_order * 1 === 2) {
           return false
         }
-        // const bd = this.$store.state.cardPageInfo.resResultDataObj.businessData.find(el=> el.seatId * 1 === cardId * 1)
-        // if(bd) {
-        //   if(bd.disable_must_order * 1 === 1){
-        //     return true
-        //   } else if (bd.disable_must_order * 1 === 2){
-        //     return false
-        //   }
-        // }
       } else {
-        return false
+        return true
       }
       return false
     },
