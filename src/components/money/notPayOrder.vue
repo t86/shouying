@@ -5,7 +5,7 @@
       <div class="thead">
         <div class="tr">
           <div class="th" layout="row" layout-align="start center">
-            <input type="checkbox" class="w-12" v-model="checkoutAll" @change="chooseOrder($event, '', 'all')" />
+            <input type="checkbox" class="w-12 h-5" v-model="checkoutAll" @change="chooseOrder($event, '', 'all')" />
             <span style="white-space:nowrap">全选</span>
           </div>
           <div class="th w-30">状态</div>
@@ -33,7 +33,7 @@
                 <div class="td" layout="row" layout-align="start center">
                   <input
                     type="checkbox"
-                    class="m-r-1 w-12"
+                    class="m-r-1 w-12 h-5"
                     :disabled="item.resultNotPayData.every(items=>items.back)"
                     v-model="item.checkout"
                     @change="chooseOrder($event,item,'item')"
@@ -157,7 +157,7 @@
                 <div class="td" layout="row" layout-align="start center">
                   <input
                     type="checkbox"
-                    class="m-r-1 w-12"
+                    class="m-r-1 w-12 h-5"
                     :disabled="item.back"
                     v-model="item.checkout"
                     @change="chooseOrder($event, item, 'item')"
