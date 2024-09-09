@@ -327,10 +327,15 @@ export default {
     },
     changeCheckBox(itemInfo) {
       this.selectedInfo = { ...itemInfo };
+      console.log('changeCheckBox', '.'.repeat(50), this.selectedInfo)
       this.tableData = this.tableData.map((item) => ({
         ...item,
         checked: item.id == itemInfo.id,
       }));
+
+      this.phoneNum = itemInfo.p
+      this.customName = itemInfo.n
+
       this.emitStepOneInfoHandle();
     },
 
@@ -422,15 +427,23 @@ export default {
   watch: {
     stepOneInfo: {
       handler(newVal) {
+        console.log('new val:', newVal)
         this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
         this.selectedInfo = this.tableData.find((item) => item.checked) || {};
         this.tabIndex = newVal.tabIndex;
         this.validateVal = newVal.validateVal;
-        this.customPhoneNum = newVal.customPhoneNum;
-        this.customPhoneName = newVal.customPhoneName;
-        this.phoneNum = newVal.phoneNum;
-        this.customName = newVal.customName;
+
+        // this.customPhoneNum = newVal.customPhoneNum;
+        // this.customPhoneName = newVal.customPhoneName;
+        // this.phoneNum = newVal.phoneNum;
+        // this.customName = newVal.customName;
+
+        this.phoneNum = this.selectedInfo.p
+        this.customName = this.selectedInfo.n
+        this.customPhoneNum = this.selectedInfo.p
+        this.customPhoneName = this.selectedInfo.n
+
         this.authValidateVal = newVal.authValidateVal;
         this.superValidate = newVal.superValidate;
       },
