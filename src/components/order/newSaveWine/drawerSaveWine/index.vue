@@ -110,6 +110,17 @@ export default {
             })
           );
           this.stepOneInfo.needAuthPhoneVal = res.data.cust_in_need_sms == 1;
+
+          if(this.stepOneInfo.orderList.length > 0){
+            this.stepOneInfo.phoneNum = this.stepOneInfo.orderList[0].p
+            this.stepOneInfo.phoneNumMask = this.stepOneInfo.orderList[0].mp
+            this.stepOneInfo.customName = this.stepOneInfo.orderList[0].n
+
+            this.stepOneInfo.customPhoneNum = this.stepOneInfo.orderList[0].p
+            this.stepOneInfo.customPhoneNumMask = this.stepOneInfo.orderList[0].mp
+            this.stepOneInfo.customPhoneName = this.stepOneInfo.orderList[0].n
+          }
+
         } else {
           this.$message.warning(res.msg);
         }

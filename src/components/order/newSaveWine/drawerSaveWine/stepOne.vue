@@ -87,14 +87,19 @@
                     <span>手机号码</span>
                   </div>
                   <div class="value">
-                    <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
+                    <input v-if="phoneNumMask === ''" v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
                       @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
-                    <el-button v-if="stepOneInfo.needAuthPhoneVal" style="position: absolute; left: 280px;background: #374368;
-      box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
-      border-radius: 8px;font-size: 20px;
-    font-family: PingFangSC, PingFang SC;
-    font-weight: 500;
-    color: #FFFFFF;" :type="count == 0 ? 'primary' : 'info'" :disabled="count != 0" size="small"
+                    <input v-else v-model="phoneNumMask" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
+                           @input="" placeholder="请输入手机号2" />
+
+                    <el-button v-if="stepOneInfo.needAuthPhoneVal" style="
+                    position: absolute; left: 280px;background: #374368;
+                                        box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,0.3);
+                                        border-radius: 8px;font-size: 20px;
+                                        font-family: PingFangSC, PingFang SC;
+                                        font-weight: 500;
+                                        color: #FFFFFF;"
+                               :type="count == 0 ? 'primary' : 'info'" :disabled="count != 0" size="small"
                       @click="sendPhoneMessage">{{ btnText }}</el-button>
                   </div>
                 </div>
@@ -120,8 +125,10 @@
                     <span>手机号码</span>
                   </div>
                   <div class="value">
-                    <input v-model="customPhoneNum" :class="{ focus: focus == 4 }" @click="focus = 4"
+                    <input v-if="customPhoneNumMask===''" v-model="customPhoneNum" :class="{ focus: focus == 4 }" @click="focus = 4"
                       @input="emitStepOneInfoHandle" placeholder="请输入客户手机号" />
+                    <input v-else v-model="customPhoneNumMask" :class="{ focus: focus == 4 }" @click="focus = 4"
+                           @input="" placeholder="请输入客户手机号" />
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
@@ -180,9 +187,13 @@ export default {
       tabIndex: 1,
       authValidateVal: "", // 服务码
       phoneNum: "", // 手机号
+      phoneNumMask: '',
       validateVal: "", // 验证码
+
       customPhoneNum: "", // 客户手机号
+      customPhoneNumMask: "",
       customPhoneName: "", // 客户中心客户姓名
+
       superValidate: "", // 超级授权码
       customName: "", // 客户名称
     };
@@ -312,7 +323,15 @@ export default {
       else if (this.focus == 5) count = "superValidate";
       switch (value) {
         case 10: // 清空
+          console.log(count)
           this[count] = "";
+          if(count === "phoneNum"){
+            this.phoneNumMask = ""
+            this.stepOneInfo.phoneNumMask = ''
+          } else if (count === 'customPhoneNum') {
+            this.customPhoneNumMask = ""
+            this.stepOneInfo.customPhoneNumMask = ''
+          }
           break;
         case 12: // 回退(
           this[count] =
@@ -326,8 +345,8 @@ export default {
       this.emitStepOneInfoHandle();
     },
     changeCheckBox(itemInfo) {
+      console.log("itemInfo changeCheckBox", itemInfo)
       this.selectedInfo = { ...itemInfo };
-      console.log('changeCheckBox', '.'.repeat(50), this.selectedInfo)
       this.tableData = this.tableData.map((item) => ({
         ...item,
         checked: item.id == itemInfo.id,
@@ -335,6 +354,20 @@ export default {
 
       this.phoneNum = itemInfo.p
       this.customName = itemInfo.n
+      this.phoneNumMask = itemInfo.mp
+
+      this.customPhoneNum = itemInfo.p
+      this.customPhoneName = itemInfo.n
+      this.customPhoneNumMask =itemInfo.mp
+
+
+      this.stepOneInfo.phoneNum = itemInfo.p
+      this.stepOneInfo.customName = itemInfo.n
+      this.stepOneInfo.phoneNumMask = itemInfo.mp
+
+      this.stepOneInfo.customPhoneNum = itemInfo.p
+      this.stepOneInfo.customPhoneName = itemInfo.n
+      this.stepOneInfo.customPhoneNumMask = itemInfo.mp
 
       this.emitStepOneInfoHandle();
     },
@@ -427,22 +460,20 @@ export default {
   watch: {
     stepOneInfo: {
       handler(newVal) {
-        console.log('new val:', newVal)
+        console.log("stepOneInfo watch,", newVal)
         this.getRectVal();
         this.tableData = JSON.parse(JSON.stringify(newVal.orderList));
         this.selectedInfo = this.tableData.find((item) => item.checked) || {};
         this.tabIndex = newVal.tabIndex;
         this.validateVal = newVal.validateVal;
 
-        // this.customPhoneNum = newVal.customPhoneNum;
-        // this.customPhoneName = newVal.customPhoneName;
-        // this.phoneNum = newVal.phoneNum;
-        // this.customName = newVal.customName;
+        this.customPhoneNum = newVal.customPhoneNum;
+        this.customPhoneName = newVal.customPhoneName;
+        this.customPhoneNumMask = newVal.customPhoneNumMask
 
-        this.phoneNum = this.selectedInfo.p
-        this.customName = this.selectedInfo.n
-        this.customPhoneNum = this.selectedInfo.p
-        this.customPhoneName = this.selectedInfo.n
+        this.phoneNum = newVal.phoneNum;
+        this.phoneNumMask = newVal.phoneNumMask
+        this.customName = newVal.customName;
 
         this.authValidateVal = newVal.authValidateVal;
         this.superValidate = newVal.superValidate;
