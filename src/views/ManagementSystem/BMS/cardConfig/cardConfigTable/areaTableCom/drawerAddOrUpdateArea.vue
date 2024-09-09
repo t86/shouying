@@ -126,7 +126,20 @@ export default {
     getChoosePrdHandle(info){
       console.log("getChoosePrdHandle", info)
       // this.choosePrdInfo = {...info}
-      this.musts = info
+      // this.musts = new Set([...this.musts, ...info])
+
+      let toInsert = []
+      for(let i of info){
+        let idx = this.musts.findIndex(item => item.id === i.id)
+        if (idx === -1){
+          toInsert.push(i)
+        }
+      }
+      if (this.musts.length  + toInsert.length > 3) {
+        this.$message.warning("做多支持3个必点商品")
+        return
+      }
+      this.musts = [...this.musts, ...toInsert]
     },
 
     async onSubmit() {
