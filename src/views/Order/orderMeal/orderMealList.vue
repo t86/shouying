@@ -24,6 +24,7 @@
     <div v-else class="order-meal-list">
       <mealNav @updateProductsList="updateProductsList"/>
       <productList
+        :mustOrderProducts="mustOrderProducts"
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
       />
@@ -42,11 +43,15 @@ export default {
       isYH2: false, // 是否是优惠2点餐
       isGQ: false, // 是否是估清
       allProductsList: [],
-      currentCategoryProductList: []
+      currentCategoryProductList: [],
+      mustOrderProducts: []
     };
   },
   methods: {
     updateProductsList({ key, value }) {
+      if(this.mustOrderProducts.length > 0) {
+        return
+      }
       this[key] = value;
     }
   },
@@ -61,7 +66,23 @@ export default {
     productListYH,
     productListGQ
   },
-  filters: {}
+  filters: {},
+  created() {
+    const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
+    const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
+
+    this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
+      id: id,
+      name: mustPrdNames[index] || ''
+    }));
+
+    // 使用 this.mustOrderProducts 进行后续处理
+    if(this.mustOrderProducts.length > 0) {
+      this.mustOrderProducts.forEach(item => {
+        this.allProductsList.push(item)
+      })
+    }
+  }
 };
 </script>
 

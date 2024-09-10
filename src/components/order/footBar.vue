@@ -447,7 +447,7 @@ export default {
             name: item.routeName,
             query: {
               give: this.$route.query.give,
-              mustOrderPrdId: item.mustOrderPrdId,
+              mustOrderPrdId: item.mustOrderPrdId  + item.mustOrderPrdId2  && (',' + item.mustOrderPrdId2) + item.mustOrderPrdId3 && (',' + item.mustOrderPrdId3),
               mustPrdName: item.mustPrdName,
             },
           },

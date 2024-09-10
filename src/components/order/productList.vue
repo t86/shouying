@@ -225,7 +225,7 @@ import search from "@/assets/order-img/search-icon.png";
 import mealDrawer from "@/components/order/newDrawerMeal";
 import ImagePreview from "@/components/ImagePreview"
 import common_order from "@/utils/common/order";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, iteratee } from "lodash-es";
 import Observer, { BIND_EMP } from "@/observer";
 
 // 键盘码 keycode
@@ -628,8 +628,21 @@ export default {
     },
 
     getPageData(page = 1) {
+    
       this.page = page;
-      const { keyWord } = this.search;
+      if(this.mustOrderProducts && this.mustOrderProducts.length > 0) {
+        this.productsListTotal = this.mustOrderProducts
+        this.productsList = this.productsListTotal || []
+        this.productsList = this.productsList.map(it => {
+          const prdInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
+          item => it.id * 1 == item.id * 1 );
+          if(prdInfo) {
+            it = {...prdInfo, isMustPrd:true, canOrderMeal: true }
+          }
+          return it
+        });
+      } else {
+        const { keyWord } = this.search;
 
       this.productsListTotal =
         keyWord === ""
@@ -654,6 +667,8 @@ export default {
       */
 
       this.productsList = this.productsListTotal || []
+      }
+
 
       if(this.redeem == 0) {
         this.productsList = this.productsList.filter((item, index) => {
@@ -734,15 +749,74 @@ export default {
       })
     },
 
-    // scrollHandle() {
-    //   const pageHeight = this.$refs.cardListRef.offsetHeight;
-    //   const clientHeight = this.$refs.productListRef.offsetHeight;
-    //   const scrollTop = this.$refs.productListRef.scrollTop;
-    //   if (pageHeight - clientHeight - scrollTop < 20) {
-    //     this.page += 1;
-    //     if (this.page <= this.totalPage) this.getPageData(this.page);
-    //   }
-    // },
+    
+    // 服务员/收银加入购物车
+    async orderMealToShoppingCart() {
+      const params = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
+        prd_id: this.productInfo.id * 1, //  int64  商品Id
+        prd_cnt: this.count * 1, //  int   商品数量
+        prd_price: this.productInfo.price, //  string  商品单价,用于做二次验证
+        prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
+        requirement: this.requestInfoArr.join(";"), // string  要求
+      };
+      if (this.productInfo.prdType == 2) {
+        // 选择套餐
+        this.$emit("changeType", 2);
+        this.$emit("setSingleInfo", params);
+      } else if (
+        this.productInfo.prdType == 3 ||
+        this.productInfo.prdType == 4 ||
+        this.productInfo.prdType == 13 ||
+        this.productInfo.prdType == 14 ||
+        this.productInfo.prdType == 8
+      ) {
+        // 添加存货花篮特饮3/普通花篮特饮8、小费4  13:定价花篮  14：定价小费
+        if (
+          !this.amt &&
+          this.productInfo.prdType != 13 &&
+          this.productInfo.prdType != 14
+        )
+          return this.$message.warning("请输入金额");
+
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
+          prd_id: this.productInfo.id * 1, // int64   商品Id
+          prd_cnt: this.count * 1, //  int    商品数量 小费类商品只能=1
+          prd_amt:
+            this.productInfo.prdType == 13 || this.productInfo.prdType == 14
+              ? ""
+              : this.amt.toString(), //  string  商品金额 普通商品,定价花篮(13),定价小费(14)不要传金额(空)(系统会自动计算), 时价花篮(3)/时价小费(4) 需传金额
+          requirement: this.requestInfoArr.join(";"), // string   要求
+          relate_csm_id: 0, // int64  关联流水Id(用于补交),没有填0
+        };
+
+        try {
+          const res = await api_order.reqAddAmtToShopping(params);
+          if (res.code == 1) {
+            this.$message.success("加入购物车成功");
+            this.$store.dispatch("getShoppingCount", this);
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
+          }
+        } catch (error) {
+          console.log("加入购物车授权失败", error);
+        }
+      } else {
+        // 正常商品添加购物车
+        try {
+          const res = await api_order.reqAddProductToShopping(params);
+          if (res.code === 1) {
+            this.$message.success("加入购物车成功");
+            this.$store.dispatch("getShoppingCount", this);
+            this.onCancelDrawer();
+          } else this.$message.warning(res.msg);
+        } catch (error) {
+          console.log("加入购物车失败", error);
+        }
+      }
+    },
 
     // 点击放大镜放大图片
     clickDescImage(item) {
@@ -759,6 +833,7 @@ export default {
     },
     // 点击商品/套餐
     setMealForProduct(productInfo) {
+
       if(this.redeem != 0) {
         console.log('product', productInfo)
         this.currentProductInfo = {...productInfo, type:2, requireInfo:[]};
@@ -777,7 +852,7 @@ export default {
         this.currentProductInfo = productInfo;
         this.showOrHideDrawer(true);
       }
-      
+
     },
 
     showOrHideDrawer(value) {
@@ -977,6 +1052,9 @@ export default {
     },
     step :{
       default: 0 //step 3 线下核销， 1 扫码核销 ， 2输入券码核销
+    },
+    mustOrderProducts: {
+      default: []
     }
   },
   computed: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="nav" :style="customStyle" layout="row" layout-align="start start" >
+  <div class="nav" :style="customStyle" layout="row" layout-align="start start" v-if="!isMustPrd">
     <div class="nav-left">
       <div class="ul first-menu" ref="firstMenuRef"
         :style="{ 'height': isRect ? 'calc(100vh - 120px)' : 'calc(100vh - 180px)' }">
@@ -59,7 +59,8 @@ export default {
       productListAll: [], // 当前有效可点的商品/套餐列表
       imgSrc: {
         arrow
-      }
+      },
+      isMustPrd: false
     };
   },
   methods: {
@@ -120,14 +121,17 @@ export default {
 
     // 通过购物车中未点商品定位商品
     getMustPrdInfo() {
-      const prdId = this.$route.query.mustOrderPrdId;
+      const prdIds = this.$route.query.mustOrderPrdId.split(',');
       const prdInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
-        item => item.id == prdId
+        item => prdIds.includes(item.id.toString()) 
       );
-      this.changeFirstCategory(prdInfo.oneCateId);
-      this.getCurrentProductList(prdInfo.twoCateId);
-      this.firstCategoryActiveId = prdInfo.oneCateId;
-      this.secondCategoryActiveId = prdInfo.twoCateId;
+      // this.changeFirstCategory(prdInfo.oneCateId);
+      // this.getCurrentProductList(prdInfo.twoCateId);
+      // this.firstCategoryActiveId = prdInfo.oneCateId;
+      // this.secondCategoryActiveId = prdInfo.twoCateId;
+      // if(prdInfo) {
+      //   this.isMustPrd = true
+      // }
     }
   },
   created() {
