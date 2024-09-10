@@ -236,7 +236,7 @@ export default {
       logoutCount: 3, // 倒计时秒数
 
       authId: "", // 用户id
-      mustOrderPrdId: "", // 必点商品id
+      mustOrderPrdIds: [], // 必点商品id列表
       shoppingCartList: [], // 购物车列表数据
       updateDetail: {
         // 修改套餐明细
@@ -400,21 +400,21 @@ export default {
     // 下单 callback 为下单并买单的标识
     async submitShoppingCart(callback) {
       if (!this.canOrder) {
-        const prdInfo =
-          this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
-            (item) => item.id == this.mustOrderPrdId
+        const prdInfos =
+          this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.filter(
+            (item) => this.mustOrderPrdIds.includes(item.id)
           );
-        if (!prdInfo) return this.$message.warning("未找到必点商品");
+          if (!prdInfos || prdInfos.length == 0) return this.$message.warning("未找到必点商品");
         this.$parent.$children[0] &&
           this.$parent.$children[0].footNavBarClick &&
           this.$parent.$children[0].footNavBarClick({
             id: 2,
             name: "商品菜单",
             routeName: "orderMealList",
-            mustOrderPrdId: this.mustOrderPrdId,
-            mustPrdName: prdInfo.name,
+            mustOrderPrdId: this.mustOrderPrdIds.join(','),
+            mustPrdName: prdInfos.map(item => item.name).join(','),
           });
-        return this.$message.warning(`需要点“${prdInfo.name}”才可下单`);
+          return this.$message.warning(`需要点“${prdInfos.map(item => item.name).join(',')}”才可下单`);
       }
       this.showTips = true;
       // this.$confirm("确认下单吗？", "下单", {
@@ -754,16 +754,25 @@ export default {
       const currentCardAreaId =
         this.$store.state.orderInfo.currentCardInfo.regionId;
       const item = this.$store.state.cardPageInfo.resResultDataObj.areaInfo.find((item) => item.id == currentCardAreaId)
-      this.mustOrderPrdId = item ? item.mustOrderPrdId : 0;
+      this.mustOrderPrdIds = []
+      if(item) {
+        if(item.mustOrderPrdId && item.mustOrderPrdId * 1 != 0) {
+          this.mustOrderPrdIds.push(item.mustOrderPrdId)
+        }
+        if(item.mustOrderPrdId2 && item.mustOrderPrdId2 * 1 != 0) {
+          this.mustOrderPrdIds.push(item.mustOrderPrdId2)
+        }
+        if(item.mustOrderPrdId3 && item.mustOrderPrdId3 * 1 != 0) {
+          this.mustOrderPrdIds.push(item.mustOrderPrdId3)
+        }
+      }
       if (
         this.$store.state.orderInfo.currentCardInfo.bizStatus == 4 &&
         this.$store.state.orderInfo.currentCardInfo.bizType != 3 &&
-        this.mustOrderPrdId != 0
+        this.mustOrderPrdIds != 0
       ) {
         // 第一次下单，判断是否点了必点商品
-        return this.shoppingCartList.find(
-          (item) => item.pid == this.mustOrderPrdId
-        );
+        return this.mustOrderPrdIdss.every(item => this.shoppingCartList.map(item => item.pid).includes(item *1))
       } else {
         return true;
       }
