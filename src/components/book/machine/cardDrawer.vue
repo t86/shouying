@@ -1221,8 +1221,13 @@ export default {
           break
         case 23:
           this.formData.waiter.waiter_emp_id = this.cardInfo.waiter_emp_id
+            console.log(this.cardInfo.waiter_emp_id)
           let p = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.find(item=>item.id === this.cardInfo.waiter_emp_id)
-          this.formData.waiter.waiter_name = p.name
+            if (p) {
+              this.formData.waiter.waiter_name = p.name
+            } else {
+              this.formData.waiter.waiter_name = ""
+            }
 
           break
       }
