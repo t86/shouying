@@ -159,7 +159,7 @@ export default {
   color: rgba(255, 255, 255, 0.8);
   padding: 20px;
   .table{
-    height: calc(100vh - 200px);
+    height: calc(100vh - 230px);
     overflow: auto;
     font-size: 14px;
     width: 100%;
