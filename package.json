@@ -1,6 +1,6 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202409091653",
+  "version": "1.0.202409111804",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -8,11 +8,12 @@
     "build-dev": "vue-cli-service build  --mode development && node build.js",
     "build-local": "vue-cli-service build  --mode local && node build.js",
     "build-production": "vue-cli-service build  --mode production",
-    "prod": "vue-cli-service build  --mode store && node build.js",
+    "prod": "node --max-old-space-size=8096 node_modules/@vue/cli-service/bin/vue-cli-service.js build  --mode store --verbose && node build.js",
     "test": "webpack-dev-server --config webpack.config.js",
     "webpack": "webpack --config webpack.config.js",
     "start": "webpack-dev-server --hot --inline --progress --open",
-    "version": "node build.js"
+    "version": "node build.js",
+    "prebuild": "npx update-browserslist-db@latest"
   },
   "dependencies": {
     "axios": "^0.24.0",
@@ -23,6 +24,7 @@
     "js-md5": "^0.7.3",
     "less": "^4.1.3",
     "lodash-es": "^4.17.21",
+    "managementsystem": "file:",
     "url-loader": "^4.1.1",
     "vconsole": "^3.15.0",
     "vue": "^2.6.11",
@@ -56,7 +58,7 @@
     "postcss": "^7.0.39",
     "script-loader": "^0.7.2",
     "style-loader": "^3.3.1",
-    "tailwindcss": "^1.9.6",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
     "vue-hot-reload-api": "^2.3.4",
     "vue-loader": "^15.9.8",
     "vue-template-compiler": "^2.6.11",
