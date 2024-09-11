@@ -103,5 +103,9 @@ a {
   z-index: 1111;
   color: #9c9c9c!important;
 }
+.el-drawer__body {
+  flex: unset;
+  overflow: scroll;
+}
 
 </style>
