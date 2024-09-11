@@ -55,6 +55,7 @@
               <div class="th">消费金额</div>
               <div class="th">操作人</div>
               <div class="th">操作时间</div>
+              <div class="th">修改理由</div>
             </div>
           </div>
           <div class="tbody">
@@ -74,6 +75,7 @@
               <div class="td">{{item.oa}}</div>
               <div class="td">{{item.oe}}</div>
               <div class="td">{{item.ot}}</div>
+              <div class="td">{{item.cr}}</div>
             </div>
             <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
           </div>
