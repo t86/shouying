@@ -487,8 +487,8 @@ export default {
             name: "商品菜单",
             routeName: "orderMealList",
             mustOrderPrdId: res.data.must_order_prds .join(','),
-            // mustPrdName: prdInfos.map(item => item.name).join(','),
           });
+          this.$message.warning(`需要点必点商品才可下单`);
         } else {
           this.$message.warning(res.msg);
         }
