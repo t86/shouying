@@ -127,7 +127,7 @@
               下单并买单
             </button>
             <button style="width: 100px" class="right-btns" @click.stop="submitShoppingCart('')">
-              {{ canOrder ? "立即下单" : "未点必须商品" }}
+              立即下单
             </button>
           </div>
         </div>
@@ -399,23 +399,23 @@ export default {
 
     // 下单 callback 为下单并买单的标识
     async submitShoppingCart(callback) {
-      if (!this.canOrder) {
-        const prdInfos =
-          this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.filter(
-            (item) => this.mustOrderPrdIds.includes(item.id)
-          );
-        if (!prdInfos || prdInfos.length == 0) return this.$message.warning("未找到必点商品");
-        this.$parent.$children[0] &&
-          this.$parent.$children[0].footNavBarClick &&
-          this.$parent.$children[0].footNavBarClick({
-            id: 2,
-            name: "商品菜单",
-            routeName: "orderMealList",
-            mustOrderPrdId: this.mustOrderPrdIds.join(','),
-            mustPrdName: prdInfos.map(item => item.name).join(','),
-          });
-        return this.$message.warning(`需要点“${prdInfos.map(item => item.name).join(',')}”才可下单`);
-      }
+      // if (!this.canOrder) {
+      //   const prdInfos =
+      //     this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.filter(
+      //       (item) => this.mustOrderPrdIds.includes(item.id)
+      //     );
+      //   if (!prdInfos || prdInfos.length == 0) return this.$message.warning("未找到必点商品");
+      //   this.$parent.$children[0] &&
+      //     this.$parent.$children[0].footNavBarClick &&
+      //     this.$parent.$children[0].footNavBarClick({
+      //       id: 2,
+      //       name: "商品菜单",
+      //       routeName: "orderMealList",
+      //       mustOrderPrdId: this.mustOrderPrdIds.join(','),
+      //       mustPrdName: prdInfos.map(item => item.name).join(','),
+      //     });
+      //   return this.$message.warning(`需要点“${prdInfos.map(item => item.name).join(',')}”才可下单`);
+      // }
       this.showTips = true;
       // this.$confirm("确认下单吗？", "下单", {
       //   distinguishCancelAndClose: true,
@@ -479,6 +479,16 @@ export default {
               this.subSecondLogoutHandle();
             }
           }
+        } else if(res.code == 2){
+          this.$parent.$children[0] &&
+          this.$parent.$children[0].footNavBarClick &&
+          this.$parent.$children[0].footNavBarClick({
+            id: 2,
+            name: "商品菜单",
+            routeName: "orderMealList",
+            mustOrderPrdId: res.data.must_order_prds .join(','),
+            // mustPrdName: prdInfos.map(item => item.name).join(','),
+          });
         } else {
           this.$message.warning(res.msg);
         }
