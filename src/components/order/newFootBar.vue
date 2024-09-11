@@ -1161,7 +1161,6 @@ export default {
             query: {
               give: this.$route.query.give,
               mustOrderPrdId: item.mustOrderPrdId,
-              mustPrdName: item.mustPrdName,
             },
           },
           () => {

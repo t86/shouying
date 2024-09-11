@@ -61,11 +61,9 @@ export default {
   },
   created() {
     const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
-    const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
 
     this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
-      id: id,
-      name: mustPrdNames[index] || ''
+      id: id
     }));
   },
   props: ["String"],

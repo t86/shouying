@@ -448,7 +448,6 @@ export default {
             query: {
               give: this.$route.query.give,
               mustOrderPrdId: item.mustOrderPrdId  + item.mustOrderPrdId2  && (',' + item.mustOrderPrdId2) + item.mustOrderPrdId3 && (',' + item.mustOrderPrdId3),
-              mustPrdName: item.mustPrdName,
             },
           },
           () => {
