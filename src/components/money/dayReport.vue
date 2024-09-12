@@ -4,8 +4,8 @@
       <span>售出日报表</span>
       <i class="el-icon-close" @click="$emit('showOrHideDayReportHandle')"></i>
     </div>
-    <div class="session white" layout="row" layout-align="space-between center">
-      <div class="session-left" layout="row" layout-align="space-around center">
+    <div class="session white" layout="row">
+      <div class="session-left" layout="row">
         <div class="session-left-contain">
           <h4>二级分类</h4>
           <div class="session-left-contain-checkbox">
@@ -43,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div class="session-center" layout="row" layout-align="center center">
+      <div class="session-center" layout="row">
         <div class="session-center-contain">
           <div layout="row" layout-align="start center">
             <span class="m-r-2" style="width: 80px;">打印出品库</span>
@@ -100,6 +100,8 @@
             <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
           </div>
         </div>
+
+
       </div>
     </div>
   </div>
@@ -235,6 +237,7 @@ export default {
         const res = await api_money.reqGetSoldOutRpt(params);
         if (res.code == 1) {
           this.tableData = res.data.records || [];
+          this.tableData = [...this.tableData, ...this.tableData, ...this.tableData, ...this.tableData, ...this.tableData];
           let cnt = res.data.records.reduce((previous, current) => current.c + previous, 0)
           this.tableData.push({n: '合计', c: cnt})
         } else {
