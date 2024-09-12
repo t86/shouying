@@ -237,7 +237,6 @@ export default {
         const res = await api_money.reqGetSoldOutRpt(params);
         if (res.code == 1) {
           this.tableData = res.data.records || [];
-          this.tableData = [...this.tableData, ...this.tableData, ...this.tableData, ...this.tableData, ...this.tableData];
           let cnt = res.data.records.reduce((previous, current) => current.c + previous, 0)
           this.tableData.push({n: '合计', c: cnt})
         } else {
