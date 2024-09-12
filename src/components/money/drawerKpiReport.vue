@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div  class="kpi-report">
     <!-- 业绩日报表 -->
     <el-drawer
       title="业绩日报表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="kpi-report">
+      <div >
         <div class="top" layout="row" layout-align="start center">
           <span>类型：</span>
             <mySelect
