@@ -132,4 +132,8 @@ export default {
     width: 120px;
   }
 }
+/deep/ .el-drawer__body {
+  flex: 1;
+}
+
 </style>
