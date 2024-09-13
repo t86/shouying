@@ -120,3 +120,11 @@ export default {
 @import "../../../style/common/elementDrawer.less";
 @import "../../../style/common/elementFormBtn.less";
 </style>
+
+<style scoped lang="less">
+  /deep/ .el-drawer__body {
+  flex: unset;
+  overflow: hidden;
+  margin-bottom: 68px;
+  }
+</style>
