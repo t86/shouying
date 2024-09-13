@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="trunover">
     <el-drawer
       title="转台记录"
       :visible.sync="show"
@@ -73,6 +73,8 @@ export default {
             ...item,
             detailList: item.i.split('\n')
           }))
+
+
         } else {
           this.$message.warning(res.msg);
         }
