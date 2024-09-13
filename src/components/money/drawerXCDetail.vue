@@ -170,8 +170,8 @@ export default {
 <style lang="less" scoped>
 .XC-detail {
   ::-webkit-scrollbar {
-    width: 15px;
-    height: 15px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-corner{
     background-color: transparent;
