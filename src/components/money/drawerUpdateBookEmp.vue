@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="turn-over-detail">
     <!-- 修改订位人记录 -->
     <el-drawer
       title="修改订位人记录"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="turn-over-detail">
+      <div >
         <div class="top" layout="row" layout-align="space-between center">
           <!-- <div class="top-left" layout="row" layout-align="start center">
             <div class="coll" layout="row" layout-align="start center">
