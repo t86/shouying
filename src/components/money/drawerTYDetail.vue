@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="root-content">
     <!-- 鸡尾酒明细表 -->
     <el-drawer
       title="鸡尾酒明细表"
@@ -143,6 +143,7 @@ export default {
       } catch (error) {
         console.log("获取表格数据失败", error);
       }
+
     },
 
     // 导出excel
@@ -228,4 +229,12 @@ export default {
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
+</style>
+
+<style scoped lang="less">
+  /deep/ .el-drawer__body {
+    flex: unset;
+    overflow-y: scroll;
+    margin-bottom: 68px;
+  }
 </style>
