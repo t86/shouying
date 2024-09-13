@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="XC-detail">
     <!-- 现抽汇总表 -->
     <el-drawer
       title="现抽汇总表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="XC-detail">
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
             <input v-model="keyword" placeholder="商品名称/点单人" />
@@ -163,8 +163,13 @@ export default {
 </style>
 <style lang="less" scoped>
 .XC-detail {
+  ::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+  }
+
   color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  //padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
   
@@ -270,5 +275,10 @@ export default {
 
 .pointer {
   cursor: pointer;
+}
+/deep/ .el-drawer__body {
+  //flex: unset;
+  //overflow-y: scroll;
+  margin-bottom: 68px;
 }
 </style>
