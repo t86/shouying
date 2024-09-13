@@ -2,7 +2,7 @@
   <div class="turn-over-detail">
     <!-- 翻台记录 -->
     <el-drawer
-      title="翻台记录"
+      title="翻台记录2"
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"

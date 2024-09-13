@@ -4,8 +4,8 @@
       <span>套餐统计表</span>
       <i class="el-icon-close" @click="onClose"></i>
     </div>
-    <div class="session white" layout="row" layout-align="space-between center">
-      <div class="session-left" layout="row" layout-align="space-around center">
+    <div class="session white" layout="row">
+      <div class="session-left" layout="row" >
         <div class="session-left-contain">
           <h4>选择统计的套餐</h4>
           <div class="session-left-contain-checkbox">
@@ -24,7 +24,8 @@
           </div>
         </div>
       </div>
-      <div class="session-center" layout="row" layout-align="center center">
+
+      <div class="session-center" layout="row">
         <div class="session-center-contain">
           <div layout="row" layout-align="center center">
             <span class="m-r-2">订单类型</span>
@@ -48,6 +49,8 @@
           </div>
         </div>
       </div>
+
+
       <div class="session-right">
         <div class="table">
           <div class="thead">
@@ -198,6 +201,9 @@ export default {
           this.tableData.push({nn: item.n, c: item.c})
           item.ss.forEach(i => this.tableData.push({n: i.n, c: i.c}))
         })
+        this.tableData = [...this.tableData, ...this.tableData]
+        this.tableData = [...this.tableData, ...this.tableData]
+        // this.tableData = [...this.tableData, ...this.tableData]
 
       } else {
         this.$message.warning(res.msg);
@@ -300,6 +306,7 @@ export default {
     &-center {
       width: 25%;
       padding-bottom: 5%;
+      margin-top:400px;
 
       &-contain {
         width: 100%;
@@ -328,8 +335,11 @@ export default {
 
     &-right {
       width: 50%;
-      padding: 20px;
+      //padding: 20px;
       box-sizing: border-box;
+      overflow-y: auto;
+      position: relative;
+
       .table{
         border: 1px solid #999;
         border-radius: 10px;
@@ -407,4 +417,6 @@ export default {
 /deep/.el-tree-node__content:hover, .el-upload-list__item:hover {
   background-color: rgba(30, 30, 30, 0.8);
 }
+
+
 </style>
