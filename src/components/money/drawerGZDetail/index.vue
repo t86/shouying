@@ -121,6 +121,9 @@ export default {
             ...item,
             checked: false
           }))
+          this.tableData = [...this.tableData, ...this.tableData]
+          this.tableData = [...this.tableData, ...this.tableData]
+          this.tableData = [...this.tableData, ...this.tableData]
           this.checkAll = false
         } else {
           this.$message.warning(res.msg);
@@ -138,7 +141,6 @@ export default {
             checked: this.checkAll
           }));
           break;
-
         case "item":
           this.checkAll = this.tableData.every(item => item.checked)
           break;
