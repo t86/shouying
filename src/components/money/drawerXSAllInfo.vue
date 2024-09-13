@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="XS-detail">
     <!-- 部门销售汇总表 -->
     <el-drawer
       title="部门销售汇总表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="XS-detail">
+      <div >
         <div class="top" layout="row" layout-align="space-between center">
           <el-button
             type="primary"
@@ -140,8 +140,13 @@ export default {
 </style>
 <style lang="less" scoped>
 .XS-detail {
+  ::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+  }
+
   color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  //padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
   
@@ -242,5 +247,10 @@ export default {
 
 .pointer {
   cursor: pointer;
+}
+/deep/ .el-drawer__body {
+  flex: unset;
+  overflow-y: scroll;
+  margin-bottom: 68px;
 }
 </style>
