@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="opencard">
     <el-drawer
       title="开台记录"
       :visible.sync="show"
