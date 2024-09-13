@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="KT-detail">
     <!-- 商品卡台销售表 -->
     <el-drawer
       title="商品-卡台销售表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="KT-detail">
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
             <input v-model="keyword" placeholder="输入商品名称/简写搜索" />
