@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="online-booking">
     <!-- 线上预订记录 -->
     <el-drawer
       title="线上预订记录"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="online-booking">
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
           <el-button
             type="primary"

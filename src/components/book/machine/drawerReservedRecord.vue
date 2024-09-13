@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="yuliu">
     <el-drawer
       title="开台预留"
       :visible.sync="show"

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="rukeshishi">
     <el-drawer
         title="入客数据实时汇总表"
         :visible.sync="show"
