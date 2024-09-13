@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-detail">
     <!-- 低消进度统计表 -->
     <el-drawer
       title="低消进度统计表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="min-detail">
+      <div >
         <div class="top">
           <el-button
             v-if="!isOrder()"
