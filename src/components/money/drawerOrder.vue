@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="order-detail">
     <!-- 点单记录 -->
     <el-drawer
       title="点单记录"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="order-detail">
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
           <div class="row">
             <span class="label">商品类型:</span>
