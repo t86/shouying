@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="YH-detail">
     <!-- 优惠明细表 -->
     <el-drawer
       title="优惠明细表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="YH-detail">
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
             <span>优惠类型：</span>
