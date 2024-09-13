@@ -173,6 +173,9 @@ export default {
     width: 15px;
     height: 15px;
   }
+  ::-webkit-scrollbar-corner{
+    background-color: transparent;
+  }
 
   color: rgba(255, 255, 255, 0.8);
   //padding: 20px;
