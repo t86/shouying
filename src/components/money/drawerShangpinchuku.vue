@@ -189,7 +189,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "../../style/money/drawerOrder.less";
+@import "../../style/money/drawerOrderchuku.less";
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
