@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="order-detail">
     <!-- 非鸡尾酒类补交报表 -->
     <el-drawer
       title="非鸡尾酒类补交报表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="order-detail">
+      <div >
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
             <input v-model="keyword" placeholder="订台人/点单人/商品名称" />

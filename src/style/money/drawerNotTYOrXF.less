@@ -1,6 +1,15 @@
 .order-detail {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-corner{
+    background-color: transparent;
+  }
+
   color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  //padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
   padding-bottom: 70px;
@@ -203,4 +212,9 @@
 
 .pointer {
   cursor: pointer;
+}
+/deep/ .el-drawer__body {
+  flex: unset;
+  overflow-y: auto;
+  margin-bottom: 68px;
 }

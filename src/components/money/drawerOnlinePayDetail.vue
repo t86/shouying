@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="online-pay-detail">
     <!-- 线上支付记录 -->
     <el-drawer
       title="线上支付记录"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="96%"
     >
-      <div class="online-pay-detail">
+      <div >
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
             <span>类型：</span>

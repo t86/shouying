@@ -1,6 +1,16 @@
 .online-pay-detail {
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    //height: 8px;
+  }
+  ::-webkit-scrollbar-corner{
+    background-color: transparent;
+  }
+
+
   color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  //padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
 
@@ -60,7 +70,7 @@
 
     .th:nth-child(2),
     .td:nth-child(2) {
-      width: 16%;
+      width: 18%;
     }
     .th:nth-child(3),
     .td:nth-child(3) {
@@ -72,7 +82,7 @@
     }
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 14%;
+      width: 12%;
     }
     .th:nth-child(6),
     .td:nth-child(6) {
@@ -99,4 +109,10 @@
   font-size: 14px;
   height: 28px;
   line-height: 28px;
+}
+
+/deep/ .el-drawer__body {
+  //flex: unset;
+  //overflow-y: scroll;
+  margin-bottom: 68px;
 }

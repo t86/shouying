@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="QD-detail">
     <!-- 分类渠道汇总表 -->
     <el-drawer
       title="分类渠道汇总表"
@@ -8,7 +8,7 @@
       direction="rtl"
       size="98%"
     >
-      <div class="QD-detail">
+      <div >
         <div class="top" layout="row" layout-align="start center">
           <div class="top-left" layout="row" layout-align="start center">
             <el-button
@@ -189,8 +189,17 @@ export default {
 </style>
 <style lang="less" scoped>
 .QD-detail {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-corner{
+    background-color: transparent;
+  }
+
   color: rgba(255, 255, 255, 0.8);
-  padding: 20px;
+  //padding: 20px;
   font-size: 14px;
   box-sizing: border-box;
 
@@ -250,17 +259,20 @@ export default {
     .td {
       padding: 0 10px;
       box-sizing: border-box;
-      width: 25%;
+      width: 160px;
     }
 
-    .th:nth-child(1),
-    .td:nth-child(1) {
-      width: 10%;
+    .th:nth-child(2),
+    .td:nth-child(2) {
+      width: 15%;
     }
   }
 }
 
 .pointer {
   cursor: pointer;
+}
+/deep/ .el-drawer__body {
+  margin-bottom: 68px;
 }
 </style>
