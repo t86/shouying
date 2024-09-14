@@ -332,6 +332,10 @@ export default [
             {
               name: "短信明细",
               url: "/BMS/messageDetail"
+            },
+            {
+              name: "短信结果查询",
+              url: "/BMS/messageResult"
             }
           ]
         },

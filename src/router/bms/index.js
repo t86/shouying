@@ -233,6 +233,11 @@ export default [
     component: () => import('@/views/ManagementSystem/BMS/messageConfig/messageDetail/messageDetail.vue'),
   },
 
+  {
+    path: '/BMS/messageResult', name: 'messageResult', meta: { title: '短信结果查询' },
+    component: () => import('@/views/ManagementSystem/BMS/messageConfig/messageResult.vue'),
+  },
+
 
 
   /* =========================================== 以下为重构之前代码 ================================================== */

@@ -11,6 +11,8 @@ export default {
   //  读取短信日账单
   reqGetMsgDayData: params => axios.post(`${base.htgl}/sms_mgr/get_sms_records`, params),
 
+  get_mobile_send_rst: params => axios.post(`${base.htgl}/sms_mgr/get_mobile_send_rst`, params),
+
   //  读取短信日账单明细
   reqGetMsgDayDataDetail: params => axios.post(`${base.htgl}/sms_mgr/get_sms_record_dtls`, params),
 }
