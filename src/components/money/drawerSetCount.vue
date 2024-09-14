@@ -201,9 +201,6 @@ export default {
           this.tableData.push({nn: item.n, c: item.c})
           item.ss.forEach(i => this.tableData.push({n: i.n, c: i.c}))
         })
-        this.tableData = [...this.tableData, ...this.tableData]
-        this.tableData = [...this.tableData, ...this.tableData]
-        // this.tableData = [...this.tableData, ...this.tableData]
 
       } else {
         this.$message.warning(res.msg);

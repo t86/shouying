@@ -121,9 +121,6 @@ export default {
             ...item,
             checked: false
           }))
-          this.tableData = [...this.tableData, ...this.tableData]
-          this.tableData = [...this.tableData, ...this.tableData]
-          this.tableData = [...this.tableData, ...this.tableData]
           this.checkAll = false
         } else {
           this.$message.warning(res.msg);
