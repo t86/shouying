@@ -19,12 +19,12 @@
       <el-table-column
           type="index"
           label="序号"
-          width="80">
+          width="60">
       </el-table-column>
       <el-table-column
           prop="m"
           label="手机号码"
-          width="180">
+          width="120">
       </el-table-column>
       <el-table-column
           prop="t"
@@ -39,7 +39,6 @@
 
       <el-table-column
           prop="t"
-          width="350"
           label="发送内容">
         <template slot-scope="scope">
           {{getTemplateData(scope.row.t).t}}
@@ -48,11 +47,12 @@
 
       <el-table-column
           prop="c"
+          width="60"
           label="条数">
       </el-table-column>
         <el-table-column
             prop="s"
-            width="160"
+            width="110"
             label="发送结果">
       </el-table-column>
       <el-table-column
