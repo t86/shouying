@@ -45,7 +45,7 @@
 
     .thead {
       width: 100%;
-      min-width: 2000px;
+      //min-width: 2000px;
       color: rgba(255, 255, 255, .5);
       position: sticky;
       top: 0;
@@ -58,8 +58,9 @@
     }
 
     .tbody {
-      width: 100%;
-      min-width: 2000px;
+      width: 99%;
+      text-align: center;
+      //min-width: 2000px;
       .tr:nth-child(2n) {
         background-color: #2f3342;
         .td{
@@ -82,74 +83,64 @@
 
     .th:nth-child(1),
     .td:nth-child(1) {
-      width: 96px;
-      position: sticky;
-      left: 0;
+      width: 80px;
     }
 
     .th:nth-child(2),
     .td:nth-child(2) {
-      width: 96px;
-      position: sticky;
-      left: 59px;
+      width: 380px;
+      overflow:hidden;//超出的隐藏
+      text-overflow:ellipsis;//显示省略符号来代表被修剪的文本。
+      white-space:nowrap;//不换行
     }
 
     .th:nth-child(3),
     .td:nth-child(3) {
-      width: 10%;
-      position: sticky;
-      left: 118px;
+      width: 120px;
     }
 
     .th:nth-child(4),
     .td:nth-child(4) {
-      width: 14%;
+      width: 120px;
     }
 
     .th:nth-child(5),
     .td:nth-child(5) {
-      width: 10%;
+      width: 300px;
+      overflow:hidden;//超出的隐藏
+      text-overflow:ellipsis;//显示省略符号来代表被修剪的文本。
+      white-space:nowrap;//不换行
     }
 
     .th:nth-child(6),
     .td:nth-child(6) {
-      width: 10%;
+      width: 120px;
     }
 
     .th:nth-child(7),
     .td:nth-child(7) {
-      width: 16%;
+      width: 120px;
     }
 
     .th:nth-child(8),
     .td:nth-child(8) {
-      width: 16%;
+      width: 120px;
     }
 
     .th:nth-child(9),
     .td:nth-child(9) {
-      width: 16%;
+      width: 120px;
     }
 
     .th:nth-child(10),
     .td:nth-child(10) {
-      width: 12%;
-    }
-
-    .th:nth-child(11),
-    .td:nth-child(11) {
-      width: 10%;
-    }
-
-    .th:nth-child(12),
-    .td:nth-child(12) {
-      width: 10%;
+      width: 120px;
     }
   }
 
   /deep/ .el-drawer__body {
     flex: unset;
-    overflow-y: scroll;
+    overflow-y: auto;
     margin-bottom: 68px;
   }
 }
