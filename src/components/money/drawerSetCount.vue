@@ -271,6 +271,14 @@ export default {
 
 <style scoped lang="less">
 .day-report {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-corner{
+    background-color: transparent;
+  }
+
   background: #202C4A;
   // background: linear-gradient(180deg, #202C4A 0%, #2A3959 100%);
 
@@ -334,9 +342,10 @@ export default {
     }
 
     &-right {
-      width: 50%;
-      //padding: 20px;
+      width: 48%;
       box-sizing: border-box;
+      margin-right: 20px;
+      height: calc(100vh - 70px);
       overflow-y: auto;
       position: relative;
 
@@ -417,6 +426,7 @@ export default {
 /deep/.el-tree-node__content:hover, .el-upload-list__item:hover {
   background-color: rgba(30, 30, 30, 0.8);
 }
+
 
 
 </style>
