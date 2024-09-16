@@ -6,7 +6,7 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="720px"
+      size="1000"
     >
       <div class="session p-5">
         <div class="search">
