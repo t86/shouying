@@ -32,6 +32,11 @@ export default [
     component: () => import('@/views/ManagementSystem/BMS/uploadProImg/uploadProImg.vue'),
   },
 
+  {
+    path: '/BMS/vipPrice', name: "vipPrice", meta: { title: '商品非会员价' },
+    component: () => import('@/views/ManagementSystem/BMS/vipPrice.vue'),
+  },
+
   /**
    * 卡台管理
    */

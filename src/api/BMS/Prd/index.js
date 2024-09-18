@@ -74,6 +74,10 @@ const article = {
   requestprdcatetree(data) {
     return axios.post(`${base.htgl}/cate/tree`, data);
   },
+
+  get_member_price_cfg(data) {return axios.post(`${base.htgl}/org/get_member_price_cfg`, data)},
+  save_member_price_cfg(data) {return axios.post(`${base.htgl}/org/save_member_price_cfg`, data)},
+
   // 商品管理页面,模糊查询目录树
   requestprdcatesearch(data) {
     return axios.post(`${base.htgl}/cate/search`, data);

@@ -62,6 +62,10 @@ export default [
             {
               name: "批量上传图片",
               url: "/BMS/uploadProImg"
+            },
+            {
+              name: "商品非会员价",
+              url: "/BMS/vipPrice"
             }
           ]
         }, //商品管理
