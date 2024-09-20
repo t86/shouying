@@ -25,6 +25,8 @@
       <mealNav @updateProductsList="updateProductsList"/>
       <productList
         :mustOrderProducts="mustOrderProducts"
+        :vipPrice="vipPrice"
+        :vipPricePercent="vipPricePercent"
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
       />
@@ -40,6 +42,8 @@ import productListGQ from "@/components/order/productListGQ.vue";
 export default {
   data() {
     return {
+      vipPrice: false,
+      vipPricePercent: 0,
       isYH2: false, // 是否是优惠2点餐
       isGQ: false, // 是否是估清
       allProductsList: [],
@@ -58,6 +62,30 @@ export default {
   mounted() {
     this.isYH2 = this.$route.query.give
     this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
+    const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+    if(showAmt.length > 0){
+      for(let item of showAmt){
+        if (item.id === '50') {
+          if(item.param1 * 1 > 0){
+            this.vipPrice = true
+            this.vipPricePercent = item.param1 * 1
+            break
+          }
+        }
+      }
+    }
+
+    if (this.vipPrice){
+      this.allProductsList = [...this.allProductsList.map(item => {
+        if(item.bizType  === '1'){
+          item.vipPrice = item.price
+          item.price = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
+        }
+        return item
+      })]
+    }
+    console.log('------------,allprods2:', this.allProductsList)
+    console.log('------------,vipPricePercent:', this.vipPricePercent)
   },
   props: ["String"],
   components: {
@@ -70,7 +98,6 @@ export default {
   created() {
     const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
     const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
-
     this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
       id: id,
       name: mustPrdNames[index] || ''

@@ -30,6 +30,9 @@
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
+            <p class="red-400" v-if="vipPrice && item.bizType*1 === 1">
+              会员价:{{item.vipPrice}}
+            </p>
             <p class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
             </p>
           </div>
@@ -1020,7 +1023,8 @@ export default {
     this.getAuthInfo();
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
-    const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+    console.log('vipPricePercent....', this.vipPricePercent)
+
     let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
     console.log('-'.repeat(30), currentBusiness)
     this.empId = currentBusiness.waiter_emp_id
@@ -1043,6 +1047,12 @@ export default {
   props: {
     allProductsList: {
       default: []
+    },
+    vipPrice: {
+      default: false
+    },
+    vipPricePercent: {
+      default: 0
     },
     currentCategoryProductList: {
       default: []
