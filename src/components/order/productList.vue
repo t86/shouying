@@ -337,6 +337,7 @@ export default {
         this.formguest.name = ""
         this.displayCustName = ""
       }
+      this.keyboardLeave('guest');
     },
     cancelBindGuest(){
       this.showBindGuest = false
@@ -346,7 +347,7 @@ export default {
       this.formguest.phone = currentBusiness.csm_cust_phone
       this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
       this.displayCustName = this.formguest.name || this.maskedPhone || ""
-
+      this.keyboardLeave('guest');
     },
     handleBlur(){
       this.formguest.editing = false
@@ -394,13 +395,13 @@ export default {
         && window.atool.getTermType() == "android" &&
         ("showSoftInput" in window.atool)
       ) {
+        setTimeout(() => {
+          this.keyboardShow(refString)
+        }, 100)
         const dropdown = document.querySelector('.el-select-dropdown');
         if (dropdown) {
           dropdown.style.transform = 'translateX(150px)';
         }
-        setTimeout(() => {
-          this.keyboardShow(refString)
-        }, 100)
       }
     },
     keyboardShow(refString){
