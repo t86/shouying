@@ -352,8 +352,8 @@ export default {
     handleBlur(){
       this.formguest.editing = false
     // 移除输入事件监听
-    const inputEl = this.$refs.guest.$el.querySelector('input');
-    inputEl.removeEventListener('input', this.handleInput);
+    //  const inputEl = this.$refs.guest.$el.querySelector('input');
+    // inputEl.removeEventListener('input', this.handleInput);
 
     // 使用当前输入值更新 formguest.phone
     if (this.currentInputValue) {
@@ -365,31 +365,21 @@ export default {
       // 保存当前输入的内容
       console.log(this.formguest)
     },
-    handleInput(event){
-      console.log('handleinput', event.target.value)
-      const inputEl = event.target;
-      let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
+    // handleInput(event){
+    //   console.log('handleinput', event.target.value)
+    //   const inputEl = event.target;
+    //   let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
       
-      if (value.length > 11) {
-        value = value.slice(0, 11); // 限制最大长度为11位
-      }
+    //   if (value.length > 11) {
+    //     value = value.slice(0, 11); // 限制最大长度为11位
+    //   }
       
-      this.currentInputValue = value;
-      inputEl.value = value; // 更新输入框的值
+    //   this.currentInputValue = value;
+    //   inputEl.value = value; // 更新输入框的值
 
 
-    },
+    // },
     handleFocus(refString){
-      if(refString === 'guest') {
-        console.log('handleFocus....')
-        this.$nextTick(() => {
-          const inputEl = this.$refs.guest.$el.querySelector('input');
-          inputEl.addEventListener('input', this.handleInput);
-        });
-        if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
-          this.formguest.guests = []
-        }
-      }
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -401,6 +391,17 @@ export default {
         const dropdown = document.querySelector('.el-select-dropdown');
         if (dropdown) {
           dropdown.style.transform = 'translateX(150px)';
+        }
+      }
+
+      if(refString === 'guest') {
+        console.log('handleFocus....')
+        // this.$nextTick(() => {
+        //   const inputEl = this.$refs.guest.$el.querySelector('input');
+        //   inputEl.addEventListener('input', this.handleInput);
+        // });
+        if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
+          this.formguest.guests = []
         }
       }
     },
