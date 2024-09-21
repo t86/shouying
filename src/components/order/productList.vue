@@ -184,7 +184,7 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="closeChangeFwy">
+    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="closeChangeFwy"  @open="handleDialogOpen">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
 <!--          <el-input v-model="formguest.guest"></el-input>-->
@@ -381,44 +381,34 @@ export default {
 
 
     // },
-    handleFocus(refString){
+    handleFocus(refString) {
       if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
+        window.atool &&
+        window.atool.getTermType() == "android" &&
         ("showSoftInput" in window.atool)
       ) {
-        setTimeout(() => {
-          this.keyboardShow(refString)
-        }, 100)
-        const dropdown = document.querySelector('.el-select-dropdown');
-        if (dropdown) {
-          dropdown.style.transform = 'translateX(150px)';
-        }
-      }
-
-      // if(refString === 'guest') {
-      //   console.log('handleFocus....')
-      //   // this.$nextTick(() => {
-      //   //   const inputEl = this.$refs.guest.$el.querySelector('input');
-      //   //   inputEl.addEventListener('input', this.handleInput);
-      //   // });
-      //   if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
-      //     this.formguest.guests = []
-      //   }
-      // }
-    },
-    keyboardShow(refString){
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            if (refString === 'guest') {
-              this.guestFocus = true
-            }
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
+        this.$nextTick(() => {
+          if (refString === 'guest') {
+            this.guestFocus = true;
           }
+          this.keyboardShow(refString);
+        });
+      }
+    },
+    keyboardShow(refString) {
+      if (
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        atool.showSoftInput();
+        this.$nextTick(() => {
+          const el = this.$refs[refString];
+          if (el && el.focus) {
+            el.focus();
+          }
+        });
+      }
     },
     keyboardLeave(refString) {
       setTimeout(() => {
@@ -445,6 +435,22 @@ export default {
         }, 100)
       }
     },
+    handleDialogOpen() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.focusGuestInput();
+        }, 100);
+      });
+    },
+
+    focusGuestInput() {
+      const input = this.$refs.guest.$el.querySelector('input');
+      if (input) {
+        input.focus();
+        this.guestFocus = true;
+      }
+    },
+
     bindGuest(){
       console.log('bindGuest', this.empId)
       this.showBindGuest = true;
