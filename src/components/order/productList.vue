@@ -188,7 +188,6 @@
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
           <el-input
-          v-if="!formguest.guests.length"
           v-model="formguest.phone"
           ref="guestInput"
           @focus="handleFocus('guestInput')"
@@ -196,7 +195,7 @@
           @input="searchGuestPhone"
           placeholder="输入客人手机号后四位搜索"
         ></el-input>
-        <el-select
+        <!-- <el-select
           v-else
           style="width: 90%"
           v-model="formguest.phone"
@@ -215,7 +214,7 @@
             :label="formguest.editing ? item.n + '  ' + item.p : item.n"
             :value="item.p">
           </el-option>
-        </el-select>
+        </el-select> -->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
