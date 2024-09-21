@@ -184,7 +184,7 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="closeChangeFwy">
+    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="closeChangeFwy">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
 <!--          <el-input v-model="formguest.guest"></el-input>-->
@@ -240,6 +240,7 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
+      guestFocus: false,
       formguest:{
         editing: false,
         phone:"",
@@ -364,6 +365,7 @@ export default {
     this.currentInputValue = '';
       // 保存当前输入的内容
       console.log(this.formguest)
+      this.guestFocus = false
     },
     // handleInput(event){
     //   console.log('handleinput', event.target.value)
@@ -411,6 +413,9 @@ export default {
         && window.atool.getTermType() == "android" &&
             ("showSoftInput" in window.atool)
           ) {
+            if (refString === 'guest') {
+              this.guestFocus = true
+            }
             atool.showSoftInput();
             atool.executeJs(`this.$refs.${refString}.focus()`)
           }
