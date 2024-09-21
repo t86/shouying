@@ -1043,7 +1043,6 @@ export default {
     this.getAuthInfo();
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
-    console.log('vipPricePercent....', this.vipPricePercent)
 
     let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
     console.log('-'.repeat(30), currentBusiness)
@@ -1132,6 +1131,21 @@ export default {
       this.productsListTotal = newVal;
       this.getPageData();
       firstLoad = false;
+    },
+    vipPrice(newVal) {
+      if(newVal){
+        if (this.mustOrderProducts && this.mustOrderProducts.length > 0){
+          this.productsList = [...this.productsList.map(item => {
+            if(item.bizType  === '1'){
+              item.vipPrice = item.price
+              let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
+              p = Math.ceil(p).toString()
+              item.price = p
+            }
+            return item
+          })]
+        }
+      }
     }
   },
 

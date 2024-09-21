@@ -119,6 +119,10 @@ import drawerBj from "@/components/order/newDrawerMeal/drawerBj/index.vue";
 export default {
   data() {
     return {
+      vipPrice: false,
+      vipPricePercent: 0,
+      bindphone: '',
+
       modalRadio: "", // 1：服务员点单  2：优惠  3：花篮
       showModal: false,
       isGQ: false, // 是否是估清模态框
@@ -383,11 +387,16 @@ export default {
 
     // 服务员/收银加入购物车
     async orderMealToShoppingCart(c) {
+      let price = this.productInfo.price
+      if (this.vipPrice && this.bindphone !== '' && this.productInfo.bizType *1 === 1){
+        price = this.productInfo.vipPrice
+      }
+
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
         prd_cnt: c * 1, //  int   商品数量
-        prd_price: this.productInfo.price, //  string  商品单价,用于做二次验证
+        prd_price: price, //  string  商品单价,用于做二次验证
         prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
         requirement: this.requestInfoArr.join(";"), // string  要求
       };
@@ -587,6 +596,25 @@ export default {
     show: {
       handler(newVal) {
         if(newVal) {
+
+          const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+          let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
+          this.bindphone = currentBusiness.csm_cust_phone
+
+          const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+          if(showAmt.length > 0){
+            for(let item of showAmt){
+              if (item.id === '50') {
+                if(item.param1 * 1 > 0){
+                  this.vipPrice = true
+                  this.vipPricePercent = item.param1 * 1
+                  break
+                }
+              }
+            }
+          }
+
+
           if(this.productInfo.type == 2) {
             this.$emit("changeType", 2);
             const params = {
