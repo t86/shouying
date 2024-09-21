@@ -319,7 +319,7 @@ export default {
       }
       this.showBindGuest = false
       try {
-        const checkedGuests = this.formguest.guests.filter(item => item.checked)
+        const checkedGuests = this.formguest.new_guest ? [{ p: this.formguest.phone, n: this.maskedPhone}] : this.formguest.guests.filter(item => item.checked) 
         if(checkedGuests.length == 0 || checkedGuests.length > 1) {
           this.$message.warning('请选择一个客人');
           return;
@@ -331,8 +331,10 @@ export default {
         if (res.code === 1) {
           this.$message.success('绑定成功');
           this.formguest.name = checkedGuests[0].n
-          this.formguest.phone = checkedGuests[0].p
-          this.displayCustName = this.formguest.name || this.maskedPhone || ""
+          if(!this.formguest.new_guest) {
+            this.formguest.phone = checkedGuests[0].p
+          }
+          this.displayCustName = checkedGuests[0].n || this.maskedPhone || ""
         } else {
           this.$message.warning(res.msg);
         }
@@ -423,7 +425,6 @@ export default {
         ) {
           if(refString == 'guest') {
             atool.executeJs(`this.$refs.guestInput.blur()`);
-            atool.executeJs(`this.$refs.guestSelect.blur()`);
           } else {
             atool.executeJs(`this.$refs.${refString}.blur()`);
           }
@@ -453,7 +454,7 @@ export default {
     },
 
     focusGuestInput() {
-      let input = this.$refs.guestInput ? this.$refs.guestInput.$el.querySelector('input') : this.$refs.guestSelect.$el.querySelector('input');
+      let input = this.$refs.guestInput.$el.querySelector('input');
       if (input) {
         input.focus();
         this.guestFocus = true;
