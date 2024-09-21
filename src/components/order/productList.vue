@@ -15,7 +15,7 @@
 
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
-        <div class="prd-item" v-if="pic_show" style="height: 384px;" v-for="item in productsList" :key="item.id"
+        <div class="prd-item" v-if="pic_show" style="height: 410px;" v-for="item in productsList" :key="item.id"
           @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img" :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
@@ -30,11 +30,15 @@
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
-            <p class="red-400" v-if="vipPrice && item.bizType*1 === 1">
-              会员价:{{item.vipPrice}}
+
+
+            <div v-if="vipPrice && item.bizType*1 === 1" class="vip-price">
+              <p class="line-through">原价: ￥{{item.price}} </p>
+              <p>会员价: ￥{{item.vipPrice}} </p>
+            </div>
+            <p v-else class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
             </p>
-            <p class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
-            </p>
+
           </div>
 
           <img v-if="item.outSomethingCount == 0" class="no-data-count"
