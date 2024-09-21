@@ -198,7 +198,8 @@
               reserve-keyword
               placeholder="输入客人手机号后四位搜索"
               :remote-method="searchGuestPhone"
-              :loading="loading">
+              :loading="loading"
+              @visible-change="handleVisibleChange">
             <el-option
                 v-for="item in formguest.guests"
                 :key="item.p"
@@ -532,31 +533,44 @@ export default {
       this.loading = false;
     },
     async searchGuestPhone(query){
-      this.formguest.guests = []
-      if(query.length > 11) {
-        query = query.slice(0, 11)
-      }
       if (query && (query.length === 4 || query.length === 11)) {
+        this.loading = true;
         try {
-          const params = {
-            cust_phone: query
-          };
+          const params = { cust_phone: query };
           const res = await api_order.get_cust_items_for_csm(params);
           if (res.code === 1) {
-            this.formguest.editing = true
+            this.formguest.editing = true;
             if (res.data.records && res.data.records.length > 0) {
-              this.formguest.guests = res.data.records
-              this.formguest.new_guest = false
-            } else if (query.length === 11){
-              // this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
-              this.formguest.new_guest = true
+              this.formguest.guests = res.data.records;
+              this.formguest.new_guest = false;
+            } else if (query.length === 11) {
+              this.formguest.new_guest = true;
             }
           } else {
             this.$message.warning(res.msg);
           }
         } catch (error) {
           console.log("get_cust_items_for_csm", error);
+        } finally {
+          this.loading = false;
+          this.$nextTick(() => {
+            this.focusGuestInput();
+          });
         }
+      }
+    },
+    handleVisibleChange(visible) {
+      if (visible) {
+        this.$nextTick(() => {
+          this.focusGuestInput();
+        });
+      }
+    },
+    focusGuestInput() {
+      const input = this.$refs.guest.$el.querySelector('input');
+      if (input) {
+        input.focus();
+        this.guestFocus = true;
       }
     },
     adjustFontSize() {
