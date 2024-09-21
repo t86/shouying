@@ -184,29 +184,38 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="closeChangeFwy"  @open="handleDialogOpen">
+    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="cancelBindGuest"  @open="handleDialogOpen">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
-<!--          <el-input v-model="formguest.guest"></el-input>-->
-          <el-select
-              style="width: 90%"
-              v-model="formguest.phone"
-              ref="guest"
-              @focus="handleFocus('guest')"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="输入客人手机号后四位搜索"
-              :remote-method="searchGuestPhone"
-              :loading="loading"
-              @visible-change="handleVisibleChange">
-            <el-option
-                v-for="item in formguest.guests"
-                :key="item.p"
-                :label=" formguest.editing ? item.n + '  ' + item.p: item.n "
-                :value="item.p">
-            </el-option>
-          </el-select>
+          <el-input
+          v-if="!formguest.guests.length"
+          v-model="formguest.phone"
+          ref="guestInput"
+          @focus="handleFocus('guestInput')"
+          @blur="handleBlur"
+          @input="searchGuestPhone"
+          placeholder="输入客人手机号后四位搜索"
+        ></el-input>
+        <el-select
+          v-else
+          style="width: 90%"
+          v-model="formguest.phone"
+          ref="guestSelect"
+          @focus="handleFocus('guestSelect')"
+          @blur="handleBlur"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="输入客人手机号后四位搜索"
+          :remote-method="searchGuestPhone"
+          :loading="loading">
+          <el-option
+            v-for="item in formguest.guests"
+            :key="item.p"
+            :label="formguest.editing ? item.n + '  ' + item.p : item.n"
+            :value="item.p">
+          </el-option>
+        </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -388,7 +397,7 @@ export default {
         ("showSoftInput" in window.atool)
       ) {
         this.$nextTick(() => {
-          if (refString === 'guest') {
+          if (refString === 'guestInput' || refString === 'guestSelect') {
             this.guestFocus = true;
           }
           this.keyboardShow(refString);
@@ -444,7 +453,9 @@ export default {
     },
 
     focusGuestInput() {
-      const input = this.$refs.guest.$el.querySelector('input');
+      const input = this.formguest.guests.length ? 
+        this.$refs.guestSelect.$el.querySelector('input') :
+        this.$refs.guestInput;
       if (input) {
         input.focus();
         this.guestFocus = true;
@@ -532,7 +543,7 @@ export default {
       this.ruleForm.waiters = results;
       this.loading = false;
     },
-    async searchGuestPhone(query){
+    async searchGuestPhone(query) {
       if (query && (query.length === 4 || query.length === 11)) {
         this.loading = true;
         try {
@@ -545,6 +556,7 @@ export default {
               this.formguest.new_guest = false;
             } else if (query.length === 11) {
               this.formguest.new_guest = true;
+              this.formguest.guests = []; // 清空结果，切换回 el-input
             }
           } else {
             this.$message.warning(res.msg);
@@ -557,21 +569,16 @@ export default {
             this.focusGuestInput();
           });
         }
+      } else {
+        this.formguest.guests = []; // 清空结果，切换回 el-input
       }
     },
     handleVisibleChange(visible) {
       if (visible) {
-        this.$nextTick(() => {
-          this.focusGuestInput();
-        });
-      }
-    },
-    focusGuestInput() {
-      const input = this.$refs.guest.$el.querySelector('input');
-      if (input) {
-        input.focus();
-        this.guestFocus = true;
-      }
+          this.$nextTick(() => {
+            this.focusGuestInput();
+          });
+        }
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
