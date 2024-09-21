@@ -191,7 +191,7 @@
           v-model="formguest.phone"
           autofocus
           ref="guestInput"
-          @focus="handleFocus('guestInput')"
+          @click="handleFocus('guestInput')"
           @input="searchGuestPhone"
           placeholder="输入客人手机号后四位搜索"
         ></el-input>
@@ -389,6 +389,7 @@ export default {
 
     // },
     handleFocus(refString) {
+      console.log('handleFocus', refString)
       if (
         window.atool &&
         window.atool.getTermType() == "android" &&
@@ -451,11 +452,9 @@ export default {
     },
 
     focusGuestInput() {
-      let input = this.$refs.guestInput;
-      if (input) {
-        input.focus();
-        this.guestFocus = true;
-      }
+      setTimeout(() => {
+        this.keyboardShow('guestInput')
+      }, 100)
     },
 
     bindGuest(){
