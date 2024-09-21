@@ -189,6 +189,7 @@
         <el-form-item label="客人手机号">
           <el-input
           v-model="formguest.phone"
+          autofocus
           ref="guestInput"
           @focus="handleFocus('guestInput')"
           @input="searchGuestPhone"
@@ -339,12 +340,12 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('绑定服务员失败', error)
+        console.log('绑定客人失败', error)
         this.formguest.phone = ""
         this.formguest.name = ""
         this.displayCustName = ""
       }
-      this.keyboardLeave('guest');
+      this.keyboardLeave('guestInput');
     },
     cancelBindGuest(){
       this.showBindGuest = false
@@ -354,7 +355,7 @@ export default {
       this.formguest.phone = currentBusiness.csm_cust_phone
       this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
       this.displayCustName = this.formguest.name || this.maskedPhone || ""
-      this.keyboardLeave('guest');
+      this.keyboardLeave('guestInput');
     },
     handleBlur(){
       this.formguest.editing = false
@@ -394,7 +395,7 @@ export default {
         ("showSoftInput" in window.atool)
       ) {
         this.$nextTick(() => {
-          if (refString === 'guestInput' || refString === 'guestSelect') {
+          if (refString === 'guestInput') {
             this.guestFocus = true;
           }
           this.keyboardShow(refString);
@@ -423,11 +424,7 @@ export default {
           && window.atool.getTermType() == "android" &&
           ("hideSoftInput" in window.atool)
         ) {
-          if(refString == 'guest') {
-            atool.executeJs(`this.$refs.guestInput.blur()`);
-          } else {
-            atool.executeJs(`this.$refs.${refString}.blur()`);
-          }
+          atool.executeJs(`this.$refs.${refString}.blur()`);
           atool.hideSoftInput();
           atool.restart();
 
@@ -454,7 +451,7 @@ export default {
     },
 
     focusGuestInput() {
-      let input = this.$refs.guestInput.$el.querySelector('input');
+      let input = this.$refs.guestInput;
       if (input) {
         input.focus();
         this.guestFocus = true;
