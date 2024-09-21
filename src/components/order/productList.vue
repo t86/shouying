@@ -457,7 +457,10 @@ export default {
     },
 
     focusGuestInput() {
-      const input = this.$refs.guest.$el.querySelector('input');
+      let input = this.$refs.guestInput.$el.querySelector('input');
+      if(!input) {
+        input = this.$refs.guestSelect.$el.querySelector('input');
+      }
       if (input) {
         input.focus();
         this.guestFocus = true;
