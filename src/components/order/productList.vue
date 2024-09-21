@@ -184,37 +184,22 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog append-to-body :title="`绑定客人${guestFocus ? '获取到焦点了' : ''}`" :visible="showBindGuest" @close="cancelBindGuest"  @open="handleDialogOpen">
+    <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="cancelBindGuest"  @open="handleDialogOpen">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
           <el-input
-          v-if="!formguest.guests || formguest.guests.length == 0"
           v-model="formguest.phone"
           ref="guestInput"
           @focus="handleFocus('guestInput')"
           @input="searchGuestPhone"
           placeholder="输入客人手机号后四位搜索"
         ></el-input>
-        <el-select
-          v-else
-          style="width: 90%"
-          v-model="formguest.phone"
-          ref="guestSelect"
-          @focus="handleFocus('guestSelect')"
-          @blur="handleBlur"
-          filterable
-          remote
-          reserve-keyword
-          placeholder="输入客人手机号后四位搜索"
-          :remote-method="searchGuestPhone"
-          :loading="loading">
-          <el-option
-            v-for="item in formguest.guests"
-            :key="item.p"
-            :label="formguest.editing ? item.n + '  ' + item.p : item.n"
-            :value="item.p">
-          </el-option>
-        </el-select>
+        <div v-for="item in formguest.guests" :key="item.p">
+           <el-checkbox
+                v-model="item.checked"
+                @change="changeSelectGuest(item)"
+              >{{ item.n + '  ' + item.p }}</el-checkbox>
+        </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -317,6 +302,12 @@ export default {
     };
   },
   methods: {
+    changeSelectGuest(item) {
+      console.log('changeSelectGuest', item)
+      this.formguest.guests.forEach(ite => ite.checked = false)
+      item.checked = true
+      this.formguest.guests= [...this.formguest.guests]
+    },
     filterMethod(value) {
       // 这个方法允许保留用户输入的内容
       return true; // 返回 true 以保留输入内容
@@ -328,14 +319,19 @@ export default {
       }
       this.showBindGuest = false
       try {
+        const checkedGuests = this.formguest.guests.filter(item => item.checked)
+        if(checkedGuests.length == 0 || checkedGuests.length > 1) {
+          this.$message.warning('请选择一个客人');
+          return;
+        }
         const res = await api_order.set_csm_cust({
-          cust_phone: this.formguest.phone,
+          cust_phone: checkedGuests[0].p,
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
         })
         if (res.code === 1) {
           this.$message.success('绑定成功');
-          this.formguest.name = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).n : ""
-          this.formguest.phone = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).p : this.formguest.phone
+          this.formguest.name = checkedGuests[0].n
+          this.formguest.phone = checkedGuests[0].p
           this.displayCustName = this.formguest.name || this.maskedPhone || ""
         } else {
           this.$message.warning(res.msg);
@@ -465,7 +461,7 @@ export default {
     },
 
     bindGuest(){
-      console.log('bindGuest', this.empId)
+      console.log('bindGuest', this.empId, this.formguest.phone)
       this.showBindGuest = true;
       if(this.formguest.phone) {
         this.formguest.guests = [{
@@ -557,6 +553,7 @@ export default {
           const res = await api_order.get_cust_items_for_csm(params);
           if (res.code === 1) {
             this.formguest.editing = true;
+            this.formguest.guests = [];
             if (res.data.records && res.data.records.length > 0) {
               this.formguest.guests = res.data.records || [];
               this.formguest.new_guest = false;
