@@ -193,7 +193,6 @@
               v-model="formguest.phone"
               ref="guest"
               @focus="handleFocus('guest')"
-              @blur="handleBlur"
               filterable
               remote
               reserve-keyword
