@@ -467,10 +467,14 @@ export default {
     bindGuest(){
       console.log('bindGuest', this.empId)
       this.showBindGuest = true;
-      this.formguest.guests = [{
-        p: this.formguest.phone,
+      if(this.formguest.phone) {
+        this.formguest.guests = [{
+          p: this.formguest.phone,
         n: this.formguest.name
-      }]
+        }]
+      } else {
+        this.formguest.guests = []
+      }
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
@@ -554,7 +558,7 @@ export default {
           if (res.code === 1) {
             this.formguest.editing = true;
             if (res.data.records && res.data.records.length > 0) {
-              this.formguest.guests = res.data.records;
+              this.formguest.guests = res.data.records || [];
               this.formguest.new_guest = false;
             } else if (query.length === 11) {
               this.formguest.new_guest = true;
