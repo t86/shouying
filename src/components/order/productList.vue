@@ -188,7 +188,7 @@
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
           <el-input
-          v-if="!formguest.guests.length"
+          v-if="!formguest.guests || formguest.guests.length == 0"
           v-model="formguest.phone"
           ref="guestInput"
           @focus="handleFocus('guestInput')"
