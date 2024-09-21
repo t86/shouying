@@ -234,6 +234,9 @@ import ImagePreview from "@/components/ImagePreview"
 import common_order from "@/utils/common/order";
 import { cloneDeep, iteratee } from "lodash-es";
 import Observer, { BIND_EMP } from "@/observer";
+import api_auth from "@/api/UtilAuth";
+import {cardPageMixins} from "@/mixin/cardPage";
+import authStatus from "@/mixin/authStatus";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -840,9 +843,22 @@ export default {
     },
     // 点击商品/套餐
     setMealForProduct(productInfo) {
+      console.log('vipPrice', this.vipPrice)
+      console.log('productInfo.bizType', productInfo.bizType)
+      console.log('displayCustName', this.displayCustName)
 
+      if (this.vipPrice && productInfo.bizType * 1 === 1 && this.displayCustName === '' ) {
+        this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击下一步？", async () => {
+          this.doSetMealForProduct(productInfo)
+        });
+      } else {
+        this.doSetMealForProduct(productInfo)
+      }
+
+    },
+
+    doSetMealForProduct(productInfo) {
       if(this.redeem != 0) {
-        console.log('product', productInfo)
         this.currentProductInfo = {...productInfo, type:2, requireInfo:[]};
         this.showOrHideDrawer(true);
       } else {
@@ -854,13 +870,13 @@ export default {
           }
         }
         productInfo.requireInfo = common_order.getRequireInfo(
-          productInfo.twoCateId
+            productInfo.twoCateId
         );
         this.currentProductInfo = productInfo;
         this.showOrHideDrawer(true);
       }
-
     },
+
 
     showOrHideDrawer(value) {
       this.drawer.showDrawer = value;
@@ -1124,7 +1140,8 @@ export default {
     document.onkeyup = null
     downKeyCode = [0, 0]
     window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
-  }
+  },
+  mixins: [cardPageMixins],
 };
 </script>
 

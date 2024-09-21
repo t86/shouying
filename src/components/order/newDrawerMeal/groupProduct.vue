@@ -2,10 +2,16 @@
   <div class="group">
     <div class="group-title" layout="row" layout-align="space-between start">
       <div class="group-title-name">{{groupInfo.name}}</div>
-      <div class="group-title-price">
+      <div class="group-title-price" v-if="vipPrice && bindphone !== '' && productInfo.bizType * 1 === 1 ">
+        <span>会员单价:</span>
+        <span class="value">￥{{groupInfo.vipPrice}}</span>
+      </div>
+
+      <div class="group-title-price" v-else>
         <span>单价:</span>
         <span class="value">￥{{groupInfo.price}}</span>
       </div>
+
       <div class="group-title-count">
         <span>点单数量:</span>
         <span class="value" style="color: #08080A;">{{groupInfo.count}}</span>
@@ -146,6 +152,9 @@ import drawerBj from "@/components/order/newDrawerMeal/drawerBj/index.vue";
 export default {
   data() {
     return {
+      vipPrice: false,
+      vipPricePercent: 0,
+      bindphone: '',
       isSubmitting: false,
       groupInfo: {}, // 当前选择的套餐信息
       groupDetailArr: [], // 当前套餐中的商品明细
@@ -175,10 +184,32 @@ export default {
   },
   methods: {
     init() {
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+      let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
+      this.bindphone = currentBusiness.csm_cust_phone
+
+      const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+      if(showAmt.length > 0) {
+        for (let item of showAmt) {
+          if (item.id === '50') {
+            if (item.param1 * 1 > 0) {
+              this.vipPrice = true
+              this.vipPricePercent = item.param1 * 1
+              break
+            }
+          }
+        }
+      }
       const groupInfo = JSON.parse(JSON.stringify(this.productInfo));
       console.log('groupInfo', groupInfo)
       groupInfo.count = this.singleInfo.prd_cnt;
-      groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+      console.log(this.vipPrice , this.bindphone , this.productInfo.bizType)
+      if(this.vipPrice && this.bindphone !== '' && this.productInfo.bizType * 1 === 1){
+        groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
+        console.log(' groupInfo.allAmt',  groupInfo.allAmt)
+      } else {
+        groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+      }
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
       if (this.isUpdate) {
@@ -458,7 +489,13 @@ export default {
       }
 
       try {
-        params.prd_price = Math.round(this.groupInfo.price * 100)
+        if(this.vipPrice && this.bindphone && this.groupInfo.bizType * 1 === 1) {
+          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
+        } else {
+          params.prd_price = Math.round(this.groupInfo.price * 100)
+        }
+
+
         const res = await api_order.reqAddGroupToShopping(params);
         if (res.code === 1) {
           this.$message.success("加入购物车成功");

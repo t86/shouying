@@ -107,7 +107,8 @@
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
           <div class="amt" layout="row">
             <div class="p m-r-10" layout="row" layout-align="start center">
-              <span>购物车金额：</span>
+              <span v-if="bindphone === ''">购物车金额(非会员价)：</span>
+              <span v-else>购物车金额(会员价)：</span>
               <span class="num">￥{{ amt.allAmt }}</span>
             </div>
             <div class="p" layout="row" layout-align="start center">
@@ -185,6 +186,9 @@ const ctrlAndShiftCode = [17, 16];
 export default {
   data() {
     return {
+      vipPrice: false,
+      vipPricePercent: 0,
+      bindphone: '',
       isRect: window.innerWidth >= 1024,
       timer: "", // 下单后倒计时退出登录
       showNumSubTips: false, // 倒计时退出模态框
@@ -722,6 +726,23 @@ export default {
     // this.getRectVal();
     this.getShoppingCartData();
     document.body.addEventListener("click", this.showOrHideList);
+
+    const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
+    let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
+    this.bindphone = currentBusiness.csm_cust_phone
+
+    const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+    if(showAmt.length > 0){
+      for(let item of showAmt){
+        if (item.id === '50') {
+          if(item.param1 * 1 > 0){
+            this.vipPrice = true
+            this.vipPricePercent = item.param1 * 1
+            break
+          }
+        }
+      }
+    }
   },
   components: {
     drawerGiveHeMore,
@@ -750,7 +771,11 @@ export default {
         } else if (el.at == 6) {
           // 自用
         } else {
-          allAmt += el.pa * 1;
+          if(this.vipPrice && this.bindphone === '' && (el && el.p2 !== '0')){
+            allAmt += el.p2 * 1
+          } else {
+            allAmt += el.pa * 1;
+          }
         }
       });
       return {
