@@ -188,14 +188,14 @@
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
           <el-input
+          v-if="!formguest.guests.length"
           v-model="formguest.phone"
           ref="guestInput"
           @focus="handleFocus('guestInput')"
-          @blur="handleBlur"
           @input="searchGuestPhone"
           placeholder="输入客人手机号后四位搜索"
         ></el-input>
-        <!-- <el-select
+        <el-select
           v-else
           style="width: 90%"
           v-model="formguest.phone"
@@ -214,7 +214,7 @@
             :label="formguest.editing ? item.n + '  ' + item.p : item.n"
             :value="item.p">
           </el-option>
-        </el-select> -->
+        </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -425,7 +425,12 @@ export default {
           && window.atool.getTermType() == "android" &&
           ("hideSoftInput" in window.atool)
         ) {
-          atool.executeJs(`this.$refs.${refString}.blur()`);
+          if(refString == 'guest') {
+            atool.executeJs(`this.$refs.guestInput.blur()`);
+            atool.executeJs(`this.$refs.guestSelect.blur()`);
+          } else {
+            atool.executeJs(`this.$refs.${refString}.blur()`);
+          }
           atool.hideSoftInput();
           atool.restart();
 
@@ -452,9 +457,7 @@ export default {
     },
 
     focusGuestInput() {
-      const input = this.formguest.guests.length ? 
-        this.$refs.guestSelect.$el.querySelector('input') :
-        this.$refs.guestInput;
+      const input = this.$refs.guest.$el.querySelector('input');
       if (input) {
         input.focus();
         this.guestFocus = true;
@@ -542,7 +545,7 @@ export default {
       this.ruleForm.waiters = results;
       this.loading = false;
     },
-    async searchGuestPhone(query) {
+    async searchGuestPhone(query){
       if (query && (query.length === 4 || query.length === 11)) {
         this.loading = true;
         try {
@@ -555,7 +558,6 @@ export default {
               this.formguest.new_guest = false;
             } else if (query.length === 11) {
               this.formguest.new_guest = true;
-              this.formguest.guests = []; // 清空结果，切换回 el-input
             }
           } else {
             this.$message.warning(res.msg);
@@ -568,8 +570,6 @@ export default {
             this.focusGuestInput();
           });
         }
-      } else {
-        this.formguest.guests = []; // 清空结果，切换回 el-input
       }
     },
     handleVisibleChange(visible) {
