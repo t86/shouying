@@ -394,16 +394,16 @@ export default {
         }
       }
 
-      if(refString === 'guest') {
-        console.log('handleFocus....')
-        // this.$nextTick(() => {
-        //   const inputEl = this.$refs.guest.$el.querySelector('input');
-        //   inputEl.addEventListener('input', this.handleInput);
-        // });
-        if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
-          this.formguest.guests = []
-        }
-      }
+      // if(refString === 'guest') {
+      //   console.log('handleFocus....')
+      //   // this.$nextTick(() => {
+      //   //   const inputEl = this.$refs.guest.$el.querySelector('input');
+      //   //   inputEl.addEventListener('input', this.handleInput);
+      //   // });
+      //   if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
+      //     this.formguest.guests = []
+      //   }
+      // }
     },
     keyboardShow(refString){
       if (
