@@ -191,29 +191,23 @@
         <el-button type="primary" @click="submitChangeFwy">确定</el-button>
       </div>
     </el-dialog>
-    <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="closeChangeFwy">
+    <el-dialog append-to-body title="绑定客人" :visible="showBindGuest" @close="cancelBindGuest"  @open="handleDialogOpen">
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
-<!--          <el-input v-model="formguest.guest"></el-input>-->
-          <el-select
-              style="width: 90%"
-              v-model="formguest.phone"
-              ref="guest"
-              @focus="handleFocus('guest')"
-              @blur="handleBlur"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="输入客人手机号后四位搜索"
-              :remote-method="searchGuestPhone"
-              :loading="loading">
-            <el-option
-                v-for="item in formguest.guests"
-                :key="item.p"
-                :label=" formguest.editing ? item.n + '  ' + item.p: item.n "
-                :value="item.p">
-            </el-option>
-          </el-select>
+          <el-input
+          v-model="formguest.phone"
+          autofocus
+          ref="guestInput"
+          @click="handleFocus('guestInput')"
+          @input="searchGuestPhone"
+          placeholder="输入客人手机号后四位搜索"
+        ></el-input>
+        <div v-for="item in formguest.guests" :key="item.p">
+           <el-checkbox
+                v-model="item.checked"
+                @change="changeSelectGuest(item)"
+              >{{ item.n + '  ' + item.p }}</el-checkbox>
+        </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -250,6 +244,7 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
+      guestFocus: false,
       formguest:{
         editing: false,
         phone:"",
@@ -318,6 +313,12 @@ export default {
     };
   },
   methods: {
+    changeSelectGuest(item) {
+      console.log('changeSelectGuest', item)
+      this.formguest.guests.forEach(ite => ite.checked = false)
+      item.checked = true
+      this.formguest.guests= [...this.formguest.guests]
+    },
     filterMethod(value) {
       // 这个方法允许保留用户输入的内容
       return true; // 返回 true 以保留输入内容
@@ -329,24 +330,32 @@ export default {
       }
       this.showBindGuest = false
       try {
+        const checkedGuests = this.formguest.new_guest ? [{ p: this.formguest.phone, n: this.maskedPhone}] : this.formguest.guests.filter(item => item.checked) 
+        if(checkedGuests.length == 0 || checkedGuests.length > 1) {
+          this.$message.warning('请选择一个客人');
+          return;
+        }
         const res = await api_order.set_csm_cust({
-          cust_phone: this.formguest.phone,
+          cust_phone: checkedGuests[0].p,
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
         })
         if (res.code === 1) {
           this.$message.success('绑定成功');
-          this.formguest.name = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).n : ""
-          this.formguest.phone = this.formguest.guests.find(ite => ite.p == this.formguest.phone) ? this.formguest.guests.find(ite => ite.p == this.formguest.phone).p : this.formguest.phone
-          this.displayCustName = this.formguest.name || this.maskedPhone || ""
+          this.formguest.name = checkedGuests[0].n
+          if(!this.formguest.new_guest) {
+            this.formguest.phone = checkedGuests[0].p
+          }
+          this.displayCustName = checkedGuests[0].n || this.maskedPhone || ""
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log('绑定服务员失败', error)
+        console.log('绑定客人失败', error)
         this.formguest.phone = ""
         this.formguest.name = ""
         this.displayCustName = ""
       }
+      this.keyboardLeave('guestInput');
     },
     cancelBindGuest(){
       this.showBindGuest = false
@@ -356,13 +365,13 @@ export default {
       this.formguest.phone = currentBusiness.csm_cust_phone
       this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
       this.displayCustName = this.formguest.name || this.maskedPhone || ""
-
+      this.keyboardLeave('guestInput');
     },
     handleBlur(){
       this.formguest.editing = false
     // 移除输入事件监听
-    const inputEl = this.$refs.guest.$el.querySelector('input');
-    inputEl.removeEventListener('input', this.handleInput);
+    //  const inputEl = this.$refs.guest.$el.querySelector('input');
+    // inputEl.removeEventListener('input', this.handleInput);
 
     // 使用当前输入值更新 formguest.phone
     if (this.currentInputValue) {
@@ -373,55 +382,51 @@ export default {
     this.currentInputValue = '';
       // 保存当前输入的内容
       console.log(this.formguest)
+      this.guestFocus = false
     },
-    handleInput(event){
-      console.log('handleinput', event.target.value)
-      const inputEl = event.target;
-      let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
+    // handleInput(event){
+    //   console.log('handleinput', event.target.value)
+    //   const inputEl = event.target;
+    //   let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
       
-      if (value.length > 11) {
-        value = value.slice(0, 11); // 限制最大长度为11位
-      }
+    //   if (value.length > 11) {
+    //     value = value.slice(0, 11); // 限制最大长度为11位
+    //   }
       
-      this.currentInputValue = value;
-      inputEl.value = value; // 更新输入框的值
+    //   this.currentInputValue = value;
+    //   inputEl.value = value; // 更新输入框的值
 
 
-    },
-    handleFocus(refString){
-      if(refString === 'guest') {
-        console.log('handleFocus....')
-        this.$nextTick(() => {
-          const inputEl = this.$refs.guest.$el.querySelector('input');
-          inputEl.addEventListener('input', this.handleInput);
-        });
-        if (this.formguest.guests.findIndex(item => item.p === this.formguest.phone) < 0) {
-          this.formguest.guests = []
-        }
-      }
+    // },
+    handleFocus(refString) {
+      console.log('handleFocus', refString)
       if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
+        window.atool &&
+        window.atool.getTermType() == "android" &&
         ("showSoftInput" in window.atool)
       ) {
-        const dropdown = document.querySelector('.el-select-dropdown');
-        if (dropdown) {
-          dropdown.style.transform = 'translateX(150px)';
-        }
-        setTimeout(() => {
-          this.keyboardShow(refString)
-        }, 100)
+        this.$nextTick(() => {
+          if (refString === 'guestInput') {
+            this.guestFocus = true;
+          }
+          this.keyboardShow(refString);
+        });
       }
     },
-    keyboardShow(refString){
+    keyboardShow(refString) {
       if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        ("showSoftInput" in window.atool)
+      ) {
+        atool.showSoftInput();
+        this.$nextTick(() => {
+          const el = this.$refs[refString];
+          if (el && el.focus) {
+            el.focus();
           }
+        });
+      }
     },
     keyboardLeave(refString) {
       setTimeout(() => {
@@ -448,13 +453,31 @@ export default {
         }, 100)
       }
     },
+    handleDialogOpen() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.focusGuestInput();
+        }, 100);
+      });
+    },
+
+    focusGuestInput() {
+      setTimeout(() => {
+        this.keyboardShow('guestInput')
+      }, 100)
+    },
+
     bindGuest(){
-      console.log('bindGuest', this.empId)
+      console.log('bindGuest', this.empId, this.formguest.phone)
       this.showBindGuest = true;
-      this.formguest.guests = [{
-        p: this.formguest.phone,
+      if(this.formguest.phone) {
+        this.formguest.guests = [{
+          p: this.formguest.phone,
         n: this.formguest.name
-      }]
+        }]
+      } else {
+        this.formguest.guests = []
+      }
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
@@ -530,32 +553,39 @@ export default {
       this.loading = false;
     },
     async searchGuestPhone(query){
-      this.formguest.guests = []
-      if(query.length > 11) {
-        query = query.slice(0, 11)
-      }
       if (query && (query.length === 4 || query.length === 11)) {
+        this.loading = true;
         try {
-          const params = {
-            cust_phone: query
-          };
+          const params = { cust_phone: query };
           const res = await api_order.get_cust_items_for_csm(params);
           if (res.code === 1) {
-            this.formguest.editing = true
+            this.formguest.editing = true;
+            this.formguest.guests = [];
             if (res.data.records && res.data.records.length > 0) {
-              this.formguest.guests = res.data.records
-              this.formguest.new_guest = false
-            } else if (query.length === 11){
-              // this.formguest.guests = [{p: query, n:  query.slice(0, 3) + '****' + query.slice(7)}]
-              this.formguest.new_guest = true
+              this.formguest.guests = res.data.records || [];
+              this.formguest.new_guest = false;
+            } else if (query.length === 11) {
+              this.formguest.new_guest = true;
             }
           } else {
             this.$message.warning(res.msg);
           }
         } catch (error) {
           console.log("get_cust_items_for_csm", error);
+        } finally {
+          this.loading = false;
+          this.$nextTick(() => {
+            this.focusGuestInput();
+          });
         }
       }
+    },
+    handleVisibleChange(visible) {
+      if (visible) {
+          this.$nextTick(() => {
+            this.focusGuestInput();
+          });
+        }
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
