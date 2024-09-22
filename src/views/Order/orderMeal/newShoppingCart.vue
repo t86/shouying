@@ -53,10 +53,33 @@
                       : imgSrc.add
                   " @click="changeCount('add', item)" alt />
                 </div>
-                <div class="td" v-if="item.p2!=='' && item.p2 *1  !== 0 ">{{item.p2}}</div>
-                <div v-else class="td">{{ item.pp * 1 === 0 ?'时价': item.pp }}</div>
-                <div class="td" v-if="item.p2!=='' && item.p2 *1 !==0">{{item.p2 * item.pc}}</div>
-                <div v-else class="td">{{ item.pa }}</div>
+
+                <div class="td" v-if="item.p * 1 === 0">
+                  {{ item.pp }}
+                </div>
+                <div v-else class="td">
+                  <div class="td" v-if="item.p2 !== item.pp">{{item.pp}}</div>
+                  <div class="td" v-else>{{item.p2}}</div>
+                </div>
+
+
+                <div class="td" v-if="item.p * 1 === 0">
+                  {{ item.pa }}
+                </div>
+                <div v-else class="td">
+                  <div class="td" v-if="item.p2 !== item.pp">{{item.pa}}</div>
+                  <div class="td" v-else>{{item.p2 * item.pc}}</div>
+                </div>
+
+
+                <!-- <div class="td" v-if="item.p2!=='' && item.p2 *1  !== 0 ">{{item.p2}}</div>
+                <div v-else class="td">{{ item.pp * 1 === 0 ? '时价': item.pp }}</div> -->
+
+
+                <!-- <div class="td" v-if="item.p2!=='' && item.p2 *1 !==0">{{item.p2 * item.pc}}</div>
+                <div v-else class="td">{{ item.pa }}</div> -->
+
+
                 <div class="td">{{ item.personInfo.name }}</div>
                 <div class="td">
                   {{ item.authInfo ? item.authInfo.name : "---" }}
@@ -111,11 +134,11 @@
 
             <div class="p m-r-10" layout="colume" layout-align="start center">
               <div class="ori-price">
-                <span v-if="vipPrice && bindphone === ''">购物车金额(原价)：</span>
-                <span>￥{{ amt.allAmt }}</span>
+                <span>购物车金额(原价)：</span>
+                <span>￥{{ amt.oriAmt }}</span>
               </div>
               <div>
-                <span v-if="vipPrice && bindphone === ''">购物车金额(非会员价)：</span>
+                <span v-if="vipPrice && bindphone === '' ">购物车金额(非会员价)：</span>
                 <span v-else>购物车金额(会员价)：</span>
                 <span class="num">￥{{ amt.allAmt }}</span>
               </div>
@@ -773,6 +796,8 @@ export default {
     amt() {
       let allAmt = 0;
       let giveAmt = 0;
+      let oriAmt = 0;
+
       this.shoppingCartList.forEach((el) => {
         if (el.at == 2 || el.at == 3 || el.at == 5) {
           // 赠送
@@ -781,16 +806,26 @@ export default {
           // 自用
         } else {
           // if(this.vipPrice && this.bindphone === '' && (el && el.p2 !== '0')){
-          if(el && el.p2  !== '' && el.p2 * 1 !== 0){
-            allAmt += el.p2 * 1 * el.pc
+
+          if(el.p2 * 1 !== 0) {
+            if(el.p2 !== el.pp){
+              allAmt += el.pa * 1
+              oriAmt += el.p2 * el.pc
+            } else {
+              allAmt += el.pp * el.pc
+              oriAmt += el.pp * el.pc
+            }
+
           } else {
-            allAmt += el.pa * 1;
+            allAmt += el.pa * 1
+            oriAmt += el.pa * 1
           }
         }
       });
       return {
         allAmt: allAmt.toFixed(2),
         giveAmt: giveAmt.toFixed(2),
+        oriAmt: oriAmt.toFixed(2)
       };
     },
 
