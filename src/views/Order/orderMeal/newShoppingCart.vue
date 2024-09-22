@@ -132,7 +132,7 @@
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
           <div class="amt" layout="row">
 
-            <div class="p m-r-10" layout="colume" layout-align="start center">
+            <div class="p m-r-10" layout="colume" layout-align="start center" v-if="showNewShoppingCar">
               <div class="ori-price">
                 <span>购物车金额(原价)：</span>
                 <span>￥{{ amt.oriAmt }}</span>
@@ -143,6 +143,14 @@
                 <span class="num">￥{{ amt.allAmt }}</span>
               </div>
             </div>
+            <div class="p m-r-10" layout="colume" layout-align="start center" v-else>
+              <span>购物车金额：</span>
+              <span class="num">￥{{ amt.allAmt }}</span>
+            </div>
+
+            </div>
+
+
             <div class="p" layout="row" layout-align="start center">
               <span>优惠金额：</span>
               <span class="num">￥{{ amt.giveAmt }}</span>
@@ -792,6 +800,9 @@ export default {
         }
       }
       return isHaveAuth;
+    },
+    showNewShoppingCar(){
+      return this.shoppingCartList.findIndex(item => item.p2 * 1 > 0) > -1
     },
     amt() {
       let allAmt = 0;
