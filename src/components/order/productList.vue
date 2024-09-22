@@ -33,8 +33,8 @@
 
 
             <div v-if="vipPrice && item.bizType*1 === 1" class="vip-price">
-              <p class="line-through">原价: ￥{{item.price}} </p>
-              <p>会员价: ￥{{item.vipPrice}} </p>
+              <p class="ori-price">原价: ￥{{item.price}} </p>
+              <p class="real-price">会员价: ￥{{item.vipPrice}} </p>
             </div>
             <p v-else class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
             </p>

@@ -53,8 +53,10 @@
                       : imgSrc.add
                   " @click="changeCount('add', item)" alt />
                 </div>
-                <div class="td">{{ item.pp * 1 === 0 ?'时价': item.pp }}</div>
-                <div class="td">{{ item.pa }}</div>
+                <div class="td" v-if="item.p2!=='' && item.p2 *1  !== 0 ">{{item.p2}}</div>
+                <div v-else class="td">{{ item.pp * 1 === 0 ?'时价': item.pp }}</div>
+                <div class="td" v-if="item.p2!=='' && item.p2 *1 !==0">{{item.p2 * item.pc}}</div>
+                <div v-else class="td">{{ item.pa }}</div>
                 <div class="td">{{ item.personInfo.name }}</div>
                 <div class="td">
                   {{ item.authInfo ? item.authInfo.name : "---" }}
@@ -106,10 +108,17 @@
 
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
           <div class="amt" layout="row">
-            <div class="p m-r-10" layout="row" layout-align="start center">
-              <span v-if="bindphone === ''">购物车金额(非会员价)：</span>
-              <span v-else>购物车金额(会员价)：</span>
-              <span class="num">￥{{ amt.allAmt }}</span>
+
+            <div class="p m-r-10" layout="colume" layout-align="start center">
+              <div class="ori-price">
+                <span v-if="vipPrice && bindphone === ''">购物车金额(原价)：</span>
+                <span>￥{{ amt.allAmt }}</span>
+              </div>
+              <div>
+                <span v-if="vipPrice && bindphone === ''">购物车金额(非会员价)：</span>
+                <span v-else>购物车金额(会员价)：</span>
+                <span class="num">￥{{ amt.allAmt }}</span>
+              </div>
             </div>
             <div class="p" layout="row" layout-align="start center">
               <span>优惠金额：</span>
@@ -771,8 +780,9 @@ export default {
         } else if (el.at == 6) {
           // 自用
         } else {
-          if(this.vipPrice && this.bindphone === '' && (el && el.p2 !== '0')){
-            allAmt += el.p2 * 1
+          // if(this.vipPrice && this.bindphone === '' && (el && el.p2 !== '0')){
+          if(el && el.p2  !== '' && el.p2 * 1 !== 0){
+            allAmt += el.p2 * 1 * el.pc
           } else {
             allAmt += el.pa * 1;
           }
