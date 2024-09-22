@@ -144,16 +144,18 @@
               </div>
             </div>
             <div class="p m-r-10" layout="colume" layout-align="start center" v-else>
-              <span>购物车金额：</span>
-              <span class="num">￥{{ amt.allAmt }}</span>
+              <div>
+                <span v-if="vipPrice && bindphone === '' ">购物车金额(非会员价)：</span>
+                <span v-else>购物车金额：</span>
+                <span class="num" style="color:#009370;">￥{{ amt.allAmt }}</span>
+              </div>
             </div>
-
-            </div>
-
-
+            
+            
             <div class="p" layout="row" layout-align="start center">
               <span>优惠金额：</span>
-              <span class="num">￥{{ amt.giveAmt }}</span>
+              <span v-if="showNewShoppingCar" class="num">￥{{ amt.giveAmt }}</span>
+              <span v-else class="num" style="color:#009370;">￥{{ amt.giveAmt }}</span>
             </div>
           </div>
           <div class="btn" layout="row" layout-align="end center">
