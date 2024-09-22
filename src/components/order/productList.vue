@@ -1043,7 +1043,7 @@ export default {
     this.getAuthInfo();
     this.isMoneyClient = sessionStorage.getItem("client") == "money"
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
-
+    const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
     let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
     console.log('-'.repeat(30), currentBusiness)
     this.empId = currentBusiness.waiter_emp_id
