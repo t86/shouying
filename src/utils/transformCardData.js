@@ -592,7 +592,6 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       })
       break
     case 51: //卡台对应的服务员配置
-      console.log('i am 51 '.repeat(5), arr)
       arr.forEach(el => {
         resultArr.push({
           seat_id : el[0], // 卡台id
