@@ -878,7 +878,7 @@ export default {
       console.log('displayCustName', this.displayCustName)
 
       if (this.vipPrice && productInfo.bizType * 1 === 1 && this.displayCustName === '' ) {
-        this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击下一步？", async () => {
+        this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
           this.doSetMealForProduct(productInfo)
         });
       } else {
