@@ -676,4 +676,13 @@ color: #7A7A7A;
     color: #08080A;
   }
 }
+/deep/ .el-radio__inner {
+  border: 1px solid #DCDFE6;
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
+  background-color: #FFF;
+  cursor: pointer;
+  box-sizing: border-box;
+}
 </style>
