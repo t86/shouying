@@ -234,7 +234,6 @@ let firstLoad = true; // 首次加载
 export default {
   data() {
     return {
-      guestFocus: false,
       formguest:{
         editing: false,
         phone:"",
@@ -372,7 +371,6 @@ export default {
     this.currentInputValue = '';
       // 保存当前输入的内容
       console.log(this.formguest)
-      this.guestFocus = false
     },
     // handleInput(event){
     //   console.log('handleinput', event.target.value)
@@ -389,18 +387,18 @@ export default {
 
     // },
     handleFocus(refString) {
-      console.log('handleFocus', refString)
       if (
-        window.atool &&
-        window.atool.getTermType() == "android" &&
+        window.atool
+        && window.atool.getTermType() == "android" &&
         ("showSoftInput" in window.atool)
       ) {
-        this.$nextTick(() => {
-          if (refString === 'guestInput') {
-            this.guestFocus = true;
-          }
-          this.keyboardShow(refString);
-        });
+        const dropdown = document.querySelector('.el-select-dropdown');
+        if (dropdown) {
+          dropdown.style.transform = 'translateX(150px)';
+        }
+        setTimeout(() => {
+          this.keyboardShow(refString)
+        }, 100)
       }
     },
     keyboardShow(refString) {
