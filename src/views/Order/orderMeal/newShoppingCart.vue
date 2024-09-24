@@ -54,26 +54,59 @@
                   " @click="changeCount('add', item)" alt />
                 </div>
 
-                <div class="td" v-if="item.p * 1 === 0">
-                  {{ item.pp }}
-                </div>
+<!--                <div class="td" v-if="item.p2 * 1 === 0">-->
+<!--                  {{ item.pp }}-->
+<!--                </div>-->
+<!--                <div v-else class="td">-->
+<!--                  <div class="td" v-if="item.p2 !== item.pp">{{item.pp}}</div>-->
+<!--                  <div class="td" v-else>{{item.p2}}</div>-->
+<!--                </div>-->
+                <div class="td" v-if="item.pp * 1 === 0">时价</div>
                 <div v-else class="td">
-                  <div class="td" v-if="item.p2 !== item.pp">{{item.pp}}</div>
-                  <div class="td" v-else>{{item.p2}}</div>
+                  <div v-if="item.p2 * 1 > 0" class="td">
+                    <div v-if="item.p2 !== item.pp" class="td">
+                      {{item.p2}}
+                    </div>
+                    <div v-else class="td">
+                      {{item.pp}}
+                    </div>
+                  </div>
+                  <div v-else class="td">
+                    <div class="td">
+                      {{item.pp}}
+                    </div>
+                  </div>
                 </div>
 
-
-                <div class="td" v-if="item.p * 1 === 0">
-                  {{ item.pa }}
-                </div>
+                <div class="td" v-if="item.pp * 1 === 0">{{item.pa}}</div>
                 <div v-else class="td">
-                  <div class="td" v-if="item.p2 !== item.pp">{{item.pa}}</div>
-                  <div class="td" v-else>{{item.p2 * item.pc}}</div>
+                  <div class="td" v-if="item.p2 * 1 > 0">
+                    <div v-if="item.p2 !== item.pp" class="td">
+                      {{item.p2 * item.pc}}
+                    </div>
+                    <div v-else class="td">
+                      {{item.pa}}
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="td">
+                      {{item.pa}}
+                    </div>
+                  </div>
                 </div>
 
 
-                <!-- <div class="td" v-if="item.p2!=='' && item.p2 *1  !== 0 ">{{item.p2}}</div>
-                <div v-else class="td">{{ item.pp * 1 === 0 ? '时价': item.pp }}</div> -->
+<!--                <div class="td" v-if="item.p * 1 === 0">-->
+<!--                  {{ item.pa }}-->
+<!--                </div>-->
+<!--                <div v-else class="td">-->
+<!--                  <div class="td" v-if="item.p2 !== item.pp">{{item.pa}}</div>-->
+<!--                  <div class="td" v-else>{{item.p2 * item.pc}}</div>-->
+<!--                </div>-->
+
+
+                                <!-- <div class="td" v-if="item.p2!=='' && item.p2 *1  !== 0 ">{{item.p2}}</div>
+                                <div v-else class="td">{{ item.pp * 1 === 0 ? '时价': item.pp }}</div> -->
 
 
                 <!-- <div class="td" v-if="item.p2!=='' && item.p2 *1 !==0">{{item.p2 * item.pc}}</div>
