@@ -63,16 +63,16 @@
 <!--                </div>-->
                 <div class="td" v-if="item.pp * 1 === 0">时价</div>
                 <div v-else class="td">
-                  <div v-if="item.p2 * 1 > 0" class="td">
-                    <div v-if="item.p2 !== item.pp" class="td">
+                  <div v-if="item.p2 * 1 > 0" class="">
+                    <div v-if="item.p2 !== item.pp" class="">
                       {{item.p2}}
                     </div>
-                    <div v-else class="td">
+                    <div v-else class="">
                       {{item.pp}}
                     </div>
                   </div>
-                  <div v-else class="td">
-                    <div class="td">
+                  <div v-else class="">
+                    <div class="">
                       {{item.pp}}
                     </div>
                   </div>
@@ -81,15 +81,15 @@
                 <div class="td" v-if="item.pp * 1 === 0">{{item.pa}}</div>
                 <div v-else class="td">
                   <div class="td" v-if="item.p2 * 1 > 0">
-                    <div v-if="item.p2 !== item.pp" class="td">
+                    <div v-if="item.p2 !== item.pp" class="">
                       {{item.p2 * item.pc}}
                     </div>
-                    <div v-else class="td">
+                    <div v-else class="">
                       {{item.pa}}
                     </div>
                   </div>
                   <div v-else>
-                    <div class="td">
+                    <div class="">
                       {{item.pa}}
                     </div>
                   </div>
