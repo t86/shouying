@@ -13,7 +13,7 @@
         <span>非会员价在商品单价基础上上浮 </span>
         <el-input style="width:150px" v-model="radio" type="text" @input="inputHandle" />
         <span>%</span>
-        <p class="red-color mt-2">例: 商品会员价100元, 上浮10%作为非会员价，则非会员价为100* (1+10%) =110元; 有小数则会向上取整，如199.99会取整成20</p>
+        <p class="red-color mt-2">例: 商品会员价100元, 上浮10%作为非会员价，则非会员价为100* (1+10%) =110元; 有小数则会向上取整，如19.01会取整20</p>
       </div>
       <el-button
           type="primary"
