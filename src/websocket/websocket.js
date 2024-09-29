@@ -189,6 +189,7 @@ export default class WebSocketClient {
       let res = {};
       if (reload || this.res.code != 1) {
         res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
+        
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
@@ -474,6 +475,10 @@ export default class WebSocketClient {
                   return ele.emp_id == el.emp_id;
                 }else if(Number(key) == 47){
                   return ele.id == el.id;
+                }else if(Number(key) == 49){
+                  return ele.queue_type_id == el.queue_type_id;
+                }else if(Number(key) == 51){
+                  return ele.seat_id == el.seat_id;
                 } else {
                   return ele.id == el.id;
                 }
