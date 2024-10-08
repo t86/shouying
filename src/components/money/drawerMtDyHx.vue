@@ -86,8 +86,8 @@
               <div class="td" :class="(item.os =='未下单'|| item.os == '已退') && 'red'">{{item.os}}</div>
               <div class="td">{{item.s}}</div>
 
-              <div class="td">{{item.s}}</div>
-              <div class="td">{{item.s}}</div>
+              <div class="td">{{item.g}}</div>
+              <div class="td">{{(item.a2/100).toFixed(2)}}</div>
 
 
               <div class="td">{{item.sn}}</div>
