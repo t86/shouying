@@ -61,7 +61,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "../../../../../style/wine/table.less";
+@import "../../../../../style/wine/table3.less";
 </style>
 <style scoped lang="less">
 .to-store-detail {
@@ -103,28 +103,28 @@ export default {
       .th,.td {
         padding: 0 10px;
         
-        &:nth-child(1){
-          position: sticky;
-          left: 0;
-          z-index: 1;
-        }
-        &:nth-child(2){
-          position: sticky;
-          left: 146px;
-          z-index: 1;
-        }
-        &:nth-child(3){
-          position: sticky;
-          left: 292px;
-          z-index: 1;
-        }
+        //&:nth-child(1){
+        //  position: sticky;
+        //  left: 0;
+        //  z-index: 1;
+        //}
+        //&:nth-child(2){
+        //  position: sticky;
+        //  left: 146px;
+        //  z-index: 1;
+        //}
+        //&:nth-child(3){
+        //  position: sticky;
+        //  left: 292px;
+        //  z-index: 1;
+        //}
 
-        &:nth-child(3),
-        &:nth-child(4),
-        &:nth-child(6),
-        &:nth-child(9){
-          width: 40%;
-        }
+        //&:nth-child(3),
+        //&:nth-child(4),
+        //&:nth-child(6),
+        //&:nth-child(9){
+        //  width: 40%;
+        //}
       }
     }
   }
