@@ -503,6 +503,7 @@ export default {
         this.dialogFormVisible = true;
         // this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
+        this.ruleForm.waiters = []
         this.empName = ''
         setTimeout(() => {
           this.keyboardShow('waiter')
