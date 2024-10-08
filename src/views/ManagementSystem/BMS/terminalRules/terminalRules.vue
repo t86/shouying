@@ -50,6 +50,15 @@
           <span>分钟未支付自动退单</span>
         </div>
       </div>
+      <div class="m-l-4 fs14">
+        <span>客人扫码点单下单立即出品:</span>
+        <el-switch v-model="orderedShipNow"
+                   active-text="是"
+                   inactive-text="否"
+        ></el-switch>
+        <p class="red-color"></p>
+      </div>
+
 
       <h4 class="m-b-2">营业日时间配置</h4>
       <div class="m-l-4 fs14">
@@ -169,6 +178,7 @@ export default {
       csm_waiter_flag: 1,
       scanOrderMustDx: false,
       timeoutAutoBack: false,
+      orderedShipNow: false,
       timeoutAutoBackTime: 0,
       chooseTime: {
         hour: "",
@@ -227,6 +237,7 @@ export default {
           this.disableChgPass = res.data.disable_chg_pass == 1
           this.timeoutAutoBack = res.data.cust_scan_order_timeout !== 0
           this.timeoutAutoBackTime = res.data.cust_scan_order_timeout
+          this.orderedShipNow = res.data.cust_order_auto_mk == 1
         } else {
           this.$message.warning(res.msg);
         }
@@ -249,8 +260,8 @@ export default {
         disable_chg_pass: this.disableChgPass ? 1 : 2, // int   是否禁止自助修改密码 1 开启 2 关闭
         scan_order_must_dx: this.scanOrderMustDx ? 1 : 2,
         cust_scan_order_timeout: this.timeoutAutoBack ? this.timeoutAutoBackTime * 1 : 0,
-        csm_waiter_flag: this.csm_waiter_flag
-
+        csm_waiter_flag: this.csm_waiter_flag,
+        cust_order_auto_mk: this.orderedShipNow? 1: 2,
 
       };
 

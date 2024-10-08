@@ -52,6 +52,10 @@
               <div class="th">兑换套餐</div>
               <div class="th">收银订单状态</div>
               <div class="th">卡券状态</div>
+
+              <div class="th">卡券领取时间</div>
+              <div class="th">当台二消金额</div>
+
               <div class="th">卡台</div>
               <div class="th">开台时间</div>
               <div class="th">订位人</div>
@@ -81,6 +85,11 @@
               <div class="td">{{item.p}}</div>
               <div class="td" :class="(item.os =='未下单'|| item.os == '已退') && 'red'">{{item.os}}</div>
               <div class="td">{{item.s}}</div>
+
+              <div class="td">{{item.s}}</div>
+              <div class="td">{{item.s}}</div>
+
+
               <div class="td">{{item.sn}}</div>
               <div class="td">{{item.ot}}</div>
               <div class="td">{{item.se}}</div>
