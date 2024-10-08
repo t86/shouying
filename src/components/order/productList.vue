@@ -176,16 +176,17 @@
 <!--        </el-form-item>-->
         <el-form-item label="绑定服务员" required>
           <el-input
-              v-model="ruleForm.waiter"
+              v-model="empName"
               autofocus
+              disabled
               ref="ruleForm.waiter"
               placeholder="输入服务员工号"
           ></el-input>
           <div v-for="item in ruleForm.waiters" :key="item.id">
             <el-checkbox
                 v-model="item.checked"
-                @change=""
-            >{{ item.id + '  ' + item.name }}</el-checkbox>
+                @change="changeSelectWaiter(item)"
+            >{{ item.code + '  ' + item.name }}</el-checkbox>
           </div>
         </el-form-item>
       </el-form>
@@ -212,6 +213,7 @@
           <el-input
           v-model="formguest.phone"
           autofocus
+          disabled
           ref="guestInput"
           @click="handleFocus('guestInput')"
           @input="searchGuestPhone"
@@ -323,6 +325,7 @@ export default {
       pic_show: false,
       openTime: "",
       empId: 0,
+      empName: '',
       showEmp: false,
       showGuest: false,
       currentInputValue: ''
@@ -332,16 +335,16 @@ export default {
     changeWaiterNumber(value){
       switch (value) {
         case 10:
-          this.ruleForm.waiter=''
+          this.empName=''
           break;
         case 12:
-          this.ruleForm.waiter = this.ruleForm.waiter.slice(0, this.ruleForm.waiter.length - 1)
+          this.empName = this.empName.slice(0, this.empName - 1)
           break;
         default:
-          this.ruleForm.waiter += value.toString()
+          this.empName += value.toString()
           break;
       }
-      this.remoteMethod(this.ruleForm.waiter)
+      this.remoteMethod(this.empName)
     },
     changeNum(value) {
       console.log('value is', value)
@@ -365,6 +368,12 @@ export default {
       this.formguest.guests.forEach(ite => ite.checked = false)
       item.checked = true
       this.formguest.guests= [...this.formguest.guests]
+    },
+    changeSelectWaiter(item) {
+      console.log('changeSelectWaiter', item)
+      this.ruleForm.waiters.forEach(ite => ite.checked = false)
+      item.checked = true
+      this.ruleForm.waiters= [...this.ruleForm.waiters]
     },
     filterMethod(value) {
       // 这个方法允许保留用户输入的内容
@@ -494,6 +503,7 @@ export default {
         this.dialogFormVisible = true;
         // this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
+        this.empName = ''
         setTimeout(() => {
           this.keyboardShow('waiter')
         }, 100)
@@ -560,23 +570,28 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         console.log(valid)
         if (valid) {
-          const params = {
-            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
-            waiter_emp_id: this.ruleForm.waiter * 1
-          };
-          const res =  api_order.chg_csm_waiter_inord(params);
-          res.then( r => {
-            if (r.code === 1) {
-              this.empId = this.ruleForm.waiter * 1
-              this.getAuthInfo();
-              Observer.send(BIND_EMP, this.empId);
-              this.$message.success('修改卡台服务员成功');
-              this.dialogFormVisible = false
-              this.keyboardLeave('waiter');
-            } else {
-              this.$message.warning(r.msg);
-            }
-          })
+
+          let selectedWaiter = this.ruleForm.waiters.findLast(item => item.checked)
+          if (selectedWaiter) {
+            const params = {
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
+              // waiter_emp_id: this.ruleForm.waiter * 1
+              waiter_emp_id: selectedWaiter.id * 1
+            };
+            const res =  api_order.chg_csm_waiter_inord(params);
+            res.then( r => {
+              if (r.code === 1) {
+                this.empId =  selectedWaiter.id * 1
+                this.getAuthInfo();
+                Observer.send(BIND_EMP, this.empId);
+                this.$message.success('修改卡台服务员成功');
+                this.dialogFormVisible = false
+                this.keyboardLeave('waiter');
+              } else {
+                this.$message.warning(r.msg);
+              }
+            })
+          }
         } else {
           console.log('error submit!!');
           return false;
@@ -593,7 +608,7 @@ export default {
                   el.name.toString().includes(query) ||
                   el.namePy.toString().includes(query.toLowerCase())
           )
-          : sealInfoArr;
+          : [];
       console.log('waiters:', results)
       this.ruleForm.waiters = results;
       this.loading = false;
@@ -676,9 +691,11 @@ export default {
       };
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
       this.empId = this.empId || businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1).waiter_emp_id
+
       this.authInfo.name = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
           (item) => item.id == this.empId
       ).map((item) => item.name).join("");
+      this.empName = this.authInfo.name
       this.authInfo = { ...this.authInfo };
     },
     async getShoppingCartData() {
