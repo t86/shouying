@@ -181,7 +181,7 @@
               ref="ruleForm.waiter"
               placeholder="输入服务员工号"
           ></el-input>
-          <div v-for="item in ruleForm.waiters" :key="item.p">
+          <div v-for="item in ruleForm.waiters" :key="item.id">
             <el-checkbox
                 v-model="item.checked"
                 @change=""
@@ -330,7 +330,18 @@ export default {
   },
   methods: {
     changeWaiterNumber(value){
-
+      switch (value) {
+        case 10:
+          this.ruleForm.waiter=''
+          break;
+        case 12:
+          this.ruleForm.waiter = this.ruleForm.waiter.slice(0, this.ruleForm.waiter.length - 1)
+          break;
+        default:
+          this.ruleForm.waiter += value.toString()
+          break;
+      }
+      this.remoteMethod(this.ruleForm.waiter)
     },
     changeNum(value) {
       console.log('value is', value)
@@ -481,7 +492,7 @@ export default {
       console.log('showDiandanEmpChange')
       if (this.isValidCard && this.hasChgKTWaiterAuth()) {
         this.dialogFormVisible = true;
-        this.remoteMethod();
+        // this.remoteMethod();
         this.ruleForm.waiter = this.empId + ""
         setTimeout(() => {
           this.keyboardShow('waiter')
