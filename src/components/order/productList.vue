@@ -150,28 +150,43 @@
     
     <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
+        <keyBoard @changeNum="changeWaiterNumber" />
         <el-form-item label="原服务员:">
 <!--          {{this.$store.state.userInfo.name}}-->
           {{authInfo.name}}
         </el-form-item>
-        <el-form-item label="绑定服务员:" required prop="waiter">
-          <el-select
+<!--        <el-form-item label="绑定服务员:" required prop="waiter">-->
+<!--          <el-select-->
+<!--              v-model="ruleForm.waiter"-->
+<!--              ref="waiter"-->
+<!--              @focus="handleFocus('waiter')"-->
+<!--              filterable-->
+<!--              remote-->
+<!--              reserve-keyword-->
+<!--              placeholder="输入工号或者姓名搜索"-->
+<!--              :remote-method="remoteMethod"-->
+<!--              :loading="loading">-->
+<!--            <el-option-->
+<!--                v-for="item in ruleForm.waiters"-->
+<!--                :key="item.id"-->
+<!--                :label="item.name"-->
+<!--                :value="item.id">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+        <el-form-item label="绑定服务员" required>
+          <el-input
               v-model="ruleForm.waiter"
-              ref="waiter"
-              @focus="handleFocus('waiter')"
-              filterable
-              remote
-              reserve-keyword
-              placeholder="输入工号或者姓名搜索"
-              :remote-method="remoteMethod"
-              :loading="loading">
-            <el-option
-                v-for="item in ruleForm.waiters"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-            </el-option>
-          </el-select>
+              autofocus
+              ref="ruleForm.waiter"
+              placeholder="输入服务员工号"
+          ></el-input>
+          <div v-for="item in ruleForm.waiters" :key="item.p">
+            <el-checkbox
+                v-model="item.checked"
+                @change=""
+            >{{ item.id + '  ' + item.name }}</el-checkbox>
+          </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -314,6 +329,9 @@ export default {
     };
   },
   methods: {
+    changeWaiterNumber(value){
+
+    },
     changeNum(value) {
       console.log('value is', value)
       switch (value) {
