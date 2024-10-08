@@ -209,6 +209,7 @@
               >{{ item.n + '  ' + item.p }}</el-checkbox>
         </div>
         </el-form-item>
+        <keyBoard @changeNum="changeNum" />
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancelBindGuest">关闭</el-button>
@@ -231,6 +232,7 @@ import Observer, { BIND_EMP } from "@/observer";
 import api_auth from "@/api/UtilAuth";
 import {cardPageMixins} from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
+import keyBoard from "@/components/common/newKeyBoard";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -312,6 +314,23 @@ export default {
     };
   },
   methods: {
+    changeNum(value) {
+      console.log('value is', value)
+      switch (value) {
+        case 10:
+          this.formguest.phone=''
+          break;
+        case 12:
+          this.formguest.phone = this.formguest.phone.toString().slice(0, this.formguest.phone.toString().length - 1)
+          break;
+        default:
+          this.formguest.phone += value.toString()
+          break;
+      }
+      if(this.formguest.phone.length === 4){
+        this.searchGuestPhone(this.formguest.phone)
+      }
+    },
     changeSelectGuest(item) {
       console.log('changeSelectGuest', item)
       this.formguest.guests.forEach(ite => ite.checked = false)
@@ -1144,7 +1163,8 @@ export default {
   },
   components: {
     mealDrawer,
-    ImagePreview
+    ImagePreview,
+    keyBoard
   },
   watch: {
     "formguest.phone"(newVal){
