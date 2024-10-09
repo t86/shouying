@@ -341,12 +341,13 @@ export default {
       this.remoteMethod(query)
     },
     changeWaiterNumber(value){
+      console.log('value is', value)
       switch (value) {
         case 10:
           this.empName=''
           break;
         case 12:
-          this.empName = this.empName.slice(0, this.empName - 1)
+          this.empName = this.empName.slice(0, this.empName.length - 1)
           break;
         default:
           this.empName += value.toString()
@@ -535,14 +536,16 @@ export default {
     bindGuest(){
       console.log('bindGuest', this.empId, this.formguest.phone)
       this.showBindGuest = true;
-      if(this.formguest.phone) {
-        this.formguest.guests = [{
-          p: this.formguest.phone,
-        n: this.formguest.name
-        }]
-      } else {
-        this.formguest.guests = []
-      }
+      // if(this.formguest.phone) {
+      //   this.formguest.guests = [{
+      //     p: this.formguest.phone,
+      //   n: this.formguest.name
+      //   }]
+      // } else {
+      //   this.formguest.guests = []
+      // }
+      this.formguest.phone = ''
+      this.formguest.guests = []
     },
     hideChgDianDan() {
       this.dialogFormVisible = false;
