@@ -148,47 +148,53 @@
     </el-dialog> -->
 
     
-    <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible">
+    <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible" width="60%">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
-        <keyBoard @changeNum="changeWaiterNumber" />
-        <el-form-item label="原服务员:">
-<!--          {{this.$store.state.userInfo.name}}-->
-          {{authInfo.name}}
-        </el-form-item>
-<!--        <el-form-item label="绑定服务员:" required prop="waiter">-->
-<!--          <el-select-->
-<!--              v-model="ruleForm.waiter"-->
-<!--              ref="waiter"-->
-<!--              @focus="handleFocus('waiter')"-->
-<!--              filterable-->
-<!--              remote-->
-<!--              reserve-keyword-->
-<!--              placeholder="输入工号或者姓名搜索"-->
-<!--              :remote-method="remoteMethod"-->
-<!--              :loading="loading">-->
-<!--            <el-option-->
-<!--                v-for="item in ruleForm.waiters"-->
-<!--                :key="item.id"-->
-<!--                :label="item.name"-->
-<!--                :value="item.id">-->
-<!--            </el-option>-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
-        <el-form-item label="绑定服务员" required>
-          <el-input
-              v-model="empName"
-              autofocus
-              disabled
-              ref="ruleForm.waiter"
-              placeholder="输入服务员工号"
-          ></el-input>
-          <div v-for="item in ruleForm.waiters" :key="item.id">
-            <el-checkbox
-                v-model="item.checked"
-                @change="changeSelectWaiter(item)"
-            >{{ item.code + '  ' + item.name }}</el-checkbox>
+        <div class="flex">
+          <div class="w-2/3">
+            <el-form-item label="原服务员:">
+              <!--          {{this.$store.state.userInfo.name}}-->
+              {{authInfo.name}}
+            </el-form-item>
+            <!--        <el-form-item label="绑定服务员:" required prop="waiter">-->
+            <!--          <el-select-->
+            <!--              v-model="ruleForm.waiter"-->
+            <!--              ref="waiter"-->
+            <!--              @focus="handleFocus('waiter')"-->
+            <!--              filterable-->
+            <!--              remote-->
+            <!--              reserve-keyword-->
+            <!--              placeholder="输入工号或者姓名搜索"-->
+            <!--              :remote-method="remoteMethod"-->
+            <!--              :loading="loading">-->
+            <!--            <el-option-->
+            <!--                v-for="item in ruleForm.waiters"-->
+            <!--                :key="item.id"-->
+            <!--                :label="item.name"-->
+            <!--                :value="item.id">-->
+            <!--            </el-option>-->
+            <!--          </el-select>-->
+            <!--        </el-form-item>-->
+            <el-form-item label="绑定服务员" required>
+              <el-input
+                  v-model="empName"
+                  autofocus
+                  ref="ruleForm.waiter"
+                  placeholder="输入服务员工号"
+                  @input="waiterInput"
+              ></el-input>
+              <div v-for="item in ruleForm.waiters" :key="item.id">
+                <el-checkbox
+                    v-model="item.checked"
+                    @change="changeSelectWaiter(item)"
+                >{{ item.code + '  ' + item.name }}</el-checkbox>
+              </div>
+            </el-form-item>
           </div>
-        </el-form-item>
+          <div class="ml-2">
+            <keyBoard @changeNum="changeWaiterNumber" />
+          </div>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="hideChgDianDan">取 消</el-button>
@@ -213,7 +219,6 @@
           <el-input
           v-model="formguest.phone"
           autofocus
-          disabled
           ref="guestInput"
           @click="handleFocus('guestInput')"
           @input="searchGuestPhone"
@@ -332,6 +337,9 @@ export default {
     };
   },
   methods: {
+    waiterInput(query){
+      this.remoteMethod(query)
+    },
     changeWaiterNumber(value){
       switch (value) {
         case 10:
