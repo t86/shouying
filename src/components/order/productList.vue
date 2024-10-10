@@ -463,6 +463,8 @@ export default {
 
     // },
     handleFocus(refString) {
+      //2024年10月10日 去掉安卓键盘
+      /*
       if (
         window.atool
         && window.atool.getTermType() == "android" &&
@@ -475,9 +477,11 @@ export default {
         setTimeout(() => {
           this.keyboardShow(refString)
         }, 100)
-      }
+      }*/
     },
     keyboardShow(refString) {
+      //2024年10月10日 去掉安卓键盘
+      /*
       if (
         window.atool &&
         window.atool.getTermType() == "android" &&
@@ -490,9 +494,11 @@ export default {
             el.focus();
           }
         });
-      }
+      }*/
     },
     keyboardLeave(refString) {
+      //2024年10月10日 去掉安卓键盘
+      /*
       setTimeout(() => {
         if (
           window.atool
@@ -504,7 +510,7 @@ export default {
           atool.restart();
 
         }
-      }, 10)
+      }, 10) */
     },
     showDiandanEmpChange() {
       console.log('showDiandanEmpChange')
