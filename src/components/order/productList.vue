@@ -77,7 +77,7 @@
 
 
 
-    <div class="card-name-top" ref="cardNameTop" :style="{ right: isRect ? (isMediumWidth ? '300px' : '420px') : '300px'}">
+    <div class="card-name-top" ref="cardNameTop" :style="{ right: isRect ? (isMediumWidth ? '420px' : '450px') : '350px', height: isRect? '60px': '30px'}">
       <div class="card-name-title" ref="cardNameTitle">
         <span :style="{ fontSize: titleFontSize }">{{ cardInfo.name }}</span>
         <span :style="{ fontSize: titleFontSize1 }">
