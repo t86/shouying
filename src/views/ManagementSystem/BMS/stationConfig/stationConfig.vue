@@ -258,6 +258,9 @@ export default {
   },
   methods: {
     async getTableData() {
+      const checked = this.tableData.filter((item) => item.checked);
+
+      console.log('checkedNow:', checked)
       try {
         const params = {
           key: this.searchKey,
@@ -266,7 +269,7 @@ export default {
         if (res.code == 1) {
           this.tableData = (res.data || []).map((item) => ({
             ...item,
-            checked: false,
+            checked: checked && checked.length? checked.some((a) => a.id === item.id): false
           }));
           this.checkAll = false;
           this.$emit("getMenuList");
