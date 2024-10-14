@@ -1068,12 +1068,29 @@ export default {
         );
         // 区域tab
         this.getTabList(resResultDataObj["areaInfo"]);
+
+        this.card.cardList = this.processData(resResultDataObj["areaInfo"], this.card.cardList)
+
         // 获取卡台数据
       } catch (error) {
         console.log("全量数据请求失败", error);
       }
     },
+    processData(tabList, dataList) {
+      // 按照 tabList 的顺序重新排列和排序 dataList
+      const result = tabList.flatMap(tab => {
+        // 过滤出与当前 tab.id 匹配的 dataList 项
+        const filteredList = dataList.filter(item => item.regionId === tab.id);
 
+        // 按照 dsp 进行排序
+        filteredList.sort((a, b) => a.dsp.localeCompare(b.dsp));
+
+        // 返回排序后的这一组数据
+        return filteredList;
+      });
+
+      return result;
+    },
     getMustDisabled(seatId,regionId, disable_must_order) {
       let hasMust = false
 
