@@ -75,6 +75,7 @@ export const cardPageMixins = {
 
     // 切换tab
     changeTab(index, id) {
+      console.log('index,id', index, id)
       if (this.modelVisible) return;
       if (id === 999) {
         // 点击的是其它这个按钮本身

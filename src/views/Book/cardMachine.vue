@@ -520,13 +520,12 @@ import drawerQueue from "@/components/book/machine/drawerQueue.vue"; // 排队�
 import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue";
 
 import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
-
 import api_card from "@/api/Book";
 import api_money from "@/api/money";
 import api_auth from "@/api/UtilAuth";
-import { legendList, cardOptions } from "@/utils/config/card";
+import {cardOptions, legendList} from "@/utils/config/card";
 
-import { cardPageMixins } from "@/mixin/cardPage";
+import {cardPageMixins} from "@/mixin/cardPage";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 import more from "@/assets/card-imgs/more.png";
@@ -540,6 +539,7 @@ import updatepwd from "@/assets/card-imgs/updatepwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 import store from "../../store";
+
 const TabWidth = 100; // tab固定宽度
 const cardWidth = 168; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
@@ -1001,7 +1001,10 @@ export default {
         );
       }
 
-      if (key === "regionId" && id === 0) return cardListInfoArr; // 点击全部按钮
+      if (key === "regionId" && id === 0) {
+        // return cardListInfoArr
+        return this.processData(resResultDataObj["areaInfo"], cardListInfoArr)
+      } // 点击全部按钮
       return cardListInfoArr.filter((item) => item[key] == id);
     },
 
