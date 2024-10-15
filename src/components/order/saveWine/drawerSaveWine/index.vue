@@ -193,6 +193,7 @@ export default {
     },
 
     async onSubmit () {
+      console.log('this.stepOneInfo.phoneNum ', this.stepOneInfo.phoneNum )
       switch (this.status) {
         case 1:
           let result = "";
@@ -239,6 +240,7 @@ export default {
     },
 
     updateStepInfo (info) {
+      console.log('updateStepInfo.....----', info)
       if (this.status == 1) {
         this.stepOneInfo = { ...info };
       } else if (this.status == 2) {

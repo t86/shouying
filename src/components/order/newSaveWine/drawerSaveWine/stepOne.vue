@@ -90,7 +90,7 @@
                     <input v-if="phoneNumMask === ''" v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
                       @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
                     <input v-else v-model="phoneNumMask" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
-                           @input="" placeholder="请输入手机号2" />
+                           placeholder="请输入手机号" />
 
                     <el-button v-if="stepOneInfo.needAuthPhoneVal" style="
                     position: absolute; left: 280px;background: #374368;
@@ -199,6 +199,9 @@ export default {
     };
   },
   methods: {
+    maskChange(val){
+      console.log(val)
+    },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem("secondCount"); // 获取发送短信时的时间戳
       const now = +new Date();
@@ -373,12 +376,16 @@ export default {
     },
 
     emitStepOneInfoHandle() {
+      console.log('emitStepOneInfoHandle')
+      console.log(this.phoneNum)
+      console.log(this.phoneNumMask)
       this.$emit("updateStepInfo", {
         ...JSON.parse(JSON.stringify(this.stepOneInfo)),
         orderList: [...this.tableData],
         tabIndex: this.tabIndex,
         authValidateVal: this.authValidateVal || "", // 服务码
         phoneNum: this.phoneNum || "", // 手机号
+        phoneNumMask: this.phoneNumMask,
         validateVal: this.validateVal || "", // 验证码
         customPhoneNum: this.customPhoneNum || "", // 手机号
         customName: this.customName || "", // 客户姓名
@@ -458,6 +465,24 @@ export default {
     },
   },
   watch: {
+    phoneNumMask: {
+      immediate: true,
+      handler(newVal){
+        console.log(newVal)
+        if(!newVal) {
+          this.phoneNum = ''
+        }
+      }
+    },
+    customPhoneNumMask: {
+      immediate: true,
+      handler(newVal){
+        console.log(newVal)
+        if(!newVal) {
+          this.customPhoneNum = ''
+        }
+      }
+    },
     stepOneInfo: {
       handler(newVal) {
         console.log("stepOneInfo watch,", newVal)
