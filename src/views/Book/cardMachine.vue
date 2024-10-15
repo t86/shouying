@@ -1086,7 +1086,7 @@ export default {
         const filteredList = dataList.filter(item => item.regionId === tab.id);
 
         // 按照 dsp 进行排序
-        filteredList.sort((a, b) => a.dsp.localeCompare(b.dsp));
+        filteredList.sort((a, b) => a.dsp * 1 > b.dsp * 1);
 
         // 返回排序后的这一组数据
         return filteredList;
