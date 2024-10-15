@@ -117,7 +117,7 @@ export default {
         page_size: this.pageSize,
         init: init,
         is_init: init,
-        name: this.searchFormData.keyword || "",
+        key: this.searchFormData.keyword || "",
         one_cate_id: this.searchFormData.valueArr[0],
         two_cate_id: this.searchFormData.valueArr[1],
       };
