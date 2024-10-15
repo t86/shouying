@@ -107,6 +107,10 @@ export default {
   methods: {
     // 获取商品分类
     async getTableData(init = 2) {
+      if (this.loadText === '没有更多了' && init !== 1) {
+        return;
+      }
+      
       this.page = init == 1 ? 1 : this.page + 1
       const params = {
         page_num: this.page,
@@ -151,7 +155,8 @@ export default {
                 ...item,
                 checked: matched,
                 disabled: matched,
-                price: item.price || (item.p / 100).toFixed(2)
+                // price: item.price || (item.p / 100).toFixed(2)
+                price:  item.p
               }
           })
           this.loadText = tableData.length == this.pageSize ? '加载中...' : '没有更多了'
