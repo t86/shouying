@@ -368,7 +368,7 @@ export default {
           this.formguest.phone += value.toString()
           break;
       }
-      if(this.formguest.phone.length === 4){
+      if(this.formguest.phone.length === 4 || this.formguest.phone.length === 11){
         this.searchGuestPhone(this.formguest.phone)
       }
     },
