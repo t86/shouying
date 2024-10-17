@@ -473,7 +473,7 @@ export default {
       }
 
       console.log("productInfo is", this.productInfo)
-      if(this.productInfo.bizType * 1 === 1) {
+      if(this.productInfo.prdType * 1 === 2) {
         await this.orderMealToShoppingCart(c, true)
         return
       }
