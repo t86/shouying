@@ -9,7 +9,7 @@
 
       <div class="group-title-price" v-else>
         <span>单价:</span>
-        <span class="value">￥{{singleInfo.auth_type === 2? groupInfo.vipPrice: groupInfo.price}}</span>
+        <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
       </div>
 
       <div class="group-title-count">
@@ -498,7 +498,7 @@ export default {
 
         console.log('?'.repeat(50), this.singleInfo)
         params.auth_type = this.singleInfo.auth_type
-        if (params.auth_type === 2) {
+        if (params.auth_type === 2 && this.groupInfo.bizType * 1 === 1) {
           params.prd_price =  Math.round(this.groupInfo.vipPrice * 100)
         }
 
