@@ -489,12 +489,18 @@ export default {
       }
 
       try {
+
         if(this.vipPrice && this.bindphone && this.groupInfo.bizType * 1 === 1) {
           params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
         } else {
           params.prd_price = Math.round(this.groupInfo.price * 100)
         }
 
+        console.log('?'.repeat(50), this.singleInfo)
+        params.auth_type = this.singleInfo.auth_type
+        if (params.auth_type === 2) {
+          params.prd_price =  Math.round(this.groupInfo.vipPrice * 100)
+        }
 
         const res = await api_order.reqAddGroupToShopping(params);
         if (res.code === 1) {

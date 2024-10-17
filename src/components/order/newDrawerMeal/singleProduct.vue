@@ -353,13 +353,13 @@ export default {
 
       // 收银下单
       if (this.$store.state.userInfo.authStatus == 4) {
-         this.orderMealToShoppingCart(this.shopCount);
+         this.orderMealToShoppingCart(this.shopCount, false);
          return
       }
 
       // 服务员可点商品加入购物车
       if (this.orderMealStatus == 1) {
-        this.orderMealToShoppingCart(this.shopCount);
+        this.orderMealToShoppingCart(this.shopCount, false);
         return
       }
 
@@ -379,14 +379,14 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
         this.$store.state.orderInfo.currentCardInfo.bizType == 4
       ) {
-        this.orderMealToShoppingCart(this.shopCount);
+        this.orderMealToShoppingCart(this.shopCount, false);
         return
       }
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
     // 服务员/收银加入购物车
-    async orderMealToShoppingCart(c) {
+    async orderMealToShoppingCart(c, yh) {
       let price = this.productInfo.price
       if (this.vipPrice && this.bindphone !== '' && this.productInfo.bizType *1 === 1){
         price = this.productInfo.vipPrice
@@ -397,6 +397,7 @@ export default {
         prd_id: this.productInfo.id * 1, //  int64  商品Id
         prd_cnt: c * 1, //  int   商品数量
         prd_price: price, //  string  商品单价,用于做二次验证
+        auth_type: yh? 2: 0,
         prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
         requirement: this.requestInfoArr.join(";"), // string  要求
       };
@@ -467,8 +468,15 @@ export default {
         this.amt === "" &&
         this.productInfo.prdType != 13 &&
         this.productInfo.prdType != 14
-      )
+      ){
         return this.$message.warning("请输入金额");
+      }
+
+      console.log("productInfo is", this.productInfo)
+      if(this.productInfo.bizType * 1 === 1) {
+        await this.orderMealToShoppingCart(c, true)
+        return
+      }
 
       try {
         const params = {
@@ -506,7 +514,8 @@ export default {
         status.push(1);
       }
       // prd_type=1的普通单品 才可以优惠
-      if (this.productInfo.canSeal && this.productInfo.prdType == 1) {
+      // if (this.productInfo.canSeal && this.productInfo.prdType == 1) {
+      if (this.productInfo.canSeal) {
         status.push(2);
       }
       if (this.productInfo.canHL) {

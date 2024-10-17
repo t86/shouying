@@ -205,8 +205,10 @@ export default {
         && (this.$store.state.orderInfo.currentCardInfo.isYX) && !isGQ) {
         // 营销在当前区域下可点商品
         const YXAreaPrdList = [];
+
         currentAreaAllProduct.forEach((el) => {
-          const find = stationAllProduct.find((item) => item.id == el.prd_id && item.prdType == 1);
+          // const find = stationAllProduct.find((item) => item.id == el.prd_id && item.prdType == 1);
+          const find = stationAllProduct.find((item) => item.id == el.prd_id);
           if (find)
             YXAreaPrdList.push({
               ...find,
@@ -251,6 +253,7 @@ export default {
         });
 
       }
+      console.log('YXAllProductList: ', YXAllProductList)
 
       /**
        *  优惠2
@@ -537,6 +540,7 @@ export default {
           canSealYH2: false,
         }));
       }
+      console.log('resultProductArr--------------:', resultProductArr)
 
 
 
