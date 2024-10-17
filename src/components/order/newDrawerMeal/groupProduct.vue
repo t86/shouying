@@ -9,7 +9,7 @@
 
       <div class="group-title-price" v-else>
         <span>单价:</span>
-        <span class="value">￥{{groupInfo.price}}</span>
+        <span class="value">￥{{singleInfo.auth_type === 2? groupInfo.vipPrice: groupInfo.price}}</span>
       </div>
 
       <div class="group-title-count">
@@ -18,7 +18,7 @@
       </div>
       <div class="group-title-amt">
         <span>小计:</span>
-        <span class="value">￥{{groupInfo.allAmt}}</span>
+        <span class="value">￥{{ singleInfo.auth_type === 2? 0: groupInfo.allAmt}}</span>
       </div>
     </div>
     <!-- 待替换商品 -->
