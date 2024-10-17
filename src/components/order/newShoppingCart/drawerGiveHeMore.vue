@@ -1001,7 +1001,7 @@ export default {
           case 6:  // 批量优惠
           case 7:  // 批量优惠2
             this.checkAll = true
-            this.sealProductList = this.shoppingCartList.filter(item => item.at !=2 && item.at != 3 && (item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6)).map(item => ({
+            this.sealProductList = this.shoppingCartList.filter(item => item.at !=2 && item.at != 3 && (item.productInfo.prdType*1 === 1 || item.productInfo.prdType*1 === 2 || item.productInfo.prdType*1 === 7 || item.productInfo.prdType*1 === 6)).map(item => ({
               ...item,
               changeCount: item.pc,
               checked: true
