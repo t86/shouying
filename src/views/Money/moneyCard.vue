@@ -430,16 +430,16 @@
                   />
                   <span>线上支付汇总</span>
                 </div>
-                <div
-                  class="option-item line"
-                  @click="showOrHideOnlinePayDetailHandle()"
-                >
-                  <img
-                    :src="require('@/assets/money-img/online-pay-detail.png')"
-                    alt
-                  />
-                  <span>线上支付记录</span>
-                </div>
+<!--                <div-->
+<!--                  class="option-item line"-->
+<!--                  @click="showOrHideOnlinePayDetailHandle()"-->
+<!--                >-->
+<!--                  <img-->
+<!--                    :src="require('@/assets/money-img/online-pay-detail.png')"-->
+<!--                    alt-->
+<!--                  />-->
+<!--                  <span>线上支付记录</span>-->
+<!--                </div>-->
                 <div
                   class="option-item line"
                   @click="showOrHideKpiReportHandle()"
