@@ -29,6 +29,25 @@
           </div>
 
           <div class="row">
+            <span class="label">支付方式:</span>
+            <el-select
+                v-model="form.payMethod"
+                size="small"
+                placeholder="请选择支付方式"
+                style="width: 200px"
+            >
+              <el-option
+                  v-for="item in payMethods"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+
+
+          <div class="row">
             <span class="label">营业类型:</span>
             <el-select
               v-model="form.businessType"
@@ -149,7 +168,13 @@ export default {
         businessType: "",
         prodOptions: [],
         businessOptions: [],
+        payMethod: 0,
       },
+      payMethods: [
+        {id:0,n:'全部'},
+        {id:1,n:'线上支付'},
+        {id:2,n:'线上客人自助'}
+      ],
       tableData: [],
     };
   },
@@ -160,7 +185,7 @@ export default {
         key: this.form.keyword, //  string  查询关键字
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
-        pay_type: 0, //支付方式 0 全部 1 线上支付 2 线上客人自助
+        pay_type: this.form.payMethod,
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
@@ -182,7 +207,7 @@ export default {
         key: this.form.keyword, //  string  查询关键字
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
-        pay_type: 0, //支付方式 0 全部 1 线上支付 2 线上客人自助
+        pay_type: this.form.payMethod,
       };
 
       try {
