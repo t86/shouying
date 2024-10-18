@@ -136,12 +136,24 @@
           </el-tooltip>
       </h4>
       <div class="fs14">
-        <el-radio-group v-model="csm_waiter_flag" class="m-l-4 m-t-4">
-          <el-radio :label="1">不带出</el-radio>
-          <el-radio :label="2">带出</el-radio>
-          <el-radio :label="3">当前营业日带出</el-radio>
-        </el-radio-group>
+        <div>
+          <el-radio-group v-model="csm_waiter_flag" class="m-l-4 m-t-4">
+            <el-radio :label="1">不带出</el-radio>
+            <el-radio :label="2">带出</el-radio>
+            <el-radio :label="3">当前营业日带出</el-radio>
+          </el-radio-group>
+        </div>
+
+        <div>
+          <span>绑定客人功能</span>
+          <el-switch v-model="bingGuest"
+                     active-text="是"
+                     inactive-text="否"
+          ></el-switch>
+        </div>
       </div>
+
+
     </div>
     <div style="
       position: fixed;
@@ -176,6 +188,7 @@ export default {
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
       notShowAmt: false,  // 是否不显示金额
       csm_waiter_flag: 1,
+      bingGuest: false,
       scanOrderMustDx: false,
       timeoutAutoBack: false,
       orderedShipNow: false,
@@ -238,6 +251,7 @@ export default {
           this.timeoutAutoBack = res.data.cust_scan_order_timeout !== 0
           this.timeoutAutoBackTime = res.data.cust_scan_order_timeout
           this.orderedShipNow = res.data.cust_order_auto_mk == 1
+          this.bingGuest = res.data.bind_cust === 1
         } else {
           this.$message.warning(res.msg);
         }
@@ -262,7 +276,7 @@ export default {
         cust_scan_order_timeout: this.timeoutAutoBack ? this.timeoutAutoBackTime * 1 : 0,
         csm_waiter_flag: this.csm_waiter_flag,
         cust_order_auto_mk: this.orderedShipNow? 1: 2,
-
+        bind_cust: this.bingGuest?1:2,
       };
 
       try {
