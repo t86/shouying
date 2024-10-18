@@ -1588,7 +1588,7 @@ export default {
           case 7:  // 批量优惠2
             this.checkAll = true
 
-            const offLineOrder = this.orderList.filter(item => !item.oid).filter(item => item.at != 2 && item.at != 3 && !item.back && (item.productInfo.prdType == 1 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6))
+            const offLineOrder = this.orderList.filter(item => !item.oid).filter(item => item.at != 2 && item.at != 3 && !item.back && (item.productInfo.prdType == 1 || item.productInfo.prdType == 2 || item.productInfo.prdType == 7 || item.productInfo.prdType == 6))
 
             this.sealProductList = offLineOrder.map(item => ({
               ...item,
