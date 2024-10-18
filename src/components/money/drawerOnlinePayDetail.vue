@@ -1,78 +1,130 @@
 <template>
-  <div class="online-pay-detail">
-    <!-- 线上支付记录 -->
+  <div class="order-detail">
     <el-drawer
-      title="线上支付记录"
-      :visible.sync="show"
-      :before-close="onCancelDrawer"
-      direction="rtl"
-      size="96%"
+        title="线上支付记录"
+        :visible.sync="show"
+        :before-close="onCancelDrawer"
+        direction="rtl"
+        size="98%"
     >
-      <div >
+      <div>
         <div class="top" layout="row" layout-align="space-between center">
+          <div class="row">
+            <span class="label">商品类型:</span>
+            <el-select
+                v-model="form.prodType"
+                size="small"
+                placeholder="请选择商品类型"
+                style="width: 200px"
+            >
+              <el-option
+                  v-for="item in form.prodOptions"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+
+          <div class="row">
+            <span class="label">营业类型:</span>
+            <el-select
+                v-model="form.businessType"
+                size="small"
+                placeholder="请选择营业类型"
+                style="width: 200px"
+            >
+              <el-option
+                  v-for="item in form.businessOptions"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
+
           <div class="top-left" layout="row" layout-align="start center">
-            <span>类型：</span>
-            <mySelect
-              style="width:150px"
-              :value="selectInfo.selectVal"
-              :optionsList="selectInfo.selectOption"
-              @selectOptionItem="setSelectValHandle"
-              @selectBlurHandle="selectBlurHandle"
-              @getOption="getOptionHandle"
+            <input
+                v-model="form.keyword"
+                placeholder="订台人/点单人/商品名称"
             />
-            <input v-model="keyword" placeholder="输入订位人或卡台名称" />
             <el-button
-              class="m-l-2"
-              type="primary"
-              style="width:70px;height:30px;line-height:30px;padding:0"
-              @click="getTableData"
-            >查询</el-button>
+                class="m-l-2"
+                type="primary"
+                style="width: 70px; height: 30px; line-height: 30px; padding: 0"
+                @click="getTableData"
+            >查询</el-button
+            >
             <el-button
-              type="info"
-              style="width:70px;height:30px;line-height:30px;padding:0"
-              @click="resetHandle"
-            >重置</el-button>
+                type="info"
+                style="width: 70px; height: 30px; line-height: 30px; padding: 0"
+                @click="resetHandle"
+            >重置</el-button
+            >
           </div>
           <el-button
-            type="primary"
-            @click="exportExcel"
-            style="width:90px;height:30px;line-height:30px;padding:0"
-          >导出Excel</el-button>
+              type="primary"
+              @click="exportExcel"
+              style="width: 90px; height: 30px; line-height: 30px; padding: 0"
+          >导出Excel</el-button
+          >
         </div>
 
         <div class="table">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
-              <div class="th">序号</div>
-              <div class="th">卡台名称</div>
               <div class="th">区域</div>
-              <div class="th">订位人</div>
-              <div class="th">部门</div>
-              <div class="th">支付渠道</div>
-              <div class="th">交易金额</div>
-              <div class="th">类型</div>
-              <div class="th">交易时间</div>
+              <div class="th">卡台</div>
+              <div class="th">点单时间</div>
+              <div class="th">点单部门</div>
+              <div class="th">点单人</div>
+              <div class="th">商品一级分类</div>
+              <div class="th">商品二级分类</div>
+              <div class="th">商品名称</div>
+              <div class="th">商品类型</div>
+              <div class="th">营业类型</div>
+              <div class="th">点单数量</div>
+              <div class="th">点单金额</div>
+              <div class="th">实收金额</div>
+              <div class="th">订台人</div>
+              <div class="th">订位部门</div>
+              <div class="th">支付信息</div>
             </div>
           </div>
           <div class="tbody">
             <div
-              class="tr"
-              layout="row"
-              layout-align="start center"
-              v-for="(item, index) in tableData"
-              :key="index"
+                class="tr"
+                layout="row"
+                layout-align="start center"
+                v-for="(item, index) in tableData"
+                :key="index"
             >
-              <div class="td one-txt-cut">{{index + 1}}</div>
-              <div class="td one-txt-cut">{{item.sn}}</div>
-              <div class="td one-txt-cut">{{item.rn}}</div>
-              <div class="td one-txt-cut">{{item.en}}</div>
-              <div class="td one-txt-cut">{{item.dn}}</div>
-              <div class="td one-txt-cut">{{item.cn}}</div>
-              <div class="td one-txt-cut">{{item.a}}</div>
-              <div class="td one-txt-cut">{{item.t}}</div>
-              <div class="td one-txt-cut">{{item.tt}}</div>
+              <div class="td">{{ item.r }}</div>
+              <div class="td">{{ item.s }}</div>
+              <div class="td">{{ item.o }}</div>
+              <div class="td">{{ item.od }}</div>
+              <div class="td">{{ item.oe }}</div>
+              <div class="td">{{ item.po }}</div>
+              <div class="td">{{ item.pt }}</div>
+              <div class="td">{{ item.p }}</div>
+              <div class="td">{{ item.pd }}</div>
+              <div class="td">{{ item.bt }}</div>
+              <div class="td">{{ item.c }}</div>
+              <div class="td">{{ item.a }}</div>
+              <div class="td">{{ item.v }}</div>
+              <div class="td">{{ item.se }}</div>
+              <div class="td">{{ item.sd }}</div>
+              <div class="td">{{ item.pi }}</div>
             </div>
-            <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
+            <p
+                v-if="tableData.length == 0"
+                class="m-t-10 fs14"
+                style="text-align: center"
+            >
+              暂无数据
+            </p>
           </div>
         </div>
       </div>
@@ -83,74 +135,62 @@
     </el-drawer>
   </div>
 </template>
- 
+
 <script>
 import api_money from "@/api/money";
-import mySelect from "@/components/book/select";
 export default {
   data() {
     return {
       show: false,
-      selectInfo: {
-        selectVal: "全部",
-        selectOption: [],
-        originSelectOption: [
-          {
-            id: 0,
-            name: "全部"
-          },
-          {
-            id: 1,
-            name: "点单结账"
-          },
-          {
-            id: 2,
-            name: "退款"
-          }
-        ]
+      form: {
+        keyword: 0,
+        prodType: 0,
+        businessType: "",
+        prodOptions: [],
+        businessOptions: [],
       },
-      keyword: "",
-      tableData: []
+      tableData: [],
     };
   },
   methods: {
     // 获取数据
     async getTableData() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(
-          item => item.name == this.selectInfo.selectVal
-        ).id, //    int   类型 1 点单结账 2 退款 0 全部
-        key: this.keyword //  string   查询关键字 过滤 定位人或定位人拼音或卡台名称
+        key: this.form.keyword, //  string  查询关键字
+        prd_type: this.form.prodType, // int 商品类型id
+        biz_type: this.form.businessType, // int 营业类型id
+        pay_type: 1, //0 全部 1 线上支付 2 线上客人自助
       };
       try {
-        const res = await api_money.reqGetOnlinePayDetailInfo(params);
+        const res = await api_money.reqGetOrderDetailList(params);
         if (res.code == 1) {
           this.tableData = res.data.records || [];
+          this.form.businessOptions = res.data.biz_types;
+          this.form.prodOptions = res.data.prd_type;
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("获取在线支付流水单失败", error);
+        console.log("获取表格数据失败", error);
       }
     },
 
     // 导出excel
     async exportExcel() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(
-          item => item.name == this.selectInfo.selectVal
-        ).id, //    int   类型 1 点单结账 2 退款 0 全部
-        key: this.keyword //  string   查询关键字 过滤 定位人或定位人拼音或卡台名称
+        key: this.form.keyword, //  string  查询关键字
+        prd_type: this.form.prodType, // int 商品类型id
+        biz_type: this.form.businessType, // int 营业类型id
+        pay_type: 1, //0 全部 1 线上支付 2 线上客人自助
       };
 
       try {
-        const res = await api_money.reqExportExcelOfOnlinePayDetail(params);
+        const res = await api_money.reqExportOrderDetailReport(params);
         if (!res.msg) {
           const url = window.URL.createObjectURL(
-            new Blob([res], {
-              type:
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            })
+              new Blob([res], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              })
           );
           const a = document.createElement("a"); //添加a标签
           document.body.appendChild(a);
@@ -172,47 +212,39 @@ export default {
     },
 
     resetHandle() {
-      this.selectInfo.selectVal = "全部";
-      this.keyword = "";
+      this.form = {};
       this.getTableData();
     },
-
-    /*
-    筛选下拉框相关 start
-    */
-    setSelectValHandle(info) {
-      this.selectInfo.selectVal = info.name;
-    },
-    selectBlurHandle() {
-      this.selectInfo.selectOption = [];
-    },
-    getOptionHandle() {
-      this.selectInfo.selectOption = JSON.parse(
-        JSON.stringify(this.selectInfo.originSelectOption)
-      );
-    }
   },
   props: {
     showDrawer: {
-      default: false // 是否显示drawer
-    }
-  },
-  components: {
-    mySelect
+      default: false, // 是否显示drawer
+    },
   },
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
-      newVal ? this.getTableData() : "";
-    }
-  }
+      newVal ? this.resetHandle() : "";
+    },
+  },
 };
 </script>
 
 <style scoped lang="less">
-@import "../../style/money/drawerOnlinePayDetail.less";
+@import "../../style/money/drawerOrder.less";
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
 </style>
+
+<style>
+.el-scrollbar .el-scrollbar__view.el-select-dropdown__list {
+  background-color: #2a3959;
+}
+.el-select-dropdown__empty {
+  background-color: #2a3959;
+}
+</style>
+
+<style scoped></style>

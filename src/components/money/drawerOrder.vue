@@ -160,6 +160,7 @@ export default {
         key: this.form.keyword, //  string  查询关键字
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
+        pay_type: 0, //支付方式 0 全部 1 线上支付 2 线上客人自助
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
@@ -181,6 +182,7 @@ export default {
         key: this.form.keyword, //  string  查询关键字
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
+        pay_type: 0, //支付方式 0 全部 1 线上支付 2 线上客人自助
       };
 
       try {
