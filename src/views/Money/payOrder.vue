@@ -41,7 +41,7 @@
             {{ item.name }}
           </li>
         </ul>
-        <div layout="row" layout-align="end center" v-if="showEmp"  style="padding: 10px 10px;">
+        <div layout="row" layout-align="end center" v-if="showEmp && bindGuestOpen"  style="padding: 10px 10px;">
           <span style="font-weight: 400; width: 150px;font-size: 16px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">客人：{{ customName || '-'}}</span>
           <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
           <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
@@ -2060,6 +2060,21 @@ export default {
     inputSelect,
   },
   computed: {
+    bindGuestOpen () {
+      let arr = this.$store.state.cardPageInfo.resResultDataObj.showAmt
+      if (arr && arr.length > 0) {
+        let val13 = arr.find(item => item.id === '13')
+        if(val13) {
+          let val = val13.param1
+          if (val === '1'){
+            return true
+          } else if (val === '2'){
+            return false
+          }
+        }
+      }
+      return false
+    },
     hasChooseClockOrder() {
       return this.notPayData.choosePayOrderList
         .filter((item) => !item.oid)

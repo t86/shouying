@@ -91,7 +91,7 @@
       </div>
     </div>
 
-    <div class="card-name-top2" ref="cardNameTop2">
+    <div class="card-name-top2" ref="cardNameTop2" v-if="bindGuestOpen">
       <div class="card-name-title" ref="cardNameTitle" v-if="displayCustName !== '' " @click="bindGuest">
         <span style="font-size: 16px; margin-right: 3px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{ displayCustName }}</span>
       </div>
@@ -1198,6 +1198,21 @@ export default {
     }
   },
   computed: {
+    bindGuestOpen () {
+      let arr = this.$store.state.cardPageInfo.resResultDataObj.showAmt
+      if (arr && arr.length > 0) {
+        let val13 = arr.find(item => item.id === '13')
+        if(val13) {
+          let val = val13.param1
+          if (val === '1'){
+            return true
+          } else if (val === '2'){
+            return false
+          }
+        }
+      }
+      return false
+    },
     maskedPhone() {
       if (this.formguest.phone && this.formguest.phone.length === 11) {
       // 只对11位中国手机号掩码
