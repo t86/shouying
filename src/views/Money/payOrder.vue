@@ -176,14 +176,15 @@
             }}买单
           </div>
           <!-- 并台（转优惠2） -->
-          <div
-            class="button"
-            :class="{ gray: hasChooseClockOrder }"
-            v-if="payTabInfo.activePayId == 0"
-            @click="mergeOrderToAnotherSeat"
-          >
-            转优惠2
-          </div>
+<!--          2024年10月21日15:28:48 暂时屏蔽-->
+<!--          <div-->
+<!--            class="button"-->
+<!--            :class="{ gray: hasChooseClockOrder }"-->
+<!--            v-if="payTabInfo.activePayId == 0"-->
+<!--            @click="mergeOrderToAnotherSeat"-->
+<!--          >-->
+<!--            转优惠2-->
+<!--          </div>-->
           <div
             class="button"
             :class="{ gray: hasChooseClockOrder }"
@@ -207,13 +208,14 @@
           >
             批量优惠
           </div>
-          <div
-            class="button"
-            v-if="payTabInfo.activePayId == 0"
-            @click="sealPrdHandle(7)"
-          >
-            批量优惠2
-          </div>
+<!--          2024年10月21日15:29:16 暂时屏蔽-->
+<!--          <div-->
+<!--            class="button"-->
+<!--            v-if="payTabInfo.activePayId == 0"-->
+<!--            @click="sealPrdHandle(7)"-->
+<!--          >-->
+<!--            批量优惠2-->
+<!--          </div>-->
           <div
             class="button"
             v-if="payTabInfo.activePayId == 0"
