@@ -34,15 +34,17 @@
               <div class="th" v-if="selectInfo.selectVal == '按部门分组'" style=" width: 20%">订位部门/订位人</div>
               <div class="th" style=" width: 10%">区域</div>
               <div class="th" style="width: 10%">卡台</div>
-              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 15%">订位人</div>
-              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 15%">订位人部门</div>
+              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 12%">订位人</div>
+              <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 12%">订位人部门</div>
 
-              <div class="th" style="width: 10%">开台时间</div>
+              <div class="th" style="width: 8%">开台时间</div>
               <div class="th" style="width: 10%">折前(含未结金额)</div>
               <div class="th" style="width: 10%">折后(含未结金额)</div>
               <div class="th" style="width: 10%">可计业绩</div>
               <div class="th" style="width: 10%">未结金额</div>
               <div class="th" style="width: 10%">优惠金额</div>
+              <div class="th" v-if="selectInfo.selectVal !== '按订位人排名汇总'" style=" width: 10%">转台记录</div>
+              <div class="th" v-if="selectInfo.selectVal !== '按订位人排名汇总'" style=" width: 15%">咨客备注</div>
             </div>
           </div>
           <div class="tbody">
@@ -66,6 +68,9 @@
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.y)}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.u)}}</div>
               <div class="td one-txt-cut" style="width: 10%;padding-right: 0;">{{format2(item.h)}}</div>
+              <div class="td one-txt-cut"  v-if="selectInfo.selectVal !== '按订位人排名汇总'" style="width: 10%"> {{item.c || '-'}}</div>
+              <div class="td one-txt-cut"  v-if="selectInfo.selectVal !== '按订位人排名汇总'" style="width: 10%"> {{item.br || '-'}}</div>
+
              
             </div>
           </div>
@@ -208,6 +213,8 @@ export default {
   },
   components: {
     mySelect
+  },
+  computed: {
   },
   watch: {
     showDrawer(newVal) {
