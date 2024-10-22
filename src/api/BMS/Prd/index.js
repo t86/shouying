@@ -147,6 +147,8 @@ const article = {
   reqSetSecondCategory: params => axios.post(`${base.htgl}/prd/batch_upd_two_cate`, params),
 
   reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
+
+  get_prd_set_tpl_list: params => axios.post(`${base.htgl}/prd/get_prd_set_tpl_list`, params),
   
 
 }

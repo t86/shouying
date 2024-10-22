@@ -66,6 +66,10 @@ export default [
             {
               name: "商品非会员价",
               url: "/BMS/vipPrice"
+            },
+            {
+              name: "套餐可选组模板",
+              url: "/BMS/taocanTemplate"
             }
           ]
         }, //商品管理

@@ -4,3 +4,4 @@ node_modules
 .svn
 .idea
 .history/
+.DS_Store

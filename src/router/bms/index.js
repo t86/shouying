@@ -37,6 +37,11 @@ export default [
     component: () => import('@/views/ManagementSystem/BMS/vipPrice.vue'),
   },
 
+  {
+    path: '/BMS/taocanTemplate', name: "taocanTemplate", meta: { title: '套餐可选组模板' },
+    component: () => import('@/views/ManagementSystem/BMS/taocanTemplate.vue'),
+  },
+
   /**
    * 卡台管理
    */
