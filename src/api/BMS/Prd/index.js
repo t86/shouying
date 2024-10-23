@@ -149,7 +149,11 @@ const article = {
   reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
 
   get_prd_set_tpl_list: params => axios.post(`${base.htgl}/prd/get_prd_set_tpl_list`, params),
-  
+  new_prd_set_tpl: params => axios.post(`${base.htgl}/prd/new_prd_set_tpl`, params),
+  save_prd_set_tpl: params => axios.post(`${base.htgl}/prd/save_prd_set_tpl`, params),
+  batch_del_prd_set_tpl: params => axios.post(`${base.htgl}/prd/batch_del_prd_set_tpl`, params),
+  get_prd_set_tpl: params => axios.post(`${base.htgl}/prd/get_prd_set_tpl`, params),
+
 
 }
 export default article;

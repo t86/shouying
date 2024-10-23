@@ -3,7 +3,7 @@
     <div class="top" layout="row" layout-align="start center">
       <icon-button @click.native="showDrawerHandle(1)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
       <icon-button @click.native="showDrawerHandle(2)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
-      <icon-button @click.native="setEffectOrNotEffect(3)" text="批量删除" img="btn_delete.png"
+      <icon-button @click.native="batchDelete" text="批量删除" img="btn_delete.png"
         colors="#6B2830"></icon-button>
     </div>
 
@@ -29,7 +29,9 @@
               <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">{{ item.n }}</div>
-            <div class="td"></div>
+            <div class="td">
+              <el-button type="text" @click=""></el-button>
+            </div>
             <div class="td">{{ item.u }}</div>
             <div class="td">{{ item.c }}</div>
           </div>
@@ -64,7 +66,7 @@ export default {
       try {
         const res = await this.$api.BMS.Prd.get_prd_set_tpl_list()
         if (res.code == 1) {
-          this.tableData = (res.data || []).map(item => ({
+          this.tableData = (res.data.records || []).map(item => ({
             ...item,
             checked: false
           }));
@@ -93,6 +95,29 @@ export default {
       }
     },
 
+    async batchDelete(){
+      const checkedList = this.tableData.filter(item => item.checked);
+      if (checkedList.length > 0) {
+        this.$confirm('确认删除?', '确认', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+          let ids = checkedList.map(item => item.id)
+          const res = await this.$api.BMS.Prd.batch_del_prd_set_tpl({
+            ids: ids
+          })
+          if (res.code == 1) {
+            this.$message.warning('删除成功');
+          } else {
+            this.$message.warning(res.msg);
+          }
+        }).catch(() => {
+        });
+      } else {
+        return this.$message.warning("请至少选择一个删除");
+      }
+    },
     showDrawerHandle(type) {
       if (type === 2) {
         const checkedList = this.tableData.filter(item => item.checked);
@@ -167,25 +192,24 @@ export default {
 
       .th,
       .td {
-
         &:nth-child(3) {
-          width: 10%;
+          width: 180px;
         }
 
         &:nth-child(4) {
-          width: 15%;
+          width: 200px;
         }
 
         &:nth-child(5) {
-          width: 15%;
+          width: 200px;
         }
 
         &:nth-child(1) {
-          width: 10%;
+          width: 100px;
         }
 
         &:nth-child(2) {
-          width: 40%;
+          width: 300px;
         }
       }
     }
