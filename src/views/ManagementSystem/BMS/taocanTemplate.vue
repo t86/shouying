@@ -3,8 +3,7 @@
     <div class="top" layout="row" layout-align="start center">
       <icon-button @click.native="showDrawerHandle(1)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
       <icon-button @click.native="showDrawerHandle(2)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
-      <icon-button @click.native="batchDelete" text="批量删除" img="btn_delete.png"
-        colors="#6B2830"></icon-button>
+      <icon-button @click.native="batchDelete" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
     </div>
 
     <!-- table -->
@@ -23,14 +22,27 @@
           </div>
         </div>
         <div class="tbody">
-          <div class="tr" :class="{ 'selected': item.checked, 'gray': item.s == '无效' }" v-for="(item, index) in tableData"
-            :key="index" layout="row" layout-align="start center">
+          <div class="tr" :class="{ 'selected': item.checked, 'gray': item.s == '无效' }"
+            v-for="(item, index) in tableData" :key="index" layout="row" layout-align="start center">
             <div class="td">
               <el-checkbox v-model="item.checked" @change="changeCheckboxHandle('item')">{{ index + 1 }}</el-checkbox>
             </div>
             <div class="td">{{ item.n }}</div>
             <div class="td">
-              <el-button type="text" @click=""></el-button>
+              <!-- <el-button type="text" @click="">{{ (item.ss && item.ss.length) || 0 }}</el-button> -->
+              
+              <el-popover
+              placement="right"
+              width="400"
+              trigger="hover">
+              <el-table :data="item.taocan">
+                <el-table-column width="150" property="n1" label="一级分类"></el-table-column>
+                <el-table-column width="150" property="n2" label="二级分类"></el-table-column>
+                <el-table-column width="300" property="s" label="套餐名称"></el-table-column>
+              </el-table>
+              <el-button slot="reference" type="text">{{ (item.ss && item.ss.length) || 0}}</el-button>
+            </el-popover>
+              
             </div>
             <div class="td">{{ item.u }}</div>
             <div class="td">{{ item.c }}</div>
@@ -68,8 +80,37 @@ export default {
         if (res.code == 1) {
           this.tableData = (res.data.records || []).map(item => ({
             ...item,
-            checked: false
+            checked: false,
+            ss:[
+              {
+                id: 1,
+                n: '套餐1',
+                ss: [{id: 1, n: '套餐1-sub', ss:'商品1'}, {id: 2, n: '套餐1-sub2', ss:'商品2'}]
+              }, {
+                id: 2,
+                n: '套餐2',
+                ss: [{id: 2, n: '套餐2-sub', ss:'商品3'}, {id: 2, n: '套餐2-sub2', ss:'商品4'}]
+              }
+            ]
           }));
+          this.tableData.forEach(item => {
+            let taocan = []
+            item.ss.forEach(s => {
+
+              s.ss.forEach(s1 => {
+                taocan.push( {
+                  n1: s.n,
+                  n2: s1.n,
+                  s: s1.ss
+                })
+              })
+
+            })
+            item.taocan = taocan
+          });
+
+
+
           this.indeterminate = this.checked = false;
         } else {
           this.$message.warning(res.msg);
@@ -95,7 +136,7 @@ export default {
       }
     },
 
-    async batchDelete(){
+    async batchDelete() {
       const checkedList = this.tableData.filter(item => item.checked);
       if (checkedList.length > 0) {
         this.$confirm('确认删除?', '确认', {
