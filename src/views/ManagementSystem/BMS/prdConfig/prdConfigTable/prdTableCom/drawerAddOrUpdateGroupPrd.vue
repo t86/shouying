@@ -292,8 +292,9 @@
                   <span>{{ items.tableData.length }} 选</span>
                   <el-input
                     v-model="items.chooseCount"
-                    placeholder
+                    placeholder="请输入"
                     size="mini"
+                    :disabled="items.type_id * 1 === 2"
                     style="width: 80px; font-size: 18px"
                   />
                   <el-tooltip effect="light" placement="top">
@@ -380,6 +381,7 @@
                       <span
                         class="primary-link cursor"
                         @click="deletePrdHandle('canChoose', items, item)"
+                        v-if="items.type_id * 1 === 1"
                         >删除</span
                       >
                     </div>
@@ -395,9 +397,10 @@
                 </div>
               </div>
               <div class="add" layout="row" layout-align="center center">
-                <span class="cursor primary-link fs20">+</span>
+                <span class="cursor primary-link fs20" v-if="items.type_id * 1 === 1">+</span>
                 <span
                   class="cursor primary-link fs14"
+                  v-if="items.type_id * 1 === 1"
                   @click="addPrdHandle('canChoose', items)"
                   >添加单品</span
                 >
