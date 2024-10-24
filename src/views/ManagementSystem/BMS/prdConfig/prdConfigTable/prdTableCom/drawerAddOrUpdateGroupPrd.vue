@@ -284,7 +284,7 @@
                       <el-option
                           v-for="item in taocanTemplates"
                           :key="item.tpl_id"
-                          :label="item.tpl_id"
+                          :label="item.name"
                           :value="item.tpl_id">
                       </el-option>
                     </el-select>
@@ -542,13 +542,27 @@ export default {
           this.http = res.data.pic_prefix || "";
 
           this.fixedPrdTableData = res.data.fix_items || [];
+          let grp_tpl = res.data.grp_tpl || [];
           this.canChoosePrdTableData = (res.data.rpl_items || []).map(
             (item, i) => ({
               id: +new Date() + i * 1,
               chooseCount: item.sel_cnt || "",
               tableData: item.items || [],
+              // type_id: item.type_id ? item.type_id.toString() : "1", // 修改此处
             })
           );
+          console.log('-'.repeat(100),this.canChoosePrdTableData)
+          for(let i = 0; i < grp_tpl.length; i++) {
+            if(grp_tpl[i].g > 0) {
+              let index = grp_tpl[i].g
+              let realIndex = index - 2
+              console.log('realIndex:',realIndex)
+              this.canChoosePrdTableData[realIndex].tpl_id = grp_tpl[i].t.toString()
+              this.canChoosePrdTableData[realIndex].type_id = '2'
+            }
+          }
+          console.log('-'.repeat(100),this.canChoosePrdTableData)
+
           this.showInMp = res.data.show_in_mp.toString()
 
           this.getTableData(res.data.sel_region_ids || []);
@@ -662,6 +676,7 @@ export default {
           id: +new Date(),
           chooseCount: "",
           tableData: [],
+          type_id: "1",
         },
       ];
     },
@@ -761,13 +776,22 @@ export default {
       });
 
       this.canChoosePrdTableData.forEach((el) => {
-        const itemPrdInfoList = [];
-        el.tableData.forEach((ele) => {
-          itemPrdInfoList.push({
-            pid: ele.id,
-            pc: (ele.pc || 1) * 1,
+        let itemPrdInfoList = [];
+        if (el.type_id === '2') {
+          // 如果是模板模式，只传一行记录
+          itemPrdInfoList = [{
+            pid: el.tpl_id * 1, // 使用模板 ID
+            pc: 0
+          }];
+        } else {
+          // 自由模式，保持原有逻辑
+          el.tableData.forEach((ele) => {
+            itemPrdInfoList.push({
+              pid: ele.id,
+              pc: (ele.pc || 1) * 1,
+            });
           });
-        });
+        }
         canChoosePrdList.push({
           sel_cnt: (el.chooseCount || 0) * 1,
           type_id: el.type_id * 1,
@@ -1028,3 +1052,4 @@ export default {
   }
 }
 </style>
+
