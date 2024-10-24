@@ -81,22 +81,21 @@ export default {
           this.tableData = (res.data.records || []).map(item => ({
             ...item,
             checked: false,
-            ss:[
-              {
-                id: 1,
-                n: '套餐1',
-                ss: [{id: 1, n: '套餐1-sub', ss:'商品1'}, {id: 2, n: '套餐1-sub2', ss:'商品2'}]
-              }, {
-                id: 2,
-                n: '套餐2',
-                ss: [{id: 2, n: '套餐2-sub', ss:'商品3'}, {id: 2, n: '套餐2-sub2', ss:'商品4'}]
-              }
-            ]
+            // ss:[
+            //   {
+            //     id: 1,
+            //     n: '套餐1',
+            //     ss: [{id: 1, n: '套餐1-sub', ss:'商品1'}, {id: 2, n: '套餐1-sub2', ss:'商品2'}]
+            //   }, {
+            //     id: 2,
+            //     n: '套餐2',
+            //     ss: [{id: 2, n: '套餐2-sub', ss:'商品3'}, {id: 2, n: '套餐2-sub2', ss:'商品4'}]
+            //   }
+            // ]
           }));
           this.tableData.forEach(item => {
             let taocan = []
             item.ss.forEach(s => {
-
               s.ss.forEach(s1 => {
                 taocan.push( {
                   n1: s.n,

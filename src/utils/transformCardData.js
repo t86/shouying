@@ -130,6 +130,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           dtlPrdId: el[4],  // 明细单品Id
           prdCnt: el[5],  // 明细单品数量
           grpSelCnt: el[6],  // 该组可选项数
+          typeId: el[7],  // 套餐模版 1 普通单品 2 套餐模版
         })
       })
       break
@@ -596,6 +597,19 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         resultArr.push({
           seat_id : el[0], // 卡台id
           waiter_emp_id : el[1], // 服务员id
+        })
+      })
+      break
+    case 52: //套餐模版配置定义
+      arr.forEach(el => {
+        resultArr.push({
+          tpl_id : el[0], // 套餐模版id
+          seq_id : el[1], //  seq_id配置项id
+          dtl_prd_id : el[2], //  seq_id配置项id
+          dtl_prd_cnt : el[3], //  明细商品数据
+          sel_cnt : el[4], //  选中数
+          status : el[5], //  状态1有效, 其他已删除
+          name : el[6], //
         })
       })
       break

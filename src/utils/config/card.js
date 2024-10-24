@@ -81,6 +81,7 @@ export const resResultDataArr = [
   'queueCurNumber', // 49-当前取号
   'giftableCard', // 50-岗位附加可赠送卡台列表
   'waiterConfig', // 51-卡台对应的服务员配置
+  'taocanTemplate', // 52-套餐模版配置定义
 ]
 
 // 图例列表

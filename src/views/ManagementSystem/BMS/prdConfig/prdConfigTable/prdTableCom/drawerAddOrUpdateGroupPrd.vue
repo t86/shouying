@@ -277,6 +277,18 @@
                 layout-align="space-between center"
               >
                 <div>
+                  <div class="mb-4">
+                    <el-radio v-model="items.type_id" label="1">自由模式</el-radio>
+                    <el-radio v-model="items.type_id" label="2">模板模式</el-radio>
+                    <el-select v-model="items.tpl_id" placeholder="请选择" v-if="items.type_id * 1 === 2">
+                      <el-option
+                          v-for="item in taocanTemplates"
+                          :key="item.tpl_id"
+                          :label="item.tpl_id"
+                          :value="item.tpl_id">
+                      </el-option>
+                    </el-select>
+                  </div>
                   <span>{{ items.tableData.length }} 选</span>
                   <el-input
                     v-model="items.chooseCount"
@@ -487,6 +499,7 @@ export default {
 
       fixedPrdTableData: [], // 固定单品
       canChoosePrdTableData: [], // 可选替换组商品
+      canChoosePrdMode: '1',
       canChooseGroupInfo: {}, // 可选替换组商品添加单品的详细信息(通过此数据是否为空判断添加的是固定套餐组还是可选套餐组)
 
       tableData: [], // 区域出品库表格数据
@@ -757,6 +770,7 @@ export default {
         });
         canChoosePrdList.push({
           sel_cnt: (el.chooseCount || 0) * 1,
+          type_id: el.type_id * 1,
           items: itemPrdInfoList,
         });
       });
@@ -876,6 +890,12 @@ export default {
         : this.type == 2
         ? "编辑套餐"
         : "类似创建套餐";
+    },
+    taocanTemplates() {
+      let tpls = this.$store.state.cardPageInfo.resResultDataObj.taocanTemplate.filter(
+          el => el.status * 1 == 1
+      ) || []
+      return tpls
     },
 
     show: {
