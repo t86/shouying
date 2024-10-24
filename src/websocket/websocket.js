@@ -345,7 +345,7 @@ export default class WebSocketClient {
     try {
       for (let key in dataObj) {
 
-        // 开启营业日的时候，业务数据为空，需要重新赋值业务数据
+        // 开启营业日的时候，业务数为空，需要重新赋值业务数据
         if (
           key == 14 &&
           (!this.resResultDataObj[resResultDataArr[key]] || this.resResultDataObj[resResultDataArr[key]].length == 0)
@@ -361,7 +361,7 @@ export default class WebSocketClient {
           eventVue.$emit("reloadData");
           return this.getAllData(true, true);
         } else if (key == 22) {
-          // 收银系统卡台页面小红点数量发生变化
+          // 收银系统卡台页小红点数量发生变化
           this.vue.$store.commit(
             "updateMoneyCardNeedBackOrderCount",
             dataObj[key][0][0]
@@ -565,9 +565,37 @@ export default class WebSocketClient {
         this.vue.$route.name == "orderCard" ||
         this.vue.$route.name == "moneyCard"
       ) {
-        eventVue.$emit("reloadData");
-        // this.vue.$children[0] && this.vue.$children[0].getTabList && this.vue.$children[0].getTabList(this.resResultDataObj['areaInfo'])
-        // this.vue.$children[0] && this.vue.$children[0].getCardList && this.vue.$children[0].getCardList(this.resResultDataObj['cardInfo'], this.resResultDataObj['businessData'])
+        const keys = Object.keys(dataObj);
+        if (keys.length > 0 && keys.every(item => ['39', '46', '47', '48', '49'].includes(item))) {
+        } else {
+          let shouldUpdate = false;
+
+          // Check for changes in the 14th data type
+          if (dataObj['14']) {
+            const relevantFields = ['orderAmt', 'yhAmt', 'yh2Amt', 'payedAmt', 'salesEmpId', 'secondSalesEmpId', 'customerName', 'bizStatus'];
+            
+            dataObj['14'].forEach(newData => {
+              const oldData = this.resResultDataObj['businessData'].find(item => item.seatId === newData.seatId);
+              if (oldData) {
+                for (let field of relevantFields) {
+                  if (newData[field] !== oldData[field]) {
+                    shouldUpdate = true;
+                    break;
+                  }
+                }
+              } else {
+                shouldUpdate = true;
+              }
+              
+              if (shouldUpdate) return; // Exit the loop early if we know we need to update
+            });
+          }
+
+          // If there are other data types besides 14, or if relevant fields in 14 have changed, trigger update
+          if (keys.length > 1 || keys[0] !== '14' || shouldUpdate) {
+            eventVue.$emit("reloadData");
+          }
+        }
       } else {
         // 更新本地store和sessionStorage中存储的卡台信息
         this.updateTabListData(this.resResultDataObj["areaInfo"]);
