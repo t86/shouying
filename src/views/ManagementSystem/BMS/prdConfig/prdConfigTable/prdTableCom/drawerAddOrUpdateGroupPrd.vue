@@ -278,9 +278,11 @@
               >
                 <div>
                   <div class="mb-4">
-                    <el-radio v-model="items.type_id" label="1">自由模式</el-radio>
-                    <el-radio v-model="items.type_id" label="2">模板模式</el-radio>
-                    <el-select v-model="items.tpl_id" placeholder="请选择" v-if="items.type_id * 1 === 2">
+                    <el-radio-group @change="typeIdChage" v-model="items.type_id">
+                      <el-radio  label="1">自由模式</el-radio>
+                      <el-radio  label="2">模板模式</el-radio>
+                    </el-radio-group>
+                    <el-select v-model="items.tpl_id" placeholder="请选择" v-if="items.type_id * 1 === 2" @change="tplChange($event, items)">
                       <el-option
                           v-for="item in taocanTemplates"
                           :key="item.tpl_id"
@@ -512,6 +514,23 @@ export default {
     };
   },
   methods: {
+    typeIdChage(){
+      this.$forceUpdate()
+    },
+    async tplChange(v, item){
+      console.log(v)
+      let res = await this.$api.BMS.Prd.get_prd_set_tpl({ id: v * 1 })
+      console.log(res)
+      if (res.code === 1) {
+        item.chooseCount = res.data.sel_cnt
+        let dtls = res.data.dtls || []
+        dtls.forEach(item => item.pc = item.c)
+        item.tableData = dtls
+
+      } else {
+        this.$message.warning(res.msg);
+      }
+    },
     showPreImage() {
       this.showImgDetails = true;
     },
@@ -922,7 +941,25 @@ export default {
       let tpls = this.$store.state.cardPageInfo.resResultDataObj.taocanTemplate.filter(
           el => el.status * 1 == 1
       ) || []
-      return tpls
+      let tpls_real = tpls.map(item => {
+        return {
+          name: item.name,
+          tpl_id: item.tpl_id
+        }
+      })
+      tpls_real = [...new Set(tpls_real.map(v => JSON.stringify(v)))].map(s => JSON.parse(s))
+      tpls_real.sort((a, b) => {
+        const nameA = a.name.toUpperCase(); // 忽略大小写
+        const nameB = b.name.toUpperCase(); // 忽略大小写
+        if (nameA < nameB) {
+          return 1;
+        }
+        if (nameA > nameB) {
+          return -1;
+        }
+        return 0;
+      })
+      return tpls_real
     },
 
     show: {

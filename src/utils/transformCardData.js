@@ -592,16 +592,9 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
-    case 51: //卡台对应的服务员配置
+    case 52:
       arr.forEach(el => {
-        resultArr.push({
-          seat_id : el[0], // 卡台id
-          waiter_emp_id : el[1], // 服务员id
-        })
-      })
-      break
-    case 52: //套餐模版配置定义
-      arr.forEach(el => {
+        console.log('52'.repeat(20), el)
         resultArr.push({
           tpl_id : el[0], // 套餐模版id
           seq_id : el[1], //  seq_id配置项id
@@ -610,6 +603,14 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           sel_cnt : el[4], //  选中数
           status : el[5], //  状态1有效, 其他已删除
           name : el[6], //
+        })
+      })
+      break
+    case 51: //卡台对应的服务员配置
+      arr.forEach(el => {
+        resultArr.push({
+          seat_id : el[0], // 卡台id
+          waiter_emp_id : el[1], // 服务员id
         })
       })
       break
