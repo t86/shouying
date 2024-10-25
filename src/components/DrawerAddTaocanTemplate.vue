@@ -121,11 +121,8 @@ export default {
         if (valid) {
           // 这里添加提交表单的逻辑
           console.log("表单提交", this.form);
-          this.$confirm('确认调整模板内容?调整后使用该模板的套餐也会一起调整!', '确认', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(async () => {
+          
+          const submitAction = async () => {
             let params = {
               name: this.form.name,
               sel_cnt: this.form.count * 1,
@@ -136,11 +133,21 @@ export default {
               params.id = this.currentInfo.id
             }
             const res = this.type === 1 ? await this.$api.BMS.Prd.new_prd_set_tpl(params) : await this.$api.BMS.Prd.save_prd_set_tpl(params)
-            res.code == 1 ? this.$message.success("创建成功") : this.$message.warning(res.msg);
+            res.code == 1 ? this.$message.success(this.type === 1 ? "创建成功" : "修改成功") : this.$message.warning(res.msg);
             this.handleClose();
-          }).catch(() => {
-            this.handleClose();
-          });
+          };
+
+          if (this.type === 2) {
+            this.$confirm('确认调整模板内容?调整后使用该模板的套餐也会一起调整!', '确认', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(submitAction).catch(() => {
+              this.handleClose();
+            });
+          } else {
+            submitAction();
+          }
         } else {
           console.log("表单验证失败");
           return false;
