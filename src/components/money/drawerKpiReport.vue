@@ -44,7 +44,7 @@
               <div class="th" style="width: 10%">未结金额</div>
               <div class="th" style="width: 10%">优惠金额</div>
               <div class="th" v-if="selectInfo.selectVal !== '按订位人排名汇总'" style=" width: 10%">转台记录</div>
-              <div class="th" v-if="selectInfo.selectVal !== '按订位人排名汇总'" style=" width: 15%">咨客备注</div>
+              <div class="th" v-if="selectInfo.selectVal !== '按订位人排名汇总'" style=" width: 10%">咨客备注</div>
             </div>
           </div>
           <div class="tbody">
@@ -60,9 +60,9 @@
                 paddingLeft: (item.b* 5) + 'px'}">{{item.n}}</div></div>
               <div class="td one-txt-cut" style=" width: 10%">{{item.r || '-'}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{item.s || '-'}}</div>
-              <div class="td one-txt-cut"  v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%"> {{item.e || '-'}}</div>
-              <div class="td one-txt-cut" v-if="selectInfo.selectVal != '按部门分组'" style="width: 15%">{{item.n || '-'}}</div>
-              <div class="td one-txt-cut" style="width: 10%">{{item.o || '-'}}</div>
+              <div class="td one-txt-cut"  v-if="selectInfo.selectVal != '按部门分组'" style="width: 12%"> {{item.e || '-'}}</div>
+              <div class="td one-txt-cut" v-if="selectInfo.selectVal != '按部门分组'" style="width: 12%">{{item.n || '-'}}</div>
+              <div class="td one-txt-cut" style="width: 8%">{{item.o || '-'}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.z)}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.v)}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.y)}}</div>
