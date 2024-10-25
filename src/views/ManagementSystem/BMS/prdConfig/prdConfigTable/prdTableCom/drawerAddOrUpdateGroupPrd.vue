@@ -510,7 +510,8 @@ export default {
       tableData: [], // 区域出品库表格数据
       checkAll: false, // 出品库全选
       outLibOption: [], // 区域出品库下拉option
-      setType: '', // 套餐类型
+      setType: '', // 套餐类型,
+      taocanTemplates: [], // 套餐可选组模板
     };
   },
   methods: {
@@ -570,6 +571,7 @@ export default {
               id: +new Date() + i * 1,
               chooseCount: item.sel_cnt || "",
               tableData: item.items || [],
+              type_id: '1'
               // type_id: item.type_id ? item.type_id.toString() : "1", // 修改此处
             })
           );
@@ -579,11 +581,10 @@ export default {
               let index = grp_tpl[i].g
               let realIndex = index - 2
               console.log('realIndex:',realIndex)
-              this.canChoosePrdTableData[realIndex].tpl_id = grp_tpl[i].t.toString()
+              this.canChoosePrdTableData[realIndex].tpl_id = grp_tpl[i].t
               this.canChoosePrdTableData[realIndex].type_id = '2'
             }
           }
-          console.log('-'.repeat(100),this.canChoosePrdTableData)
 
           this.showInMp = res.data.show_in_mp.toString()
 
@@ -912,6 +913,28 @@ export default {
       this.fixedPrdTableData = []; // 固定单品
       this.canChoosePrdTableData = []; // 可选替换组商品
       this.canChooseGroupInfo = {};
+      this.taocanTemplates = []; // 重置套餐模板列表
+    },
+
+    // 修改后的方法来获取套餐模板列表
+    async getTaocanTemplates() {
+      try {
+        const res = await this.$api.BMS.Prd.get_prd_set_tpl_list();
+        if (res.code === 1) {
+          let records = res.data.records || [];
+          console.log('records:', records)
+          let tpls = records.map(item => ({
+            name: item.n,
+            tpl_id: item.id
+          }));
+          console.log('tpls:', tpls)
+          this.taocanTemplates = tpls
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.error("获取套餐模板列表失败", error);
+      }
     },
   },
   mounted() {},
@@ -937,30 +960,30 @@ export default {
         ? "编辑套餐"
         : "类似创建套餐";
     },
-    taocanTemplates() {
-      let tpls = this.$store.state.cardPageInfo.resResultDataObj.taocanTemplate.filter(
-          el => el.status * 1 == 1
-      ) || []
-      let tpls_real = tpls.map(item => {
-        return {
-          name: item.name,
-          tpl_id: item.tpl_id
-        }
-      })
-      tpls_real = [...new Set(tpls_real.map(v => JSON.stringify(v)))].map(s => JSON.parse(s))
-      tpls_real.sort((a, b) => {
-        const nameA = a.name.toUpperCase(); // 忽略大小写
-        const nameB = b.name.toUpperCase(); // 忽略大小写
-        if (nameA < nameB) {
-          return 1;
-        }
-        if (nameA > nameB) {
-          return -1;
-        }
-        return 0;
-      })
-      return tpls_real
-    },
+    // taocanTemplates() {
+    //   let tpls = this.$store.state.cardPageInfo.resResultDataObj.taocanTemplate.filter(
+    //       el => el.status * 1 == 1
+    //   ) || []
+    //   let tpls_real = tpls.map(item => {
+    //     return {
+    //       name: item.name,
+    //       tpl_id: item.tpl_id
+    //     }
+    //   })
+    //   tpls_real = [...new Set(tpls_real.map(v => JSON.stringify(v)))].map(s => JSON.parse(s))
+    //   tpls_real.sort((a, b) => {
+    //     const nameA = a.name.toUpperCase(); // 忽略大小写
+    //     const nameB = b.name.toUpperCase(); // 忽略大小写
+    //     if (nameA < nameB) {
+    //       return 1;
+    //     }
+    //     if (nameA > nameB) {
+    //       return -1;
+    //     }
+    //     return 0;
+    //   })
+    //   return tpls_real
+    // },
 
     show: {
       get() {
@@ -991,6 +1014,7 @@ export default {
           } else {
             this.getPrdDetail();
           }
+          this.getTaocanTemplates(); // 在组件显示时获取套餐模板列表
         }
       },
       immediate: true,
