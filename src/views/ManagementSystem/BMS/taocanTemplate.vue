@@ -152,6 +152,7 @@ export default {
           } else {
             this.$message.warning(res.msg);
           }
+          this.getTableData()
         }).catch(() => {
         });
       } else {

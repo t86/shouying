@@ -1147,6 +1147,9 @@ export default {
     footNavBarClick(item) {
       if (this.$route.name === item.routeName) return; // 重复点击同一个tab
       if(item.id == 5) {
+        if(!this.hasHexiao) {
+          return this.$message.warning('无核销权限，请联系后台人员配置相关权限！')
+        }
         this.activeRouteName = this.navList[item.id - 1].routeName;
         this.showRedeemCouponDrawerHandle()
         return
@@ -1597,6 +1600,12 @@ export default {
           this.$store.state.userInfo.sys_modules.includes(71) &&
           this.$store.state.userInfo.emp_id * 1 === this.empId * 1
       );
+    },
+    hasHexiao() {
+      let hashexiao =
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(86)
+      return hashexiao
     },
     hasZhuantaiAuth() {
       console.log('hasZhuantaiAuth', this.$store.state.userInfo)
