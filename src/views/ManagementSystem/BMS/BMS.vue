@@ -136,7 +136,7 @@ export default {
     }
     /* 取消按钮 */
     .el-button--default{
-        background-color: #2A3450 ;
+        /* background-color: #2A3450 ; */
         border: 1px solid #7298FF;
         color: #40404e;
     }    

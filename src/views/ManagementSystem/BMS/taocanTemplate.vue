@@ -30,19 +30,47 @@
             <div class="td">{{ item.n }}</div>
             <div class="td">
               <!-- <el-button type="text" @click="">{{ (item.ss && item.ss.length) || 0 }}</el-button> -->
-              
-              <el-popover
-              placement="right"
-              width="400"
-              trigger="hover">
-              <el-table :data="item.taocan">
-                <el-table-column width="150" property="n1" label="一级分类"></el-table-column>
-                <el-table-column width="150" property="n2" label="二级分类"></el-table-column>
-                <el-table-column width="300" property="s" label="套餐名称"></el-table-column>
-              </el-table>
-              <el-button slot="reference" type="text">{{ (item.taocan && item.taocan.length) || 0}}</el-button>
-            </el-popover>
-              
+
+              <el-popover placement="right" width="680" trigger="hover">
+                <div class="popover-table">
+                  <div class="popover-table-header">
+                    <span>套餐详情</span>
+                  </div>
+                  <el-table :data="groupedTaocan(item.taocan)" border style="width: 100%">
+                    <el-table-column prop="n1" label="一级分类" width="180">
+                      <template slot-scope="scope">
+                        <span>{{ scope.row.n1 }}</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="n2" label="二级分类" width="250">
+                      <template slot-scope="scope">
+                        <el-table :data="scope.row.n2s" :show-header="false" :border="false">
+                          <el-table-column prop="n2" width="220">
+                            <template slot-scope="n2Scope">
+                              <span>{{ n2Scope.row.n2 }}</span>
+                            </template>
+                          </el-table-column>
+                        </el-table>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="s" label="套餐名称">
+                      <template slot-scope="scope">
+                        <el-table :data="scope.row.n2s" :show-header="false" :border="false">
+                          <el-table-column prop="s">
+                            <template slot-scope="n2Scope">
+                              <el-tag v-for="(s, index) in n2Scope.row.s" :key="index" size="small" style="margin: 2px">
+                                {{ s }}
+                              </el-tag>
+                            </template>
+                          </el-table-column>
+                        </el-table>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+                <el-button slot="reference" type="text">{{ (item.taocan && item.taocan.length) || 0 }}</el-button>
+              </el-popover>
+
             </div>
             <div class="td">{{ item.u }}</div>
             <div class="td">{{ item.c }}</div>
@@ -54,9 +82,9 @@
         </div>
       </div>
     </div>
-
     <drawerAddTaocanTemplate v-if="showDrawer" :type="type" :currentInfo="currentInfo" @closeDrawer="closeDrawer" />
   </div>
+
 </template>
 <script>
 import IconButton from "@/components/IconButton.vue";
@@ -100,13 +128,20 @@ export default {
                 if (s.ss) {
                   s.ss.forEach(s1 => {
                     if (s1.ss) {
-                      s1.ss.forEach(t_name => {
-                        taocan.push( {
+                      taocan.push(
+                        {
                           n1: s.n,
                           n2: s1.n,
-                          s: t_name
-                        })
-                      })
+                          s: s1.ss
+                        }
+                      )
+                      // s1.ss.forEach(t_name => {
+                      //   taocan.push( {
+                      //     n1: s.n,
+                      //     n2: s1.n,
+                      //     s: t_name
+                      //   })
+                      // })
                     }
                   })
                 }
@@ -183,6 +218,32 @@ export default {
       this.type = 0;
       this.getTableData(); // 刷新表格数据
     },
+
+    groupedTaocan(taocan) {
+      const grouped = [];
+      let currentGroup = null;
+
+      taocan.forEach(item => {
+        if (!item.n1 || !item.n2 || !Array.isArray(item.s)) return;
+
+        if (!currentGroup || currentGroup.n1 !== item.n1) {
+          currentGroup = { n1: item.n1, n2s: [], totalRows: 0 };
+          grouped.push(currentGroup);
+        }
+
+        let n2Group = currentGroup.n2s.find(n2 => n2.n2 === item.n2);
+        if (!n2Group) {
+          n2Group = { n2: item.n2, s: [], rows: 0 };
+          currentGroup.n2s.push(n2Group);
+        }
+
+        n2Group.s.push(...item.s);
+        n2Group.rows += item.s.length;
+        currentGroup.totalRows += item.s.length;
+      });
+      console.log("grouped:", grouped);
+      return grouped;
+    }
   },
   created() {
     this.getTableData();
@@ -262,3 +323,154 @@ export default {
 
 }
 </style>
+<style lang="less" scoped>
+.table-wrapper {
+  width: 100%;
+  border: 1px solid #EBEEF5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  background-color: #F5F7FA;
+
+  .th {
+    flex: 1;
+    padding: 12px;
+    font-weight: bold;
+    text-align: center;
+    border-right: 1px solid #EBEEF5;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+.table-body {
+  .tr {
+    display: flex;
+    border-top: 1px solid #EBEEF5;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    .td {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      border-right: 1px solid #EBEEF5;
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &[rowspan] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.no-data {
+  padding: 20px;
+  text-align: center;
+
+  img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #909399;
+  }
+}
+</style>
+<style lang="less" scoped>
+.popover-table {
+  .popover-table-header {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #EBEEF5;
+  }
+
+  .el-table {
+    margin-bottom: 10px;
+
+    .el-table__body-wrapper {
+      overflow-y: auto;
+      max-height: 300px;
+    }
+
+    .el-tag {
+      margin: 2px;
+    }
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 20px 0;
+    color: #909399;
+
+    i {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+// 去掉嵌套表格的边框和背景色
+/deep/ .el-table__expanded-cell {
+  .el-table {
+    background-color: transparent;
+    &::before, &::after {
+      display: none;
+    }
+    .el-table__header-wrapper, .el-table__body-wrapper {
+      background-color: transparent;
+    }
+    tr, td {
+      background-color: transparent !important;
+    }
+  }
+}
+
+// 去掉右边和下边的边框
+/deep/ .el-table {
+  &::before, &::after {
+    display: none;
+  }
+  
+  .el-table__fixed-right::before, 
+  .el-table__fixed::before {
+    display: none;
+  }
+
+  .el-table__body {
+    tr:last-child td {
+      border-bottom: none;
+    }
+    td:last-child {
+      border-right: none;
+    }
+  }
+
+  .el-table__header {
+    th:last-child {
+      border-right: none;
+    }
+  }
+}
+</style>
+
