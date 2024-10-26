@@ -40,7 +40,7 @@
                 <el-table-column width="150" property="n2" label="二级分类"></el-table-column>
                 <el-table-column width="300" property="s" label="套餐名称"></el-table-column>
               </el-table>
-              <el-button slot="reference" type="text">{{ (item.ss && item.ss.length) || 0}}</el-button>
+              <el-button slot="reference" type="text">{{ (item.taocan && item.taocan.length) || 0}}</el-button>
             </el-popover>
               
             </div>
@@ -95,21 +95,25 @@ export default {
           }));
           this.tableData.forEach(item => {
             let taocan = []
-            item.ss.forEach(s => {
-              s.ss.forEach(s1 => {
-                taocan.push( {
-                  n1: s.n,
-                  n2: s1.n,
-                  s: s1.ss
-                })
+            if (item.ss) {
+              item.ss.forEach(s => {
+                if (s.ss) {
+                  s.ss.forEach(s1 => {
+                    if (s1.ss) {
+                      s1.ss.forEach(t_name => {
+                        taocan.push( {
+                          n1: s.n,
+                          n2: s1.n,
+                          s: t_name
+                        })
+                      })
+                    }
+                  })
+                }
               })
-
-            })
+            }
             item.taocan = taocan
           });
-
-
-
           this.indeterminate = this.checked = false;
         } else {
           this.$message.warning(res.msg);
