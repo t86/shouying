@@ -107,8 +107,17 @@ export default {
       this.selectedPrds = this.selectedPrds.filter(item => item.id != prd.id)
     },
     submitSelectedPrds(prds) {
-      console.log("submitSelectedPrds", prds)
-      this.selectedPrds = prds
+      console.log("submitSelectedPrds", prds);
+      // 创建一个映射来存储现有商品的数量
+      const existingPrdMap = new Map(
+        this.selectedPrds.map(item => [item.id, item.c])
+      );
+
+      // 更新 selectedPrds，保留现有商品的数量
+      this.selectedPrds = prds.map(prd => ({
+        ...prd,
+        c: existingPrdMap.get(prd.id) || prd.c
+      }));
     },
     clickNewPrd() {
       this.showAddPrdDrawer = true

@@ -1014,7 +1014,6 @@ export default {
           } else {
             this.getPrdDetail();
           }
-          this.getTaocanTemplates(); // 在组件显示时获取套餐模板列表
         }
       },
       immediate: true,

@@ -7,10 +7,11 @@
       :before-close="onCancelDrawer"
       direction="rtl"
       append-to-body
-      size="80%"
+      size="85%"
     >
       <div class="flex">
-        <div class="session p-4 w-2/3 border-dashed">
+        <!-- 商品列表 -->
+        <div class="session p-4 w-45 border-dashed">
           <!-- 头部筛选项 -->
           <div class="select-top fs14" layout="row" layout-align="start center">
             <div class="item" layout="row" layout-align="start center">
@@ -27,7 +28,7 @@
                   v-model="searchFormData.keyword"
                   size="mini"
                   style="width: 200px"
-                  placeholder="请输入商品名称或拼音字母"
+                  placeholder="请输入商品名称或编码"
               ></el-input>
             </div>
             <div class="item" layout="row" layout-align="start center">
@@ -87,7 +88,14 @@
             </div>
           </div>
         </div>
-        <div class="session p-4 w-1/3 border-dashed">
+
+        <!-- 右箭头按钮 -->
+        <div class="session p-4 w-10">
+          <el-button type="primary" icon="el-icon-arrow-right" @click="addSelectedItems"></el-button>
+        </div>
+
+        <!-- 已选列表 -->
+        <div class="session p-4 w-45 border-dashed">
           <div class="select-top fs14" layout="row" layout-align="start center">
             <div class="item" layout="row" layout-align="start center">
               <div class="label">已选列表</div>
@@ -100,6 +108,7 @@
                   <div class="th">序号</div>
                   <div class="th">名称</div>
                   <div class="th">分类</div>
+                  <div class="th">操作</div>
                 </div>
               </div>
               <div class="tbody">
@@ -113,8 +122,11 @@
                   <div class="td">{{ index + 1 }}</div>
                   <div class="td">{{ item.n }}</div>
                   <div class="td">{{ item.on }} > {{item.tn}}</div>
+                  <div class="td">
+                    <el-button type="text" size="small" @click="removeSelected(item)">删除</el-button>
+                  </div>
                 </div>
-                <div class="no-data" v-if="tableData.length==0">
+                <div class="no-data" v-if="selected.length==0">
                   <img :src="require('@/assets/img/wu.png')" alt />
                   <p>暂无数据</p>
                 </div>
@@ -227,7 +239,16 @@ export default {
           this.checkAll = this.tableData.every(item => item.checked)
           break
       }
-      this.selected = this.tableData.filter(item => item.checked);
+      // // 更新 selected 数组
+      // const selectedMap = new Map(this.selected.map(item => [item.id, item]));
+      // this.tableData.forEach(item => {
+      //   if (item.checked) {
+      //     selectedMap.set(item.id, item);
+      //   } else {
+      //     selectedMap.delete(item.id);
+      //   }
+      // });
+      // this.selected = Array.from(selectedMap.values());
     },
 
     // 重置
@@ -239,7 +260,34 @@ export default {
     // 关闭drawer
     onCancelDrawer() {
       this.show = false
-    }
+    },
+
+    removeSelected(item) {
+      // 从 selected 数组中��除项目
+      this.selected = this.selected.filter(i => i.id !== item.id);
+      
+      // 更新 tableData 中对应项目的 checked 状态
+      const tableItem = this.tableData.find(i => i.id === item.id);
+      if (tableItem) {
+        tableItem.checked = false;
+      }
+      
+      // 更新 checkAll 状态
+      this.checkAll = this.tableData.every(item => item.checked);
+    },
+
+    addSelectedItems() {
+      const newSelectedItems = this.tableData.filter(item => item.checked);
+      const selectedMap = new Map(this.selected.map(item => [item.id, item]));
+      
+      newSelectedItems.forEach(item => {
+        selectedMap.set(item.id, item);
+        // item.disabled = true;
+      });
+
+      this.selected = Array.from(selectedMap.values());
+      this.checkAll = this.tableData.every(item => item.checked);
+    },
   },
   props: {
     value: {
@@ -301,9 +349,34 @@ export default {
   .th,.td {
     &:nth-child(1),
     &:nth-child(4){
+      width: 20%;
+    }
+    &:nth-child(2),
+    &:nth-child(3){
       width: 30%;
     }
   }
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.w-45 {
+  width: 45%;
+}
+
+.w-10 {
+  text-align: center;
+  width: 80px;
 }
 </style>
 
