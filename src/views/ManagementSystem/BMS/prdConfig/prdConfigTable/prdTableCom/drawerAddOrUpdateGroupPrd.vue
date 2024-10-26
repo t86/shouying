@@ -1014,6 +1014,7 @@ export default {
           } else {
             this.getPrdDetail();
           }
+          this.getTaocanTemplates();
         }
       },
       immediate: true,
