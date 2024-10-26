@@ -116,7 +116,7 @@ export default {
       // 更新 selectedPrds，保留现有商品的数量
       this.selectedPrds = prds.map(prd => ({
         ...prd,
-        c: existingPrdMap.get(prd.id) || prd.c
+        c: existingPrdMap.get(prd.id) || 1
       }));
     },
     clickNewPrd() {
@@ -171,7 +171,11 @@ export default {
       if (res.code === 1) {
         this.form.name = res.data.name
         this.form.count = res.data.sel_cnt
-        this.selectedPrds = res.data.dtls
+        let dts = res.data.dtls || []
+        dts.forEach(item => {
+          item.p = (item.p/100).toFixed(2)
+        })
+        this.selectedPrds = dts
 
       } else {
         this.$message.warning(res.msg);

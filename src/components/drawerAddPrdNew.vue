@@ -146,7 +146,6 @@
     </el-drawer>
   </div>
 </template>
- 
 <script>
 export default {
   data() {
@@ -212,7 +211,7 @@ export default {
               return {
                 ...item,
                 checked: matched,
-                disabled: matched,
+                // disabled: matched,
                 count: 1
               }
           })
