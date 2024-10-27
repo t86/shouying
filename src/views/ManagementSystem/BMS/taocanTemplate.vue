@@ -68,7 +68,7 @@
                     </el-table-column>
                   </el-table>
                 </div>
-                <el-button slot="reference" type="text">{{ (item.taocan && item.taocan.length) || 0 }}</el-button>
+                <el-button slot="reference" type="text">{{ item.taocan.reduce((total, item) => total + (item.s ? item.s.length : 0), 0) }}</el-button>
               </el-popover>
 
             </div>
