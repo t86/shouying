@@ -18,34 +18,33 @@
         <div class="table-content">
           <div class="table">
             <div class="thead">
-              <div class="tr" layout="row" layout-align="space-between center">
-                <div class="th">序号</div>
-                <div class="th">名称</div>
-                <div class="th">分类</div>
-                <div class="th">单价</div>
-                <div class="th">数量</div>
-                <div class="th">存货商品名</div>
-                <div class="th">类型</div>
-                <div class="th">营业类型</div>
-                <div class="th">状态</div>
-                <div class="th">操作</div>
+              <div class="tr flex items-center justify-between">
+                <div class="th w-12">序号</div>
+                <div class="th flex-grow">名称</div>
+                <div class="th w-60">分类</div>
+                <div class="th w-20">单价</div>
+                <div class="th w-16">数量</div>
+                <div class="th w-60">存货商品名</div>
+                <div class="th w-20">类型</div>
+                <div class="th w-24">营业类型</div>
+                <div class="th w-16">状态</div>
+                <div class="th w-16 text-center">操作</div>
               </div>
             </div>
             <div class="tbody">
-              <div class="tr" v-for="(item, index) in selectedPrds" :key="index" layout="row"
-                layout-align="space-between center">
-                <div class="td">{{ index + 1 }}</div>
-                <div class="td">{{ item.n }}</div>
-                <div class="td">{{ item.on }} > {{ item.tn }}</div>
-                <div class="td">{{ item.p }}</div>
-                <div class="td">
-                  <el-input type="number" v-model="item.c"></el-input>
+              <div class="tr flex items-center justify-between" v-for="(item, index) in selectedPrds" :key="index">
+                <div class="td w-12">{{ index + 1 }}</div>
+                <div class="td flex-grow">{{ item.n }}</div>
+                <div class="td w-60 truncate">{{ item.on }} > {{ item.tn }}</div>
+                <div class="td w-20">{{ item.p }}</div>
+                <div class="td w-16">
+                  <el-input type="number" v-model="item.c" class="w-full"></el-input>
                 </div>
-                <div class="td">{{ item.mn }}</div>
-                <div class="td">{{ item.pt }}</div>
-                <div class="td">{{ item.bt }}</div>
-                <div class="td">{{ type === 1 ? (item.s === 1 ? '有效' : '无效') : item.s }}</div>
-                <div class="td">
+                <div class="td w-60 truncate">{{ item.mn }}</div>
+                <div class="td w-20">{{ item.pt }}</div>
+                <div class="td w-24">{{ item.bt }}</div>
+                <div class="td w-16">{{ type === 1 ? (item.s === 1 ? '有效' : '无效') : item.s }}</div>
+                <div class="td w-16 text-center">
                   <el-button type="text" @click="deletePrd(item)">删除</el-button>
                 </div>
               </div>
@@ -191,7 +190,7 @@ export default {
 
 <style scoped lang="less">
 @import "../style/erp/form.less";
-@import "../style/erp/table.less";
+// @import "../style/erp/table.less";
 </style>
 
 <style lang="less" scoped>
