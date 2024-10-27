@@ -201,7 +201,7 @@
                         />
                       </el-tooltip>
                     </div>
-                    <div class="th">存货商品名</div>
+                    <div class="th">存商品名</div>
                     <div class="th">类型</div>
                     <div class="th">营业类型</div>
                     <div class="th">状态</div>
@@ -505,7 +505,7 @@ export default {
       fixedPrdTableData: [], // 固定单品
       canChoosePrdTableData: [], // 可选替换组商品
       canChoosePrdMode: '1',
-      canChooseGroupInfo: {}, // 可选替换组商品添加单品的详细信息(通过此数据是否为空判断添加的是固定套餐组还是可选套餐组)
+      canChooseGroupInfo: {}, // 可选替换组商品添加单品的详细息(通过此数据是否为空判断添加的是固定套餐组还是可选套餐组)
 
       tableData: [], // 区域出品库表格数据
       checkAll: false, // 出品库全选
@@ -564,17 +564,26 @@ export default {
           this.picUrl = res.data.pic_name || "";
           this.http = res.data.pic_prefix || "";
 
-          this.fixedPrdTableData = res.data.fix_items || [];
-          let grp_tpl = res.data.grp_tpl || [];
+          // 处理固定单品
+          this.fixedPrdTableData = (res.data.fix_items || []).map(item => ({
+            ...item,
+            pc: item.pc === 1 ? '' : item.pc
+          }));
+
+          // 处理可替换组商品
           this.canChoosePrdTableData = (res.data.rpl_items || []).map(
             (item, i) => ({
               id: +new Date() + i * 1,
               chooseCount: item.sel_cnt || "",
-              tableData: item.items || [],
+              tableData: (item.items || []).map(subItem => ({
+                ...subItem,
+                pc: subItem.pc === 1 ? '' : subItem.pc
+              })),
               type_id: '1'
-              // type_id: item.type_id ? item.type_id.toString() : "1", // 修改此处
             })
           );
+
+          let grp_tpl = res.data.grp_tpl || [];
           console.log('-'.repeat(100),this.canChoosePrdTableData)
           for(let i = 0; i < grp_tpl.length; i++) {
             if(grp_tpl[i].g > 0) {
@@ -583,6 +592,11 @@ export default {
               console.log('realIndex:',realIndex)
               this.canChoosePrdTableData[realIndex].tpl_id = grp_tpl[i].t
               this.canChoosePrdTableData[realIndex].type_id = '2'
+              // 处理模板模式下的 pc
+              this.canChoosePrdTableData[realIndex].tableData = this.canChoosePrdTableData[realIndex].tableData.map(item => ({
+                ...item,
+                pc: item.pc === 1 ? '' : item.pc
+              }));
             }
           }
 
@@ -794,7 +808,7 @@ export default {
       this.fixedPrdTableData.forEach((el) => {
         fixPrdList.push({
           pid: el.id,
-          pc: (el.pc || 1) * 1,
+          pc: el.pc === '' ? 1 : (el.pc || 1) * 1,
         });
       });
 
@@ -811,7 +825,7 @@ export default {
           el.tableData.forEach((ele) => {
             itemPrdInfoList.push({
               pid: ele.id,
-              pc: (ele.pc || 1) * 1,
+              pc: ele.pc === '' ? 1 : (ele.pc || 1) * 1,
             });
           });
         }
@@ -1116,4 +1130,5 @@ export default {
   }
 }
 </style>
+
 
