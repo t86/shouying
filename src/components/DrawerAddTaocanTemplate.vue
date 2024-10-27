@@ -43,7 +43,7 @@
                 <div class="td w-56 truncate">{{ item.mn }}</div>
                 <div class="td w-20">{{ item.pt }}</div>
                 <div class="td w-24">{{ item.bt }}</div>
-                <div class="td w-16">{{ type === 1 ? (item.s === 1 ? '有效' : '无效') : item.s }}</div>
+                <div class="td w-16">{{ item.s }}</div>
                 <div class="td w-16 text-center">
                   <el-button type="text" @click="deletePrd(item)">删除</el-button>
                 </div>
@@ -107,6 +107,7 @@ export default {
     },
     submitSelectedPrds(prds) {
       console.log("submitSelectedPrds", prds);
+      console.log("type:", this.type);
       // 创建一个映射来存储现有商品的数量
       const existingPrdMap = new Map(
         this.selectedPrds.map(item => [item.id, item.c])
@@ -115,6 +116,7 @@ export default {
       // 更新 selectedPrds，保留现有商品的数量
       this.selectedPrds = prds.map(prd => ({
         ...prd,
+        s: prd.s === 1 ? "有效" : (prd.s === 2 ? "无效" : prd.s),
         c: existingPrdMap.get(prd.id) || 1
       }));
     },

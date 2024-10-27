@@ -178,11 +178,10 @@ export default {
             this.searchFormData.options = [...options];
           }
           const tableData = (res.data.items || []).map(item => {
-            let matched = this.checkedPrdList.findIndex(i => i.id == item.id) >= 0;
+            let matched = this.selected.findIndex(i => i.id == item.id) >= 0;
             return {
               ...item,
               checked: matched,
-              // disabled: matched,
               count: 1
             }
           })
@@ -236,7 +235,7 @@ export default {
     },
 
     removeSelected(item) {
-      // 从 selected 数组中��除项目
+      // 从 selected 数组中删除项目
       this.selected = this.selected.filter(i => i.id !== item.id);
 
       // 更新 tableData 中对应项目的 checked 状态
@@ -290,10 +289,14 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.getTableData(1);
+        // 初始化已选列表
+        this.selected = [...this.checkedPrdList];
       } else {
         this.tableData = []
         this.searchFormData.keyword = ''
         this.searchFormData.valueArr = [0, 0]
+        // 清空已选列表
+        this.selected = [];
       }
     }
   }
@@ -362,3 +365,4 @@ export default {
   color: #606266;
 }
 </style>
+
