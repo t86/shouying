@@ -21,10 +21,10 @@
               <div class="tr flex items-center justify-between">
                 <div class="th w-12">序号</div>
                 <div class="th flex-grow">名称</div>
-                <div class="th w-60">分类</div>
+                <div class="th w-64">分类</div>
                 <div class="th w-20">单价</div>
-                <div class="th w-16">数量</div>
-                <div class="th w-60">存货商品名</div>
+                <div class="th w-20">数量</div>
+                <div class="th w-56">存货商品名</div>
                 <div class="th w-20">类型</div>
                 <div class="th w-24">营业类型</div>
                 <div class="th w-16">状态</div>
@@ -35,12 +35,12 @@
               <div class="tr flex items-center justify-between" v-for="(item, index) in selectedPrds" :key="index">
                 <div class="td w-12">{{ index + 1 }}</div>
                 <div class="td flex-grow">{{ item.n }}</div>
-                <div class="td w-60 truncate">{{ item.on }} > {{ item.tn }}</div>
+                <div class="td w-64 truncate">{{ item.on }} > {{ item.tn }}</div>
                 <div class="td w-20">{{ item.p }}</div>
-                <div class="td w-16">
+                <div class="td w-20">
                   <el-input type="number" v-model="item.c" class="w-full"></el-input>
                 </div>
-                <div class="td w-60 truncate">{{ item.mn }}</div>
+                <div class="td w-56 truncate">{{ item.mn }}</div>
                 <div class="td w-20">{{ item.pt }}</div>
                 <div class="td w-24">{{ item.bt }}</div>
                 <div class="td w-16">{{ type === 1 ? (item.s === 1 ? '有效' : '无效') : item.s }}</div>
