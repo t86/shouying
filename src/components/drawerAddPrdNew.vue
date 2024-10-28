@@ -290,7 +290,11 @@ export default {
       if (newVal) {
         this.getTableData(1);
         // 初始化已选列表
-        this.selected = [...this.checkedPrdList];
+        // this.selected = [...this.checkedPrdList];
+        this.checkedPrdList.forEach(item=>{
+          item.bt = item.b
+        })
+        this.selected = [...this.checkedPrdList]
       } else {
         this.tableData = []
         this.searchFormData.keyword = ''

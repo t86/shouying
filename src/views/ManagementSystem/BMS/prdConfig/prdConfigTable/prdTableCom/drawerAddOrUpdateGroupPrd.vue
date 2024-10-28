@@ -378,7 +378,7 @@
                     <div class="td">{{ item.mn }}</div>
                     <div class="td">{{ item.pt }}</div>
                     <div class="td">{{ item.bt }}</div>
-                    <div class="td">{{ item.s == 1 ? "有效" : "无效" }}</div>
+                    <div class="td">{{ item.s }}</div>
                     <div class="td">
                       <span
                         class="primary-link cursor"
@@ -525,7 +525,13 @@ export default {
       if (res.code === 1) {
         item.chooseCount = res.data.sel_cnt
         let dtls = res.data.dtls || []
-        dtls.forEach(item => item.pc = item.c)
+        // dtls.forEach(item => item.pc = item.c)
+        dtls.forEach(item => {
+          item.pc = item.c === 1 ? '' : item.c
+          item.p = (item.p/100).toFixed(2)
+          item.bt=item.b
+        })
+        
         item.tableData = dtls
 
       } else {
@@ -577,7 +583,8 @@ export default {
               chooseCount: item.sel_cnt || "",
               tableData: (item.items || []).map(subItem => ({
                 ...subItem,
-                pc: subItem.pc === 1 ? '' : subItem.pc
+                pc: subItem.pc === 1 ? '' : subItem.pc,
+                s: subItem.s === 1 ? "有效" : (subItem.s === 2 ? "无效" : subItem.s),
               })),
               type_id: '1'
             })
@@ -683,6 +690,7 @@ export default {
               ...prdList.map((item) => ({
                 ...item,
                 pc: "",
+                s: item.s === 1 ? '有效' : (item.s === 2 ? '无效' : item.s)
               })),
             ].filter(
               (item, index, arr) =>

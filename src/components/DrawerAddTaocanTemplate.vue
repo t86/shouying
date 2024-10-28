@@ -42,7 +42,7 @@
                 </div>
                 <div class="td w-56 truncate">{{ item.mn }}</div>
                 <div class="td w-20">{{ item.pt }}</div>
-                <div class="td w-24">{{ item.bt }}</div>
+                <div class="td w-24">{{ item.b }}</div>
                 <div class="td w-16">{{ item.s }}</div>
                 <div class="td w-16 text-center">
                   <el-button type="text" @click="deletePrd(item)">删除</el-button>
@@ -117,7 +117,8 @@ export default {
       this.selectedPrds = prds.map(prd => ({
         ...prd,
         s: prd.s === 1 ? "有效" : (prd.s === 2 ? "无效" : prd.s),
-        c: existingPrdMap.get(prd.id) || 1
+        c: existingPrdMap.get(prd.id) || 1,
+        b:prd.bt
       }));
     },
     clickNewPrd() {
