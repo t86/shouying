@@ -239,16 +239,18 @@ export default {
 
       this.groupCanSelectArr = JSON.parse(JSON.stringify(this.groupCanSelectArr))
       this.groupCanSelectArr.forEach(el => {
-        el.productInfo = common_order.getProductInfoFromGroup(el.dtlPrdId);
-        el.requireText = "";
-        el.productInfo.requireInfo = common_order.getRequireInfo(
-          el.productInfo.twoCateId
-        );
+        if(el.typeId === '1'){
+          el.productInfo = common_order.getProductInfoFromGroup(el.dtlPrdId);
+          el.requireText = "";
+          el.productInfo.requireInfo = common_order.getRequireInfo(
+            el.productInfo.twoCateId
+          );
+        }
       });
 
       // 通过grpId进行分类
       const groupIdList = new Set(this.groupCanSelectArr.map(el => el.grpId));
-      const resultGroupCanSelectArr = [];
+      let resultGroupCanSelectArr = [];
       const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj["prdOutOfSomething"].filter(item => item.status == 1)
 
       groupIdList.forEach(el => {
@@ -260,12 +262,34 @@ export default {
         })
         resultGroupCanSelectArr.push({
           grpId: el,
+          typeId: findInfo.length > 0 ? findInfo[0].typeId : '1', // 套餐类型,
+          dtlPrdId: findInfo.length > 0 ? findInfo[0].dtlPrdId : '', // 套餐明细Id
+          twoCateId: findInfo.length > 0 ? findInfo[0].twoCateId : '', // 商品二级分类Id
           productInfoList: findInfo,
           groupSelectCount: findInfo.length > 0 ? findInfo[0].grpSelCnt : 0, // 当前套餐可选的商品数量
           selectedProductsArr: [], // 已选商品列表
           hadSelectedCount: 0 // 已选商品数量
         });
       });
+
+      console.log('?'.repeat(50), resultGroupCanSelectArr)
+
+      resultGroupCanSelectArr.forEach(el => {
+        console.log('el', el, el.typeId === '2')
+        if(el.typeId === '2'){
+          console.log('-'.repeat(10))
+          let products = common_order.getTaocanPrdInfo(el.dtlPrdId)
+          console.log('products', products)
+          products.forEach(item => {
+            item.productInfo = common_order.getProductInfoFromGroup(item.dtl_prd_id);
+            console.log('item.productInfo', item.productInfo)
+            item.requireText = "";
+            item.prdCnt = item.dtl_prd_cnt
+          })
+          el.productInfoList = products
+        }
+      })
+
 
       this.groupCanSelectArr = JSON.parse(
         JSON.stringify(resultGroupCanSelectArr)
