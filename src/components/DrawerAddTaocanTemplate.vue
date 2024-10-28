@@ -192,7 +192,7 @@ export default {
 
 <style scoped lang="less">
 @import "../style/erp/form.less";
-// @import "../style/erp/table.less";
+// @import "../style/erp/taocan_tpl.less";
 </style>
 
 <style lang="less" scoped>

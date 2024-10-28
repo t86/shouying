@@ -36,39 +36,38 @@
                   <div class="popover-table-header">
                     <span>套餐详情</span>
                   </div>
-                  <el-table :data="groupedTaocan(item.taocan)" border style="width: 100%">
-                    <el-table-column prop="n1" label="一级分类" width="180">
-                      <template slot-scope="scope">
-                        <span>{{ scope.row.n1 }}</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="n2" label="二级分类" width="250">
-                      <template slot-scope="scope">
-                        <el-table :data="scope.row.n2s" :show-header="false" :border="false">
-                          <el-table-column prop="n2" width="220">
-                            <template slot-scope="n2Scope">
-                              <span>{{ n2Scope.row.n2 }}</span>
-                            </template>
-                          </el-table-column>
-                        </el-table>
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="s" label="套餐名称">
-                      <template slot-scope="scope">
-                        <el-table :data="scope.row.n2s" :show-header="false" :border="false">
-                          <el-table-column prop="s">
-                            <template slot-scope="n2Scope">
-                              <el-tag v-for="(s, index) in n2Scope.row.s" :key="index" size="small" style="margin: 2px">
+                  <table class="custom-table">
+                    <thead>
+                      <tr>
+                        <th width="180">一级分类</th>
+                        <th width="250">二级分类</th>
+                        <th>套餐名称</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template v-for="(group, groupIndex) in groupedTaocan(item.taocan)">
+                        <template v-for="(n2Item, n2Index) in group.n2s">
+                          <tr>
+                            <!-- 只在每组的第一行显示一级分类 -->
+                            <td v-if="n2Index === 0" :rowspan="group.n2s.length">{{ group.n1 }}</td>
+                            <td>{{ n2Item.n2 }}</td>
+                            <td>
+                              <el-tag v-for="(s, sIndex) in n2Item.s" 
+                                :key="sIndex" 
+                                size="small" 
+                                style="margin: 2px">
                                 {{ s }}
                               </el-tag>
-                            </template>
-                          </el-table-column>
-                        </el-table>
+                            </td>
+                          </tr>
+                        </template>
                       </template>
-                    </el-table-column>
-                  </el-table>
+                    </tbody>
+                  </table>
                 </div>
-                <el-button slot="reference" type="text">{{ item.taocan.reduce((total, item) => total + (item.s ? item.s.length : 0), 0) }}</el-button>
+                <el-button slot="reference" type="text">
+                  {{ item.taocan.reduce((total, item) => total + (item.s ? item.s.length : 0), 0) }}
+                </el-button>
               </el-popover>
 
             </div>
@@ -256,221 +255,48 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-@import "../../../style/erp/table.less";
-</style>
-<style lang="less" scoped>
-.card-min-group {
-  padding: 20px;
+@import "../../../style/taocan_tpl.less";
 
-  .top {
-    background-color: #eee;
-  }
-
-  .table-content {
-    width: 100%;
-    max-height: calc(100vh - 180px);
-    overflow: auto;
-
-    .table {
-      min-width: 1600px;
-
-      .thead {
-        .th {
-          background-color: #f5f5f5;
-        }
-      }
-
-      .tbody {
-        .tr {
-          &:nth-child(2n) {
-            .td {
-              background-color: #f5f5f5;
-            }
-          }
-
-          &:nth-child(2n + 1) {
-            .td {
-              background-color: #f9f9f9;
-            }
-          }
-        }
-      }
-
-      .th,
-      .td {
-        &:nth-child(3) {
-          width: 180px;
-        }
-
-        &:nth-child(4) {
-          width: 200px;
-        }
-
-        &:nth-child(5) {
-          width: 200px;
-        }
-
-        &:nth-child(1) {
-          width: 100px;
-        }
-
-        &:nth-child(2) {
-          width: 300px;
-        }
-      }
-    }
-  }
-
-}
-</style>
-<style lang="less" scoped>
-.table-wrapper {
-  width: 100%;
-  border: 1px solid #EBEEF5;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.table-header {
-  display: flex;
-  background-color: #F5F7FA;
-
-  .th {
-    flex: 1;
-    padding: 12px;
-    font-weight: bold;
-    text-align: center;
-    border-right: 1px solid #EBEEF5;
-
-    &:last-child {
-      border-right: none;
-    }
-  }
-}
-
-.table-body {
-  .tr {
-    display: flex;
-    border-top: 1px solid #EBEEF5;
-
-    &:first-child {
-      border-top: none;
-    }
-
-    .td {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      border-right: 1px solid #EBEEF5;
-
-      &:last-child {
-        border-right: none;
-      }
-
-      &[rowspan] {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-  }
-}
-
-.no-data {
-  padding: 20px;
-  text-align: center;
-
-  img {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 10px;
-  }
-
-  p {
-    color: #909399;
-  }
-}
-</style>
-<style lang="less" scoped>
 .popover-table {
   .popover-table-header {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    padding: 12px;
     border-bottom: 1px solid #EBEEF5;
-  }
-
-  .el-table {
-    margin-bottom: 10px;
-
-    .el-table__body-wrapper {
-      overflow-y: auto;
-      max-height: 300px;
+    
+    span {
+      font-size: 14px;
+      color: #303133;
+      font-weight: 500;
     }
-
-    .el-tag {
-      margin: 2px;
-    }
-  }
-
-  .no-data {
-    text-align: center;
-    padding: 20px 0;
-    color: #909399;
-
-    i {
-      font-size: 30px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      margin: 0;
-    }
-  }
-}
-
-// 去掉嵌套表格的边框和背景色
-/deep/ .el-table__expanded-cell {
-  .el-table {
-    background-color: transparent;
-    &::before, &::after {
-      display: none;
-    }
-    .el-table__header-wrapper, .el-table__body-wrapper {
-      background-color: transparent;
-    }
-    tr, td {
-      background-color: transparent !important;
-    }
-  }
-}
-
-// 去掉右边和下边的边框
-/deep/ .el-table {
-  &::before, &::after {
-    display: none;
   }
   
-  .el-table__fixed-right::before, 
-  .el-table__fixed::before {
-    display: none;
-  }
-
-  .el-table__body {
-    tr:last-child td {
-      border-bottom: none;
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      border: 1px solid #EBEEF5;
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.4;
     }
-    td:last-child {
-      border-right: none;
+    
+    th {
+      background-color: #F5F7FA;
+      color: #909399;
+      font-weight: 500;
+      padding: 8px 12px;
     }
-  }
-
-  .el-table__header {
-    th:last-child {
-      border-right: none;
+    
+    tr:hover {
+      background-color: transparent;
+    }
+    
+    td {
+      .el-tag {
+        margin: 2px;
+      }
     }
   }
 }
 </style>
-
