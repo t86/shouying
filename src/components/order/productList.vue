@@ -30,11 +30,18 @@
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
-
-
-            <div v-if="vipPrice && item.bizType*1 === 1" class="vip-price">
+            <!-- <div v-if="vipPrice && item.bizType*1 === 1" class="vip-price">
               <p class="ori-price">原价: ￥{{item.price}} </p>
               <p class="real-price">会员价: ￥{{item.vipPrice}} </p>
+            </div>
+            <p v-else class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
+            </p> -->
+            <div v-if="vipPrice && item.bizType*1 === 1">
+              <p class="price" v-if="hasVipPriceDirect"> ￥{{item.vipPrice}} </p>
+              <div v-else class="vip-price">
+                <p class="ori-price">原价: ￥{{item.price}} </p>
+                <p class="real-price">会员价: ￥{{item.vipPrice}} </p>
+              </div>
             </div>
             <p v-else class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
             </p>
@@ -957,14 +964,29 @@ export default {
       console.log('vipPrice', this.vipPrice)
       console.log('productInfo.bizType', productInfo.bizType)
       console.log('displayCustName', this.displayCustName)
-
-      if (this.vipPrice && productInfo.bizType * 1 === 1 && this.displayCustName === '' ) {
-        this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
+      if(this.vipPrice){
+        if(this.hasVipPriceDirect) {
           this.doSetMealForProduct(productInfo)
-        });
+        } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1) {
+          this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
+            this.doSetMealForProduct(productInfo)
+          }); 
+        }
       } else {
         this.doSetMealForProduct(productInfo)
       }
+
+      // if (this.vipPrice && productInfo.bizType * 1 === 1 && this.displayCustName === '' ) {
+      //   if(this.hasVipPriceDirect) {
+      //     this.doSetMealForProduct(productInfo)
+      //   } else {
+      //     this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
+      //     this.doSetMealForProduct(productInfo)
+      //   }); 
+      // }
+      // } else {
+      //   this.doSetMealForProduct(productInfo)
+      // }
 
     },
 
@@ -1198,6 +1220,11 @@ export default {
     }
   },
   computed: {
+    hasVipPriceDirect(){
+      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
+      console.log('hasVipPriceDirect:', has)
+      return has
+    },
     bindGuestOpen () {
       let arr = this.$store.state.cardPageInfo.resResultDataObj.showAmt
       if (arr && arr.length > 0) {

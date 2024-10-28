@@ -2,7 +2,26 @@
   <div class="group">
     <div class="group-title" layout="row" layout-align="space-between start">
       <div class="group-title-name">{{groupInfo.name}}</div>
-      <div class="group-title-price" v-if="vipPrice && bindphone !== '' && productInfo.bizType * 1 === 1 ">
+      
+      <div v-if="vipPrice && productInfo.bizType * 1 === 1">
+        <div v-if="hasVipPriceDirect" class="group-title-price flex">
+          <span>单价:</span>
+          <span class="value">￥{{ groupInfo.vipPrice }}</span>
+        </div>
+
+        <div v-else>
+          <div class="group-title-price" v-if="bindphone !== ''">
+            <span>会员单价:</span>
+            <span class="value">￥{{groupInfo.vipPrice}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="group-title-price" v-else>
+        <span>单价:</span>
+        <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
+      </div>
+
+      <!-- <div class="group-title-price" v-if="vipPrice && bindphone !== '' && productInfo.bizType * 1 === 1 ">
         <span>会员单价:</span>
         <span class="value">￥{{groupInfo.vipPrice}}</span>
       </div>
@@ -10,7 +29,7 @@
       <div class="group-title-price" v-else>
         <span>单价:</span>
         <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
-      </div>
+      </div> -->
 
       <div class="group-title-count">
         <span>点单数量:</span>
@@ -204,12 +223,24 @@ export default {
       console.log('groupInfo', groupInfo)
       groupInfo.count = this.singleInfo.prd_cnt;
       console.log(this.vipPrice , this.bindphone , this.productInfo.bizType)
-      if(this.vipPrice && this.bindphone !== '' && this.productInfo.bizType * 1 === 1){
-        groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
-        console.log(' groupInfo.allAmt',  groupInfo.allAmt)
-      } else {
-        groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+
+      if(this.vipPrice && this.productInfo.bizType * 1 === 1) {
+        if(this.hasVipPriceDirect){
+          groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
+        } else if (this.bindphone !== '') {
+          groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
+        } else {
+          groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+        }
       }
+
+      // if(this.vipPrice && this.bindphone !== '' && this.productInfo.bizType * 1 === 1){
+      //   groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
+      //   console.log(' groupInfo.allAmt',  groupInfo.allAmt)
+      // } else {
+      //   groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+      // }
+      
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
       if (this.isUpdate) {
@@ -637,6 +668,13 @@ export default {
   },
   mounted() {
     this.init();
+  },
+  computed: {
+    hasVipPriceDirect(){
+      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
+      console.log('hasVipPriceDirect:', has)
+      return has
+    }
   },
   components: {
     drawerChooseRequireInfo,
