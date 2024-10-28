@@ -48,6 +48,10 @@ export default {
     return authTypeList
   },
 
+  getTaocanPrdInfo(tplId) {
+    return store.state.cardPageInfo.resResultDataObj.taocanTemplate.filter(item => item.tpl_id == tplId) || []
+  },
+
   // 通过二级菜单id匹配对应的要求类型及明细
   getRequireInfo(secondCategoryId) {
     const requireInfo = store.state.cardPageInfo.resResultDataObj.secondCategoryRequireConfig.filter(item => item.two_cate_id == secondCategoryId)

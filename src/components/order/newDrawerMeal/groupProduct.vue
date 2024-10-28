@@ -88,7 +88,7 @@
                 @click="requireBtnClickHandle('can',items, item)"
               >定制</span>
               <img :src="imgSrc.add" @click="changeChecked('add',item,items)" />
-            </li>
+            </li>      
           </ul>
         </div>
         <div class="group-content-choose-right">
@@ -307,15 +307,21 @@ export default {
 
     // 改变所选套餐
     changeChecked(type, item, items, index, requireText = "") {
+      console.log("type", type)
+      console.log('item', item)
+      console.log('items', items)
+      console.log('index', index)
       switch (type) {
         case "add":
           if (item.hadSelectedCount >= item.groupSelectCount)
             return this.$message.warning("当前可选数量已达到最大值");
-
-          const selectedInfo = item.selectedProductsArr.find(
-            el =>
-              el.dtlPrdId === items.dtlPrdId && el.requireText === requireText
-          );
+            let selectedInfo = null
+            if(item.typeId === '2'){
+              items.dtlPrdId = items.dtl_prd_id
+              items.grpId= item.grpId
+            }
+            selectedInfo = item.selectedProductsArr.find(el =>
+                el.dtlPrdId === items.dtlPrdId && el.requireText === requireText);
           
           items = selectedInfo || { ...items };
           const selectedCount = selectedInfo
