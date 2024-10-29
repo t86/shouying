@@ -161,10 +161,18 @@
         <keyBoard class="new-shopping-cart-content-key" 
          :landscape="true" :oneLine="true" :itemHeight="44" :itemWidth="44" :width="540"
           @changeNum="changeNumHandle" />
-
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
           <div class="amt" layout="row">
-            <div class="p m-r-10" layout="colume" layout-align="start center" v-if="showNewShoppingCar">
+            
+            <div v-if="vipPrice && (hasVipPriceDirect || hasShouyin)" class="p" layout="row" layout-align="start center">
+              <div v-if="hasVipPriceDirect || hasShouyin" class="num">
+                <span>购物车金额：</span>：
+                <span class="num mr-4" style="color:#009370;">￥{{ amt.allAmt }}</span>
+              </div>
+            </div>
+
+            <div v-else>
+              <div class="p m-r-10" layout="colume" layout-align="start center" v-if="showNewShoppingCar">
               <div class="ori-price">
                 <span>购物车金额(原价)：</span>
                 <span>￥{{ amt.oriAmt }}</span>
@@ -181,6 +189,7 @@
                 <span v-else>购物车金额：</span>
                 <span class="num" style="color:#009370;">￥{{ amt.allAmt }}</span>
               </div>
+            </div>
             </div>
             
             
@@ -206,6 +215,9 @@
             </button>
           </div>
         </div>
+
+
+
       </div>
 
       <!-- 下单倒计时退出 -->
@@ -825,6 +837,28 @@ export default {
     HeaderInfo,
   },
   computed: {
+    vipPrice(){
+      const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+      if(showAmt.length > 0) {
+        for (let item of showAmt) {
+          if (item.id === '50') {
+            if (item.param1 * 1 > 0) {
+              return true
+            }
+          }
+        }
+      }
+    },
+    hasShouyin(){
+      let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+      console.log('hasShouyin:', has)
+      return has
+    },
+    hasVipPriceDirect(){
+      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
+      console.log('hasVipPriceDirect:', has)
+      return has
+    },
     isShowPayBtn() {
       let isHaveAuth = false;
       if (this.$store.state.userInfo.authStatus != 4) {
