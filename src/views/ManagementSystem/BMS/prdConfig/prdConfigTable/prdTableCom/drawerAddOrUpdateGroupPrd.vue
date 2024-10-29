@@ -373,6 +373,7 @@
                         v-model="item.pc"
                         placeholder="请输入数量"
                         size="mini"
+                        :disabled="items.type_id * 1 === 2"
                       />
                     </div>
                     <div class="td">{{ item.mn }}</div>
@@ -573,7 +574,7 @@ export default {
           // 处理固定单品
           this.fixedPrdTableData = (res.data.fix_items || []).map(item => ({
             ...item,
-            pc: item.pc === 1 ? '' : item.pc
+            // pc: item.pc === 1 ? '' : item.pc
           }));
 
           // 处理可替换组商品
@@ -583,7 +584,7 @@ export default {
               chooseCount: item.sel_cnt || "",
               tableData: (item.items || []).map(subItem => ({
                 ...subItem,
-                pc: subItem.pc === 1 ? '' : subItem.pc,
+                // pc: subItem.pc === 1 ? '' : subItem.pc,
                 s: subItem.s === 1 ? "有效" : (subItem.s === 2 ? "无效" : subItem.s),
               })),
               type_id: '1'
@@ -602,7 +603,7 @@ export default {
               // 处理模板模式下的 pc
               this.canChoosePrdTableData[realIndex].tableData = this.canChoosePrdTableData[realIndex].tableData.map(item => ({
                 ...item,
-                pc: item.pc === 1 ? '' : item.pc
+                // pc: item.pc === 1 ? '' : item.pc
               }));
             }
           }
