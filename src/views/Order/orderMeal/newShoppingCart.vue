@@ -164,7 +164,6 @@
 
         <div class="new-shopping-cart-content-bottom" layout="row" layout-align="space-between center">
           <div class="amt" layout="row">
-
             <div class="p m-r-10" layout="colume" layout-align="start center" v-if="showNewShoppingCar">
               <div class="ori-price">
                 <span>购物车金额(原价)：</span>
@@ -837,7 +836,14 @@ export default {
       return isHaveAuth;
     },
     showNewShoppingCar(){
-      return this.shoppingCartList.findIndex(item => item.p2 * 1 > 0) > -1
+      let has = this.shoppingCartList.findIndex(item => item.p2 * 1 > 0) > -1
+      console.log('showNewShoppingCar:', has)
+      return has
+    },
+    hasVipPriceDirect(){
+      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
+      console.log('hasVipPriceDirect:', has)
+      return has
     },
     amt() {
       let allAmt = 0;

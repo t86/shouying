@@ -965,7 +965,7 @@ export default {
       console.log('productInfo.bizType', productInfo.bizType)
       console.log('displayCustName', this.displayCustName)
       if(this.vipPrice){
-        if(this.hasVipPriceDirect) {
+        if(this.hasVipPriceDirect || this.hasShouyin) {
           this.doSetMealForProduct(productInfo)
         } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1) {
           this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
@@ -1223,6 +1223,11 @@ export default {
     hasVipPriceDirect(){
       let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
       console.log('hasVipPriceDirect:', has)
+      return has
+    },
+    hasShouyin () {
+      let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+      console.log('hasShouyin:', has)
       return has
     },
     bindGuestOpen () {

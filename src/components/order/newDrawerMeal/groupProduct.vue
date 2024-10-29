@@ -550,11 +550,11 @@ export default {
       }
 
       try {
-
-        if(this.vipPrice && this.bindphone && this.groupInfo.bizType * 1 === 1) {
-          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
-        } else {
-          params.prd_price = Math.round(this.groupInfo.price * 100)
+        params.prd_price = Math.round(this.groupInfo.price * 100)
+        if(this.vipPrice && this.groupInfo.bizType * 1 === 1){
+          if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
+            params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
+          }
         }
 
         console.log('?'.repeat(50), this.singleInfo)
@@ -674,7 +674,12 @@ export default {
       let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
       console.log('hasVipPriceDirect:', has)
       return has
-    }
+    },
+    hasShouyin () {
+      let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+      console.log('hasShouyin:', has)
+      return has
+    },
   },
   components: {
     drawerChooseRequireInfo,

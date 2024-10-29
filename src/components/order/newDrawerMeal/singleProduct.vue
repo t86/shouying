@@ -388,8 +388,10 @@ export default {
     // 服务员/收银加入购物车
     async orderMealToShoppingCart(c, yh) {
       let price = this.productInfo.price
-      if (this.vipPrice && this.bindphone !== '' && this.productInfo.bizType *1 === 1){
-        price = this.productInfo.vipPrice
+      if (this.vipPrice && this.productInfo.bizType *1 === 1){
+        if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
+          price = this.productInfo.vipPrice
+        }
       }
 
       const params = {
@@ -551,6 +553,16 @@ export default {
   },
 
   computed: {
+    hasVipPriceDirect() {
+      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
+      console.log('hasVipPriceDirect:', has)
+      return has
+    },
+    hasShouyin () {
+      let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+      console.log('hasShouyin:', has)
+      return has
+    },
     requireText() {
       return this.requestInfoArr.length > 0
         ? this.requestInfoArr.join(";")
