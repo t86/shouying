@@ -528,7 +528,7 @@ export default {
         let dtls = res.data.dtls || []
         // dtls.forEach(item => item.pc = item.c)
         dtls.forEach(item => {
-          item.pc = item.c === 1 ? '' : item.c
+          item.pc = item.c
           item.p = (item.p/100).toFixed(2)
           item.bt=item.b
         })
