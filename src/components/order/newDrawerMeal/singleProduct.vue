@@ -77,8 +77,14 @@
       @showOrHideDrawer="showOrHideRequireDrawer" />
 
     <!-- 补交 -->
-    <drawerBj v-model="showBJDrawer" :productInfo="productInfo" :count="shopCount" :amt="amt" :requestInfoArr="requestInfoArr"
-      @onCancelDrawer="onCancelDrawer" />
+    <drawerBj v-model="showBJDrawer" 
+    :productInfo="productInfo" 
+    :count="shopCount" 
+    :amt="amt" 
+    :requestInfoArr="requestInfoArr" 
+    :orderMealStatus="orderMealStatus" 
+    :usingVipPrice="usingVipPrice"
+    @onCancelDrawer="onCancelDrawer" />
 
     <div class="modal" v-if="showModal">
       <div class="modal-content">
@@ -562,6 +568,15 @@ export default {
       let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
       console.log('hasShouyin:', has)
       return has
+    },
+
+    usingVipPrice() {
+      if(this.vipPrice && this.productInfo.bizType * 1 === 1) {
+        if(this.bindphone || this.hasShouyin || this.hasVipPriceDirect) {
+          return true
+        }
+      }
+      return false
     },
     requireText() {
       return this.requestInfoArr.length > 0

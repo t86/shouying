@@ -536,7 +536,7 @@ export default {
 
         resultProductArr = resultProductArr.map((item) => ({
           ...item,
-          canSeal: false,
+          // canSeal: false,
           canSealYH2: false,
         }));
       }

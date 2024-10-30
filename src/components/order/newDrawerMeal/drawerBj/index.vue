@@ -73,6 +73,7 @@ export default {
     async addShoppingCartHandle(){
       let res = {}
       let params = {}
+      console.log('addShoppingCartHandle productInfo:', this.productInfo)
       if(this.productInfo.prdType == 2) {
         params = {
           ...this.groupParams,
@@ -100,6 +101,7 @@ export default {
           prd_amt: (this.productInfo.prdType == 13 || this.productInfo.prdType == 14) ? '' : this.amt.toString(), //  string  商品金额 普通商品,定价花篮(13),定价小费(14)不要传金额(空)(系统会自动计算), 时价花篮(3)/时价小费(4) 需传金额
           requirement: this.requestInfoArr.join(";"), // string   要求
           relate_csm_id: this.orderInfo.id * 1, // int64  关联流水Id(用于补交),没有填0
+          auth_type: this.orderMealStatus * 1 === 2 ? 2 : 0, // int        //AuthType 0 正常加入购物车 2 优惠加入购物车
         };
 
         try {
@@ -110,7 +112,8 @@ export default {
             this.productInfo.prdType == 8) {
             res = await api_order.reqAddAmtToShopping(params);
           } else {
-            params.prd_price = this.productInfo.price, //  string  商品单价,用于做二次验证
+            // params.prd_price = this.productInfo.price, //  string  商品单价,用于做二次验证
+            params.prd_price = this.usingVipPrice ? this.productInfo.vipPrice : this.productInfo.price, //  string  商品单价,用于做二次验证
             res = await api_order.reqAddProductToShopping(params);
           }
           if (res.code == 1) {
@@ -204,8 +207,14 @@ export default {
     productInfo: {
       default: () => {}
     },
+    orderMealStatus: {
+      default: 0
+    },
     count: {
       default: ''
+    },
+    usingVipPrice: {
+      default: false
     },
     amt: {
       default: ''
