@@ -1,14 +1,14 @@
 // 我的点单
 .new-my-order {
-  padding: 20px;
-  box-sizing: border-box;
-  min-height: 100%;
+  padding: 15px;
+  height: calc(100% - 135px); // 减去tab高度
   background: #C4CBD7;
-
+  display: flex;
+  flex-direction: column;
   &-content {
     position: relative;
     width: 100%;
-    height: calc(100vh - 205px);
+    height: calc(100vh - 191px);
     border-radius: 12px;
     box-sizing: border-box;
     background: #DCE1EA;
@@ -21,7 +21,8 @@
     // 购物车详情
     &-top {
       font-size: 15px;
-
+      flex: 1;
+      overflow: hidden;
       .thead .tr {
 
         background: #FAFAFC #ECEFF4;

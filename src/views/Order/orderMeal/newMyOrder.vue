@@ -628,7 +628,7 @@ export default {
 .tab-content {
   background: transparent;
   border-radius: 4px;
-  padding: 10px;
+  padding: 0px;
   margin-bottom: 5px;
 }
 
