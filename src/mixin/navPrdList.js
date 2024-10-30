@@ -543,7 +543,7 @@ export default {
       console.log('resultProductArr--------------:', resultProductArr)
 
 
-
+      
       // 点单系统
       if (sessionStorage.getItem("client") == "order" 
       && (this.$store.state.userInfo.roleIds.includes(2) 
@@ -558,14 +558,21 @@ export default {
 
       if (sessionStorage.getItem("client") == "order" 
       && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4') && !isGQ) {
+        // 先从stationAllProduct筛选出符合条件的商品
         let tmpArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "funcOrderPrdConfig"
-        ].findIndex(i => i.prd_id == item.id && i.seat_id == this.$store.state.orderInfo.currentCardInfo.id && i.status == '1') >= 0).map(item => {
-          return {...item}
-        })]
-
-        // 从tmpArr过滤所有resultProductArr包含的商品
-        resultProductArr = tmpArr.filter(item => resultProductArr.find(i => i.id == item.id))
+        ].findIndex(i => i.prd_id == item.id && i.seat_id == this.$store.state.orderInfo.currentCardInfo.id && i.status == '1') >= 0)]
+        resultProductArr = tmpArr.map(item => {
+          const original = resultProductArr.find(i => i.id == item.id)
+          if(original) {
+            return {
+              ...item,
+              canOrderMeal: original.canOrderMeal,
+              canSeal: original.canSeal
+            }
+          }
+          return null
+        }).filter(item => item !== null) // 移除未匹配的项
       }
 
       /* 通过 this.$store.state.cardPageInfo.resResultDataObj["areaProduct"]，结构如下
@@ -652,8 +659,6 @@ export default {
       this.secondCategoryListAll = resultSecondCategoryInfoArr.sort(
         (a, b) => a.dsp - b.dsp
       );
-
- 
       this.productListAll = resultProductArr.sort((a, b) => a.dsp - b.dsp);
 
       this.$emit("updateProductsList", {
@@ -671,7 +676,6 @@ export default {
         key: "productAll",
         value: resultProductArr,
       });
-
       if (this.$route.name == "orderMealList") {
         // 点单系统
         const { mustOrderPrdId } = this.$route.query;
