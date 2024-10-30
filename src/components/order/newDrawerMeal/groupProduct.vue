@@ -3,19 +3,23 @@
     <div class="group-title" layout="row" layout-align="space-between start">
       <div class="group-title-name">{{groupInfo.name}}</div>
       
-      <div v-if="vipPrice && productInfo.bizType * 1 === 1">
-        <div v-if="hasVipPriceDirect" class="group-title-price flex">
+      <div v-if="vipPrice && productInfo.bizType * 1 === 1 && groupInfo.bizType * 1 === 1">
+        <div v-if="hasVipPriceDirect || hasShouyin" class="group-title-price flex">
           <span>单价:</span>
           <span class="value">￥{{ groupInfo.vipPrice }}</span>
         </div>
-
-        <div v-else>
-          <div class="group-title-price" v-if="bindphone !== ''">
+        <div v-else-if="bindphone !== ''">
+          <div class="group-title-price">
             <span>会员单价:</span>
             <span class="value">￥{{groupInfo.vipPrice}}</span>
           </div>
         </div>
+        <div class="group-title-price" v-else>
+          <span>单价:</span>
+          <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
+        </div>
       </div>
+      
       <div class="group-title-price" v-else>
         <span>单价:</span>
         <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
@@ -225,9 +229,7 @@ export default {
       console.log(this.vipPrice , this.bindphone , this.productInfo.bizType)
 
       if(this.vipPrice && this.productInfo.bizType * 1 === 1) {
-        if(this.hasVipPriceDirect){
-          groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
-        } else if (this.bindphone !== '') {
+        if(this.hasVipPriceDirect || this.hasShouyin || this.bindphone !== ''){
           groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
         } else {
           groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
@@ -526,8 +528,7 @@ export default {
           };
           const res = await api_order.reqUseMtCode(params)
           if(res.code === 1) {
-            this.$message.success("卡券核销成功");
-            this.onCancelDrawer();
+            this.$message.success("卡券核销成功");this.onCancelDrawer();
           } else {
             this.$message.warning(res.msg);
           }
