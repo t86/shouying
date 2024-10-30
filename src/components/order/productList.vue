@@ -961,6 +961,7 @@ export default {
     },
     // 点击商品/套餐
     setMealForProduct(productInfo) {
+      console.log('setMealForProduct:', productInfo)
       console.log('vipPrice', this.vipPrice)
       console.log('productInfo.bizType', productInfo.bizType)
       console.log('displayCustName', this.displayCustName)
@@ -971,6 +972,8 @@ export default {
           this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
             this.doSetMealForProduct(productInfo)
           }); 
+        } else {
+          this.doSetMealForProduct(productInfo)
         }
       } else {
         this.doSetMealForProduct(productInfo)
