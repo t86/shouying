@@ -646,8 +646,8 @@ export default {
           &.green {
             color: #fff;
             background: #67C23A;
-            padding: 2px 8px;
-            border-radius: 2px;
+            // padding: 2px 8px;
+            // border-radius: 2px;
           }
         }
       }
