@@ -153,7 +153,7 @@ export default {
             const isInSelectedCate = this.selectList.includes(item.ti);
             return {
               ...item,
-              checked: isExist,
+              checked: isExist || isInSelectedCate,
               disabled: isExist || isInSelectedCate,
               price: item.p
             }
