@@ -99,6 +99,7 @@
         v-model="showAddPrdDrawer"
         :checkedPrdList="tableData"
         :checkedCateIds="checkedTwoCate"
+        :selectList="selectList"
         @getChoosedPrdList="getChoosedPrdList"
       />
 

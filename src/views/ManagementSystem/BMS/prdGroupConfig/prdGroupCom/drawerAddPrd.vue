@@ -150,10 +150,11 @@ export default {
           }
           const tableData = ((this.prdType == 3 ? res.data.items : res.data.prds) || []).map(item => {
             const isExist = this.checkedPrdList.some(i => i.id === item.id);
+            const isInSelectedCate = this.selectList.includes(item.ti);
             return {
               ...item,
               checked: isExist,
-              disabled: isExist,
+              disabled: isExist || isInSelectedCate,
               price: item.p
             }
           })
@@ -251,6 +252,10 @@ export default {
     },
     stationId: {
       default: 0
+    },
+    selectList: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
