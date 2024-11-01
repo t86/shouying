@@ -1,8 +1,8 @@
 <template>
   <div class="group">
     <div class="group-title" layout="row" layout-align="space-between start">
-      <div class="group-title-name">{{groupInfo.name}}</div>
-      
+      <div class="group-title-name">{{ groupInfo.name }}</div>
+
       <div v-if="vipPrice && productInfo.bizType * 1 === 1 && groupInfo.bizType * 1 === 1">
         <div v-if="hasVipPriceDirect || hasShouyin" class="group-title-price flex">
           <span>单价:</span>
@@ -11,18 +11,20 @@
         <div v-else-if="bindphone !== ''">
           <div class="group-title-price">
             <span>会员单价:</span>
-            <span class="value">￥{{groupInfo.vipPrice}}</span>
+            <span class="value">￥{{ groupInfo.vipPrice }}</span>
           </div>
         </div>
         <div class="group-title-price" v-else>
           <span>单价:</span>
-          <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
+          <span class="value">￥{{ singleInfo.auth_type === 2 ? (groupInfo.bizType * 1 === 1 ? groupInfo.vipPrice :
+            groupInfo.price) : groupInfo.price}}</span>
         </div>
       </div>
-      
+
       <div class="group-title-price" v-else>
         <span>单价:</span>
-        <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
+        <span class="value">￥{{ singleInfo.auth_type === 2 ? (groupInfo.bizType * 1 === 1 ? groupInfo.vipPrice :
+          groupInfo.price) : groupInfo.price}}</span>
       </div>
 
       <!-- <div class="group-title-price" v-if="vipPrice && bindphone !== '' && productInfo.bizType * 1 === 1 ">
@@ -37,20 +39,18 @@
 
       <div class="group-title-count">
         <span>点单数量:</span>
-        <span class="value" style="color: #08080A;">{{groupInfo.count}}</span>
+        <span class="value" style="color: #08080A;">{{ groupInfo.count }}</span>
       </div>
       <div class="group-title-amt">
         <span>小计:</span>
-        <span class="value">￥{{ singleInfo.auth_type === 2? 0: groupInfo.allAmt}}</span>
+        <span class="value">￥{{ singleInfo.auth_type === 2 ? 0 : groupInfo.allAmt }}</span>
       </div>
     </div>
     <!-- 待替换商品 -->
     <div v-if="isUpdate" class="p-t-2 p-b-5" style="color: #08080A; font-size: 18px;">
       <span>待替换商品：</span>
-      <span
-        v-for="(item,i) in selectedInfoObj[0].beforeUpdateProduct"
-        :key="i"
-      >{{item.productInfo.name}} * {{item.selectedCount * item.prdCnt * groupInfo.count}}{{item.requireText?'（'+item.requireText+'）':''}}</span>
+      <span v-for="(item, i) in selectedInfoObj[0].beforeUpdateProduct" :key="i">{{ item.productInfo.name }} *
+        {{ item.selectedCount * item.prdCnt * groupInfo.count }}{{ item.requireText ? '（' + item.requireText + '）' : '' }}</span>
     </div>
     <!-- 选择列表 -->
     <div class="group-content">
@@ -59,74 +59,49 @@
         <div class="group-content-title-right">已选列表</div>
       </div>
       <!-- 不可选列表 -->
-      <div
-        v-if="groupCanNotSelectArr && groupCanNotSelectArr.length>0"
-        class="group-content-checked"
-        layout="row"
-        layout-align="space-between center"
-      >
+      <div v-if="groupCanNotSelectArr && groupCanNotSelectArr.length > 0" class="group-content-checked" layout="row"
+        layout-align="space-between center">
         <div class="group-content-checked-left">
           <ul layout="row" layout-align="start center">
-            <li class="left" v-for="(item,i) in groupCanNotSelectArr" :key="i">
-              <span>{{item.productInfo.name}} * {{item.prdCnt * groupInfo.count}}</span>
-              <span
-                v-if="item.productInfo.requireInfo.length>0"
-                class="m-l-1 cursor require-btn"
-                @click="requireBtnClickHandle('canNot',item)"
-              >{{item.requireText?'改定制':'定制'}}</span>
+            <li class="left" v-for="(item, i) in groupCanNotSelectArr" :key="i">
+              <span>{{ item.productInfo.name }} * {{ item.prdCnt * groupInfo.count }}</span>
+              <span v-if="item.productInfo.requireInfo.length > 0" class="m-l-1 cursor require-btn"
+                @click="requireBtnClickHandle('canNot', item)">{{ item.requireText ? '改定制' : '定制' }}</span>
             </li>
           </ul>
         </div>
         <div class="group-content-checked-right">
           <ul layout="row" layout-align="start center">
-            <li v-for="(item,i) in groupCanNotSelectArr" :key="i">
-              <span>{{item.productInfo.name}} * {{item.prdCnt * groupInfo.count}}</span>
-              <span v-if="item.requireText">({{item.requireText}})</span>
+            <li v-for="(item, i) in groupCanNotSelectArr" :key="i">
+              <span>{{ item.productInfo.name }} * {{ item.prdCnt * groupInfo.count }}</span>
+              <span v-if="item.requireText">({{ item.requireText }})</span>
             </li>
           </ul>
         </div>
       </div>
       <!-- 本次选择列表 -->
-      <div
-        v-for="(item,index) in groupCanSelectArr"
-        :key="index"
-        class="group-content-choose"
-        layout="row"
-        layout-align="space-between start"
-      >
+      <div v-for="(item, index) in groupCanSelectArr" :key="index" class="group-content-choose" layout="row"
+        layout-align="space-between start">
         <div class="group-content-choose-left">
-          <p class="title">从以下明细中选{{item.groupSelectCount}}次</p>
+          <p class="title">从以下明细中选{{ item.groupSelectCount }}次</p>
           <ul layout="row" layout-align="start center">
-            <li
-              v-for="(items,i) in item.productInfoList"
-              :key="i"
-              layout="row"
-              layout-align="space-between center"
-              :style="{'opacity': items.outSomethingCount == 0 || items.prdCnt * groupInfo.count > items.outSomethingCount ? '.3' : '1'}"
-            >
-              <span>{{items.productInfo.name}} * {{items.prdCnt * groupInfo.count}}</span>
-<!--              v-if="items.productInfo.requireInfo.length>0"-->
-              <span
-                class="m-l-2 cursor require-btn"
-                @click="requireBtnClickHandle('can',items, item)"
-              >定制</span>
-              <img :src="imgSrc.add" @click="changeChecked('add',item,items)" />
-            </li>      
+            <li v-for="(items, i) in item.productInfoList" :key="i" layout="row" layout-align="space-between center"
+              :style="{ 'opacity': items.outSomethingCount == 0 || items.prdCnt * groupInfo.count > items.outSomethingCount ? '.3' : '1' }">
+              <span>{{ items.productInfo.name }} * {{ items.prdCnt * groupInfo.count }}</span>
+              <!--              v-if="items.productInfo.requireInfo.length>0"-->
+              <span class="m-l-2 cursor require-btn" @click="requireBtnClickHandle('can', items, item)">定制</span>
+              <img :src="imgSrc.add" @click="changeChecked('add', item, items)" />
+            </li>
           </ul>
         </div>
         <div class="group-content-choose-right">
-          <p class="title">当前已选{{item.hadSelectedCount}}次</p>
+          <p class="title">当前已选{{ item.hadSelectedCount }}次</p>
           <ul layout="row" layout-align="start center">
-            <li
-              v-for="(items,i) in item.selectedProductsArr"
-              :key="i"
-              layout="row"
-              layout-align="space-between center"
-            >
-              <span>{{items.productInfo.name}} * {{items.selectedCount * items.prdCnt * groupInfo.count}}</span>
-              <span v-if="items.requireText">({{items.requireText}})</span>
-              <img :src="imgSrc.del" @click="changeChecked('sub',item,items,i)" />
-              <p class="selected-count">{{items.selectedCount}}</p>
+            <li v-for="(items, i) in item.selectedProductsArr" :key="i" layout="row" layout-align="space-between center">
+              <span>{{ items.productInfo.name }} * {{ items.selectedCount * items.prdCnt * groupInfo.count }}</span>
+              <span v-if="items.requireText">({{ items.requireText }})</span>
+              <img :src="imgSrc.del" @click="changeChecked('sub', item, items, i)" />
+              <p class="selected-count">{{ items.selectedCount }}</p>
             </li>
           </ul>
         </div>
@@ -136,30 +111,21 @@
     <!-- 提交按钮 -->
     <div class="form-btn" layout="row" layout-align="center center">
       <el-button type="info" @click.stop="onCancelDrawer">取消</el-button>
-      <el-button type="primary" @click.stop="onSubmit" :loading="isSubmitting">{{productInfo.prdType * 1 == 12 || productInfo.prdType == 22 ? '核销卡券' : '确认'}}</el-button>
+      <el-button type="primary" @click.stop="onSubmit" :loading="isSubmitting">{{ productInfo.prdType * 1 == 12 ||
+        productInfo.prdType == 22 ? '核销卡券' : '确认'}}</el-button>
     </div>
 
-    <drawerChooseRequireInfo
-      :showDrawer="requireDrawerInfo.showDrawer"
-      :productInfo="requireDrawerInfo.productInfo"
-      :requestInfoArr="requireDrawerInfo.requestInfoArr"
-      :maxCount="requireDrawerInfo.maxSelectCount"
-      :showSelectedCount="requireDrawerInfo.showSelectedCount"
-      @updateRequireInfoArr="updateRequireInfoArr"
-      @showOrHideDrawer="showOrHideRequireDrawer"
-      @updateRequireCount="updateRequireCount"
-    />
+    <drawerChooseRequireInfo :showDrawer="requireDrawerInfo.showDrawer" :productInfo="requireDrawerInfo.productInfo"
+      :requestInfoArr="requireDrawerInfo.requestInfoArr" :maxCount="requireDrawerInfo.maxSelectCount"
+      :showSelectedCount="requireDrawerInfo.showSelectedCount" @updateRequireInfoArr="updateRequireInfoArr"
+      @showOrHideDrawer="showOrHideRequireDrawer" @updateRequireCount="updateRequireCount" />
 
-        <!-- 补交 -->
-    <drawerBj 
-      v-model="showBJDrawer" 
-      :productInfo="productInfo"
-      :groupParams="groupParams"
-      @onCancelDrawer="onCancelDrawer" 
-    />
+    <!-- 补交 -->
+    <drawerBj v-model="showBJDrawer" :productInfo="productInfo" :groupParams="groupParams"
+      @onCancelDrawer="onCancelDrawer" />
   </div>
 </template>
- 
+
 <script>
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
@@ -212,7 +178,7 @@ export default {
       this.bindphone = currentBusiness.csm_cust_phone
 
       const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
-      if(showAmt.length > 0) {
+      if (showAmt.length > 0) {
         for (let item of showAmt) {
           if (item.id === '50') {
             if (item.param1 * 1 > 0) {
@@ -226,10 +192,10 @@ export default {
       const groupInfo = JSON.parse(JSON.stringify(this.productInfo));
       console.log('groupInfo', groupInfo)
       groupInfo.count = this.singleInfo.prd_cnt;
-      console.log(this.vipPrice , this.bindphone , this.productInfo.bizType)
+      console.log(this.vipPrice, this.bindphone, this.productInfo.bizType)
 
-      if(this.vipPrice && this.productInfo.bizType * 1 === 1) {
-        if(this.hasVipPriceDirect || this.hasShouyin || this.bindphone !== ''){
+      if (this.vipPrice && this.productInfo.bizType * 1 === 1) {
+        if (this.hasVipPriceDirect || this.hasShouyin || this.bindphone !== '') {
           groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
         } else {
           groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
@@ -242,7 +208,7 @@ export default {
       // } else {
       //   groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
       // }
-      
+
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
       if (this.isUpdate) {
@@ -272,7 +238,7 @@ export default {
 
       this.groupCanSelectArr = JSON.parse(JSON.stringify(this.groupCanSelectArr))
       this.groupCanSelectArr.forEach(el => {
-        if(el.typeId === '1'){
+        if (el.typeId === '1') {
           el.productInfo = common_order.getProductInfoFromGroup(el.dtlPrdId);
           el.requireText = "";
           el.productInfo.requireInfo = common_order.getRequireInfo(
@@ -290,7 +256,7 @@ export default {
         const findInfo = this.groupCanSelectArr.filter(ele => ele.grpId == el);
         findInfo.forEach(ele => {
           // 添加可选商品的估清数量属性
-          const find = outSomethingPrdList.find( item => item.id == ele.dtlPrdId)
+          const find = outSomethingPrdList.find(item => item.id == ele.dtlPrdId)
           ele.outSomethingCount = find ? find.cnt : 'many'
         })
         resultGroupCanSelectArr.push({
@@ -309,7 +275,7 @@ export default {
 
       resultGroupCanSelectArr.forEach(el => {
         console.log('el', el, el.typeId === '2')
-        if(el.typeId === '2'){
+        if (el.typeId === '2') {
           console.log('-'.repeat(10))
           let products = common_order.getTaocanPrdInfo(el.dtlPrdId)
           console.log('products', products)
@@ -348,14 +314,14 @@ export default {
         case "add":
           if (item.hadSelectedCount >= item.groupSelectCount)
             return this.$message.warning("当前可选数量已达到最大值");
-            let selectedInfo = null
-            if(item.typeId === '2'){
-              items.dtlPrdId = items.dtl_prd_id
-              items.grpId= item.grpId
-            }
-            selectedInfo = item.selectedProductsArr.find(el =>
-                el.dtlPrdId === items.dtlPrdId && el.requireText === requireText);
-          
+          let selectedInfo = null
+          if (item.typeId === '2') {
+            items.dtlPrdId = items.dtl_prd_id
+            items.grpId = item.grpId
+          }
+          selectedInfo = item.selectedProductsArr.find(el =>
+            el.dtlPrdId === items.dtlPrdId && el.requireText === requireText);
+
           items = selectedInfo || { ...items };
           const selectedCount = selectedInfo
             ? (items.selectedCount || 0) + this.requireDrawerInfo.selectedCount
@@ -364,11 +330,11 @@ export default {
           // 用完定制要求的商品数量以后，重置数量为1
           this.requireDrawerInfo.selectedCount = 1
           // 判断可点商品数量单品是否超出估清值
-          if(items.outSomethingCount != 'many' && items.prdCnt * selectedCount * this.groupInfo.count > items.outSomethingCount) 
+          if (items.outSomethingCount != 'many' && items.prdCnt * selectedCount * this.groupInfo.count > items.outSomethingCount)
             return this.$message.warning(`目前此商品数量仅剩${items.outSomethingCount}，小于所需数量${items.prdCnt * selectedCount * this.groupInfo.count}，不可选择`)
-            
+
           items.selectedCount = JSON.parse(JSON.stringify(selectedCount))
-          
+
           items.requireText = requireText;
           if (!selectedInfo) item.selectedProductsArr.push(items);
           break;
@@ -404,7 +370,7 @@ export default {
 
     async onSubmit() {
 
-      if(!this.isSubmitting) {
+      if (!this.isSubmitting) {
         this.isSubmitting = true;
         this.$emit('submitting', true);
       } else {
@@ -413,7 +379,7 @@ export default {
 
       // 校验可选明细数量是否选够
       const validateCanSelectPrdCount = this.groupCanSelectArr.every(item => item.groupSelectCount == item.hadSelectedCount)
-      if(!validateCanSelectPrdCount) {
+      if (!validateCanSelectPrdCount) {
         this.isSubmitting = false;
         this.$emit('submitting', false);
         return this.$message.warning('可选套餐组商品数量与已选数量不匹配')
@@ -440,50 +406,50 @@ export default {
       let mtScan = this.mtInfo && Object.keys(this.mtInfo).length !== 0
 
       //抖音，美团线下核销
-      if( (this.productInfo.prdType * 1 == 22 && !mtScan)  || (this.productInfo.prdType * 1 === 12 && !dyScan)) {
+      if ((this.productInfo.prdType * 1 == 22 && !mtScan) || (this.productInfo.prdType * 1 === 12 && !dyScan)) {
         try {
-            params = {
-              ...params,
-              type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
-              relate_csm_id: 0,
-            };
-            const res = await api_order.reqLocalManualKqCsm(params)
-            if(res.code == 1) {
-              this.$message.success("卡券核销成功");
-              this.onCancelDrawer();
-            } else {
-              this.$message.warning(res.msg);
-            }
-
-          } catch (error) {
-            this.$message.warning("卡券核销失败" + error);
+          params = {
+            ...params,
+            type_id: this.productInfo.prdType * 1 == 12 ? 1 : 2, //    int    商品类型Id
+            relate_csm_id: 0,
+          };
+          const res = await api_order.reqLocalManualKqCsm(params)
+          if (res.code == 1) {
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
           }
-          this.isSubmitting = false;
-          this.$emit('submitting', false);
-          return 
+
+        } catch (error) {
+          this.$message.warning("卡券核销失败" + error);
+        }
+        this.isSubmitting = false;
+        this.$emit('submitting', false);
+        return
       }
       //小程序核销
-      if(this.productInfo.prdType * 1 == 32) {
+      if (this.productInfo.prdType * 1 == 32) {
         try {
-            params = {
-              ...params,
-              auth_code: this.singleInfo.authCode,
-              relate_csm_id: 0,
-            };
-            const res = await api_order.reqUseKqCode(params)
-            if(res.code == 1) {
-              this.$message.success("卡券核销成功");
-              this.onCancelDrawer();
-            } else {
-              this.$message.warning(res.msg);
-            }
-          } catch (error) {
-            console.log("卡券核销失败", error);
-            this.$message.warning("卡券核销失败" + error);
+          params = {
+            ...params,
+            auth_code: this.singleInfo.authCode,
+            relate_csm_id: 0,
+          };
+          const res = await api_order.reqUseKqCode(params)
+          if (res.code == 1) {
+            this.$message.success("卡券核销成功");
+            this.onCancelDrawer();
+          } else {
+            this.$message.warning(res.msg);
           }
-          this.isSubmitting = false;
-          this.$emit('submitting', false);
-          return 
+        } catch (error) {
+          console.log("卡券核销失败", error);
+          this.$message.warning("卡券核销失败" + error);
+        }
+        this.isSubmitting = false;
+        this.$emit('submitting', false);
+        return
 
       }
       //抖音扫码核销
@@ -500,7 +466,7 @@ export default {
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseDyCode(params)
-          if(res.code === 1) {
+          if (res.code === 1) {
             this.$message.success("卡券核销成功");
             this.onCancelDrawer();
           } else {
@@ -527,8 +493,8 @@ export default {
             relate_csm_id: 0,
           };
           const res = await api_order.reqUseMtCode(params)
-          if(res.code === 1) {
-            this.$message.success("卡券核销成功");this.onCancelDrawer();
+          if (res.code === 1) {
+            this.$message.success("卡券核销成功"); this.onCancelDrawer();
           } else {
             this.$message.warning(res.msg);
           }
@@ -542,26 +508,26 @@ export default {
       }
 
 
+      params.prd_price = Math.round(this.groupInfo.price * 100)
+      if (this.vipPrice && this.groupInfo.bizType * 1 === 1) {
+        if (this.hasVipPriceDirect || this.bindphone || this.hasShouyin) {
+          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
+        }
+      }
+
       // 判断是否为补交台
-      if(this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
-        this.groupParams = {...params}
+      if (this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
+        this.groupParams = { ...params }
         this.isSubmitting = false;
         this.$emit('submitting', false);
         return this.showBJDrawer = true
       }
 
       try {
-        params.prd_price = Math.round(this.groupInfo.price * 100)
-        if(this.vipPrice && this.groupInfo.bizType * 1 === 1){
-          if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
-            params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
-          }
-        }
-
         console.log('?'.repeat(50), this.singleInfo)
         params.auth_type = this.singleInfo.auth_type
         if (params.auth_type === 2 && this.groupInfo.bizType * 1 === 1) {
-          params.prd_price =  Math.round(this.groupInfo.vipPrice * 100)
+          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
         }
 
         const res = await api_order.reqAddGroupToShopping(params);
@@ -671,13 +637,13 @@ export default {
     this.init();
   },
   computed: {
-    hasVipPriceDirect(){
+    hasVipPriceDirect() {
       let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
       console.log('hasVipPriceDirect:', has)
       return has
     },
-    hasShouyin () {
-      let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+    hasShouyin() {
+      let has = this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(5)
       console.log('hasShouyin:', has)
       return has
     },
