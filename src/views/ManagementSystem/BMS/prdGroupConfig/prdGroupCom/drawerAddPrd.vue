@@ -148,16 +148,14 @@ export default {
             });
             this.searchFormData.options = [...options];
           }
-          const tableData = ((this.prdType == 3 ? res.data.items : res.data.prds) || []).map(item =>
-            { 
-              let matched = this.checkedPrdList.findIndex(i => i.id == item.id) >= 0;
-              return {
-                ...item,
-                checked: matched,
-                disabled: matched,
-                // price: item.price || (item.p / 100).toFixed(2)
-                price:  item.p
-              }
+          const tableData = ((this.prdType == 3 ? res.data.items : res.data.prds) || []).map(item => {
+            const isExist = this.checkedPrdList.some(i => i.id === item.id);
+            return {
+              ...item,
+              checked: isExist,
+              disabled: isExist,
+              price: item.p
+            }
           })
           this.loadText = tableData.length == this.pageSize ? '加载中...' : '没有更多了'
           this.tableData = init == 1 ? [...tableData] : [...this.tableData, ...tableData]
@@ -175,11 +173,12 @@ export default {
         case 'all':
           this.tableData = this.tableData.map(item => ({
             ...item,
-            checked: this.checkAll
+            checked: item.disabled ? item.checked : this.checkAll
           }))
           break
         case 'item':
-          this.checkAll = this.tableData.every(item => item.checked)
+          const enabledItems = this.tableData.filter(item => !item.disabled);
+          this.checkAll = enabledItems.length > 0 && enabledItems.every(item => item.checked);
           break
       }
     },
@@ -247,7 +246,8 @@ export default {
       default: "1" // 1.商品组配置， 2：不可点商品配置 3.功能台配置可点商品
     },
     checkedPrdList: {
-      default: []
+      type: Array,
+      default: () => []
     },
     stationId: {
       default: 0

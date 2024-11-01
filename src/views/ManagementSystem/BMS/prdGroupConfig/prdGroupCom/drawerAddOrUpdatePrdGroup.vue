@@ -95,7 +95,12 @@
       </div>
 
       <!-- 添加商品 -->
-      <drawerAddPrd v-model="showAddPrdDrawer" @getChoosedPrdList="getChoosedPrdList" />
+      <drawerAddPrd 
+        v-model="showAddPrdDrawer"
+        :checkedPrdList="tableData"
+        :checkedCateIds="checkedTwoCate"
+        @getChoosedPrdList="getChoosedPrdList"
+      />
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
@@ -205,8 +210,15 @@ export default {
     },
 
     getChoosedPrdList(prdList){
-      this.tableData = [...this.tableData, ...prdList].filter((item, index, arr) => arr.findIndex(items => items.id == item.id) == index)
-      this.checkAll = this.tableData.every(item => item.checked)
+      this.tableData = [...this.tableData, ...prdList]
+        .filter((item, index, arr) => 
+          arr.findIndex(items => items.id == item.id) == index
+        )
+        .map(item => ({
+          ...item,
+          checked: true
+        }))
+      this.checkAll = true
     },
 
     // 删除
@@ -242,14 +254,18 @@ export default {
       }
     },
 
-    // 选中的二级分类
+    // 中的二级分类
     clickTreeCheckBox(nodeObj, SelectedObj) {
+      console.log('选中的节点:', nodeObj);
+      console.log('选中状态:', SelectedObj);
+      
       const checkedTwoCate = [];
       for (const item of SelectedObj.checkedKeys) {
         if (item != undefined) {
           checkedTwoCate.push(item);
         }
       }
+      console.log('处理后的选中二级分类:', checkedTwoCate);
       this.checkedTwoCate = [...checkedTwoCate];
     },
 
