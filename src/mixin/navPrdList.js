@@ -542,10 +542,10 @@ export default {
       }
       console.log('resultProductArr--------------:', resultProductArr)
 
-
       
       // 点单系统
-      if (sessionStorage.getItem("client") == "order" 
+      // if (sessionStorage.getItem("client") == "order" 
+      if (true
       && (this.$store.state.userInfo.roleIds.includes(2) 
       || this.$store.state.userInfo.roleIds.includes(4)) 
       && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
@@ -556,7 +556,8 @@ export default {
         }), ...resultProductArr]
       }
 
-      if (sessionStorage.getItem("client") == "order" 
+      // if (sessionStorage.getItem("client") == "order" 
+      if (true
       && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4') && !isGQ) {
         // 先从stationAllProduct筛选出符合条件的商品
         let tmpArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
@@ -583,7 +584,8 @@ export default {
       "mklib_id": "231590944409827"
       }] 过滤resultProductArr中 数据，不在当前区域的都排除掉
       */
-      if (sessionStorage.getItem("client") == "order" && !isGQ) {
+      // if (sessionStorage.getItem("client") == "order" && !isGQ) {
+      if (true && !isGQ) {
         resultProductArr = resultProductArr.filter(i => currentAreaAllProduct.findIndex(
           (item) => item.prd_id == i.id && item.region_id == this.$store.state.orderInfo.currentCardInfo.regionId && item.status == '1'
         ) >= 0);
