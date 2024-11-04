@@ -485,11 +485,15 @@ export default {
         await this.orderMealToShoppingCart(c, true)
         return
       }
+      let price = this.productInfo.price
+
       if (this.vipPrice && this.productInfo.bizType *1 === 1){
-        if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
-          price = this.productInfo.vipPrice
-        }
+          price = this.productInfo.vipPrice //优惠下单直接会员价
       }
+      console.log('vipPrice'.repeat(10), this.vipPrice)
+      console.log('bindphone'.repeat(10), this.bindphone)
+      console.log('hasVipPriceDirect'.repeat(10), this.hasVipPriceDirect)
+      console.log('hasShouyin'.repeat(10), this.hasShouyin)
       try {
         const params = {
           auth_emp_code: "", // string  授权员工工号, 如果不传, 代表本账号授权
@@ -501,12 +505,11 @@ export default {
           prd_amt: this.amt.toString(), //  string  商品金额 普通商品不要传数据(系统会自动计算), 花篮/小费 需传金额
           requirement: this.requestInfoArr.join(";"), // string  要求
           pass_type: 1, // 1:账号密码， 2：刷卡
+          prd_price : price,
           ...(this.orderMealStatus != 2 && { relate_csm_id: 0 }), // int64  关联流水Id(用于补交),没有填0
         };
         if(this.orderMealStatus == 2) {
-          let price = this.productInfo.price
           params.auth_type = 2
-          params.prd_price = price
         }
         const res = this.orderMealStatus == 2
             // ? await api_order.reqAddYhToShopping(params)
