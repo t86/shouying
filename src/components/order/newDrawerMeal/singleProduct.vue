@@ -499,9 +499,19 @@ export default {
           pass_type: 1, // 1:账号密码， 2：刷卡
           ...(this.orderMealStatus != 2 && { relate_csm_id: 0 }), // int64  关联流水Id(用于补交),没有填0
         };
-        const res =
-          this.orderMealStatus == 2
-            ? await api_order.reqAddYhToShopping(params)
+        if(this.orderMealStatus == 2) {
+          let price = this.productInfo.price
+          if (this.vipPrice && this.productInfo.bizType *1 === 1){
+            if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
+              price = this.productInfo.vipPrice
+            }
+          }
+          params.auth_type = 2
+          params.prd_price = price
+        }
+        const res = this.orderMealStatus == 2
+            // ? await api_order.reqAddYhToShopping(params)
+            ? await api_order.reqAddProductToShopping(params)
             : await api_order.reqAddAmtToShopping(params);
         if (res.code == 1) {
           this.$message.success("加入购物车成功");
