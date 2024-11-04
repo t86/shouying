@@ -399,7 +399,7 @@ export default {
           price = this.productInfo.vipPrice
         }
       }
-
+      console.log('price'.repeat(10), price)
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
@@ -485,7 +485,11 @@ export default {
         await this.orderMealToShoppingCart(c, true)
         return
       }
-
+      if (this.vipPrice && this.productInfo.bizType *1 === 1){
+        if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
+          price = this.productInfo.vipPrice
+        }
+      }
       try {
         const params = {
           auth_emp_code: "", // string  授权员工工号, 如果不传, 代表本账号授权
@@ -501,11 +505,6 @@ export default {
         };
         if(this.orderMealStatus == 2) {
           let price = this.productInfo.price
-          if (this.vipPrice && this.productInfo.bizType *1 === 1){
-            if(this.hasVipPriceDirect ||  this.bindphone || this.hasShouyin) {
-              price = this.productInfo.vipPrice
-            }
-          }
           params.auth_type = 2
           params.prd_price = price
         }
