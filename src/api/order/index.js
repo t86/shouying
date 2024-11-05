@@ -114,6 +114,19 @@ export default {
   reqGetPayQRcode: (params) =>
     axios.post(`${base.htgl}/wo/do_waiter_olpay_with_orders`, params),
 
+
+
+//   继续支付
+//   客户端传入json:
+//   seat_id    int64      //SeatId 卡台Id
+//   成功返回编码:1, 返回json:
+//   ol_pay_id  int64      //OlPayId 线上订单Id
+//   pay_amt    int64      //PayAmt 待付款金额,单位分
+//   pay_url    string     //PayUrl 待付款二维码链接, 用于客人扫码后进入小程序收银台继续之前客人中断的支付流程
+  do_continue_waiter_olpay_with_orders: (params) =>
+    axios.post(`${base.htgl}/wo/do_continue_waiter_olpay_with_orders`, params),
+
+
   // 用于扫客人支付码, 提前判断,是否要给解除锁定的提示(需提供header.tk)
   reqCheckPayOrder: (params) =>
     axios.post(`${base.htgl}/wo/chk_waiter_olpay_with_orders`, params),

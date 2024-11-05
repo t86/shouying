@@ -17,6 +17,7 @@
           <div class="tab-item" :class="{active: tabIndex == 1}" @click="changeTabIndexHandle(1)">勾选全部未结</div>
           <div class="tab-item" :class="{active: tabIndex == 2}" @click="changeTabIndexHandle(2)">勾选我的未结</div>
           <div class="tab-item" :class="{active: tabIndex == 3}" @click="changeTabIndexHandle(3)">勾选我和客人未结</div>
+          <div class="tab-item red-active" @click="continuePayHandle">继续支付</div>
         </div>
         <div class="order-table m-t-3">
           <div class="thead">
@@ -451,7 +452,43 @@ export default {
     },
     onCancelDrawer() {
       this.show = false;
-    }
+    },
+    // 继续支付处理
+    async continuePayHandle() {
+      const params = {
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1
+      }
+      
+      try {
+        const res = await api_order.do_continue_waiter_olpay_with_orders(params)
+        if(res.code == 1) {
+          // 设置支付类型为微信小程序自助
+          this.payType = 3
+          
+          // 构造支付信息
+          this.orderInfoDetail = {
+            ol_pay_id: res.data.ol_pay_id,
+            pay_amt: res.data.pay_amt,
+            pay_url: res.data.pay_url,
+            force: 2
+          }
+          
+          // 关闭当前抽屉
+          this.onCancelDrawer()
+          
+          // 通知父组件显示支付二维码
+          this.$emit('showPayQRDrawer', {
+            payType: this.payType,
+            orderInfoDetail: this.orderInfoDetail
+          })
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch(error) {
+        console.log('继续支付失败:', error)
+        this.$message.error('继续支付失败')
+      }
+    },
   },
   created() {},
   mounted() {},

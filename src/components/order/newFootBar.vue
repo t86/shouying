@@ -247,7 +247,7 @@
     </div>
     <!-- 服务员买单选择商品列表 -->
     <drawerOrderList v-show="showOrderListDrawer" v-model="showOrderListDrawer"
-      @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" />
+      @setNeedPayOrderIdHandle="setNeedPayOrderIdHandle" @showPayQRDrawer="showPayQRDrawerHandle" />
 
 
     <!-- 服务员核销卡券 -->
@@ -891,7 +891,7 @@ export default {
               this.$store.state.cardPageInfo.resResultDataObj[
                   "turnLineBottomCard"
                   ].find((items) => items.seat_id == item.id);
-          // ‘线’字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
+          // ‘线'字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
           data.showOnlineText =
               data.bizStatus > 2
                   ? data.platform_id == 1 && !data.isTurnBottomCard
@@ -1560,6 +1560,12 @@ export default {
         .catch((e) => "");
     },
 
+    // 显示支付二维码
+    showPayQRDrawerHandle(data) {
+      this.payType = data.payType
+      this.orderInfoDetail = data.orderInfoDetail
+      this.showOrHideQRDrawer = true
+    }
   },
   mounted() {
     this.init();
