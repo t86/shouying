@@ -13,6 +13,13 @@
         <p class="red-color red">勾选后，在线上支付的时候，非主营商品不能使用会员卡结账</p>
       </div>
     </div>
+    <div class="m-l-4">
+      <div>
+        <el-checkbox v-model="noNeedVerifyCode">会员卡业务不需要验证码</el-checkbox>
+        <p class="red-color red">勾选后，新增记名卡、更改会员卡绑定手机、收银系统会员卡结账均不需要验证码，请谨慎操作!!!</p>
+        <p class="red-color red">开启后因不需要客户验证，如因门店员工人为操作错误，导致的客人资金损失由门店自行承担全部责任，系统不对此负责。</p>
+      </div>
+    </div>
     <div class="tips">
       <h4 class="m-t-2 m-b-2">规则解释：</h4>
       <p>1、总剩余：当前会员卡剩余总额</p>
@@ -31,7 +38,8 @@ export default {
     return {
       isFirstLoad: true,
       notPayGroup: false,
-      notPayNotPrd: false
+      notPayNotPrd: false,
+      noNeedVerifyCode: false
     };
   },
   methods: {
@@ -42,6 +50,7 @@ export default {
           res.data.ids = res.data.ids || []
           this.notPayGroup = res.data.ids.includes(1)
           this.notPayNotPrd = res.data.ids.includes(2)
+          this.noNeedVerifyCode = res.data.ids.includes(10)
           setTimeout(() => {
             this.isFirstLoad = false
           }, 1000);
@@ -49,7 +58,7 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('获取线上结账不允许结账套餐状态失败', error)
+        console.log('获取会员卡规则状态失败', error)
       }
     },
 
@@ -57,6 +66,7 @@ export default {
       let ids = []
       if(this.notPayGroup) ids.push(1)
       if(this.notPayNotPrd) ids.push(2)
+      if(this.noNeedVerifyCode) ids.push(10)
       const params = {
         ids   //   []int64    选中规则Id列表
       }
@@ -66,7 +76,7 @@ export default {
           ? this.$message.success("保存成功")
           : this.$message.warning(res.msg);
       } catch (error) {
-        console.log('更改线上结账不允许结账套餐失败', error)
+        console.log('更改会员卡规则失败', error)
       }
     }
   },
@@ -78,6 +88,9 @@ export default {
       if(!this.isFirstLoad) this.changeHandle()
     },
     notPayNotPrd() {
+      if(!this.isFirstLoad) this.changeHandle()
+    },
+    noNeedVerifyCode() {
       if(!this.isFirstLoad) this.changeHandle()
     }
   }
