@@ -119,6 +119,7 @@
           <div class="value" layout="row" layout-align="start center">
             <div v-show="!picUrl" style="margin-left: 10px">
               <el-upload
+                :key="show"
                 action
                 :show-file-list="false"
                 :limit="1"
@@ -803,8 +804,11 @@ export default {
 
     // 删除商品图片
     deleteImgHandle() {
-      this.$refs.uploadPicUrlP.clearFiles();
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
       this.picUrl = "";
+      this.http = "";
     },
 
     async onSubmit(force = 2) {
@@ -850,7 +854,7 @@ export default {
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
         two_cate_id: this.twoCateInfo.id * 1, // 二级分类id
-        name_eng: this.englishName || "", // 商品英文名
+        name_eng: this.englishName || "", // 商品英文��
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price,
@@ -890,6 +894,9 @@ export default {
     },
     onCancelDrawer() {
       this.show = false;
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
     },
 
     // 校验名称
@@ -933,10 +940,16 @@ export default {
       this.businessType = ""; // 营业类型
       this.userYH = false;
       this.picUrl = "";
+      this.http = ""; // 添加 http 重置
       this.fixedPrdTableData = []; // 固定单品
       this.canChoosePrdTableData = []; // 可选替换组商品
       this.canChooseGroupInfo = {};
       this.taocanTemplates = []; // 重置套餐模板列表
+      
+      // 重置上传组件
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
     },
 
     // 修改后的方法来获取套餐模板列表
@@ -1038,6 +1051,10 @@ export default {
             this.getPrdDetail();
           }
           this.getTaocanTemplates();
+        } else {
+          if (this.$refs.uploadPicUrlP) {
+            this.$refs.uploadPicUrlP.clearFiles();
+          }
         }
       },
       immediate: true,

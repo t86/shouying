@@ -162,6 +162,7 @@
           <div class="value" layout="row" layout-align="start center">
             <div v-show="!picUrl" style="margin-left: 10px">
               <el-upload
+                :key="show"
                 action
                 :show-file-list="false"
                 :limit="1"
@@ -479,8 +480,11 @@ export default {
 
     // 删除商品图片
     deleteImgHandle() {
-      this.$refs.uploadPicUrlP.clearFiles();
       this.picUrl = "";
+      this.http = "";
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
     },
 
     async onSubmit() {
@@ -527,6 +531,9 @@ export default {
     },
     onCancelDrawer() {
       this.show = false;
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
     },
 
     // 校验名称
@@ -579,6 +586,9 @@ export default {
       this.userYH = false;
       this.bindPrdList = []; // 绑定商品列表
       this.picUrl = "";
+      if (this.$refs.uploadPicUrlP) {
+        this.$refs.uploadPicUrlP.clearFiles();
+      }
     },
   },
   mounted() {},
