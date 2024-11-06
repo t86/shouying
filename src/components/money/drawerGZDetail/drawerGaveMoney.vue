@@ -86,6 +86,10 @@ export default {
         {
           id: 5,
           name: '工资抵扣'
+        },
+        {
+          id: 6,
+          name: '会员卡扣款'
         }
       ]
     };
