@@ -50,6 +50,7 @@
                       >
                         {{ btnText }}
                       </div>
+                      <div v-else class="btn" @click="getTableData">搜索</div>
                     </div>
                   </div>
                   <div class="row" layout="row" layout-align="start center">
@@ -57,9 +58,8 @@
                       <span class="red" v-if="needValidateCode">*</span>
                       <span>{{needValidateCode ? '验证码:' : ''}}</span>
                     </div>
-                    <div class="value" layout="row" layout-align="start center">
+                    <div class="value" layout="row" layout-align="start center" v-if="needValidateCode">
                       <input
-                        v-if="needValidateCode"
                         type="text"
                         v-model="validateVal"
                         placeholder="请输入验证码"
