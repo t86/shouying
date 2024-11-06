@@ -341,15 +341,14 @@ export default {
           };
           if(this.updateVipPhoneNumObj.validateVal === 'NO_NEED_VALIDATE') {  
             // this.updateVipPhoneNumObj.validateVal = ''
-            params.c = ''
+            // params.c = ''
+            this.submitUpdatePhoneNumHandle('');
           } else {
             if (params.c.length != 5) {
               this.$message.warning("请输入正确的五位验证码");
               return false;
             }
-          }
-
-          try {
+            try {
             const res = await api_vip.reqValidatePhoneMsg(params);
             if (res.code == 1) {
               this.submitUpdatePhoneNumHandle(res.data.c);
@@ -359,8 +358,8 @@ export default {
           } catch (error) {
             console.log("验证手机验证码失败", error);
           }
-
-          break;
+        }
+        break;
         case 5:
           // 挂失/解除挂失
           params = {
