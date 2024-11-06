@@ -315,7 +315,9 @@ export default {
         auth_code: this.authCodeStr,
         mb_card_id: item.id,
         amt: item.useAmt * 100,
+        phone_num: this.phoneNumVal
       };
+
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
       if (res.code == 1 || res.code == 2) {
         this.$message.success("加入成功");
