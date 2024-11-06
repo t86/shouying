@@ -614,6 +614,14 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
+    case 53: // 会员结算规则
+      arr.forEach(el => {
+        console.log('53'.repeat(20), el)
+        resultArr.push({
+          rule_id: el[0], // 主键id
+          status: el[1], // 状态 1的时候表示不验证会员卡手机验证码
+        })
+      })
   }
   return resultArr
 }

@@ -48,7 +48,9 @@ export default {
       isJumpStepTwo: false,  // 是否跳过step2(用于首次新建记名卡)
       phoneValidateStr: '',  // 手机验证码验证字符串
       vNodeVipCardId: '',  // 制卡所对应的vip卡
-      stepOneInfo: {},
+      stepOneInfo: {
+        radioVal: "1",  // 卡属性 1记名卡 2不记名卡
+      },
       stepTwoInfo: {},
       stepThreeInfo: {},
       stepFourInfo: {},
@@ -135,12 +137,24 @@ export default {
     },
     // 提交
     async onSubmit(){
+      console.log('this.stepOneInfo.radioVal', this.stepOneInfo.radioVal)
+      console.log('this.step', this.step)
       switch (this.step){
         case 1:
           if(this.stepOneInfo.radioVal == 1) {  // 记名卡
-            if(!this.stepOneInfo.phoneNum || this.stepOneInfo.phoneNum.length != 11) return this.$message.warning('请输入11位手机号码')
-            const result = await this.validatePhoneInfo()
-            if(result) this.changeStep(2)
+            if(!this.stepOneInfo.phoneNum || !this.stepOneInfo.phoneNum ||this.stepOneInfo.phoneNum.length !== 11) {
+              return this.$message.warning('请输入11位手机号码')
+            }
+            // 检查是否需要验证码验证
+            const vipSettleRule = this.$store.state.cardPageInfo.resResultDataObj.vipSettleRule || []
+            const noNeedValidate = vipSettleRule.find(rule => rule.rule_id*1 === 10 && rule.status*1 === 1)
+            
+            if(!noNeedValidate) {
+              // 需要验证码
+              const result = await this.validatePhoneInfo()
+              if(!result) return
+            }
+            this.changeStep(2)
           } else {
             this.changeStep(3)
           }
@@ -324,7 +338,9 @@ export default {
           this.step = this.initStep || 1
           this.vNodeVipCardId = this.initVipId || ''
         } else {
-          this.stepOneInfo = {}
+          this.stepOneInfo = {
+            radioVal: "1",  // 卡属性 1记名卡 2不记名
+          }
           this.stepTwoInfo = {}
           this.stepThreeInfo = {}
           this.stepFourInfo = {}

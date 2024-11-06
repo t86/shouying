@@ -82,6 +82,7 @@ export const resResultDataArr = [
   'giftableCard', // 50-岗位附加可赠送卡台列表
   'waiterConfig', // 51-卡台对应的服务员配置
   'taocanTemplate', // 52-套餐模版配置定义
+  'vipSettleRule', // 53-会员结算规则
 ]
 
 // 图例列表

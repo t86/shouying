@@ -43,6 +43,7 @@
                         placeholder="请输入手机号"
                       />
                       <div
+                        v-if="needValidateCode"
                         class="btn"
                         :class="{ disabled: count != 0 }"
                         @click="sendPhoneMessage"
@@ -53,11 +54,12 @@
                   </div>
                   <div class="row" layout="row" layout-align="start center">
                     <div class="label">
-                      <span class="red">*</span>
-                      <span>验证码:</span>
+                      <span class="red" v-if="needValidateCode">*</span>
+                      <span>{{needValidateCode ? '验证码:' : ''}}</span>
                     </div>
                     <div class="value" layout="row" layout-align="start center">
                       <input
+                        v-if="needValidateCode"
                         type="text"
                         v-model="validateVal"
                         placeholder="请输入验证码"
@@ -275,10 +277,12 @@ export default {
     // 发送验证码
     async sendPhoneMessage() {
       if (this.count != 0) return;
+      if(!this.needValidateCode) return; // 如果不需要验证码则直接返回
+      
       this.count = 60
       const params = {
         t: 200, //  int   200  验证获取客人会员卡结账
-        m: this.phoneNumVal, //  string   手机号
+        m: this.phoneNumVal //  string   手机号
       };
       if (params.m.length != 11)
         return this.$message.warning("请输入正确的11位手机号");
@@ -340,7 +344,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("验证手机验证码失败", error);
+        console.log("验证手机验��码失败", error);
       }
     },
 
@@ -381,34 +385,41 @@ export default {
     },
 
     async getTableData() {
-      const result =
-        this.type == 1
-          ? await this.validateValidateInfo()
-          : await this.validatePhoneInfo();
-      if (result) {
-        const params = {
-          sms_auth_code: result, // string   手机验证码验证授权串
-          phone_num: this.phoneNumVal, //  string   手机号
-        };
-
-        try {
-          const res = await api_money.reqGetVipCardFormPhoneNum(params);
-          if (res.code == 1) {
-
-            this.tableData = (res.data.records || []).map((item) => ({
-              ...item,
-              // checked: (res.data.records || []).length == 1,
-              chooseAmt: "",
-              // disabled: false,
-            }));
-
-            this.cardPayInfo();
-          } else {
-            this.$message.warning(res.msg);
-          }
-        } catch (error) {
-          console.log("通过手机号查询会员卡失败", error);
+      let result = true;
+      if(this.type !== 1) { // 手��号方式
+        if(this.needValidateCode) {
+          // 需要验证码时才验证
+          result = await this.validatePhoneInfo();
+          if(!result) return;
         }
+      } else {
+        // 服务码方式
+        result = await this.validateValidateInfo();
+        if(!result) return;
+      }
+
+      const params = {
+        sms_auth_code: this.needValidateCode ? result : 'NO_NEED_VALIDATE', // 不需要验证码时传特殊值
+        phone_num: this.phoneNumVal
+      };
+
+      try {
+        const res = await api_money.reqGetVipCardFormPhoneNum(params);
+        if (res.code == 1) {
+
+          this.tableData = (res.data.records || []).map((item) => ({
+            ...item,
+            // checked: (res.data.records || []).length == 1,
+            chooseAmt: "",
+            // disabled: false,
+          }));
+
+          this.cardPayInfo();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("通过手机号查询会员卡失败", error);
       }
     },
 
@@ -526,6 +537,10 @@ export default {
       });
       return chooseAmt.toFixed(2);
     },
+    needValidateCode() {
+      const vipSettleRule = this.$store.state.cardPageInfo.resResultDataObj.vipSettleRule || []
+      return !vipSettleRule.find(rule => rule.rule_id*1 === 10 && rule.status*1 === 1)
+    }
   },
   watch: {
     showDrawer: {

@@ -339,11 +339,16 @@ export default {
             m: this.updateVipPhoneNumObj.phoneNum, //   string    手机号
             c: this.updateVipPhoneNumObj.validateVal, //    string   验证码
           };
-
-          if (params.c.length != 5) {
-            this.$message.warning("请输入正确的五位验证码");
-            return false;
+          if(this.updateVipPhoneNumObj.validateVal === 'NO_NEED_VALIDATE') {  
+            // this.updateVipPhoneNumObj.validateVal = ''
+            params.c = ''
+          } else {
+            if (params.c.length != 5) {
+              this.$message.warning("请输入正确的五位验证码");
+              return false;
+            }
           }
+
           try {
             const res = await api_vip.reqValidatePhoneMsg(params);
             if (res.code == 1) {

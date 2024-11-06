@@ -480,6 +480,8 @@ export default class WebSocketClient {
                   return ele.queue_type_id == el.queue_type_id;
                 }else if(Number(key) == 51){
                   return ele.seat_id == el.seat_id;
+                } else if(Number(key) == 53){
+                  return ele.rule_id == el.rule_id;
                 } else {
                   return ele.id == el.id;
                 }

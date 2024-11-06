@@ -19,6 +19,7 @@
         <div class="value" layout="row" layout-align="start center">
           <el-input v-model="phoneNum" size="small" style="width:284px" :maxlength="11"  placeholder="请输入手机号"></el-input>
           <button
+            v-if="needValidateCode"
             class="btn primary m-l-2"
             :class="{'disabled': count != 0}"
             style="width:100px;height:30px"
@@ -26,7 +27,7 @@
           >{{btnText}}</button>
         </div>
       </div>
-      <div v-if="radioVal==1" class="row" layout="row" layout-align="start center">
+      <div v-if="radioVal==1 && needValidateCode" class="row" layout="row" layout-align="start center">
         <div class="label">
           <span class="red">*</span>
           <span>验证码:</span>
@@ -75,6 +76,8 @@ export default {
     // 发送验证码
     async sendPhoneMessage() {
       if (this.count != 0) return;
+      if(!this.needValidateCode) return; // 如果不需要验证码则直接返回
+      
       this.count = 60
       const params = {
         t: 101, //  int   操作类型 101 创建记名卡 102 会员卡修改绑定手机 103 会员卡绑定手机
@@ -119,6 +122,10 @@ export default {
   computed: {
     btnText() {
       return this.count == 0 ? "发送验证码" : this.count + "s后发送";
+    },
+    needValidateCode() {
+      const vipSettleRule = this.$store.state.cardPageInfo.resResultDataObj.vipSettleRule || []
+      return !vipSettleRule.find(rule => rule.rule_id*1 === 10 && rule.status*1 === 1)
     }
   },
   watch: {
