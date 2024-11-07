@@ -148,7 +148,7 @@ export default {
       currentInfo: {}, // 当前修改的数据
       showDrawer: false,  // 新增或修改单品
       showGroupDrawer: false, // 新增或修改套餐
-      showNextDrawer: false, // 有效无效删除冲突时的下一步操作drawer
+      showNextDrawer: false, // 有效无效删除冲突时的下一步��作drawer
       showImportDrawer: false, // 批量导入
       nexDrawerInfo: {
         ns: [],
@@ -174,12 +174,21 @@ export default {
       try {
         const res = await this.$api.BMS.Prd.requestprdlist(params);
         if (res.code == 1) {
-          this.tableData = (res.data.records || []).map(item => ({
-            ...item,
-            enable_time_limit: res.data.enable_time_limit,
-            time_range: res.data.time_range,
-            checked: false
-          }));
+          this.tableData = (res.data.records || [])
+            // 当 safeModeEnabled 为 true 时,过滤掉非主营商品和单价大于2000的商品
+            .filter(item => {
+              if(this.safeModeEnabled) {
+                if(item.bt === '非主营商品') return false
+                if(item.p * 1 > 2000) return false
+              }
+              return true
+            })
+            .map(item => ({
+              ...item,
+              enable_time_limit: res.data.enable_time_limit,
+              time_range: res.data.time_range,
+              checked: false
+            }));
           this.checkAll = false;
           
           if(isScrollToBottom) {
@@ -417,6 +426,10 @@ export default {
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);
+    },
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
     }
   },
   components: {
