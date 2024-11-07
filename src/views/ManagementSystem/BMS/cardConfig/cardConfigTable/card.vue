@@ -135,10 +135,12 @@ export default {
       try {
         const res = await this.$api.BMS.seat.requestseatlist(params);
         if (res.code == 1) {
-          this.tableData = (res.data || []).map(item => ({
-            ...item,
-            checked: false
-          }));
+          this.tableData = (res.data || [])
+            .filter(item => !(this.safeModeEnabled && (item.bt === '关联功能台' || item.bt === '功能台')))
+            .map(item => ({
+              ...item,
+              checked: false
+            }));
           this.checkAll = false;
           this.$emit('getMenuList')
           if(isScrollToBottom) {
@@ -336,7 +338,11 @@ export default {
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);
-    }
+    },
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    },
   },
   props: {
     menuList: {
