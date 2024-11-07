@@ -173,7 +173,13 @@ export default {
      hasEmptyManage(){
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
     },
-    // 存酒系统情况下，判断是否不止存酒仓库报表权限
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      let result = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+      console.log('safeModeEnabled:', result)
+      return result
+    },
+    // 存酒系统情况下，判断是否���止存酒仓库报表权限
     hasWineAllAuthority(){
       return (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(10))
         && (!this.$store.state.userInfo.sys_modules|| !this.$store.state.userInfo.sys_modules.includes(50))
@@ -375,29 +381,29 @@ export default {
     authority() {
       var s = [];
       for (let i = 0; i < this.Thelistof.length; i++) {
+        if (this.safeModeEnabled && this.Thelistof[i].name === "人员管理") {
+          continue;
+        }
+
         for (let p = 0; p < this.Thelistof[i].system.length; p++) {
           if (this.Thelistof[i].system[p] == sessionStorage.getItem("client")) {
-            // nav列表中默认的权限(erp仓库管理员/erp管理员)
             s.push(this.Thelistof[i]);
           }
         }
-        
-        if(this.Thelistof[i].auth && this.Thelistof[i].auth.length > 0) {
+
+        if (this.Thelistof[i].auth && this.Thelistof[i].auth.length > 0) {
           for (let p = 0; p < this.Thelistof[i].auth.length; p++) {
-              if(this.Thelistof[i].needAuth && this.Thelistof[i].auth[p] == sessionStorage.getItem("client")) {
-                 // 需要授权的权限（erp管理员有权限，但是erp仓库管理员通过配置确认是否有权限）
-                 if(this.hasEmptyManage && this.Thelistof[i].auth[p] == 'erp') {
-                    s.push(this.Thelistof[i]);
-                // 需要授权的权限（存酒仓库管理员有权限，确认是否只配置了查看报表）
-                 } else if(this.hasWineAllAuthority) {
-                    s.push(this.Thelistof[i]);
-                 }
+            if (this.Thelistof[i].needAuth && this.Thelistof[i].auth[p] == sessionStorage.getItem("client")) {
+              if (this.hasEmptyManage && this.Thelistof[i].auth[p] == 'erp') {
+                s.push(this.Thelistof[i]);
+              } else if (this.hasWineAllAuthority) {
+                s.push(this.Thelistof[i]);
               }
+            }
           }
         }
-        
       }
-      this.ShowThelistof = [...new Set(s)]
+      this.ShowThelistof = [...new Set(s)];
     },
     liseg(index, i, each) {
       console.log(index, i, each.url, each.name);
