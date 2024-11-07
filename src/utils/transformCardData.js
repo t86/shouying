@@ -622,6 +622,15 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           status: el[1], // 状态 1的时候表示不验证会员卡手机验证码
         })
       })
+      break
+    case 54: // 安全模式
+      console.log('54'.repeat(20), arr)
+      arr.forEach(el => {
+        resultArr.push({
+          id: el[0],
+          param1: el[1], //param1=1的时候代表开启了极简模式(否则就是正常模式)
+        })
+      })
   }
   return resultArr
 }

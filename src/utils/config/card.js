@@ -83,6 +83,7 @@ export const resResultDataArr = [
   'waiterConfig', // 51-卡台对应的服务员配置
   'taocanTemplate', // 52-套餐模版配置定义
   'vipSettleRule', // 53-会员结算规则
+  'safeMode', // 54-安全模式
 ]
 
 // 图例列表
