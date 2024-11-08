@@ -29,6 +29,7 @@
         :vipPricePercent="vipPricePercent"
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
+        :safeModeEnabled="safeModeEnabled"
       />
     </div>
   </div>
@@ -110,6 +111,12 @@ export default {
       this.mustOrderProducts.forEach(item => {
         this.allProductsList.push(item)
       })
+    }
+  },
+  computed: {
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
     }
   }
 };

@@ -392,7 +392,7 @@ export default {
       this.ruleForm.waiters= [...this.ruleForm.waiters]
     },
     filterMethod(value) {
-      // 这个方法允许保留用户输入的内容
+      // 这个��法允许保留用户输入的内容
       return true; // 返回 true 以保留输入内容
     },
     async submitBindGuest(){
@@ -771,32 +771,29 @@ export default {
         });
       } else {
         const { keyWord } = this.search;
+        
+        // 先按搜索条件过滤
+        let filteredList = keyWord === "" 
+          ? this.currentCategoryProductList
+          : this.allProductsList;
+          
+        filteredList = filteredList.filter(
+          el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || 
+               el.name.toLowerCase().includes(keyWord.toLowerCase())
+        );
 
-      this.productsListTotal =
-        keyWord === ""
-          ? this.currentCategoryProductList.filter(
-            el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || el.name.toLowerCase().includes(keyWord.toLowerCase())
-          )
-          : this.allProductsList.filter(
-            el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || el.name.toLowerCase().includes(keyWord.toLowerCase())
-          );
+        // 安全模式过滤
+        if(this.safeModeEnabled) {
+          filteredList = filteredList.filter(item => {
+            if(item.bizType * 1 !== 1) return false;
+            if(item.price * 1 >= 2000) return false;
+            return true;
+          });
+        }
 
-      // this.productsListTotal =
-      //   this.allProductsList.filter(el => el.namePy.startsWith(keyWord) || el.name.startsWith(keyWord))
-
-      /*
-      this.totalPage = Math.ceil(
-        this.productsListTotal.length / (pageColl * oneLineCount)
-      );
-      this.productsList = this.productsListTotal.slice(
-        0,
-        this.page * oneLineCount * pageColl
-      );
-      */
-
-      this.productsList = this.productsListTotal || []
+        this.productsListTotal = filteredList;
+        this.productsList = this.productsListTotal;
       }
-
 
       if(this.redeem == 0) {
         this.productsList = this.productsList.filter((item, index) => {
@@ -1220,6 +1217,10 @@ export default {
     },
     mustOrderProducts: {
       default: []
+    },
+    safeModeEnabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

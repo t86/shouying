@@ -27,6 +27,7 @@
         :mustOrderProducts="mustOrderProducts"
         :allProductsList="allProductsList"
         :currentCategoryProductList="currentCategoryProductList"
+        :safeModeEnabled="safeModeEnabled"
       />
     </div>
   </div>
@@ -73,7 +74,14 @@ export default {
     productListYH,
     productListGQ
   },
-  filters: {}
+  filters: {},
+  computed: {
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      let result = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+      console.log('safeModeEnabled-----------------------:', result)
+    }
+  }
 };
 </script>
 
