@@ -1387,6 +1387,11 @@ export default {
       let pushComingCount = 0;
       const cardList = [];
       cardInfo.forEach((item, index) => {
+        // 安全模式下过滤掉功能台和关联功能台
+        if(this.safeModeEnabled && [3,4].includes(item.bizType * 1)) {
+          return;
+        }
+        
         if (item.status == "1") {
           comingCount++;
           // 查找对应的业务数据
