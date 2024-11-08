@@ -504,6 +504,11 @@ export default {
       }
 
       this.tab.tabList = tabList;
+      if(this.safeModeEnabled) {
+        this.tab.tabList = this.tab.tabList.filter(item => {
+          return item.name!=='特饮'
+        })
+      }
     },
 
 
