@@ -575,7 +575,7 @@ export default class WebSocketClient {
 
           // Check for changes in the 14th data type
           if (dataObj['14']) {
-            const relevantFields = ['orderAmt', 'yhAmt', 'yh2Amt', 'payedAmt', 'salesEmpId', 'secondSalesEmpId', 'customerName', 'bizStatus'];
+            const relevantFields = ['orderAmt', 'yhAmt', 'yh2Amt', 'payedAmt', 'salesEmpId', 'secondSalesEmpId', 'customerName', 'bizStatus', 'wkCsmId'];
             
             dataObj['14'].forEach(newData => {
               const oldData = this.resResultDataObj['businessData'].find(item => item.seatId === newData.seatId);
