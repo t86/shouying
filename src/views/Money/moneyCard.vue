@@ -95,6 +95,7 @@
               <p
                 layout="row"
                 v-if="
+                  !safeModeEnabled && 
                   item.bizStatus != 1 &&
                   item.bizStatus != 2 &&
                   item.bizStatus != 8 &&
@@ -115,6 +116,7 @@
               <p
                 layout="row"
                 v-if="
+                  !safeModeEnabled &&
                   item.bizStatus != 1 &&
                   item.bizStatus != 2 &&
                   item.bizStatus != 8 &&
@@ -135,6 +137,7 @@
               <p
                 layout="row"
                 v-if="
+                  !safeModeEnabled &&
                   item.bizStatus != 1 &&
                   item.bizStatus != 2 &&
                   item.bizStatus != 8 &&
@@ -146,9 +149,7 @@
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{
-                    Number(item.orderAmt - item.payedAmt || 0).toFixed(2)
-                  }}</span
+                  >¥{{ Number(item.orderAmt - item.payedAmt || 0).toFixed(2) }}</span
                 >
               </p>
               <p v-else style="height: 16px"></p>
@@ -2376,6 +2377,10 @@ export default {
         merchantInfo.length == 0 ? 0 : ((merchantInfo[0].amt || 0) * 1) / 10000;
       return this.$overall.toFixed(resultAmt, 1);
     },
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    }
   },
 
   components: {
