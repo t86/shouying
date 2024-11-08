@@ -465,6 +465,7 @@
     <!-- 开台记录 -->
     <drawerOpenCard
       :showDrawer="showOpenCardDrawer"
+      :safeModeEnabled="safeModeEnabled"
       @showOrHideDrawer="showOrHideOpenCardDrawerHandle"
     />
 

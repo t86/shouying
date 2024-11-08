@@ -49,8 +49,8 @@
               <div class="th w80">卡台标记</div>
               <div class="th w80">低消进度</div>
               <div class="th w120" 
-                v-if="$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ? 
-                $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true"
+                v-if="!safeModeEnabled && ($store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ? 
+                $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true)"
                 >点单金额</div>
               <div class="th w120">客人电话</div>
               <div class="th w90">客人姓名</div>
@@ -82,8 +82,8 @@
                   <div class="td w80">{{item.m}}</div>
                   <div class="td w80">{{item.mp + '%'}}</div>
                   <div class="td w120" 
-                    v-if="$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ?
-                    $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true"
+                    v-if="!safeModeEnabled && ($store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3) ?
+                    $store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 3).param1 == 2 : true)"
                     >{{(item.om / 100).toFixed(2)}}</div>
                   <div class="td w120">{{item.cp}}</div>
                   <div class="td w90">{{item.cn}}</div>
@@ -331,6 +331,10 @@ export default {
   props: {
     showDrawer: {
       default: false // 是否显示drawer
+    },
+    safeModeEnabled: {
+      type: Boolean,
+      default: false
     }
   },
   components: {
