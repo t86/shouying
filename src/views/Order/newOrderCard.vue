@@ -62,12 +62,18 @@
               </div>
 
               <!-- 点单金额 -->
-              <p class="order-amt" layout="row" v-if="
-                typeModule == 1 &&
-                item.bizStatus != 1 &&
-                item.bizStatus != 2 &&
-                item.bizStatus != 8
-              " layout-align="space-between center">
+              <p
+                class="order-amt"
+                layout="row"
+                v-if="
+                  typeModule == 1 &&
+                  item.bizStatus != 1 &&
+                  item.bizStatus != 2 &&
+                  item.bizStatus != 8 &&
+                  !safeModeEnabled
+                "
+                layout-align="space-between center"
+              >
                 <span>
                   <!-- 有查单权限 -->
                   <span v-if="item.canLookOrder">点:￥{{ item.orderAmt }}</span>
@@ -75,26 +81,28 @@
                   <span v-else></span>
                 </span>
 
-                <!-- ------------------------ 点单金额 end ----------------------------- -->
-
                 <span v-if="item.canLookOrder" class="card-step">{{
                   item.diXiaoJindu
                 }}</span>
               </p>
-              <p v-else class="order-amt"></p>
+              <p v-else style="height: 18px"></p>
 
               <!-- 优惠金额 -->
-              <p class="order-amt" v-if="
-                typeModule == 1 &&
-                item.canLookOrder &&
-                item.bizStatus != 1 &&
-                item.bizStatus != 2 &&
-                item.bizStatus != 8 &&
-                $store.state.userInfo.roleIds.includes(3)
-              ">
+              <p
+                style="height: 18px"
+                v-if="
+                  typeModule == 1 &&
+                  item.canLookOrder &&
+                  item.bizStatus != 1 &&
+                  item.bizStatus != 2 &&
+                  item.bizStatus != 8 &&
+                  $store.state.userInfo.roleIds.includes(3) &&
+                  !safeModeEnabled
+                "
+              >
                 <span>惠:￥{{ item.zengSongAmt }}</span>
               </p>
-              <p v-else class="order-amt"></p>
+              <p v-else style="height: 18px"></p>
 
               <p layout="row" layout-align="space-between center" class="order-person">
                 <!-- tips -->
@@ -1706,7 +1714,10 @@ export default {
         (item) => item.typeId == 3
       );
     },
-
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    }
   },
 
   beforeDestroy() {
