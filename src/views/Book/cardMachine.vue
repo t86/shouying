@@ -91,7 +91,7 @@
             <p layout="row" layout-align="space-between center">
               <span class="area-name" layout="row" layout-align="center center">
                 <span>{{ item.regionId | getAreaName }}</span>
-                <!-- 当前这个‘线’字标记代表：线上卡台或者卡台的线上预定（线上卡台先被预定，后来被转为线下卡台，但是线上的预定没有被取消） -->
+                <!-- 当前这个'线'字标记代表：线上卡台或者卡台的线上预定（线上卡台先被预定，后来被转为线下卡台，但是线上的预定没有被取消） -->
                 <span class="line-tips" v-if="item.showOnlineText">线</span>
               </span>
               <span layout="row" layout-align="center center">
@@ -116,7 +116,7 @@
             <!-- 金额 -->
             <p
               layout="row"
-              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus)"
+              v-if="[4, 5, 6, 7].find((items) => items == item.bizStatus) && !safeModeEnabled"
               layout-align="space-between center"
             >
               <span
@@ -662,11 +662,19 @@ export default {
     getTabList(arr = []) {
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
       let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
+      
+      // 在安全模式下过滤掉包含"特饮"的tab
+      if(this.safeModeEnabled) {
+        tabList = tabList.filter(el => !el.name.includes('特饮'));
+      }
+      
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0
       );
+      
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
+      
       // 数量大于0 再添加全部
       if (tabList.length > 0) {
         tabList.unshift({
@@ -719,7 +727,7 @@ export default {
 
     // 获取全量数据
     getCardList(cardInfo = [], businessData = []) {
-      // // 获取设备可操作区域或卡台
+      // 获取设备可操作区域或卡台
       const currentMachineId = this.$localStorage.getItem("machineId");
       const currentAreaAndCardList = (
         this.$store.state.cardPageInfo.resResultDataObj["machineArea"] || []
@@ -729,47 +737,42 @@ export default {
       const isNoLimit = currentAreaAndCardList.filter(
         (item) => item.type_id == 3
       );
+
+      // 过滤卡台数据
+      let resultCardList = cardInfo.filter((item) => item.status === "1");
+      
+      // 在安全模式下过滤掉特定业务类型的卡台
+      if(this.safeModeEnabled) {
+        resultCardList = resultCardList.filter(item => {
+          const bizType = item.bizType * 1;
+          return bizType !== 3 && bizType !== 4; // 过滤掉业务类型为3或4的卡台
+        });
+      }
+
+      // 继续原有的过滤逻辑
       if (isNoLimit.length <= 0) {
         // 有限制
         const areaList = currentAreaAndCardList.filter(
           (item) => item.type_id == 1
         );
-        const cardListNew = currentAreaAndCardList.filter(
+        const cardList = currentAreaAndCardList.filter(
           (item) => item.type_id == 2
         );
-        // 当前配置的区域id
-        let areaIdList = areaList.map((item) => item.region_o_seat_id);
-
-        // 通过cardList反推出对应的区域，并添加到区域id中
-        const allCardInfo =
-          [...this.$store.state.cardPageInfo.resResultDataObj.cardInfo] || [];
-
-        // 最终经过筛选过后的区域列表，对应元数据的areaInfo
-        let resultAreaList = [];
-        // 最终经过筛选过后的卡台列表，对应元数据的cardInfo
-        let resultCardList = [];
-
-        areaIdList.forEach((el) => {
-          // 存储配置区域的区域下所有卡台
-          const currentAreaCardList = allCardInfo.filter(
-            (item) => item.regionId == el
+        if (areaList.length > 0) {
+          // 区域限制
+          resultCardList = resultCardList.filter((item) =>
+            areaList.find((el) => el.region_o_seat_id == item.regionId)
           );
-          resultCardList = [...resultCardList, ...currentAreaCardList];
-        });
-
-        cardListNew.forEach((el) => {
-          const find = allCardInfo.find(
-            (item) => item.id == el.region_o_seat_id
+        }
+        if (cardList.length > 0) {
+          // 卡台限制
+          resultCardList = resultCardList.filter((item) =>
+            cardList.find((el) => el.region_o_seat_id == item.id)
           );
-          if (find) {
-            resultCardList.push(find);
-            if (!areaIdList.find((item) => item == find.regionId)) {
-              areaIdList.push(find.regionId);
-            }
-          }
-        });
-        cardInfo = resultCardList;
+        }
       }
+
+      cardInfo = resultCardList;
       cardInfo = cardInfo.sort((a, b) => a.dsp - b.dsp);
       let cardList = [];
       cardInfo.forEach((item, index) => {
@@ -790,7 +793,7 @@ export default {
             this.$store.state.cardPageInfo.resResultDataObj[
               "turnLineBottomCard"
             ].find((items) => items.seat_id == item.id);
-          // ‘线’字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
+          // '线'字标签，显示优先级：订单预留方式 > 卡台属于线上还是线下
           data.showOnlineText =
             data.bizStatus > 2
               ? data.platform_id == 1 && !data.isTurnBottomCard
@@ -822,7 +825,7 @@ export default {
                 showOnlineText:
                   data.bizStatus > 2
                     ? currentDayInfo.platform_id == 1
-                    : cardOnlineStatus.cardStatus == 1, // ‘线’字标签，显示优先级：订单预定方式 > 卡台属于线上还是线下
+                    : cardOnlineStatus.cardStatus == 1, // '线'字标签，显示优先级：订单预定方式 > 卡台属于线上还是线下
                 cardStatus: cardOnlineStatus.cardStatus || "", // 卡台是线上还是线下
                 seatId: currentDayInfo.seat_id, // 卡台id
                 wkBookId: currentDayInfo.book_id, // 预订记录
@@ -857,7 +860,7 @@ export default {
             } else {
               // 没有预定的
               const _data = {
-                showOnlineText: cardOnlineStatus.cardStatus == 1, // ‘线’字标签，显示优先级：订单预定方式 > 卡台属于线上还是线下
+                showOnlineText: cardOnlineStatus.cardStatus == 1, // '线'字标签，显示优先级：订单预定方式 > 卡台属于线上还是线下
                 cardStatus: cardOnlineStatus.cardStatus || "", // 卡台是线上还是线下（后台配置）
                 seatId: data.seat_id, // 卡台id
                 wkBookId: data.wkBookId, // 预订记录
@@ -1805,6 +1808,10 @@ export default {
     isMorning() {
       return new Date().getHours() < 12;
     },
+    safeModeEnabled() {
+      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    }
   },
 
   watch: {
