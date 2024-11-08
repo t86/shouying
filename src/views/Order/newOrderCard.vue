@@ -777,6 +777,11 @@ export default {
         )));
         cardListInfoArr.forEach(item => item.isWaiter = true)
       }
+      if(this.safeModeEnabled) {
+        cardListInfoArr = cardListInfoArr.filter(item => {
+          return (item.bizType !== '3' && item.bizType !== '4')
+        })
+      }
 
       // 如果只是营销 不写在这里前面的判断会把区域弄没
       // if (this.$store.state.userInfo.roleIds.includes(3) && this.$store.state.userInfo.roleIds.length == 1) {
