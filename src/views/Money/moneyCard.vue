@@ -315,6 +315,7 @@
             </div>
             <!-- 会员系统 -->
             <div
+              v-if="!safeModeEnabled"
               class="legend-list-item vip-item"
               @click.stop="legendOptionHandle('vip')"
             >
@@ -323,6 +324,7 @@
             </div>
             <!-- 商户号信息 -->
             <div
+              v-if="!safeModeEnabled"
               class="legend-list-item merchant-item"
               @click.stop="showOrHideMerchantInfoDrawerHandle"
             >
@@ -387,6 +389,7 @@
 
             <!-- 更多功能 -->
             <div
+              v-if="!safeModeEnabled"
               class="dosomething-item more-effect"
               @click.stop="legendOptionHandle('more')"
             >
