@@ -521,6 +521,7 @@ export default {
       console.log("typeIdChage:", v,item)
       item.tableData=[]
       item.chooseCount = 1
+      item.tpl_id = ''
       this.$forceUpdate()
 
     },
