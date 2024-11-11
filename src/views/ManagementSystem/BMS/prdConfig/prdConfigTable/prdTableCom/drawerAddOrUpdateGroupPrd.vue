@@ -279,7 +279,7 @@
               >
                 <div>
                   <div class="mb-4">
-                    <el-radio-group @change="typeIdChage" v-model="items.type_id">
+                    <el-radio-group @change="typeIdChage($event, items)" v-model="items.type_id">
                       <el-radio  label="1">自由模式</el-radio>
                       <el-radio  label="2">模板模式</el-radio>
                     </el-radio-group>
@@ -517,8 +517,12 @@ export default {
     };
   },
   methods: {
-    typeIdChage(){
+    typeIdChage(v,item){
+      console.log("typeIdChage:", v,item)
+      item.tableData=[]
+      item.chooseCount = 1
       this.$forceUpdate()
+
     },
     async tplChange(v, item){
       console.log(v)
