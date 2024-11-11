@@ -327,6 +327,8 @@ import drawerSaveWine from "@/components/order/newSaveWine/drawerSaveWine/index.
 import drawerGetWine from "@/components/order/newSaveWine/drawerGetWine/index.vue";
 import drawerPayToStore from "@/components/order/newSaveWine/drawerPayToStore/index.vue";
 
+// 添加 eventVue 引入
+import eventVue from "@/utils/eventVue";
 
 export default {
   data() {
@@ -401,6 +403,7 @@ export default {
         all_seat: 0,     // 1 是  2 否 (否的话, 看返回的卡台列表)
         seats: []
       }, // 营销可查单区域列表
+      safeModeEnabled: false, // 从 computed 移到 data 中
     };
   },
   methods: {
@@ -428,6 +431,7 @@ export default {
       let YXTabList = [];
       let HLTabList = [];
       let QCTabList = [];
+      
       if (roleIds.includes(2)) {
         // 有服务员权限
         FUTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
@@ -436,8 +440,12 @@ export default {
       // 有营销
       if (roleIds.includes(3)) {
         if (this.salesCanLookCardInfo.all_seat != 1) {
-          YXTabList = [...JSON.parse(JSON.stringify(arr)).filter(i => this.$store.state.cardPageInfo.resResultDataObj.cardInfo
-            .filter(item => this.salesCanLookCardInfo.seats.includes(item.id * 1)).map(item => item.regionId).includes(i.id))]
+          YXTabList = [...JSON.parse(JSON.stringify(arr)).filter(i => 
+            this.$store.state.cardPageInfo.resResultDataObj.cardInfo
+              .filter(item => this.salesCanLookCardInfo.seats.includes(item.id * 1))
+              .map(item => item.regionId)
+              .includes(i.id)
+          )];
         } else {
           YXTabList = [...arr];
         }
@@ -447,24 +455,17 @@ export default {
       if (roleIds.includes(4)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
+      
       if (this.hasLookOrder) {
         QCTabList = [...arr];
       }
 
-      if (
-        !(
-          roleIds.includes(2) ||
-          roleIds.includes(3) ||
-          roleIds.includes(4) ||
-          this.hasLookOrder
-        )
-      ) {
+      if (!(roleIds.includes(2) || roleIds.includes(3) || roleIds.includes(4) || this.hasLookOrder)) {
         // 无任何权限
         arr = [];
       } else {
         arr = [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
-          (item, index, arr) =>
-            arr.findIndex((items) => items.id == item.id) == index
+          (item, index, arr) => arr.findIndex((items) => items.id == item.id) == index
         );
       }
 
@@ -472,19 +473,19 @@ export default {
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
 
-      this.tab.tabListOrigin = JSON.parse(JSON.stringify([...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
-        (item, index, arr) =>
-          arr.findIndex((items) => items.id == item.id) == index
-      ).sort((a, b) => a.dsp - b.dsp)
-        .filter((item) => item.status == 1)));
+      this.tab.tabListOrigin = JSON.parse(JSON.stringify(
+        [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList]
+          .filter((item, index, arr) => arr.findIndex((items) => items.id == item.id) == index)
+          .sort((a, b) => a.dsp - b.dsp)
+          .filter((item) => item.status == 1)
+      ));
+
       tabList = tabList.filter(
-        (e) => this.filterCardList("regionId", e.id).length > 0,
-        tabList
+        (e) => this.filterCardList("regionId", e.id).length > 0
       );
+
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
-      // if (tabList.length > 0) {
-      // }
       tabList.unshift({
         id: 0,
         name: "全部",
@@ -493,7 +494,6 @@ export default {
         id: 2001,
         name: "我的卡台",
       });
-
 
       if (tabList.length > this.tab.tabMaxCount) {
         this.tab.anotherInfo = tabList.splice(this.tab.tabMaxCount - 1);
@@ -505,9 +505,7 @@ export default {
 
       this.tab.tabList = tabList;
       if(this.safeModeEnabled) {
-        this.tab.tabList = this.tab.tabList.filter(item => {
-          return item.name!=='特饮'
-        })
+        this.tab.tabList = this.tab.tabList.filter(item => !item.name.includes('特饮'));
       }
     },
 
@@ -1598,6 +1596,21 @@ export default {
 
 
   async mounted() {
+    // 初始化 safeModeEnabled
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    // 添加事件监听
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      this.getCardList(
+        this.$store.state.cardPageInfo.resResultDataObj["cardInfo"],
+        this.$store.state.cardPageInfo.resResultDataObj["businessData"]
+      );
+    });
+
     window.addEventListener("click", (e) => this.legendOptionHandle());
     window.addEventListener("resize", this.windowResizeHandle);
 
@@ -1724,13 +1737,12 @@ export default {
         (item) => item.typeId == 3
       );
     },
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-    }
   },
 
   beforeDestroy() {
+    // 移除事件监听
+    eventVue.$off("safeModeChanged");
+
     console.log("beforeDestroy");
     window.removeEventListener("resize", this.windowResizeHandle);
     window.removeEventListener("click", (e) => this.legendOptionHandle());
