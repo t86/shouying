@@ -40,6 +40,8 @@ import mealNav from "@/components/order/orderMealNav.vue";
 import productList from "@/components/order/productList.vue";
 import productListYH from "@/components/order/productListYH.vue";
 import productListGQ from "@/components/order/productListGQ.vue";
+import eventVue from "@/utils/eventVue";
+
 export default {
   data() {
     return {
@@ -49,7 +51,8 @@ export default {
       isGQ: false, // 是否是估清
       allProductsList: [],
       currentCategoryProductList: [],
-      mustOrderProducts: []
+      mustOrderProducts: [],
+      safeModeEnabled: false
     };
   },
   methods: {
@@ -89,6 +92,18 @@ export default {
     }
     console.log('------------,allprods2:', this.allProductsList)
     console.log('------------,vipPricePercent:', this.vipPricePercent)
+
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('------------,safeModeChanged:', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('------------,safeModeEnabled:', this.safeModeEnabled)
+    });
+  },
+  beforeDestroy() {
+    eventVue.$off("safeModeChanged")
   },
   props: ["String"],
   components: {
@@ -114,10 +129,6 @@ export default {
     }
   },
   computed: {
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-    }
   }
 };
 </script>

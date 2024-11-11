@@ -392,7 +392,7 @@ export default {
       this.ruleForm.waiters= [...this.ruleForm.waiters]
     },
     filterMethod(value) {
-      // 这个��法允许保留用户输入的内容
+      // 这个法允许保留用户输入的内容
       return true; // 返回 true 以保留输入内容
     },
     async submitBindGuest(){
@@ -735,7 +735,7 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("购物车列表获取失败", error);
+        console.log("购物车列获取失败", error);
       }
     },
 
@@ -756,95 +756,29 @@ export default {
     },
 
     getPageData(page = 1) {
-    
       this.page = page;
+      
       if(this.mustOrderProducts && this.mustOrderProducts.length > 0) {
-        this.productsListTotal = this.mustOrderProducts
-        this.productsList = this.productsListTotal || []
+        this.productsListTotal = this.mustOrderProducts;
+        this.productsList = this.productsListTotal || [];
         this.productsList = this.productsList.map(it => {
           const prdInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
-          item => it.id * 1 == item.id * 1 );
+            item => it.id * 1 == item.id * 1
+          );
           if(prdInfo) {
-            it = {...prdInfo, isMustPrd:true, canOrderMeal: true }
+            it = {...prdInfo, isMustPrd:true, canOrderMeal: true };
           }
-          return it
+          return it;
         });
       } else {
-        const { keyWord } = this.search;
-        
-        // 先按搜索条件过滤
-        let filteredList = keyWord === "" 
-          ? this.currentCategoryProductList
-          : this.allProductsList;
-          
-        filteredList = filteredList.filter(
-          el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || 
-               el.name.toLowerCase().includes(keyWord.toLowerCase())
-        );
-
-        // 安全模式过滤
-        if(this.safeModeEnabled) {
-          filteredList = filteredList.filter(item => {
-            if(item.bizType * 1 !== 1) return false;
-            if(item.price * 1 >= 2000) return false;
-            return true;
-          });
-        }
-
-        this.productsListTotal = filteredList;
-        this.productsList = this.productsListTotal;
+        // 使用新的 handleProductsList 方法处理商品列表
+        this.handleProductsList();
       }
 
-      if(this.redeem == 0) {
-        this.productsList = this.productsList.filter((item, index) => {
-          // 非抖音，美团，推广套餐
-          return ![12,22,32].includes(item.prdType*1)
-        })
-      } else {
-        this.productsList = this.productsList.filter((item, index) => {
-          // 抖音，美团，推广套餐
-          return [this.redeem].includes(item.prdType*1)
-        })
-      }
-      console.log('redeem', this.redeem, this.productsList, this.currentCategoryProductList)
-
-
+      // 处理图片前缀等其他逻辑
       this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
       let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
       this.pic_show = showAmt && showAmt.param1 === '1';
-      // 获取当前估清商品的数量
-      const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj[
-        "prdOutOfSomething"
-      ].filter(item => item.status == 1)
-
-      /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
-         商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间 
-         里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
-         如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
-         */
-      const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
-      const nowTime = new Date().getTime()
-      this.productsList = this.productsList.filter(item => {
-        const find = secondCategoryInfo.find(el => el.id == item.twoCateId)
-        if (find && find.enable_time_limit == 1) {
-          const beginTime = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time).getTime()
-          const endTime = new Date(new Date().toLocaleDateString() + ' ' + find.end_time).getTime()
-          const beginTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time2).getTime()
-          const endTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.end_time2).getTime()
-          if (nowTime < beginTime || nowTime > endTime) {
-            if (nowTime < beginTime2 || nowTime > endTime2) {
-              return false
-            }
-          }
-        }
-        return true
-      })
-
-      this.productsList.forEach(el => {
-        const find = outSomethingPrdList.find(item => item.id == el.id)
-        el.outSomethingCount = find ? find.cnt : 'many'
-      })
-      this.getGroupOutSomethingCount()
     },
 
     // 商品列表中套餐估清数量与不可选明细单品数量作比较（当前套餐可点数量为套餐估清数量与不可选商品估清数量最小值）
@@ -907,7 +841,7 @@ export default {
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
           prd_id: this.productInfo.id * 1, // int64   商品Id
-          prd_cnt: this.count * 1, //  int    商品数量 小费类商品只能=1
+          prd_cnt: this.count * 1, //  int    商品数量 小费商品只能=1
           prd_amt:
             this.productInfo.prdType == 13 || this.productInfo.prdType == 14
               ? ""
@@ -1157,6 +1091,47 @@ export default {
         el.style.fontSize = fontSize + 'px';
       }
     },
+    handleProductsList() {
+      const { keyWord } = this.search;
+      
+      // 先按搜索条件过滤
+      let filteredList = keyWord === "" 
+        ? this.currentCategoryProductList
+        : this.allProductsList;
+        
+      filteredList = filteredList.filter(
+        el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || 
+             el.name.toLowerCase().includes(keyWord.toLowerCase())
+      );
+
+      // 安全模式过滤
+      if(this.safeModeEnabled) {
+        filteredList = filteredList.filter(item => {
+          if(item.bizType * 1 !== 1) return false;
+          if(item.price * 1 >= 2000) return false;
+          return true;
+        });
+      }
+
+      this.productsListTotal = filteredList;
+      this.productsList = this.productsListTotal;
+
+      // 处理 redeem 相关的过滤
+      if(this.redeem == 0) {
+        this.productsList = this.productsList.filter((item) => {
+          // 非抖音，美团，推广套餐
+          return ![12,22,32].includes(item.prdType*1)
+        });
+      } else {
+        this.productsList = this.productsList.filter((item) => {
+          // 抖音，美团，推广套餐
+          return [this.redeem].includes(item.prdType*1)
+        });
+      }
+
+      // 获取当前估清商品的数量并处理
+      this.getGroupOutSomethingCount();
+    },
   },
   created() {
     setTimeout(() => {
@@ -1309,6 +1284,21 @@ export default {
           })]
         }
       }
+    },
+    safeModeEnabled: {
+      handler(newVal) {
+        // 根据 safeModeEnabled 的值重新处理商品列表
+        this.handleProductsList();
+      },
+      immediate: true
+    },
+    
+    // 如果有 allProductsList prop，也需要监听它
+    allProductsList: {
+      handler(newVal) {
+        this.handleProductsList();
+      },
+      immediate: true
     }
   },
 
