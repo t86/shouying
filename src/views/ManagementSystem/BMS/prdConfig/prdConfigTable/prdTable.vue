@@ -133,9 +133,11 @@ import drawerNextDrawer from './prdTableCom/drawerNextDrawer.vue'
 import setAreaLibrary from "./prdTableCom/setAreaLibrary.vue";
 import setTwoSecondCategory from './prdTableCom/setTwoCategory.vue'
 import drawerImportAll from './prdTableCom/drawerImportAll.vue'
+import eventVue from "@/utils/eventVue";
 export default {
   data() {
     return {
+      safeModeEnabled: false,
       dialogVisible: false,
       showInMp: '1',
       oldItem: {}, // 拖拽初始信息
@@ -427,10 +429,24 @@ export default {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);
     },
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-    }
+  },
+  mounted() {
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      this.getTableData()
+    });
+    this.authName =
+      this.$store.state.userInfo && this.$store.state.userInfo.name;
+    this.showOrHideModelVisible();
+
+    this.getTabShowCount(this.getAllData);
+  },
+  beforeDestroy() {
+    eventVue.$off("safeModeChanged")
   },
   components: {
     EllipsisTooltip,

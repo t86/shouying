@@ -345,7 +345,9 @@ export default class WebSocketClient {
   updateCardList = (dataObj = {}, time = "") => {
     try {
       for (let key in dataObj) {
-
+        if(key == 54){
+          eventVue.$emit("safeModeChanged", dataObj[key]);
+        }
         // 开启营业日的时候，业务数为空，需要重新赋值业务数据
         if (
           key == 14 &&
@@ -575,25 +577,25 @@ export default class WebSocketClient {
 
           // Check for changes in the 14th data type
           if (dataObj['14']) {
-            const relevantFields = ['orderAmt', 'yhAmt', 'yh2Amt', 'payedAmt', 'salesEmpId', 'secondSalesEmpId', 'customerName', 'bizStatus', 'wkCsmId'];
+            // const relevantFields = ['orderAmt', 'yhAmt', 'yh2Amt', 'payedAmt', 'salesEmpId', 'secondSalesEmpId', 'customerName', 'bizStatus', 'wkCsmId'];
             
-            dataObj['14'].forEach(newData => {
-              const oldData = this.resResultDataObj['businessData'].find(item => item.seatId === newData.seatId);
-              if (oldData) {
-                for (let field of relevantFields) {
-                  if (newData[field] !== oldData[field]) {
-                    shouldUpdate = true;
-                    break;
-                  }
-                }
-              } else {
-                shouldUpdate = true;
-              }
+            // dataObj['14'].forEach(newData => {
+            //   const oldData = this.resResultDataObj['businessData'].find(item => item.seatId === newData.seatId);
+            //   if (oldData) {
+            //     for (let field of relevantFields) {
+            //       if (newData[field] !== oldData[field]) {
+            //         shouldUpdate = true;
+            //         break;
+            //       }
+            //     }
+            //   } else {
+            //     shouldUpdate = true;
+            //   }
               
-              if (shouldUpdate) return; // Exit the loop early if we know we need to update
-            });
+            //   if (shouldUpdate) return; // Exit the loop early if we know we need to update
+            // });
+            shouldUpdate = true
           }
-
           // If there are other data types besides 14, or if relevant fields in 14 have changed, trigger update
           if (keys.length > 1 || keys[0] !== '14' || shouldUpdate) {
             eventVue.$emit("reloadData");
