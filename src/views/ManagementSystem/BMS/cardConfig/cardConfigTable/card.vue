@@ -99,6 +99,8 @@ import drawerNextDrawer from './cardTableCom/drawerNextDrawer.vue'
 import drawerConfigOrderPrd from './cardTableCom/drawerConfigOrderPrd.vue'
 
 import { projectName, projectConfig } from '@/utils/config/projectConfig.js'
+import eventVue from "@/utils/eventVue";
+
 export default {
   data() {
     return {
@@ -122,6 +124,7 @@ export default {
       jobId: '',
       percentage: 0,
       showConfigPrdDrawer: false,
+      safeModeEnabled: false,
     };
   },
   methods: {
@@ -334,15 +337,24 @@ export default {
   created() {
     this.getTableData();
   },
-  mounted() {},
+  mounted() {
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      this.getTableData()
+    });
+  },
+  beforeDestroy() {
+    eventVue.$off("safeModeChanged")
+  },
   computed: {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some(item => item.checked);
-    },
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-    },
+    }
   },
   props: {
     menuList: {
