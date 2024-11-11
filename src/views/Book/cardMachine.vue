@@ -541,6 +541,9 @@ import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 import store from "../../store";
 
+// 添加 eventVue 引入
+import eventVue from "@/utils/eventVue";
+
 const TabWidth = 100; // tab固定宽度
 const cardWidth = 168; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
@@ -637,6 +640,7 @@ export default {
 
         cardInfo: {}, // 数据修改等相关操作时当前卡台的信息
       },
+      safeModeEnabled: false, // 添加这行
     };
   },
   methods: {
@@ -1790,6 +1794,21 @@ export default {
   },
 
   mounted() {
+    // 初始化 safeModeEnabled
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    // 添加事件监听
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      this.getCardList(
+        this.$store.state.cardPageInfo.resResultDataObj["cardInfo"],
+        this.$store.state.cardPageInfo.resResultDataObj["businessData"]
+      );
+    });
+
     window.addEventListener("click", (e) => this.legendOptionHandle());
     this.$refs.containRef.addEventListener(
       "scroll",
@@ -1808,11 +1827,8 @@ export default {
     // 是否为中午12点之前
     isMorning() {
       return new Date().getHours() < 12;
-    },
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
     }
+    // 移除 safeModeEnabled
   },
 
   watch: {
@@ -1832,6 +1848,9 @@ export default {
   },
 
   beforeDestroy() {
+    // 移除事件监听
+    eventVue.$off("safeModeChanged");
+
     document.body.removeEventListener("click", this.showOrHideOptionHandle);
     this.$refs.containRef.removeEventListener(
       "scroll",
