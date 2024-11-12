@@ -153,13 +153,26 @@ export default {
       ], // 列表
       activeNames: "0", //点开了第几个
       nr: [],
-      isKeyBoard: localStorage.getItem('keyboard') == '1' // 是否开启系统键盘
+      isKeyBoard: localStorage.getItem('keyboard') == '1', // 是否开启系统键盘
+      safeModeEnabled: false, // 从 computed 移到 data 中
     };
   },
   beforeDestroy() {
     eventVue.$off("reloadData")
+    eventVue.$off("safeModeChanged");
   },
   mounted() {
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      // 重新生成菜单
+      this.authority()
+    });
+
     this.getOpenStatus()
     eventVue.$on("reloadData", (e) => {
       console.log("get reload data event emit...")
@@ -173,13 +186,6 @@ export default {
      hasEmptyManage(){
       return this.$store.state.userInfo.sys_modules&&this.$store.state.userInfo.sys_modules.includes(25)
     },
-    safeModeEnabled() {
-      let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-      let result = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-      console.log('safeModeEnabled:', result)
-      return result
-    },
-    // 存酒系统情况下，判断是否���止存酒仓库报表权限
     hasWineAllAuthority(){
       return (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(10))
         && (!this.$store.state.userInfo.sys_modules|| !this.$store.state.userInfo.sys_modules.includes(50))
