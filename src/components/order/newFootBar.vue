@@ -110,7 +110,7 @@
         "  -->
         <!-- 消费情况 -->
         <div class="new-one" v-if="isRect &&
-          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)" style="padding-top: 8px; " layout="row"
+          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt) && !safeModeEnabled" style="padding-top: 8px; " layout="row"
           layout-align="start start">
           <p class="new-one-txt-cut">
             <!-- 折前：当太总消费的应收金额（不含赠送） -->
@@ -612,6 +612,7 @@ export default {
       empId: 0,
       showEmp: false,
       loading: false,
+      safeModeEnabled: false, // 添加 safeModeEnabled
     };
   },
   methods: {
@@ -1245,6 +1246,7 @@ export default {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
         eventVue.$off("changeTurnOverCountHandle");
         eventVue.$on("changeTurnOverCountHandle", (amtInfoList = []) => {
+          console.log('changeTurnOverCountHandle=========================================', amtInfoList)
           let orderAmt = 0;
           let payed_val_amt = 0;
           let order_zy_amt = 0;
@@ -1519,7 +1521,7 @@ export default {
               client: "order",
             },
           });
-          this.$message.success("退出成功！");
+          this.$message.success("退���成功！");
         } else {
           this.$message.warning(res.msg);
         }
@@ -1572,6 +1574,16 @@ export default {
     Observer.subscribe(BIND_EMP, (empId) => {
       console.log('bind emp', empId)
       this.empId = empId;
+    });
+    // 初始化 safeModeEnabled
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    // 添加事件监听
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here newfoo', this.safeModeEnabled)
     });
   },
   props: {
@@ -1653,18 +1665,10 @@ export default {
       }
     }
   },
-  components: {
-    drawerPayQR,
-    drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
-    drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
-    drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
-    drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
-    keyBoard: () => import("@/components/common/keyBoard"),
-    fullPageTable, // 全屏表格数据
-    cardDrawer
-  },
   beforeDestroy() {
     clearInterval(this.timer);
+    // 移除事件监听
+    eventVue.$off("safeModeChanged");
   },
   mixins: [cardPageMixins],
 };

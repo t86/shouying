@@ -550,4 +550,7 @@ export default {
   reqQueueEnter: (params) => axios.post(`${base.htgl}/custq/arrive`, params),
   reqQueueOverdue: (params) => axios.post(`${base.htgl}/custq/expired`, params),
 
+  get_ol_oper_rst: (params) => axios.post(`${base.htgl}/sel/get_ol_oper_rst`, params),
+  conv_ol_pay_to_late: (params) => axios.post(`${base.htgl}/sel/conv_ol_pay_to_late`, params),
+
 };
