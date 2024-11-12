@@ -506,6 +506,7 @@ export default {
       this.tab.tabList = tabList;
       if(this.safeModeEnabled) {
         this.tab.tabList = this.tab.tabList.filter(item => !item.name.includes('特饮'));
+        this.tab.anotherInfo = this.tab.anotherInfo.filter(item => !item.name.includes('关联'));
       }
     },
 
@@ -929,6 +930,10 @@ export default {
         result = result.filter(item => {
           return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
         })
+      }
+      if(this.safeModeEnabled) {
+        result = result.filter(item => item.bizType * 1 !== 3)
+        result = result.filter(item => item.bizType * 1 !== 4)
       }
       return result
     },
