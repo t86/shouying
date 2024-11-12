@@ -1184,6 +1184,7 @@ const ctrlAndShiftCode = [17, 16];
 export default {
   data() {
     return {
+      safeModeEnabled: false,
       loadIndex: 0,
       // modelVisible: true, // 是否显示未开启营业日模态框
       socket: null,
@@ -1283,7 +1284,6 @@ export default {
       stopClass: {
         showDrawer: false,
       },
-      safeModeEnabled: false,
     };
   },
   methods: {
@@ -2366,8 +2366,17 @@ export default {
   mounted() {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadMoneyCard", this.getAllData);
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    eventVue.$on("safeModeChanged", (e) => {
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      // 当 safeModeEnabled 改变时重新获取卡台数据
+      this.getAllData()
+    });
 
-      window.addEventListener("click", (e) => this.legendOptionHandle());
+
+
+    window.addEventListener("click", (e) => this.legendOptionHandle());
       this.$refs.containRef.addEventListener(
         "scroll",
         this.windowScrollHideOptionsHandle
@@ -2377,17 +2386,78 @@ export default {
       window.addEventListener('keydown', this.keyHandle);
       window.addEventListener('keyup', this.keyHandle);
       this.$refs.searchInputRef && this.$refs.searchInputRef.focus();
+  },
 
-    // 初始化 safeModeEnabled
-    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+  computed: {
+    merchantAllAmt() {
+      const { merchantInfo } = this.$store.state.cardPageInfo.resResultDataObj;
+      const resultAmt =
+        merchantInfo.length == 0 ? 0 : ((merchantInfo[0].amt || 0) * 1) / 10000;
+      return this.$overall.toFixed(resultAmt, 1);
+    },
+    // safeModeEnabled() {
+    //   let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    //   return safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    // }
+  },
 
-    // 添加事件监听
-    eventVue.$on("safeModeChanged", (e) => {
-      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
-      // 当 safeModeEnabled 改变时重新获取卡台数据
-      this.getAllData()
-    });
+  components: {
+    drawerStopStore,
+    drawerNeedBackOrderList,
+    outSomething,
+    drawerStopClass,
+    dayReport,
+    drawerProfit,
+    drawerOnlinePayTotal,
+    drawerOnlinePayDetail,
+    drawerKpiReport,
+    drawerOnlineBooking,
+    drawerYHDetail,
+    drawerKQHX,
+    drawerKTSalesDetail,
+    drawerTYDetail,
+    drawerTYHZ,
+    drawerGZDetail,
+    drawerTurnOverDetail,
+    drawerOrderDetail,
+    drawerShangpinchuku,
+    drawerNotTYOrXF,
+    drawerUpdateBookEmp,
+    updatePassword,
+    updateAuthPassword,
+    drawerTurnOver,
+    drawerYHCount,
+    drawerMerChant,
+    drawerMerChantInfo,
+    drawerMinDetail,
+    drawerXCDetail,
+    drawerXCAllInfo,
+    drawerQDAllInfo,
+    drawerCatQDAllInfo,
+    drawerXSDetail,
+    drawerXSAllInfo,
+    drawerSetCount,
+    drawerSetGZHK,
+    drawerSetYDJ,
+    drawerSetYDJYE,
+    drawerMtDyHx,
+  },
+
+  watch: {
+    "tab.activeIndex": {
+      handler(newVal, oldVal) {
+        let regionId = "";
+        if (newVal == 999) {
+          // 选的的是'其他'按钮
+          regionId = oldVal;
+        } else {
+          regionId = newVal;
+        }
+
+        this.setLegendCount(regionId);
+      },
+      immediate: true,
+    },
   },
 
   beforeDestroy() {
@@ -2404,7 +2474,6 @@ export default {
     window.removeEventListener('keydown', this.keyHandle);
 
     downKeyCode = [0, 0];
-    eventVue.$off("safeModeChanged")
   },
 
   filters: {
