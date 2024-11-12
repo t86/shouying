@@ -1521,7 +1521,7 @@ export default {
               client: "order",
             },
           });
-          this.$message.success("退���成功！");
+          this.$message.success("退出成功！");
         } else {
           this.$message.warning(res.msg);
         }
@@ -1657,6 +1657,17 @@ export default {
       return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
     }
   },
+  components: {
+    drawerPayQR,
+    drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
+    drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
+    drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
+    drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
+    keyBoard: () => import("@/components/common/keyBoard"),
+    fullPageTable, // 全屏表格数据
+    cardDrawer
+  },
+
   watch: {
     "authInfo.bindWaiterId": {
       handler(newVal, oldVal) {
