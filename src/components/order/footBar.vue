@@ -100,7 +100,7 @@
           <!-- 消费情况 -->
           <div id="aaaa" class="amt line p-r-6" v-if="
             isRect &&
-            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)
+            ($store.state.userInfo.authStatus == 4 || canLookOrderAmt) && !safeModeEnabled
           " layout="row" layout-align="start start">
             <div class="left m-r-2">
               <p class="one-txt-cut">
@@ -432,6 +432,7 @@ export default {
       isMoneyClient: false,
       // 是否是点单系统
       isOrderMeal: false,
+      safeModeEnabled: false, // 添加 safeModeEnabled
     };
   },
   methods: {
@@ -826,6 +827,16 @@ export default {
   },
   mounted() {
     this.init();
+    // 初始化 safeModeEnabled
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+
+    // 添加事件监听
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+    });
   },
   props: {
     empId: {
@@ -869,6 +880,8 @@ export default {
     keyBoard: () => import("@/components/common/keyBoard"),
   },
   beforeDestroy() {
+    // 移除事件监听
+    eventVue.$off("safeModeChanged");
     clearInterval(this.timer);
   },
 };
