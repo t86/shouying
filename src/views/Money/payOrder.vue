@@ -82,6 +82,7 @@
         layout-align="space-between center"
       >
         <div
+          v-if="!safeModeEnabled"
           class="order-content-bottom-left"
           :class="{
             'not-pay': payTabInfo.activePayId == 0,
@@ -132,6 +133,7 @@
             </div>
           </div>
         </div>
+
         <div
           v-if="$store.state.orderInfo.currentCardInfo.bizStatus != 1"
           class="order-content-bottom-right"
@@ -460,7 +462,7 @@ const ctrlAndShiftCode = [17, 16];
 export default {
   data() {
     return {
-
+      safeModeEnabled: false,
       showChangeFwy: false, // 修改服务员
       selFwy: "", // 选择服务员
       selFwyName: "", // 选择服务员名称
@@ -2046,6 +2048,15 @@ export default {
 
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadPayOrderList", this.init);
+
+    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
+    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    eventVue.$on("safeModeChanged", (e) => {
+      console.log('safeModeChanged here!', e)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
+      this.getMenuInfo();
+      this.init();
+    });
 
     document.onkeydown = this.keyHandle;
     document.onkeyup = this.keyHandle;
