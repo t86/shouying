@@ -550,7 +550,22 @@ export default {
   reqQueueEnter: (params) => axios.post(`${base.htgl}/custq/arrive`, params),
   reqQueueOverdue: (params) => axios.post(`${base.htgl}/custq/expired`, params),
 
+  /**
+   * 客户端传入json:
+   *    o          int64      //OrderId 订单Id
+   * 成功返回编码:1, 返回json:
+   *   rst        int        //Rst 订单结果 1 处理中,继续轮询 2 处理失败,失败原因是下面的msg,退出轮询  5 处理成功,退出轮询
+   *   msg        string     //Msg 失败原因
+  普通失败, 返回编码<>1, 数据为空
+   */
   get_ol_oper_rst: (params) => axios.post(`${base.htgl}/sel/get_ol_oper_rst`, params),
+  /**
+   * 客户端传入json:
+   *   seat_id    int64      //SeatId 卡台Id
+   * 成功返回编码:1, 返回json:
+   *   order_id   int64      //OrderId 订单号,用于每秒轮询处理结果
+  普通失败, 返回编码<>1, 数据为空
+   */
   conv_ol_pay_to_late: (params) => axios.post(`${base.htgl}/sel/conv_ol_pay_to_late`, params),
 
 };

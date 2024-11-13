@@ -158,12 +158,12 @@
           <div
             class="button"
             v-if="payTabInfo.activePayId == 0"
-            @click="openClockHandle"
+            @click="handleConvertToOffline"
             layout="row"
             layout-align="center center"
           >
-            <img :src="require('@/assets/money-img/openClock.png')" />
-            <span class="m-l-1">解锁</span>
+            <!-- <img :src="require('@/assets/money-img/openClock.png')" /> -->
+            <span class="m-l-1">转线下</span>
           </div>
           <div
             class="button"
@@ -757,7 +757,7 @@ export default {
       // 拼接全部结账数据
       // if (hasPayed) {
       payTabList.unshift({
-        name: `全部消费`,
+        name: `全部消���`,
         id: "-1",
       });
       this.cardAllOrderInfo.push(allOrderInfo);
@@ -1101,7 +1101,7 @@ export default {
         });
       }
 
-      // 线下未结账商品部分退单 或 结账商品部分退单(未退单商品会变成未结账商品，退单变成未结账退单状态)，这种情况下会导致在全部商品中部分退单中的退单商品重复，此处做去重处理
+      // 线下未结账商品部分退单 或 结账商品部分退单(未退单商品会变成未结账商品，退单变成未结账退单状态)，这种情况下会导致在全部商品中部分退单中退单商品重，此处做去重处理
       // resultNotPayData = resultNotPayData.filter((item, index, arr) => arr.findIndex(items => items.id == item.id && items.pid == item.pid) == index)
 
       // 结账订单数量
@@ -1131,7 +1131,7 @@ export default {
     // 获取已支付订单次数及相关详情列表
     getPayedOrderInfo(payedId) {
       if (payedId == 0) {
-        // 未结账订单(同步为结账订单勾选和订单列表同步)
+        // 未结账单(同步为结账订单勾选和订单列表同步)
         this.notPayData.choosePayOrderList =
           this.notPayData.notPayOrderList.filter((item) => item.checkout);
       }
@@ -1264,22 +1264,87 @@ export default {
     },
 
     // 解锁订单
-    async openClockHandle() {
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   卡台Id
+    async handleConvertToOffline() {
+      this.showConfirmHandle(
+        "确认",
+        "是否将未完成最终支付的线上渠道转到滞留金？操作后，原支付订单作废，需重新支付!",
+        async () => {
+          try {
+            const params = {
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+            };
+            let res = await api_money.conv_ol_pay_to_late(params);
+            //for test
+            // let res = {
+            //   code: 1,
+            //   data: {
+            //     order_id: 1
+            //   }
+            // }
+
+            if (res.code === 1) {
+              // Start polling for result
+              this.pollOperationResult(res.data.order_id);
+            } else {
+              this.$message.warning(res.msg || "转线下失败");
+            }
+          } catch (error) {
+            console.log("转线下失败", error);
+            this.$message.warning("转线下失败");
+          }
+        }
+      );
+    },
+
+    // Add polling method:
+    async pollOperationResult(orderId) {
+      const loading = this.$loading({
+        lock: true,
+        text: "处理中...",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+
+      const checkResult = async () => {
+        try {
+          let res = await api_money.get_ol_oper_rst({ o: orderId });
+          if (res.code === 1) {
+            //for test
+            // res = {
+            //   code: 1,
+            //   data :{
+            //     rst: 1
+            //   }
+            // }
+            switch (res.data.rst) {
+              case 1: // Processing
+                setTimeout(checkResult, 1000);
+                break;
+              case 2: // Failed 
+                loading.close();
+                this.$message.warning(res.data.msg || "转线下失败");
+                break;
+              case 5: // Success
+                loading.close();
+                this.$message.success("转线下成功");
+                this.getOrderInfo(this.getPayTabList);
+                break;
+              default:
+                loading.close();
+                this.$message.warning("转线下失败");
+            }
+          } else {
+            loading.close();
+            this.$message.warning(res.msg || "转线下失败");
+          }
+        } catch (error) {
+          loading.close();
+          console.log("查询转线下结果失败", error);
+          this.$message.warning("查询转线下结果失败");
+        }
       };
 
-      try {
-        const res = await api_money.reqCancelClockOrder(params);
-        if (res.code == 1) {
-          this.$message.success("解锁成功");
-          this.init();
-        } else {
-          this.$message.warning(res.msg);
-        }
-      } catch (error) {
-        console.log("收银员解锁订单失败", error);
-      }
+      checkResult();
     },
 
     // 切换先后买单方式
