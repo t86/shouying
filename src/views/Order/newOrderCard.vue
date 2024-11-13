@@ -206,7 +206,7 @@
               </span>
             </div>
 
-            <div class="dosomething-item more-effect" @click.stop="legendOptionHandle('more')">
+            <div class="dosomething-item more-effect" @click.stop="legendOptionHandle('more')" v-if="!safeModeEnabled">
               <img :src="imgSrc.more" alt />
               <p class="do-title">更多功能</p>
               <div class="option more" v-if="legendOptions.showMoreFunc">
