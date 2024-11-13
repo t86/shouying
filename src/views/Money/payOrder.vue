@@ -757,7 +757,7 @@ export default {
       // 拼接全部结账数据
       // if (hasPayed) {
       payTabList.unshift({
-        name: `全部消���`,
+        name: `全部消费`,
         id: "-1",
       });
       this.cardAllOrderInfo.push(allOrderInfo);
