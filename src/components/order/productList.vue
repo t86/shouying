@@ -3,8 +3,8 @@
   <div class="product-list" ref="productListRef">
     <div class="search" layout="row" layout-align="start center">
       <input @blur="keyboardLeave('searchInputRef')" @click="keyboardShow('searchInputRef')" type="text" ref="searchInputRef"
-        :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
-        v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
+             :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
+             v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
       <img class="icon" :src="imgSrc.search" alt />
       <div class="opentime" layout="row" layout-align="center center">
@@ -16,11 +16,11 @@
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
         <div class="prd-item" v-if="pic_show" style="height: 410px;" v-for="item in productsList" :key="item.id"
-          @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
+             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
             <img class="item-img" :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
             <span class="item-span"
-              v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+                  v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
                 shoppingCount(item.id * 1) }}</span>
           </div>
           <div class="title">
@@ -49,7 +49,7 @@
           </div>
 
           <img v-if="item.outSomethingCount == 0" class="no-data-count"
-            :src="require('@/assets/order-img/noCount.png')" />
+               :src="require('@/assets/order-img/noCount.png')" />
 
           <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda" @click.stop="clickDescImage(item)" />
           <div class="hover-click"></div>
@@ -57,14 +57,14 @@
 
 
         <div class="prd-item" style="height: 160px;" v-if="!pic_show" v-for="item in productsList" :key="item.id"
-          @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
+             @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="title">
             <h5>{{ item.name }}</h5>
             <p class="english-name one-txt-cut">{{ item.nameEng }}</p>
           </div>
           <div class="al-product">
             <span class="item-span"
-              v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
+                  v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
                 shoppingCount(item.id * 1) }}</span>
           </div>
           <div class="item-footer">
@@ -75,7 +75,7 @@
           </div>
 
           <img v-if="item.outSomethingCount == 0" class="no-data-count1"
-            :src="require('@/assets/order-img/noCount.png')" />
+               :src="require('@/assets/order-img/noCount.png')" />
         </div>
         <p v-if="totalPage != 1" class="tips">{{ page >= totalPage ? '没有更多了' : '加载中...' }}</p>
       </div>
@@ -136,11 +136,11 @@
       <div layout="row" layout-align="end center" class="bind-emp" v-if="showEmp && empId*1 == 0 && isValidCard" @click="showChangeFwy = true">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
         绑定当台服务员
-      </div> 
+      </div>
       <div v-else layout="row" layout-align="start center" class="author" :class="{ rect: !isRect }" @click="showDiandanEmpChange">
-<!--        {{ authTips }}: {{authInfo.name}}-->
+        <!--        {{ authTips }}: {{authInfo.name}}-->
         <div class = 'text-ellipsis' >
-                  {{authInfo.name}}
+          {{authInfo.name}}
         </div>
         <img style="margin-left: 10px;" class="item-img" alt="修改卡台服务员" v-if="hasChgKTWaiterAuth && isValidCard"  :src="require('@/assets/img/btn_edit.png')" />
       </div>
@@ -154,7 +154,7 @@
 
     </el-dialog> -->
 
-    
+
     <el-dialog title="修改卡台服务员" :visible.sync="dialogFormVisible" width="60%">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" @submit.native.prevent label-width="150px">
         <div class="flex">
@@ -211,7 +211,7 @@
 
     <!-- 单品点单 -->
     <mealDrawer ref="mealDrawerRef" :showDrawer="drawer.showDrawer" :productInfo="currentProductInfo"
-      @showOrHideDrawer="showOrHideDrawer" />
+                @showOrHideDrawer="showOrHideDrawer" />
     <ImagePreview :dialogVisible="dialogVisible" :imgSrc="bigImageUrl" @handleCloseClick="handleCloseClick" />
     <el-dialog append-to-body title="提示" :visible="showChangeFwy"@close="closeChangeFwy">
       <h3>绑定当台服务员？</h3>
@@ -224,19 +224,19 @@
       <el-form ref="formguest"  label-width="110px">
         <el-form-item label="客人手机号">
           <el-input
-          v-model="formguest.phone"
-          autofocus
-          ref="guestInput"
-          @click="handleFocus('guestInput')"
-          @input="searchGuestPhone"
-          placeholder="输入客人手机号后四位搜索"
-        ></el-input>
-        <div v-for="item in formguest.guests" :key="item.p">
-           <el-checkbox
+              v-model="formguest.phone"
+              autofocus
+              ref="guestInput"
+              @click="handleFocus('guestInput')"
+              @input="searchGuestPhone"
+              placeholder="输入客人手机号后四位搜索"
+          ></el-input>
+          <div v-for="item in formguest.guests" :key="item.p">
+            <el-checkbox
                 v-model="item.checked"
                 @change="changeSelectGuest(item)"
-              >{{ item.n + '  ' + item.p }}</el-checkbox>
-        </div>
+            >{{ item.n + '  ' + item.p }}</el-checkbox>
+          </div>
         </el-form-item>
         <keyBoard @changeNum="changeNum" />
       </el-form>
@@ -402,7 +402,7 @@ export default {
       }
       this.showBindGuest = false
       try {
-        const checkedGuests = this.formguest.new_guest ? [{ p: this.formguest.phone, n: this.maskedPhone}] : this.formguest.guests.filter(item => item.checked) 
+        const checkedGuests = this.formguest.new_guest ? [{ p: this.formguest.phone, n: this.maskedPhone}] : this.formguest.guests.filter(item => item.checked)
         if(checkedGuests.length == 0 || checkedGuests.length > 1) {
           this.$message.warning('请选择一个客人');
           return;
@@ -441,17 +441,17 @@ export default {
     },
     handleBlur(){
       this.formguest.editing = false
-    // 移除输入事件监听
-    //  const inputEl = this.$refs.guest.$el.querySelector('input');
-    // inputEl.removeEventListener('input', this.handleInput);
+      // 移除输入事件监听
+      //  const inputEl = this.$refs.guest.$el.querySelector('input');
+      // inputEl.removeEventListener('input', this.handleInput);
 
-    // 使用当前输入值更新 formguest.phone
-    if (this.currentInputValue) {
-      this.formguest.phone = this.currentInputValue;
-    }
+      // 使用当前输入值更新 formguest.phone
+      if (this.currentInputValue) {
+        this.formguest.phone = this.currentInputValue;
+      }
 
-    // 重置 currentInputValue
-    this.currentInputValue = '';
+      // 重置 currentInputValue
+      this.currentInputValue = '';
       // 保存当前输入的内容
       console.log(this.formguest)
     },
@@ -459,11 +459,11 @@ export default {
     //   console.log('handleinput', event.target.value)
     //   const inputEl = event.target;
     //   let value = inputEl.value.replace(/\D/g, ''); // 只允许数字
-      
+
     //   if (value.length > 11) {
     //     value = value.slice(0, 11); // 限制最大长度为11位
     //   }
-      
+
     //   this.currentInputValue = value;
     //   inputEl.value = value; // 更新输入框的值
 
@@ -668,10 +668,10 @@ export default {
     },
     handleVisibleChange(visible) {
       if (visible) {
-          this.$nextTick(() => {
-            this.focusGuestInput();
-          });
-        }
+        this.$nextTick(() => {
+          this.focusGuestInput();
+        });
+      }
     },
     adjustFontSize() {
       const windowWidth = window.innerWidth;
@@ -692,11 +692,11 @@ export default {
 
       }
     },
-        // 是否有修改卡台
+    // 是否有修改卡台
     hasChgKTWaiterAuth () {
       return (
-        this.$store.state.userInfo.sys_modules &&
-        this.$store.state.userInfo.sys_modules.includes(9)
+          this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(9)
       );
     },
     empInfoFilter(empId) {
@@ -757,13 +757,13 @@ export default {
 
     getPageData(page = 1) {
       this.page = page;
-      
+
       if(this.mustOrderProducts && this.mustOrderProducts.length > 0) {
         this.productsListTotal = this.mustOrderProducts;
         this.productsList = this.productsListTotal || [];
         this.productsList = this.productsList.map(it => {
           const prdInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
-            item => it.id * 1 == item.id * 1
+              item => it.id * 1 == item.id * 1
           );
           if(prdInfo) {
             it = {...prdInfo, isMustPrd:true, canOrderMeal: true };
@@ -808,7 +808,7 @@ export default {
       })
     },
 
-    
+
     // 服务员/收银加入购物车
     async orderMealToShoppingCart() {
       const params = {
@@ -824,17 +824,17 @@ export default {
         this.$emit("changeType", 2);
         this.$emit("setSingleInfo", params);
       } else if (
-        this.productInfo.prdType == 3 ||
-        this.productInfo.prdType == 4 ||
-        this.productInfo.prdType == 13 ||
-        this.productInfo.prdType == 14 ||
-        this.productInfo.prdType == 8
+          this.productInfo.prdType == 3 ||
+          this.productInfo.prdType == 4 ||
+          this.productInfo.prdType == 13 ||
+          this.productInfo.prdType == 14 ||
+          this.productInfo.prdType == 8
       ) {
         // 添加存货花篮特饮3/普通花篮特饮8、小费4  13:定价花篮  14：定价小费
         if (
-          !this.amt &&
-          this.productInfo.prdType != 13 &&
-          this.productInfo.prdType != 14
+            !this.amt &&
+            this.productInfo.prdType != 13 &&
+            this.productInfo.prdType != 14
         )
           return this.$message.warning("请输入金额");
 
@@ -843,9 +843,9 @@ export default {
           prd_id: this.productInfo.id * 1, // int64   商品Id
           prd_cnt: this.count * 1, //  int    商品数量 小费商品只能=1
           prd_amt:
-            this.productInfo.prdType == 13 || this.productInfo.prdType == 14
-              ? ""
-              : this.amt.toString(), //  string  商品金额 普通商品,定价花篮(13),定价小费(14)不要传金额(空)(系统会自动计算), 时价花篮(3)/时价小费(4) 需传金额
+              this.productInfo.prdType == 13 || this.productInfo.prdType == 14
+                  ? ""
+                  : this.amt.toString(), //  string  商品金额 普通商品,定价花篮(13),定价小费(14)不要传金额(空)(系统会自动计算), 时价花篮(3)/时价小费(4) 需传金额
           requirement: this.requestInfoArr.join(";"), // string   要求
           relate_csm_id: 0, // int64  关联流水Id(用于补交),没有填0
         };
@@ -902,7 +902,7 @@ export default {
         } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1) {
           this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
             this.doSetMealForProduct(productInfo)
-          }); 
+          });
         } else {
           this.doSetMealForProduct(productInfo)
         }
@@ -916,7 +916,7 @@ export default {
       //   } else {
       //     this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
       //     this.doSetMealForProduct(productInfo)
-      //   }); 
+      //   });
       // }
       // } else {
       //   this.doSetMealForProduct(productInfo)
@@ -960,7 +960,7 @@ export default {
       let dom = this.$refs.productListRef;
       const step = 200;
       const scrollTop =
-        direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
+          direction === "down" ? dom.scrollTop + step : dom.scrollTop - step;
       dom.scrollTo(0, scrollTop);
     },
 
@@ -996,29 +996,29 @@ export default {
               // shift + s  // 购物车
               e.preventDefault()
               this.$parent.$parent.$refs.footBarRef &&
-                this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
-                this.$parent.$parent.$refs.footBarRef.footNavBarClick({
-                  id: 3,
-                  name: "商品菜单",
-                  routeName: "shoppingCart"
-                });
+              this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
+              this.$parent.$parent.$refs.footBarRef.footNavBarClick({
+                id: 3,
+                name: "商品菜单",
+                routeName: "shoppingCart"
+              });
             } else if (downKeyCode[0] == 16 && downKeyCode[1] == 68) {
               // shift + d  // 我的点单
               e.preventDefault()
               this.$parent.$parent.$refs.footBarRef &&
-                this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
-                this.$parent.$parent.$refs.footBarRef.footNavBarClick({
-                  id: 4,
-                  name: "商品菜单",
-                  routeName: "myOrder"
-                });
+              this.$parent.$parent.$refs.footBarRef.footNavBarClick &&
+              this.$parent.$parent.$refs.footBarRef.footNavBarClick({
+                id: 4,
+                name: "商品菜单",
+                routeName: "myOrder"
+              });
             } else if (downKeyCode[0] == 0 && downKeyCode[1] == 13) {
               // enter  // 确认点单数量
               e.preventDefault()
               if (this.drawer.showDrawer) {
                 this.$refs.mealDrawerRef.$refs.singleProductRef &&
-                  this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit &&
-                  this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit()
+                this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit &&
+                this.$refs.mealDrawerRef.$refs.singleProductRef.onSubmit()
               }
 
             }
@@ -1084,7 +1084,7 @@ export default {
     checkOverflow() {
       const el = this.$el.querySelector('.author');
       console.log('checkoverflow', el.scrollWidth, el.clientWidth)
-      
+
       let fontSize = 16
       while (164 < el.innerText.length * fontSize) {
         fontSize = fontSize * 0.9
@@ -1093,15 +1093,15 @@ export default {
     },
     handleProductsList() {
       const { keyWord } = this.search;
-      
+
       // 先按搜索条件过滤
-      let filteredList = keyWord === "" 
-        ? this.currentCategoryProductList
-        : this.allProductsList;
-        
+      let filteredList = keyWord === ""
+          ? this.currentCategoryProductList
+          : this.allProductsList;
+
       filteredList = filteredList.filter(
-        el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) || 
-             el.name.toLowerCase().includes(keyWord.toLowerCase())
+          el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) ||
+              el.name.toLowerCase().includes(keyWord.toLowerCase())
       );
 
       // 安全模式过滤
@@ -1128,7 +1128,41 @@ export default {
           return [this.redeem].includes(item.prdType*1)
         });
       }
+      this.pic_prefix_url = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo[0].pic_prefix_url;
+      let showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt.find((item) => item.id == 8);
+      this.pic_show = showAmt && showAmt.param1 === '1';
+      // 获取当前估清商品的数量
+      const outSomethingPrdList = this.$store.state.cardPageInfo.resResultDataObj[
+          "prdOutOfSomething"
+          ].filter(item => item.status == 1)
 
+      /*  根据card.js secondCategoryInfo 3) 商品二级分类 id,name,status,dsp,oneCateId,enable_time_limit,begin_time,end_time,begin_time2,end_time2
+         商品二级分类Id,分类名称,分类状态:1有效 2无效 3 删除, 分类显示顺序, 二级分类所属一级分类Id,开启时间段限制 1 开启 2 未开启,时间段1开始时间格式hh24:mi,时间段1结束时间,时间段2开始时间,时间段2结束时间
+         里的 enable_time_limit,begin_time,end_time,begin_time2,end_time2，判断当前商品是否在时间段内
+         如果二级分类下没有商品，隐藏二级分类，如果一级分类下没有商品隐藏一级分类
+         */
+      const secondCategoryInfo = this.$store.state.cardPageInfo.resResultDataObj.secondCategoryInfo
+      const nowTime = new Date().getTime()
+      this.productsList = this.productsList.filter(item => {
+        const find = secondCategoryInfo.find(el => el.id == item.twoCateId)
+        if (find && find.enable_time_limit == 1) {
+          const beginTime = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time).getTime()
+          const endTime = new Date(new Date().toLocaleDateString() + ' ' + find.end_time).getTime()
+          const beginTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.begin_time2).getTime()
+          const endTime2 = new Date(new Date().toLocaleDateString() + ' ' + find.end_time2).getTime()
+          if (nowTime < beginTime || nowTime > endTime) {
+            if (nowTime < beginTime2 || nowTime > endTime2) {
+              return false
+            }
+          }
+        }
+        return true
+      })
+
+      this.productsList.forEach(el => {
+        const find = outSomethingPrdList.find(item => item.id == el.id)
+        el.outSomethingCount = find ? find.cnt : 'many'
+      })
       // 获取当前估清商品的数量并处理
       this.getGroupOutSomethingCount();
     },
@@ -1185,7 +1219,7 @@ export default {
       default: []
     },
     redeem: {
-      default: 0 // 12:抖音 ,22：美团,32：推广 
+      default: 0 // 12:抖音 ,22：美团,32：推广
     },
     step :{
       default: 0 //step 3 线下核销， 1 扫码核销 ， 2输入券码核销
@@ -1226,12 +1260,12 @@ export default {
     },
     maskedPhone() {
       if (this.formguest.phone && this.formguest.phone.length === 11) {
-      // 只对11位中国手机号掩码
+        // 只对11位中国手机号掩码
         return (
-          this.formguest.phone.slice(0, 3) +
-          '****' +
-          this.formguest.phone.slice(7)
-          );
+            this.formguest.phone.slice(0, 3) +
+            '****' +
+            this.formguest.phone.slice(7)
+        );
       }
       return this.formguest.phone; // 如果手机号不符合条件，直接返回
     },
@@ -1264,8 +1298,8 @@ export default {
     },
     currentCategoryProductList(newVal) {
       this.search.keyWord = firstLoad
-        ? this.$route.query.mustPrdName || ""
-        : "";
+          ? this.$route.query.mustPrdName || ""
+          : "";
       this.productsListTotal = newVal;
       this.getPageData();
       firstLoad = false;
@@ -1292,7 +1326,7 @@ export default {
       },
       immediate: true
     },
-    
+
     // 如果有 allProductsList prop，也需要监听它
     allProductsList: {
       handler(newVal) {
