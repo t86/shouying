@@ -11,6 +11,12 @@
       <div class="session p-5 erp-lib-detail fs14">
         <div class="discount-form">
           <el-form>
+
+            <el-form-item label="当台必点商品下单后才可优惠：">
+                <el-radio v-model="must_order_bef_yh" :label="2">否</el-radio>
+                <el-radio v-model="must_order_bef_yh" :label="1">是</el-radio>
+            </el-form-item>
+
             <el-form-item label="主营点单达当前台低消才可优惠：">
                 <el-radio v-model="zyorder_over_seat_min_csm" :label="2">否</el-radio>
                 <el-radio v-model="zyorder_over_seat_min_csm" :label="1">是</el-radio>
@@ -193,6 +199,7 @@ import fullPageTable from "./components/fullPageTable"; // 转台
 export default {
   data() {
     return {
+      must_order_bef_yh: 2,
       zyorder_over_seat_min_csm : 2,
       zyorder_free_percent: 0,
       checkAll: false,
@@ -224,6 +231,7 @@ export default {
         if (res.code == 1) {
           this.zyorder_over_seat_min_csm = res.data.zyorder_over_seat_min_csm
           this.zyorder_free_percent = res.data.zyorder_free_percent
+          this.must_order_bef_yh = res.data.must_order_bef_yh
           this.tableData = (res.data.free_limits || []).map(item => ({
             ...item,
             checked: item.st == 1
@@ -288,6 +296,7 @@ export default {
         if (this.type === 1) {
           params.zyorder_over_seat_min_csm  = this.zyorder_over_seat_min_csm * 1
           params.zyorder_free_percent  = this.zyorder_free_percent * 1
+          params.must_order_bef_yh = this.must_order_bef_yh * 1
           params.sales_addition_seats = this.choosedCardInfo.map(item => item.id * 1)
           res = await this.$api.BMS.station.reqSetGiveCateConfig(params)
         } else {

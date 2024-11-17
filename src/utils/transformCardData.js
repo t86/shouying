@@ -631,6 +631,16 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           param1: el[1], //param1=1的时候代表开启了极简模式(否则就是正常模式)
         })
       })
+      case 55: // 岗位优惠开关
+        arr.forEach(el => {
+          resultArr.push({
+            station_id: el[0], // 岗位id
+            zyorder_over_seat_min_csm: el[1], //主营点单达到当前卡台抵消才可优惠 1 是 2 否
+            zyorder_free_percent: el[2],//优惠比例限制,0不限,其他百分比
+            must_order_bef_yh: el[3], // 当台必点商品下单后才可优惠 1 是 2 否
+            status: el[4], // 状态 1 有效 1 有效 其他无效
+          })
+        })
   }
   return resultArr
 }

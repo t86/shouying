@@ -25,7 +25,7 @@ let keys = {
   44: ["prd_id", "seat_id"],
   48: ["queue_type_id", "queue_no"],
   50: ["station_id", "seat_id"],
-  52: ["tpl_id", "seq_id"]
+  52: ["tpl_id", "seq_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {
@@ -484,6 +484,8 @@ export default class WebSocketClient {
                   return ele.seat_id == el.seat_id;
                 } else if(Number(key) == 53){
                   return ele.rule_id == el.rule_id;
+                } else if(Number(key) == 55){
+                  return ele.station_id == el.station_id;
                 } else {
                   return ele.id == el.id;
                 }
