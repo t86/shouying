@@ -84,7 +84,7 @@ export const resResultDataArr = [
   'taocanTemplate', // 52-套餐模版配置定义
   'vipSettleRule', // 53-会员结算规则
   'safeMode', // 54-安全模式
-  'PositionYH', // 55-岗位优惠开关
+  'positionYH', // 55-岗位优惠开关
 ]
 
 // 图例列表
