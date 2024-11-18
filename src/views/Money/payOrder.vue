@@ -417,7 +417,7 @@
           :value="selFwyName"
           placeholder="请选择服务员"
           :optionsList="empList"
-          @selectInputHandle="(val) => inputSealName(val, true)"
+          @selectInputHandle="inputSealName"
           @selectOptionItem="changeSealName"
           @selectBlurHandle="selectBlurHandle"
         ></input-select>
