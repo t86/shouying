@@ -36,6 +36,7 @@
         this.selectOptionTop = this.$refs.selectOption.children[0].offsetHeight;
       },
       inputHandle(value) {
+        console.log("input handle ...")
         if(this.showKeyBoard) {
           setTimeout(()=> {
             this.keyboardShow()

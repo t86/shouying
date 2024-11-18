@@ -1592,6 +1592,11 @@ export default {
           case 10: // 取消优惠
             this.formData.reason = "";
             break;
+          case 11:
+            setTimeout(() => {
+              this.keyboardShow()
+            }, 100)
+            break;
         }
       } else {
         window.stopLoopReadCard()
