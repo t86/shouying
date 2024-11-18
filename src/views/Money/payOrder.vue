@@ -411,7 +411,7 @@
     <el-dialog title="修改服务员" width="50%"  :style="{ height: '500px' }" :visible="showChangeFwy" append-to-body @close="closeChangeFwy">
       <div>
         <input-select
-          :showKeyboard="false"
+          :showKeyboard="true"
           :autoFocus="true"
           style="width: 60%"
           :value="selFwyName"
