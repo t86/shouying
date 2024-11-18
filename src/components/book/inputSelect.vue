@@ -35,7 +35,12 @@
         this.selectOptionWidth = this.$refs.selectOption.children[0].offsetWidth;
         this.selectOptionTop = this.$refs.selectOption.children[0].offsetHeight;
       },
-      inputHandle(value) {
+      inputHandle(value,showKeyBoard) {
+        if(showKeyBoard) {
+          setTimeout(()=> {
+            this.keyboardShow()
+          }, 100)
+        }
         this.$emit("selectInputHandle", value);
       },
       clickOption(info) {
@@ -43,6 +48,30 @@
       },
       inputBlurHandle() {
         this.$emit("selectBlurHandle");
+        this.keyboardLeave();
+      },
+      keyboardShow() {
+        if (
+          window.atool
+          && window.atool.getTermType() == "android" &&
+          ("showSoftInput" in window.atool)
+        ) {
+          atool.showSoftInput();
+          atool.executeJs(`this.$refs.selectInput.focus()`)
+        }
+      },
+      keyboardLeave() {
+        setTimeout(() => {
+          if (
+            window.atool
+            && window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)
+          ) {
+            atool.executeJs(`this.$refs.selectInput.blur()`);
+            atool.hideSoftInput();
+            atool.restart();
+          }
+        }, 10)
       },
       keyHandle(e){
         if(this.optionsList.length > 0){

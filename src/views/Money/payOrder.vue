@@ -416,7 +416,7 @@
           :value="selFwyName"
           placeholder="请选择服务员"
           :optionsList="empList"
-          @selectInputHandle="inputSealName"
+          @selectInputHandle="(val) => inputSealName(val, true)"
           @selectOptionItem="changeSealName"
           @selectBlurHandle="selectBlurHandle"
         ></input-select>
@@ -551,7 +551,6 @@ export default {
     },
     selectBlurHandle() {
       this.empList = [];
-      this.keyboardLeave()
     },
     maskedPhone(phone) {
       if (phone && phone === 11) {
@@ -580,9 +579,6 @@ export default {
           )
         : sealInfoArr;
       this.empList = results;
-      setTimeout(() => {
-          this.keyboardShow()
-      }, 100)
     },
     // 选择服务员信息
     changeSealName(info) {
@@ -591,29 +587,29 @@ export default {
       this.selFwy = info.id;
       this.empList = [];
     },
-    keyboardShow() {
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-        ("showSoftInput" in window.atool)
-      ) {
-        atool.showSoftInput();
-        atool.executeJs(`this.$refs.selectInput.focus()`)
-      }
-    },
-    keyboardLeave() {
-      setTimeout(() => {
-        if (
-          window.atool
-          && window.atool.getTermType() == "android" &&
-          ("hideSoftInput" in window.atool)
-        ) {
-          atool.executeJs(`this.$refs.waiter.blur()`);
-          atool.hideSoftInput();
-          atool.restart();
-        }
-      }, 10)
-    },
+    // keyboardShow() {
+    //   if (
+    //     window.atool
+    //     && window.atool.getTermType() == "android" &&
+    //     ("showSoftInput" in window.atool)
+    //   ) {
+    //     atool.showSoftInput();
+    //     atool.executeJs(`this.$refs.selectInput.focus()`)
+    //   }
+    // },
+    // keyboardLeave() {
+    //   setTimeout(() => {
+    //     if (
+    //       window.atool
+    //       && window.atool.getTermType() == "android" &&
+    //       ("hideSoftInput" in window.atool)
+    //     ) {
+    //       atool.executeJs(`this.$refs.selectInput.blur()`);
+    //       atool.hideSoftInput();
+    //       atool.restart();
+    //     }
+    //   }, 10)
+    // },
     closeChangeFwy() {
       this.showChangeFwy = false;
     },
