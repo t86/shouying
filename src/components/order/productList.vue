@@ -761,6 +761,7 @@ export default {
       if(this.mustOrderProducts && this.mustOrderProducts.length > 0) {
         this.productsListTotal = this.mustOrderProducts;
         this.productsList = this.productsListTotal || [];
+        console.log('this.productsList:========1111.', this.productsList)
         this.productsList = this.productsList.map(it => {
           const prdInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo.find(
               item => it.id * 1 == item.id * 1
@@ -770,6 +771,7 @@ export default {
           }
           return it;
         });
+        console.log('this.productsList:========222.', this.productsList)
       } else {
         // 使用新的 handleProductsList 方法处理商品列表
         this.handleProductsList();
@@ -1099,6 +1101,10 @@ export default {
           ? this.currentCategoryProductList
           : this.allProductsList;
 
+      if(this.mustOrderProducts && this.mustOrderProducts.length > 0) {
+        filteredList = this.mustOrderProducts
+      }
+
       filteredList = filteredList.filter(
           el => el.namePy.toLowerCase().includes(keyWord.toLowerCase()) ||
               el.name.toLowerCase().includes(keyWord.toLowerCase())
@@ -1187,7 +1193,6 @@ export default {
     this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
     const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
     let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
-    console.log('-'.repeat(30), currentBusiness)
     this.empId = currentBusiness.waiter_emp_id
     this.formguest.phone = currentBusiness.csm_cust_phone
     this.formguest.name = currentBusiness.csm_cust_name || this.maskedPhone
@@ -1297,6 +1302,7 @@ export default {
       this.formguest = {...this.formguest}
     },
     currentCategoryProductList(newVal) {
+      console.log('？？？？？？？？？？？？.', newVal, this.search.keyWord, firstLoad)
       this.search.keyWord = firstLoad
           ? this.$route.query.mustPrdName || ""
           : "";
