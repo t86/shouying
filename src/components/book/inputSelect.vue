@@ -94,6 +94,10 @@
         type: Boolean,
         default: false,
       },
+      customRef: {
+        type: String,
+        default: ""
+      }
     },
     watch: {
       value(val) {

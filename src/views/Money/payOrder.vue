@@ -412,7 +412,6 @@
       <div>
         <input-select
           :autoFocus="true"
-          ref="waiter"
           style="width: 60%"
           :value="selFwyName"
           placeholder="请选择服务员"
@@ -599,7 +598,7 @@ export default {
         ("showSoftInput" in window.atool)
       ) {
         atool.showSoftInput();
-        atool.executeJs(`this.$refs.waiter.focus()`)
+        atool.executeJs(`this.$refs.selectInput.focus()`)
       }
     },
     keyboardLeave() {
