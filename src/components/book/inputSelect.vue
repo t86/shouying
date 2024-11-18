@@ -35,8 +35,8 @@
         this.selectOptionWidth = this.$refs.selectOption.children[0].offsetWidth;
         this.selectOptionTop = this.$refs.selectOption.children[0].offsetHeight;
       },
-      inputHandle(value,showKeyBoard) {
-        if(showKeyBoard) {
+      inputHandle(value) {
+        if(this.showKeyBoard) {
           setTimeout(()=> {
             this.keyboardShow()
           }, 100)
@@ -48,7 +48,9 @@
       },
       inputBlurHandle() {
         this.$emit("selectBlurHandle");
-        this.keyboardLeave();
+        if(this.showKeyBoard) {
+          this.keyboardLeave();
+        }
       },
       keyboardShow() {
         if (
@@ -123,9 +125,9 @@
         type: Boolean,
         default: false,
       },
-      customRef: {
-        type: String,
-        default: ""
+      showKeyBoard: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {
