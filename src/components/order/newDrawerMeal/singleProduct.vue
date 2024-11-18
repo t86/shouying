@@ -549,17 +549,17 @@ export default {
 
     modalSubmitHandle() {
 
-      if (this.modelValue * 1 === 2) {
-        const station_id = this.$store.state.userInfo.station_id || "";
-        const positionYH = this.$store.state.cardPageInfo.resResultDataObj.positionYH.find(item => item.station_id * 1 === station_id * 1) || {}
+      // if (this.modelValue * 1 === 2) {
+      //   const station_id = this.$store.state.userInfo.station_id || "";
+      //   const positionYH = this.$store.state.cardPageInfo.resResultDataObj.positionYH.find(item => item.station_id * 1 === station_id * 1) || {}
 
-        if (positionYH.must_order_bef_yh * 1 === 1) {
-          //todo : 查看是否有必点
-          if (false) {
-            return this.$message.warning("当台必点商品下单后才可优惠");
-          }
-        }
-      }
+      //   if (positionYH.must_order_bef_yh * 1 === 1) {
+      //     //todo : 查看是否有必点
+      //     if (false) {
+      //       return this.$message.warning("当台必点商品下单后才可优惠");
+      //     }
+      //   }
+      // }
 
       if (!this.modalRadio) return this.$message.warning("请选择");
       this.$emit("updateOrderMealStatus", this.modalRadio * 1);
