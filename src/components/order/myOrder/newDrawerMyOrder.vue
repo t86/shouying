@@ -331,7 +331,8 @@
           <div class="form">
             <el-form label-position="right" :model="formData" @submit.native.prevent label-width="150px">
               <el-form-item label="原服务员:">
-                <span class="emp-name">{{this.$store.state.userInfo.name}}</span>
+                <!-- <span class="emp-name">{{this.$store.state.userInfo.name}}</span> -->
+                <span class="emp-name">{{ this.currentItemInfo.personInfo && this.currentItemInfo.personInfo.name }}</span>
               </el-form-item>
               <el-form-item label="绑定服务员:" required>
                 <el-input
