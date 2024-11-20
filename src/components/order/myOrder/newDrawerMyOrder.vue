@@ -331,7 +331,7 @@
           <div class="form">
             <el-form label-position="right" :model="formData" @submit.native.prevent label-width="150px">
               <el-form-item label="原服务员:">
-                {{this.$store.state.userInfo.name}}
+                <span class="emp-name">{{this.$store.state.userInfo.name}}</span>
               </el-form-item>
               <el-form-item label="绑定服务员:" required>
                 <el-input
@@ -340,12 +340,17 @@
                   ref="waiter"
                   @focus="handleFocus('waiter')"
                   @input="remoteMethod"
+                  class="waiter-input"
                 ></el-input>
-                <div v-for="item in waiters" :key="item.id">
-                  <el-checkbox
-                    v-model="item.checked"
-                    @change="changeSelectWaiter(item)"
-                  >{{ item.code + '  ' + item.name }}</el-checkbox>
+                <div class="waiter-list">
+                  <div v-for="item in waiters" :key="item.id" class="waiter-item">
+                    <el-checkbox
+                      v-model="item.checked"
+                      @change="changeSelectWaiter(item)"
+                    >
+                      <span class="waiter-info">{{ item.code + '  ' + item.name }}</span>
+                    </el-checkbox>
+                  </div>
                 </div>
               </el-form-item>
             </el-form>
@@ -500,6 +505,8 @@ export default {
       // 显示键盘
       if(refString === 'waiter') {
         this.showKeyboard = true
+        this.selectedWaiter.name = ''
+        this.empName = ''
       }
     },
     keyboardShow(refString){
@@ -981,7 +988,7 @@ export default {
             }
           break;
         case 2: // 优惠
-        case 3: // ��用
+        case 3: // 用
           if (this.subStatus == 1) return this.goAuthorization();
 
           authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
@@ -1054,7 +1061,7 @@ export default {
                 order_dtl_id: this.updateDetail.groupList[this.updateDetail.detailIndex].list[0].id, // int64 OrderDtlId 被替换子订单项的Id
                 dest_dtl_prd_ids: selectedProductsArr.map(
                   el => el.dtlPrdId * 1
-                ), // []int64    套餐组Id对应的替换目标商品列表
+                ), // []int64    套餐组Id对应的替���目标商品列表
                 dest_dtl_prd_sel_cnts: selectedProductsArr.map(
                   el => el.selectedCount * 1
                 ), // []int    对应上面dest_dtl_prd_ids的选中数
@@ -1243,6 +1250,7 @@ export default {
             this.$message.error("订单修改服务员成功");
           }
           this.onCancelDrawer(true);
+          this.showKeyboard = false
           break;
       }
     },
@@ -1509,7 +1517,7 @@ export default {
         }
 
         switch (this.status) {
-          case 1: // 退��
+          case 1: // 退
             if (this.$store.state.userInfo.authStatus == 4) {
               // 收银系统收银人
               // 特饮、花篮退单可选择数量，需要手动填写退款金额
@@ -1657,4 +1665,46 @@ export default {
 <style scoped lang="less">
 @import "../../../style/common/newElementDrawer.less";
 @import "../../../style/order/orderMeal/myOrder/newDrawerMyOrder.less";
+</style>
+
+<style scoped>
+/* 添加新样式 */
+.emp-name {
+  font-size: 16px;
+}
+
+.waiter-input {
+  width: 300px;
+}
+
+.waiter-input >>> .el-input__inner {
+  font-size: 16px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.waiter-list {
+  margin-top: 10px;
+}
+
+.waiter-item {
+  margin-bottom: 12px;
+}
+
+.waiter-item >>> .el-checkbox {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.waiter-item >>> .el-checkbox__input {
+  transform: scale(1.2);
+}
+
+.waiter-info {
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+/* 其他现有样式保持不变 */
 </style>

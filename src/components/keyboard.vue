@@ -3,7 +3,9 @@
         ref="keyboard">
         <div class="keyboard-header" @mousedown="startDrag">
             <span>键盘</span>
-            <i class="el-icon-close" @click="$emit('close')"></i>
+            <div class="header-btns">
+                <i class="el-icon-close" @click="$emit('close')"></i>
+            </div>
         </div>
 
         <div class="keyboard-content">
@@ -37,6 +39,7 @@
             <div class="keyboard-row">
                 <div class="key function-key" @click="emitKey('backspace')">回退</div>
                 <div class="key function-key" @click="emitKey('clear')">清空</div>
+                <div class="key function-key" @click="$emit('close')">确定</div>
             </div>
         </div>
     </div>
@@ -48,8 +51,8 @@ export default {
     data() {
         return {
             position: {
-                x: 100,
-                y: 100
+                x: 0,
+                y: 0
             },
             isDragging: false,
             dragOffset: {
@@ -87,7 +90,26 @@ export default {
             this.isDragging = false
             document.removeEventListener('mousemove', this.onDrag)
             document.removeEventListener('mouseup', this.stopDrag)
+        },
+
+        centerKeyboard() {
+            const keyboard = this.$refs.keyboard
+            if(keyboard) {
+                const windowWidth = window.innerWidth
+                const windowHeight = window.innerHeight
+                const keyboardWidth = keyboard.offsetWidth
+                const keyboardHeight = keyboard.offsetHeight
+
+                this.position = {
+                    x: (windowWidth - keyboardWidth) / 2,
+                    y: (windowHeight - keyboardHeight) / 2
+                }
+            }
         }
+    },
+
+    mounted() {
+        this.centerKeyboard()
     },
 
     beforeDestroy() {
@@ -100,7 +122,7 @@ export default {
 <style scoped>
 .keyboard {
     position: fixed;
-    width: 500px;
+    width: 700px;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -110,29 +132,36 @@ export default {
 }
 
 .keyboard-header {
-    padding: 8px 12px;
+    padding: 12px 16px;
     background: #f5f5f5;
     border-bottom: 1px solid #ddd;
     cursor: move;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 16px;
+}
+
+.header-btns {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .keyboard-content {
-    padding: 12px;
+    padding: 16px;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .key {
-    width: 40px;
-    height: 40px;
-    margin: 0 4px;
+    width: 56px;
+    height: 56px;
+    margin: 0 6px;
     border: 1px solid #ddd;
     border-radius: 4px;
     display: flex;
@@ -141,6 +170,7 @@ export default {
     cursor: pointer;
     background: #fff;
     transition: all 0.2s;
+    font-size: 18px;
 }
 
 .key:hover {
@@ -153,12 +183,15 @@ export default {
 }
 
 .function-key {
-    width: 80px;
+    width: 100px;
+    font-size: 16px;
+    margin: 0 8px;
 }
 
 .el-icon-close {
     cursor: pointer;
     padding: 4px;
+    font-size: 20px;
 }
 
 .el-icon-close:hover {
