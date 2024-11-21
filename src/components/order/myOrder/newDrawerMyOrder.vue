@@ -504,11 +504,14 @@ export default {
       //   }, 100)
       // }
       // 显示键盘
-      if(refString === 'waiter') {
+      // if(refString === 'waiter') {
+      //   this.showKeyboard = true
+      //   this.selectedWaiter.name = ''
+      //   this.empName = ''
+      // }
         this.showKeyboard = true
         this.selectedWaiter.name = ''
         this.empName = ''
-      }
     },
     keyboardShow(refString){
       // if (
@@ -1650,9 +1653,9 @@ export default {
             this.formData.reason = "";
             break;
           case 11:
-            setTimeout(() => {
-              this.keyboardShow()
-            }, 100)
+            this.showKeyboard = true
+            this.selectedWaiter.name = ''
+            this.empName = ''
             break;
         }
       } else {
