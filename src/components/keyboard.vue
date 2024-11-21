@@ -1,11 +1,13 @@
 <template>
-    <div class="keyboard" :style="{ left: position.x + 'px', top: position.y + 'px' }" @mousedown="startDrag"
+    <div class="keyboard" :style="{ left: position.x + 'px', top: position.y + 'px' }" 
+        @mousedown="startDrag"
+        @touchstart="startDrag"
         ref="keyboard">
-        <div class="keyboard-header" @mousedown="startDrag">
+        <div class="keyboard-header" 
+            @mousedown="startDrag"
+            @touchstart="startDrag">
             <span>键盘</span>
-            <div class="header-btns">
-                <i class="el-icon-close" @click="$emit('close')"></i>
-            </div>
+            <i class="el-icon-close" @click="$emit('close')" style="font-size: 24px;"></i>
         </div>
 
         <div class="keyboard-content">
@@ -68,28 +70,59 @@ export default {
 
         startDrag(e) {
             this.isDragging = true
+            
+            // 处理触摸事件
+            if(e.type === 'touchstart') {
+                e.preventDefault() // 阻止默认行为
+                e = e.touches[0] // 获取第一个触摸点
+            }
+
             this.dragOffset = {
                 x: e.clientX - this.position.x,
                 y: e.clientY - this.position.y
             }
 
+            // 同时监听鼠标和触摸事件
             document.addEventListener('mousemove', this.onDrag)
+            document.addEventListener('touchmove', this.onDrag, { passive: false })
             document.addEventListener('mouseup', this.stopDrag)
+            document.addEventListener('touchend', this.stopDrag)
         },
 
         onDrag(e) {
             if (!this.isDragging) return
 
+            // 处理触摸事件
+            if(e.type === 'touchmove') {
+                e.preventDefault() // 阻止默认行为
+                e = e.touches[0] // 获取第一个触摸点
+            }
+
+            // 计算新位置
+            let newX = e.clientX - this.dragOffset.x
+            let newY = e.clientY - this.dragOffset.y
+
+            // 防止拖出屏幕
+            const keyboard = this.$refs.keyboard
+            const maxX = window.innerWidth - keyboard.offsetWidth
+            const maxY = window.innerHeight - keyboard.offsetHeight
+
+            newX = Math.max(0, Math.min(newX, maxX))
+            newY = Math.max(0, Math.min(newY, maxY))
+
             this.position = {
-                x: e.clientX - this.dragOffset.x,
-                y: e.clientY - this.dragOffset.y
+                x: newX,
+                y: newY
             }
         },
 
         stopDrag() {
             this.isDragging = false
+            // 移除所有事件监听
             document.removeEventListener('mousemove', this.onDrag)
+            document.removeEventListener('touchmove', this.onDrag)
             document.removeEventListener('mouseup', this.stopDrag)
+            document.removeEventListener('touchend', this.stopDrag)
         },
 
         centerKeyboard() {
@@ -113,8 +146,11 @@ export default {
     },
 
     beforeDestroy() {
+        // 确保移除所有事件监听
         document.removeEventListener('mousemove', this.onDrag)
+        document.removeEventListener('touchmove', this.onDrag)
         document.removeEventListener('mouseup', this.stopDrag)
+        document.removeEventListener('touchend', this.stopDrag)
     }
 }
 </script>
@@ -122,7 +158,7 @@ export default {
 <style scoped>
 .keyboard {
     position: fixed;
-    width: 700px;
+    width: 460px;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -132,7 +168,7 @@ export default {
 }
 
 .keyboard-header {
-    padding: 12px 16px;
+    padding: 10px 16px;
     background: #f5f5f5;
     border-bottom: 1px solid #ddd;
     cursor: move;
@@ -142,26 +178,20 @@ export default {
     font-size: 16px;
 }
 
-.header-btns {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .keyboard-content {
-    padding: 16px;
+    padding: 10px;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .key {
-    width: 56px;
-    height: 56px;
-    margin: 0 6px;
+    width: 36px;
+    height: 36px;
+    margin: 0 3px;
     border: 1px solid #ddd;
     border-radius: 4px;
     display: flex;
@@ -170,7 +200,7 @@ export default {
     cursor: pointer;
     background: #fff;
     transition: all 0.2s;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .key:hover {
@@ -183,15 +213,15 @@ export default {
 }
 
 .function-key {
-    width: 100px;
-    font-size: 16px;
-    margin: 0 8px;
+    width: 65px;
+    font-size: 14px;
+    margin: 0 4px;
 }
 
 .el-icon-close {
     cursor: pointer;
-    padding: 4px;
-    font-size: 20px;
+    padding: 8px;
+    font-size: 24px;
 }
 
 .el-icon-close:hover {

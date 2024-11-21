@@ -1660,6 +1660,7 @@ export default {
         }
       } else {
         window.stopLoopReadCard()
+        this.showKeyboard = false
       }
     }
   }
