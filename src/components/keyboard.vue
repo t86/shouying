@@ -7,41 +7,41 @@
             @mousedown="startDrag"
             @touchstart="startDrag">
             <span>键盘</span>
-            <i class="el-icon-close" @click="$emit('close')" style="font-size: 24px;"></i>
+            <i class="el-icon-close" @click="handleClick('close')" @touchstart.prevent="handleClick('close')" style="font-size: 24px;"></i>
         </div>
 
         <div class="keyboard-content">
             <!-- 数字键 -->
             <div class="keyboard-row">
-                <div class="key" v-for="n in 10" :key="n - 1" @click="emitKey(n - 1)">{{ n - 1 }}</div>
+                <div class="key" v-for="n in 10" :key="n - 1" @click="handleClick('key', n - 1)" @touchstart.prevent="handleClick('key', n - 1)">{{ n - 1 }}</div>
             </div>
 
             <!-- 字母键第一行 -->
             <div class="keyboard-row">
-                <div class="key" v-for="letter in 'qwertyuiop'" :key="letter" @click="emitKey(letter)">
+                <div class="key" v-for="letter in 'qwertyuiop'" :key="letter" @click="handleClick('key', letter)" @touchstart.prevent="handleClick('key', letter)">
                     {{ letter }}
                 </div>
             </div>
 
             <!-- 字母键第二行 -->
             <div class="keyboard-row">
-                <div class="key" v-for="letter in 'asdfghjkl'" :key="letter" @click="emitKey(letter)">
+                <div class="key" v-for="letter in 'asdfghjkl'" :key="letter" @click="handleClick('key', letter)" @touchstart.prevent="handleClick('key', letter)">
                     {{ letter }}
                 </div>
             </div>
 
             <!-- 字母键第三行 -->
             <div class="keyboard-row">
-                <div class="key" v-for="letter in 'zxcvbnm'" :key="letter" @click="emitKey(letter)">
+                <div class="key" v-for="letter in 'zxcvbnm'" :key="letter" @click="handleClick('key', letter)" @touchstart.prevent="handleClick('key', letter)">
                     {{ letter }}
                 </div>
             </div>
 
             <!-- 功能键 -->
             <div class="keyboard-row">
-                <div class="key function-key" @click="emitKey('backspace')">回退</div>
-                <div class="key function-key" @click="emitKey('clear')">清空</div>
-                <div class="key function-key" @click="$emit('close')">确定</div>
+                <div class="key function-key" @click="handleClick('key', 'backspace')" @touchstart.prevent="handleClick('key', 'backspace')">回退</div>
+                <div class="key function-key" @click="handleClick('key', 'clear')" @touchstart.prevent="handleClick('key', 'clear')">清空</div>
+                <div class="key function-key" @click="handleClick('close')" @touchstart.prevent="handleClick('close')">确定</div>
             </div>
         </div>
     </div>
@@ -64,6 +64,14 @@ export default {
         }
     },
     methods: {
+        handleClick(type, value) {
+            if(type === 'key') {
+                this.emitKey(value)
+            } else if(type === 'close') {
+                this.$emit('close')
+            }
+        },
+
         emitKey(key) {
             this.$emit('key-press', key)
         },
@@ -165,6 +173,7 @@ export default {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     user-select: none;
     z-index: 9999;
+    touch-action: none; /* 防止触摸事件引起页面滚动 */
 }
 
 .keyboard-header {
@@ -201,6 +210,8 @@ export default {
     background: #fff;
     transition: all 0.2s;
     font-size: 16px;
+    -webkit-tap-highlight-color: transparent; /* 去除点击高亮 */
+    touch-action: manipulation; /* 优化触摸操作 */
 }
 
 .key:hover {
