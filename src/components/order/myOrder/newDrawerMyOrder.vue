@@ -511,28 +511,28 @@ export default {
       }
     },
     keyboardShow(refString){
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
-          }
+      // if (
+      //   window.atool
+      //   && window.atool.getTermType() == "android" &&
+      //       ("showSoftInput" in window.atool)
+      //     ) {
+      //       atool.showSoftInput();
+      //       atool.executeJs(`this.$refs.${refString}.focus()`)
+      //     }
     },
     keyboardLeave(refString) {
-      setTimeout(() => {
-        if (
-          window.atool
-          && window.atool.getTermType() == "android" &&
-          ("hideSoftInput" in window.atool)
-        ) {
-          atool.executeJs(`this.$refs.${refString}.blur()`);
-          atool.hideSoftInput();
-          atool.restart();
+      // setTimeout(() => {
+      //   if (
+      //     window.atool
+      //     && window.atool.getTermType() == "android" &&
+      //     ("hideSoftInput" in window.atool)
+      //   ) {
+      //     atool.executeJs(`this.$refs.${refString}.blur()`);
+      //     atool.hideSoftInput();
+      //     atool.restart();
 
-        }
-      }, 10)
+      //   }
+      // }, 10)
     },
     remoteMethod(query) {
       this.loading = true
