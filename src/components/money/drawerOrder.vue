@@ -27,7 +27,23 @@
               </el-option>
             </el-select>
           </div>
-
+          <div class="row">
+            <span class="label">是否自助:</span>
+            <el-select
+                v-model="form.autoType"
+                size="small"
+                placeholder="请选择是否自助"
+                style="width: 200px"
+            >
+              <el-option
+                  v-for="item in AutoTypes"
+                  :key="item.id"
+                  :label="item.n"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
           <div class="row">
             <span class="label">支付方式:</span>
             <el-select
@@ -100,6 +116,7 @@
               <div class="th">点单时间</div>
               <div class="th">点单部门</div>
               <div class="th">点单人</div>
+              <div class="th">自助</div>
               <div class="th">商品一级分类</div>
               <div class="th">商品二级分类</div>
               <div class="th">商品名称</div>
@@ -126,6 +143,7 @@
               <div class="td">{{ item.o }}</div>
               <div class="td">{{ item.od }}</div>
               <div class="td">{{ item.oe }}</div>
+              <div class="td">{{ item.ic }}</div>
               <div class="td">{{ item.po }}</div>
               <div class="td">{{ item.pt }}</div>
               <div class="td">{{ item.p }}</div>
@@ -169,11 +187,17 @@ export default {
         prodOptions: [],
         businessOptions: [],
         payMethod: 0,
+        autoType: 0,
       },
       payMethods: [
         {id:0,n:'全部'},
         {id:1,n:'线上支付'},
         {id:2,n:'线上客人自助'}
+      ],
+      AutoTypes: [
+        {id:0,n:'全部'},
+        {id:1,n:'是'},
+        {id:2,n:'否'},
       ],
       tableData: [],
     };
@@ -186,6 +210,7 @@ export default {
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
         pay_type: this.form.payMethod,
+        is_cust: this.form.autoType * 1
       };
       try {
         const res = await api_money.reqGetOrderDetailList(params);
@@ -208,6 +233,7 @@ export default {
         prd_type: this.form.prodType, // int 商品类型id
         biz_type: this.form.businessType, // int 营业类型id
         pay_type: this.form.payMethod,
+        is_cust: this.form.autoType * 1
       };
 
       try {
