@@ -151,19 +151,12 @@
         <div class="contact-info">
           <div class="contact-title">您可扫描以下二维码联系我们：咨询、合作、了解更多</div>
           <div class="contact-list">
-            <div class="contact-item">
+            <div class="contact-item" v-for="contact in randomContactList" :key="contact.name">
               <div class="contact-header">
-                <img class="avatar" :src="require('@/assets/img/avatar1.png')" alt="曾总" />
-                <span>曾总</span>
+                <img class="avatar" :src="contact.avatar" :alt="contact.name" />
+                <span>{{ contact.name }}</span>
               </div>
-              <img class="qr-code" :src="require('@/assets/img/qr1.png')" alt="二维码" />
-            </div>
-            <div class="contact-item">
-              <div class="contact-header">
-                <img class="avatar" :src="require('@/assets/img/avatar2.png')" alt="熊总" />
-                <span>熊总</span>
-              </div>
-              <img class="qr-code" :src="require('@/assets/img/qr2.png')" alt="二维码" />
+              <img class="qr-code" :src="contact.qrCode" :alt="contact.name + '的二维码'" />
             </div>
           </div>
         </div>
@@ -340,6 +333,18 @@ export default {
 
       showWarning: false,
       warningText: "",
+      contactList: [
+        {
+          name: '曾总',
+          avatar: require('@/assets/img/avatar1.png'),
+          qrCode: require('@/assets/img/qr1.png')
+        },
+        {
+          name: '熊总',
+          avatar: require('@/assets/img/avatar2.png'), 
+          qrCode: require('@/assets/img/qr2.png')
+        }
+      ]
     };
   },
   methods: {
@@ -620,6 +625,10 @@ export default {
       const av = localStorage.getItem("refreshAll");
       return pv + (av ? ` - ${av}` : "");
     },
+    // 随机排序后的联系人列表
+    randomContactList() {
+      return [...this.contactList].sort(() => Math.random() - 0.5)
+    }
   },
 
   beforeDestroy() {
