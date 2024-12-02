@@ -127,28 +127,40 @@ const router = new VueRouter({
   routes
 })
 
-// 添加路由性能监控函数
+// 修改路由性能监控函数
 function logRoutePerformance(from, to) {
-  // 获取路由跳转的性能数据
-  const navigation = performance.getEntriesByType('navigation')[0];
   const perfData = {
     from: from.path,
     to: to.path,
     // 路由跳转总时间
-    totalTime: performance.now(),
-    // 页面加载时间
-    loadTime: navigation.loadEventEnd - navigation.loadEventStart,
-    // DNS查询时间
-    dnsTime: navigation.domainLookupEnd - navigation.domainLookupStart,
-    // TCP连接时间
-    tcpTime: navigation.connectEnd - navigation.connectStart,
-    // 首字节时间
-    ttfbTime: navigation.responseStart - navigation.requestStart,
+    routeChangeTime: performance.now() - window.routeStartTime,
     timestamp: new Date().toISOString()
   };
+  const routeEndTime = performance.now();
+  const routeDuration = routeEndTime - window.routeStartTime;
+  console.log(`路由跳转耗时: ${routeDuration}ms`);
   
-  console.log('路由性能数据:', perfData);
-  // 这里可以将数据发送到后端或分析系统
+  // 记录路由变化到首次渲染的时间
+  const observer = new PerformanceObserver((list) => {
+    const entries = list.getEntries();
+    const lastPaint = entries[entries.length - 1];
+    
+    perfData.firstPaintTime = lastPaint.startTime;
+    perfData.firstPaintDuration = lastPaint.duration;
+    
+    console.log('完整的路由性能数据:', {
+      ...perfData,
+      totalTime: lastPaint.startTime + lastPaint.duration - window.routeStartTime,
+    });
+    
+    observer.disconnect();
+  });
+  
+  // 观察绘制性能
+  observer.observe({ entryTypes: ['paint'] });
+  
+  // 先输出路由切换的基础数据
+  console.log('路由切换基础数据:', perfData);
 }
 
 // 在router实例创建后添加导航守卫
@@ -158,15 +170,28 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
+// 修改 afterEach 钩子
 router.afterEach((to, from) => {
-  // 计算路由跳转耗时
-  const routeEndTime = performance.now();
-  const routeDuration = routeEndTime - window.routeStartTime;
-  
   // 记录性能数据
   logRoutePerformance(from, to);
   
-  console.log(`路由跳转耗时: ${routeDuration}ms`);
+  // 给目标组件添加渲染完成时间监控
+  const lastMatched = to.matched[to.matched.length - 1];
+  const targetComponent = lastMatched && lastMatched.components ? lastMatched.components.default : null;
+  
+  if (targetComponent) {
+    const originalMounted = targetComponent.mounted;
+    targetComponent.mounted = function() {
+      const mountedTime = performance.now();
+      const renderTime = mountedTime - window.routeStartTime;
+      console.log(`组件渲染完成时间: ${renderTime}ms`);
+      
+      // 调用原始的 mounted 钩子
+      if (originalMounted) {
+        originalMounted.call(this);
+      }
+    }
+  }
 });
 
 export default router

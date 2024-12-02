@@ -1602,6 +1602,20 @@ export default {
 
 
   async mounted() {
+
+        // 记录组件完全挂载的时间
+    const componentMountedTime = performance.now();
+    console.log(`OrderCard 组件完全挂载耗时: ${componentMountedTime - window.routeStartTime}ms`);
+    
+    // 使用 Performance Mark API 记录关键时间点
+    performance.mark('component-mounted');
+
+    performance.mark('component-rendered');
+    performance.measure('component-full-render', 'component-mounted', 'component-rendered');
+    
+    const renderMeasure = performance.getEntriesByName('component-full-render')[0];
+    console.log(`组件完整渲染周期: ${renderMeasure.duration}ms`);
+    
     // 初始化 safeModeEnabled
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
     this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
@@ -1754,6 +1768,10 @@ export default {
     window.removeEventListener("click", (e) => this.legendOptionHandle());
 
     window.onkeydown = null;
+
+        // 清理性能标记
+    performance.clearMarks();
+    performance.clearMeasures();
 
   },
   destroyed() {
