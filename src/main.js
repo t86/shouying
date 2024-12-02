@@ -4,7 +4,6 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./style/common/elementDateTimePicker.less";
 
-
 import { projectName } from "./utils/config/projectConfig";
 import VConsole from "vconsole";
 import { globalError } from "./utils/globalError";
@@ -32,6 +31,38 @@ import api from "./api"; // 导入api接口
 
 import overall from "./utils/overallMethod"; // 导入全局方法
 import tool from "./utils/tool"; // 导入全局方法
+import { debounce } from 'lodash'
+
+// 添加防抖指令
+Vue.directive('debounce', {
+  bind: (el, binding) => {
+    console.log('bind', el)
+    let debounceTime = binding.value || 300;
+    if (typeof binding.value === 'object') {
+      debounceTime = binding.value.time || 300;
+    }
+    let fn = null;
+    if (el.tagName.toLowerCase() === 'input') {
+      // 如果是输入框，对input事件进行防抖
+      fn = debounce((e) => {
+        el.dispatchEvent(new Event('change'));
+      }, debounceTime);
+      el.addEventListener('input', fn);
+    } else {
+      // 如果是其他元素，对click事件进行防抖
+      fn = debounce((e) => {
+        // 如果绑定了具体的函数，则调用该函数
+        if (typeof binding.value === 'object' && binding.value.fn) {
+          binding.value.fn(e);
+        } else {
+          // 否则触发click事件
+          el.click();
+        }
+      }, debounceTime);
+      el.addEventListener('click', fn);
+    }
+  }
+});
 
 // bms
 import areaMenu from "@/components/bms/cardConfig/areaNav/areaNav.vue";

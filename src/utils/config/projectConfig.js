@@ -7,8 +7,8 @@ export const projectConfig = {
     password: '666666',
 
     // 开发测试环境的hosts配置： 10.118.128.1      nls.server.com
-    development: 'http://nls-dev.xmsjznwl.com/server',
-    product: 'http://nls-dev.xmsjznwl.com/server',
+    development: 'https://nls-dev.xmsjznwl.com/server',
+    product: 'https://nls-dev.xmsjznwl.com/server',
     onlineBase:'https://ncrmyun-dev.xmsjznwl.com/server',
     wsDevelopment: 'ws://nls-dev.xmsjznwl.com/server',
     wsProduct: 'ws://nls-dev.xmsjznwl.com/server'
@@ -19,8 +19,8 @@ export const projectConfig = {
     password: '666666',
 
     // 开发测试环境的hosts配置： 10.118.128.1      nls.server.com
-    development: 'http://nls.server.com/server',
-    product: 'http://nls.server.com/server',
+    development: 'https://nls.server.com/server',
+    product: 'https://nls.server.com/server',
     onlineBase:'https://ncrmyun-dev.xmsjznwl.com/server',
     wsDevelopment: 'ws://nls.server.com/server',
     wsProduct: 'ws://nls.server.com/server'

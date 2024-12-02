@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
+            ]" :style="{'margin-left': itemMargin + 'px'}" v-debounce="{time: 300, fn: () => cardClickHandle(item)}" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -1022,6 +1022,7 @@ export default {
 
     // 点击卡台
     cardClickHandle(info) {
+      console.log('info', info)
       // 存酒模式
       if (this.typeModule == 2) return;
       // 点单模式

@@ -51,6 +51,7 @@
                 },
                 'bgc' + Number(item.bizStatus),
               ]"
+              v-debounce="1000"
               @click.stop="cardClickHandle(item)"
               @contextmenu.prevent.stop="rightClickHandle"
               :style="{
@@ -1003,6 +1004,7 @@ export default {
 
     // 点击卡台
     cardClickHandle (info) {
+      console.log('info', info)
       // 存酒模式
       if (this.typeModule == 2) return;
       // 点单模式
