@@ -10,8 +10,8 @@ export const projectConfig = {
     development: 'https://nls-dev.xmsjznwl.com/server',
     product: 'https://nls-dev.xmsjznwl.com/server',
     onlineBase:'https://ncrmyun-dev.xmsjznwl.com/server',
-    wsDevelopment: 'ws://nls-dev.xmsjznwl.com/server',
-    wsProduct: 'ws://nls-dev.xmsjznwl.com/server'
+    wsDevelopment: 'wss://nls-dev.xmsjznwl.com/server',
+    wsProduct: 'wss://nls-dev.xmsjznwl.com/server'
   },
   // 开发环境 本地访问
   'local': {
@@ -22,8 +22,8 @@ export const projectConfig = {
     development: 'https://nls.server.com/server',
     product: 'https://nls.server.com/server',
     onlineBase:'https://ncrmyun-dev.xmsjznwl.com/server',
-    wsDevelopment: 'ws://nls.server.com/server',
-    wsProduct: 'ws://nls.server.com/server'
+    wsDevelopment: 'wss://nls.server.com/server',
+    wsProduct: 'wss://nls.server.com/server'
   },
   // 门店生产环境
   'store': {

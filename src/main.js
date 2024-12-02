@@ -103,6 +103,11 @@ Vue.config.errorHandler = function (err, vm, info) {
   globalError.handleError(err);
 }
 
+// 初始化性能监控
+if (window.performance && window.performance.mark) {
+  window.performance.mark('app-init');
+}
+
 router.beforeEach((to, from, next) => {
   // store.dispatch('setLoading', true); 
   const authId = store.state.userInfo.emp_id;
@@ -169,5 +174,9 @@ Vue.prototype.$websocket = new WebSocketClient(
     render: (h) => h(App),
   }).$mount("#app")
 );
+
+if (process.env.NODE_ENV === 'development') {
+  new VConsole();
+}
 
 

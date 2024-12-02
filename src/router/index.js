@@ -127,4 +127,46 @@ const router = new VueRouter({
   routes
 })
 
+// 添加路由性能监控函数
+function logRoutePerformance(from, to) {
+  // 获取路由跳转的性能数据
+  const navigation = performance.getEntriesByType('navigation')[0];
+  const perfData = {
+    from: from.path,
+    to: to.path,
+    // 路由跳转总时间
+    totalTime: performance.now(),
+    // 页面加载时间
+    loadTime: navigation.loadEventEnd - navigation.loadEventStart,
+    // DNS查询时间
+    dnsTime: navigation.domainLookupEnd - navigation.domainLookupStart,
+    // TCP连接时间
+    tcpTime: navigation.connectEnd - navigation.connectStart,
+    // 首字节时间
+    ttfbTime: navigation.responseStart - navigation.requestStart,
+    timestamp: new Date().toISOString()
+  };
+  
+  console.log('路由性能数据:', perfData);
+  // 这里可以将数据发送到后端或分析系统
+}
+
+// 在router实例创建后添加导航守卫
+router.beforeEach((to, from, next) => {
+  // 记录路由开始跳转的时间
+  window.routeStartTime = performance.now();
+  next();
+});
+
+router.afterEach((to, from) => {
+  // 计算路由跳转耗时
+  const routeEndTime = performance.now();
+  const routeDuration = routeEndTime - window.routeStartTime;
+  
+  // 记录性能数据
+  logRoutePerformance(from, to);
+  
+  console.log(`路由跳转耗时: ${routeDuration}ms`);
+});
+
 export default router
