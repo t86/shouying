@@ -148,6 +148,18 @@
             </div>
           </div>
         </div>
+        <div class="contact-info">
+          <div class="contact-title">您可扫描以下二维码联系我们：咨询、合作、了解更多</div>
+          <div class="contact-list">
+            <div class="contact-item" v-for="contact in randomContactList" :key="contact.name">
+              <div class="contact-header">
+                <img class="avatar" :src="contact.avatar" :alt="contact.name" />
+                <span>{{ contact.name }}</span>
+              </div>
+              <img class="qr-code" :src="contact.qrCode" :alt="contact.name + '的二维码'" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -321,6 +333,18 @@ export default {
 
       showWarning: false,
       warningText: "",
+      contactList: [
+        {
+          name: '曾总',
+          avatar: require('@/assets/img/avatar1.png'),
+          qrCode: require('@/assets/img/qr1.png')
+        },
+        {
+          name: '熊总',
+          avatar: require('@/assets/img/avatar2.png'), 
+          qrCode: require('@/assets/img/qr2.png')
+        }
+      ]
     };
   },
   methods: {
@@ -482,7 +506,7 @@ export default {
       if (window.atool && "changePosition" in window.atool) {
         window.atool.changePosition();
       } else {
-        this.$message.warning("当前版本还不支持, 请联系系统运维人员升级版本");
+        this.$message.warning("当前版本还不支持, 请系系统运维人员升级版本");
       }
     },
     // 登录
@@ -601,6 +625,10 @@ export default {
       const av = localStorage.getItem("refreshAll");
       return pv + (av ? ` - ${av}` : "");
     },
+    // 随机排序后的联系人列表
+    randomContactList() {
+      return [...this.contactList].sort(() => Math.random() - 0.5)
+    }
   },
 
   beforeDestroy() {
@@ -924,6 +952,55 @@ export default {
                   }
                 }
               }
+            }
+          }
+        }
+      }
+      .contact-info {
+        position: fixed;
+        left: 40px;
+        bottom: 40px;
+        z-index: 10;
+
+        .contact-title {
+          color: rgba(255, 255, 255, 0.69);
+          font-size: 15px;
+          margin-bottom: 15px;
+          text-align: center;
+        }
+
+        .contact-list {
+          display: flex;
+          gap: 30px;  // 两个联系人之间的间距
+
+          .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+            .contact-header {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 10px;
+
+              .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-bottom: 5px;
+              }
+
+              span {
+                font-size: 16px;
+                color: rgba(255, 255, 255, 0.9);
+              }
+            }
+
+            .qr-code {
+              width: 120px;
+              height: 120px;
             }
           }
         }

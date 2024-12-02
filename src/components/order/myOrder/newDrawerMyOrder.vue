@@ -327,30 +327,32 @@
           </div>
         </div>
 
-        <div v-if="status == 11" >
+        <div v-if="status == 11">
           <div class="form">
             <el-form label-position="right" :model="formData" @submit.native.prevent label-width="150px">
               <el-form-item label="原服务员:">
-                {{this.$store.state.userInfo.name}}
+                <!-- <span class="emp-name">{{this.$store.state.userInfo.name}}</span> -->
+                <span class="emp-name">{{ this.currentItemInfo.personInfo && this.currentItemInfo.personInfo.name }}</span>
               </el-form-item>
               <el-form-item label="绑定服务员:" required>
-                <el-select
-                    v-model="selWaiter"
-                    filterable
-                    remote
-                    ref="waiter"
-                    @focus="handleFocus('waiter')"
-                    reserve-keyword
-                    placeholder="输入工号或者姓名搜索"
-                    :remote-method="remoteMethod"
-                    :loading="loading">
-                  <el-option
-                      v-for="item in waiters"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                  </el-option>
-                </el-select>
+                <el-input
+                  v-model="selectedWaiter.name"
+                  placeholder="输入工号或者姓名搜索"
+                  ref="waiter"
+                  @focus="handleFocus('waiter')"
+                  @input="remoteMethod"
+                  class="waiter-input"
+                ></el-input>
+                <div class="waiter-list">
+                  <div v-for="item in waiters" :key="item.id" class="waiter-item">
+                    <el-checkbox
+                      v-model="item.checked"
+                      @change="changeSelectWaiter(item)"
+                    >
+                      <span class="waiter-info">{{ item.code + '  ' + item.name }}</span>
+                    </el-checkbox>
+                  </div>
+                </div>
               </el-form-item>
             </el-form>
           </div>
@@ -373,11 +375,19 @@
         </div>
       </div>
     </el-drawer>
+
+    <!-- 添加键盘组件 -->
+    <keyboard 
+      v-if="showKeyboard"
+      @key-press="onKeyPress"
+      @close="showKeyboard = false"
+    />
   </div>
 </template>
 
 <script>
 import eventVue from '@/utils/eventVue';
+import Keyboard from '@/components/keyboard.vue'
 
 import api_order from "@/api/order";
 import api_money from "@/api/money";
@@ -424,8 +434,13 @@ export default {
         userName: "",
         passWord: ""
       },
-      selWaiter: '',
-      waiters:[],
+      selectedWaiter: {
+        id: '',
+        name: '',
+        code: ''
+      },
+      waiters: [],
+      empName: '',
 
       // 更改明细
       updateDetail: {
@@ -469,64 +484,89 @@ export default {
       formData: {
         reason: '',
       },
+      showKeyboard: false,
     };
   },
   methods: {
     handleFocus(refString){
       console.log('handleFocus', refString)
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-        ("showSoftInput" in window.atool)
-      ) {
-        const dropdown = document.querySelector('.el-select-dropdown');
-        if (dropdown) {
-          dropdown.style.transform = 'translateX(150px)';
-        }
-        setTimeout(() => {
-          this.keyboardShow(refString)
-        }, 100)
-      }
+      // if (
+      //   window.atool
+      //   && window.atool.getTermType() == "android" &&
+      //   ("showSoftInput" in window.atool)
+      // ) {
+      //   const dropdown = document.querySelector('.el-select-dropdown');
+      //   if (dropdown) {
+      //     dropdown.style.transform = 'translateX(150px)';
+      //   }
+      //   setTimeout(() => {
+      //     this.keyboardShow(refString)
+      //   }, 100)
+      // }
+      // 显示键盘
+      // if(refString === 'waiter') {
+      //   this.showKeyboard = true
+      //   this.selectedWaiter.name = ''
+      //   this.empName = ''
+      // }
+        this.showKeyboard = true
+        this.selectedWaiter.name = ''
+        this.empName = ''
     },
     keyboardShow(refString){
-      if (
-        window.atool
-        && window.atool.getTermType() == "android" &&
-            ("showSoftInput" in window.atool)
-          ) {
-            atool.showSoftInput();
-            atool.executeJs(`this.$refs.${refString}.focus()`)
-          }
+      // if (
+      //   window.atool
+      //   && window.atool.getTermType() == "android" &&
+      //       ("showSoftInput" in window.atool)
+      //     ) {
+      //       atool.showSoftInput();
+      //       atool.executeJs(`this.$refs.${refString}.focus()`)
+      //     }
     },
     keyboardLeave(refString) {
-      setTimeout(() => {
-        if (
-          window.atool
-          && window.atool.getTermType() == "android" &&
-          ("hideSoftInput" in window.atool)
-        ) {
-          atool.executeJs(`this.$refs.${refString}.blur()`);
-          atool.hideSoftInput();
-          atool.restart();
+      // setTimeout(() => {
+      //   if (
+      //     window.atool
+      //     && window.atool.getTermType() == "android" &&
+      //     ("hideSoftInput" in window.atool)
+      //   ) {
+      //     atool.executeJs(`this.$refs.${refString}.blur()`);
+      //     atool.hideSoftInput();
+      //     atool.restart();
 
-        }
-      }, 10)
+      //   }
+      // }, 10)
     },
     remoteMethod(query) {
-      this.loading = true;
-      this.selWaiter=''
-      this.waiters = []
-      const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      this.loading = true
+      const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
       const results = query ? sealInfoArr.filter(
-              (el) =>
-                  el.code.toString().includes(query) ||
-                  el.name.toString().includes(query) ||
-                  el.namePy.toString().includes(query.toLowerCase())
-          )
-          : sealInfoArr;
-      console.log('waiters:', results)
-      this.waiters = results;
-      this.loading = false;
+        el => el.code.toString().includes(query) ||
+             el.name.toString().includes(query) ||
+             el.namePy.toString().includes(query.toLowerCase())
+      ) : []
+      
+      this.waiters = results.map(item => ({
+        ...item,
+        checked: item.id === this.selectedWaiter.id
+      }))
+      this.loading = false
+    },
+    changeSelectWaiter(item) {
+      // 取消其他选中状态
+      this.waiters.forEach(waiter => {
+        waiter.checked = false
+      })
+      // 设置当前选中
+      item.checked = true
+      // 保存选中的服务员信息
+      this.selectedWaiter = {
+        id: item.id,
+        name: item.name,
+        code: item.code
+      }
+      // 更新列表
+      this.waiters = [...this.waiters]
     },
     /**
      * 退单
@@ -952,7 +992,7 @@ export default {
             }
           break;
         case 2: // 优惠
-        case 3: // 自用
+        case 3: // 用
           if (this.subStatus == 1) return this.goAuthorization();
 
           authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
@@ -1025,7 +1065,7 @@ export default {
                 order_dtl_id: this.updateDetail.groupList[this.updateDetail.detailIndex].list[0].id, // int64 OrderDtlId 被替换子订单项的Id
                 dest_dtl_prd_ids: selectedProductsArr.map(
                   el => el.dtlPrdId * 1
-                ), // []int64    套餐组Id对应的替换目标商品列表
+                ), // []int64    套餐组Id对应的替���目标商品列表
                 dest_dtl_prd_sel_cnts: selectedProductsArr.map(
                   el => el.selectedCount * 1
                 ), // []int    对应上面dest_dtl_prd_ids的选中数
@@ -1198,11 +1238,11 @@ export default {
           break;
         case 11: //订单修改服务员
           console.log('TODO:订单修改服务员')
-          if (!this.selWaiter) return this.$message.warning('请输入修改服务员');
+          if (!this.selectedWaiter.id) return this.$message.warning('请选择修改服务员')
           const params = {
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
             order_id: this.currentItemInfo.id * 1, // int64   订单项Id
-            waiter_emp_id: this.selWaiter * 1
+            waiter_emp_id: this.selectedWaiter.id * 1
           };
           console.log('=============订单修改服务员 params',params)
 
@@ -1214,6 +1254,7 @@ export default {
             this.$message.error("订单修改服务员成功");
           }
           this.onCancelDrawer(true);
+          this.showKeyboard = false
           break;
       }
     },
@@ -1336,7 +1377,25 @@ export default {
       }
       this.keyboardLeave('waiter');
       console.log('onCancelDrawer', this.status)
-    }
+    },
+    onKeyPress(key) {
+      console.log(key)
+      // 处理键盘输入
+      if(key === 'backspace') {
+        // 删除一个字符
+        this.empName = this.empName.slice(0, -1)
+      } else if(key === 'clear') {
+        // 清空输入
+        this.empName = ''
+      } else {
+        // 添加字符
+        this.empName += key
+      }
+      console.log('onKeyPress:', this.empName)
+      this.selectedWaiter.name = this.empName
+      // 触发搜索
+      this.remoteMethod(this.empName)
+    },
   },
   created() { },
   mounted() { },
@@ -1435,7 +1494,8 @@ export default {
     inputSelect,
     groupProduct,
     authorization,
-    drawerYH2Submit
+    drawerYH2Submit,
+    Keyboard
   },
   watch: {
     showDrawer(newVal) {
@@ -1461,7 +1521,7 @@ export default {
         }
 
         switch (this.status) {
-          case 1: // 退单
+          case 1: // 退
             if (this.$store.state.userInfo.authStatus == 4) {
               // 收银系统收银人
               // 特饮、花篮退单可选择数量，需要手动填写退款金额
@@ -1593,13 +1653,14 @@ export default {
             this.formData.reason = "";
             break;
           case 11:
-            setTimeout(() => {
-              this.keyboardShow()
-            }, 100)
+            this.showKeyboard = true
+            this.selectedWaiter.name = ''
+            this.empName = ''
             break;
         }
       } else {
         window.stopLoopReadCard()
+        this.showKeyboard = false
       }
     }
   }
@@ -1609,4 +1670,46 @@ export default {
 <style scoped lang="less">
 @import "../../../style/common/newElementDrawer.less";
 @import "../../../style/order/orderMeal/myOrder/newDrawerMyOrder.less";
+</style>
+
+<style scoped>
+/* 添加新样式 */
+.emp-name {
+  font-size: 16px;
+}
+
+.waiter-input {
+  width: 300px;
+}
+
+.waiter-input >>> .el-input__inner {
+  font-size: 16px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.waiter-list {
+  margin-top: 10px;
+}
+
+.waiter-item {
+  margin-bottom: 12px;
+}
+
+.waiter-item >>> .el-checkbox {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.waiter-item >>> .el-checkbox__input {
+  transform: scale(1.2);
+}
+
+.waiter-info {
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+/* 其他现有样式保持不变 */
 </style>
