@@ -950,7 +950,7 @@ export default {
       selfId = selfId || this.$store.state.userInfo.emp_id;
       const allStaffList =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"];
-      // 当前员工的下级
+      // 当��员工的下级
       const selfStaffList = allStaffList.filter(
         (el) => el.upper_emp_id == selfId
       );
@@ -1021,21 +1021,55 @@ export default {
 
 
     // 点击卡台
-    cardClickHandle(info) {
-      console.log('info', info)
-      // 存酒模式
-      if (this.typeModule == 2) return;
-      // 点单模式
-      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
-        return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
-      }
-
-      this.$store.commit("updateOrderInfo", {
-        key: "currentCardInfo",
-        value: info,
+    async cardClickHandle(info) {
+      const startTime = performance.now();
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] 开始处理卡台点击事件`, {
+        cardId: info.id,
+        cardName: info.name,
+        bizStatus: info.bizStatus
       });
-      console.log("点击卡台开始跳转");
-      this.$router.push({ name: "orderMealList" });
+
+      try {
+        // 存酒模式
+        if (this.typeModule == 2) {
+          console.log(`[${new Date().toISOString()}] 存酒模式，退出处理`);
+          return;
+        }
+
+        // 点单模式
+        if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
+          console.log(`[${new Date().toISOString()}] 卡台状态不可点单，状态码: ${info.bizStatus}`);
+          return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
+        }
+
+        console.log(`[${new Date().toISOString()}] 更新 store 中的卡台信息开始`);
+        const storeUpdateStart = performance.now();
+        
+        this.$store.commit("updateOrderInfo", {
+          key: "currentCardInfo",
+          value: info,
+        });
+        
+        console.log(`[${new Date().toISOString()}] 更新 store 完成，耗时: ${performance.now() - storeUpdateStart}ms`);
+
+        console.log(`[${new Date().toISOString()}] 开始路由跳转`);
+        const routerPushStart = performance.now();
+        
+        await this.$router.push({ name: "orderMealList" });
+        
+        const endTime = performance.now();
+        console.log(`[${new Date().toISOString()}] 卡台点击处理完成，性能指标:`, {
+          totalTime: endTime - startTime,
+          storeUpdateTime: routerPushStart - storeUpdateStart,
+          routerPushTime: endTime - routerPushStart,
+          timestamp: new Date().toISOString()
+        });
+
+      } catch (error) {
+        console.error(`[${new Date().toISOString()}] 卡台点击处理错误:`, error);
+        throw error;
+      }
     },
 
 

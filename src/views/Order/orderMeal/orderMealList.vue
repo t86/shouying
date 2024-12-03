@@ -54,6 +54,7 @@ export default {
       mustOrderProducts: [],
       safeModeEnabled: false,
       loadStartTime: 0,
+      performanceMarks: [], // 存储性能标记
     };
   },
   methods: {
@@ -62,9 +63,25 @@ export default {
         return
       }
       this[key] = value;
+    },
+    logPerformancePoint(name, data = {}) {
+      const timestamp = new Date().toISOString();
+      const timeFromStart = performance.now() - this.loadStartTime;
+      
+      const mark = {
+        name,
+        timestamp,
+        timeFromStart,
+        ...data
+      };
+      
+      this.performanceMarks.push(mark);
+      console.log(`[${timestamp}] ${name} - 距开始: ${timeFromStart.toFixed(2)}ms`, data);
     }
   },
   mounted() {
+    this.logPerformancePoint('组件 Mounted');
+    
     this.isYH2 = this.$route.query.give
     this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
     const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
@@ -108,7 +125,9 @@ export default {
       const entries = list.getEntries();
       entries.forEach(entry => {
         if (entry.entryType === 'measure') {
-          console.log(`${entry.name}: ${entry.duration}ms`);
+          this.logPerformancePoint(`性能测量: ${entry.name}`, {
+            duration: entry.duration
+          });
         }
       });
     });
@@ -117,21 +136,27 @@ export default {
 
     // 标记组件挂载完成
     performance.mark('component-mounted');
+    this.logPerformancePoint('组件标记已挂载');
 
     // 等待所有子组件和数据加载完成
     this.$nextTick(async () => {
       try {
+        this.logPerformancePoint('开始加载资源');
+        
         // 等待所有图片加载完成
-        const imgPromises = Array.from(this.$el.getElementsByTagName('img'))
-          .map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(resolve => {
-              img.onload = resolve;
-              img.onerror = resolve;
-            });
+        const imgElements = Array.from(this.$el.getElementsByTagName('img'));
+        this.logPerformancePoint('检测到图片数量', { count: imgElements.length });
+        
+        const imgPromises = imgElements.map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
           });
+        });
 
         await Promise.all(imgPromises);
+        this.logPerformancePoint('所有图片加载完成');
 
         // 标记组件完全加载
         performance.mark('component-fully-loaded');
@@ -146,24 +171,22 @@ export default {
         // 测量从路由变化到组件加载完成的时间
         if (window.routeStartTime) {
           const totalTime = performance.now() - window.routeStartTime;
-          console.log(`从路由变化到组件完全加载耗时: ${totalTime}ms`);
+          this.logPerformancePoint('总加载完成', {
+            fromRouteChange: totalTime
+          });
         }
 
-        // 记录详细的性能指标
-        const metrics = {
-          componentLoadTime: performance.now() - this.loadStartTime,
-          fromRouteChange: window.routeStartTime ? performance.now() - window.routeStartTime : null,
-          timestamp: new Date().toISOString()
-        };
-
-        console.log('OrderMealList 性能指标:', metrics);
+        // 输出完整的性能记录
+        console.log('完整的性能记录:', this.performanceMarks);
 
       } catch (error) {
         console.error('性能监控出错:', error);
+        this.logPerformancePoint('性能监控错误', { error: error.message });
       }
     });
   },
   beforeDestroy() {
+    this.logPerformancePoint('组件准备销毁');
     eventVue.$off("safeModeChanged")
     // 清理性能标记
     performance.clearMarks();
@@ -178,6 +201,9 @@ export default {
   },
   filters: {},
   created() {
+    this.loadStartTime = performance.now();
+    this.logPerformancePoint('组件 Created');
+    
     const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
     const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
     this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
@@ -185,11 +211,9 @@ export default {
       name: mustPrdNames[index] || ''
     }));
 
-    // 记录组件开始加载的时间
-    this.loadStartTime = performance.now();
-
     // 使用 this.mustOrderProducts 进行后续处理
     if(this.mustOrderProducts.length > 0) {
+      this.logPerformancePoint('处理必选商品');
       this.mustOrderProducts.forEach(item => {
         this.allProductsList.push(item)
       })

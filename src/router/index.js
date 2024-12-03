@@ -129,26 +129,30 @@ const router = new VueRouter({
 
 // 修改路由性能监控函数
 function logRoutePerformance(from, to) {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] 路由变化开始 - 从 ${from.path} 到 ${to.path}`);
+  
   const perfData = {
     from: from.path,
     to: to.path,
-    // 路由跳转总时间
     routeChangeTime: performance.now() - window.routeStartTime,
-    timestamp: new Date().toISOString()
+    timestamp
   };
+
   const routeEndTime = performance.now();
   const routeDuration = routeEndTime - window.routeStartTime;
-  console.log(`路由跳转耗时: ${routeDuration}ms`);
+  console.log(`[${new Date().toISOString()}] 路由跳转耗时: ${routeDuration}ms`);
   
   // 记录路由变化到首次渲染的时间
   const observer = new PerformanceObserver((list) => {
     const entries = list.getEntries();
     const lastPaint = entries[entries.length - 1];
+    const currentTime = new Date().toISOString();
     
     perfData.firstPaintTime = lastPaint.startTime;
     perfData.firstPaintDuration = lastPaint.duration;
     
-    console.log('完整的路由性能数据:', {
+    console.log(`[${currentTime}] 首次渲染完成:`, {
       ...perfData,
       totalTime: lastPaint.startTime + lastPaint.duration - window.routeStartTime,
     });
@@ -156,17 +160,13 @@ function logRoutePerformance(from, to) {
     observer.disconnect();
   });
   
-  // 观察绘制性能
   observer.observe({ entryTypes: ['paint'] });
-  
-  // 先输出路由切换的基础数据
-  console.log('路由切换基础数据:', perfData);
 }
 
 // 在router实例创建后添加导航守卫
 router.beforeEach((to, from, next) => {
-  // 记录路由开始跳转的时间
   window.routeStartTime = performance.now();
+  console.log(`[${new Date().toISOString()}] 路由导航开始`);
   next();
 });
 

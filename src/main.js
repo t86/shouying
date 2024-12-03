@@ -179,4 +179,24 @@ if (process.env.NODE_ENV === 'development') {
   new VConsole();
 }
 
+// 在 Vue 实例创建之前添加全局性能监控
+if (process.env.NODE_ENV === 'development') {
+  window.addEventListener('load', () => {
+    console.log(`[${new Date().toISOString()}] 页面完全加载完成`);
+    
+    // 输出关键性能指标
+    const timing = performance.timing;
+    const perfData = {
+      dns: timing.domainLookupEnd - timing.domainLookupStart,
+      tcp: timing.connectEnd - timing.connectStart,
+      request: timing.responseEnd - timing.requestStart,
+      domParse: timing.domComplete - timing.domLoading,
+      domReady: timing.domContentLoadedEventEnd - timing.navigationStart,
+      load: timing.loadEventEnd - timing.navigationStart,
+    };
+    
+    console.log(`[${new Date().toISOString()}] 页面加载性能指标:`, perfData);
+  });
+}
+
 
