@@ -52,7 +52,8 @@ export default {
       allProductsList: [],
       currentCategoryProductList: [],
       mustOrderProducts: [],
-      safeModeEnabled: false
+      safeModeEnabled: false,
+      loadStartTime: 0,
     };
   },
   methods: {
@@ -101,9 +102,72 @@ export default {
       this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
       console.log('------------,safeModeEnabled:', this.safeModeEnabled)
     });
+
+    // 创建性能观察者
+    const observer = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      entries.forEach(entry => {
+        if (entry.entryType === 'measure') {
+          console.log(`${entry.name}: ${entry.duration}ms`);
+        }
+      });
+    });
+    
+    observer.observe({ entryTypes: ['measure'] });
+
+    // 标记组件挂载完成
+    performance.mark('component-mounted');
+
+    // 等待所有子组件和数据加载完成
+    this.$nextTick(async () => {
+      try {
+        // 等待所有图片加载完成
+        const imgPromises = Array.from(this.$el.getElementsByTagName('img'))
+          .map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            });
+          });
+
+        await Promise.all(imgPromises);
+
+        // 标记组件完全加载
+        performance.mark('component-fully-loaded');
+        
+        // 测量总加载时间
+        performance.measure(
+          'OrderMealList Total Load Time',
+          'component-mounted',
+          'component-fully-loaded'
+        );
+
+        // 测量从路由变化到组件加载完成的时间
+        if (window.routeStartTime) {
+          const totalTime = performance.now() - window.routeStartTime;
+          console.log(`从路由变化到组件完全加载耗时: ${totalTime}ms`);
+        }
+
+        // 记录详细的性能指标
+        const metrics = {
+          componentLoadTime: performance.now() - this.loadStartTime,
+          fromRouteChange: window.routeStartTime ? performance.now() - window.routeStartTime : null,
+          timestamp: new Date().toISOString()
+        };
+
+        console.log('OrderMealList 性能指标:', metrics);
+
+      } catch (error) {
+        console.error('性能监控出错:', error);
+      }
+    });
   },
   beforeDestroy() {
     eventVue.$off("safeModeChanged")
+    // 清理性能标记
+    performance.clearMarks();
+    performance.clearMeasures();
   },
   props: ["String"],
   components: {
@@ -120,6 +184,9 @@ export default {
       id: id,
       name: mustPrdNames[index] || ''
     }));
+
+    // 记录组件开始加载的时间
+    this.loadStartTime = performance.now();
 
     // 使用 this.mustOrderProducts 进行后续处理
     if(this.mustOrderProducts.length > 0) {
