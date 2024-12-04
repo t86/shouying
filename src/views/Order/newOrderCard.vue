@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}" v-debounce="{time: 300, fn: () => handleOrderClick(item)}" @contextmenu.prevent.stop="rightClickHandle">
+            ]" :style="{'margin-left': itemMargin + 'px'}" v-fast-click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -334,7 +334,7 @@ export default {
   data() {
     return {
       // loadIndex: 0,
-      // modelVisible: true, // 是否显示未开启营业日模态框
+      // modelVisible: true, // 是否��示未开启营��日模态框
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
@@ -973,26 +973,27 @@ export default {
         return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
       }
 
-      // 开启调试模式
-      this.$store.commit('setSkeletonDebug', false);
-      
-      // 更新当前卡台信息
-      await this.$store.commit("updateOrderInfo", {
-        key: "currentCardInfo",
-        value: info,
-      });
-      
-      // 跳转前先清空数据
-      this.$store.commit('clearProductList');
-      
-      // 使用 replace 而不是 push 来跳转，这样返回时更自然
-      await this.$router.replace({
-        name: 'orderMeal',
-        query: {
-          cardId: info.id,
-          ...this.$route.query
-        }
-      });
+      try {
+        // 先更新store
+        this.$store.commit("updateOrderInfo", {
+          key: "currentCardInfo",
+          value: info,
+        });
+        this.$store.commit('clearProductList');
+        
+        // 然后立即进行路由跳转
+        await this.$router.replace({
+          name: 'orderMeal',
+          query: {
+            cardId: info.id,
+            ...this.$route.query
+          }
+        });
+      } catch (err) {
+        console.error('Navigation failed:', err);
+        // 如果导航失败，回滚store更新
+        this.$store.commit('clearProductList');
+      }
     },
 
 
@@ -1810,6 +1811,23 @@ export default {
   },
 
   mixins: [cardPageMixins, authStatus],
+  directives: {
+    fastClick: {
+      bind(el, binding) {
+        let lastTime = 0;
+        const delay = 100; // 设置一个较短的防抖时间
+        
+        el.addEventListener('click', (e) => {
+          const currentTime = new Date().getTime();
+          
+          if (currentTime - lastTime > delay) {
+            binding.value(e);
+            lastTime = currentTime;
+          }
+        });
+      }
+    }
+  },
 };
 </script>
 

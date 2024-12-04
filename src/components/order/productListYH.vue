@@ -6,23 +6,18 @@
         <span>全局搜索：</span>
         <input type="text" ref="searchInputRef" v-model="search.keyWord" placeholder="请输入商品名称或简写" />
         <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord=''" />
-        <img class="icon" :src="loadImage(imgSrc.search)" alt />
+        <img class="icon" :src="optimizedSearchIcon" alt />
       </div>
       <div class="card-list" ref="cardListRef">
-        <div
-          class="center-type"
-          layout="row"
-          layout-align="start start"
-          :style="{'width':centerType+'px'}"
-        >
-          <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)" :class="{'opacity': item.outSomethingCount == 0}">
-            <h5 class="title">{{item.name}}</h5>
-            <p v-if="item.outSomethingCount!='many'" class="count">余:{{item.outSomethingCount}}</p>
-            <p v-else class="count"></p>
-            <p class="price">{{item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price}}</p>
-            <img v-if="item.outSomethingCount==0" class="no-data-count" :src="require('@/assets/order-img/noCount.png')" />
+        <div v-for="(item, index) in productsList" :key="index" class="card-item" @click="setMealForProduct(item)">
+          <div class="card-item-content">
+            <div class="card-item-title">{{ item.name }}</div>
+            <div class="card-item-info">
+              <div class="card-item-price">￥{{ item.price }}</div>
+              <img v-if="item.outSomethingCount == 0" class="no-data-count" :src="loadImage(require('@/assets/order-img/noCount.png'))" />
+              <div v-else class="card-item-count">剩余：{{ item.outSomethingCount }}</div>
+            </div>
           </div>
-          <p v-if="totalPage!=1" class="tips">{{page>=totalPage? '没有更多了':'加载中...'}}</p>
         </div>
       </div>
     </div>
@@ -158,6 +153,9 @@ export default {
         subDisabled
       },
 
+      optimizedImages: {},
+      imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+
       // 优惠2已选商品列表相关
       drawer: {
         showDrawer: false,
@@ -184,13 +182,29 @@ export default {
   },
   methods: {
     async loadImage(url) {
-    try {
-      return await ImageOptimizer.load(url);
-    } catch (error) {
-      console.error('Image loading error:', error);
-      return this.imagePlaceholder;
-    }
-  },
+      if (!url) return this.imagePlaceholder;
+      
+      // 如果已经优化过，直接返回缓存的结果
+      if (this.optimizedImages[url]) {
+        return this.optimizedImages[url];
+      }
+
+      try {
+        const optimizedImage = await ImageOptimizer.load(url);
+        this.$set(this.optimizedImages, url, optimizedImage);
+        return optimizedImage;
+      } catch (error) {
+        console.error('Image loading error:', error);
+        return this.imagePlaceholder;
+      }
+    },
+    async initImages() {
+      // 预加载所有需要的图片
+      const imagesToLoad = [this.imgSrc.search];
+      for (const url of imagesToLoad) {
+        await this.loadImage(url);
+      }
+    },
     getCenterType() {
       const containWidth = this.$refs.cardListRef.offsetWidth;
       oneLineCount = Math.floor(containWidth / cardWidth);
@@ -468,6 +482,7 @@ export default {
       window.addEventListener('keyup', this.keyHandle);
     }
     this.getCenterType();
+    this.initImages();
     this.$refs.productListRef.addEventListener("scroll", this.scrollHandle);
   },
   props: ["allProductsList", "currentCategoryProductList"],
@@ -489,6 +504,11 @@ export default {
     window.removeEventListener('keyup', this.keyHandle);
     downKeyCode = [0, 0]
     this.$refs.productListRef.removeEventListener("scroll", this.scrollHandle);
+  },
+  computed: {
+    optimizedSearchIcon() {
+      return this.optimizedImages[this.imgSrc.search] || this.imagePlaceholder;
+    }
   }
 };
 </script>
