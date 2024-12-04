@@ -6,7 +6,7 @@
         <span>全局搜索：</span>
         <input type="text" ref="searchInputRef" v-model="search.keyWord" placeholder="请输入商品名称或简写" />
         <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord=''" />
-        <img class="icon" :src="imgSrc.search" alt />
+        <img class="icon" :src="loadImage(imgSrc.search)" alt />
       </div>
       <div class="card-list" ref="cardListRef">
         <div
@@ -126,6 +126,7 @@ import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";
+import ImageOptimizer from '@/utils/imageOptimizer';
 
 const cardWidth = 180;
 let oneLineCount = 0;
@@ -182,6 +183,14 @@ export default {
     };
   },
   methods: {
+    async loadImage(url) {
+    try {
+      return await ImageOptimizer.load(url);
+    } catch (error) {
+      console.error('Image loading error:', error);
+      return this.imagePlaceholder;
+    }
+  },
     getCenterType() {
       const containWidth = this.$refs.cardListRef.offsetWidth;
       oneLineCount = Math.floor(containWidth / cardWidth);
