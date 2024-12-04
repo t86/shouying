@@ -974,6 +974,9 @@ export default {
       }
 
       try {
+        // 开启骨架屏
+        this.$store.commit('setSkeletonDebug', true);
+
         // 预加载数据
         const promises = [
           // 清空产品列表
@@ -982,9 +985,7 @@ export default {
           this.$store.commit("updateOrderInfo", {
             key: "currentCardInfo",
             value: info,
-          }),
-          // 关闭调试模式
-          this.$store.commit('setSkeletonDebug', false)
+          })
         ];
 
         // 并行执行所有状态更新
@@ -996,12 +997,15 @@ export default {
           query: {
             cardId: info.id,
             _t: Date.now(), // 添加时间戳避免缓存
+            skeleton: 'true', // 标记是否显示骨架屏
             ...this.$route.query
           }
         });
       } catch (error) {
         console.error('Error during navigation:', error);
         this.$message.error('跳转失败，请重试');
+        // 发生错误时关闭骨架屏
+        this.$store.commit('setSkeletonDebug', false);
       }
     },
 

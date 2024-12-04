@@ -232,10 +232,10 @@ export default {
   },
   async created() {
     this.logPerformancePoint('组件创建开始');
-    this.loading = true;
-    await this.initBasicData();
-    this.loading = false;
-    this.logPerformancePoint('组件创建完成');
+    // this.loading = true;
+    // await this.initBasicData();
+    // this.loading = false;
+    // this.logPerformancePoint('组件创建完成');
   },
   mounted() {
     this.logPerformancePoint('组件挂载开始');
@@ -254,11 +254,31 @@ export default {
   beforeRouteEnter(to, from, next) {
     next(async vm => {
       vm.logPerformancePoint('路由进入开始');
-      vm.loading = true;
-      await vm.$nextTick();
-      await vm.initBasicData();
-      vm.loading = false;
-      vm.logPerformancePoint('路由进入完成');
+      // 如果是骨架屏模式，直接显示骨架屏
+      if (to.query.skeleton === 'true') {
+        vm.loading = true;
+        next();
+        return;
+      }
+
+      try {
+        // 预加载数据
+        await vm.preloadData();
+        
+        // 初始化基础数据
+        await vm.initBasicData();
+        
+        // 关闭骨架屏
+        vm.$store.commit('setSkeletonDebug', false);
+        vm.loading = false;
+        
+        vm.logPerformancePoint('路由进入完成');
+      } catch (error) {
+        console.error('Error during route enter:', error);
+        vm.$message.error('数据加载失败，请重试');
+        vm.loading = false;
+        vm.$store.commit('setSkeletonDebug', false);
+      }
     });
   },
   beforeRouteUpdate(to, from, next) {
