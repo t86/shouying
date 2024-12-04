@@ -22,15 +22,18 @@
 
     <!-- 正常点单 -->
     <div v-else class="order-meal-list">
-      <mealNav @updateProductsList="updateProductsList"/>
-      <productList
-        :mustOrderProducts="mustOrderProducts"
-        :vipPrice="vipPrice"
-        :vipPricePercent="vipPricePercent"
-        :allProductsList="allProductsList"
-        :currentCategoryProductList="currentCategoryProductList"
-        :safeModeEnabled="safeModeEnabled"
-      />
+      <OrderMealSkeleton v-if="loading" />
+      <template v-else>
+        <mealNav @updateProductsList="updateProductsList"/>
+        <productList
+          :mustOrderProducts="mustOrderProducts"
+          :vipPrice="vipPrice"
+          :vipPricePercent="vipPricePercent"
+          :allProductsList="allProductsList"
+          :currentCategoryProductList="currentCategoryProductList"
+          :safeModeEnabled="safeModeEnabled"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -41,6 +44,7 @@ import productList from "@/components/order/productList.vue";
 import productListYH from "@/components/order/productListYH.vue";
 import productListGQ from "@/components/order/productListGQ.vue";
 import eventVue from "@/utils/eventVue";
+import OrderMealSkeleton from "@/components/order/OrderMealSkeleton.vue";
 
 export default {
   data() {
@@ -56,7 +60,8 @@ export default {
       loadStartTime: 0,
       performanceMarks: [], // 存储性能标记
       dataInitialized: false,
-      imageLoadPromises: []
+      imageLoadPromises: [],
+      loading: true,
     };
   },
   methods: {
@@ -92,6 +97,8 @@ export default {
           id: id,
           name: mustPrdNames[index] || ''
         }));
+
+        await this.simulateLoading(); // 移到数据加载后
 
         // 获取商品数据
         const goodsAroundInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo || [];
@@ -178,30 +185,88 @@ export default {
         });
         observer.observe({ entryTypes: ['measure'] });
       }
+    },
+    
+    // 添加调试方法
+    async simulateLoading() {
+      if (this.$store.state.debugSkeleton) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    },
+    
+    // 添加快捷键处理方法
+    handleKeyPress(event) {
+      // 按下 Ctrl + Shift + S 切换调试模式
+      if (event.ctrlKey && event.shiftKey && event.key === 'S') {
+        this.$store.commit('setSkeletonDebug', !this.$store.state.debugSkeleton);
+        this.$message.info(`骨架屏调试模式: ${this.$store.state.debugSkeleton ? '开启' : '关闭'}`);
+        if (this.$store.state.debugSkeleton) {
+          this.initBasicData(); // 重新加载数据以显示骨架屏
+        }
+      }
+    },
+  },
+  computed: {
+    debugSkeleton() {
+      return this.$store.state.debugSkeleton;
     }
+  },
+  watch: {
+    // 监听调试模式变化
+    debugSkeleton: {
+      immediate: true,
+      handler(val) {
+        if (!val) {
+          this.loading = false;
+        }
+      }
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    // 离开路由时关闭调试模式
+    this.$store.commit('setSkeletonDebug', false);
+    next();
   },
   async created() {
     this.logPerformancePoint('组件创建开始');
+    this.loading = true;
     await this.initBasicData();
+    this.loading = false;
     this.logPerformancePoint('组件创建完成');
   },
-  async mounted() {
+  mounted() {
     this.logPerformancePoint('组件挂载开始');
-    await this.$nextTick();
-    this.logPerformancePoint('组件挂载完成');
+    
+    // 添加快捷键监听
+    window.addEventListener('keydown', this.handleKeyPress);
+    
+    this.$nextTick(() => {
+      this.logPerformancePoint('组件挂载完成');
+    });
+  },
+  beforeDestroy() {
+    // 移除快捷键监听
+    window.removeEventListener('keydown', this.handleKeyPress);
   },
   beforeRouteEnter(to, from, next) {
     next(async vm => {
       vm.logPerformancePoint('路由进入开始');
+      vm.loading = true;
+      await vm.$nextTick();
       await vm.initBasicData();
+      vm.loading = false;
       vm.logPerformancePoint('路由进入完成');
     });
   },
   beforeRouteUpdate(to, from, next) {
     this.logPerformancePoint('路由更新开始');
-    this.initBasicData().then(() => {
-      this.logPerformancePoint('路由更新完成');
-      next();
+    this.loading = true;
+    this.$nextTick().then(() => {
+      this.initBasicData().then(() => {
+        this.loading = false;
+        this.logPerformancePoint('路由更新完成');
+        next();
+      });
     });
   },
   props: ["String"],
@@ -209,10 +274,10 @@ export default {
     mealNav,
     productList,
     productListYH,
-    productListGQ
+    productListGQ,
+    OrderMealSkeleton
   },
   filters: {},
-  computed: {}
 };
 </script>
 

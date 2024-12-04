@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}" v-debounce="{time: 300, fn: () => cardClickHandle(item)}" @contextmenu.prevent.stop="rightClickHandle">
+            ]" :style="{'margin-left': itemMargin + 'px'}" v-debounce="{time: 300, fn: () => handleOrderClick(item)}" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -510,51 +510,6 @@ export default {
       }
     },
 
-    // 服务员身份权限返回可点的对应区域及可查单区域列表
-    getAuthArea(arr) {
-      // 可点区域tab
-      const canPayOrderAreaList = [];
-      // 筛选可用的可点区域岗位(服务员)可点区域
-      const authStationArea =
-        this.$store.state.cardPageInfo.resResultDataObj.stationArea.filter(
-          (el) => el.status == 1
-        );
-      const authStationId = this.$store.state.userInfo.station_id || "";
-      // 将要展示在页面上的最终岗位可点区域
-      const resultAreaInfo = authStationArea.filter(
-        (el) => el.station_id == authStationId
-      );
-      resultAreaInfo.forEach((el) => {
-        const info = arr.find((ele) => ele.id == el.region_id);
-        if (info) canPayOrderAreaList.push(info);
-      });
-      // 可查单区域tab
-      let canGetOrderAreaList = [];
-      // 用户配置可查单区域
-      const configAreaIdList = this.$store.state.userInfo.check_regions || [];
-      canGetOrderAreaList = arr.filter((item) =>
-        configAreaIdList.find((items) => items == item.id)
-      );
-      const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
-      return tabList.filter(
-        (item, i, array) => array.findIndex((items) => items.id == item.id) == i
-      );
-    },
-    // 手动切换卡台订单状态
-    changeCardStatus(cardStatusId) {
-      if (cardStatusId === this.legendActive) {
-        // 点击的同状态一个按钮
-        this.legendActive = 0;
-        this.card.cardList = cardListInfoArr;
-      } else {
-        this.legendActive = cardStatusId;
-        this.tab.anotherInfoActiveId = 0;
-        this.tab.activeIndex = 0;
-        this.tab.showAnotherInfo = false;
-        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
-      }
-    },
-
     // 获取卡台数据
     async getCardList(cardInfo = [], businessData = []) {
       // 当岗位是营销时
@@ -917,7 +872,7 @@ export default {
       targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
       let result = (id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr)
-      if (this.hasForbidUnTipTableAuth()) {
+      if (this.hasForbidUnTipTableAuth()){
         result = result.filter(item => {
           return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
         })
@@ -1012,68 +967,32 @@ export default {
 
 
     // 点击卡台
-    async cardClickHandle(info) {
-      const startTime = performance.now();
-      const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] 开始处理卡台点击事件`, {
-        cardId: info.id,
-        cardName: info.name,
-        bizStatus: info.bizStatus
-      });
-
-      try {
-        // 存酒模式
-        if (this.typeModule == 2) {
-          console.log(`[${new Date().toISOString()}] 存酒模式，退出处理`);
-          return;
-        }
-
-        // 点单模式
-        if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
-          console.log(`[${new Date().toISOString()}] 卡台状态不可点单，状态码: ${info.bizStatus}`);
-          return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
-        }
-
-        // 预加载目标组件
-        const preloadComponents = [
-          import(/* webpackChunkName: "orderMealList" */ '@/views/Order/orderMeal/orderMealList.vue'),
-          import(/* webpackChunkName: "productList" */ '@/components/order/productList.vue'),
-          import(/* webpackChunkName: "orderMealNav" */ '@/components/order/orderMealNav.vue')
-        ];
-
-        console.log(`[${new Date().toISOString()}] 开始预加载组件`);
-        
-        // 并行执行预加载和状态更新
-        await Promise.all([
-          Promise.all(preloadComponents),
-          this.$store.commit("updateOrderInfo", {
-            key: "currentCardInfo",
-            value: info,
-          })
-        ]);
-
-        console.log(`[${new Date().toISOString()}] 预加载完成，开始路由跳转`);
-        const routerPushStart = performance.now();
-        
-        // 使用 replace 而不是 push 来减少路由历史堆栈
-        await this.$router.replace({ 
-          name: "orderMealList",
-          params: {
-            timestamp: Date.now() // 添加时间戳参数避免潜在的缓存问题
-          }
-        });
-        
-        const endTime = performance.now();
-        console.log(`[${new Date().toISOString()}] 卡台点击处理完成，性能指标:`, {
-          totalTime: endTime - startTime,
-          routerPushTime: endTime - routerPushStart,
-          timestamp: new Date().toISOString()
-        });
-
-      } catch (error) {
-        console.error(`[${new Date().toISOString()}] 卡台点击处理错误:`, error);
-        throw error;
+    async handleOrderClick(info) {
+      // 检查卡台状态
+      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
+        return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
       }
+
+      // 开启调试模式
+      this.$store.commit('setSkeletonDebug', false);
+      
+      // 更新当前卡台信息
+      await this.$store.commit("updateOrderInfo", {
+        key: "currentCardInfo",
+        value: info,
+      });
+      
+      // 跳转前先清空数据
+      this.$store.commit('clearProductList');
+      
+      // 使用 replace 而不是 push 来跳转，这样返回时更自然
+      await this.$router.replace({
+        name: 'orderMeal',
+        query: {
+          cardId: info.id,
+          ...this.$route.query
+        }
+      });
     },
 
 
@@ -1240,8 +1159,7 @@ export default {
       // 下过单的服务员 也属于同组 
       let isWaiterDept = false;
       const orderPersonInfo =
-        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
-        [];
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] || [];
       for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
         if (element) {
@@ -1492,18 +1410,19 @@ export default {
                   if (el.bizStatus != 4 && el.bizStatus != 20) {
                     // 除了开台数和抵达数以外的状态
                     result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1;
+                  } else {
+                    // 开台数、抵达数
+                    const currentSeatOpenInfo = allOpenInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    const currentSeatArriveInfo = allArriveInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    result["10"] =
+                      (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
+                    result["20"] =
+                      (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
                   }
-                  // 开台数、抵达数
-                  const currentSeatOpenInfo = allOpenInfo.find(
-                    (items) => items.region_id == el.id
-                  ) || { cnt: 0 };
-                  const currentSeatArriveInfo = allArriveInfo.find(
-                    (items) => items.region_id == el.id
-                  ) || { cnt: 0 };
-                  result["10"] =
-                    (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
-                  result["20"] =
-                    (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
                 });
               } else {
                 // 显示的全部
@@ -1634,6 +1553,50 @@ export default {
 
         this.cardStatusNoInfo = result;
       }, 200);
+    },
+    // 服务员身份权限返回可点的对应区域及可查单区域列表
+    getAuthArea(arr) {
+      // 可点区域tab
+      const canPayOrderAreaList = [];
+      // 筛选可用的可点区域岗位(服务员)可点区域
+      const authStationArea =
+        this.$store.state.cardPageInfo.resResultDataObj.stationArea.filter(
+          (el) => el.status == 1
+        );
+      const authStationId = this.$store.state.userInfo.station_id || "";
+      // 将要展示在页面上的最终岗位可点区域
+      const resultAreaInfo = authStationArea.filter(
+        (el) => el.station_id == authStationId
+      );
+      resultAreaInfo.forEach((el) => {
+        const info = arr.find((ele) => ele.id == el.region_id);
+        if (info) canPayOrderAreaList.push(info);
+      });
+      // 可查单区域tab
+      let canGetOrderAreaList = [];
+      // 用户配置可查单区域
+      const configAreaIdList = this.$store.state.userInfo.check_regions || [];
+      canGetOrderAreaList = arr.filter((item) =>
+        configAreaIdList.find((items) => items == item.id)
+      );
+      const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
+      return tabList.filter(
+        (item, i, array) => array.findIndex((items) => items.id == item.id) == i
+      );
+    },
+    // 手动切换卡台订单状态
+    changeCardStatus(cardStatusId) {
+      if (cardStatusId === this.legendActive) {
+        // 点击的同状态一个按钮
+        this.legendActive = 0;
+        this.card.cardList = cardListInfoArr;
+      } else {
+        this.legendActive = cardStatusId;
+        this.tab.anotherInfoActiveId = 0;
+        this.tab.activeIndex = 0;
+        this.tab.showAnotherInfo = false;
+        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+      }
     },
   },
 
