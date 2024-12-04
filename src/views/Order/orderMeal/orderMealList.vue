@@ -55,142 +55,154 @@ export default {
       safeModeEnabled: false,
       loadStartTime: 0,
       performanceMarks: [], // 存储性能标记
+      dataInitialized: false,
+      imageLoadPromises: []
     };
   },
   methods: {
-    updateProductsList({ key, value }) {
-      if(this.mustOrderProducts.length > 0) {
-        return
-      }
-      this[key] = value;
-    },
     logPerformancePoint(name, data = {}) {
       const timestamp = new Date().toISOString();
-      const timeFromStart = performance.now() - this.loadStartTime;
-      
-      const mark = {
-        name,
-        timestamp,
-        timeFromStart,
-        ...data
-      };
-      
-      this.performanceMarks.push(mark);
-      console.log(`[${timestamp}] ${name} - 距开始: ${timeFromStart.toFixed(2)}ms`, data);
-    }
-  },
-  mounted() {
-    this.logPerformancePoint('组件 Mounted');
-    
-    this.isYH2 = this.$route.query.give
-    this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
-    const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
-    if(showAmt.length > 0){
-      for(let item of showAmt){
-        if (item.id === '50') {
-          if(item.param1 * 1 > 0){
-            this.vipPrice = true
-            this.vipPricePercent = item.param1 * 1
-            break
-          }
+      console.log(`[${timestamp}] ${name}`, data);
+      this.performanceMarks.push({ name, timestamp, ...data });
+    },
+
+    // 更新商品列表
+    updateProductsList({ key, value }) {
+      this.logPerformancePoint('开始更新商品列表');
+      if(this.mustOrderProducts.length > 0) {
+        return;
+      }
+      this[key] = value;
+      this.logPerformancePoint('商品列表更新完成');
+    },
+
+    // 初始化基础数据
+    async initBasicData() {
+      try {
+        this.logPerformancePoint('开始初始化基础数据');
+        
+        // 处理基本配置
+        this.isYH2 = this.$route.query.give;
+        this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard';
+        
+        // 处理必选商品
+        const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
+        const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
+        this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
+          id: id,
+          name: mustPrdNames[index] || ''
+        }));
+
+        // 获取商品数据
+        const goodsAroundInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo || [];
+        this.allProductsList = goodsAroundInfo.filter(item => item.status === '1');
+        
+        if(this.mustOrderProducts.length > 0) {
+          this.allProductsList = [...this.allProductsList, ...this.mustOrderProducts];
+        }
+
+        // 处理安全模式
+        const safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || [];
+        this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1);
+        
+        this.logPerformancePoint('基础数据初始化完成');
+        return true;
+      } catch (error) {
+        console.error('初始化基础数据失败:', error);
+        this.logPerformancePoint('初始化基础数据失败', { error: error.message });
+        return false;
+      }
+    },
+
+    // 处理 VIP 价格逻辑
+    initVipPriceLogic() {
+      const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || [];
+      for(let item of showAmt) {
+        if (item.id === '50' && item.param1 * 1 > 0) {
+          this.vipPrice = true;
+          this.vipPricePercent = item.param1 * 1;
+          break;
         }
       }
-    }
 
-    if (this.vipPrice){
-      this.allProductsList = [...this.allProductsList.map(item => {
-        if(item.bizType  === '1'){
-          item.vipPrice = item.price
-          let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
-          p = Math.ceil(p).toString()
-          item.price = p
-        }
-        return item
-      })]
-    }
-    console.log('------------,allprods2:', this.allProductsList)
-    console.log('------------,vipPricePercent:', this.vipPricePercent)
+      if (this.vipPrice) {
+        this.allProductsList = this.allProductsList.map(item => {
+          if(item.bizType === '1') {
+            item.vipPrice = item.price;
+            let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2);
+            p = Math.ceil(p).toString();
+            item.price = p;
+          }
+          return item;
+        });
+      }
+    },
 
-    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
-
-    eventVue.$on("safeModeChanged", (e) => {
-      console.log('------------,safeModeChanged:', e)
-      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
-      console.log('------------,safeModeEnabled:', this.safeModeEnabled)
-    });
-
-    // 创建性能观察者
-    const observer = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      entries.forEach(entry => {
-        if (entry.entryType === 'measure') {
-          this.logPerformancePoint(`性能测量: ${entry.name}`, {
-            duration: entry.duration
-          });
-        }
+    // 设置事件监听
+    setupEventListeners() {
+      eventVue.$on("safeModeChanged", (e) => {
+        this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1;
       });
-    });
-    
-    observer.observe({ entryTypes: ['measure'] });
+    },
 
-    // 标记组件挂载完成
-    performance.mark('component-mounted');
-    this.logPerformancePoint('组件标记已挂载');
-
-    // 等待所有子组件和数据加载完成
-    this.$nextTick(async () => {
-      try {
-        this.logPerformancePoint('开始加载资源');
-        
-        // 等待所有图片加载完成
-        const imgElements = Array.from(this.$el.getElementsByTagName('img'));
-        this.logPerformancePoint('检测到图片数量', { count: imgElements.length });
-        
-        const imgPromises = imgElements.map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(resolve => {
+    // 处理图片加载
+    handleImageLoading() {
+      const imgElements = Array.from(this.$el.getElementsByTagName('img'));
+      this.imageLoadPromises = imgElements.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          const originalSrc = img.src;
+          img.src = '';  // 清空src以避免立即加载
+          
+          // 使用 requestIdleCallback 在空闲时间加载图片
+          requestIdleCallback(() => {
+            img.src = originalSrc;
             img.onload = resolve;
             img.onerror = resolve;
+          }, { timeout: 2000 });  // 设置2秒超时
+        });
+      });
+    },
+
+    // 初始化性能监控
+    initPerformanceMonitoring() {
+      if (process.env.NODE_ENV === 'development') {
+        const observer = new PerformanceObserver((list) => {
+          list.getEntries().forEach(entry => {
+            if (entry.entryType === 'measure') {
+              this.logPerformancePoint(`性能测量: ${entry.name}`, {
+                duration: entry.duration
+              });
+            }
           });
         });
-
-        await Promise.all(imgPromises);
-        this.logPerformancePoint('所有图片加载完成');
-
-        // 标记组件完全加载
-        performance.mark('component-fully-loaded');
-        
-        // 测量总加载时间
-        performance.measure(
-          'OrderMealList Total Load Time',
-          'component-mounted',
-          'component-fully-loaded'
-        );
-
-        // 测量从路由变化到组件加载完成的时间
-        if (window.routeStartTime) {
-          const totalTime = performance.now() - window.routeStartTime;
-          this.logPerformancePoint('总加载完成', {
-            fromRouteChange: totalTime
-          });
-        }
-
-        // 输出完整的性能记录
-        console.log('完整的性能记录:', this.performanceMarks);
-
-      } catch (error) {
-        console.error('性能监控出错:', error);
-        this.logPerformancePoint('性能监控错误', { error: error.message });
+        observer.observe({ entryTypes: ['measure'] });
       }
+    }
+  },
+  async created() {
+    this.logPerformancePoint('组件创建开始');
+    await this.initBasicData();
+    this.logPerformancePoint('组件创建完成');
+  },
+  async mounted() {
+    this.logPerformancePoint('组件挂载开始');
+    await this.$nextTick();
+    this.logPerformancePoint('组件挂载完成');
+  },
+  beforeRouteEnter(to, from, next) {
+    next(async vm => {
+      vm.logPerformancePoint('路由进入开始');
+      await vm.initBasicData();
+      vm.logPerformancePoint('路由进入完成');
     });
   },
-  beforeDestroy() {
-    this.logPerformancePoint('组件准备销毁');
-    eventVue.$off("safeModeChanged")
-    // 清理性能标记
-    performance.clearMarks();
-    performance.clearMeasures();
+  beforeRouteUpdate(to, from, next) {
+    this.logPerformancePoint('路由更新开始');
+    this.initBasicData().then(() => {
+      this.logPerformancePoint('路由更新完成');
+      next();
+    });
   },
   props: ["String"],
   components: {
@@ -200,27 +212,7 @@ export default {
     productListGQ
   },
   filters: {},
-  created() {
-    this.loadStartTime = performance.now();
-    this.logPerformancePoint('组件 Created');
-    
-    const mustOrderPrdIds = this.$route.query.mustOrderPrdId ? this.$route.query.mustOrderPrdId.split(',') : [];
-    const mustPrdNames = this.$route.query.mustPrdName ? this.$route.query.mustPrdName.split(',') : [];
-    this.mustOrderProducts = mustOrderPrdIds.map((id, index) => ({
-      id: id,
-      name: mustPrdNames[index] || ''
-    }));
-
-    // 使用 this.mustOrderProducts 进行后续处理
-    if(this.mustOrderProducts.length > 0) {
-      this.logPerformancePoint('处理必选商品');
-      this.mustOrderProducts.forEach(item => {
-        this.allProductsList.push(item)
-      })
-    }
-  },
-  computed: {
-  }
+  computed: {}
 };
 </script>
 

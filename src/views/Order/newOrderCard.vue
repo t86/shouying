@@ -510,7 +510,6 @@ export default {
       }
     },
 
-
     // 服务员身份权限返回可点的对应区域及可查单区域列表
     getAuthArea(arr) {
       // 可点区域tab
@@ -529,24 +528,18 @@ export default {
         const info = arr.find((ele) => ele.id == el.region_id);
         if (info) canPayOrderAreaList.push(info);
       });
-
       // 可查单区域tab
       let canGetOrderAreaList = [];
-
       // 用户配置可查单区域
       const configAreaIdList = this.$store.state.userInfo.check_regions || [];
       canGetOrderAreaList = arr.filter((item) =>
         configAreaIdList.find((items) => items == item.id)
       );
-
       const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
       return tabList.filter(
         (item, i, array) => array.findIndex((items) => items.id == item.id) == i
       );
     },
-
-
-
     // 手动切换卡台订单状态
     changeCardStatus(cardStatusId) {
       if (cardStatusId === this.legendActive) {
@@ -560,12 +553,9 @@ export default {
         this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
       }
-
     },
 
-
-
-    // 获取全量数据
+    // 获取卡台数据
     async getCardList(cardInfo = [], businessData = []) {
       // 当岗位是营销时
       if (this.isSaleRole) {
@@ -584,6 +574,7 @@ export default {
         (item) => item.type_id == 3
       );
 
+      
       if (isNoLimit.length <= 0) {
         // 有限制
         const areaList = currentAreaAndCardList.filter(
@@ -1043,25 +1034,38 @@ export default {
           return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
         }
 
-        console.log(`[${new Date().toISOString()}] 更新 store 中的卡台信息开始`);
-        const storeUpdateStart = performance.now();
-        
-        this.$store.commit("updateOrderInfo", {
-          key: "currentCardInfo",
-          value: info,
-        });
-        
-        console.log(`[${new Date().toISOString()}] 更新 store 完成，耗时: ${performance.now() - storeUpdateStart}ms`);
+        // 预加载目标组件
+        const preloadComponents = [
+          import(/* webpackChunkName: "orderMealList" */ '@/views/Order/orderMeal/orderMealList.vue'),
+          import(/* webpackChunkName: "productList" */ '@/components/order/productList.vue'),
+          import(/* webpackChunkName: "orderMealNav" */ '@/components/order/orderMealNav.vue')
+        ];
 
-        console.log(`[${new Date().toISOString()}] 开始路由跳转`);
+        console.log(`[${new Date().toISOString()}] 开始预加载组件`);
+        
+        // 并行执行预加载和状态更新
+        await Promise.all([
+          Promise.all(preloadComponents),
+          this.$store.commit("updateOrderInfo", {
+            key: "currentCardInfo",
+            value: info,
+          })
+        ]);
+
+        console.log(`[${new Date().toISOString()}] 预加载完成，开始路由跳转`);
         const routerPushStart = performance.now();
         
-        await this.$router.push({ name: "orderMealList" });
+        // 使用 replace 而不是 push 来减少路由历史堆栈
+        await this.$router.replace({ 
+          name: "orderMealList",
+          params: {
+            timestamp: Date.now() // 添加时间戳参数避免潜在的缓存问题
+          }
+        });
         
         const endTime = performance.now();
         console.log(`[${new Date().toISOString()}] 卡台点击处理完成，性能指标:`, {
           totalTime: endTime - startTime,
-          storeUpdateTime: routerPushStart - storeUpdateStart,
           routerPushTime: endTime - routerPushStart,
           timestamp: new Date().toISOString()
         });
