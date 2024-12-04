@@ -243,6 +243,28 @@ export default {
     // 添加快捷键监听
     window.addEventListener('keydown', this.handleKeyPress);
     
+    // 在下一个事件循环中处理业务逻辑
+    setTimeout(async () => {
+      try {
+        // // 预加载数据
+        // await this.preloadData();
+        
+        // 初始化基础数据
+        await this.initBasicData();
+        
+        // 关闭骨架屏和加载状态
+        this.$store.commit('setSkeletonDebug', false);
+        this.loading = false;
+        
+        this.logPerformancePoint('业务逻辑初始化完成');
+      } catch (error) {
+        console.error('Error during initialization:', error);
+        this.$message.error('数据加载失败，请重试');
+        this.loading = false;
+        this.$store.commit('setSkeletonDebug', false);
+      }
+    }, 0);
+
     this.$nextTick(() => {
       this.logPerformancePoint('组件挂载完成');
     });
@@ -252,33 +274,10 @@ export default {
     window.removeEventListener('keydown', this.handleKeyPress);
   },
   beforeRouteEnter(to, from, next) {
-    next(async vm => {
+       // 直接进入页面，显示骨架屏
+    next(vm => {
+      vm.loading = true;
       vm.logPerformancePoint('路由进入开始');
-      // 如果是骨架屏模式，直接显示骨架屏
-      if (to.query.skeleton === 'true') {
-        vm.loading = true;
-        next();
-        return;
-      }
-
-      try {
-        // 预加载数据
-        await vm.preloadData();
-        
-        // 初始化基础数据
-        await vm.initBasicData();
-        
-        // 关闭骨架屏
-        vm.$store.commit('setSkeletonDebug', false);
-        vm.loading = false;
-        
-        vm.logPerformancePoint('路由进入完成');
-      } catch (error) {
-        console.error('Error during route enter:', error);
-        vm.$message.error('数据加载失败，请重试');
-        vm.loading = false;
-        vm.$store.commit('setSkeletonDebug', false);
-      }
     });
   },
   beforeRouteUpdate(to, from, next) {
