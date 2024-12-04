@@ -1,6 +1,12 @@
 <template>
   <div id="app">
-    <router-view />
+    <!-- 骨架屏 -->
+    <component 
+      v-if="$route.meta.showSkeleton && $route.meta.skeletonComponent" 
+      :is="$route.meta.skeletonComponent" 
+    />
+    <!-- 实际内容 -->
+    <router-view v-else />
     <Loading />
   </div>
 </template>
@@ -10,6 +16,18 @@ export default {
   components: {
     Loading,
   },
+  watch: {
+    // 监听路由变化，处理骨架屏
+    '$route'(to) {
+      if (to.meta.showSkeleton) {
+        // 如果需要显示骨架屏，先显示骨架屏
+        console.log('显示骨架屏');
+      } else if (to.meta.component) {
+        // 如果实际组件已加载完成，显示实际组件
+        console.log('显示实际组件');
+      }
+    }
+  }
 };
 </script>
 <style lang="less">

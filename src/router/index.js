@@ -1,6 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+// 导入骨架屏组件
+const SkeletonLogin = () => import('@/components/skeleton/SkeletonLogin.vue')
+const SkeletonRegister = () => import('@/components/skeleton/SkeletonRegister.vue')
+
+// 预加载主要组件
+const LoginView = () => import(/* webpackPrefetch: true */ '@/views/Thelogin/Thelogin.vue')
+const RegisterView = () => import(/* webpackPrefetch: true */ '@/views/Register/register.vue')
+
 import erpRouter from './erp'
 import bmsRouter from './bms'
 import bookRouter from './book'
@@ -32,22 +40,43 @@ Vue.use(VueRouter)
 const routes = [
   // 项目根目录
   {
-    path: '/', name: 'home', meta: { title: '登录' }, component: () => import('@/views/home.vue'),
+    path: '/', 
+    name: 'home', 
+    meta: { title: '登录' }, 
+    component: () => import('@/views/home.vue'),
   },
   {
-    path: '/register', name: 'register', meta: { title: '注册' }, component: () => import('@/views/Register/register.vue'),
+    path: '/register', 
+    name: 'register', 
+    meta: { 
+      title: '注册',
+      skeleton: SkeletonRegister 
+    }, 
+    component: RegisterView
   },
   // order/book/erp/mgr 公用登录页面
   {
-    path: '/Thelogin', name: 'Thelogin', meta: { title: '登录' }, component: () => import('@/views/Thelogin/Thelogin.vue'),
+    path: '/Thelogin', 
+    name: 'Thelogin', 
+    meta: { 
+      title: '登录',
+      skeleton: SkeletonLogin 
+    }, 
+    component: LoginView
   },
   // 超级管理员登录
   {
-    path: '/appinfo', name: 'appinfo', meta: { title: '登录' }, component: () => import('@/views/Thelogin/appinfo.vue'),
+    path: '/appinfo', 
+    name: 'appinfo', 
+    meta: { title: '登录' }, 
+    component: () => import('@/views/Thelogin/appinfo.vue'),
   },
 
   {
-    path: '/front', name: 'front', meta: { title: '' }, component: () => import('@/views/front.vue'),
+    path: '/front', 
+    name: 'front', 
+    meta: { title: '' }, 
+    component: () => import('@/views/front.vue'),
     redirect: '/money',
     children: [
 
@@ -70,13 +99,16 @@ const routes = [
 
   // 后台管理系统
   {
-    path: '/ManagementSystem', name: 'ManagementSystem',
+    path: '/ManagementSystem', 
+    name: 'ManagementSystem',
     component: () => import('@/views/ManagementSystem/ManagementSystem.vue'),
     redirect: "/ManagementSystem/BMS",
     children: [
       // 门店管理后台
       {
-        path: '/ManagementSystem/BMS', name: 'BMS', component: () => import('@/views/ManagementSystem/BMS/BMS.vue'),
+        path: '/ManagementSystem/BMS', 
+        name: 'BMS', 
+        component: () => import('@/views/ManagementSystem/BMS/BMS.vue'),
         redirect: "/BMS/printer",
         children: [
           // bms
@@ -93,13 +125,16 @@ const routes = [
       },
       // appinfo 超级账号  
       {
-        path: '/ManagementSystem/appinfo', name: 'appinfo',
+        path: '/ManagementSystem/appinfo', 
+        name: 'appinfo',
         component: () => import('@/views/ManagementSystem/appinfo/appinfo.vue'),
         redirect: "/appinfo/smgr",
         children: [
           // appinfo 超级账号 >> 用户管理
           {
-            path: '/appinfo/smgr', name: "smgr", meta: { title: '用户管理' },
+            path: '/appinfo/smgr', 
+            name: "smgr", 
+            meta: { title: '用户管理' },
             component: () => import('@/views/ManagementSystem/appinfo/smgr/smgr.vue')
           },
         ]
@@ -111,7 +146,10 @@ const routes = [
 
   // 404
   {
-    path: '/*', name: 'notFound', meta: { title: 'notFound' }, component: () => import('@/views/notFound.vue'),
+    path: '/*', 
+    name: 'notFound', 
+    meta: { title: 'notFound' }, 
+    component: () => import('@/views/notFound.vue'),
   },
 
 
@@ -164,10 +202,31 @@ function logRoutePerformance(from, to) {
 }
 
 // 在router实例创建后添加导航守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   window.routeStartTime = performance.now();
   console.log(`[${new Date().toISOString()}] 路由导航开始`);
-  next();
+
+  // 如果目标路由有骨架屏配置
+  if (to.meta.skeleton) {
+    // 显示骨架屏
+    const skeletonComponent = await to.meta.skeleton();
+    to.meta.skeletonComponent = skeletonComponent.default;
+    to.meta.showSkeleton = true;
+    next();
+
+    try {
+      // 预加载实际组件
+      const component = await to.matched[0].components.default();
+      // 标记骨架屏可以关闭
+      to.meta.showSkeleton = false;
+      to.meta.component = component.default;
+    } catch (error) {
+      console.error('组件加载失败:', error);
+      to.meta.showSkeleton = false;
+    }
+  } else {
+    next();
+  }
 });
 
 // 修改 afterEach 钩子
