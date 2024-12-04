@@ -974,25 +974,34 @@ export default {
       }
 
       try {
-        // 先更新store
-        this.$store.commit("updateOrderInfo", {
-          key: "currentCardInfo",
-          value: info,
-        });
-        this.$store.commit('clearProductList');
-        
-        // 然后立即进行路由跳转
-        await this.$router.replace({
+        // 预加载数据
+        const promises = [
+          // 清空产品列表
+          this.$store.commit('clearProductList'),
+          // 更新当前卡台信息
+          this.$store.commit("updateOrderInfo", {
+            key: "currentCardInfo",
+            value: info,
+          }),
+          // 关闭调试模式
+          this.$store.commit('setSkeletonDebug', false)
+        ];
+
+        // 并行执行所有状态更新
+        await Promise.all(promises);
+
+        // 使用 replace 进行路由跳转
+        this.$router.replace({
           name: 'orderMeal',
           query: {
             cardId: info.id,
+            _t: Date.now(), // 添加时间戳避免缓存
             ...this.$route.query
           }
         });
-      } catch (err) {
-        console.error('Navigation failed:', err);
-        // 如果导航失败，回滚store更新
-        this.$store.commit('clearProductList');
+      } catch (error) {
+        console.error('Error during navigation:', error);
+        this.$message.error('跳转失败，请重试');
       }
     },
 

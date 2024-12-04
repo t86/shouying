@@ -86,6 +86,14 @@ export default {
       try {
         this.logPerformancePoint('开始初始化基础数据');
         
+        // 并行处理所有数据初始化任务
+        const [goodsAroundInfo, safeMode] = await Promise.all([
+          // 获取商品数据
+          Promise.resolve(this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo || []),
+          // 获取安全模式数据
+          Promise.resolve(this.$store.state.cardPageInfo.resResultDataObj.safeMode || [])
+        ]);
+
         // 处理基本配置
         this.isYH2 = this.$route.query.give;
         this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard';
@@ -98,18 +106,13 @@ export default {
           name: mustPrdNames[index] || ''
         }));
 
-        await this.simulateLoading(); // 移到数据加载后
-
-        // 获取商品数据
-        const goodsAroundInfo = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo || [];
+        // 处理商品列表
         this.allProductsList = goodsAroundInfo.filter(item => item.status === '1');
-        
         if(this.mustOrderProducts.length > 0) {
           this.allProductsList = [...this.allProductsList, ...this.mustOrderProducts];
         }
 
         // 处理安全模式
-        const safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || [];
         this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1);
         
         this.logPerformancePoint('基础数据初始化完成');
