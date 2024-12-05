@@ -1,13 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import SkeletonLogin from '@/components/skeleton/SkeletonLogin.vue'
+import SkeletonRegister from '@/components/skeleton/SkeletonRegister.vue'
 
-// 导入骨架屏组件
-const SkeletonLogin = () => import('@/components/skeleton/SkeletonLogin.vue')
-const SkeletonRegister = () => import('@/components/skeleton/SkeletonRegister.vue')
+function preloadComponent(component) {
+  try {
+    component();
+  } catch (e) {
+    console.error('组件预加载失败:', e);
+  }
+}
 
-// 预加载主要组件
-const LoginView = () => import(/* webpackPrefetch: true */ '@/views/Thelogin/Thelogin.vue')
-const RegisterView = () => import(/* webpackPrefetch: true */ '@/views/Register/register.vue')
 
 import erpRouter from './erp'
 import bmsRouter from './bms'
@@ -42,8 +45,12 @@ const routes = [
   {
     path: '/', 
     name: 'home', 
-    meta: { title: '登录' }, 
-    component: () => import('@/views/home.vue'),
+    meta: { title: '登录',      skeleton: SkeletonLogin }, 
+    component: () => import(
+      /* webpackChunkName: "home" */
+      /* webpackPrefetch: true */
+      '@/views/home.vue'
+    ),
   },
   {
     path: '/register', 
@@ -52,7 +59,7 @@ const routes = [
       title: '注册',
       skeleton: SkeletonRegister 
     }, 
-    component: RegisterView
+    component: () => import(/* webpackPrefetch: true */ '@/views/Register/register.vue'),
   },
   // order/book/erp/mgr 公用登录页面
   {
@@ -62,7 +69,7 @@ const routes = [
       title: '登录',
       skeleton: SkeletonLogin 
     }, 
-    component: LoginView
+    component: () => import(/* webpackPrefetch: true */ '@/views/Thelogin/Thelogin.vue')
   },
   // 超级管理员登录
   {
@@ -167,90 +174,40 @@ const router = new VueRouter({
 
 // 修改路由性能监控函数
 function logRoutePerformance(from, to) {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] 路由变化开始 - 从 ${from.path} 到 ${to.path}`);
-  
-  const perfData = {
-    from: from.path,
-    to: to.path,
-    routeChangeTime: performance.now() - window.routeStartTime,
-    timestamp
-  };
-
-  const routeEndTime = performance.now();
-  const routeDuration = routeEndTime - window.routeStartTime;
-  console.log(`[${new Date().toISOString()}] 路由跳转耗时: ${routeDuration}ms`);
-  
-  // 记录路由变化到首次渲染的时间
-  const observer = new PerformanceObserver((list) => {
-    const entries = list.getEntries();
-    const lastPaint = entries[entries.length - 1];
-    const currentTime = new Date().toISOString();
-    
-    perfData.firstPaintTime = lastPaint.startTime;
-    perfData.firstPaintDuration = lastPaint.duration;
-    
-    console.log(`[${currentTime}] 首次渲染完成:`, {
-      ...perfData,
-      totalTime: lastPaint.startTime + lastPaint.duration - window.routeStartTime,
-    });
-    
-    observer.disconnect();
-  });
-  
-  observer.observe({ entryTypes: ['paint'] });
+  if (window.routeStartTime) {
+    const endTime = performance.now();
+    const duration = endTime - window.routeStartTime;
+    console.log(`[${new Date().toISOString()}] 路由切换完成: ${from.path} -> ${to.path}, 耗时: ${duration.toFixed(2)}ms`);
+    window.routeStartTime = null;
+  }
 }
 
-// 在router实例创建后添加导航守卫
+// 修改路由守卫
 router.beforeEach(async (to, from, next) => {
+
+  // 记录开始时间
   window.routeStartTime = performance.now();
-  console.log(`[${new Date().toISOString()}] 路由导航开始`);
+  console.log(`[${new Date().toISOString()}] 路由导航开始: ${from.path} -> ${to.path}`);
 
-  // 如果目标路由有骨架屏配置
+  
+  // 如果有骨架屏，立即显示
   if (to.meta.skeleton) {
-    // 显示骨架屏
-    const skeletonComponent = await to.meta.skeleton();
-    to.meta.skeletonComponent = skeletonComponent.default;
-    to.meta.showSkeleton = true;
     next();
-
-    try {
-      // 预加载实际组件
-      const component = await to.matched[0].components.default();
-      // 标记骨架屏可以关闭
-      to.meta.showSkeleton = false;
-      to.meta.component = component.default;
-    } catch (error) {
-      console.error('组件加载失败:', error);
-      to.meta.showSkeleton = false;
+    // 异步加载实际组件
+    if (to.matched[0].components.default) {
+      try {
+        await to.matched[0].components.default();
+      } catch (error) {
+        console.error('组件预加载失败:', error);
+      }
     }
   } else {
     next();
   }
 });
 
-// 修改 afterEach 钩子
 router.afterEach((to, from) => {
-  // 记录性能数据
   logRoutePerformance(from, to);
-  
-  // 给目标组件添加渲染完成时间监控
-  const lastMatched = to.matched[to.matched.length - 1];
-  const targetComponent = lastMatched && lastMatched.components ? lastMatched.components.default : null;
-  
-  if (targetComponent) {
-    const originalMounted = targetComponent.mounted;
-    targetComponent.mounted = function() {
-      const mountedTime = performance.now();
-      const renderTime = mountedTime - window.routeStartTime;
-      console.log(`组件渲染完成时间: ${renderTime}ms`);
-      
-      // 调用原始的 mounted 钩子
-      if (originalMounted) {
-        originalMounted.call(this);
-      }
-    }
-  }
 });
 
 export default router

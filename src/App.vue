@@ -1,39 +1,59 @@
 <template>
   <div id="app">
-    <!-- 骨架屏 -->
-    <component 
-      v-if="$route.meta.showSkeleton && $route.meta.skeletonComponent" 
-      :is="$route.meta.skeletonComponent" 
-    />
-    <!-- 实际内容 -->
-    <router-view v-else />
+    <transition name="fade" mode="out-in">
+      <!-- 骨架屏 -->
+      <component 
+        v-if="loading && $route.meta.skeleton" 
+        :is="$route.meta.skeleton" 
+        key="skeleton"
+      />
+      <!-- 实际内容 -->
+      <router-view v-else key="content" />
+    </transition>
     <Loading />
   </div>
 </template>
+
 <script>
 import Loading from '@/components/Loading.vue';
+
 export default {
+  name: 'App',
   components: {
     Loading,
   },
+  data() {
+    return {
+      loading: true,
+    }
+  },
   watch: {
-    // 监听路由变化，处理骨架屏
-    '$route'(to) {
-      if (to.meta.showSkeleton) {
-        // 如果需要显示骨架屏，先显示骨架屏
-        console.log('显示骨架屏');
-      } else if (to.meta.component) {
-        // 如果实际组件已加载完成，显示实际组件
-        console.log('显示实际组件');
+    '$route': {
+      immediate: true,
+      handler(to) {
+        if (to.meta.skeleton) {
+          this.loading = true;
+          // 预加载实际组件
+          this.$nextTick(async () => {
+            try {
+              // 等待组件加载完成
+              await to.matched[0].components.default();
+              // 模拟最小加载时间，避免闪烁
+              await new Promise(resolve => setTimeout(resolve, 300));
+              this.loading = false;
+            } catch (error) {
+              console.error('组件加载失败:', error);
+              this.loading = false;
+            }
+          });
+        }
       }
     }
   }
 };
 </script>
+
 <style lang="less">
-/* .el-popup-parent--hidden{
-  padding-right: 0px !important;
-} */
 #app {
   font-family: "黑体";
   -webkit-font-smoothing: antialiased;
@@ -46,6 +66,17 @@ export default {
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
 
 html {
   min-height: max-content;

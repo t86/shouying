@@ -24,8 +24,56 @@ module.exports = {
       filename: `js/[name].${packageJson.version}.js`,
       chunkFilename: `js/[name].${packageJson.version}.js`,
     },
-    devtool: "source-map",
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
+    optimization: {
+      runtimeChunk: 'single',
+      moduleIds: 'hashed',
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: 3,
+        minSize: 20000,
+        maxSize: 250000,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        automaticNameDelimiter: '~',
+        cacheGroups: {
+          // 基础框架包 - 必须首屏加载
+          framework: {
+            name: 'framework',
+            test: /[\\/]node_modules[\\/](vue|vue-router|vuex)[\\/]/,
+            priority: 100,
+            chunks: 'initial',
+            enforce: true
+          },
+          // 首屏必需组件
+          initial: {
+            name: 'initial',
+            test: /[\\/]src[\\/](views|components)[\\/](home|Thelogin|Register)[\\/]/,
+            priority: 90,
+            chunks: 'initial',
+            enforce: true
+          },
+          // 其他所有包异步加载
+          vendors: {
+            name(module) {
+              const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+              return `npm.${packageName.replace('@', '')}`;
+            },
+            test: /[\\/]node_modules[\\/]/,
+            priority: 80,
+            chunks: 'async'
+          }
+        }
+      }
+    },
+    performance: {
+      hints: 'warning',
+      maxEntrypointSize: 250000,
+      maxAssetSize: 250000
+    },
   },
+
   css: {
     //重点.
     extract: {
@@ -56,6 +104,16 @@ module.exports = {
     // 添加别名
     config.resolve.alias.set("@", resolve("src"));
 
+  // 移除 prefetch
+  config.plugins.delete('prefetch');
+      
+  // 只预加载首屏必需资源
+  config.plugin('preload').tap(options => {
+    options[0].include = 'initial';
+    // 确保包含运行时代码
+    options[0].fileBlacklist = [/\.map$/, /hot-update\.js$/];
+    return options;
+  });
     config
       .plugin("version")
       .use(VersionPlugin)
@@ -68,6 +126,6 @@ module.exports = {
       .rule("images")
       .use("url-loader")
       .loader("url-loader")
-      .tap((options) => Object.assign(options, { limit:  1 }));
+      .tap((options) => Object.assign(options, { limit:  4096 }));
   },
 };
