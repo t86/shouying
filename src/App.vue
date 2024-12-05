@@ -21,10 +21,11 @@ export default {
     }
   },
   mounted() {
-    // 移除初始骨架屏
-    const initialSkeleton = document.querySelector('.skeleton-initial');
-    if (initialSkeleton) {
-      initialSkeleton.style.display = 'none';
+    // 通知应用已挂载
+    window.__APP_MOUNTED__ = true;
+    // 检查是否可以移除骨架屏
+    if (typeof window.__CHECK_SHOW_APP__ === 'function') {
+      window.__CHECK_SHOW_APP__();
     }
   }
 }

@@ -5,24 +5,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
  
-    <!-- 预加载关键资源 -->
-    <link rel="preload" href="/shouyin/js/runtime.js" as="script">
-    <link rel="preload" href="/shouyin/js/framework.js" as="script">
-    <link rel="preload" href="/shouyin/js/initial.js" as="script">
-    <link rel="preload" href="/shouyin/css/initial.css" as="stylesheet">
+
+  
     
     <!-- 内联关键 CSS -->
     <style>
+        /* 确保页面背景色与骨架屏一致 */
+        html, body {
+        background-color: #080b16;
+        margin: 0;
+        padding: 0;
+      }
+      
+      /* 初始隐藏Vue应用容器 */
+      #app {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
       .skeleton-initial {
         width: 100vw;
         height: 100vh;
-        background-color: #080b16;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
         z-index: 9999;
+        display: block !important;
       }
       
       .skeleton-login {
@@ -71,7 +81,9 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
      <!-- 延迟加载非关键资源 -->
      <link rel="prefetch" href="/shouyin/js/vendors.js">
-  
+      <!-- 预加载关键资源 -->
+      <link rel="preload" href="/shouyin/js/runtime.js" as="script">
+      <link rel="preload" href="/shouyin/js/framework.js" as="script">
     <script type="text/javascript" src="https://api.map.baidu.com/api?type=webgl&v=3.0&ak=BhteLO6flMZteTIkxiSwTB9lvEMAR9YU" async></script>
      
   </head>
@@ -79,27 +91,52 @@
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="app">
-      <!-- 初始骨架屏 -->
-      <div class="skeleton-initial" style="display: block">
-        <div class="skeleton-login">
-          <div class="skeleton-header"></div>
-          <div class="skeleton-input"></div>
-          <div class="skeleton-input"></div>
-          <div class="skeleton-button"></div>
-        </div>
+     
+    <!-- 初始骨架屏放在Vue应用外部 -->
+    <div class="skeleton-initial">
+      <div class="skeleton-login">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-input"></div>
+        <div class="skeleton-input"></div>
+        <div class="skeleton-button"></div>
       </div>
     </div>
+    
+    <div id="app"></div>
     <script>
-      // 在 Vue 初始化完成后隐藏初始骨架屏
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          console.log('加载完毕');
-          var initialSkeleton = document.querySelector('.skeleton-initial');
-          if (initialSkeleton) {
-            initialSkeleton.style.display = 'none';
+    // 跟踪资源加载状态
+    window.__RESOURCES_LOADED__ = false;
+    window.__APP_MOUNTED__ = false;
+      
+      // 检查是否可以显示应用
+      window.__CHECK_SHOW_APP__ = function() {
+        if (window.__RESOURCES_LOADED__ && window.__APP_MOUNTED__) {
+          var app = document.getElementById('app');
+          var skeleton = document.querySelector('.skeleton-initial');
+          
+          if (app && skeleton) {
+            console.log('显示应用内容');
+            // 显示应用
+            app.style.opacity = '1';
+            
+            // 淡出骨架屏
+            skeleton.style.opacity = '0';
+            skeleton.style.transition = 'opacity 0.3s ease';
+            
+            setTimeout(function() {
+              skeleton.style.display = 'none';
+            }, 300);
           }
-        }, 0);
+        }
+      }
+
+      // 监听关键资源加载完成
+      window.addEventListener('load', function() {
+        // 确保等待一定时间后再隐藏骨架屏
+        setTimeout(function() {
+          window.__RESOURCES_LOADED__ = true;
+          window.__CHECK_SHOW_APP__();
+        }, 1000); // 至少显示1秒钟骨架屏
       });
     </script>
     <!-- built files will be auto injected -->
