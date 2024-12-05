@@ -13,42 +13,42 @@
     
     <!-- 内联关键 CSS -->
     <style>
-      .app-loading {
+      .skeleton-initial {
         width: 100vw;
         height: 100vh;
         background-color: #080b16;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
       }
       
-      .app-loading-header {
-        height: 88px;
-        background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
-        background-size: 400% 100%;
-        animation: skeleton-loading 1.4s ease infinite;
-      }
-      
-      .app-loading-content {
-        height: calc(100vh - 88px);
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      
-      .app-loading-form {
+      .skeleton-login {
         width: 100%;
         max-width: 400px;
-        margin: 0 auto;
+        margin: 100px auto;
+        padding: 20px;
       }
       
-      .app-loading-input {
+      .skeleton-header {
         height: 40px;
-        margin-bottom: 20px;
         background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
         background-size: 400% 100%;
+        margin-bottom: 20px;
         animation: skeleton-loading 1.4s ease infinite;
       }
       
-      .app-loading-button {
+      .skeleton-input {
+        height: 40px;
+        background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
+        background-size: 400% 100%;
+        margin-bottom: 16px;
+        animation: skeleton-loading 1.4s ease infinite;
+      }
+      
+      .skeleton-button {
         height: 40px;
         background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
         background-size: 400% 100%;
@@ -81,17 +81,27 @@
     </noscript>
     <div id="app">
       <!-- 初始骨架屏 -->
-      <div class="app-loading">
-        <div class="app-loading-header"></div>
-        <div class="app-loading-content">
-          <div class="app-loading-form">
-            <div class="app-loading-input"></div>
-            <div class="app-loading-input"></div>
-            <div class="app-loading-button"></div>
-          </div>
+      <div class="skeleton-initial" style="display: block">
+        <div class="skeleton-login">
+          <div class="skeleton-header"></div>
+          <div class="skeleton-input"></div>
+          <div class="skeleton-input"></div>
+          <div class="skeleton-button"></div>
         </div>
       </div>
     </div>
+    <script>
+      // 在 Vue 初始化完成后隐藏初始骨架屏
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          console.log('加载完毕');
+          var initialSkeleton = document.querySelector('.skeleton-initial');
+          if (initialSkeleton) {
+            initialSkeleton.style.display = 'none';
+          }
+        }, 0);
+      });
+    </script>
     <!-- built files will be auto injected -->
   </body>
 </html>

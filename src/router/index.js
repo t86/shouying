@@ -182,28 +182,19 @@ function logRoutePerformance(from, to) {
   }
 }
 
-// 修改路由守卫
 router.beforeEach(async (to, from, next) => {
-
-  // 记录开始时间
   window.routeStartTime = performance.now();
-  console.log(`[${new Date().toISOString()}] 路由导航开始: ${from.path} -> ${to.path}`);
-
   
-  // 如果有骨架屏，立即显示
-  if (to.meta.skeleton) {
-    next();
-    // 异步加载实际组件
-    if (to.matched[0].components.default) {
-      try {
-        await to.matched[0].components.default();
-      } catch (error) {
-        console.error('组件预加载失败:', error);
-      }
+  // 预加载目标组件
+  if (to.matched[0].components.default) {
+    try {
+      await to.matched[0].components.default();
+    } catch (error) {
+      console.error('组件预加载失败:', error);
     }
-  } else {
-    next();
   }
+  
+  next();
 });
 
 router.afterEach((to, from) => {

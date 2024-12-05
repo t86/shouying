@@ -1,14 +1,7 @@
 <template>
   <div id="app">
     <transition name="fade" mode="out-in">
-      <!-- 骨架屏 -->
-      <component 
-        v-if="loading && $route.meta.skeleton" 
-        :is="$route.meta.skeleton" 
-        key="skeleton"
-      />
-      <!-- 实际内容 -->
-      <router-view v-else key="content" />
+      <router-view />
     </transition>
     <Loading />
   </div>
@@ -24,33 +17,17 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
     }
   },
-  watch: {
-    '$route': {
-      immediate: true,
-      handler(to) {
-        if (to.meta.skeleton) {
-          this.loading = true;
-          // 预加载实际组件
-          this.$nextTick(async () => {
-            try {
-              // 等待组件加载完成
-              await to.matched[0].components.default();
-              // 模拟最小加载时间，避免闪烁
-              await new Promise(resolve => setTimeout(resolve, 300));
-              this.loading = false;
-            } catch (error) {
-              console.error('组件加载失败:', error);
-              this.loading = false;
-            }
-          });
-        }
-      }
+  mounted() {
+    // 移除初始骨架屏
+    const initialSkeleton = document.querySelector('.skeleton-initial');
+    if (initialSkeleton) {
+      initialSkeleton.style.display = 'none';
     }
   }
-};
+}
 </script>
 
 <style lang="less">
@@ -76,7 +53,6 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
-
 
 html {
   min-height: max-content;
@@ -156,5 +132,4 @@ a {
   flex: 1;
   overflow: scroll;
 }
-
 </style>
