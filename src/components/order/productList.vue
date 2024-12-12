@@ -6,7 +6,7 @@
              :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
              v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
-      <img class="icon" :src="imgSrc.search" alt />
+      <img class="icon" :src="loadImage(imgSrc.search)" alt />
       <div class="opentime" layout="row" layout-align="center center">
         <span >开台时间：</span>
         <span>{{ openTime }}</span>
@@ -262,6 +262,7 @@ import api_auth from "@/api/UtilAuth";
 import {cardPageMixins} from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import keyBoard from "@/components/common/newKeyBoard";
+import ImageOptimizer from '@/utils/imageOptimizer';
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -344,6 +345,14 @@ export default {
     };
   },
   methods: {
+    async loadImage(url) {
+    try {
+      return await ImageOptimizer.load(url);
+    } catch (error) {
+      console.error('Image loading error:', error);
+      return this.imagePlaceholder;
+    }
+  },
     waiterInput(query){
       this.remoteMethod(query)
     },

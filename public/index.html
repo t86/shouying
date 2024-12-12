@@ -4,22 +4,130 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+ 
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="/shouyin/js/runtime.js" as="script">
+    <link rel="preload" href="/shouyin/js/framework.js" as="script">
+    <link rel="preload" href="/shouyin/js/initial.js" as="script">
+    <link rel="preload" href="/shouyin/css/initial.css" as="stylesheet">
+    
+    <!-- 内联关键 CSS -->
+    <style>
+      .skeleton-initial {
+        width: 100vw;
+        height: 100vh;
+        background-color: #080b16;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+      }
+      
+      .skeleton-login {
+        width: 100%;
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 20px;
+      }
+      
+      .skeleton-header {
+        height: 40px;
+        background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
+        background-size: 400% 100%;
+        margin-bottom: 20px;
+        animation: skeleton-loading 1.4s ease infinite;
+      }
+      
+      .skeleton-input {
+        height: 40px;
+        background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
+        background-size: 400% 100%;
+        margin-bottom: 16px;
+        animation: skeleton-loading 1.4s ease infinite;
+      }
+      
+      .skeleton-button {
+        height: 40px;
+        background: linear-gradient(90deg, #1a1d2d 25%, #252837 37%, #1a1d2d 63%);
+        background-size: 400% 100%;
+        animation: skeleton-loading 1.4s ease infinite;
+      }
+      
+      @keyframes skeleton-loading {
+        0% { background-position: 100% 50%; }
+        100% { background-position: 0 50%; }
+      }
+    </style>
+    
     <meta http-equiv="pragram" content="no-cache">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Cache" content="no-cache">
     <meta http-equiv="expires" content="0">
 
+    <script>
+      // 创建并插入骨架屏
+      document.write(`
+        <div class="skeleton-initial">
+          <div class="skeleton-login">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-input"></div>
+            <div class="skeleton-input"></div>
+            <div class="skeleton-button"></div>
+          </div>
+        </div>
+      `);
+    </script>
     <!-- <link rel="stylesheet" href="/css/print.css" media="print"> -->
     <!-- <link href="/path/print.css" media="print" rel="stylesheet" /> -->
     <title><%= htmlWebpackPlugin.options.title %></title>
-    <script type="text/javascript" src="https://api.map.baidu.com/api?type=webgl&v=3.0&ak=BhteLO6flMZteTIkxiSwTB9lvEMAR9YU"></script>
+     <!-- 延迟加载非关键资源 -->
+     <link rel="prefetch" href="/shouyin/js/vendors.js">
+  
+    <script type="text/javascript" src="https://api.map.baidu.com/api?type=webgl&v=3.0&ak=BhteLO6flMZteTIkxiSwTB9lvEMAR9YU" async></script>
+     
   </head>
   <body>
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="app"></div>
+    <div id="app">
+    </div>
+    <script>
+// 跟踪资源加载状态
+      window.__RESOURCES_LOADED__ = false;
+      window.__APP_MOUNTED__ = false;
+      
+      // 检查是否可以显示应用
+      window.__CHECK_SHOW_APP__ = function() {
+        if (window.__RESOURCES_LOADED__ && window.__APP_MOUNTED__) {
+          var app = document.getElementById('app');
+          var skeleton = document.querySelector('.skeleton-initial');
+          
+          if (app && skeleton) {
+            // 显示应用
+            app.style.opacity = '1';
+            
+            // 淡出骨架屏
+            skeleton.style.opacity = '0';
+            skeleton.style.transition = 'opacity 0.3s ease';
+            
+            setTimeout(function() {
+              skeleton.style.display = 'none';
+            }, 300);
+          }
+        }
+      }
+
+      // 监听关键资源加载完成
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          window.__RESOURCES_LOADED__ = true;
+          window.__CHECK_SHOW_APP__();
+        }, 800);
+      });
+    </script>
     <!-- built files will be auto injected -->
   </body>
 </html>
