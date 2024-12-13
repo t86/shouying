@@ -87,10 +87,14 @@
                     <span>手机号码</span>
                   </div>
                   <div class="value">
-                    <input v-if="phoneNumMask === ''" v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
-                      @input="emitStepOneInfoHandle" placeholder="请输入手机号" />
-                    <input v-else v-model="phoneNumMask" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
-                           placeholder="请输入手机号" />
+                    <template v-if="isPhoneEditing">
+                      <input v-model="phoneNum" :class="{ focus: focus == 2 }" @click.stop="focus = 2"
+                        @input="handlePhoneInput('normal')" placeholder="请输入手机号" />
+                    </template>
+                    <template v-else>
+                      <input v-model="phoneNumMask" :class="{ focus: focus == 2 }" @click.stop="startEditPhone('normal')"
+                        readonly placeholder="请输入手机号" />
+                    </template>
 
                     <el-button v-if="stepOneInfo.needAuthPhoneVal" style="
                     position: absolute; left: 280px;background: #374368;
@@ -125,10 +129,14 @@
                     <span>手机号码</span>
                   </div>
                   <div class="value">
-                    <input v-if="customPhoneNumMask===''" v-model="customPhoneNum" :class="{ focus: focus == 4 }" @click="focus = 4"
-                      @input="emitStepOneInfoHandle" placeholder="请输入客户手机号" />
-                    <input v-else v-model="customPhoneNumMask" :class="{ focus: focus == 4 }" @click="focus = 4"
-                           @input="" placeholder="请输入客户手机号" />
+                    <template v-if="isCustomPhoneEditing">
+                      <input v-model="customPhoneNum" :class="{ focus: focus == 4 }" @click.stop="focus = 4"
+                        @input="handlePhoneInput('custom')" placeholder="请输入客户手机号" />
+                    </template>
+                    <template v-else>
+                      <input v-model="customPhoneNumMask" :class="{ focus: focus == 4 }" @click.stop="startEditPhone('custom')"
+                        readonly placeholder="请输入客户手机号" />
+                    </template>
                   </div>
                 </div>
                 <div class="coll" layout="row" layout-align="start center">
@@ -186,12 +194,16 @@ export default {
       selectedInfo: {},
       tabIndex: 1,
       authValidateVal: "", // 服务码
-      phoneNum: "", // 手机号
-      phoneNumMask: '',
+      phoneNum: "", // 真实手机号
+      phoneNumMask: "", // 掩码手机号
+      isPhoneEditing: false, // 是否正在编辑手机号
+
       validateVal: "", // 验证码
 
-      customPhoneNum: "", // 客户手机号
-      customPhoneNumMask: "",
+      customPhoneNum: "", // 真实客户手机号 
+      customPhoneNumMask: "", // 掩码客户手机号
+      isCustomPhoneEditing: false, // 是否正在编辑客户手机号
+
       customPhoneName: "", // 客户中心客户姓名
 
       superValidate: "", // 超级授权码
@@ -320,32 +332,31 @@ export default {
       if (!this.focus) return;
       let count = "";
       if (this.focus == 1) count = "authValidateVal";
-      else if (this.focus == 2) count = "phoneNum";
+      else if (this.focus == 2 && this.isPhoneEditing) count = "phoneNum";
       else if (this.focus == 3) count = "validateVal";
-      else if (this.focus == 4) count = "customPhoneNum";
+      else if (this.focus == 4 && this.isCustomPhoneEditing) count = "customPhoneNum";
       else if (this.focus == 5) count = "superValidate";
+
+      if(!count) return;
+
       switch (value) {
         case 10: // 清空
-          console.log(count)
           this[count] = "";
-          if(count === "phoneNum"){
-            this.phoneNumMask = ""
-            this.stepOneInfo.phoneNumMask = ''
-          } else if (count === 'customPhoneNum') {
-            this.customPhoneNumMask = ""
-            this.stepOneInfo.customPhoneNumMask = ''
-          }
           break;
-        case 12: // 回退(
-          this[count] =
-            this[count].toString().slice(0, this[count].toString().length - 1) *
-            1;
+        case 12: // 回退
+          this[count] = this[count].toString().slice(0, -1);
           break;
         default:
-          this[count] = this[count].toString() + value * 1;
+          this[count] = this[count].toString() + value;
           break;
       }
-      this.emitStepOneInfoHandle();
+
+      // 处理手机号输入完成
+      if(count === "phoneNum" || count === "customPhoneNum") {
+        this.handlePhoneInput(count === "phoneNum" ? 'normal' : 'custom');
+      } else {
+        this.emitStepOneInfoHandle();
+      }
     },
     changeCheckBox(itemInfo) {
       console.log("itemInfo changeCheckBox", itemInfo)
@@ -449,6 +460,44 @@ export default {
       const width = screen.availWidth;
       const height = screen.availHeight;
       this.isRect = width >= height;
+    },
+    // 开始编辑手机号
+    startEditPhone(type) {
+      if(type === 'normal') {
+        this.isPhoneEditing = true;
+        this.phoneNumMask = '';
+        this.$nextTick(() => {
+          this.focus = 2;
+        });
+      } else {
+        this.isCustomPhoneEditing = true; 
+        this.customPhoneNumMask = '';
+        this.$nextTick(() => {
+          this.focus = 4;
+        });
+      }
+    },
+
+    // 验证手机号格式
+    validatePhone(phone) {
+      return /^1\d{10}$/.test(phone);
+    },
+
+    // 处理手机号输入
+    handlePhoneInput(type) {
+      if(type === 'normal') {
+        if(this.validatePhone(this.phoneNum)) {
+          this.phoneNumMask = this.phoneNum.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+          this.isPhoneEditing = false;
+          this.emitStepOneInfoHandle();
+        }
+      } else {
+        if(this.validatePhone(this.customPhoneNum)) {
+          this.customPhoneNumMask = this.customPhoneNum.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+          this.isCustomPhoneEditing = false;
+          this.emitStepOneInfoHandle();
+        }
+      }
     },
   },
   props: {
