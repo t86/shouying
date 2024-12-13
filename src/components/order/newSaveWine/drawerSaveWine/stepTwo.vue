@@ -2,7 +2,7 @@
   <div class="step-two">
     <div class="top" layout="row" layout-align="space-between center">
       <div class="left">
-        <span>{{ tabIndex == 2 ? phoneNum : customPhoneNum }}</span>
+        <span>{{ tabIndex == 2 ? maskedPhoneNum : customPhoneNum }}</span>
         <span>{{ tabIndex == 2 ? customName : customPhoneName }}</span>
       </div>
       <div class="right" layout="row" layout-align="start center">
@@ -411,6 +411,11 @@ export default {
       return (
           this.$store.state.userInfo.roleIds.includes(2) && this.$store.state.userInfo.sys_modules.includes(83)
       );
+    },
+    // 添加手机号掩码计算属性
+    maskedPhoneNum() {
+      if (!this.phoneNum) return '';
+      return this.phoneNum.toString().replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
     }
   },
   watch: {
