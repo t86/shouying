@@ -39,7 +39,7 @@
             <el-input
               v-model="formData.sales.sales_phone"
               disabled
-              style="width: 80%"
+              style="width: 80%; background-color: rgba(0,0,0,0.2)"
             ></el-input>
           </el-form-item>
         </div>
@@ -234,7 +234,7 @@
             <el-input
               v-model="formData.secondSales.second_sales_phone"
               disabled
-              style="width: 80%"
+              style="width: 80%; background-color: rgba(0,0,0,0.8)"
             ></el-input>
           </el-form-item>
         </div>
