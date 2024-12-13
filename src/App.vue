@@ -1,21 +1,37 @@
 <template>
   <div id="app">
-    <router-view />
+    <transition name="fade" mode="out-in">
+      <router-view />
+    </transition>
     <Loading />
   </div>
 </template>
+
 <script>
 import Loading from '@/components/Loading.vue';
+
 export default {
+  name: 'App',
   components: {
     Loading,
   },
-};
+  data() {
+    return {
+      loading: false,
+    }
+  },
+  mounted() {
+    // 通知应用已挂载
+    window.__APP_MOUNTED__ = true;
+    // 检查是否可以移除骨架屏
+    if (typeof window.__CHECK_SHOW_APP__ === 'function') {
+      window.__CHECK_SHOW_APP__();
+    }
+  }
+}
 </script>
+
 <style lang="less">
-/* .el-popup-parent--hidden{
-  padding-right: 0px !important;
-} */
 #app {
   font-family: "黑体";
   -webkit-font-smoothing: antialiased;
@@ -27,6 +43,16 @@ export default {
   user-select: none;
   outline: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 
 html {
@@ -107,5 +133,4 @@ a {
   flex: 1;
   overflow: scroll;
 }
-
 </style>

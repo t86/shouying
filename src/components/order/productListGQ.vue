@@ -15,12 +15,22 @@
           layout-align="start start"
           :style="{'width':centerType+'px'}"
         >
-          <div class="prd-item" v-for="item in productsList" :key="item.id" @click="setMealForProduct(item)" :class="{'opacity': item.outSomethingCount == 0}">
-            <h5 class="title">{{item.name}}</h5>
-            <p v-if="item.outSomethingCount!='many'" class="count">余:{{item.outSomethingCount}}</p>
-            <p v-else class="count"></p>
-            <p class="price">{{item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price}}</p>
-            <img v-if="item.outSomethingCount==0" class="no-data-count" :src="require('@/assets/order-img/noCount.png')" />
+          <div v-for="(item, index) in productsList" :key="index" class="card-item" @click="setMealForProduct(item)">
+            <div class="card-item-content">
+              <div class="card-item-title">{{ item.name }}</div>
+              <div class="card-item-info">
+                <div class="card-item-price">￥{{ item.price }}</div>
+                <img v-if="item.outSomethingCount == 0" class="no-data-count" :src="loadImage(require('@/assets/order-img/noCount.png'))" />
+                <div v-else class="card-item-count">剩余：{{ item.outSomethingCount }}</div>
+              </div>
+              <div class="operate-btn">
+                <img v-if="item.outSomethingCount == 0" :src="optimizedAddDisabledIcon" alt="add" />
+                <img v-else :src="optimizedAddIcon" alt="add" @click.stop="changeCount('add', item)" />
+                <span>{{ item.outSomethingCount }}</span>
+                <img v-if="item.outSomethingCount == 'many'" :src="optimizedSubDisabledIcon" alt="sub" />
+                <img v-else :src="optimizedSubIcon" alt="sub" @click.stop="changeCount('sub', item)" />
+              </div>
+            </div>
           </div>
           <p v-if="totalPage!=1" class="tips">{{page>=totalPage? '没有更多了':'加载中...'}}</p>
         </div>
@@ -45,6 +55,31 @@
                 <div class="td">{{ item.c }}</div>
               </div>
               <div class="require p-l-2">{{item.require}}</div>
+              <div class="operate-btn">
+                <img
+                  v-if="item.c == 0"
+                  :src="optimizedAddDisabledIcon"
+                  alt="add"
+                />
+                <img
+                  v-else
+                  :src="optimizedAddIcon"
+                  alt="add"
+                  @click="changeCount('add', item)"
+                />
+                <span>{{ item.c }}</span>
+                <img
+                  v-if="item.c == 'many'"
+                  :src="optimizedSubDisabledIcon"
+                  alt="sub"
+                />
+                <img
+                  v-else
+                  :src="optimizedSubIcon"
+                  alt="sub"
+                  @click="changeCount('sub', item)"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -77,6 +112,7 @@ import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";
+import ImageOptimizer from '@/utils/imageOptimizer';
 
 const cardWidth = 180;
 let oneLineCount = 0;
@@ -106,6 +142,9 @@ export default {
         addDisabled,
         subDisabled
       },
+
+      optimizedImages: {},
+      imagePlaceholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
 
       // 估清商品列表
       tableData: []
@@ -257,10 +296,40 @@ export default {
       } catch (error) {
         console.log("解除估清失败", error);
       }
-    }
+    },
+    async loadImage(url) {
+      if (!url) return this.imagePlaceholder;
+      
+      // 如果已经优化过，直接返回缓存的结果
+      if (this.optimizedImages[url]) {
+        return this.optimizedImages[url];
+      }
+
+      try {
+        const optimizedImage = await ImageOptimizer.load(url);
+        this.$set(this.optimizedImages, url, optimizedImage);
+        return optimizedImage;
+      } catch (error) {
+        console.error('Image loading error:', error);
+        return this.imagePlaceholder;
+      }
+    },
+    async initImages() {
+      // 预加载所有需要的图片
+      const imagesToLoad = [
+        this.imgSrc.add,
+        this.imgSrc.sub,
+        this.imgSrc.addDisabled,
+        this.imgSrc.subDisabled
+      ];
+      for (const url of imagesToLoad) {
+        await this.loadImage(url);
+      }
+    },
   },
   mounted() {
     this.getCenterType();
+    this.initImages();
     this.getGQPrdList();
     // this.$refs.productListRef.onscroll = this.scrollHandle
   },
@@ -268,11 +337,18 @@ export default {
   components: {
     mealDrawer
   },
-  watch: {
-    currentCategoryProductList(newVal) {
-      this.search.keyWord = "";
-      this.productsListTotal = newVal;
-      this.getPageData();
+  computed: {
+    optimizedAddIcon() {
+      return this.optimizedImages[this.imgSrc.add] || this.imagePlaceholder;
+    },
+    optimizedSubIcon() {
+      return this.optimizedImages[this.imgSrc.sub] || this.imagePlaceholder;
+    },
+    optimizedAddDisabledIcon() {
+      return this.optimizedImages[this.imgSrc.addDisabled] || this.imagePlaceholder;
+    },
+    optimizedSubDisabledIcon() {
+      return this.optimizedImages[this.imgSrc.subDisabled] || this.imagePlaceholder;
     }
   }
 };

@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}" v-debounce="{time: 300, fn: () => cardClickHandle(item)}" @contextmenu.prevent.stop="rightClickHandle">
+            ]" :style="{'margin-left': itemMargin + 'px'}" v-fast-click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -334,7 +334,7 @@ export default {
   data() {
     return {
       // loadIndex: 0,
-      // modelVisible: true, // 是否显示未开启营业日模态框
+      // modelVisible: true, // 是否��示未开启营��日模态框
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
@@ -510,62 +510,7 @@ export default {
       }
     },
 
-
-    // 服务员身份权限返回可点的对应区域及可查单区域列表
-    getAuthArea(arr) {
-      // 可点区域tab
-      const canPayOrderAreaList = [];
-      // 筛选可用的可点区域岗位(服务员)可点区域
-      const authStationArea =
-        this.$store.state.cardPageInfo.resResultDataObj.stationArea.filter(
-          (el) => el.status == 1
-        );
-      const authStationId = this.$store.state.userInfo.station_id || "";
-      // 将要展示在页面上的最终岗位可点区域
-      const resultAreaInfo = authStationArea.filter(
-        (el) => el.station_id == authStationId
-      );
-      resultAreaInfo.forEach((el) => {
-        const info = arr.find((ele) => ele.id == el.region_id);
-        if (info) canPayOrderAreaList.push(info);
-      });
-
-      // 可查单区域tab
-      let canGetOrderAreaList = [];
-
-      // 用户配置可查单区域
-      const configAreaIdList = this.$store.state.userInfo.check_regions || [];
-      canGetOrderAreaList = arr.filter((item) =>
-        configAreaIdList.find((items) => items == item.id)
-      );
-
-      const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
-      return tabList.filter(
-        (item, i, array) => array.findIndex((items) => items.id == item.id) == i
-      );
-    },
-
-
-
-    // 手动切换卡台订单状态
-    changeCardStatus(cardStatusId) {
-      if (cardStatusId === this.legendActive) {
-        // 点击的同状态一个按钮
-        this.legendActive = 0;
-        this.card.cardList = cardListInfoArr;
-      } else {
-        this.legendActive = cardStatusId;
-        this.tab.anotherInfoActiveId = 0;
-        this.tab.activeIndex = 0;
-        this.tab.showAnotherInfo = false;
-        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
-      }
-
-    },
-
-
-
-    // 获取全量数据
+    // 获取卡台数据
     async getCardList(cardInfo = [], businessData = []) {
       // 当岗位是营销时
       if (this.isSaleRole) {
@@ -584,6 +529,7 @@ export default {
         (item) => item.type_id == 3
       );
 
+      
       if (isNoLimit.length <= 0) {
         // 有限制
         const areaList = currentAreaAndCardList.filter(
@@ -926,7 +872,7 @@ export default {
       targetCardList = sortCardList;
       const filterArr = targetCardList.filter((item) => item[key] == id);
       let result = (id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr)
-      if (this.hasForbidUnTipTableAuth()) {
+      if (this.hasForbidUnTipTableAuth()){
         result = result.filter(item => {
           return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
         })
@@ -1021,54 +967,45 @@ export default {
 
 
     // 点击卡台
-    async cardClickHandle(info) {
-      const startTime = performance.now();
-      const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] 开始处理卡台点击事件`, {
-        cardId: info.id,
-        cardName: info.name,
-        bizStatus: info.bizStatus
-      });
+    async handleOrderClick(info) {
+      // 检查卡台状态
+      if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
+        return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
+      }
 
       try {
-        // 存酒模式
-        if (this.typeModule == 2) {
-          console.log(`[${new Date().toISOString()}] 存酒模式，退出处理`);
-          return;
-        }
+        // 开启骨架屏
+        this.$store.commit('setSkeletonDebug', true);
 
-        // 点单模式
-        if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
-          console.log(`[${new Date().toISOString()}] 卡台状态不可点单，状态码: ${info.bizStatus}`);
-          return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
-        }
+        // 预加载数据
+        const promises = [
+          // 清空产品列表
+          this.$store.commit('clearProductList'),
+          // 更新当前卡台信息
+          this.$store.commit("updateOrderInfo", {
+            key: "currentCardInfo",
+            value: info,
+          })
+        ];
 
-        console.log(`[${new Date().toISOString()}] 更新 store 中的卡台信息开始`);
-        const storeUpdateStart = performance.now();
-        
-        this.$store.commit("updateOrderInfo", {
-          key: "currentCardInfo",
-          value: info,
+        // 并行执行所有状态更新
+        await Promise.all(promises);
+
+        // 使用 replace 进行路由跳转
+        this.$router.replace({
+          name: 'orderMeal',
+          query: {
+            cardId: info.id,
+            _t: Date.now(), // 添加时间戳避免缓存
+            skeleton: 'true', // 标记是否显示骨架屏
+            ...this.$route.query
+          }
         });
-        
-        console.log(`[${new Date().toISOString()}] 更新 store 完成，耗时: ${performance.now() - storeUpdateStart}ms`);
-
-        console.log(`[${new Date().toISOString()}] 开始路由跳转`);
-        const routerPushStart = performance.now();
-        
-        await this.$router.push({ name: "orderMealList" });
-        
-        const endTime = performance.now();
-        console.log(`[${new Date().toISOString()}] 卡台点击处理完成，性能指标:`, {
-          totalTime: endTime - startTime,
-          storeUpdateTime: routerPushStart - storeUpdateStart,
-          routerPushTime: endTime - routerPushStart,
-          timestamp: new Date().toISOString()
-        });
-
       } catch (error) {
-        console.error(`[${new Date().toISOString()}] 卡台点击处理错误:`, error);
-        throw error;
+        console.error('Error during navigation:', error);
+        this.$message.error('跳转失败，请重试');
+        // 发生错误时关闭骨架屏
+        this.$store.commit('setSkeletonDebug', false);
       }
     },
 
@@ -1236,8 +1173,7 @@ export default {
       // 下过单的服务员 也属于同组 
       let isWaiterDept = false;
       const orderPersonInfo =
-        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
-        [];
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] || [];
       for (let i = 0; i < waiter_emp_ids_arr.length; i++) {
         const element = waiter_emp_ids_arr[i];
         if (element) {
@@ -1488,18 +1424,19 @@ export default {
                   if (el.bizStatus != 4 && el.bizStatus != 20) {
                     // 除了开台数和抵达数以外的状态
                     result[el.bizStatus] = (result[el.bizStatus] || 0) * 1 + 1;
+                  } else {
+                    // 开台数、抵达数
+                    const currentSeatOpenInfo = allOpenInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    const currentSeatArriveInfo = allArriveInfo.find(
+                      (items) => items.region_id == el.id
+                    ) || { cnt: 0 };
+                    result["10"] =
+                      (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
+                    result["20"] =
+                      (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
                   }
-                  // 开台数、抵达数
-                  const currentSeatOpenInfo = allOpenInfo.find(
-                    (items) => items.region_id == el.id
-                  ) || { cnt: 0 };
-                  const currentSeatArriveInfo = allArriveInfo.find(
-                    (items) => items.region_id == el.id
-                  ) || { cnt: 0 };
-                  result["10"] =
-                    (result["10"] || 0) * 1 + currentSeatOpenInfo.cnt * 1; // 开台数
-                  result["20"] =
-                    (result["20"] || 0) * 1 + currentSeatArriveInfo.cnt * 1; // 抵达数
                 });
               } else {
                 // 显示的全部
@@ -1630,6 +1567,50 @@ export default {
 
         this.cardStatusNoInfo = result;
       }, 200);
+    },
+    // 服务员身份权限返回可点的对应区域及可查单区域列表
+    getAuthArea(arr) {
+      // 可点区域tab
+      const canPayOrderAreaList = [];
+      // 筛选可用的可点区域岗位(服务员)可点区域
+      const authStationArea =
+        this.$store.state.cardPageInfo.resResultDataObj.stationArea.filter(
+          (el) => el.status == 1
+        );
+      const authStationId = this.$store.state.userInfo.station_id || "";
+      // 将要展示在页面上的最终岗位可点区域
+      const resultAreaInfo = authStationArea.filter(
+        (el) => el.station_id == authStationId
+      );
+      resultAreaInfo.forEach((el) => {
+        const info = arr.find((ele) => ele.id == el.region_id);
+        if (info) canPayOrderAreaList.push(info);
+      });
+      // 可查单区域tab
+      let canGetOrderAreaList = [];
+      // 用户配置可查单区域
+      const configAreaIdList = this.$store.state.userInfo.check_regions || [];
+      canGetOrderAreaList = arr.filter((item) =>
+        configAreaIdList.find((items) => items == item.id)
+      );
+      const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
+      return tabList.filter(
+        (item, i, array) => array.findIndex((items) => items.id == item.id) == i
+      );
+    },
+    // 手动切换卡台订单状态
+    changeCardStatus(cardStatusId) {
+      if (cardStatusId === this.legendActive) {
+        // 点击的同状态一个按钮
+        this.legendActive = 0;
+        this.card.cardList = cardListInfoArr;
+      } else {
+        this.legendActive = cardStatusId;
+        this.tab.anotherInfoActiveId = 0;
+        this.tab.activeIndex = 0;
+        this.tab.showAnotherInfo = false;
+        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+      }
     },
   },
 
@@ -1843,6 +1824,23 @@ export default {
   },
 
   mixins: [cardPageMixins, authStatus],
+  directives: {
+    fastClick: {
+      bind(el, binding) {
+        let lastTime = 0;
+        const delay = 100; // 设置一个较短的防抖时间
+        
+        el.addEventListener('click', (e) => {
+          const currentTime = new Date().getTime();
+          
+          if (currentTime - lastTime > delay) {
+            binding.value(e);
+            lastTime = currentTime;
+          }
+        });
+      }
+    }
+  },
 };
 </script>
 
