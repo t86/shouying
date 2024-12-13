@@ -668,7 +668,11 @@ export default {
 </style>
 
 <style scoped lang="less">
-
+/deep/ .el-input.is-disabled .el-input__inner {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  cursor: not-allowed !important;
+}
 .label {
   position: relative;
   margin-right: 20px;
