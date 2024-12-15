@@ -509,6 +509,7 @@ export default {
 
 
       params.prd_price = Math.round(this.groupInfo.price * 100)
+      console.log('params.prd_price==============', params.prd_price)
       if (this.vipPrice && this.groupInfo.bizType * 1 === 1) {
         if (this.hasVipPriceDirect || this.bindphone || this.hasShouyin) {
           params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
@@ -526,7 +527,7 @@ export default {
       try {
         console.log('?'.repeat(50), this.singleInfo)
         params.auth_type = this.singleInfo.auth_type
-        if (params.auth_type === 2 && this.groupInfo.bizType * 1 === 1) {
+        if (params.auth_type === 2 && this.groupInfo.bizType * 1 === 1 && this.vipPrice) {
           params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
         }
 
