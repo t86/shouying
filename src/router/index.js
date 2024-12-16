@@ -186,7 +186,7 @@ router.beforeEach(async (to, from, next) => {
   window.routeStartTime = performance.now();
   
   // 预加载目标组件
-  if (to.matched[0].components.default) {
+  if (to.matched[0] && to.matched[0].components && typeof to.matched[0].components.default === 'function') {
     try {
       await to.matched[0].components.default();
     } catch (error) {

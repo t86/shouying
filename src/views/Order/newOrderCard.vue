@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}" v-fast-click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
+            ]" :style="{'margin-left': itemMargin + 'px'}"  @click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -968,6 +968,7 @@ export default {
 
     // 点击卡台
     async handleOrderClick(info) {
+      console.log("点击卡台开始跳转", info);
       // 检查卡台状态
       if (info.bizStatus == 1 || info.bizStatus == 2 || info.bizStatus == 8) {
         return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
