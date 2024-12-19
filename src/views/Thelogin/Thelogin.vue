@@ -63,7 +63,7 @@
           >
             <el-carousel-item v-for="item in 3" :key="item">
               <img
-                src="@/assets/img/banner.png"
+                src="@/assets/img/banner.webp"
                 style="width: 100%; height: 100%; object-fit: contain"
                 alt
               />
@@ -337,12 +337,12 @@ export default {
         {
           name: '曾总',
           avatar: require('@/assets/img/avatar1.png'),
-          qrCode: require('@/assets/img/qr1.png')
+          qrCode: require('@/assets/img/qr1.webp')
         },
         {
           name: '熊总',
           avatar: require('@/assets/img/avatar2.png'), 
-          qrCode: require('@/assets/img/qr2.png')
+          qrCode: require('@/assets/img/qr2.webp')
         }
       ]
     };
