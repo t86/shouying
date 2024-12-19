@@ -203,7 +203,7 @@ export default {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    background-image: url('../../assets/img/bigscreen.png');
+    background-image: url('../../assets/img/bigscreen.webp');
     padding: 16px;
     height: 100vh;
     width: 100vw;

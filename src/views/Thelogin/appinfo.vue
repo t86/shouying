@@ -287,7 +287,7 @@ export default {
 </script>
 <style>
 .appinfo {
-  background-image: url("../../assets/img/b2.png");
+  background-image: url("../../assets/img/b2.webp");
   width: 100vw;
   height: 100vh;
   background-repeat: no-repeat;
@@ -336,7 +336,7 @@ export default {
   width: 900px;
   height: 600px;
   /* background-color: #fff; */
-  background-image: url("../../assets/img/b26.png");
+  background-image: url("../../assets/img/b26.webp");
   background-repeat: no-repeat;
   background-size: 100% 145%;
   /* background-size: 100% 135%; */
