@@ -156,8 +156,8 @@
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="info" :disabled="loading" @click="onCancelDrawer">取消</el-button>
+        <el-button type="primary" :loading="loading" @click="onSubmit">确定</el-button>
       </div>
     </el-drawer>
   </div>
@@ -168,6 +168,7 @@ import IconButton from "@/components/IconButton.vue"; //根据路径导入组件
 export default {
   data() {
     return {
+      loading: false, // 添加 loading 状态控制
       form: {
         outLibVal: '', // 出库仓库
         outLibValOption: [], // 出库仓库option
@@ -177,7 +178,6 @@ export default {
 
       tableData: [],
       mateOptions: [], // 模糊查询列表
-      loading: false, // 是否正在从远程获取数据
     };
   },
   methods: {
@@ -316,16 +316,21 @@ export default {
         !this.form.outLibVal ||
         !this.form.outLibTypeVal
       ) return this.$message.warning('必选框不能为空')
-      // 新增
-      const params = {
-        store_id: this.form.outLibVal * 1, // int64 出库仓库id
-        record_type: this.form.outLibTypeVal * 1, // int 入库类型 11 销售出库 17 其他出库
-        remark: this.form.remark, //  string   备注
-        mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.name * 1), // []int64    物料商品Id列表
-        cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1), //       []int       物料商品对应单位的数量列表
-        amts: this.tableData.filter(item => item.name !=='').map(item => (item.count * item.price).toFixed(2))// []string   物料商品对应单位的出库金额列表 使用字符串表示, 最大支持2位小数
-      }
+
+      // 防止重复提交
+      if(this.loading) return
+
+      this.loading = true
       try {
+        const params = {
+          store_id: this.form.outLibVal * 1,
+          record_type: this.form.outLibTypeVal * 1,
+          remark: this.form.remark,
+          mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.name * 1),
+          cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1),
+          amts: this.tableData.filter(item => item.name !=='').map(item => (item.count * item.price).toFixed(2))
+        }
+
         const res = await this.$api.ERP.sout.requestsoutnew(params)
         if (res.code == 1) {
           this.$message.success('创建成功')
@@ -335,10 +340,14 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('创建失败', error);
+        console.log('创建失败', error)
+        // this.$message.error('创建失败，请重试')
+      } finally {
+        this.loading = false
       }
     },
     onCancelDrawer(){
+      this.loading = false
       this.show = false
     },
 
