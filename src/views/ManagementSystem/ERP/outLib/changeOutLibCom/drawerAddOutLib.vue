@@ -152,8 +152,8 @@
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="info" :disabled="loading" @click="onCancelDrawer">取消</el-button>
+        <el-button type="primary" :loading="loading" @click="onSubmit">确定</el-button>
       </div>
     </el-drawer>
   </div>
@@ -164,6 +164,7 @@ import IconButton from "@/components/IconButton.vue"; //根据路径导入组件
 export default {
   data() {
     return {
+      loading: false, // 添加 loading 状态控制
       form: {
         outLibVal: '', // 出库仓库
         outLibValOption: [], // 出库仓库option
@@ -365,15 +366,20 @@ export default {
         !this.form.outLibVal ||
         !this.form.inLibVal
       ) return this.$message.warning('必选框不能为空')
-      // 新增
-      const params = {
-        out_store_id: this.form.outLibVal * 1, // int64 出库仓库id
-        in_store_id: this.form.inLibVal * 1, // int 入库仓库id
-        remark: this.form.remark, //  string   备注
-        mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.id * 1), // []int64    物料商品Id列表
-        cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1), //       []int       物料商品对应单位的数量列表
-      }
+
+      // 防止重复提交
+      if(this.loading) return
+
+      this.loading = true
       try {
+        const params = {
+          out_store_id: this.form.outLibVal * 1,
+          in_store_id: this.form.inLibVal * 1,
+          remark: this.form.remark,
+          mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.id * 1),
+          cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1),
+        }
+
         const res = await this.$api.ERP.soutd.requestsoutdnew(params)
         if (res.code == 1) {
           this.$message.success('创建成功')
@@ -383,10 +389,13 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('创建失败', error);
+        console.log('创建失败', error)
+      } finally {
+        this.loading = false
       }
     },
     onCancelDrawer(){
+      this.loading = false
       this.isFirstLoadAdd = false
       this.show = false
     },
