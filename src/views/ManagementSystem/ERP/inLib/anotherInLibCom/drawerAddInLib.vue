@@ -200,8 +200,8 @@
         </div>
       </div>
       <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" @click="onCancelDrawer">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button type="info" :disabled="loading" @click="onCancelDrawer">取消</el-button>
+        <el-button type="primary" :loading="loading" @click="onSubmit">确定</el-button>
       </div>
     </el-drawer>
   </div>
@@ -274,7 +274,7 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('类似创建基础信息获取失败', error);
+        console.log('���似创建基础信息获取失败', error);
       }
     },
     countChange(item){
@@ -359,19 +359,24 @@ export default {
         !this.form.fpVal ||
         (!this.form.gysVal && this.form.inLibTypeVal != 7)
       ) return this.$message.warning('必选框不能为空')
-      // 新增
-      const params = {
-        store_id: this.form.inLibVal * 1, // int64 入库仓库id
-        record_type: this.form.inLibTypeVal * 1, // int 入库类型 1 采购入库 7 其他入库
-        supplier_id: this.form.inLibTypeVal == 7 ? "" : this.form.gysVal * 1, // int64   供应商Id
-        fapiao_type: this.form.fpVal * 1, // int     发票类型 普票(传1),专票(传2)
-        remark: this.form.remark, //  string   备注
-        mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.name * 1), //    []int64    物料商品Id列表
-        cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1), //       []int       物料商品对应单位的数量列表
-        amts: this.form.fpVal == 2 ? this.tableData.filter(item => item.name !=='').map(item => (item.amt / 1.13).toFixed(2)) : this.tableData.filter(item => item.name !=='').map(item => (item.amt * 1).toFixed(2)), //  []string   物料商品对应采购总金额 使用字符串表示, 最大支持2位小数
-        src_amts: this.tableData.filter(item => item.name !=='').map(item => (item.amt * 1).toFixed(2))//  []string   裸价金额,如果普票,实际金额=src_amt,专票的话,实际金额=src_amt/1.13
-      }
+
+      // 防止重复提交
+      if(this.loading) return
+
+      this.loading = true
       try {
+        const params = {
+          store_id: this.form.inLibVal * 1,
+          record_type: this.form.inLibTypeVal * 1,
+          supplier_id: this.form.inLibTypeVal == 7 ? "" : this.form.gysVal * 1,
+          fapiao_type: this.form.fpVal * 1,
+          remark: this.form.remark,
+          mat_ids: this.tableData.filter(item => item.name !=='').map(item => item.isEffective && isNaN(item.name * 1) ? item.id * 1 : item.name * 1),
+          cnts: this.tableData.filter(item => item.name !=='').map(item => item.count * 1),
+          amts: this.form.fpVal == 2 ? this.tableData.filter(item => item.name !=='').map(item => (item.amt / 1.13).toFixed(2)) : this.tableData.filter(item => item.name !=='').map(item => (item.amt * 1).toFixed(2)),
+          src_amts: this.tableData.filter(item => item.name !=='').map(item => (item.amt * 1).toFixed(2))
+        }
+
         const res = await this.$api.ERP.sin.requestsinnew(params)
         if (res.code == 1) {
           this.$message.success('创建成功')
@@ -381,10 +386,14 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('创建失败', error);
+        console.log('创建失败', error)
+        this.$message.error('创建失败，请重试')
+      } finally {
+        this.loading = false
       }
     },
     onCancelDrawer(){
+      this.loading = false
       this.show = false
     },
 
