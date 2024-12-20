@@ -433,6 +433,7 @@ export default {
 
     // 服务员/收银加入购物车
     async orderMealToShoppingCart() {
+      console.log('orderMealToShoppingCart222:', this.productInfo)
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id

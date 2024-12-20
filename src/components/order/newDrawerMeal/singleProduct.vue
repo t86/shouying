@@ -601,6 +601,15 @@ export default {
           return true
         }
       }
+      if(this.modalRadio * 1 === 2) {
+        return true
+      }
+      console.log('vipPrice:', this.vipPrice)
+      console.log('productInfo.bizType:', this.productInfo.bizType)
+      console.log('bindphone:', this.bindphone)
+      console.log('hasShouyin:', this.hasShouyin)
+      console.log('hasVipPriceDirect:', this.hasVipPriceDirect)
+
       return false
     },
     requireText() {

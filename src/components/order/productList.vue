@@ -822,6 +822,7 @@ export default {
 
     // 服务员/收银加入购物车
     async orderMealToShoppingCart() {
+      console.log('orderMealToShoppingCart11111111:', this.productInfo)
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
@@ -910,7 +911,7 @@ export default {
       if(this.vipPrice){
         if(this.hasVipPriceDirect || this.hasShouyin) {
           this.doSetMealForProduct(productInfo)
-        } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1) {
+        } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1 && this.bindGuestOpen) {
           this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
             this.doSetMealForProduct(productInfo)
           });
@@ -920,19 +921,6 @@ export default {
       } else {
         this.doSetMealForProduct(productInfo)
       }
-
-      // if (this.vipPrice && productInfo.bizType * 1 === 1 && this.displayCustName === '' ) {
-      //   if(this.hasVipPriceDirect) {
-      //     this.doSetMealForProduct(productInfo)
-      //   } else {
-      //     this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
-      //     this.doSetMealForProduct(productInfo)
-      //   });
-      // }
-      // } else {
-      //   this.doSetMealForProduct(productInfo)
-      // }
-
     },
 
     doSetMealForProduct(productInfo) {
