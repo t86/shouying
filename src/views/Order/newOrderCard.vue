@@ -30,124 +30,155 @@
         </div>
         <!-- 卡台列表 -->
         <div class="content">
-          <div v-if="card.cardList.length > 0" class="center-type" style="'width: 100%"
-            layout="row" layout-align="start center">
-            <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
-              'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}"  @click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
-              <p layout="row" layout-align="space-between center" class="item-row">
-                <span class="area-name">{{ item.regionId | getAreaName }}</span>
-                <span>
-                  <span v-if="item.mark" class="mark">{{ item.mark }}</span>
-                  <span v-if="typeModule == 1">{{
-                    item.openTime ? "(" + item.openTime + ")" : "" | filterTime
-                  }}</span>
-                </span>
-              </p>
+          <DynamicScroller
+            v-if="card.cardList.length > 0"
+            class="center-type"
+            :items="rowsList"
+            :min-item-size="272"
+            key-field="id"
+            :key="tab.activeIndex"
+            :buffer="400"
+            :prerender="3"
+          >
+            <template v-slot="{ item, index, active }">
+              <DynamicScrollerItem
+                :item="item"
+                :active="active"
+                :size-dependencies="[item.cards.length]"
+                :data-index="index"
+                :key="`${tab.activeIndex}-${item.id}`"
+              >
+                <div 
+                  layout="row" 
+                  layout-align="start center"
+                  class="cards-row"
+                >
+                  <div
+                    v-for="(cardItem, cardIndex) in item.cards"
+                    :key="cardItem.id"
+                    class="card-item"
+                    :class="['bgc' + Number(cardItem.bizStatus)]"
+                    :style="{'margin-left': itemMargin + 'px'}"
+                    @click="() => handleOrderClick(cardItem)"
+                    @contextmenu.prevent.stop="rightClickHandle"
+                  >
+                    <!-- 原有卡台内容 -->
+                    <p layout="row" layout-align="space-between center" class="item-row">
+                      <span class="area-name">{{ cardItem.regionId | getAreaName }}</span>
+                      <span>
+                        <span v-if="cardItem.mark" class="mark">{{ cardItem.mark }}</span>
+                        <span v-if="typeModule == 1">{{
+                          cardItem.openTime ? "(" + cardItem.openTime + ")" : "" | filterTime
+                        }}</span>
+                      </span>
+                    </p>
 
-              <h3 class="card-name" layout="row" layout-align="start center">
-                <div ref="cardRef" style="white-space: nowrap; transform-origin: left center"
-                  :style="{ fontSize: fontSize(item, index) + 'px' }">
-                  {{ item.name }}
+                    <h3 class="card-name" layout="row" layout-align="start center">
+                      <div ref="cardRef" style="white-space: nowrap; transform-origin: left center"
+                        :style="{ fontSize: fontSize(cardItem, index) + 'px' }">
+                        {{ cardItem.name }}
+                      </div>
+                    </h3>
+
+                    <!-- 存酒  取酒  充公入口按钮 -->
+                    <div class="save-wine-enter" v-if="typeModule == 2" layout="row" layout-align="start center">
+                      <div class="enter-item cursor" :class="{ 'border-right': i < cardItem.options.length - 1 }"
+                        v-for="(el, i) in cardItem.options" :key="i" @click.stop="optionsClickHandle(el, cardItem)">
+                        <img :src="el.icon" />
+                        <p>{{ el.name }}</p>
+                      </div>
+                    </div>
+
+                    <!-- 点单金额 -->
+                    <p
+                      class="order-amt"
+                      layout="row"
+                      v-if="
+                        typeModule == 1 &&
+                        cardItem.bizStatus != 1 &&
+                        cardItem.bizStatus != 2 &&
+                        cardItem.bizStatus != 8 &&
+                        !safeModeEnabled
+                      "
+                      layout-align="space-between center"
+                    >
+                      <span>
+                        <!-- 有查单权限 -->
+                        <span v-if="cardItem.canLookOrder">点:￥{{ cardItem.orderAmt }}</span>
+                        <!-- 无查单权限 -->
+                        <span v-else></span>
+                      </span>
+
+                      <span v-if="cardItem.canLookOrder" class="card-step">{{
+                        cardItem.diXiaoJindu
+                      }}</span>
+                    </p>
+                    <p v-else style="height: 18px"></p>
+
+                    <!-- 优惠金额 -->
+                    <p
+                      style="height: 18px"
+                      v-if="
+                        typeModule == 1 &&
+                        cardItem.canLookOrder &&
+                        cardItem.bizStatus != 1 &&
+                        cardItem.bizStatus != 2 &&
+                        cardItem.bizStatus != 8 &&
+                        $store.state.userInfo.roleIds.includes(3) &&
+                        !safeModeEnabled
+                      "
+                    >
+                      <span>惠:￥{{ cardItem.zengSongAmt }}</span>
+                    </p>
+                    <p v-else style="height: 18px"></p>
+
+                    <p layout="row" layout-align="space-between center" class="order-person">
+                      <!-- tips -->
+                      <span v-if="typeModule == 1 && cardItem.tipsArr.length > 0" layout="row" layout-align="space-between center">
+                        <span class="card-tips" :class="{ green: items !== '锁', yellow: items === '锁' }"
+                          v-for="(items, i) in cardItem.tipsArr" :key="i">{{ items }}</span>
+                      </span>
+
+                      <!-- 订位人 -->
+                      <span v-else-if="
+                        typeModule == 1 &&
+                        cardItem.bizStatus != 1 &&
+                        cardItem.bizStatus != 2
+                      " class="one-txt-cut" style="
+                        word-break: normal;
+                        white-space: normal; overflow: hidden; text-overflow: ellipsis; 
+                        display: -webkit-box; -webkit-line-clamp: 2; 
+                        -webkit-box-orient: vertical;">
+                        {{ cardItem.salesEmpId | getDepartmentName }}
+                        {{ cardItem.salesEmpId | getOrderPersonName }}
+                      </span>
+                      <!-- 用于占位 -->
+                      <span v-else></span>
+                      <!-- 翻台数 -->
+                      <span style="word-break: keep-all;" v-if="
+                        typeModule == 1 && (cardItem.turnoverCnt > 0 &&
+                        ($store.state.userInfo.roleIds.includes(2) ||
+                          $store.state.userInfo.roleIds.includes(3)))
+                      ">
+                        翻{{ cardItem.turnoverCnt }}
+                      </span>
+                    </p>
+                    <p
+                      layout="row"
+                      layout-align="start center"
+                      style="
+                      margin-top: 4px;
+                      overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;"
+                    >
+                        <span>{{ cardItem.remark }}</span>
+                    </p>
+                  </div>
                 </div>
-              </h3>
-
-              <!-- 存酒  取酒  充公入口按钮 -->
-              <div class="save-wine-enter" v-if="typeModule == 2" layout="row" layout-align="start center">
-                <div class="enter-item cursor" :class="{ 'border-right': i < item.options.length - 1 }"
-                  v-for="(el, i) in item.options" :key="i" @click.stop="optionsClickHandle(el, item)">
-                  <img :src="el.icon" />
-                  <p>{{ el.name }}</p>
-                </div>
-              </div>
-
-              <!-- 点单金额 -->
-              <p
-                class="order-amt"
-                layout="row"
-                v-if="
-                  typeModule == 1 &&
-                  item.bizStatus != 1 &&
-                  item.bizStatus != 2 &&
-                  item.bizStatus != 8 &&
-                  !safeModeEnabled
-                "
-                layout-align="space-between center"
-              >
-                <span>
-                  <!-- 有查单权限 -->
-                  <span v-if="item.canLookOrder">点:￥{{ item.orderAmt }}</span>
-                  <!-- 无查单权限 -->
-                  <span v-else></span>
-                </span>
-
-                <span v-if="item.canLookOrder" class="card-step">{{
-                  item.diXiaoJindu
-                }}</span>
-              </p>
-              <p v-else style="height: 18px"></p>
-
-              <!-- 优惠金额 -->
-              <p
-                style="height: 18px"
-                v-if="
-                  typeModule == 1 &&
-                  item.canLookOrder &&
-                  item.bizStatus != 1 &&
-                  item.bizStatus != 2 &&
-                  item.bizStatus != 8 &&
-                  $store.state.userInfo.roleIds.includes(3) &&
-                  !safeModeEnabled
-                "
-              >
-                <span>惠:￥{{ item.zengSongAmt }}</span>
-              </p>
-              <p v-else style="height: 18px"></p>
-
-              <p layout="row" layout-align="space-between center" class="order-person">
-                <!-- tips -->
-                <span v-if="typeModule == 1 && item.tipsArr.length > 0" layout="row" layout-align="space-between center">
-                  <span class="card-tips" :class="{ green: items !== '锁', yellow: items === '锁' }"
-                    v-for="(items, i) in item.tipsArr" :key="i">{{ items }}</span>
-                </span>
-
-                <!-- 订位人 -->
-                <span v-else-if="
-                  typeModule == 1 &&
-                  item.bizStatus != 1 &&
-                  item.bizStatus != 2
-                " class="one-txt-cut" style="
-                  word-break: normal;
-                  white-space: normal; overflow: hidden; text-overflow: ellipsis; 
-                  display: -webkit-box; -webkit-line-clamp: 2; 
-                  -webkit-box-orient: vertical;">
-                  {{ item.salesEmpId | getDepartmentName }}
-                  {{ item.salesEmpId | getOrderPersonName }}
-                </span>
-                <!-- 用于占位 -->
-                <span v-else></span>
-                <!-- 翻台数 -->
-                <span style="word-break: keep-all;" v-if="
-                  typeModule == 1 && (item.turnoverCnt > 0 &&
-                  ($store.state.userInfo.roleIds.includes(2) ||
-                    $store.state.userInfo.roleIds.includes(3)))
-                ">
-                  翻{{ item.turnoverCnt }}
-                </span>
-              </p>
-              <p
-                layout="row"
-                layout-align="start center"
-                style="
-                margin-top: 4px;
-                overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;"
-              >
-                  <span>{{ item.remark }}</span>
-              </p>
-            </div>
-          </div>
+              </DynamicScrollerItem>
+            </template>
+          </DynamicScroller>
           <!-- 无数据 -->
           <div v-else class="no-data">
             <img :src="imgSrc.noCardInfo" alt />
@@ -330,11 +361,14 @@ import drawerPayToStore from "@/components/order/newSaveWine/drawerPayToStore/in
 // 添加 eventVue 引入
 import eventVue from "@/utils/eventVue";
 
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+
 export default {
   data() {
     return {
       // loadIndex: 0,
-      // modelVisible: true, // 是否��示未开启营��日模态框
+      // modelVisible: true, // 是否示未开启营日模态
       socket: null,
       showFullPageTable: false, // 是否显示全屏表格（转台等操作）
       showMinDetailDrawer: false, // 低消进度统计表
@@ -384,7 +418,7 @@ export default {
       legendOptions: {
         showUpdatePwd: false, // 是否显示更改密码或退出
         showMoreFunc: false, // 是否显示更多功能
-        updatePwdModel: false, // 是否显示更改密码模态框
+        updatePwdModel: false, // 是否显示更改��码模态框
         showAuthPwdModel: false, // 是否显示授权密码模态框
       },
       cardStatusNoInfo: {}, // 图例抵达卡台数量
@@ -696,7 +730,7 @@ export default {
             this.$message.warning(res.msg);
           }
         } catch (error) {
-          console.log("读取功能台卡台点单金额和优惠金额失败", error);
+          console.log("读取��能台卡台点单金额和优惠金额失败", error);
         }
       }
 
@@ -716,7 +750,7 @@ export default {
 
       await this.getTabList(JSON.parse(JSON.stringify(this.$store.state.cardPageInfo.resResultDataObj["areaInfo"])));
 
-      // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
+      // 如果是服务员或者特饮，需��根据可点区域限制可点卡台
       if (
         this.$store.state.userInfo.roleIds.includes(2) ||
         this.$store.state.userInfo.roleIds.includes(4)
@@ -896,7 +930,7 @@ export default {
       selfId = selfId || this.$store.state.userInfo.emp_id;
       const allStaffList =
         this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"];
-      // 当��员工的下级
+      // 当前员工的下级
       const selfStaffList = allStaffList.filter(
         (el) => el.upper_emp_id == selfId
       );
@@ -998,7 +1032,7 @@ export default {
           query: {
             cardId: info.id,
             _t: Date.now(), // 添加时间戳避免缓存
-            skeleton: 'true', // 标记是否显示骨架屏
+            skeleton: 'true', // 标记��否显示骨架屏
             ...this.$route.query
           }
         });
@@ -1137,7 +1171,7 @@ export default {
       }
     },
 
-    // 只是营销时 获取可查看卡台列表
+    // 只是营��时 获取可查看卡台列表
     async getLookSelfCardList() {
       try {
         this.salesCanLookCardList = [];
@@ -1162,7 +1196,7 @@ export default {
       // 是否是当前卡台订位人
       const isBooker =
         cardItemInfo.salesEmpId * 1 == this.$store.state.userInfo.emp_id * 1;
-      // 是否是当前卡台点单服务员
+      // 是否��当前卡台点单服务员
       const waiter_emp_ids_arr = "waiter_emp_ids_arr" in cardItemInfo && cardItemInfo.waiter_emp_ids_arr || [];
       const isSealer =
         waiter_emp_ids_arr.find(
@@ -1366,7 +1400,7 @@ export default {
             .filter((item) => seats.includes(item.id * 1))
             .forEach((el) => {
               if (el.bizStatus != 4 && el.bizStatus != 20) {
-                // 除了开台数和抵达数以外的状态
+                // 除了开台数和抵达数以外的状
                 result[el.bizStatus] =
                   (result[el.bizStatus] || 0) * 1 + 1;
               }
@@ -1602,15 +1636,18 @@ export default {
     // 手动切换卡台订单状态
     changeCardStatus(cardStatusId) {
       if (cardStatusId === this.legendActive) {
-        // 点击的同状态一个按钮
         this.legendActive = 0;
-        this.card.cardList = cardListInfoArr;
+        this.$nextTick(() => {
+          this.card.cardList = cardListInfoArr;
+        });
       } else {
         this.legendActive = cardStatusId;
         this.tab.anotherInfoActiveId = 0;
         this.tab.activeIndex = 0;
         this.tab.showAnotherInfo = false;
-        this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+        this.$nextTick(() => {
+          this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
+        });
       }
     },
   },
@@ -1663,6 +1700,8 @@ export default {
     drawerMinDetail,
     drawerTYDetail,
     outSomething,
+    DynamicScroller,
+    DynamicScrollerItem,
   },
 
   watch: {
@@ -1711,7 +1750,7 @@ export default {
       );
     },
 
-    // 不允许查看下属点单消费  只能看自己
+    // 不允许查���下属点单消费  只能看自己
     hasYxOnlyLookSelf() {
       return this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(10)
@@ -1773,6 +1812,27 @@ export default {
         (item) => item.typeId == 3
       );
     },
+    // 添加计算属性
+    rowsList() {
+      const cardList = this.card.cardList;
+      const windowWidth = document.body.clientWidth - 2;
+      const cardsPerRow = Math.floor(windowWidth / cardWidth);
+      const rows = [];
+      
+      // 优化: 一次性计算总行数
+      const totalRows = Math.ceil(cardList.length / cardsPerRow);
+      rows.length = totalRows;
+
+      for (let i = 0; i < totalRows; i++) {
+        const startIndex = i * cardsPerRow;
+        rows[i] = {
+          id: `row-${i}-${this.tab.activeIndex}`,
+          cards: cardList.slice(startIndex, startIndex + cardsPerRow)
+        };
+      }
+      
+      return rows;
+    }
   },
 
   beforeDestroy() {
@@ -1850,7 +1910,68 @@ export default {
 @import "../../style/order/newOrderCard.less";
 @import "../../style/book/newCardBgc.less";
 
+// 添加虚拟滚动相关样式
+.scroller {
+  height: calc(100vh - 250px); // 调整高度以适应你的布局
+  width: 100%;
+  overflow-y: auto;
+  
+  &.center-type {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+}
 
+// 移除之前的网格布局样式
+.scroller :deep(.vue-recycle-scroller__item-wrapper) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100%;
+}
+
+// 保持原有卡片样式
+.card-item {
+  width: 260px;
+  height: 272px;
+  margin-bottom: 16px;
+  // 其他原有样式保持不变...
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.center-type {
+  flex: 1;
+  height: 100%; // 改为充满父容器
+  width: 100%;
+  overflow-y: auto;
+}
+
+.cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.card-item {
+  width: 260px;
+  height: 272px;
+  margin-bottom: 16px;
+  // 其他原有样式保持不变...
+}
+
+// 移除之前的网格布局相关样式
 </style>
 
 <style lang="less">
