@@ -39,6 +39,8 @@
             :key="tab.activeIndex"
             :buffer="400"
             :prerender="3"
+            ref="scroller"
+            :watch-data="true"
           >
             <template v-slot="{ item, index, active }">
               <DynamicScrollerItem
@@ -47,6 +49,7 @@
                 :size-dependencies="[item.cards.length]"
                 :data-index="index"
                 :key="`${tab.activeIndex}-${item.id}`"
+                :watch-data="true"
               >
                 <div 
                   layout="row" 
@@ -740,7 +743,7 @@ export default {
         })
       }
 
-      // 没有配置任何权限同时不具有全场查单权限
+      // 没有配置任何��限同时不具有全场查单权限
       if (this.isUserWithoutRoles()) {
         cardListInfoArr = [];
         // this.$message.warning('当前账号未配置可点区域')
@@ -882,40 +885,53 @@ export default {
      * @returns {Array} 筛选后的卡台列表。
      */
     filterCardList(key, id, cardList) {
-      let targetCardList = cardListInfoArr;
-      if (cardList) {
-        targetCardList = cardList;
-      }
-      targetCardList.forEach((el) => {
-        el.showOption = false;
-      });
-
-            /*
-      对targetCardList返回的cardlist进行重新排序，按照tabListOrigin中regionId对应的dsp从小到大排，并且regionId一样的排在一起，regionId一样时，根据targetCardList的dsp从小到大排
-      */
-
-      let sortCardList = []
-      this.tab.tabListOrigin && this.tab.tabListOrigin.forEach((item) => {
-        const find = targetCardList.filter((el) => el.regionId == item.id);
-        if (find.length > 0) {
-          sortCardList.push(...find.sort((a, b) => {
-            return a.dsp - b.dsp;
-          }))
+      // 使用 Map 来优化查找
+      const targetCardList = cardList || cardListInfoArr;
+      const regionMap = new Map();
+      
+      // 预处理数据
+      targetCardList.forEach(card => {
+        card.showOption = false; // 保持原有的 showOption 设置
+        if (!regionMap.has(card.regionId)) {
+          regionMap.set(card.regionId, []);
         }
+        regionMap.get(card.regionId).push(card);
       });
-      targetCardList = sortCardList;
-      const filterArr = targetCardList.filter((item) => item[key] == id);
-      let result = (id == 2001 ? this.getMyCardList() : id == 0 ? JSON.parse(JSON.stringify(targetCardList)) : filterArr)
-      if (this.hasForbidUnTipTableAuth()){
+      
+      // 优化排序逻辑
+      const sortedList = [];
+      if (this.tab.tabListOrigin) {
+        this.tab.tabListOrigin.forEach(item => {
+          const cards = regionMap.get(item.id);
+          if (cards && cards.length) {
+            sortedList.push(...cards.sort((a, b) => a.dsp - b.dsp));
+          }
+        });
+      }
+
+      // 根据不同的 id 返回不同的结果
+      let result;
+      if (id === 2001) {
+        result = this.getMyCardList();
+      } else if (id === 0) {
+        result = sortedList;
+      } else {
+        result = sortedList.filter(item => item[key] === id);
+      }
+
+      // 保持原有的过滤逻辑
+      if (this.hasForbidUnTipTableAuth()) {
         result = result.filter(item => {
           return (item.bizStatus !== '1' && item.bizStatus !== '2' && item.bizStatus !== '8')
-        })
+        });
       }
-      if(this.safeModeEnabled) {
-        result = result.filter(item => item.bizType * 1 !== 3)
-        result = result.filter(item => item.bizType * 1 !== 4)
+      
+      if (this.safeModeEnabled) {
+        result = result.filter(item => item.bizType * 1 !== 3);
+        result = result.filter(item => item.bizType * 1 !== 4);
       }
-      return result
+
+      return result;
     },
 
 
@@ -1382,7 +1398,7 @@ export default {
                   (i) => i.id == item.region_id
                 ) >= 0
             ) || [];
-        // 如果只是营销,又没有全场查单，需要通过设备情况一个个判断状态并累加
+        // 如果只是营销,又没有全场查单，需要���过设备情况一个个判断状态并累加
         if (this.isSaleRole && this.salesCanLookCardInfo.all_seat != 1) {
           let seats = this.salesCanLookCardInfo.seats
           this.$store.state.cardPageInfo.resResultDataObj.cardStatusNo.filter(item =>
@@ -1650,6 +1666,51 @@ export default {
         });
       }
     },
+
+    setupPerformanceMonitoring() {
+      const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          console.log(`${entry.name}: ${entry.duration}ms`);
+        });
+      });
+      
+      observer.observe({ entryTypes: ['measure'] });
+    },
+
+    changeTab(index, id) {
+      // 记录开始时间
+      performance.mark('tabChange-start');
+
+      if (id === 999) {
+        // 点击其他按钮
+        this.tab.showAnotherInfo = !this.tab.showAnotherInfo;
+        return;
+      }
+
+      if (index === '9999') {
+        // 点击其他里面的选项
+        this.tab.anotherInfoActiveId = id;
+        this.tab.showAnotherInfo = false;
+      } else {
+        this.tab.activeIndex = id;
+        this.tab.anotherInfoActiveId = 0;
+        this.tab.showAnotherInfo = false;
+      }
+
+      // 重置图例状态
+      this.legendActive = 0;
+
+      // 更新卡台列表
+      this.$nextTick(() => {
+        this.card.cardList = this.filterCardList("regionId", this.tab.activeIndex);
+        // 更新图例中的数量
+        this.setLegendCount(this.tab.activeIndex);
+      });
+
+      // 记录结束时间
+      performance.mark('tabChange-end');
+      performance.measure('Tab Change Operation', 'tabChange-start', 'tabChange-end');
+    }
   },
 
 
@@ -1689,6 +1750,8 @@ export default {
 
     window.onkeydown = this.keydownHandle;
 
+    // 添加性能监控
+    this.setupPerformanceMonitoring();
   },
 
   components: {
@@ -1720,6 +1783,19 @@ export default {
       immediate: true,
     },
 
+    // 监听组件是否即将销毁
+    '$destroy': {
+      handler() {
+        // 在组件销毁前，先清空列表数据
+        this.card.cardList = [];
+        this.$nextTick(() => {
+          if (this.$refs.scroller) {
+            this.$refs.scroller.reset();
+          }
+        });
+      },
+      immediate: false
+    }
   },
   computed: {
     // 是否有沽清权限
@@ -1815,23 +1891,36 @@ export default {
     // 添加计算属性
     rowsList() {
       const cardList = this.card.cardList;
+      if (!cardList || !cardList.length) return [];
+      
       const windowWidth = document.body.clientWidth - 2;
       const cardsPerRow = Math.floor(windowWidth / cardWidth);
       const rows = [];
       
       // 优化: 一次性计算总行数
       const totalRows = Math.ceil(cardList.length / cardsPerRow);
-      rows.length = totalRows;
-
+      
       for (let i = 0; i < totalRows; i++) {
         const startIndex = i * cardsPerRow;
-        rows[i] = {
+        rows.push({
           id: `row-${i}-${this.tab.activeIndex}`,
           cards: cardList.slice(startIndex, startIndex + cardsPerRow)
-        };
+        });
       }
       
       return rows;
+    },
+    cachedCardLists() {
+      const cache = new Map();
+      return {
+        get(key) {
+          return cache.get(key);
+        },
+        set(key, value) {
+          cache.set(key, value);
+          return value;
+        }
+      };
     }
   },
 
@@ -1839,16 +1928,24 @@ export default {
     // 移除事件监听
     eventVue.$off("safeModeChanged");
 
+    // 移除之前的手动清理代码
+    // if (this.$refs.scroller) {
+    //   try {
+    //     this.$refs.scroller.$destroy();
+    //   } catch (error) {
+    //     console.warn('ResizeObserver cleanup warning:', error);
+    //   }
+    // }
+
     console.log("beforeDestroy");
     window.removeEventListener("resize", this.windowResizeHandle);
     window.removeEventListener("click", (e) => this.legendOptionHandle());
 
     window.onkeydown = null;
 
-        // 清理性能标记
+    // 清理性能标记
     performance.clearMarks();
     performance.clearMeasures();
-
   },
   destroyed() {
     console.log("destroyed");
@@ -1951,9 +2048,11 @@ export default {
 
 .center-type {
   flex: 1;
-  height: 100%; // 改为充满父容器
+  height: 100%;
   width: 100%;
   overflow-y: auto;
+  position: relative;
+  contain: strict; // 添加 contain 属性
 }
 
 .cards-row {
@@ -1962,16 +2061,17 @@ export default {
   width: 100%;
   padding: 0;
   margin: 0;
+  position: relative;
+  contain: content; // 添加 contain 属性
 }
 
+// 移除重复的样式定义，只保留一个 .card-item
 .card-item {
   width: 260px;
   height: 272px;
   margin-bottom: 16px;
   // 其他原有样式保持不变...
 }
-
-// 移除之前的网格布局相关样式
 </style>
 
 <style lang="less">
