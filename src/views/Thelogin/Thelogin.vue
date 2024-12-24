@@ -63,7 +63,7 @@
           >
             <el-carousel-item v-for="item in 3" :key="item">
               <img
-                src="@/assets/img/banner.webp"
+                :src="require('@/assets/img/banner.webp')"
                 style="width: 100%; height: 100%; object-fit: contain"
                 alt
               />
@@ -75,7 +75,7 @@
             <div class="Keyboards">
               <div class="staff">
                 <span>员工号登录</span>
-                <img src="@/assets/img/b14.png" alt />
+                <img :src="require('@/assets/img/b14.png')" alt />
               </div>
               <div class="middle">
                 <div
@@ -83,7 +83,7 @@
                   :class="{ aer: pitchon == 1 }"
                   @click="pitchon = 1"
                 >
-                  <img src="@/assets/img/b15.png" alt />
+                  <img :src="require('@/assets/img/b15.png')" alt />
                   <el-input
                     placeholder="请输入员工工号"
                     v-model="account"
@@ -94,7 +94,7 @@
                   :class="{ aer: pitchon == 2 }"
                   @click="pitchon = 2"
                 >
-                  <img src="@/assets/img/b11.png" alt />
+                  <img :src="require('@/assets/img/b11.png')" alt />
                   <el-input
                     show-password
                     placeholder="请输入密码"
@@ -115,17 +115,17 @@
                           @click="select(eachof.num)"
                         >
                           <img
-                            src="@/assets/img/b13.png"
+                            :src="require('@/assets/img/b13.png')"
                             v-if="eachof.num == 100"
                             alt
                           />
                           <img
-                            src="@/assets/img/b10.png"
+                            :src="require('@/assets/img/b10.png')"
                             v-if="eachof.num == 101"
                             alt
                           />
                           <img
-                            src="@/assets/img/b12.png"
+                            :src="require('@/assets/img/b12.png')"
                             v-if="eachof.num == 102"
                             alt
                           />
@@ -344,7 +344,8 @@ export default {
           avatar: require('@/assets/img/avatar2.png'), 
           qrCode: require('@/assets/img/qr2.webp')
         }
-      ]
+      ],
+      isPreloading: false,
     };
   },
   methods: {
@@ -590,6 +591,16 @@ export default {
           });
       }
     },
+    // 添加预加载方法
+    preloadOrderComponents() {
+      // 避免重复预加载
+      if (this.isPreloading) return
+      this.isPreloading = true
+      
+      // 预加载相关组件
+      import(/* webpackChunkName: "orderCard" */ '@/views/Order/newOrderCard.vue')
+      import(/* webpackChunkName: "orderMealList" */ '@/views/Order/orderMeal/newOrderMealList.vue')
+    },
   },
   mounted() {
     this.term();
@@ -597,6 +608,13 @@ export default {
     document.onkeydown = (e) => {
       if (e.keyCode == 13) this.submit();
     };
+
+    // 当用户输入账号时就开始预加载
+    this.$watch('account', (newVal) => {
+      if (newVal && this.clientName === 'order') {
+        this.preloadOrderComponents()
+      }
+    })
   },
 
   mixins: [swipingCard],

@@ -6,7 +6,7 @@
              :style="{ 'width': isRect ? '220px' : '190px', color: '#1A1A21' }" @input="getPageData(1)"
              v-model="search.keyWord" placeholder="请输入商品首字母缩写" />
       <i v-if="search.keyWord" class="el-icon-circle-close" @click="search.keyWord = ''" />
-      <img class="icon" :src="loadImage(imgSrc.search)" alt />
+      <img class="icon" :src="getOptimizedImage(imgSrc.search)" alt />
       <div class="opentime" layout="row" layout-align="center center">
         <span >开台时间：</span>
         <span>{{ openTime }}</span>
@@ -18,7 +18,7 @@
         <div class="prd-item" v-if="pic_show" style="height: 410px;" v-for="item in productsList" :key="item.id"
              @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
-            <img class="item-img" :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
+            <img class="item-img" :src="getOptimizedImage(item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg)" />
             <span class="item-span"
                   v-if="shoppingCartList && shoppingCartList.length > 0 && shoppingCartList.findIndex(d => d.pid === item.id * 1) > -1">已点：{{
                 shoppingCount(item.id * 1) }}</span>
@@ -341,18 +341,28 @@ export default {
       empName: '',
       showEmp: false,
       showGuest: false,
-      currentInputValue: ''
+      currentInputValue: '',
+      optimizedImages: {},  // 存储优化后的图片URL
     };
   },
   methods: {
     async loadImage(url) {
-    try {
-      return await ImageOptimizer.load(url);
-    } catch (error) {
-      console.error('Image loading error:', error);
-      return this.imagePlaceholder;
-    }
-  },
+      if (!url) return this.imagePlaceholder;
+      
+      // 使用缓存
+      if (this.optimizedImages[url]) {
+        return this.optimizedImages[url];
+      }
+
+      try {
+        const optimizedImage = await ImageOptimizer.load(url);
+        this.$set(this.optimizedImages, url, optimizedImage);
+        return optimizedImage;
+      } catch (error) {
+        console.error('Image loading error:', error);
+        return this.imagePlaceholder;
+      }
+    },
     waiterInput(query){
       this.remoteMethod(query)
     },
@@ -1235,6 +1245,11 @@ export default {
     }
   },
   computed: {
+    getOptimizedImage() {
+      return (url) => {
+        return this.optimizedImages[url] || url;
+      }
+    },
     hasVipPriceDirect(){
       let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
       console.log('hasVipPriceDirect:', has)

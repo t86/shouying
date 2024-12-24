@@ -121,11 +121,29 @@ module.exports = {
         return args;
       });
 
+      config.module
+      .rule('images')
+      .test(/\.(png|jpe?g|gif|webp)$/i)
+      .use('url-loader')
+      .loader('url-loader')
+      .options({
+        limit: 4096,
+        esModule: false,  // 关键配置
+        name: 'img/[name].[ext]'
+      })
+      .end();
+
     // 设置图片不转base64
-    config.module
-      .rule("images")
-      .use("url-loader")
-      .loader("url-loader")
-      .tap((options) => Object.assign(options, { limit:  1 }));
+    // config.module
+    // .rule("images")
+    // .use("url-loader")
+    // .loader("url-loader")
+    // .tap(options => ({
+    //   ...options,
+    //   limit: 4096, // 4kb以下使用base64
+    //   publicPath: process.env.NODE_ENV === 'production' 
+    //     ? 'http://nls.server.com:8081'  // 或者 http://localhost:8081
+    //     : '/',
+    // }))
   },
 };

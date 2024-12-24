@@ -60,8 +60,7 @@
                   <li class="prd-item" v-for="item in productList" :key="item.id" @click="chooseWindInfoHandle(item)">
                     <div class="prd-item-div">
                       <div class="item-img">
-                        <img class="item-img"
-                          :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
+                        <img class="item-img" :src="item.picName ? pic_prefix_url + item.picName : $store.state.defaultImg" />
                       </div>
                       <span>{{ item.n }}</span>
                       <img :src="require('@/assets/order-img/fangdatu.png')" class="fangda"
