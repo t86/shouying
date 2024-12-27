@@ -83,7 +83,7 @@
                 </div>
                 <div class="td">{{item.n}}</div>
                 <div class="td">{{item.on}}</div>
-                <div class="td">{{item.price}}</div>
+                <div class="td">{{item.p}}</div>
               </div>
               <div class="no-data" v-if="tableData.length==0">
                 <img :src="require('@/assets/img/wu.png')" alt />
