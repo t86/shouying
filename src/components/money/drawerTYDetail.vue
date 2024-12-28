@@ -54,6 +54,7 @@
               <div class="th">关联功能台</div>
               <div class="th">补交营业日</div>
               <div class="th">支付信息描述</div>
+              <div class="th">备注</div>
               <div class="th">{{ showArrow ? ">>" : "" }}</div>
             </div>
           </div>
@@ -80,6 +81,7 @@
               <div class="td">{{ item.bs }}</div>
               <div class="td">{{ item.bb }}</div>
               <div class="td">{{ item.p }}</div>
+              <div class="td">{{ item.m }}</div>
               <div class="td">{{ showArrow ? ">>" : "" }}</div>
             </div>
             <p
@@ -131,6 +133,9 @@ export default {
          
         if (res.code == 1) {
           this.tableData = res.data.records || [];
+          this.tableData.forEach(item => {
+            item.m = '做测试用的做测试用的做测试用的'
+          })
           if(this.isOrder()) {
             this.tableData.push({
               rn: '合计',
