@@ -133,9 +133,6 @@ export default {
          
         if (res.code == 1) {
           this.tableData = res.data.records || [];
-          this.tableData.forEach(item => {
-            item.m = '做测试用的做测试用的做测试用的'
-          })
           if(this.isOrder()) {
             this.tableData.push({
               rn: '合计',
