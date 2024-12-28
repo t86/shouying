@@ -45,10 +45,21 @@
       </div>
       <div class="session-center" layout="row">
         <div class="session-center-contain">
+          <div layout="row"  class="m-b-4" layout-align="start center">
+            <span style="width: 90px;">售出方式</span>
+            <mySelect
+              style="width:50%"
+              :value="soldTypeInfo.selectVal"
+              :optionsList="soldTypeInfo.selectOption"
+              @selectOptionItem="setSoldTypeValHandle"
+              @selectBlurHandle="soldTypeBlurHandle"
+              @getOption="getSoldTypeOptionHandle"
+            />
+          </div>
           <div layout="row" layout-align="start center">
             <span class="m-r-2" style="width: 80px;">打印出品库</span>
             <mySelect
-              style="width:50%"
+              style="width:50%"reqPrtSoldOutRpt
               :value="prtSelectInfo.selectVal"
               :optionsList="prtSelectInfo.selectOption"
               @selectOptionItem="setSelectPrtValHandle"
@@ -146,6 +157,24 @@ export default {
           }
         ]
       },
+      soldTypeInfo: {
+        selectVal: "全部",
+        selectOption: [],
+        originSelectOption: [
+          {
+            id: 0,
+            name: "全部"
+          },
+          {
+            id: 1,
+            name: "售卖"
+          },
+          {
+            id: 2,
+            name: "赠送"
+          }
+        ]
+      },
       tableData: []
     };
   },
@@ -209,6 +238,22 @@ export default {
     筛选下拉框相关 end
     */
 
+    /* 
+     售出方式下拉框相关 start 
+    */
+    setSoldTypeValHandle(info) {
+      this.soldTypeInfo.selectVal = info.name;
+    },
+    soldTypeBlurHandle() {
+      this.soldTypeInfo.selectOption = [];
+    },
+    getSoldTypeOptionHandle() {
+      this.soldTypeInfo.selectOption = JSON.parse(
+        JSON.stringify(this.soldTypeInfo.originSelectOption)
+      );
+    },
+    /* 售出方式下拉框相关 end */
+
     async getTableData() {
       const params = {
         is_all_cate: this.secondCategoryInfo.checkedAll ? 1: 2,
@@ -226,7 +271,10 @@ export default {
         status: this.selectInfo.originSelectOption.find(
           item => item.name == this.selectInfo.selectVal
         ).id, // int     订单类型, 0 全部 1 已结账 2 未结账
-        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id
+        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id,
+        sold_type: this.soldTypeInfo.originSelectOption.find(
+          item => item.name == this.soldTypeInfo.selectVal
+        ).id,
       };
 
       if (params.two_cate_ids.length == 0 && !params.is_all_cate)
@@ -264,7 +312,10 @@ export default {
         status: this.selectInfo.originSelectOption.find(
           item => item.name == this.selectInfo.selectVal
         ).id, // int     订单类型, 0 全部 1 已结账 2 未结账
-        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id
+        prt_mklib_id: this.prtSelectInfo.originSelectOption.find(item => item.name == this.prtSelectInfo.selectVal).id,
+        sold_type: this.soldTypeInfo.originSelectOption.find(
+          item => item.name == this.soldTypeInfo.selectVal
+        ).id,
       };
 
       if (params.two_cate_ids.length == 0 && !params.is_all_cate)
