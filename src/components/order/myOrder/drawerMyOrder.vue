@@ -406,7 +406,8 @@ import subDisabled from "@/assets/order-img/sub-disabled.png";
 
 import selectCheckbox from "@/components/order/selectCheckbox";
 import groupProduct from "@/components/order/drawerMeal/groupProduct";
-import authorization from "@/components/order/shoppingCart/authorization";
+import authorization from "@/components/order/shoppingCart/authorizationWithNoPwd";
+// import authorization from "@/components/order/shoppingCart/authorization";
 import inputSelect from "@/components/book/inputSelect";
 import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
 
