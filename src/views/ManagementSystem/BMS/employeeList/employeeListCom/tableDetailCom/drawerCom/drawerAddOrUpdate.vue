@@ -196,8 +196,10 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+        <el-button v-if="bindStatus == 1" type="danger" @click="showOrHideBindHandle">解除绑定</el-button>
         <el-button v-if="isSearch && type == 22" type="danger" @click="deleteEmpHandle">删除</el-button>
         <el-button v-if="isSearch && type == 22 && currentEmpInfo.wc==1" type="danger" @click="destoryCard">作废卡</el-button>
+        <el-button v-if="bindStatus == 2" type="primary" @click="showOrHideBindHandle">绑定微信</el-button>
         <el-button v-if="isSearch && type == 22" type="primary" @click="showOtherDrawer = true">重置密码</el-button>
         <el-button v-if="isSearch && type == 22" type="primary" @click="makeCardHandle">{{currentEmpInfo.wc == 1 ? '清卡' : '制卡'}}</el-button>
         <!-- <el-button v-if="isSearch && type == 22" type="primary" @click="showOrHideBindHandle">{{currentEmpInfo.bs == '未绑定'?'绑定员工': currentEmpInfo.bs=='已绑定' ? '解除绑定' : '解绑中'}}</el-button> -->
@@ -228,6 +230,7 @@ export default {
       upperEmpId: '', // 员工直属上级
       upperEmpOption: [], // 员工直属上级option
       cloneEmpId: '', // 替身
+      bindStatus: 2, // 绑定状态 1:已绑定 2:未绑定
       cloneEmpOption: [], // 替身option
       phoneNum: '',
       realName: '',
@@ -262,7 +265,6 @@ export default {
             this.currentEmpInfo = res.data.emp || {}
             this.parentName = res.data.emp.dept_name || ""
             this.parentId = res.data.emp.dept_id || ''
-            
             this.stationVal = res.data.emp.station_id || ''
             this.stationOption = res.data.stations || []
             if (this.type != 23) {
@@ -274,6 +276,9 @@ export default {
               this.realName = res.data.emp.real_name || ''
             }
             this.upperEmpId = res.data.emp.upper_emp_id ? res.data.emp.upper_emp_id + "" : ""
+            this.bindStatus = res.data.emp.bind_status
+            this.currentEmpInfo.bs = this.bindStatus == 1 ? '已绑定' : '未绑定'
+            
             this.upperEmpOption = res.data.emp.upper_emp_id ? [{
               id: res.data.emp.upper_emp_id + "", 
               n: res.data.emp.upper_emp_name
@@ -389,7 +394,7 @@ export default {
     
     // 显示或隐藏绑定员工的drawer
     showOrHideBindHandle(){
-      if(this.currentEmpInfo.bs == '解绑中' && !this.showBindEmpDrawer) return this.$message.warning('解绑中，请勿操作')
+      // if(this.currentEmpInfo.bs == '解绑中' && !this.showBindEmpDrawer) return this.$message.warning('解绑中，请勿操作')
       this.showBindEmpDrawer = !this.showBindEmpDrawer
     },
 
