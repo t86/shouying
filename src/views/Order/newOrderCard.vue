@@ -1687,25 +1687,32 @@ export default {
         return;
       }
 
+      // 修改这部分逻辑
       if (index === '9999') {
         // 点击其他里面的选项
         this.tab.anotherInfoActiveId = id;
         this.tab.showAnotherInfo = false;
+        // 更新卡台列表，使用 anotherInfoActiveId 作为筛选条件
+        this.$nextTick(() => {
+          this.card.cardList = this.filterCardList("regionId", id);
+          // 更新图例中的数量
+          this.setLegendCount(id);
+        });
       } else {
         this.tab.activeIndex = id;
         this.tab.anotherInfoActiveId = 0;
         this.tab.showAnotherInfo = false;
+        
+        // 更新卡台列表
+        this.$nextTick(() => {
+          this.card.cardList = this.filterCardList("regionId", this.tab.activeIndex);
+          // 更新图例中的数量
+          this.setLegendCount(this.tab.activeIndex);
+        });
       }
 
       // 重置图例状态
       this.legendActive = 0;
-
-      // 更新卡台列表
-      this.$nextTick(() => {
-        this.card.cardList = this.filterCardList("regionId", this.tab.activeIndex);
-        // 更新图例中的数量
-        this.setLegendCount(this.tab.activeIndex);
-      });
 
       // 记录结束时间
       performance.mark('tabChange-end');
