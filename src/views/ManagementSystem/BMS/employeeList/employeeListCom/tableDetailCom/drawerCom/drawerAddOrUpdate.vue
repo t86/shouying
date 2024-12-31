@@ -61,6 +61,26 @@
               </el-select>
             </div>
           </div>
+
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red-color">*</span>
+              <span>部门：</span>
+            </div>
+            <div class="value">
+              <el-cascader
+                size="small"
+                placeholder="请选择部门"
+                clearable
+                :options="deptOption"
+                :props="optionProp"
+                v-model="deptIds"
+                change-on-select
+                >
+              </el-cascader>
+            </div>
+          </div>
+
           <div class="coll" layout="row" layout-align="start center">
             <div class="label">
               <span class="red-color">*</span>
@@ -213,6 +233,15 @@
 export default {
   data() {
     return {
+      deptOption: [], //部门信息
+      deptIds: [],//选中的分类
+      optionProp: {
+        value: 'id',
+        label: 'n',
+        children: 'subs',
+        expandTrigger: 'hover'
+      },
+
       showMakeCardModal: false, // 制卡/清卡操作模态框
 
       groupSonName: '',
@@ -296,6 +325,19 @@ export default {
         }
       } catch (error) {
         console.log("数据请求失败", error);
+      }
+    },
+
+    async getDeptOption(){
+      try {
+        const res = await this.$api.BMS.dept.requestDeptTree()
+        if(res.code == 1) {
+          this.deptOption = res.data || []
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log('获取部门数据请求失败', error);
       }
     },
 
@@ -665,7 +707,8 @@ export default {
         if(this.code == '') return this.$message.warning('请输入工号名称')
         params = {
           id: this.currentInfo.id * 1, // int64  员工id
-          dept_id: this.isSearch ? this.parentId * 1 : (this.menuId ? this.menuId * 1 : 0), // int64 部门Id
+          // dept_id: this.isSearch ? this.parentId * 1 : (this.menuId ? this.menuId * 1 : 0), // int64 部门Id
+          dept_id: this.isSearch ? this.deptIds[this.deptIds.length - 1] : (this.menuId ? this.menuId * 1 : 0), // int64 部门Id
           name: this.empName,  // string 员工姓名
           station_id: this.stationVal * 1, // int64  岗位Id
           name_py: this.pyName,   //string   员工姓名拼音首字母
@@ -806,7 +849,26 @@ export default {
         if (newVal) {
           if(this.type == 12 || this.type == 22) {
             // 编辑部门/员工
-            this.getDetail()
+            Promise.all([this.getDetail(), this.getDeptOption()]).then(() => {
+              // 根据dept_id初始化部门选择器的值
+              if(this.type == 22 && this.currentEmpInfo.dept_id) {
+                const findDeptPath = (depts, targetId, path = []) => {
+                  for(let dept of depts) {
+                    const newPath = [...path, dept.id];
+                    if(dept.id === this.currentEmpInfo.dept_id) {
+                      return newPath;
+                    }
+                    if(dept.subs) {
+                      const found = findDeptPath(dept.subs, targetId, newPath);
+                      if(found) return found;
+                    }
+                  }
+                  return null;
+                }
+                
+                this.deptIds = findDeptPath(this.deptOption, this.currentEmpInfo.dept_id) || [];
+              }
+            })
           } else if(this.type == 21) {
             // 新建员工
             this.getEmpCode()
