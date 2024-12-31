@@ -983,36 +983,33 @@ export default {
 
     // 筛选卡台数据
     filterCardList(key, id) {
-      cardListInfoArr.forEach((el) => {
-        el.showOption = false;
-      });
-      if (key === "keyword"){
-        const result = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-        let orderPersons = result.filter(
-          (item) => item.code.includes(this.keyWord) || 
-          item.name.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase()) || 
-          item.namePy.toLocaleUpperCase().includes(this.keyWord.toLocaleUpperCase())
-        );
-        return cardListInfoArr.filter(
-          (item) =>
-            item.customerName
-              .toLocaleUpperCase()
-              .includes(this.keyWord.toLocaleUpperCase()) ||
-            item.customerPhone.slice(-4).includes(this.keyWord) ||
-            item.customer_name_py
-              .toLocaleUpperCase()
-              .includes(this.keyWord.toLocaleUpperCase()) ||
-            item.name
-              .toLocaleUpperCase()
-              .includes(this.keyWord.toLocaleUpperCase()) ||
-              orderPersons.filter(p => p.id && p.id * 1 > 0 && p.id == item.salesEmpId).length > 0
-        );
+      const resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
+      const cardListInfoArr = this.card.cardListInfoArr;
+
+      if (key === "keyword") {
+        // 关键字搜索
+        if (!this.keyWord) return cardListInfoArr;
+        const keyword = this.keyWord.toLowerCase();
+        
+        return cardListInfoArr.filter((item) => {
+          // 原有的搜索条件
+          const nameMatch = item.name && item.name.toLowerCase().includes(keyword);
+          const customerNameMatch = item.customerName && item.customerName.toLowerCase().includes(keyword);
+          const customerPhoneMatch = item.customerPhone && item.customerPhone.toLowerCase().includes(keyword);
+          const customerNamePyMatch = item.customer_name_py && item.customer_name_py.toLowerCase().includes(keyword);
+          
+          // 添加部门搜索
+          const departmentName = this.$options.filters.getDepartmentName(item.salesEmpId) || '';
+          const departmentMatch = departmentName.toLowerCase().includes(keyword);
+
+          return nameMatch || customerNameMatch || customerPhoneMatch || customerNamePyMatch || departmentMatch;
+        });
       }
 
       if (key === "regionId" && id === 0) {
-        // return cardListInfoArr
-        return this.processData(resResultDataObj["areaInfo"], cardListInfoArr)
-      } // 点击全部按钮
+        return this.processData(resResultDataObj["areaInfo"], cardListInfoArr);
+      }
+
       return cardListInfoArr.filter((item) => item[key] == id);
     },
 
