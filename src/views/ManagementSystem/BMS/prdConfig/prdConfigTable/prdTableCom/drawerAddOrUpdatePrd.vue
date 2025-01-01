@@ -205,17 +205,17 @@
           </div>
         </div>
 
-
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
-            <span>小程序可见：</span>
+            <span>不可见端：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <el-radio v-model="showInMp" label="1">可见</el-radio>
-            <el-radio v-model="showInMp" label="2">不可见</el-radio>
+            <el-checkbox v-model="limitPc">PC端</el-checkbox>
+            <el-checkbox v-model="limitPad">PAD端</el-checkbox>
+            <el-checkbox v-model="limitXcxEmp">小程序-员工端</el-checkbox>
+            <el-checkbox v-model="limitXcxCust">小程序-客人端</el-checkbox>
           </div>
         </div>
-
 
         <div class="table-content m-t-3">
           <div class="table">
@@ -300,7 +300,6 @@ export default {
   data() {
     return {
       loaded: false, // 首次请求的数据是否加载完成
-      showInMp: '1',
       menuList: [], // 一二级菜单列表
       oneCateInfo: {},
       twoCateInfo: {},
@@ -319,6 +318,10 @@ export default {
       tableData: [], // 区域出品库表格数据
       checkAll: false, // 出品库全选
       outLibOption: [], // 区域出品库下拉option
+      limitPc: false,
+      limitPad: false, 
+      limitXcxEmp: false,
+      limitXcxCust: false,
     };
   },
   methods: {
@@ -365,7 +368,10 @@ export default {
             : [];
           this.picUrl = res.data.prd.pic_name || "";
           this.http = res.data.prd.pic_prefix || "";
-          this.showInMp = res.data.prd.show_in_mp.toString()
+          this.limitPc = res.data.prd.limit_pc === 1;
+          this.limitPad = res.data.prd.limit_pad === 1;
+          this.limitXcxEmp = res.data.prd.limit_xcx_emp === 1;
+          this.limitXcxCust = res.data.prd.limit_xcx_cust === 1;
 
           this.getTableData(res.data.region_prds || []);
 
@@ -493,7 +499,6 @@ export default {
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
       const params = {
-        show_in_mp: parseInt(this.showInMp),
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
         two_cate_id: this.twoCateInfo.id * 1, // 二级分类id
@@ -512,6 +517,10 @@ export default {
           .filter((item) => item.checked)
           .map((item) => item.outLibVal * 1), // 可点区域对应的出品库
         mat_id: this.bindPrdList.length == 0 ? 0 : this.bindPrdList[0].id, // int64  关联的存货商品Id
+        limit_pc: this.limitPc ? 1 : 2,
+        limit_pad: this.limitPad ? 1 : 2,
+        limit_xcx_emp: this.limitXcxEmp ? 1 : 2,
+        limit_xcx_cust: this.limitXcxCust ? 1 : 2,
         ...(this.type == 2 && { id: this.currentInfo.id }),
       };
       try {
@@ -589,6 +598,10 @@ export default {
       if (this.$refs.uploadPicUrlP) {
         this.$refs.uploadPicUrlP.clearFiles();
       }
+      this.limitPc = false;
+      this.limitPad = false;
+      this.limitXcxEmp = false;
+      this.limitXcxCust = false;
     },
   },
   mounted() {},
