@@ -146,7 +146,19 @@ const article = {
    */
   reqSetSecondCategory: params => axios.post(`${base.htgl}/prd/batch_upd_two_cate`, params),
 
-  reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
+  // reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
+
+
+  /*
+    客户端传入json:
+    ids        []int64      //PrdIds 待操作商品Id列表
+    limit_pc   int        //LimitPc 限制pc端 1 限制 2 不限制
+    limit_pad  int        //LimitPad 限制pad端 1 限制 2 不限制
+    limit_xcx_emp int        //LimitXcxEmp 限制小程序-员工端 1 限制 2 不限制
+    limit_xcx_cust int        //LimitXcxCust 限制小程序-客人端 1 限制 2 不限制
+   */
+  reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_limit`, params),
+  // reqSetMp: params => axios.post(`${base.htgl}/prd/batch_set_show_in_mp`, params),
 
   get_prd_set_tpl_list: params => axios.post(`${base.htgl}/prd/get_prd_set_tpl_list`, params),
   new_prd_set_tpl: params => axios.post(`${base.htgl}/prd/new_prd_set_tpl`, params),
