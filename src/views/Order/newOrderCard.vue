@@ -34,7 +34,7 @@
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-              ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
+              ]" @click.stop="handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -305,7 +305,7 @@ import authPwd from "@/assets/card-imgs/new-authPwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/new-sanjiao.png";
 const TabWidth = 112; // tab固定宽度
-const cardWidth = 272; // 卡台信息固定宽度
+const cardWidth = 260; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
 let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
 let cardListInfoArr = []; // 卡台总数据
