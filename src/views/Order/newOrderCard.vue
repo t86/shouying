@@ -305,7 +305,7 @@ import authPwd from "@/assets/card-imgs/new-authPwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/new-sanjiao.png";
 const TabWidth = 112; // tab固定宽度
-const cardWidth = 260; // 卡台信息固定宽度
+const cardWidth = 272; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
 let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
 let cardListInfoArr = []; // 卡台总数据
