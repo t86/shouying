@@ -10,7 +10,7 @@
       <icon-button @click.native="showImportDrawer = true" text="批量导入" img="btn_batch_import.png" colors="#f5f5f5"></icon-button>
       <characters-button @click.native="showOrHideAreaLibraryHandle" colors="#f5f5f5" wz="批量设置区域出品库"></characters-button>
       <characters-button @click.native="editTwoCategoryHandle" colors="#383943" wz='批量修改商品分类'></characters-button>
-      <characters-button @click.native="setMp" colors="#383943" wz='批量设置小程序可见'></characters-button>
+      <characters-button @click.native="setMp" colors="#383943" wz='批量设置商品不可见'></characters-button>
       <characters-button @click.native="$message.info('上下拖动商品可调整顺序')" colors="#383943" wz='调整顺序'></characters-button>
       <characters-button @click.native="updatePrdOrGroupHandle(3)" colors="#383943" wz='类似创建'></characters-button>
     </div>
@@ -108,15 +108,19 @@
       </div>
     </div>
     <el-dialog
-        title="批量设置小程序可见"
+        title="批量设置商品不可见"
         :visible.sync="dialogVisible"
         width="30%"
         center>
-        <el-radio v-model="showInMp" label="1">可见</el-radio>
-        <el-radio v-model="showInMp" label="2">不可见</el-radio>
+        <div>
+          <el-checkbox v-model="limitPc">PC端</el-checkbox>
+          <el-checkbox v-model="limitPad">PAD端</el-checkbox>
+          <el-checkbox v-model="limitXcxEmp">小程序-员工端</el-checkbox>
+          <el-checkbox v-model="limitXcxCust">小程序-客人端</el-checkbox>
+        </div>
         <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setMpOK">确 定</el-button>
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="setMpOK">确 定</el-button>
         </span>
     </el-dialog>
 
@@ -150,7 +154,7 @@ export default {
       currentInfo: {}, // 当前修改的数据
       showDrawer: false,  // 新增或修改单品
       showGroupDrawer: false, // 新增或修改套餐
-      showNextDrawer: false, // 有效无效删除冲突时的下一步��作drawer
+      showNextDrawer: false, // 有效无效删除冲突时的下一步操作drawer
       showImportDrawer: false, // 批量导入
       nexDrawerInfo: {
         ns: [],
@@ -165,7 +169,11 @@ export default {
       /*批量设置二级分类 */
       setSecondCategory: {
         showDrawer: false
-      }
+      },
+      limitPc: false,
+      limitPad: false,
+      limitXcxEmp: false,
+      limitXcxCust: false,
     };
   },
   methods: {
@@ -367,7 +375,10 @@ export default {
       let checkList = this.tableData.filter(item => item.checked)
       const params = {
         ids: checkList.map(item => item.id * 1),
-        show_in_mp: parseInt(this.showInMp)
+        limit_pc: this.limitPc ? 1 : 2,
+        limit_pad: this.limitPad ? 1 : 2,
+        limit_xcx_emp: this.limitXcxEmp ? 1 : 2,
+        limit_xcx_cust: this.limitXcxCust ? 1 : 2
       }
       try {
         const res = await this.$api.BMS.Prd['reqSetMp'](params)
@@ -378,9 +389,14 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('', error);
+        console.log('设置不可见失败', error);
       } finally {
-        this.dialogVisible = false
+        // 重置选项
+        this.limitPc = false;
+        this.limitPad = false;
+        this.limitXcxEmp = false;
+        this.limitXcxCust = false;
+        this.dialogVisible = false;
       }
     },
 

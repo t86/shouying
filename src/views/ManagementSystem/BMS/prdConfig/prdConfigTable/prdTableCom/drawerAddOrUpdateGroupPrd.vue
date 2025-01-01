@@ -163,13 +163,16 @@
         </div>
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
-            <span>小程序可见：</span>
+            <span>不可见端：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <el-radio v-model="showInMp" label="1">可见</el-radio>
-            <el-radio v-model="showInMp" label="2">不可见</el-radio>
+            <el-checkbox v-model="limitPc">PC端</el-checkbox>
+            <el-checkbox v-model="limitPad">PAD端</el-checkbox>
+            <el-checkbox v-model="limitXcxEmp">小程序-员工端</el-checkbox>
+            <el-checkbox v-model="limitXcxCust">小程序-客人端</el-checkbox>
           </div>
         </div>
+
         <div class="coll">
           <div class="label">
             <span>固定单品：</span>
@@ -489,7 +492,6 @@ import ImagePreview from "@/components/ImagePreview";
 export default {
   data() {
     return {
-      showInMp: '1',
       menuList: [], // 一二级菜单列表
       oneCateInfo: {},
       twoCateInfo: {},
@@ -514,6 +516,10 @@ export default {
       outLibOption: [], // 区域出品库下拉option
       setType: '', // 套餐类型,
       taocanTemplates: [], // 套餐可选组模板
+      limitPc: false,
+      limitPad: false,
+      limitXcxEmp: false, 
+      limitXcxCust: false,
     };
   },
   methods: {
@@ -614,7 +620,10 @@ export default {
             }
           }
 
-          this.showInMp = res.data.show_in_mp.toString()
+          this.limitPc = res.data.limit_pc === 1;
+          this.limitPad = res.data.limit_pad === 1;
+          this.limitXcxEmp = res.data.limit_xcx_emp === 1;
+          this.limitXcxCust = res.data.limit_xcx_cust === 1;
 
           this.getTableData(res.data.sel_region_ids || []);
         } else {
@@ -855,11 +864,10 @@ export default {
       });
 
       const params = {
-        show_in_mp: parseInt(this.showInMp),
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
         two_cate_id: this.twoCateInfo.id * 1, // 二级分类id
-        name_eng: this.englishName || "", // 商品英文��
+        name_eng: this.englishName || "", // 商品英文名
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price,
@@ -873,6 +881,10 @@ export default {
           .filter((item) => item.checked)
           .map((item) => item.id * 1), // 可点区域,
         ...(this.type == 2 && { id: this.currentInfo.id }),
+        limit_pc: this.limitPc ? 1 : 2,
+        limit_pad: this.limitPad ? 1 : 2,
+        limit_xcx_emp: this.limitXcxEmp ? 1 : 2,
+        limit_xcx_cust: this.limitXcxCust ? 1 : 2,
       };
       try {
         const api =
@@ -955,6 +967,10 @@ export default {
       if (this.$refs.uploadPicUrlP) {
         this.$refs.uploadPicUrlP.clearFiles();
       }
+      this.limitPc = false;
+      this.limitPad = false;
+      this.limitXcxEmp = false;
+      this.limitXcxCust = false;
     },
 
     // 修改后的方法来获取套餐模板列表
