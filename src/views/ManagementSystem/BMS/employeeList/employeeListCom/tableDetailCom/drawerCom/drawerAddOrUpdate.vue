@@ -62,7 +62,7 @@
             </div>
           </div>
 
-          <div class="coll" layout="row" layout-align="start center">
+          <div v-if="isSearch" class="coll" layout="row" layout-align="start center">
             <div class="label">
               <span class="red-color">*</span>
               <span>部门：</span>
@@ -216,10 +216,10 @@
 
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <el-button v-if="bindStatus == 1" type="danger" @click="showOrHideBindHandle">解除绑定</el-button>
+        <el-button v-if="bindStatus == 1 && isSearch" type="danger" @click="showOrHideBindHandle">解除绑定</el-button>
         <el-button v-if="isSearch && type == 22" type="danger" @click="deleteEmpHandle">删除</el-button>
         <el-button v-if="isSearch && type == 22 && currentEmpInfo.wc==1" type="danger" @click="destoryCard">作废卡</el-button>
-        <el-button v-if="bindStatus == 2" type="primary" @click="showOrHideBindHandle">绑定微信</el-button>
+        <el-button v-if="bindStatus == 2 && isSearch" type="primary" @click="showOrHideBindHandle">绑定微信</el-button>
         <el-button v-if="isSearch && type == 22" type="primary" @click="showOtherDrawer = true">重置密码</el-button>
         <el-button v-if="isSearch && type == 22" type="primary" @click="makeCardHandle">{{currentEmpInfo.wc == 1 ? '清卡' : '制卡'}}</el-button>
         <!-- <el-button v-if="isSearch && type == 22" type="primary" @click="showOrHideBindHandle">{{currentEmpInfo.bs == '未绑定'?'绑定员工': currentEmpInfo.bs=='已绑定' ? '解除绑定' : '解绑中'}}</el-button> -->
@@ -786,7 +786,9 @@ export default {
       default: () => ([])
     },
     menuId: '',
-    isSearch: false, // 是否是菜单栏搜索
+    isSearch: {
+      default: false // 是否是菜单栏搜索
+    },
   },
   computed: {
     title() {
@@ -847,6 +849,9 @@ export default {
     value: {
       handler(newVal) {
         if (newVal) {
+          console.log('issearch', this.isSearch)
+          console.log('type', this.type)
+
           if(this.type == 12 || this.type == 22) {
             // 编辑部门/员工
             Promise.all([this.getDetail(), this.getDeptOption()]).then(() => {

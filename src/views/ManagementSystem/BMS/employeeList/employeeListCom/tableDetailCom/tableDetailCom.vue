@@ -252,6 +252,7 @@
         :menuList="menuList"
         :menuId="$route.query.menuId"
         :type="type"
+        :isSearch="false"
         :currentInfo="currentInfo"
         @getMenuList="$emit('getMenuList')"
         @getTableData="getTableData"
