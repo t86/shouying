@@ -30,11 +30,11 @@
         </div>
         <!-- 卡台列表 -->
         <div class="content">
-          <div v-if="card.cardList.length > 0" class="center-type" style="'width: 100%"
+          <div v-if="card.cardList.length > 0" class="center-type" :style="'width:' + card.centerTypeWidth + 'px'"
             layout="row" layout-align="start center">
             <div class="card-item" v-for="(item, index) in card.cardList" :key="index" :class="[
               'bgc' + Number(item.bizStatus)
-            ]" :style="{'margin-left': itemMargin + 'px'}"  @click="() => handleOrderClick(item)" @contextmenu.prevent.stop="rightClickHandle">
+              ]" @click.stop="cardClickHandle(item)" @contextmenu.prevent.stop="rightClickHandle">
               <p layout="row" layout-align="space-between center" class="item-row">
                 <span class="area-name">{{ item.regionId | getAreaName }}</span>
                 <span>
@@ -305,7 +305,7 @@ import authPwd from "@/assets/card-imgs/new-authPwd.png";
 import noCardInfo from "@/assets/card-imgs/no-card.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/new-sanjiao.png";
 const TabWidth = 112; // tab固定宽度
-const cardWidth = 260; // 卡台信息固定宽度
+const cardWidth = 272; // 卡台信息固定宽度
 const cardOptionHos = 164; // 卡台选项横向偏移量
 let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始化数据）
 let cardListInfoArr = []; // 卡台总数据
@@ -341,7 +341,6 @@ export default {
       showOrHideOutSomething: false, // 是否显示估清商品
       showOrHideTYDetail: false, // 鸡尾酒明细表
       typeModule: 1, // 1:点单模式  2：存酒模式
-      itemMargin: 0,
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
         tabList: [],
@@ -409,16 +408,10 @@ export default {
   methods: {
     // 获取tab展示的数量
     getTabShowCount(callback) {
-      const windowWidth = document.body.clientWidth - 2;
+      const windowWidth = document.body.clientWidth;
       this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth) - 1;
-      // this.card.centerTypeWidth =
-      //   Math.floor(windowWidth / cardWidth) * cardWidth;
-      
-      this.itemMargin = (windowWidth % cardWidth) / ((Math.floor(windowWidth/cardWidth) + 1))
-      if(this.itemMargin < 10) {
-        this.itemMargin = ((windowWidth % cardWidth) + cardWidth) / (Math.floor(windowWidth/cardWidth))
-      }
-      console.log('itemMargin', windowWidth, cardWidth, this.itemMargin)
+      this.card.centerTypeWidth =
+        Math.floor(windowWidth / cardWidth) * cardWidth;
       callback && callback();
     },
 
