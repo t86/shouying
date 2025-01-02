@@ -431,22 +431,38 @@ export default {
       this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth) - 1;
       
       // 计算每行可以放置的卡片数量
-      // 卡片宽度272px已经包含了右侧16px的间隙
-      const cardWidth = 272;  // 卡片实际宽度（包含间隙）
+      const cardWidth = 272;  // 卡片宽度（包含右侧间隙）
       
-      // 直接计算可以容纳的卡片数：窗口宽度 / 卡片宽度（包含间隙）
+      // 计算可以放置的列数
       const gridColumns = Math.floor(windowWidth / cardWidth);
-      this.gridItems = gridColumns;
       
-      // 计算所需的实际宽度：卡片数 * 卡片宽度
+      // 计算总内容宽度（不包含padding）
       const contentWidth = gridColumns * cardWidth;
+      
+      // 计算剩余空间，用于padding
+      const remainingSpace = windowWidth - contentWidth;
+      
+      // 设置两侧padding（最小0，最大不超过卡片宽度的一半）
+      const sidePadding = Math.min(Math.floor(remainingSpace / 2), 16);
+      
+      this.gridItems = gridColumns;
       
       // 设置 CSS 变量
       document.documentElement.style.setProperty('--grid-columns', gridColumns);
       document.documentElement.style.setProperty('--center-type-width', `${contentWidth}px`);
+      document.documentElement.style.setProperty('--side-padding', `${sidePadding}px`);
       
       // 更新容器宽度
-      this.card.centerTypeWidth = contentWidth;
+      this.card.centerTypeWidth = contentWidth + 2 * sidePadding;
+      
+      // 打印宽度信息以便调试
+      console.log('Width calculation:', {
+        windowWidth,
+        gridColumns,
+        contentWidth,
+        remainingSpace,
+        sidePadding
+      });
       
       callback && callback();
     },
@@ -1979,7 +1995,7 @@ export default {
 .scroller {
   height: calc(100vh - 160px);
   overflow-y: auto;
-  padding: 16px;
+  padding: 0 var(--side-padding);
   box-sizing: border-box;
   width: 100%;
   margin-bottom: 8px;
@@ -2012,7 +2028,7 @@ export default {
 :deep(.vue-recycle-scroller__item-wrapper) {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns), 272px);
-  gap: 24px 0; /* 只保留垂直间距，水平间距已包含在卡片宽度中 */
+  gap: 24px 0;
   width: 100%;
   margin: 0;
   box-sizing: border-box;
