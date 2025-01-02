@@ -12,7 +12,7 @@
       <div class="TY-detail">
         <div class="top" layout="row" layout-align="space-between center">
           <div class="top-left" layout="row" layout-align="start center">
-            <input v-model="keyword" placeholder="订台人/点单人/商品名称" />
+            <input ref="keywordRef" v-model="keyword" placeholder="订台人/点单人/商品名称"  @blur="keyboardLeave('keywordRef')" @click="keyboardShow('keywordRef')"/>
             <el-button
               class="m-l-2"
               type="primary"
@@ -116,6 +116,7 @@ export default {
   methods: {
     // 获取数据
     async getTableData() {
+      this.keyboardLeave('keywordRef')
       const params = {
         key: this.keyword, //  string  查询关键字
       };
@@ -206,7 +207,30 @@ export default {
     },
     isOrder(){
       return sessionStorage.getItem("client") == "order"
-    }
+    },
+    keyboardShow(refString){
+      if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("showSoftInput" in window.atool)
+          ) {
+            atool.showSoftInput();
+            atool.executeJs(`this.$refs.${refString}.focus()`)
+
+          }
+    },
+    keyboardLeave(){
+      setTimeout(()=> {
+        if (
+        window.atool
+        && window.atool.getTermType() == "android" &&
+            ("hideSoftInput" in window.atool)
+          ) {
+            atool.hideSoftInput();
+            atool.restart();
+          }
+      }, 10)
+    },
   },
   props: {
     showDrawer: {
