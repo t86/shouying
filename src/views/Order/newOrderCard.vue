@@ -1628,9 +1628,9 @@ export default {
         this.card.cardList = cardListInfoArr;
       } else {
         this.legendActive = cardStatusId;
-        this.tab.anotherInfoActiveId = 0;
-        this.tab.activeIndex = 0;
-        this.tab.showAnotherInfo = false;
+        // this.tab.anotherInfoActiveId = 0;
+        // this.tab.activeIndex = 0;
+        // this.tab.showAnotherInfo = false;
         this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
       }
     },
