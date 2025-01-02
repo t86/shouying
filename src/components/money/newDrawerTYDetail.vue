@@ -216,16 +216,16 @@ export default {
           ) {
             atool.showSoftInput();
             atool.executeJs(`this.$refs.${refString}.focus()`)
-
           }
     },
-    keyboardLeave(){
+    keyboardLeave(refString){
       setTimeout(()=> {
         if (
         window.atool
         && window.atool.getTermType() == "android" &&
             ("hideSoftInput" in window.atool)
           ) {
+            atool.executeJs(`this.$refs.${refString}.blur()`);
             atool.hideSoftInput();
             atool.restart();
           }
