@@ -430,15 +430,23 @@ export default {
       const windowWidth = document.body.clientWidth;
       this.tab.tabMaxCount = Math.floor(windowWidth / TabWidth) - 1;
       
-      // Calculate number of cards that can fit in a row
-      const gridColumns = Math.floor((windowWidth - 32) / 288); // 272px card width + 16px gap
+      // 计算每行可以放置的卡片数量
+      // 卡片宽度272px已经包含了右侧16px的间隙
+      const cardWidth = 272;  // 卡片实际宽度（包含间隙）
+      
+      // 直接计算可以容纳的卡片数：窗口宽度 / 卡片宽度（包含间隙）
+      const gridColumns = Math.floor(windowWidth / cardWidth);
       this.gridItems = gridColumns;
       
-      // Calculate total width based on number of cards plus padding
-      const totalWidth = (gridColumns * 272) + 32; // Add padding (16px * 2)
+      // 计算所需的实际宽度：卡片数 * 卡片宽度
+      const contentWidth = gridColumns * cardWidth;
       
-      // Set centerTypeWidth for container
-      this.card.centerTypeWidth = totalWidth;
+      // 设置 CSS 变量
+      document.documentElement.style.setProperty('--grid-columns', gridColumns);
+      document.documentElement.style.setProperty('--center-type-width', `${contentWidth}px`);
+      
+      // 更新容器宽度
+      this.card.centerTypeWidth = contentWidth;
       
       callback && callback();
     },
@@ -1651,6 +1659,81 @@ export default {
         );
       });
     },
+
+    // 箭头按钮状态处理
+    keyDownHandle(type) {
+      if (!type) {
+        this.arrowStatus = "";
+        return;
+      }
+      this.arrowStatus = type;
+      
+      // 获取滚动容器
+      const scroller = document.querySelector('.scroller');
+      if (!scroller) return;
+      
+      // 定义滚动距离和动画持续时间
+      const scrollDistance = 164 + 24; // 卡片高度 + 垂直间距
+      const duration = 300; // 动画持续时间（毫秒）
+      
+      // 根据箭头类型执行不同的滚动
+      switch (type) {
+        case 'down':
+          // 向下滚动一个卡片的高度
+          this.smoothScroll(scroller, scroller.scrollTop + scrollDistance, duration);
+          break;
+        case 'up':
+          // 向上滚动一个卡片的高度
+          this.smoothScroll(scroller, scroller.scrollTop - scrollDistance, duration);
+          break;
+        case 'reload':
+          // 刷新数据
+          this.getAllData();
+          break;
+      }
+    },
+    
+    // 平滑滚动函数
+    smoothScroll(element, target, duration) {
+      const start = element.scrollTop;
+      const distance = target - start;
+      const startTime = performance.now();
+      
+      function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      }
+      
+      function animate(currentTime) {
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        
+        element.scrollTop = start + distance * easeInOutQuad(progress);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    },
+
+    // 计算卡片名称的字体大小
+    fontSize(item) {
+      const defaultSize = 40; // 默认字体大小
+      const minSize = 16;     // 最小字体大小
+      const maxLength = 5;    // 标准长度（4个字符时使用默认大小）
+      
+      const nameLength = item.name.length;
+      if (nameLength <= maxLength) {
+        return defaultSize;
+      }
+      
+      // 根据文字长度计算缩放比例
+      const scale = maxLength / nameLength;
+      const calculatedSize = Math.max(defaultSize * scale, minSize);
+      
+      return Math.floor(calculatedSize);
+    },
   },
 
 
@@ -1894,12 +1977,12 @@ export default {
 @import "../../style/book/newCardBgc.less";
 
 .scroller {
-  height: calc(100vh - 160px); /* Reduce container height to minimize bottom gap */
+  height: calc(100vh - 160px);
   overflow-y: auto;
   padding: 16px;
   box-sizing: border-box;
   width: 100%;
-  margin-bottom: 8px; /* Reduce bottom margin */
+  margin-bottom: 8px;
   
   /* Hide scrollbar for different browsers while maintaining functionality */
   scrollbar-width: none; /* Firefox */
@@ -1913,43 +1996,25 @@ export default {
   height: 100%;
   position: relative;
   margin: 0 auto;
+  display: flex;
+  justify-content: center;
   width: 100%;
-  overflow: hidden;
-}
-
-.card-item {
-  width: 272px;
-  height: 164px;
-  box-sizing: border-box;
-  position: relative;
-  margin: 0;
-  transition: box-shadow 0.2s ease; /* Only transition the shadow */
-  
-  /* Use box-shadow for hover and active states instead of border */
-  &:hover {
-    box-shadow: 0 0 0 2px #409EFF;
-  }
-  
-  &.active {
-    box-shadow: 0 0 0 2px #409EFF, 0 0 10px rgba(64, 158, 255, 0.2);
-  }
 }
 
 :deep(.vue-recycle-scroller) {
   position: relative;
   overflow: hidden !important;
-  width: 100%;
+  width: var(--center-type-width);
   box-sizing: border-box;
+  flex: 0 0 auto;
 }
 
 :deep(.vue-recycle-scroller__item-wrapper) {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 272px);
-  gap: 24px 16px; /* Increase vertical gap to 24px */
-  justify-content: center;
-  padding: 0;
+  grid-template-columns: repeat(var(--grid-columns), 272px);
+  gap: 24px 0; /* 只保留垂直间距，水平间距已包含在卡片宽度中 */
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -1962,11 +2027,41 @@ export default {
   padding: 0;
 }
 
+.card-item {
+  width: 256px; /* 实际卡片内容宽度 = 272px - 16px间隙 */
+  height: 164px;
+  box-sizing: border-box;
+  position: relative;
+  margin: 0 16px 0 0; /* 右侧margin作为间隙 */
+}
+
 .content {
   width: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  padding-bottom: 8px; /* Reduce bottom padding */
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.card-name {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 12px 0;
+  height: 40px;
+  line-height: 40px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: font-size 0.3s ease;
+  
+  div {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: font-size 0.3s ease;
+  }
 }
 </style>
 
