@@ -63,7 +63,19 @@ export default {
       try {
         const res = await api_vip.reqGetVipCardDetail(params);
         if (res.code == 1) {
-          this.stepOneInfo = { ...res.data };
+          if(res.data.bind_phone){
+            this.stepOneInfo = { ...res.data };
+            if(!this.preVipInfo.bp){
+              this.preVipInfo.bp = res.data.bind_phone
+            }
+          }else if(res.data.contact_phone){
+            if(!this.preVipInfo.bp){
+              this.preVipInfo.bp = res.data.contact_phone
+            }
+          } else {
+            this.$message.warning("会员卡未登记客人手机");
+            return
+          }
         } else {
           this.$message.warning(res.msg);
         }

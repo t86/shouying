@@ -58,11 +58,11 @@
       </div>
       <div class="row">
         <div class="label">累计充值:</div>
-        <div class="value">{{ (info.deposit_val_amt/100).toFixed(2) }}</div>
+        <div class="value">{{ info && info.deposit_val_amt && (info.deposit_val_amt/100).toFixed(2)}} </div>
       </div>
       <div class="row">
         <div class="label">累计赠送:</div>
-        <div class="value">{{ (info.deposit_free_amt/100).toFixed(2) }}</div>
+        <div class="value">{{ info && info.deposit_free_amt && (info.deposit_free_amt/100).toFixed(2)}}</div>
       </div>
     </div>
 <!--    <div class="row-another">-->
