@@ -57,8 +57,10 @@
                 <el-form-item :label="'选择' + (status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '理由'"
                   class="required required6">
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
-                      @click="formData.reason = item.name">{{ item.name }}</li>
+                    <li :class="{ 'active': isReasonActive(item) }" 
+                        v-for="item in reasonList" 
+                        :key="item.id"
+                        @click="handleReasonClick(item)">{{ item.name }}</li>
                   </ul>
                 </el-form-item>
               </el-form>
@@ -259,11 +261,19 @@
 
             <div class="form" v-if="status == 6 || status == 8">
               <el-form label-position="right" label-width="150px" :model="formData" @submit.native.prevent>
-                <el-form-item class="required required8" :label="'选择批量' + (status == 6 ? '优惠' : '退单') + '理由'">
+                <el-form-item>
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
-                      @click="formData.reason = item.name">{{ item.name }}</li>
+                    <li :class="{ 'active': isReasonActive(item) }" 
+                        v-for="item in reasonList" 
+                        :key="item.id"
+                        @click="handleReasonClick(item)">{{ item.name }}</li>
                   </ul>
+                </el-form-item>
+                <el-form-item :label="'选择批量' + (status == 6 ? '优惠' : '退单') + '理由'">
+                  <input v-model="formData.reason" 
+                         style="width:60%;height:34px;padding: 0 20px" 
+                         placeholder="请输入理由"
+                         :disabled="!formData.isCustomReason" />
                 </el-form-item>
               </el-form>
             </div>
@@ -317,8 +327,10 @@
                 <!-- 退单、赠送理由 -->
                 <el-form-item label="选择取消原因" class="required required6">
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{ 'active': formData.reason == item.name }" v-for="item in reasonList" :key="item.id"
-                      @click="formData.reason = item.name">{{ item.name }}</li>
+                    <li :class="{ 'active': isReasonActive(item) }" 
+                        v-for="item in reasonList" 
+                        :key="item.id"
+                        @click="handleReasonClick(item)">{{ item.name }}</li>
                   </ul>
                 </el-form-item>
               </el-form>
@@ -429,7 +441,9 @@ export default {
       }, // 当前需要操作的商品信息
       formData: {
         radio: "1",
-        reason: '',  // 原因
+        selectedReasonId: '', // 添加选中的理由 ID
+        reason: '',
+        isCustomReason: false,
         originName: '', // 原下单人
         originAe:'', //原授权人
         sales: {
@@ -610,7 +624,7 @@ export default {
     },
 
     goAuthorization() {
-      if (!this.formData.reason) return this.$message.warning('请输入理由');
+      // if (!this.formData.reason) return this.$message.warning('请输入理由');
       this.subStatus = 2;
     },
 
@@ -1373,6 +1387,22 @@ export default {
         };
         this.$emit("showOrHideDrawer", this.status);
       }
+    },
+
+    isReasonActive(item) {
+      return this.formData.selectedReasonId === item.id;
+    },
+
+    handleReasonClick(item) {
+      this.formData.selectedReasonId = item.id; // 记录选中的理由 ID
+      
+      if (item.id === "1") {
+        this.formData.reason = "";
+        this.formData.isCustomReason = true;
+      } else {
+        this.formData.reason = item.name;
+        this.formData.isCustomReason = false;
+      }
     }
   },
   created() { },
@@ -1458,12 +1488,21 @@ export default {
       } else {
         typeId = 1
       }
-      return this.$store.state.cardPageInfo.resResultDataObj.reasonList.filter(item => item.status == 1 && item.type_id == typeId)
+      let reasons = this.$store.state.cardPageInfo.resResultDataObj.reasonList.filter(item => item.status == 1 && item.type_id == typeId)
+      if(typeId === 1) {
+        reasons.push({
+          id:"1",
+          name:"自定义",
+          status:"1",
+          type_id:"1",
+        })
+      }
+      return reasons
     },
 
     isIndeterminate() {
       return !this.checkAll && this.sealProductList.some(item => item.checked)
-    }
+    },
   },
   components: {
     selectCheckbox,
