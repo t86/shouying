@@ -68,7 +68,7 @@
                 <div class="td">{{ item.n }}</div>
                 <div class="td">{{ item.on }} > {{item.tn}}</div>
                 <!-- <div class="td">{{ (item.price/100.0).toFixed(2) }}</div> -->
-                <div class="td">{{ item.price }}</div>
+                <div class="td">{{ prdType == "1" || prdType == "2" ? item.price : item.p2  }}</div>
               </div>
               <div class="no-data" v-if="tableData.length==0">
                 <img :src="require('@/assets/img/wu.png')" alt />
@@ -130,6 +130,11 @@ export default {
           res = await this.$api.BMS.station.reqGetOrdExclPrdItems(params);
         }else {
           res = await this.$api.BMS.seat.requestGetSpSeatPrdItems(params);
+          if(res.code == 1) {
+            (res.data.items || []).forEach(item => {
+              item.p2 = (item.p/100.0).toFixed(2)
+            })
+          }
         }
         if (res.code == 1) {
           if (init == 1) {
