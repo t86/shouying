@@ -20,6 +20,19 @@
         <p class="red-color red">开启后因不需要客户验证，如因门店员工人为操作错误，导致的客人资金损失由门店自行承担全部责任，系统不对此负责。</p>
       </div>
     </div>
+    <div class="m-l-4 m-t-4">
+      <h4 class="m-b-2">会员订阅短信类型</h4>
+      <div class="sms-types">
+        <el-checkbox v-model="smsTypes[1]">消费提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[2]">充值提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[3]">扣款提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[4]">退款提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[5]">退卡提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[6]">注销提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[7]">挂失提醒</el-checkbox>
+        <el-checkbox v-model="smsTypes[8]">取消挂失提醒</el-checkbox>
+      </div>
+    </div>
     <div class="tips">
       <h4 class="m-t-2 m-b-2">规则解释：</h4>
       <p>1、总剩余：当前会员卡剩余总额</p>
@@ -39,7 +52,8 @@ export default {
       isFirstLoad: true,
       notPayGroup: false,
       notPayNotPrd: false,
-      noNeedVerifyCode: false
+      noNeedVerifyCode: false,
+      smsTypes: {},
     };
   },
   methods: {
@@ -51,6 +65,12 @@ export default {
           this.notPayGroup = res.data.ids.includes(1)
           this.notPayNotPrd = res.data.ids.includes(2)
           this.noNeedVerifyCode = res.data.ids.includes(10)
+          
+          const smsTypes = res.data.sms_types || [];
+          [1,2,3,4,5,6,7,8].forEach(type => {
+            this.$set(this.smsTypes, type, smsTypes.includes(type));
+          });
+
           setTimeout(() => {
             this.isFirstLoad = false
           }, 1000);
@@ -67,9 +87,16 @@ export default {
       if(this.notPayGroup) ids.push(1)
       if(this.notPayNotPrd) ids.push(2)
       if(this.noNeedVerifyCode) ids.push(10)
+
+      const smsTypes = Object.entries(this.smsTypes)
+        .filter(([_, checked]) => checked)
+        .map(([type]) => parseInt(type));
+
       const params = {
-        ids   //   []int64    选中规则Id列表
+        ids,
+        sms_types: smsTypes
       }
+      
       try {
         const res = await this.$api.BMS.terminalRules.reqSubmitVipRules(params);
         res.code == 1
@@ -92,6 +119,12 @@ export default {
     },
     noNeedVerifyCode() {
       if(!this.isFirstLoad) this.changeHandle()
+    },
+    smsTypes: {
+      deep: true,
+      handler() {
+        if(!this.isFirstLoad) this.changeHandle()
+      }
     }
   }
 };
@@ -112,6 +145,13 @@ export default {
       line-height: 26px;
       color: #333;
     }
+  }
+
+  .sms-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 10px;
   }
 }
 </style>
