@@ -121,6 +121,8 @@ export default {
 <style scoped lang="less">
 .step-one {
   padding: 20px;
+  display: flex;
+  justify-content: center;
 
   .coll {
     height: 50px;
