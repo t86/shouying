@@ -10,15 +10,39 @@
     >
       <div >
         <div class="top" layout="row" layout-align="start center">
-          <span>类型：</span>
+          <span style="margin-left: 10px;">类型：</span>
             <mySelect
-             style="width:150px"
+             style="width:150px; height: 30px;"
              :value="selectInfo.selectVal"
              :optionsList="selectInfo.selectOption"
              @selectOptionItem="setSelectValHandle"
              @selectBlurHandle="selectBlurHandle"
              @getOption="getOptionHandle"
              />
+             <span style="margin:0 10px">订位部门：</span>
+             <el-cascader
+              style="width: 200px"
+              placeholder="请选择部门"
+              clearable
+              :options="deptItrems"
+              :props="optionProp"
+              v-model="deptIds"
+              popper-class="liebdwd"
+              @change="getTableData"
+              ref="deptRef"
+            >
+            </el-cascader>
+            <span style="margin:0 10px">订位人：</span>
+            <input-select
+                    :autoFocus="true"
+                    style="width: 200px"
+                    :value="sales_name"
+                    placeholder="请输入姓名或工号"
+                    :optionsList="sales_info_option"
+                    @selectInputHandle="inputAeName"
+                    @selectOptionItem="changeAeName"
+                    @selectBlurHandle="selectAeBlurHandle"
+                ></input-select>
           <el-button
             type="primary"
             class="m-l-3"
@@ -88,9 +112,23 @@
 <script>
 import api_money from "@/api/money";
 import mySelect from "@/components/book/select";
+import inputSelect from "@/components/book/inputSelect";
 export default {
   data() {
     return {
+      deptItrems: [], //部门信息
+      deptIds: [], //选中的分类
+      optionProp: {
+        value: "id",
+        label: "n",
+        children: "subs",
+        checkStrictly: true,
+        expandTrigger: "hover",
+      }, //规则
+      sales_name: '',
+      sales_phone: '',
+      sales_emp_id: '',
+      sales_info_option: [],
       show: false,
       selectInfo: {
         selectVal: "不分组",
@@ -122,6 +160,31 @@ export default {
     };
   },
   methods: {
+    inputAeName(query) {
+      this.sales_name = query;
+      this.sales_phone = "";
+      this.sales_emp_id = "";
+      const sealInfoArr =
+          this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      const results = query? sealInfoArr.filter(
+              (el) =>
+                  el.code.toString().includes(query) ||
+                  el.name.toString().includes(query) ||
+                  el.namePy.toString().includes(query.toLowerCase())
+          )
+          : sealInfoArr;
+      this.sales_info_option = results;
+    },
+    changeAeName(info) {
+      this.sales_name = info.name;
+      this.sales_phone = info.phoneNum;
+      this.sales_emp_id = info.id;
+      this.sales_info_option = [];
+      this.getTableData()
+    },
+    selectAeBlurHandle() {
+      this.sales_info_option = [];
+    },
     countStartingSpaces(str) {
       const spaces = str.match(/^\s*/)[0].length;
       return spaces;
@@ -140,7 +203,9 @@ export default {
     // 获取数据
     async getTableData() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组 4 直属部门分组
+        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1, //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组 4 直属部门分组
+        dept_id: this.deptIds.length > 0 ?this.deptIds[this.deptIds.length - 1] * 1: 0,
+        sales_emp_id: this.sales_emp_id ? this.sales_emp_id * 1: 0
       };
       try {
         const res = await api_money.reqGetKpiReportInfo(params);
@@ -212,7 +277,8 @@ export default {
     }
   },
   components: {
-    mySelect
+    mySelect,
+    inputSelect,
   },
   computed: {
   },
@@ -220,6 +286,16 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       newVal ? this.getTableData() : "";
+
+      if(newVal) {
+        this.$api.BMS.dept.requestDeptTree().then((res) => {
+          if (res.code == 1) {
+            this.deptItrems = res.data || [];
+          } else {
+            this.$message.warning(res.msg);
+          }
+        });
+      }
     }
   }
 };
@@ -231,4 +307,46 @@ export default {
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
+</style>
+
+<style lang="less">
+.liebdwd {
+  .el-cascader-menu {
+    border-right: solid 1px rgba(255, 255, 255, 0.1);
+    background: #2A3959 !important;
+  }
+  .el-cascader-menu__list {
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    padding: 6px 0;
+    list-style: none;
+    box-sizing: border-box;
+    background: #2A3959;
+  }
+  &.el-cascader__dropdown {
+    margin: 5px 0;
+    font-size: 14px;
+    background: #2A3959;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  }
+
+  .el-cascader-node {
+    color: rgba(255, 255, 255, 0.8);
+    
+    &:not(.is-disabled):hover, 
+    &:not(.is-disabled):focus {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.in-active-path, 
+    &.is-active, 
+    &.is-selectable.in-checked-path {
+      color: #409EFF;
+      background: rgba(64, 158, 255, 0.08);
+    }
+  }
+}
 </style>
