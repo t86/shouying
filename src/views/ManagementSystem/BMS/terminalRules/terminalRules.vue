@@ -101,7 +101,7 @@
       <h4 class="m-b-2 m-t-3">咨客清台配置</h4>
       <div class="fs14">
         <div>
-          <span class="m-l-4">关闭咨客台清台功能：</span>
+          <span class="m-l-4">关闭咨客台清台/复台功能：</span>
           <el-switch v-model="canClearCard"
                      active-text="是"
                      inactive-text="否"
