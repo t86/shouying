@@ -272,8 +272,7 @@
                 <el-form-item :label="'选择批量' + (status == 6 ? '优惠' : '退单') + '理由'">
                   <input v-model="formData.reason" 
                          style="width:60%;height:34px;padding: 0 20px" 
-                         placeholder="请输入理由"
-                         :disabled="!formData.isCustomReason" />
+                         placeholder="请输入理由" />
                 </el-form-item>
               </el-form>
             </div>
