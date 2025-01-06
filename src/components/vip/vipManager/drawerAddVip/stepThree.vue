@@ -250,9 +250,14 @@ export default {
     },
     async getParams() {
       try {
-        const res = await api_vip.reqGetAddVipCardParams();
-        if (res.code == 1) {
-          this.form.vipTypeOption = res.data.card_types || [];
+        // 并行请求获取添加会员卡参数和会员卡规则
+        const [paramsRes, rulesRes] = await Promise.all([
+          api_vip.reqGetAddVipCardParams(),
+          this.$api.BMS.terminalRules.reqGetVipRules()
+        ]);
+
+        if (paramsRes.code == 1) {
+          this.form.vipTypeOption = paramsRes.data.card_types || [];
           const defaultVipTypeInfo = this.form.vipTypeOption.sort(
             (a, b) => a - b
           )[0];
@@ -263,17 +268,23 @@ export default {
           )[0];
           this.form.vipDeepVal = defaultVipDeepInfo.id;
 
-          this.form.markList = res.data.marks || [];
-          this.form.timeLongList = res.data.valid_years || [];
-          this.form.messageList = (res.data.sms_types || []).map((item) => ({
+          this.form.markList = paramsRes.data.marks || [];
+          this.form.timeLongList = paramsRes.data.valid_years || [];
+
+          // 获取短信类型列表和默认选中状态
+          const smsTypes = paramsRes.data.sms_types || [];
+          const defaultCheckedTypes = rulesRes.code === 1 ? (rulesRes.data.sms_types || []) : [];
+
+          // 设置短信类型列表，并根据会员卡规则设置默认选中状态
+          this.form.messageList = smsTypes.map(item => ({
             ...item,
-            checked: false,
+            checked: defaultCheckedTypes.includes(item.id)
           }));
         } else {
-          this.$message.warning(res.msg);
+          this.$message.warning(paramsRes.msg);
         }
       } catch (error) {
-        console.log("会员卡类型列表获取失败", error);
+        console.log("会员卡参数获取失败", error);
       }
     },
     remoteMethod(query) {
