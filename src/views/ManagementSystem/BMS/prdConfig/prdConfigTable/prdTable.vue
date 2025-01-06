@@ -89,7 +89,7 @@
         <addOrUpdateGroupPrd v-model="showGroupDrawer" :currentInfo="currentInfo" :type="groupPrdType" @getTableData="getTableData" />
 
         <!-- 置为有效无效删除冲突 -->
-        <drawerNextDrawer v-model="showNextDrawer" :nexDrawerInfo="nexDrawerInfo" :effectType="effectType" @getTableData="getTableData" @setEffectOrNotEffect="setEffectOrNotEffect" />
+        <drawerNextDrawer v-model="showNextDrawer" :nexDrawerInfo="nexDrawerInfo" :effectType="effectType" :selectedIds="selectedIds" @getTableData="getTableData" @setEffectOrNotEffect="setEffectOrNotEffect" />
 
         <!-- 批量导入 -->
         <drawerImportAll v-model="showImportDrawer" @getTableData="getTableData" @getMenuList="$emit('getMenuList')" />
@@ -174,6 +174,7 @@ export default {
       limitPad: false,
       limitXcxEmp: false,
       limitXcxCust: false,
+      selectedIds: [], // 新增 selectedIds
     };
   },
   methods: {
@@ -280,6 +281,7 @@ export default {
           this.getTableData()
           this.$message.success('操作成功')
         } else if(res.code == 2) {
+          this.selectedIds = params.ids // 保存选中的 ids
           this.showNextDrawer = true
           this.nexDrawerInfo.ns = res.data.ns || []
           this.nexDrawerInfo.cs = (res.data.cs || []).map(item => ({

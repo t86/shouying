@@ -12,6 +12,7 @@
         <div v-if="cs.length > 0">
           <span>以下对象存在依赖，需人工处理依赖</span>
           <el-button type size="mini" @click.native="asyncDoHandle">同步处理</el-button>
+          <div class="mt-2 text-red-600 font-bold text-base" v-if="effectType === 3">同步处理将删除以下套餐明细内的该单品，请谨慎操作!</div>
           <div class="table-content m-t-3">
             <div class="table">
               <div class="thead">
@@ -96,6 +97,9 @@ export default {
         type_ids: this.nexDrawerInfo.cs.map(item => item.tid),
         ids: this.nexDrawerInfo.cs.map(item => item.id)
       }
+      if (this.effectType * 1 === 3) {
+        params.prd_ids =  this.selectedIds
+      }
       try {
         const res = await this.$api.BMS.Prd.requestprdob(params)
         if(res.code == 1) {
@@ -141,6 +145,10 @@ export default {
     },
     nexDrawerInfo: {
       default: () => ({})
+    },
+    selectedIds: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
