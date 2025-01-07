@@ -314,7 +314,10 @@ export default {
   .el-cascader-menu {
     border-right: solid 1px rgba(255, 255, 255, 0.1);
     background: #2A3959 !important;
+    overflow-x: hidden;
   }
+
+  
   .el-cascader-menu__list {
     position: relative;
     min-height: 100%;
@@ -323,6 +326,7 @@ export default {
     list-style: none;
     box-sizing: border-box;
     background: #2A3959;
+    overflow-x: hidden;
   }
   &.el-cascader__dropdown {
     margin: 5px 0;
