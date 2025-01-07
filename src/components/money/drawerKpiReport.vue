@@ -316,6 +316,9 @@ export default {
     background: #2A3959 !important;
     overflow-x: hidden;
   }
+  .el-cascader-menu::-webkit-scrollbar {
+    display: none
+  }
 
   
   .el-cascader-menu__list {
@@ -328,6 +331,11 @@ export default {
     background: #2A3959;
     overflow-x: hidden;
   }
+
+  .el-cascader-menu__list::-webkit-scrollbar {
+    display: none
+  }
+
   &.el-cascader__dropdown {
     margin: 5px 0;
     font-size: 14px;
