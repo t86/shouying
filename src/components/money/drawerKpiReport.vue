@@ -316,10 +316,24 @@ export default {
     background: #2A3959 !important;
     overflow-x: hidden;
   }
-  .el-cascader-menu::-webkit-scrollbar {
-    display: none
-  }
 
+  .el-cascader-menu__wrap,
+  .el-cascader-menu,
+  .el-cascader-menu__list {
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
   
   .el-cascader-menu__list {
     position: relative;
@@ -330,10 +344,6 @@ export default {
     box-sizing: border-box;
     background: #2A3959;
     overflow-x: hidden;
-  }
-
-  .el-cascader-menu__list::-webkit-scrollbar {
-    display: none
   }
 
   &.el-cascader__dropdown {
