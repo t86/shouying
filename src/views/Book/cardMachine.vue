@@ -1151,10 +1151,14 @@ export default {
           ) {
             // 自然日日期小于等于为当天
             if (this.dateTab.activeIndex == 0) {
+              let hasCleanPermission = this.$store.state.cardPageInfo.resResultDataObj.showAmt.length > 0 && 
+                this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 5) && 
+                this.$store.state.cardPageInfo.resResultDataObj.showAmt.find(item => item.id == 5).param1 == 2;
+              
               optionsIdArr = showOnlineText
                 ? [17]
-                : turnoverCnt > 0
-                ? [1, 2, 4, 5]
+                : turnoverCnt > 0 && hasCleanPermission
+                ? [1, 2, 4, 5, 25]
                 : [1, 2, 5];
             } else {
               optionsIdArr = [1];
@@ -1382,7 +1386,21 @@ export default {
             this.$message.warning("取消必点商品失败");
           }
           return;
-        case 23:
+          case 25:
+          this.showConfirmHandle("复台", "是否确认复台", async () => {
+            try {
+              const res = await api_money.reqReserveCardStatus({
+                seat_id: cardInfo.id * 1, //    int64  卡台Id
+              });
+              this.confirmSuccess(res);
+            } catch (error) {
+              console.log(error);
+              this.$message.warning("复台失败");
+            }
+          });
+          return;
+        
+          case 23:
           console.log("------修改服务员")
       }
 

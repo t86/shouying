@@ -25,6 +25,7 @@ import icon19 from '@/assets/card-imgs/cardOptions/cancel-top-card.png'
 import icon20 from '@/assets/card-imgs/cardOptions/update-card-tips.png'
 import icon21 from '@/assets/card-imgs/cardOptions/remark.png'
 import icon24 from '@/assets/card-imgs/cardOptions/quxiaobidian.png'
+import iconback from "@/assets/money-img/order-back.png";
 
 
 // 后台返回数据对应key值的字段名称
@@ -237,6 +238,12 @@ export const cardOptions = [
     name: '取消必点商品',
     icon: icon24
   },
+  {
+    id: 25,
+    name: '复台',
+    icon: iconback
+  }
+
 ]
 
 // 开台类型
