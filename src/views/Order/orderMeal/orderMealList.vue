@@ -41,7 +41,6 @@ import productList from "@/components/order/productList.vue";
 import productListYH from "@/components/order/productListYH.vue";
 import productListGQ from "@/components/order/productListGQ.vue";
 import eventVue from "@/utils/eventVue";
-
 export default {
   data() {
     return {
@@ -92,6 +91,26 @@ export default {
     }
     console.log('------------,allprods2:', this.allProductsList)
     console.log('------------,vipPricePercent:', this.vipPricePercent)
+
+    let hasShouyin = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+    const emp_id = this.$store.state.userInfo.emp_id
+    let dianzhangInfo = this.$store.state.cardPageInfo.resResultDataObj.shopManagerConfig || []
+    const hasDianzhang = dianzhangInfo.findIndex((item) => item.emp_id == emp_id && item.status == 1) > -1
+
+    console.log('order meal list shouyin :', hasShouyin)
+    console.log('order meal emp_id :', emp_id)
+    console.log("hasDianzhang", hasDianzhang)
+
+    // 如果既不是店长也不是收银，需要过滤掉不可见的商品
+    console.log('before: ', this.allProductsList.length)
+    if (!hasDianzhang && !hasShouyin) {
+      this.allProductsList = this.allProductsList.filter(item => {
+        return item.limit_pc === '2' || item.limit_pad === "2"
+      })
+    }
+    console.log('after: ', this.allProductsList)
+
+    this.$store.state.cardPageInfo.resResultDataObj
 
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
     this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)

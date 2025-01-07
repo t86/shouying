@@ -348,5 +348,9 @@ export default {
       background: rgba(64, 158, 255, 0.08);
     }
   }
+
+  .el-cascader-menu__wrap{
+    height: auto;
+  }
 }
 </style>

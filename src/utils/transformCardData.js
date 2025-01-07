@@ -71,6 +71,10 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           matId: el[11],  // 关联物料Id 如果=0代表没有关联
           useType: el[12],  // 使用限制 1 无限制 2 仅优惠
           picName: el[13],  // 商品图片
+          limit_pc: el[14], //限制pc端 1 限制 2 不限制
+          limit_pad:el[15], //pad
+          limit_xcx_emp:el[16], //小程序员工
+          limit_xcx_cust:el[17], //小程序客人
         })
       })
       break

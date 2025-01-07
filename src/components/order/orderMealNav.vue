@@ -106,9 +106,21 @@ export default {
     },
 
     getCurrentProductList(secondCategoryId = this.secondCategoryActiveId) {
-      return this.productListAll.filter(
+      let hasShouyin = this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(5)
+      const emp_id = this.$store.state.userInfo.emp_id
+      let dianzhangInfo = this.$store.state.cardPageInfo.resResultDataObj.shopManagerConfig || []
+      const hasDianzhang = dianzhangInfo.findIndex((item) => item.emp_id == emp_id && item.status == 1) > -1
+
+      let products = this.productListAll.filter(
         el => el.twoCateId === secondCategoryId
       );
+
+      if (!hasDianzhang && !hasShouyin) {
+        products = products.filter(item => {
+          return item.limit_pc === '2' || item.limit_pad === "2"
+        })
+      }
+      return products
     },
 
     scrollHandle(type, direction) {
