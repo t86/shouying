@@ -720,14 +720,14 @@ export default {
       if (cardStatusId === this.legendActive) {
         // 点击的同状态一个按钮
         this.legendActive = 0;
-        this.card.cardList = cardListInfoArr;
-        return;
+        const currentAreaCards = this.filterCardList("regionId", this.tab.activeIndex);
+        this.card.cardList = currentAreaCards;
+      } else {
+        this.legendActive = cardStatusId;
+        const currentAreaCards = this.filterCardList("regionId", this.tab.activeIndex);
+        // 再根据状态筛选当前区域的卡台
+        this.card.cardList = currentAreaCards.filter(card => card.bizStatus == cardStatusId);
       }
-      this.legendActive = cardStatusId;
-      this.tab.anotherInfoActiveId = 0;
-      this.tab.activeIndex = 0;
-      this.tab.showAnotherInfo = false;
-      this.card.cardList = this.filterCardList("bizStatus", cardStatusId);
     },
 
     // 获取全量数据
