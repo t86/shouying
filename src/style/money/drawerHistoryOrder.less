@@ -1,0 +1,142 @@
+.order-detail {
+  height: 100%;
+  background: #1e2b4c;
+  
+  .top {
+    padding: 20px;
+    background: #1e2b4c;
+    
+    .row {
+      .label {
+        color: #fff;
+        margin-right: 10px;
+      }
+    }
+    
+    .top-left {
+        .label {
+            color: #fff;
+            margin-right: 10px;
+          }
+      input {
+        width: 200px;
+        height: 30px;
+        line-height: 30px;
+        background: #2a3959;
+        border: 1px solid #4c5b7e;
+        border-radius: 4px;
+        padding: 0 10px;
+        color: #fff;
+        
+        &::placeholder {
+          color: #8c97b3;
+        }
+      }
+    }
+  }
+  
+  .table {
+    margin: 0 20px;
+    background: #1e2b4c;
+    
+    .thead {
+      background: #2a3959;
+      border-radius: 4px 4px 0 0;
+      
+      .tr {
+        height: 40px;
+        
+        .th {
+          flex: 1;
+          color: #fff;
+          font-size: 14px;
+          text-align: center;
+        }
+      }
+    }
+    
+    .tbody {
+      .tr {
+        height: 40px;
+        border-bottom: 1px solid #2a3959;
+        cursor: pointer;
+        
+        &:hover {
+          background: #2a3959;
+        }
+        
+        .td {
+          flex: 1;
+          color: #fff;
+          font-size: 14px;
+          text-align: center;
+        }
+      }
+    }
+  }
+  
+  .detail-table {
+    background: #1e2b4c;
+    margin: 0 10px;
+    border-radius: 4px;
+    
+    .detail-header {
+      background: #2a3959;
+      border-radius: 4px 4px 0 0;
+      
+      .tr {
+        height: 40px;
+        
+        .th {
+          flex: 1;
+          color: #fff;
+          font-size: 14px;
+          text-align: center;
+        }
+      }
+    }
+    
+    .detail-body {
+      padding: 10px 0;
+      
+      .tr {
+        height: 40px;
+        
+        .td {
+          flex: 1;
+          color: #fff;
+          font-size: 14px;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+// 深色主题下拉框样式
+.el-select-dropdown {
+  background-color: #2a3959 !important;
+  border: 1px solid #4c5b7e !important;
+
+  .el-select-dropdown__item {
+    color: #fff !important;
+    
+    &:hover, &.selected {
+      background-color: #1e2b4c !important;
+    }
+  }
+}
+
+.el-select {
+  .el-input {
+    .el-input__inner {
+      background-color: #2a3959 !important;
+      border-color: #4c5b7e !important;
+      color: #fff !important;
+      
+      &::placeholder {
+        color: #8c97b3 !important;
+      }
+    }
+  }
+} 

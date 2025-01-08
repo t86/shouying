@@ -568,4 +568,67 @@ export default {
    */
   conv_ol_pay_to_late: (params) => axios.post(`${base.htgl}/sel/conv_ol_pay_to_late`, params),
 
+
+  /*
+   * 读取历史营业日消费数据营业日列表
+   * 客户端传入json:
+    无
+  成功返回编码:1, 返回json:
+    records    []*ResIdName  //Records 营业日下拉列表
+      --------------------------------
+      引用 ResIdName 格式:
+        id         int64      //Id 主键id
+        n          string     //Name 名称
+   */
+  get_csm_his_wkday_items:(params) => axios.post(`${base.htgl}/sel/rpt/get_csm_his_wkday_items`, params),
+
+  /** 读取历史营业日消费数据
+   *   客户端传入json:
+    wkday_id   int64      //WkdayId 营业日Id
+    key        string     //Key 过滤关键字
+  成功返回编码:1, 返回json:
+    records    []*ResGetCsmHisItem //Records 记录列表
+      --------------------------------
+      引用 ResGetCsmHisItem 格式:
+        c          int64      //CmsId 流水Id
+        b          string     //BizDay 营业日期
+        r          string     //RegionName 区域名称
+        s          string     //SeatName 卡台流水名称
+        se         string     //SalesEmpName 订位人名称
+        sd         string     //SalesEmpDept 订位人部门
+        o          int64      //OrderAmt 流水金额,单位分,需前端格式化
+        p          int64      //PayValAmt 流水金额,单位分,需前端格式化
+        pi         string     //PayInfo 流水支付摘要信息
+        os         []*ResGetCsmHisItemOrd //Orders 订单明细
+      --------------------------------
+      引用 ResGetCsmHisItemOrd 格式:
+        o          string     //OrderTime 下单时间
+        w          string     //WaiterEmpName 服务员名称
+        d          string     //WaiterEmpDept 服务员部门
+        co         string     //IsCustOrder 是否自助下单
+        on         string     //OneCateName 商品一级分类名称
+        tn         string     //TwoCateName 商品二级分类名称
+        p          string     //PrdName 商品名称
+        pt         string     //PrdType 商品类型
+        bt         string     //BizType 业务类型
+        c          int        //PrdCnt 商品数量
+        oa         int64      //OrderAmt 订单金额,单位分,需前端格式化
+        pa         int64      //PayValAmt 实付金额,单位分,需前端格式化
+        pi         string     //PayInfo 支付摘要信息
+   */
+  get_csm_his:(params) => axios.post(`${base.htgl}/sel/rpt/get_csm_his`, params),
+
+
+  /** 导出历史营业日消费数据
+   *   客户端传入json:
+    wkday_id   int64      //WkdayId 营业日Id
+    key        string     //Key 过滤关键字
+  成功返回编码:1, 返回json:
+    file application/octet-stream二进制文件
+  普通失败, 返回编码<>1, 数据为空
+   */
+  get_csm_hiexp_csm_hiss_wkday_items:(params) => axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_csm_his`, params),
+
+
+
 };

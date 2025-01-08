@@ -561,6 +561,16 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click="showOrHideHistoryOrderDrawerHandle"
+                >
+                  <img
+                    :src="require('@/assets/money-img/order-icon.png')"
+                    alt
+                  />
+                  <span>历史点单记录</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click="showOrHideNotTYOrXFDrawer()"
                 >
                   <img
@@ -1025,10 +1035,10 @@
         @showOrHideSetYDJYEDrawerHandle="showOrHideSetYDJYEDrawerHandle"
       />
     </div>
-    <!-- 部门销售汇总表 -->
-    <drawerXSAllInfo
-      :showDrawer="showXSAllInfoDrawer"
-      @showOrHideDrawer="showOrHideXSAllInfoDrawerHandle"
+    <!-- 历史点单记录 -->
+    <drawerHistoryOrder
+      :showDrawer="showHistoryOrderDrawer"
+      @showOrHideHistoryOrderDrawer="showOrHideHistoryOrderDrawerHandle"
     />
     <drawer-mt-dy-hx
       :showDrawer="showMtDyHxDrawer"
@@ -1153,6 +1163,8 @@ import drawerSetYDJYE from "../../components/money/drawerSetYDJYE.vue";
 
 import drawerMtDyHx from "../../components/money/drawerMtDyHx.vue"
 
+// 历史点单记录
+import drawerHistoryOrder from "../../components/money/drawerHistoryOrder.vue";
 
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
@@ -1223,6 +1235,7 @@ export default {
       showSetYDJYEDrawer: false, // 客人预订金余额记录表
       showXSAllInfoDrawer: false, // 部门销售汇总表
       showMtDyHxDrawer: false, //美团抖音卡券核销
+      showHistoryOrderDrawer: false, // 历史点单记录
       keyWord: "",
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -1690,6 +1703,10 @@ export default {
     // 显示或隐藏客人预订金余额记录表
     showOrHideSetYDJYEDrawerHandle() {
       this.showSetYDJYEDrawer = !this.showSetYDJYEDrawer;
+    },
+
+    showOrHideHistoryOrderDrawerHandle() {
+      this.showHistoryOrderDrawer = !this.showHistoryOrderDrawer;
     },
 
     showOrHideDyMtHx(){
@@ -2441,6 +2458,7 @@ export default {
     drawerSetYDJ,
     drawerSetYDJYE,
     drawerMtDyHx,
+    drawerHistoryOrder,
   },
 
   watch: {
