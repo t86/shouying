@@ -47,6 +47,17 @@
     </div>
 
     <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">挂账还款小票(收银台)打印份数：</div>
+      <div class="value">
+        <el-input-number
+          v-model="changeYhRenMoneyCount"
+          :min="0"
+          :max="99"
+        />
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
       <div class="label">修改优惠2人小票打印份数：</div>
       <div class="value">
         <el-input-number
@@ -154,6 +165,7 @@ export default {
       backOrderCount: 1, // 退单小票(出品库)打印份数
       backOrderMoneyCount: 1, // 退单小票(收银)打印份数
       changeYhRenCount: 0, // 修改优惠人小票打印份数
+      changeYhRenMoneyCount: 0, // 挂账还款小票(收银台)打印份数
       changeYhRen2Count: 0, // 修改优惠2人小票打印份数
       showPreviewDrawer: false,
       onlineOrderCount: 1, // 线上结算单小票打印分书
@@ -189,6 +201,7 @@ export default {
           this.memberRechargePointCount = res.data.mb_dept_pt_cnt;
           this.membersubtractCount = res.data.mb_sub_cnt;
           this.memberPointCount = res.data.mb_sub_pt_cnt;
+          this.changeYhRenMoneyCount = res.data.acct_repay_cnt;
           this.onlineOrderPrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
@@ -224,6 +237,7 @@ export default {
         mb_sub_cnt: this.membersubtractCount * 1, // int64     会员扣款小票份数
         mb_sub_pt_cnt: this.memberPointCount * 1, // int64 会员积分打印份数
         mb_dept_pt_cnt: this.memberRechargePointCount * 1,// int64 会员卡充值积分打印份数
+        acct_repay_cnt: this.changeYhRenMoneyCount * 1, // int64 挂账还款小票(收银台)打印份数
       };
       try {
         const res = await this.$api.BMS.bill.requestBillSave(params);
