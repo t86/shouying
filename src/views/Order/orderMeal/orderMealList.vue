@@ -92,18 +92,21 @@ export default {
     console.log('------------,allprods2:', this.allProductsList)
     console.log('------------,vipPricePercent:', this.vipPricePercent)
 
-    let hasShouyin = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
-    const emp_id = this.$store.state.userInfo.emp_id
-    let dianzhangInfo = this.$store.state.cardPageInfo.resResultDataObj.shopManagerConfig || []
-    const hasDianzhang = dianzhangInfo.findIndex((item) => item.emp_id == emp_id && item.status == 1) > -1
+    // let hasShouyin = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
+    // const emp_id = this.$store.state.userInfo.emp_id
+    // let dianzhangInfo = this.$store.state.cardPageInfo.resResultDataObj.shopManagerConfig || []
+    // const hasDianzhang = dianzhangInfo.findIndex((item) => item.emp_id == emp_id && item.status == 1) > -1
 
-    console.log('order meal list shouyin :', hasShouyin)
-    console.log('order meal emp_id :', emp_id)
-    console.log("hasDianzhang", hasDianzhang)
+    // console.log('order meal list shouyin :', hasShouyin)
+    // console.log('order meal emp_id :', emp_id)
+    // console.log("hasDianzhang", hasDianzhang)
 
     // 如果既不是店长也不是收银，需要过滤掉不可见的商品
-    console.log('before: ', this.allProductsList.length)
-    if (!hasDianzhang && !hasShouyin) {
+    // console.log('before: ', this.allProductsList.length)
+    // if (!hasDianzhang && !hasShouyin) {
+
+    // 设备限制, 在这个设备上就不展示
+    if (true) {
       this.allProductsList = this.allProductsList.filter(item => {
         return item.limit_pc === '2' || item.limit_pad === "2"
       })
