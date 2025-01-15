@@ -59,6 +59,23 @@
         <drawerAddOrUpdatePrdGroup v-model="showDrawer" :currentInfo="currentInfo" :type="type" @getTableData="getTableData" />
         <!-- 置为删除冲突 -->
         <drawerNextDrawer v-model="showNextDrawer" :nexDrawerInfo="nexDrawerInfo"  @getTableData="getTableData" @setEffectOrNotEffect="deleteHandle" />
+        <!-- 添加确认框 -->
+        <el-dialog
+          :title="dialogType === 'disable' ? '停用' : '启用'"
+          :visible.sync="showConfirmDialog"
+          width="400px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+        >
+          <div class="dialog-content">
+            <p v-if="dialogType === 'disable'">确定停用所选商品组? 停用后，员工无法赠送该商品组的商品！</p>
+            <p v-else>确定启用所选商品组? 启用后，员工可赠送该商品组的商品！</p>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="showConfirmDialog = false">取消</el-button>
+            <el-button type="primary" @click="confirmStatusChange">确定</el-button>
+          </span>
+        </el-dialog>
       </div>
     </div>
   </div>
@@ -80,7 +97,9 @@ export default {
       nexDrawerInfo: {
         ns: [],
         cs: []
-      }
+      },
+      showConfirmDialog: false, // 控制确认框显示
+      dialogType: '', // 'disable' 或 'enable'
     };
   },
   methods: {
@@ -156,19 +175,25 @@ export default {
       }
     },
 
-    async handleStatus(type) {
+    handleStatus(type) {
       const checkedList = this.tableData.filter(item => item.checked)
       if(checkedList.length <= 0) {
         return this.$message.warning('请选择要操作的数据')
       }
 
+      this.dialogType = type
+      this.showConfirmDialog = true
+    },
+
+    async confirmStatusChange() {
+      const checkedList = this.tableData.filter(item => item.checked)
       const params = {
         ids: checkedList.map(item => item.id * 1)
       }
 
       try {
         let res
-        if(type === 'disable') {
+        if(this.dialogType === 'disable') {
           res = await this.$api.BMS.pgrp.pgrd_disable(params)
         } else {
           res = await this.$api.BMS.pgrp.pgrd_enable(params)
@@ -181,8 +206,10 @@ export default {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log(`${type === 'disable' ? '停用' : '启用'}操作失败`, error)
-        this.$message.error(`${type === 'disable' ? '停用' : '启用'}操作失败`)
+        console.log(`${this.dialogType === 'disable' ? '停用' : '启用'}操作失败`, error)
+        this.$message.error(`${this.dialogType === 'disable' ? '停用' : '启用'}操作失败`)
+      } finally {
+        this.showConfirmDialog = false
       }
     },
 
@@ -228,5 +255,27 @@ export default {
       }
     }
   }
+}
+
+.dialog-content {
+  padding: 20px 0;
+  p {
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/deep/ .el-dialog__header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+/deep/ .el-dialog__body {
+  padding: 0 20px;
+}
+
+/deep/ .el-dialog__footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
 }
 </style>
