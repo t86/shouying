@@ -47,6 +47,7 @@
                 <el-option label="采购入库" :value="1"></el-option>
                 <el-option label="其他入库" :value="7"></el-option>
                 <el-option label="盘盈入库" :value="51"></el-option>
+                <el-option label="充公入库" :value="21"></el-option>
               </el-select>
               </div>
             </div>
