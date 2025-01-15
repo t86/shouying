@@ -4,6 +4,8 @@
       <icon-button @click.native="addOrUpdateHandle(1)" text="新增" img="btn_add.png" colors="#383943"></icon-button>
       <icon-button @click.native="addOrUpdateHandle(2)" text="编辑" img="btn_edit.png" colors="#383943"></icon-button>
       <icon-button @click.native="deleteHandle" text="批量删除" img="btn_delete.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="handleStatus('disable')" text="停用" img="btn_disable.png" colors="#6B2830"></icon-button>
+      <icon-button @click.native="handleStatus('enable')" text="启用" img="btn_enable.png" colors="#383943"></icon-button>
     </div>
     <div class="table-content">
       <div class="table">
@@ -151,6 +153,36 @@ export default {
         case "item":
           this.checkAll = this.tableData.every(item => item.checked);
           break;
+      }
+    },
+
+    async handleStatus(type) {
+      const checkedList = this.tableData.filter(item => item.checked)
+      if(checkedList.length <= 0) {
+        return this.$message.warning('请选择要操作的数据')
+      }
+
+      const params = {
+        ids: checkedList.map(item => item.id * 1)
+      }
+
+      try {
+        let res
+        if(type === 'disable') {
+          res = await this.$api.BMS.pgrp.pgrd_disable(params)
+        } else {
+          res = await this.$api.BMS.pgrp.pgrd_enable(params)
+        }
+
+        if(res.code == 1) {
+          this.$message.success('操作成功')
+          this.getTableData() // 刷新表格数据
+        } else {
+          this.$message.warning(res.msg)
+        }
+      } catch (error) {
+        console.log(`${type === 'disable' ? '停用' : '启用'}操作失败`, error)
+        this.$message.error(`${type === 'disable' ? '停用' : '启用'}操作失败`)
       }
     },
 

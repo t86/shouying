@@ -32,5 +32,18 @@ const article = {
     requestpgrpprd_items(data) {     
         return axios.post(`${base.htgl}/pgrp/prd_items`, data);    
     },
+
+    // 启用/禁用
+    /*
+    客户端传入json:
+    ids        []int64      //Ids 请求id数组
+    */
+    pgrd_enable(data) {     
+        return axios.post(`${base.htgl}/pgrp/enable`, data);    
+    },
+    pgrd_disable(data) {     
+        return axios.post(`${base.htgl}/pgrp/disable`, data);    
+    },
+
 }
 export default article;
