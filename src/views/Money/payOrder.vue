@@ -265,6 +265,11 @@
             打印未结消费单
           </div>
 
+          <div class="button"  v-if="payTabInfo.activePayId != 0"
+          @click="changeOrderToAnotherSeatForPaid"
+          >
+            转单
+          </div>
           <div
             class="button"
             v-if="payTabInfo.activePayId != 0"
@@ -1401,6 +1406,13 @@ export default {
       );
       if (checkedOrderList.length === 0)
         return this.$message.warning("请选择要操作的转单订单");
+      this.showOrHideChooseCardDrawer();
+      this.chooseCardInfo.title = '转单'
+    },
+
+    changeOrderToAnotherSeatForPaid(){
+      if (this.hasChooseClockOrder)
+        return this.$message.warning("所选订单存在锁定订单，不可操作");
       this.showOrHideChooseCardDrawer();
       this.chooseCardInfo.title = '转单'
     },

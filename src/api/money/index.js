@@ -39,6 +39,18 @@ export default {
   // 转单
   reqMoveWkOrder: (params) =>
   axios.post(`${base.htgl}/sel/move_wk_order`, params),
+  
+  // 批量转单,针对已付款订单
+  /*POST请求 http://ip_or_domain:port/sel/move_payed_wk_order
+  客户端传入json:
+    seat_id    int64      //SeatId 转出卡台Id
+    dest_seat_id int64      //DestSeatId 转入卡台Id
+    pay_id     int64      //PayId 支付订单Id
+    total_amt  int64      //TotalAmt 待转涉及的总金额,单位分
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空*/
+  move_payed_wk_order: (params) => axios.post(`${base.htgl}/sel/move_payed_wk_order`, params),
 
   // 线上支付订单转线下
   reqOnlineOrderToOrgOrder: (params) =>
