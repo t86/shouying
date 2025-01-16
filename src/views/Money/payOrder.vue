@@ -384,11 +384,12 @@
 
     <!-- 并台 -->
     <fullPageTable
+      v-if="chooseCardInfo.showDrawer"
       :titleText="chooseCardInfo.title"
-      :fromMerchant="chooseCardInfo.title == '转单'"
+      :selectedCardInfo="selectedCardInfo"
+      :isPaidOrder="isPaidTransfer"
       @showOrHideFullPageHandle="showOrHideChooseCardDrawer"
       @setChoosedCardInfo="setChoosedCardInfo"
-      v-if="chooseCardInfo.showDrawer"
     />
 
     <!-- 打印消费单 -->
@@ -537,6 +538,7 @@ export default {
 
       showExportFormat: false, // 选择导出数据格式
       exportType: '1', // 汇总
+      isPaidTransfer: false, // 添加标识是否为已付款转单
     };
   },
   methods: {
@@ -865,8 +867,8 @@ export default {
               : [];
             onlineNotPayOrderList.forEach((el) => {
               el.os.forEach((ele) => {
-                el.orderTime = ele.ot.replace(":", "");
-                el.orderTime = el.orderTime.replace(" ", "");
+                ele.orderTime = ele.ot.replace(":", "");
+                ele.orderTime = el.orderTime.replace(" ", "");
                 ele.productInfo = common_order.getProductInfo(ele.pid);
                 ele.personInfo =
                   ele.wei == 0
@@ -1401,11 +1403,8 @@ export default {
     changeOrderToAnotherSeat(){
       if (this.hasChooseClockOrder)
         return this.$message.warning("所选订单存在锁定订单，不可操作");
-      const checkedOrderList = this.notPayData.choosePayOrderList.filter(
-        (item) => item.checkout && !item.back && !item.oid
-      );
-      if (checkedOrderList.length === 0)
-        return this.$message.warning("请选择要操作的转单订单");
+      
+      this.isPaidTransfer = false;
       this.showOrHideChooseCardDrawer();
       this.chooseCardInfo.title = '转单'
     },
@@ -1413,6 +1412,8 @@ export default {
     changeOrderToAnotherSeatForPaid(){
       if (this.hasChooseClockOrder)
         return this.$message.warning("所选订单存在锁定订单，不可操作");
+      
+      this.isPaidTransfer = true;
       this.showOrHideChooseCardDrawer();
       this.chooseCardInfo.title = '转单'
     },
@@ -1434,16 +1435,47 @@ export default {
     },
 
     // 显示或隐藏并台（转优惠2）选择卡台
-    showOrHideChooseCardDrawer() {
+    showOrHideChooseCardDrawer(info) {
+      if (info && !info.showFullPage) {
+        this.isPaidTransfer = false; // 关闭时重置标识
+      }
       this.chooseCardInfo.showDrawer = !this.chooseCardInfo.showDrawer;
     },
 
     // 获取选取的并台（转优惠2）卡台
-    setChoosedCardInfo(cardInfo) {
+    async setChoosedCardInfo(cardInfo) {
       if(cardInfo.title == '转优惠2') {
         this.submitMergeOrder(cardInfo);
       } else if(cardInfo.title == '转单') {
-        this.submitChangeOrder(cardInfo);
+        if (cardInfo.isPaidOrder) {
+          await this.submitPaidChangeOrder(cardInfo);
+        } else {
+          this.submitChangeOrder(cardInfo);
+        }
+      }
+    },
+
+    // 提交已付款转单数据
+    async submitPaidChangeOrder(cardInfo) {
+      try {
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // 转出卡台Id
+          dest_seat_id: cardInfo.id * 1, // 转入卡台Id
+          pay_id: this.payTabInfo.activePayId * 1, // 支付订单Id
+          total_amt: this.payedData.payedOrderInfo.amts.pzv * 100 || 0, // 待转涉及的总金额,单位分
+        }
+        
+        const res = await api_money.move_payed_wk_order(params)
+        
+        if (res.code === 1) {
+          this.$message.success('转单成功')
+          this.getOrderInfo(this.getPayTabList);
+        } else {
+          this.$message.warning(res.msg || '转单失败')
+        }
+      } catch (error) {
+        console.log('已付款转单失败', error)
+        this.$message.error('转单失败')
       }
     },
 

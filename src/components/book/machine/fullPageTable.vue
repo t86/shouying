@@ -101,6 +101,7 @@ export default {
       selectedInfo: {}, // 所选中的卡台信息
       activeId: "",
       selectActiveSrc,
+      isPaidOrder: false, // 添加标识是否为已付款转单
     };
   },
   methods: {
@@ -152,13 +153,16 @@ export default {
         this.selectedCardInfo = { seatName: "/" };
         return;
       }
+      
+      // 转台限制条件增加已付款转单的判断
       if (
-        (this.title == "转台" &&
+        (this.title == "转台" && !this.isPaidOrder &&
           (cardInfo.bizStatus != "1" || cardInfo.showOnlineText)) ||
         (this.title == "并台" &&
           [4, 5, 6].indexOf(cardInfo.bizStatus * 1) == -1)
       )
         return;
+        
       this.selectedInfo = cardInfo;
       this.selectedInfo.title = this.title;
       this.activeId = cardInfo.id;
@@ -167,7 +171,10 @@ export default {
     // 点击确定按钮
     submitHandle() {
       if (!this.activeId) return this.$message.warning("请选择卡台！");
+
+      // 原有的未付款转单逻辑
       this.$store.commit("updateNewCardInfo", this.selectedInfo);
+      this.selectedInfo.isPaidOrder = this.isPaidOrder; // 传递标识
       this.$emit("setChoosedCardInfo", this.selectedInfo);
       if (this.titleText != "并台") this.closeFullPageHandle(true, true);
     },
@@ -191,14 +198,19 @@ export default {
     this.activeId = this.selectedInfo.exp_seat_id
       ? this.selectedInfo.exp_seat_id.toString()
       : "";
+    this.isPaidOrder = this.isPaidOrder
   },
-  props: [
-    "titleText",
-    "selectedCardInfo",
-    "tabList",
-    "cardList",
-    "fromMerchant",
-  ],
+  props: {
+    titleText: String,
+    selectedCardInfo: Object,
+    tabList: Array,
+    cardList: Array,
+    fromMerchant: Boolean,
+    isPaidOrder: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     title() {
       return this.titleText ? this.titleText : "转台";
