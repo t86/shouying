@@ -29,7 +29,7 @@
         <div class="tbody">
           <div
             class="tr"
-            :class="{'selected': item.checked,'gray': item.s == '无效'}"
+            :class="{'selected': item.checked, 'gray': item.s === '停用'}"
             layout="row"
             layout-align="space-between center"
             v-for="(item, index) in tableData"
@@ -252,6 +252,11 @@ export default {
         &:nth-child(7){
           width: 30%;
         }
+      }
+      
+      .tr.gray {
+        background-color: #f5f5f5;
+        color: #999;
       }
     }
   }
