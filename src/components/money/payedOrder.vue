@@ -488,18 +488,50 @@ export default {
 
     // 退单（完成退单操作）
     async orderBack() {
-      const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64     卡台Id
-        pay_id: this.orderId * 1, //     int64     支付订单Id
-        remark: "", //     string    退单备注
-        wk_order_ids: [], // []int64     待退单订单Id列表
-        prd_back_cnts: [], // []int      对应上面退单列表的退单商品数量
-        prd_back_amts: [], // []string    对应上面退单列表的退单商品金额
-      };
+          const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64     卡台Id
+          pay_id: this.orderId * 1, //     int64     支付订单Id
+          remark: "", //     string    退单备注
+          wk_order_ids: [], // []int64     待退单订单Id列表
+          prd_back_cnts: [], // []int      对应上面退单列表的退单商品数量
+          prd_back_amts: [], // []string    对应上面退单列表的退单商品金额
+        };
 
       try {
         const res = await api_money.reqPayedBackOrder(params);
         if (res.code === 1) {
+          // 重新确认待结账订单
+          let wk_order_ids = [];
+          let prd_cnts = [];
+          let amt = 0;
+          
+          this.tableData.forEach((el) => {
+            if (el.back) {
+              if (wk_order_ids.indexOf(el.parentOrderId * 1) == -1) {
+                wk_order_ids.push(el.parentOrderId * 1);
+                prd_cnts.push(0);
+              }
+            } else {
+              wk_order_ids.push(el.id * 1);
+              prd_cnts.push(el.changeCount * 1);
+            }
+            el.back || el.at == 2 || el.at == 3
+              ? (amt += 0)
+              : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
+          });
+
+          const confirmParams = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+            wk_order_ids,
+            prd_cnts,
+            total_amt: amt.toFixed(2)
+          };
+
+          const confirmRes = await api_money.reqConfirmBillInfo(confirmParams);
+          if (confirmRes.code != 1) {
+            return this.$message.warning(confirmRes.msg);
+          }
+
           return true;
         } else {
           this.$message.warning(res.msg);

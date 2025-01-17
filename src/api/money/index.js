@@ -431,6 +431,16 @@ export default {
     axios.post(`${base.htgl}/sel/refund_late_cnl`, params),
 
   // 结账之前,清理收银结账渠道购物车,并确认本次待结账订单
+  /**
+  客户端传入json:
+    seat_id    int64      //SeatId 卡台Id
+    wk_order_ids []int64      //WkOrderIds 待结账订单Id组
+    prd_cnts   []int        //PrdCnts 对应待结算订单的商品数量, 时价特饮(3),时价小费(4),赔偿(5)不允许拆分数量,其他都可以拆分数量结账
+    total_amt  string     //TotalAmt 总待结算金额,做二次验证用
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空
+   */
   reqConfirmBillInfo: (params) =>
     axios.post(`${base.htgl}/sel/cart_begin_process`, params),
 
