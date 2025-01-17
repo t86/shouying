@@ -1014,6 +1014,8 @@ export default {
         const res = await api_money.reqPayOrder(params);
         if (res.code === 1) {
           this.$message.success("支付成功");
+          this.showDrawer = false;
+          this.$emit('paySuccess');
           this.closeDrawerHandle();
           this.$parent.getOrderInfo(this.$parent.getPayTabList, true);
           // this.$router.replace('/moneyCard');

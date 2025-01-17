@@ -394,6 +394,7 @@
       :showDrawer="showDrawer"
       :choosePayOrderList="tableData.filter((item) => !item.back)"
       @showOrHideDrawer="showOrHideDrawer"
+      @paySuccess="handlePaySuccess"
     />
 
     <!-- 更改套餐明细drawer -->
@@ -484,6 +485,12 @@ export default {
       } else {
         this.showDrawer = !this.showDrawer;
       }
+    },
+
+    // 支付成功后的处理
+    handlePaySuccess() {
+      // 选中"未结账"tab
+      this.$parent.changeTab('order', 0);
     },
 
     // 退单（完成退单操作）
