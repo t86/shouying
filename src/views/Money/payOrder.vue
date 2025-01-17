@@ -1469,7 +1469,12 @@ export default {
         
         if (res.code === 1) {
           this.$message.success('转单成功')
-          this.getOrderInfo(this.getPayTabList);
+          await this.getOrderInfo(this.getPayTabList)
+          // 选中"未结账"tab
+          const notPayTab = this.payTabInfo.showPayTabList.find(item => item.id === 0)
+          if (notPayTab) {
+            this.changeTab('order', 0)
+          }
         } else {
           this.$message.warning(res.msg || '转单失败')
         }
