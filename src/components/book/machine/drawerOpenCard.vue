@@ -373,7 +373,7 @@ export default {
 
 <style>
 .el-cascader__dropdown {
-  background-color: #202c4a;
+  background-color: #202c4a !important;
   color: rgba(255, 255, 255, 0.8);
 }
 
