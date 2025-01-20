@@ -56,7 +56,7 @@ export default {
   methods: {
     async getVipDetail() {
       this.stepOneInfo = {}
-      const params = this.preVipInfo.bp ? {
+      const params = !this.originPhone ? {
         bind_phone: this.preVipInfo.bp // string   绑定手机号
       } : {
         id: this.preVipInfo.id * 1  //   int64   会员卡Id(用于查询没有绑定手机的会员卡信息,单卡) 与bind_phone互斥
