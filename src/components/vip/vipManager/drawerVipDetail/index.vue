@@ -84,7 +84,7 @@ export default {
         console.log("vip详情获取失败", error);
       }
     },
-    async getVipCardList(init = false) {
+    async getVipCardList() {
       this.stepTwoInfo = []
       const params = !this.originPhone ? {
         bind_phone: this.preVipInfo.bp // string   绑定手机号
@@ -107,6 +107,7 @@ export default {
       this.step = step;
     },
     onCancelDrawer() {
+      this.originPhone = true
       this.$emit("showOrHideDrawer");
     },
     phoneChanged(value){
