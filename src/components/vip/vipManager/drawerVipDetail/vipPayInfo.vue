@@ -60,17 +60,22 @@ export default {
         page: 1,
         pageSize: 20,
         total: 0
-      }
+      },
+      isId: true,
     };
   },
   methods: {
-    async getTableData(reset) {
-      if (reset) this.pageInfo.page = 1;
+    async getTableData(reset = false, is_id = false) {
+
+      if (reset) {
+        this.pageInfo.page = 1;
+        this.isId = is_id;
+      }
       const params = {
         page_num: this.pageInfo.page, //   int    第几页
         page_size: this.pageInfo.pageSize, //  int    每页行数
-        ...(this.info.bp && { bind_phone: this.info.bp }), // string  绑定手机号(用于查询有绑定手机的会员信息,里面可能包含多张卡)
-        ...(!this.info.bp && { id: this.info.id * 1 }) //  int64   会员卡Id(用于查询没有绑定手机的会员卡信息,单卡) 与bind_phone互斥
+        ...(this.info.bp && !this.isId && { bind_phone: this.info.bp }), // string  绑定手机号(用于查询有绑定手机的会员信息,里面可能包含多张卡)
+        ...(this.isId && { id: this.info.id * 1 }) //  int64   会员卡Id(用于查询没有绑定手机的会员卡信息,单卡) 与bind_phone互斥
       };
 
       try {

@@ -49,7 +49,8 @@ export default {
       stepThreeInfo: {},
       stepCoupon: {},
       stepRemainWain: {},
-      stepFav: {}
+      stepFav: {},
+      originPhone: true
     };
   },
   methods: {
@@ -83,9 +84,9 @@ export default {
         console.log("vip详情获取失败", error);
       }
     },
-    async getVipCardList() {
+    async getVipCardList(init = false) {
       this.stepTwoInfo = []
-      const params = this.preVipInfo.bp ? {
+      const params = !this.originPhone ? {
         bind_phone: this.preVipInfo.bp // string   绑定手机号
       } : {
         id: this.preVipInfo.id * 1  //   int64   会员卡Id(用于查询没有绑定手机的会员卡信息,单卡) 与bind_phone互斥
@@ -111,6 +112,7 @@ export default {
     phoneChanged(value){
       console.log("phoneChanged from sub:", value)
       this.preVipInfo.bp = value
+      this.originPhone = false
       this.getVipDetail();
       this.getVipCardList()
       this.step = 2
@@ -174,6 +176,7 @@ export default {
       immediate: true
     },
     step(newVal) {
+      console.log("step:", newVal)
       switch (newVal * 1) {
         case 1:
           this.getVipDetail();
@@ -186,7 +189,7 @@ export default {
         case 3:
           this.stepThreeInfo = JSON.parse(JSON.stringify(this.preVipInfo))
           this.$nextTick(() => {
-            this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true)
+            this.$refs.detailRef && this.$refs.detailRef.getTableData && this.$refs.detailRef.getTableData(true, this.originPhone)
           } )
           break;
         case 4:
