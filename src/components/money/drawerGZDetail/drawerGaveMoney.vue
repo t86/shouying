@@ -45,7 +45,52 @@
               <span>还款金额:</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
-              <input type="text" v-model="amtCount" placeholder="请输入金额" />
+              <input type="text" v-model="amtCount" placeholder="还款金额=勾选的挂账订单中还款金额总和" disabled />
+            </div>
+          </div>
+          
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>请勾选要还款的订单:</span>
+            </div>
+          </div>
+          
+          <div class="table">
+            <div class="thead">
+              <div class="tr" layout="row" layout-align="start center">
+                <div class="th">
+                  <el-checkbox
+                    :indeterminate="indeterminate"
+                    v-model="checkAll"
+                    @change="handleCheckAllChange"
+                  >全选</el-checkbox>
+                </div>
+                <div class="th">挂账时间</div>
+                <div class="th">卡台名称</div>
+                <div class="th">订位人</div>
+                <div class="th">挂账金额</div>
+              </div>
+            </div>
+            <div class="tbody">
+              <div
+                class="tr"
+                layout="row"
+                layout-align="start center"
+                v-for="(item, index) in orderList"
+                :key="index"
+              >
+                <div class="td">
+                  <el-checkbox
+                    v-model="item.checked"
+                    @change="handleItemChange"
+                  ></el-checkbox>
+                </div>
+                <div class="td">{{item.c}}</div>
+                <div class="td">{{item.s}}</div>
+                <div class="td">{{item.sn}}</div>
+                <div class="td">{{formatAmount(item.a)}}</div>
+              </div>
+              <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
             </div>
           </div>
         </div>
@@ -91,19 +136,82 @@ export default {
           id: 6,
           name: '会员卡扣款'
         }
-      ]
+      ],
+      orderList: [],
+      checkAll: false,
+      indeterminate: false
     };
   },
   methods: {
+    // 获取挂账订单列表
+    async getOrderList() {
+      try {
+        const params = {
+          id: this.currentInfo.id * 1
+        };
+        const res = await api_money.reqGetGZOrders(params);
+        if (res.code == 1) {
+          this.orderList = (res.data.records || []).map(item => ({
+            ...item,
+            checked: false
+          }));
+          this.checkAll = false;
+          this.indeterminate = false;
+          this.amtCount = '';
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("获取挂账订单列表失败", error);
+      }
+    },
+    
+    // 格式化金额显示
+    formatAmount(amount) {
+      return (amount / 100).toFixed(2);
+    },
+    
+    // 全选
+    handleCheckAllChange(val) {
+      this.orderList.forEach(item => {
+        item.checked = val;
+      });
+      this.indeterminate = false;
+      this.calculateTotalAmount();
+    },
+    
+    // 单选
+    handleItemChange() {
+      const checkedCount = this.orderList.filter(item => item.checked).length;
+      this.checkAll = checkedCount === this.orderList.length;
+      this.indeterminate = checkedCount > 0 && checkedCount < this.orderList.length;
+      this.calculateTotalAmount();
+    },
+    
+    // 计算总金额
+    calculateTotalAmount() {
+      const totalAmount = this.orderList
+        .filter(item => item.checked)
+        .reduce((sum, item) => sum + item.a, 0);
+      this.amtCount = (totalAmount / 100).toFixed(2);
+    },
+    
     // 提交
     async onSubmit() {
-      if(this.activeId == '') return this.$message.warning('请选择还款方式')
-      if(this.amtCount * 1 == 0) return this.$message.warning('请输入还款金额')
+      if(this.activeId == '') return this.$message.warning('请选择还款方式');
+      if(this.amtCount * 1 == 0) return this.$message.warning('请勾选要还款的订单');
+      
+      // 获取选中的订单ID和金额
+      const checkedOrders = this.orderList.filter(item => item.checked);
+      const ids = checkedOrders.map(item => item.id * 1);
+      const amts = checkedOrders.map(item => item.a);
+      
       const params = {
-        id: this.currentInfo.id * 1, //   int64  挂账账户Id
-        cnl_name: this.returnList[this.activeId - 1].name,   //   string   还款渠道名称
-        amt: this.amtCount   //   string  还款金额
+        ids: ids,                                      // 挂账订单Id列表
+        amts: amts,                                    // 对应上面挂账订单Id列表的还款金额, 单位分
+        cnl_name: this.returnList[this.activeId - 1].name  // 还款渠道名称
       };
+      
       try {
         const res = await api_money.reqReturnMoney(params);
         if (res.code == 1) {
@@ -117,6 +225,7 @@ export default {
         console.log("还款失败", error);
       }
     },
+    
     onCancelDrawer() {
       this.$emit("showOrHideGaveMoneyDrawer");
     }
@@ -134,20 +243,15 @@ export default {
     showDrawer: {
       handler(newVal) {
         this.show = newVal;
-        if (!newVal) {
-          this.$emit('getTableData')
+        if (newVal) {
+          this.activeId = '';
+          this.amtCount = '';
+          this.getOrderList();
         } else {
-          this.amtCount = ''
+          this.$emit('getTableData');
         }
       },
       immediate: true
-    },
-    amtCount(newVal){
-      if(isNaN(newVal * 1)) return this.$message.warning('请输入数字')
-      if(newVal * 1 > this.currentInfo.a * 1) {
-        this.amtCount = this.currentInfo.a
-        this.$message.warning('当前可还款最大金额为' + this.currentInfo.a)
-      }
     }
   }
 };
@@ -173,7 +277,7 @@ export default {
     .row {
       padding: 10px 20px;
       .label {
-        width: 100px;
+        width: 150px;
         text-align: right;
       }
       .value {
@@ -182,11 +286,12 @@ export default {
         input {
           padding: 0 10px;
           box-sizing: border-box;
-          width: 200px;
+          width: 300px;
           height: 30px;
           border-radius: 8px;
           box-sizing: border-box;
           border: 1px solid rgba(255, 255, 255, 0.15);
+          background-color: rgba(255, 255, 255, 0.05);
         }
 
         .btn {
@@ -221,6 +326,46 @@ export default {
               border-color: #4b89ff;
               color: #4b89ff;
             }
+          }
+        }
+      }
+    }
+  }
+  
+  .table {
+    margin: 0 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    
+    .thead {
+      background-color: rgba(255, 255, 255, 0.05);
+      .tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        .th {
+          padding: 10px;
+          text-align: center;
+          flex: 1;
+          &:first-child {
+            flex: 0.5;
+          }
+        }
+      }
+    }
+    
+    .tbody {
+      max-height: 300px;
+      overflow-y: auto;
+      .tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        &:last-child {
+          border-bottom: none;
+        }
+        .td {
+          padding: 10px;
+          text-align: center;
+          flex: 1;
+          &:first-child {
+            flex: 0.5;
           }
         }
       }

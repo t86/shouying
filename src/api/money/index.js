@@ -367,7 +367,37 @@ export default {
     axios.post(`${base.htgl}/cnlacct/get_op_logs`, params),
 
   // 挂账还款
+  /**
+  客户端传入json:
+    ids        []int64      //Ids 挂账订单Id列表
+    amts       []int64      //Amts 对应上面挂账订单Id列表的还款金额, 单位分, 需前端格式化
+    cnl_name   string     //CnlName 还款渠道名称
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空
+  */
   reqReturnMoney: (params) => axios.post(`${base.htgl}/cnlacct/return`, params),
+
+
+  // 获取指定挂账账户的待还款挂账订单列表
+  /**
+   * 
+ 客户端传入json:
+    id         int64      //AccountId 挂账账户Id
+  成功返回编码:1, 返回json:
+    records    []*ResGetCnlAccountOrdersItem //Records 记录列表
+      --------------------------------
+      引用 ResGetCnlAccountOrdersItem 格式:
+        id         int64      //Id 挂账订单Id
+        c          string     //CreateTime 挂账时间
+        a          int64      //Amt 挂账金额,单位分,需前端格式化
+        s          string     //SeatName 卡台名称
+        sn         string     //SalesEmpName 订位人名称
+  普通失败, 返回编码<>1, 数据为空
+   */
+  reqGetGZOrders: (params) =>
+    axios.post(`${base.htgl}/cnlacct/get_orders`, params),
+
 
   /**
    * 读卡相关
