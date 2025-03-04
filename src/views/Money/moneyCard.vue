@@ -166,8 +166,8 @@
                     v-if="item.bizStatus != 1 && item.bizStatus != 2"
                     style="display: inline-block; width: 100px"
                   >
-                    {{ item.salesEmpId | getDepartmentName }}
                     {{ item.salesEmpId | getOrderPersonName }}
+                    {{ item.salesEmpId | getDepartmentName }}
                   </span>
                   <span
                     class="card-tips"

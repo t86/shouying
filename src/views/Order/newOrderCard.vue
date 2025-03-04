@@ -135,8 +135,8 @@
                       white-space: normal; overflow: hidden; text-overflow: ellipsis; 
                       display: -webkit-box; -webkit-line-clamp: 2; 
                       -webkit-box-orient: vertical;">
-                      {{ item.salesEmpId | getDepartmentName }}
                       {{ item.salesEmpId | getOrderPersonName }}
+                      {{ item.salesEmpId | getDepartmentName }}
                     </span>
                     <!-- 用于占位 -->
                     <span v-else></span>

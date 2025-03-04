@@ -169,8 +169,8 @@
                   class="one-txt-cut"
                   style="width: 130px"
                 >
+                {{ item.salesEmpId | getOrderPersonName }}
                   {{ item.salesEmpId | getDepartmentName }}
-                  {{ item.salesEmpId | getOrderPersonName }}
                 </span>
                 <!-- 用于占位 -->
                 <span v-else></span>

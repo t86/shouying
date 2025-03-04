@@ -154,8 +154,8 @@
               class="one-txt-cut"
               v-if="item.bizStatus != 1 && item.bizStatus != 2"
             >
+            {{ item.salesEmpId | getOrderPersonName }}
               {{ item.salesEmpId | getDepartmentName }}
-              {{ item.salesEmpId | getOrderPersonName }}
             </p>
             <p v-else style="height: 17px"></p>
 
