@@ -205,6 +205,9 @@ export default {
   reqChangeYhRen: (params) =>
     axios.post(`${base.htgl}/wo/chg_yh_yu2_auth_emp`, params),
 
+  chg_yh_auth_emp: (params) =>
+    axios.post(`${base.htgl}/wo/chg_yh_auth_emp`, params),
+
 
   // 点单读取特饮/小费记录
   reqGetYHListByord: (params) =>

@@ -1198,7 +1198,7 @@ export default {
             return this.$message.warning("请输入授权密码");
           }
           try {
-            const res = await api_order.reqChangeYhRen(params);
+            const res = await api_order.chg_yh_auth_emp(params);
             if (res.code == 1) {
               this.$message.success('修改优惠/优惠2授权人成功');
               this.onCancelDrawer(true);
