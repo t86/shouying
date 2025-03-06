@@ -465,13 +465,11 @@ export default {
     startEditPhone(type) {
       if(type === 'normal') {
         this.isPhoneEditing = true;
-        this.phoneNumMask = '';
         this.$nextTick(() => {
           this.focus = 2;
         });
       } else {
-        this.isCustomPhoneEditing = true; 
-        this.customPhoneNumMask = '';
+        this.isCustomPhoneEditing = true;
         this.$nextTick(() => {
           this.focus = 4;
         });
@@ -487,15 +485,44 @@ export default {
     handlePhoneInput(type) {
       if(type === 'normal') {
         if(this.validatePhone(this.phoneNum)) {
+          // 直接设置掩码，不清空原始手机号
           this.phoneNumMask = this.phoneNum.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
           this.isPhoneEditing = false;
           this.emitStepOneInfoHandle();
         }
       } else {
         if(this.validatePhone(this.customPhoneNum)) {
-          this.customPhoneNumMask = this.customPhoneNum.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+          // 保存原始值
+          const originalPhone = this.customPhoneNum;
+          const originalMask = this.customPhoneNum.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+          
+          // 设置掩码
+          this.customPhoneNumMask = originalMask;
           this.isCustomPhoneEditing = false;
-          this.emitStepOneInfoHandle();
+          
+          // 在 emitStepOneInfoHandle 之前，确保我们有正确的值
+          const stepInfo = {
+            ...JSON.parse(JSON.stringify(this.stepOneInfo)),
+            orderList: [...this.tableData],
+            tabIndex: this.tabIndex,
+            authValidateVal: this.authValidateVal || "",
+            phoneNum: this.phoneNum || "",
+            phoneNumMask: this.phoneNumMask,
+            validateVal: this.validateVal || "",
+            customPhoneNum: originalPhone, // 使用保存的原始值
+            customName: this.customName || "",
+            customPhoneName: this.customPhoneName || "",
+            customPhoneNumMask: originalMask, // 使用保存的掩码值
+            superValidate: this.superValidate || "",
+          };
+          
+          // 直接发送更新，跳过 emitStepOneInfoHandle
+          this.$emit("updateStepInfo", stepInfo);
+          
+          // 如果需要获取订单流水可存酒水，直接调用
+          if (this.selectedInfo.id && originalPhone.length === 11) {
+            this.getOrderCanSaveWine();
+          }
         }
       }
     },
@@ -518,7 +545,8 @@ export default {
       immediate: true,
       handler(newVal){
         console.log(newVal)
-        if(!newVal) {
+        // 只有在初始化时才清空手机号
+        if(!newVal && !this.isPhoneEditing && this.phoneNum === '') {
           this.phoneNum = ''
         }
       }
@@ -527,7 +555,8 @@ export default {
       immediate: true,
       handler(newVal){
         console.log(newVal)
-        if(!newVal) {
+        // 只有在初始化时才清空手机号
+        if(!newVal && !this.isCustomPhoneEditing && this.customPhoneNum === '') {
           this.customPhoneNum = ''
         }
       }
