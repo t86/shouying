@@ -15,6 +15,12 @@
 
     <div class="card-list" ref="cardListRef">
       <div class="center-type" layout="row" layout-align="start start" :style="{ 'width': centerType + 'px' }">
+        <div v-if="productsList.length === 0" class="empty-message">
+          <div class="empty-content">
+            <img :src="require('@/assets/card-imgs/no-card.png')" alt="暂无商品" />
+            <p>暂无商品</p>
+          </div>
+        </div>
         <div class="prd-item" v-if="pic_show" style="height: 410px;" v-for="item in productsList" :key="item.id"
              @click="setMealForProduct(item)" :class="{ 'opacity': item.outSomethingCount == 0 }">
           <div class="item-img-count">
@@ -1366,4 +1372,32 @@ export default {
 
 <style scoped lang="less">
 @import "../../style/order/orderMeal/productList.less";
+
+.empty-message {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 15px;
+      opacity: 0.6;
+    }
+    
+    p {
+      font-size: 20px;
+      color: rgb(97 94 94 / 70%);
+      text-align: center;
+      font-weight: 500;
+    }
+  }
+}
 </style>
