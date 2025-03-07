@@ -175,7 +175,6 @@ export default {
         this.count = this.isGQ ? 0 : "";
       }
       this.requestInfoArr = [];
-      this.isSubmitting = true
       this.$emit("closeDrawerHandle");
     },
 
@@ -267,7 +266,8 @@ export default {
     },
 
     async onSubmit() {
-
+      // 设置为正在提交状态
+      this.isSubmitting = true;
 
       this.shopCount = this.count;
       // 如果count为空，则默认为1
@@ -287,20 +287,29 @@ export default {
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
         const params = {
-          prd_id: this.productInfo.id * 1, //     int64    商品Id
-          cnt: this.shopCount * 1, //   int  数量
+          prd_id: this.productInfo.id * 1,
+          cnt: this.shopCount * 1,
         };
         try {
-          const res = await api_order.reqSetGQOrder(params);
-
-          if (res.code == 1) {
-            this.$message.success("添加估清商品成功");
-            this.$emit("getGQPrdList");
-            this.onCancelDrawer();
-          } else {
-            this.$message.warning(res.msg);
-          }
+          api_order.reqSetGQOrder(params).then(res => {
+            // 请求完成后重置状态
+            this.isSubmitting = false;
+            
+            if (res.code == 1) {
+              this.$message.success("添加估清商品成功");
+              this.$emit("getGQPrdList");
+              this.onCancelDrawer();
+            } else {
+              this.$message.warning(res.msg);
+            }
+          }).catch(error => {
+            // 请求失败也要重置状态
+            this.isSubmitting = false;
+            console.log("添加估清商品失败", error);
+          });
         } catch (error) {
+          // 捕获到异常也要重置状态
+          this.isSubmitting = false;
           console.log("添加估清商品失败", error);
         }
         return false;
