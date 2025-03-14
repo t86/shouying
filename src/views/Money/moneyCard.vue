@@ -328,8 +328,8 @@
               class="legend-list-item merchant-item"
               @click.stop="showOrHideMerchantInfoDrawerHandle"
             >
-              <!-- <img :src="require('../../assets/money-img/vip-logo.png')" alt /> -->
-              <p class="fs16">{{ merchantAllAmt }}</p>
+              <p class="fs16">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts.length > 1" >{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
             </div>
           </div>
           <!-- 操作面板 -->
@@ -2407,10 +2407,25 @@ export default {
 
   computed: {
     merchantAllAmt() {
+      console.log("cardPageInfo:", this.$store.state.cardPageInfo)
       const { merchantInfo } = this.$store.state.cardPageInfo.resResultDataObj;
+      console.log("merchantInfo:", merchantInfo)
       const resultAmt =
         merchantInfo.length == 0 ? 0 : ((merchantInfo[0].amt || 0) * 1) / 10000;
       return this.$overall.toFixed(resultAmt, 1);
+    },
+
+    merchantsAmts() {
+      const { merchantInfo } = this.$store.state.cardPageInfo.resResultDataObj;
+      console.log("merchantInfo:", merchantInfo)
+      let result = []
+      if(merchantInfo[0].cnl_cfg_id2 * 1 === 0) {
+        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt}]
+      } else {
+        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt}, {id: merchantInfo[0].cnl_cfg_id2, amt: merchantInfo[0].amt2}]
+      }
+      console.log("result:", result)
+      return result
     },
     // safeModeEnabled() {
     //   let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
@@ -2542,6 +2557,20 @@ export default {
 // 卡台背景闪烁颜色
 .notify-opacity0 {
   opacity: 0;
+}
+
+.merchant-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 10px 0;
+
+  p {
+    margin: 0;
+    line-height: 20px;
+  }
 }
 </style>
 

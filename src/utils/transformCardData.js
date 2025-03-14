@@ -468,9 +468,12 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
       arr.forEach(el => {  
         resultArr.push({
           id: el[0], // 固定=1
-          amt: el[1], // 总金额
-          g_amt: el[2], // 对公金额
-          status: 1  // 状态 1 有效 2 无效 3 删除
+          amt: el[1], // 总金额 对应主体1
+          g_amt: el[2], // 对公金额(对应主体1)
+          cnl_cfg_id: el[3], // 主体1
+          cnl_cfg_id2: el[4], // 主体2 当=0的时候,代表只有一个主体
+          amt2: el[5], // 总金额 对应主体2
+          g_amt2: el[6], // 对公金额(对应主体2)
         })
       })
       break
