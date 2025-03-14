@@ -95,7 +95,7 @@ a {
 
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
-  background-color: #e5e5e5 !important;
+  // background-color: #e5e5e5;
 }
 
 .el-switch {
