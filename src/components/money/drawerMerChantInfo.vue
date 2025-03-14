@@ -98,7 +98,10 @@ export default {
 
     async getMerchantTimeAmtList(){
       try {
-        const res = await api_money.reqGetMerchantTimeAmtList()
+        let params = {
+          cnl_cfg_id: this.merchantId * 1
+        }
+        const res = await api_money.reqGetMerchantTimeAmtList(params)
         if(res.code == 1) {
           const result = res.data.records || []
           result.sort((a,b) => a.h - b.h)
@@ -157,6 +160,10 @@ export default {
   props: {
     showDrawer: {
       default: false // 是否显示drawer
+    },
+    merchantId: {
+      type: [Number, String],
+      default: null
     }
   },
   watch: {

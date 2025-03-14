@@ -326,10 +326,9 @@
             <div
               v-if="!safeModeEnabled"
               class="legend-list-item merchant-item"
-              @click.stop="showOrHideMerchantInfoDrawerHandle"
             >
-              <p class="fs16">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
-              <p class="fs16" v-if="merchantsAmts.length > 1" >{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16"  @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id)">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id)">{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
             </div>
           </div>
           <!-- 操作面板 -->
@@ -966,6 +965,7 @@
     <!-- 商户号信息 -->
     <drawerMerChantInfo
       :showDrawer="showMerchantInfoDrawer"
+      :merchantId="selectedMerchantId"
       @showOrHideDrawer="showOrHideMerchantInfoDrawerHandle"
     />
 
@@ -1223,6 +1223,7 @@ export default {
       showYHCountDrawer: false, // 查询优惠额度
       showMerchantDrawer: false, // 商户号管理
       showMerchantInfoDrawer: false, // 商户号信息
+      selectedMerchantId: null,
       showMinDetailDrawer: false, // 低消进度统计表
       showXCDetailDrawer: false, // 现抽明细表
       showXCAllInfoDrawer: false, // 现抽汇总表
@@ -1646,8 +1647,9 @@ export default {
     },
 
     // 显示或隐藏商户号信息
-    showOrHideMerchantInfoDrawerHandle() {
+    showOrHideMerchantInfoDrawerHandle(id) {
       this.showMerchantInfoDrawer = !this.showMerchantInfoDrawer;
+      this.selectedMerchantId = id;
     },
 
     // 显示或隐藏低消进度统计表
