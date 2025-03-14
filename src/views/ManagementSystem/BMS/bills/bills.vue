@@ -109,6 +109,33 @@
       </div>
     </div>
 
+
+    
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">线上充值小票打印机：</div>
+      <div class="value">
+        <el-select
+          clearable
+          v-model="onlineRechargePrint"
+        >
+          <el-option
+            v-for="item in onlineRechargePrintList"
+            :key="item.id"
+            :label="item.n"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </div>
+    </div>
+
+    <div class="coll m-b-3" layout="row" layout-align="start center">
+      <div class="label">线上充值小票打印份数：</div>
+      <div class="value">
+        <el-input-number v-model="onlineRechargeCount" :min="0" :max="9" />
+      </div>
+    </div>
+
+
     <div class="coll m-b-3" layout="row" layout-align="start center">
       <div class="label">会员扣款小票打印份数：</div>
       <div class="value">
@@ -173,11 +200,14 @@ export default {
       onlineOrderPrintList: [], // 线上结算单小票打印机option
       onlineClearCardPrint: "", // 线上清台小票打印机
       onlineClearCardPrintList: [], // 线上清台小票打印机option
+      onlineRechargePrint: "", // 线上充值小票打印机
+      onlineRechargePrintList: [], // 线上充值小票打印机option
       memberDepositCount: 0, // 会员充值小票份数
       memberConsumeCount: 0, // 会员消费小票份数
       memberRechargePointCount: 0, //会员充值积分小票份数
       membersubtractCount: 0, // 会员扣款小票份数
       memberPointCount: 0, // 会员扣除积分小票份数
+      onlineRechargeCount: 0, // 线上充值小票打印份数
     };
   },
   methods: {
@@ -202,10 +232,15 @@ export default {
           this.membersubtractCount = res.data.mb_sub_cnt;
           this.memberPointCount = res.data.mb_sub_pt_cnt;
           this.changeYhRenMoneyCount = res.data.acct_repay_cnt;
+          this.onlineRechargeCount = res.data.ol_dept_prt_cnt;
+          this.onlineRechargePrint = res.data.ol_dept_prt_id || "";
           this.onlineOrderPrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
           this.onlineClearCardPrintList = (res.data.printers || []).filter(
+            (item) => item.s == 1
+          );
+          this.onlineRechargePrintList = (res.data.printers || []).filter(
             (item) => item.s == 1
           );
           console.log(this.onlineOrderPrintList);
@@ -238,6 +273,11 @@ export default {
         mb_sub_pt_cnt: this.memberPointCount * 1, // int64 会员积分打印份数
         mb_dept_pt_cnt: this.memberRechargePointCount * 1,// int64 会员卡充值积分打印份数
         acct_repay_cnt: this.changeYhRenMoneyCount * 1, // int64 挂账还款小票(收银台)打印份数
+
+        ol_dept_prt_id: this.onlineRechargePrint * 1, // int64 线上充值小票打印机Id
+        ol_dept_prt_cnt: this.onlineRechargeCount * 1, // int 线上充值小票打印份数
+
+
       };
       try {
         const res = await this.$api.BMS.bill.requestBillSave(params);
