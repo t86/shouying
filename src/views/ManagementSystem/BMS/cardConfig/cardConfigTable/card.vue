@@ -386,14 +386,48 @@ export default {
 <style scoped lang='less'>
 .one-table {
   padding: 20px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
   .top {
     background-color: #eee;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
+
+  .percentage {
+    padding: 0 10px;
+    position: sticky;
+    top: 60px;
+    z-index: 10;
+    background: #fff;
+    width: 400px;
+    display: flex;
+    align-items: center;
+    min-height: 50px;
+    
+    &_label {
+      font-size: 12px;
+      color: #40404e;
+      display: inline-block;
+    }
+
+    &_value {
+      display: inline-block;
+      width: 300px;
+    }
+  }
+
   .table-content {
+    flex: 1;
+    overflow: auto;
+    
     .table {
-      max-height: calc(100vh - 160px);
-      overflow: auto;
-      .th,.td{
+      .th,.td {
         &:nth-child(1),
         &:nth-child(3),
         &:nth-child(4),
@@ -408,24 +442,5 @@ export default {
       }
     }
   }
-}
-
-.percentage{
-  width:400px;
-  display: flex;
-  align-items: center;
-  margin-left: 15px;
-  min-height: 50px;
-}
-
-.percentage_label{
-  font-size: 12px;
-  color: #40404e;
-  display: inline-block;
-}
-
-.percentage_value{
-  display: inline-block;
-  width: 300px;
 }
 </style>
