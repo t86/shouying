@@ -1,92 +1,94 @@
 <template>
   <div class="one-table">
-    <div class="top" layout="row" layout-align="start center">
-      <icon-button
-        @click.native="addOrUpdateHandle(1)"
-        text="新增岗位"
-        img="btn_add.png"
-        colors="#383943"
-      ></icon-button>
-      <icon-button
-        @click.native="addOrUpdateHandle(2)"
-        text="编辑岗位"
-        img="btn_edit.png"
-        colors="#383943"
-      ></icon-button>
-      <icon-button
-        @click.native="setEffectOrNotEffect(1)"
-        text="置为无效"
-        img="btn_in_vain.png"
-        colors="#383943"
-      ></icon-button>
-      <icon-button
-        @click.native="setEffectOrNotEffect(2)"
-        text="置为有效"
-        img="btn_effective.png"
-        colors="#383943"
-      ></icon-button>
-      <icon-button
-        @click.native="setEffectOrNotEffect(3)"
-        text="批量删除"
-        img="btn_delete.png"
-        colors="#6B2830"
-      ></icon-button>
-      <characters-button
-        @click.native="setConfigHandle(10)"
-        colors="#383943"
-        wz="角色权限"
-      ></characters-button>
-      <!-- <characters-button
-        @click.native="setConfigHandle(1)"
-        colors="#383943"
-        wz="登录权限"
-      ></characters-button> -->
-      <characters-button
-        @click.native="setConfigHandle(2)"
-        colors="#383943"
-        wz="可点区域"
-      ></characters-button>
-      <characters-button
-        @click.native="setConfigHandle(3)"
-        colors="#383943"
-        wz="可点商品"
-      ></characters-button>
-      <characters-button
-        @click.native="setConfigHandle(4)"
-        colors="#383943"
-        wz="优惠"
-      ></characters-button>
-      <characters-button
-        @click.native="setConfigHandle(5)"
-        colors="#383943"
-        wz="优惠2"
-      ></characters-button>
-      <characters-button
-        @click.native="setConfigHandle(6)"
-        colors="#383943"
-        wz="鸡尾酒关联商品"
-      ></characters-button>
-      <!-- <characters-button
-        @click.native="setConfigHandle(7)"
-        colors="#383943"
-        wz="erp系统权限"
-      ></characters-button> -->
-      <!-- <characters-button
-        @click.native="setConfigHandle(8)"
-        colors="#383943"
-        wz="配置权限"
-      ></characters-button>
-      <characters-button
-        @click.native="setConfigHandle(9)"
-        colors="#383943"
-        wz="查单权限"
-      ></characters-button> -->
-      <characters-button
-        @click.native="addOrUpdateHandle(3)"
-        colors="#383943"
-        wz="类似创建"
-      ></characters-button>
-     
+    <div class="top-container">
+      <div class="top" layout="row" layout-align="start center">
+        <icon-button
+          @click.native="addOrUpdateHandle(1)"
+          text="新增岗位"
+          img="btn_add.png"
+          colors="#383943"
+        ></icon-button>
+        <icon-button
+          @click.native="addOrUpdateHandle(2)"
+          text="编辑岗位"
+          img="btn_edit.png"
+          colors="#383943"
+        ></icon-button>
+        <icon-button
+          @click.native="setEffectOrNotEffect(1)"
+          text="置为无效"
+          img="btn_in_vain.png"
+          colors="#383943"
+        ></icon-button>
+        <icon-button
+          @click.native="setEffectOrNotEffect(2)"
+          text="置为有效"
+          img="btn_effective.png"
+          colors="#383943"
+        ></icon-button>
+        <icon-button
+          @click.native="setEffectOrNotEffect(3)"
+          text="批量删除"
+          img="btn_delete.png"
+          colors="#6B2830"
+        ></icon-button>
+        <characters-button
+          @click.native="setConfigHandle(10)"
+          colors="#383943"
+          wz="角色权限"
+        ></characters-button>
+        <!-- <characters-button
+          @click.native="setConfigHandle(1)"
+          colors="#383943"
+          wz="登录权限"
+        ></characters-button> -->
+        <characters-button
+          @click.native="setConfigHandle(2)"
+          colors="#383943"
+          wz="可点区域"
+        ></characters-button>
+        <characters-button
+          @click.native="setConfigHandle(3)"
+          colors="#383943"
+          wz="可点商品"
+        ></characters-button>
+        <characters-button
+          @click.native="setConfigHandle(4)"
+          colors="#383943"
+          wz="优惠"
+        ></characters-button>
+        <characters-button
+          @click.native="setConfigHandle(5)"
+          colors="#383943"
+          wz="优惠2"
+        ></characters-button>
+        <characters-button
+          @click.native="setConfigHandle(6)"
+          colors="#383943"
+          wz="鸡尾酒关联商品"
+        ></characters-button>
+        <!-- <characters-button
+          @click.native="setConfigHandle(7)"
+          colors="#383943"
+          wz="erp系统权限"
+        ></characters-button> -->
+        <!-- <characters-button
+          @click.native="setConfigHandle(8)"
+          colors="#383943"
+          wz="配置权限"
+        ></characters-button>
+        <characters-button
+          @click.native="setConfigHandle(9)"
+          colors="#383943"
+          wz="查单权限"
+        ></characters-button> -->
+        <characters-button
+          @click.native="addOrUpdateHandle(3)"
+          colors="#383943"
+          wz="类似创建"
+        ></characters-button>
+       
+      </div>
     </div>
 
     <div layout="row" layout-align="start center" style="margin:12px 0;">
@@ -441,10 +443,21 @@ export default {
 <style scoped lang="less">
 .one-table {
   padding: 20px;
+  position: relative;
+  
+  .top-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #fff;
+    padding-bottom: 12px;
+  }
+  
   .top {
     background-color: #eee;
     flex-wrap: wrap;
   }
+  
   .table-content {
     .table {
       max-height: calc(100vh - 200px);
