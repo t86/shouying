@@ -253,22 +253,28 @@ export default {
 <style scoped lang='less'>
 .one-table {
   padding: 20px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
   .top {
     background-color: #eee;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
+
   .table-content {
+    flex: 1;
+    overflow: auto;
+    
     .table {
-      max-height: calc(100vh - 160px);
-      overflow: auto;
       .th,.td{
         &:nth-child(4){
           width: 100%
         }
-        //&:nth-child(1),
-        //&:nth-child(3),
-        //&:nth-child(6){
-        //  width: 30%;
-        //}
       }
     }
   }
