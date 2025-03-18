@@ -326,6 +326,33 @@ export default {
   reqGetMerchantConfig: (params) =>
     axios.post(`${base.htgl}/sel/get_cnl_cfg`, params),
 
+    // 读取多主体商户号配置
+    /*  客户端传入json:
+    无
+    成功返回编码:1, 返回json:
+    cnl_cfg_grps []*ResGetCnlCfgGrpItem //CnlCfgGrps 主体配置列表
+    cnl_cfg_def []*ResGetCnlCfgGrpCnlDfnItem //CnlCfgDfn 商户渠道定义列表,用于前端界面展示
+    region_def []*ResGetCnlCfgGrpRegDfnItem //RegionDfn 区域定义列表,用于前端界面展示
+      --------------------------------
+      引用 ResGetCnlCfgGrpItem 格式:
+        id         int64      //CnlCfgId 主体对应的商户号Id
+        sids       []int64      //SCnlCfgIds 主体对应的对S商户号Id列表
+        d          int        //IsDef 是否是默认主体, 1 是 2 否
+        rs         []int64      //Regions 指定包含的区域Id列表
+      --------------------------------
+      引用 ResGetCnlCfgGrpCnlDfnItem 格式:
+        id         int64      //Id 商户号Id
+        n          string     //Name 商户号名称
+        g          int        //Gs 属性 1 对G 2 对S
+      --------------------------------
+      引用 ResGetCnlCfgGrpRegDfnItem 格式:
+        id         int64      //Id 区域Id
+        n          string     //Name 区域名称
+  普通失败, 返回编码<>1, 数据为空
+     */
+    get_cnl_cfg_grp: (params) =>
+      axios.post(`${base.htgl}/org/get_cnl_cfg_grp`, params),
+
   // 保存默认收款商户号,及商户号切换阀值配置,卡台商户号配置
   reqSaveMerchantConfig: (params) =>
     axios.post(`${base.htgl}/sel/save_cnl_cfg`, params),
