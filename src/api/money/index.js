@@ -323,6 +323,41 @@ export default {
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_relate_prd_list`, params),
 
   // 读取商户号配置信息
+  /**
+   * 
+POST请求 http://ip_or_domain:port/sel/get_cnl_cfg
+  客户端传入json:
+    cnl_cfg_id int64      //CnlCfgId 主体Id,如果该门店只有一个主体, 可以传0
+  成功返回编码:1, 返回json:
+    e_s        int        //EnableSwitch 阀值切换标记 1 开启, 2 未开启
+    max_amt    int        //MaxAmt 阀值金额,单位元
+    dest_cnl_cfg_id int64      //DestCnlCfgId 阀值切换目标商户号Id
+    def_cnl_cfg_id int64      //DefCnlCfgId 默认商户号配置,=0代表未配置
+    cnl_cfgs   []*ResGetCnlCfgCnlItem //CnlCfgs 商户号列表
+    hour_cfgs  []*ResGetCnlCfgCnlHourItem //HourCnlCfgs 时段配置
+    region_seats []*ResGetCnlCfgRSItem //RegionSeats 区域卡台配置
+      --------------------------------
+      引用 ResGetCnlCfgCnlItem 格式:
+        id         int64      //Id 商户号Id
+        n          string     //Name 商户号名称
+        gs         int        //Gs 公私标记 1 公 2 私
+      --------------------------------
+      引用 ResGetCnlCfgCnlHourItem 格式:
+        h          int        //HourId 时段Id 没有返回,代表没有配置 阀值使用默认值0,商户号使用默认值(未配置)  0 对应00:00-01:00   1 对应 01:00--02:00  以此类推
+        m          int        //MaxAmt 阀值金额(单位元)
+        c          int64      //CnlCfgId 指定商户号,0表示没有配置
+      --------------------------------
+      引用 ResGetCnlCfgRSItem 格式:
+        id         int64      //Id 区域Id
+        n          string     //Name 区域名称
+        ss         []*ResGetCnlCfgSItem //Seats 卡台列表
+      --------------------------------
+      引用 ResGetCnlCfgSItem 格式:
+        id         int64      //Id 卡台Id
+        n          string     //Name 卡台名称
+        c          int64      //CnlCfgId 配置的商户号Id,=0代表未配置
+  普通失败, 返回编码<>1, 数据为空
+   */
   reqGetMerchantConfig: (params) =>
     axios.post(`${base.htgl}/sel/get_cnl_cfg`, params),
 
