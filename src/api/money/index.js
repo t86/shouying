@@ -350,8 +350,7 @@ export default {
         n          string     //Name 区域名称
   普通失败, 返回编码<>1, 数据为空
      */
-    get_cnl_cfg_grp: (params) =>
-      axios.post(`${base.htgl}/org/get_cnl_cfg_grp`, params),
+    get_cnl_cfg_grp: () => axios.post(`${base.htgl}/org/get_cnl_cfg_grp`),
 
   // 保存默认收款商户号,及商户号切换阀值配置,卡台商户号配置
   reqSaveMerchantConfig: (params) =>

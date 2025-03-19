@@ -325,6 +325,12 @@ export default {
       merchantList: [], // 商户号列表
       areaList: [], // 区域卡台列表
       currentMerchantInfo: {}, // 选中的tab商户信息
+      groupData: {
+        cnl_cfg_grps: null,
+        cnl_cfg_def: [],
+        region_def: []
+      }, // 商户组列表
+
     };
   },
   methods: {
@@ -383,6 +389,13 @@ export default {
         }
       } catch (error) {
         console.log('数据请求失败', error);
+      }
+    },
+
+    async getMerchantGroup(){
+      const res = await api_money.get_cnl_cfg_grp()
+      if(res.code == 1) {
+        this.groupData = res.data
       }
     },
 
@@ -507,7 +520,8 @@ export default {
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
-      newVal ? this.getDetailData() : "";
+      //newVal ? this.getDetailData() : "";
+      this.getMerchantGroup()
     }
   }
 };
