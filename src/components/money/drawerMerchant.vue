@@ -59,13 +59,16 @@
             </div>
             <div class="value" layout="row" layout-align="start center">
               <div 
-                class="merchant-item" 
-                :class="{'active': entityMerchants[entity.id] == item.id}" 
                 v-for="item in getPrivateMerchants()" 
-                :key="item.id" 
-                @click="setEntityMerchant(entity.id, item.id)"
+                :key="item.id"
+                class="merchant-checkbox"
               >
-                {{item.n}}
+                <el-checkbox 
+                  v-model="entityMerchants[entity.id][item.id]" 
+                  @change="handleEntityMerchantChange(entity.id, item.id)"
+                >
+                  {{item.n}}
+                </el-checkbox>
               </div>
             </div>
           </div>
@@ -432,7 +435,7 @@ export default {
       activeTab: 'global', // 当前激活的标签页
       mainEntities: [], // 存储主体商户号(g=1)
       defaultEntityId: '', // 默认主体ID
-      entityMerchants: {}, // 每个主体对应的商户号 {entityId: merchantId}
+      entityMerchants: {}, // 每个主体对应的商户号 {entityId: {merchantId: true/false}}
       entityRegions: {}, // 每个主体对应的区域 {entityId: {regionId: true/false}}
     };
   },
@@ -529,7 +532,11 @@ export default {
           }
           
           // 初始化主体区域数据
+          this.initEntityMerchants();
           this.initEntityRegions();
+          
+          // 根据接口返回数据初始化配置
+          this.initConfigFromResponse(res.data);
           
           this.getMerchantList();
         } else {
@@ -638,11 +645,78 @@ export default {
       }
     },
 
-    // 设置主体对应的商户号
-    setEntityMerchant(entityId, merchantId) {
-      this.$set(this.entityMerchants, entityId, merchantId);
+    // 初始化主体商户号数据
+    initEntityMerchants() {
+      this.mainEntities.forEach(entity => {
+        if (!this.entityMerchants[entity.id]) {
+          this.$set(this.entityMerchants, entity.id, {});
+        }
+        
+        const privateMerchants = this.getPrivateMerchants();
+        privateMerchants.forEach(merchant => {
+          if (this.entityMerchants[entity.id][merchant.id] === undefined) {
+            this.$set(this.entityMerchants[entity.id], merchant.id, false);
+          }
+        });
+      });
     },
     
+    // 处理主体商户号变更
+    handleEntityMerchantChange(entityId, merchantId) {
+      // 如果选中了某个商户号，需要在其他主体中取消选择该商户号
+      if (this.entityMerchants[entityId][merchantId]) {
+        for (const otherEntityId in this.entityMerchants) {
+          if (otherEntityId != entityId) {
+            this.$set(this.entityMerchants[otherEntityId], merchantId, false);
+          }
+        }
+      }
+    },
+    
+    // 根据接口返回数据初始化配置
+    initConfigFromResponse(data) {
+      if (!data || !data.cnl_cfg_grps) return;
+      
+      // 初始化默认主体
+      const defaultEntity = data.cnl_cfg_grps.find(item => item.d === 1);
+      if (defaultEntity) {
+        this.defaultEntityId = defaultEntity.id;
+      }
+      
+      // 初始化主体商户号和区域
+      data.cnl_cfg_grps.forEach(grp => {
+        // 初始化商户号
+        if (grp.sids && grp.sids.length > 0) {
+          if (!this.entityMerchants[grp.id]) {
+            this.$set(this.entityMerchants, grp.id, {});
+          }
+          
+          grp.sids.forEach(sid => {
+            this.$set(this.entityMerchants[grp.id], sid, true);
+          });
+        }
+        
+        // 初始化区域
+        if (grp.rs && grp.rs.length > 0) {
+          if (!this.entityRegions[grp.id]) {
+            this.$set(this.entityRegions, grp.id, {});
+          }
+          
+          grp.rs.forEach(regionId => {
+            this.$set(this.entityRegions[grp.id], regionId, true);
+          });
+        }
+      });
+    },
+
+    // 获取对私商户号列表
+    getPrivateMerchants() {
+      if (!this.groupData || !this.groupData.cnl_cfg_def) {
+        return [];
+      }
+      return this.groupData.cnl_cfg_def.filter(item => item.g === 2);
+    },
+
     // 处理主体区域变更
     handleEntityRegionChange(entityId, regionId) {
       // 如果选中了某个区域，需要在其他主体中取消选择该区域
@@ -680,8 +754,22 @@ export default {
       
       // 检查每个主体是否都选择了对S商户号
       for (const entity of this.mainEntities) {
-        if (!this.entityMerchants[entity.id]) {
-          this.$message.warning(`请为主体(${entity.n})组选择对S商户号`);
+        const selectedMerchants = Object.keys(this.entityMerchants[entity.id] || {})
+          .filter(id => this.entityMerchants[entity.id][id]);
+        
+        if (selectedMerchants.length === 0) {
+          this.$message.warning(`请为主体(${entity.n})组选择至少一个对S商户号`);
+          return;
+        }
+      }
+      
+      // 检查每个主体是否都选择了区域
+      for (const entity of this.mainEntities) {
+        const selectedRegions = Object.keys(this.entityRegions[entity.id] || {})
+          .filter(id => this.entityRegions[entity.id][id]);
+        
+        if (selectedRegions.length === 0) {
+          this.$message.warning(`请为主体(${entity.n})组选择至少一个区域`);
           return;
         }
       }
@@ -697,13 +785,21 @@ export default {
         region_ids_2: []
       };
       
-      // 设置对S商户号
-      if (this.mainEntities.length > 0 && this.entityMerchants[this.mainEntities[0].id]) {
-        params.s_cfg_ids_1 = [this.entityMerchants[this.mainEntities[0].id]];
+      // 收集对S商户号ID
+      if (this.mainEntities.length > 0) {
+        for (const merchantId in this.entityMerchants[this.mainEntities[0].id]) {
+          if (this.entityMerchants[this.mainEntities[0].id][merchantId]) {
+            params.s_cfg_ids_1.push(parseInt(merchantId));
+          }
+        }
       }
       
-      if (this.mainEntities.length > 1 && this.entityMerchants[this.mainEntities[1].id]) {
-        params.s_cfg_ids_2 = [this.entityMerchants[this.mainEntities[1].id]];
+      if (this.mainEntities.length > 1) {
+        for (const merchantId in this.entityMerchants[this.mainEntities[1].id]) {
+          if (this.entityMerchants[this.mainEntities[1].id][merchantId]) {
+            params.s_cfg_ids_2.push(parseInt(merchantId));
+          }
+        }
       }
       
       // 收集区域ID
@@ -722,6 +818,7 @@ export default {
           }
         }
       }
+      
       console.log("save params:", params);
       try {
         const res = await api_money.save_cnl_cfg_grp(params);
@@ -736,14 +833,6 @@ export default {
         console.error('保存全局配置失败', error);
         this.$message.error('保存失败，请稍后重试');
       }
-    },
-
-    // 获取对私商户号列表
-    getPrivateMerchants() {
-      if (!this.groupData || !this.groupData.cnl_cfg_def) {
-        return [];
-      }
-      return this.groupData.cnl_cfg_def.filter(item => item.g === 2);
     },
   },
   created () {
@@ -985,6 +1074,16 @@ export default {
       padding: 0 10px;
       box-sizing: border-box;
     }
+  }
+}
+</style>
+
+<style lang="less" scoped>
+.merchant-checkbox {
+  margin: 5px 10px;
+  
+  /deep/ .el-checkbox__label {
+    color: rgba(255, 255, 255, 0.8);
   }
 }
 </style>
