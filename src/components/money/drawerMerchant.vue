@@ -437,6 +437,7 @@ export default {
       defaultEntityId: '', // 默认主体ID
       entityMerchants: {}, // 每个主体对应的商户号 {entityId: {merchantId: true/false}}
       entityRegions: {}, // 每个主体对应的区域 {entityId: {regionId: true/false}}
+      currentEntityConfig: {}, // 当前选中主体的配置信息
     };
   },
   computed: {
@@ -834,6 +835,87 @@ export default {
         this.$message.error('保存失败，请稍后重试');
       }
     },
+
+    // 处理标签页切换
+    handleTabChange(tab) {
+      if (tab !== 'global' && this.hasMultipleMainEntities) {
+        // 获取当前选中的主体ID
+        const entityId = tab.replace('entity-', '');
+        this.loadEntityConfig(entityId);
+      }
+    },
+    
+    // 加载主体配置
+    async loadEntityConfig(entityId) {
+      try {
+        const params = {
+          cnl_cfg_id: parseInt(entityId)
+        };
+        
+        const res = await api_money.reqGetMerchantConfig(params);
+        if (res.code === 1) {
+          this.currentEntityConfig = res.data;
+          
+          // 初始化表单数据
+          this.merchantVal = res.data.e_s === 1; // 阀值切换标记
+          this.maxAmtVal = res.data.max_amt.toString(); // 阀值金额
+          this.selectMerchantId = res.data.dest_cnl_cfg_id; // 阀值切换目标商户号
+          this.defaultMerchantId = res.data.def_cnl_cfg_id; // 默认商户号
+          
+          // 初始化商户号列表
+          this.merchantList = res.data.cnl_cfgs || [];
+          
+          // 初始化时段配置
+          this.leftTableData = this.initHourConfigs(res.data.hour_cfgs);
+          
+          // 初始化区域卡台配置
+          this.areaList = res.data.region_seats || [];
+          this.areaList.forEach(area => {
+            this.$set(area, 'checked', false);
+            this.$set(area, 'isIndeterminate', false);
+            
+            if (area.ss && area.ss.length > 0) {
+              area.ss.forEach(seat => {
+                this.$set(seat, 'no', seat.c || '');
+              });
+            }
+          });
+          
+          // 更新加载状态
+          loaded = true;
+        } else {
+          this.$message.error(res.msg || '获取主体配置失败');
+        }
+      } catch (error) {
+        console.error('加载主体配置失败', error);
+        this.$message.error('加载主体配置失败，请稍后重试');
+      }
+    },
+    
+    // 初始化时段配置
+    initHourConfigs(hourCfgs) {
+      // 创建24小时的时段配置
+      const hourData = [];
+      for (let i = 0; i < 24; i++) {
+        const hourItem = {
+          id: i,
+          name: `${i.toString().padStart(2, '0')}:00-${(i+1).toString().padStart(2, '0')}:00`,
+          amt: '0',
+          checkedId: ''
+        };
+        
+        // 查找对应的配置
+        const config = hourCfgs ? hourCfgs.find(cfg => cfg.h === i) : null;
+        if (config) {
+          hourItem.amt = config.m.toString();
+          hourItem.checkedId = config.c;
+        }
+        
+        hourData.push(hourItem);
+      }
+      
+      return hourData;
+    },
   },
   created () {
     this.$watch(
@@ -859,6 +941,9 @@ export default {
       if (newVal) {
         this.getMerchantGroup()
       }
+    },
+    activeTab(newVal) {
+      this.handleTabChange(newVal);
     }
   }
 };
