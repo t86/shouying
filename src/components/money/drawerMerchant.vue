@@ -117,6 +117,8 @@
               inactive-color="#ccc">
             </el-switch>
           </div>
+
+          <el-button type="primary" @click="saveMerchantConfig">保存修改</el-button>
         </div>
 
         <div class="coll" layout="row" layout-align="start center" v-if="merchantVal">
@@ -222,6 +224,7 @@
 
          <div class="coll" layout="row" layout-align="start center">
           <div class="label">
+            <span class="red-color">*</span>
             <span>商户号：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
@@ -582,6 +585,91 @@ export default {
         checked: item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()),
         isIndeterminate: !item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()) && item.ss.some(items => items.no == this.currentMerchantInfo.n.toString())
       }))
+    },
+
+    // 保存非全局配置修改
+    async saveMerchantConfig() {
+      if (!loaded) {
+        this.$message.warning('数据加载中，请稍后再试');
+        return;
+      }
+      
+      // 获取当前选中的主体ID
+      let cnl_cfg_id = 0;
+      if (this.activeTab.startsWith('entity-')) {
+        cnl_cfg_id = parseInt(this.activeTab.replace('entity-', ''));
+      }
+      
+      // 验证表单
+      if (this.merchantVal && !this.maxAmtVal) {
+        this.$message.warning('请输入公账金额阈值');
+        return;
+      }
+      
+      if (this.merchantVal && !this.selectMerchantId) {
+        this.$message.warning('请选择商户号');
+        return;
+      }
+      
+      if (!this.defaultMerchantId) {
+        this.$message.warning('请选择默认商户号');
+        return;
+      }
+      
+      // 准备请求参数
+      const params = {
+        cnl_cfg_id: cnl_cfg_id, // 主体商户号ID
+        def_cnl_cfg_id: this.defaultMerchantId,
+        enable_switch: this.merchantVal ? 1 : 2,
+        max_amt: this.merchantVal ? parseInt(this.maxAmtVal) : 0,
+        dest_cnl_cfg_id: this.merchantVal ? this.selectMerchantId : 0,
+        seat_ids: [],
+        seat_cnl_ids: [],
+        hour_ids: [],
+        hour_max_amts: [],
+        hour_cnl_cfg_ids: []
+      };
+      
+      // 收集卡台商户号配置
+      this.areaList.forEach(area => {
+        if (area.ss && area.ss.length > 0) {
+          area.ss.forEach(seat => {
+            if (seat.no) {
+              params.seat_ids.push(seat.id);
+              params.seat_cnl_ids.push(seat.no);
+            }
+          });
+        }
+      });
+      
+      // 收集时段配置
+      this.leftTableData.forEach(item => {
+        if (item.amt !== '0' || item.checkedId) {
+          params.hour_ids.push(item.id);
+          params.hour_max_amts.push(parseInt(item.amt) || 0);
+          params.hour_cnl_cfg_ids.push(item.checkedId || 0);
+        }
+      });
+      
+      console.log('保存商户号配置参数:', params);
+      
+      try {
+        const res = await api_money.reqSaveMerchantConfig(params);
+        if (res.code === 1) {
+          this.$message.success('保存成功');
+          // 重新加载数据
+          if (this.activeTab.startsWith('entity-')) {
+            this.loadEntityConfig(cnl_cfg_id);
+          } else {
+            this.getMerchantList();
+          }
+        } else {
+          this.$message.error(res.msg || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存商户号配置失败', error);
+        this.$message.error('保存失败，请稍后重试');
+      }
     },
 
     async onSubmit(){

@@ -419,6 +419,22 @@ POST请求 http://ip_or_domain:port/sel/get_cnl_cfg
 
 
   // 保存默认收款商户号,及商户号切换阀值配置,卡台商户号配置
+  /**
+   *  客户端传入json:
+    cnl_cfg_id int64      //CnlCfgId 主体商户号Id
+    def_cnl_cfg_id int64      //DefCnlCfgId 默认商户号Id
+    enable_switch int        //EnableSwitch 阀值切换开关 1 开启 2 关闭
+    max_amt    int        //MaxAmt 阀值金额,单位元
+    dest_cnl_cfg_id int64      //DestCnlCfgId 阀值切换目标商户号Id
+    seat_ids   []int64      //SeatIds 有配置商户号的卡台列表,没有配置不需要传
+    seat_cnl_ids []int64      //SeatCnlCfgId 匹配上面卡台列表的商户号Id
+    hour_ids   []int        //HourIds 时段标记数组(这里对应0~23), 定义 0 对应00:00-01:00   1 对应 01:00--02:00  以此类推
+    hour_max_amts []int        //HourMaxAmts 对应上面时段数组的,时段阀值金额,单位元
+    hour_cnl_cfg_ids []int64      //HourCnlCfgIds 对应上面时段数组的,指定对私商户号
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空
+   */
   reqSaveMerchantConfig: (params) =>
     axios.post(`${base.htgl}/sel/save_cnl_cfg`, params),
 
