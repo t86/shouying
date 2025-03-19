@@ -8,7 +8,98 @@
       direction="rtl"
       size="98%"
     >
-      <div class="merchant fs14">
+      <div class="merchant-tabs" v-if="hasMultipleMainEntities">
+        <el-tabs v-model="activeTab" type="card">
+          <el-tab-pane label="全局配置" name="global"></el-tab-pane>
+          <el-tab-pane :label="getMainEntityLabel(0)" :name="'entity-' + mainEntities[0].id" v-if="mainEntities.length > 0"></el-tab-pane>
+          <el-tab-pane :label="getMainEntityLabel(1)" :name="'entity-' + mainEntities[1].id" v-if="mainEntities.length > 1"></el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <!-- 全局配置 -->
+      <div class="merchant fs14" v-if="activeTab === 'global' && hasMultipleMainEntities">
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span class="red-color">*</span>
+            <span>默认主体：</span>
+          </div>
+          <div class="value" layout="row" layout-align="start center">
+            <div 
+              class="merchant-item" 
+              :class="{'active': defaultEntityId == item.id}" 
+              v-for="item in mainEntities" 
+              :key="item.id" 
+              @click="defaultEntityId = item.id"
+            >
+              {{item.n}}组
+            </div>
+          </div>
+        </div>
+        
+        <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定客户号的区域，线上收款计入选择的默认主体</div>
+        
+        <div class="line"></div>
+        
+        <!-- 当前主体A -->
+        <div v-for="(entity, index) in mainEntities" :key="entity.id" class="entity-section">
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span>当前主体：</span>
+            </div>
+            <div class="value">
+              <span class="entity-name">{{ entity.n }}组</span>
+            </div>
+          </div>
+          
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red-color">*</span>
+              <span>选择对S商户号：</span>
+            </div>
+            <div class="value" layout="row" layout-align="start center">
+              <div 
+                class="merchant-item" 
+                :class="{'active': entityMerchants[entity.id] == item.id}" 
+                v-for="item in merchantList.filter(m => m.gs == 2)" 
+                :key="item.id" 
+                @click="setEntityMerchant(entity.id, item.id)"
+              >
+                {{item.n}}
+              </div>
+            </div>
+          </div>
+          
+          <div class="coll" layout="row" layout-align="start center">
+            <div class="label">
+              <span class="red-color">*</span>
+              <span>选择区域：</span>
+            </div>
+            <div class="value" layout="row" layout-align="start center">
+              <div 
+                v-for="area in groupData.region_def" 
+                :key="area.id"
+                class="area-checkbox"
+              >
+                <el-checkbox 
+                  v-model="entityRegions[entity.id][area.id]" 
+                  @change="handleEntityRegionChange(entity.id, area.id)"
+                >
+                  {{area.n}}
+                </el-checkbox>
+              </div>
+            </div>
+          </div>
+          
+          <div class="red-color fs12 m-l-10 p-l-10 m-t-2">
+            被别的主体选择过的区域，请先去取消选择，再进行勾选
+          </div>
+          
+          <div class="line" v-if="index < mainEntities.length - 1"></div>
+        </div>
+      </div>
+
+      <!-- 非全局配置 -->
+      <div class="merchant fs14" v-if="activeTab !== 'global' || !hasMultipleMainEntities">
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
             <span>自动切换商户号：</span>
@@ -151,6 +242,13 @@
           </div>
         </div>
       </div>
+
+      <!-- 主体特定配置 -->
+      <div class="merchant fs14" v-if="activeTab.startsWith('entity-') && hasMultipleMainEntities">
+        <div class="line"></div>
+        <!-- 这里放置与全局配置相同的内容，但数据源针对当前选中的主体 -->
+      </div>
+
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
@@ -330,10 +428,34 @@ export default {
         cnl_cfg_def: [],
         region_def: []
       }, // 商户组列表
-
+      activeTab: 'global', // 当前激活的标签页
+      mainEntities: [], // 存储主体商户号(g=1)
+      defaultEntityId: '', // 默认主体ID
+      entityMerchants: {}, // 每个主体对应的商户号 {entityId: merchantId}
+      entityRegions: {}, // 每个主体对应的区域 {entityId: {regionId: true/false}}
     };
   },
+  computed: {
+    hasMultipleMainEntities() {
+      return this.mainEntities.length > 1;
+    }
+  },
   methods: {
+    // 获取主体标签名称
+    getMainEntityLabel(index) {
+      if (this.mainEntities[index]) {
+        return `主体(${this.mainEntities[index].n})组`;
+      }
+      return '';
+    },
+    
+    // 获取当前选中主体的名称
+    getCurrentEntityName() {
+      const entityId = this.activeTab.replace('entity-', '');
+      const entity = this.mainEntities.find(item => item.id == entityId);
+      return entity ? entity.n : '';
+    },
+
     async getDetailData(){
       try {
         const res = await api_money.reqGetMerchantConfig()
@@ -396,6 +518,22 @@ export default {
       const res = await api_money.get_cnl_cfg_grp()
       if(res.code == 1) {
         this.groupData = res.data
+        this.mainEntities = res.data.cnl_cfg_def.filter(item => item.g == 1)
+        
+        if (this.mainEntities.length > 1) {
+          this.activeTab = 'global';
+          // 初始化默认主体
+          if (!this.defaultEntityId && this.mainEntities.length > 0) {
+            this.defaultEntityId = this.mainEntities[0].id;
+          }
+          
+          // 初始化主体区域数据
+          this.initEntityRegions();
+          
+          this.getMerchantList();
+        } else {
+          this.getMerchantList();
+        }
       }
     },
 
@@ -498,6 +636,39 @@ export default {
         this.$emit("showOrHideDrawer");
       }
     },
+
+    // 设置主体对应的商户号
+    setEntityMerchant(entityId, merchantId) {
+      this.$set(this.entityMerchants, entityId, merchantId);
+    },
+    
+    // 处理主体区域变更
+    handleEntityRegionChange(entityId, regionId) {
+      // 如果选中了某个区域，需要在其他主体中取消选择该区域
+      if (this.entityRegions[entityId][regionId]) {
+        for (const otherEntityId in this.entityRegions) {
+          if (otherEntityId != entityId) {
+            this.$set(this.entityRegions[otherEntityId], regionId, false);
+          }
+        }
+      }
+    },
+    
+    // 初始化主体区域数据
+    initEntityRegions() {
+      const regions = {};
+      this.mainEntities.forEach(entity => {
+        if (!this.entityRegions[entity.id]) {
+          this.$set(this.entityRegions, entity.id, {});
+        }
+        
+        this.groupData.region_def.forEach(region => {
+          if (this.entityRegions[entity.id][region.id] === undefined) {
+            this.$set(this.entityRegions[entity.id], region.id, false);
+          }
+        });
+      });
+    },
   },
   created () {
     this.$watch(
@@ -520,8 +691,9 @@ export default {
   watch: {
     showDrawer(newVal) {
       this.show = newVal;
-      //newVal ? this.getDetailData() : "";
-      this.getMerchantGroup()
+      if (newVal) {
+        this.getMerchantGroup()
+      }
     }
   }
 };
@@ -532,6 +704,41 @@ export default {
 @import "../../style/common/elementDrawerHeaderAndSession.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/common/scrollBar.less";
+
+.merchant-tabs {
+  margin-bottom: 20px;
+  padding: 0 20px;
+  
+  /deep/ .el-tabs__item {
+    color: rgba(255, 255, 255, 0.7);
+    
+    &.is-active {
+      color: #409EFF;
+    }
+  }
+  
+  /deep/ .el-tabs__nav-wrap::after {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.entity-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #409EFF;
+}
+
+.entity-section {
+  margin-bottom: 20px;
+}
+
+.area-checkbox {
+  margin: 5px 10px;
+  
+  /deep/ .el-checkbox__label {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
 </style>
 <style lang="less" scoped>
 .merchant{
