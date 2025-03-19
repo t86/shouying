@@ -34,6 +34,7 @@
               {{item.n}}组
             </div>
           </div>
+          <el-button type="primary" @click="saveGlobalConfig">保存修改</el-button>
         </div>
         
         <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定客户号的区域，线上收款计入选择的默认主体</div>
@@ -60,7 +61,7 @@
               <div 
                 class="merchant-item" 
                 :class="{'active': entityMerchants[entity.id] == item.id}" 
-                v-for="item in merchantList.filter(m => m.gs == 2)" 
+                v-for="item in getPrivateMerchants()" 
                 :key="item.id" 
                 @click="setEntityMerchant(entity.id, item.id)"
               >
@@ -668,6 +669,81 @@ export default {
           }
         });
       });
+    },
+
+    // 保存全局配置
+    async saveGlobalConfig() {
+      if (!this.defaultEntityId) {
+        this.$message.warning('请选择默认主体');
+        return;
+      }
+      
+      // 检查每个主体是否都选择了对S商户号
+      for (const entity of this.mainEntities) {
+        if (!this.entityMerchants[entity.id]) {
+          this.$message.warning(`请为主体(${entity.n})组选择对S商户号`);
+          return;
+        }
+      }
+      
+      // 准备请求参数
+      const params = {
+        cnl_cfg_id1: this.mainEntities.length > 0 ? this.mainEntities[0].id : 0,
+        cnl_cfg_id2: this.mainEntities.length > 1 ? this.mainEntities[1].id : 0,
+        def_cnl_cfg_id: this.defaultEntityId,
+        s_cfg_ids_1: [],
+        s_cfg_ids_2: [],
+        region_ids_1: [],
+        region_ids_2: []
+      };
+      
+      // 设置对S商户号
+      if (this.mainEntities.length > 0 && this.entityMerchants[this.mainEntities[0].id]) {
+        params.s_cfg_ids_1 = [this.entityMerchants[this.mainEntities[0].id]];
+      }
+      
+      if (this.mainEntities.length > 1 && this.entityMerchants[this.mainEntities[1].id]) {
+        params.s_cfg_ids_2 = [this.entityMerchants[this.mainEntities[1].id]];
+      }
+      
+      // 收集区域ID
+      if (this.mainEntities.length > 0) {
+        for (const regionId in this.entityRegions[this.mainEntities[0].id]) {
+          if (this.entityRegions[this.mainEntities[0].id][regionId]) {
+            params.region_ids_1.push(parseInt(regionId));
+          }
+        }
+      }
+      
+      if (this.mainEntities.length > 1) {
+        for (const regionId in this.entityRegions[this.mainEntities[1].id]) {
+          if (this.entityRegions[this.mainEntities[1].id][regionId]) {
+            params.region_ids_2.push(parseInt(regionId));
+          }
+        }
+      }
+      console.log("save params:", params);
+      try {
+        const res = await api_money.save_cnl_cfg_grp(params);
+        if (res.code === 1) {
+          this.$message.success('保存成功');
+          // 重新获取数据
+          this.getMerchantGroup();
+        } else {
+          this.$message.error(res.msg || '保存失败');
+        }
+      } catch (error) {
+        console.error('保存全局配置失败', error);
+        this.$message.error('保存失败，请稍后重试');
+      }
+    },
+
+    // 获取对私商户号列表
+    getPrivateMerchants() {
+      if (!this.groupData || !this.groupData.cnl_cfg_def) {
+        return [];
+      }
+      return this.groupData.cnl_cfg_def.filter(item => item.g === 2);
     },
   },
   created () {

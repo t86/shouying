@@ -352,6 +352,37 @@ export default {
      */
     get_cnl_cfg_grp: () => axios.post(`${base.htgl}/org/get_cnl_cfg_grp`),
 
+
+
+    /*
+    保存多主体商户号配置
+     客户端传入json:
+    cnl_cfg_id1 int64      //CnlCfgId1 主体1对应的对G商户号Id
+    cnl_cfg_id2 int64      //CnlCfgId2 主体2对应的对G商户号Id
+    def_cnl_cfg_id int64      //DefCnlCfgId 默认的主体对应的对G商户号Id
+    s_cfg_ids_1 []int64      //SCfgIds1 主体1对应的对S商户号Id列表
+    s_cfg_ids_2 []int64      //SCfgIds2 主体2对应的对S商户号Id列表
+    region_ids_1 []int64      //RegionIds1 主体1对应的选中区域Id列表
+    region_ids_2 []int64      //RegionIds2 主体2对应的选中区域Id列表
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空 客户端传入json:
+    cnl_cfg_id1 int64      //CnlCfgId1 主体1对应的对G商户号Id
+    cnl_cfg_id2 int64      //CnlCfgId2 主体2对应的对G商户号Id
+    def_cnl_cfg_id int64      //DefCnlCfgId 默认的主体对应的对G商户号Id
+    s_cfg_ids_1 []int64      //SCfgIds1 主体1对应的对S商户号Id列表
+    s_cfg_ids_2 []int64      //SCfgIds2 主体2对应的对S商户号Id列表
+    region_ids_1 []int64      //RegionIds1 主体1对应的选中区域Id列表
+    region_ids_2 []int64      //RegionIds2 主体2对应的选中区域Id列表
+  成功返回编码:1, 返回json:
+    无
+  普通失败, 返回编码<>1, 数据为空 */
+    save_cnl_cfg_grp: (params) => axios.post(`${base.htgl}/org/save_cnl_cfg_grp`, params),
+
+
+
+
+
   // 保存默认收款商户号,及商户号切换阀值配置,卡台商户号配置
   reqSaveMerchantConfig: (params) =>
     axios.post(`${base.htgl}/sel/save_cnl_cfg`, params),
