@@ -58,8 +58,10 @@
       <div class="table">
         <div class="thead">
           <div class="tr" layout="row" layout-align="space-between center">
+            <div class="th">操作</div>
             <div class="th">序号</div>
             <div class="th">姓名</div>
+            <div class="th">状态</div>
             <div class="th">绑定手机</div>
             <div class="th">联系手机</div>
             <div class="th">性别</div>
@@ -74,14 +76,17 @@
             <div class="th">最后消费日期</div>
             <div class="th">注册日期</div>
             <div class="th">到期日期</div>
-            <div class="th">操作</div>
           </div>
         </div>
         <div class="tbody">
           <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row" layout-align="space-between center"
             @click.right.prevent.stop="rightClickHandle($event, item)">
+            <div class="td">
+              <span @click="preVipDetail(item)">查看详情</span>
+            </div>
             <div class="td">{{ index + 1 }}</div>
             <div class="td">{{ item.n }}</div>
+            <div class="td status-column">{{ item.sn }}</div>
             <div class="td" @click.stop="copyText(item.bp)">{{ item.bp }}</div>
             <div class="td" @click.stop="copyText(item.cp)">{{ item.cp }}</div>
             <div class="td">{{ item.s }}</div>
@@ -99,9 +104,6 @@
             <div class="td">{{ item.lc }}</div>
             <div class="td">{{ item.r }}</div>
             <div class="td">{{ item.e }}</div>
-            <div class="td">
-              <span @click="preVipDetail(item)">查看详情</span>
-            </div>
 
             <div class="sj" v-if="item.showTips" :style="{ left: item.pointerX - 20 + 'px' }"></div>
             <ul class="tips" v-if="item.showTips" :style="{
