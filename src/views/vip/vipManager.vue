@@ -257,7 +257,7 @@ export default {
           this.pageInfo.total = res.data.row_cnt || 0;
           this.tableData = (res.data.records || []).map((item) => ({
             ...item,
-            tipsList: this.getTipsList(item.h),
+            tipsList: this.getTipsList(item.h, item.sn),
             showTips: false,
             pointerX: 0,
           }));
@@ -300,7 +300,7 @@ export default {
       }
     },
     // 获取右击菜单列表
-    getTipsList(type) {
+    getTipsList(type, sn) {
       const makedCardList = [1, 3, 4, 5, 6, 7, 8, 10, 11, 9];
       const notMakedCardList = [1, 2, 3, 4, 8, 10, 11, 9];
       let list = tipsArr;
@@ -312,11 +312,35 @@ export default {
       if (!this.hasAddOrEditAuth) {
         list = list.filter((item) => ![1, 2, 3, 4, 5, 6, 7, 9].includes(item.id));
       }
-      return list.filter((item) =>
+      
+      console.log("type", type);
+      // 根据状态过滤冻结/解冻选项
+      const isLocked = (sn === "冻结");
+      console.log("sn", sn);
+      console.log("isLocked", isLocked);
+      
+      let result = list.filter((item) =>
         type == 1
           ? makedCardList.includes(item.id)
           : notMakedCardList.includes(item.id)
       );
+         // 添加冻结/解冻选项
+      if (isLocked) {
+                // 如果是正常状态，添加冻结选项
+                result.push({   
+          id: 13,
+          objName: "unlockVipCardInfoObj",
+          name: "解冻"});
+                  // 如果是已冻结状态，添加解冻选项
+      } else {
+        result.push({
+          id: 12,
+          objName: "lockVipCardInfoObj",
+          name: "冻结",
+        });
+      }
+      console.log("result", result);
+      return result;
     },
     rightClickHandle(e, itemInfo) {
       // 判断是否是收银系统进入
@@ -348,7 +372,47 @@ export default {
       this.getTableData(true);
     },
     // table表格option
-    clickOptionHandle(itemInfo, optionInfo) {
+    async clickOptionHandle(itemInfo, optionInfo) {
+      // 处理冻结/解冻操作
+      if (optionInfo.id === 12) {
+        // 冻结操作
+        try {
+          const params = {
+            mb_card_id: itemInfo.id
+          };
+          const res = await api_vip.reqLockVipCard(params);
+          if (res.code === 1) {
+            this.$message.success('冻结成功');
+            this.getTableData(); // 刷新表格数据
+          } else {
+            this.$message.warning(res.msg || '冻结失败');
+          }
+        } catch (error) {
+          console.error('冻结会员卡失败', error);
+          this.$message.error('冻结会员卡失败');
+        }
+        return;
+      } else if (optionInfo.id === 13) {
+        // 解冻操作
+        try {
+          const params = {
+            mb_card_id: itemInfo.id
+          };
+          const res = await api_vip.reqUnlockVipCard(params);
+          if (res.code === 1) {
+            this.$message.success('解冻成功');
+            this.getTableData(); // 刷新表格数据
+          } else {
+            this.$message.warning(res.msg || '解冻失败');
+          }
+        } catch (error) {
+          console.error('解冻会员卡失败', error);
+          this.$message.error('解冻会员卡失败');
+        }
+        return;
+      }
+      
+      // 原有的处理逻辑
       this.optionObj.currentInfo = { ...itemInfo };
       this.optionObj.optionInfo = { ...optionInfo };
       this.showOrHideOptionDrawerHandle();

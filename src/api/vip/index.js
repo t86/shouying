@@ -436,4 +436,18 @@ export default {
   // 导出会员卡注销记录表
   reqExportMbCardZxList: (params) =>
     axios.binaryFilePost(`${base.htgl}/mb/rpt/exp_mb_card_zx_list`, params),
+
+  /* 冻结会员卡
+  客户端传入json:
+    mb_card_id int64      //MbCardId 卡Id
+  */
+  reqLockVipCard: (params) =>
+    axios.post(`${base.htgl}/mb/card/lock`, params),
+
+  /* 解冻会员卡
+  客户端传入json:
+    mb_card_id int64      //MbCardId卡Id
+  */  
+  reqUnlockVipCard: (params) =>
+    axios.post(`${base.htgl}/mb/card/unlock`, params),
 };

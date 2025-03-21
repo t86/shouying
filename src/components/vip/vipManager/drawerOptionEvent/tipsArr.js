@@ -54,4 +54,14 @@ export default [
     objName: "deleteVipCardInfoObj",
     name: "注销",
   },
+  {
+    id: 12,
+    objName: "lockVipCardInfoObj",
+    name: "冻结",
+  },
+  {
+    id: 13,
+    objName: "unlockVipCardInfoObj",
+    name: "解冻",
+  },
 ];
