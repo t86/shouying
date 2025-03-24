@@ -1458,13 +1458,16 @@ export default {
     // 提交已付款转单数据
     async submitPaidChangeOrder(cardInfo) {
       try {
+
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // 转出卡台Id
           dest_seat_id: cardInfo.id * 1, // 转入卡台Id
           pay_id: this.payTabInfo.activePayId * 1, // 支付订单Id
-          total_amt: this.payedData.payedOrderInfo.amts.pzv * 100 || 0, // 待转涉及的总金额,单位分
+          total_amt:  Math.round(parseFloat(this.payedData.payedOrderInfo.amts.p) * 100) || 0, // 待转涉及的总金额,单位分
         }
         
+        console.log('params:', params)
+        console.log('this.payedData.payedOrderInfo:', this.payedData.payedOrderInfo)
         const res = await api_money.move_payed_wk_order(params)
         
         if (res.code === 1) {
@@ -1489,6 +1492,7 @@ export default {
       const checkedOrderList = this.notPayData.choosePayOrderList.filter(
         (item) => item.checkout && !item.back && !item.oid
       );
+      console.log('checkedOrderList:', checkedOrderList)
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64   待操作卡台Id
         dest_seat_id: cardInfo.seatId * 1, // int64    目标卡台Id
