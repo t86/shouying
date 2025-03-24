@@ -384,7 +384,7 @@ export default {
 
 .el-cascader-node:not(.is-disabled):focus,
 .el-cascader-node:not(.is-disabled):hover {
-  background-color: rgba(90, 90, 90, 0.5);
+  background-color: rgba(90, 90, 90, 0.5) !important;
 }
 
 .el-cascader-panel {

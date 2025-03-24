@@ -267,11 +267,11 @@ export default {
     border: 1px solid #4c5b7e !important;
 }
 
-.el-select-dropdown__item {
+/* .el-select-dropdown__item {
     color: #fff !important;
     
     &:hover, &.selected {
         background-color: #1e2b4c !important;
     }
-}
+} */
 </style>
