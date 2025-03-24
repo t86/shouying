@@ -126,7 +126,7 @@
               </span>
             </div>
             <div class="money" layout="row" layout-align="start center">
-              <span>本次实收:</span>
+              <span>主营实收:</span>
               <span class="amt">
                 ¥{{ payedData.payedOrderInfo.amts.pzv || "0.00" }}
               </span>
