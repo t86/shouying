@@ -1839,7 +1839,7 @@ export default {
     hasLookOrder() {
       return (
         this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(11)
+        this.$store.state.userInfo.roleIds.includes(11) || this.$store.state.userInfo.sys_modules.includes(12)
       );
     },
     hasQuanchangyouhui() {
