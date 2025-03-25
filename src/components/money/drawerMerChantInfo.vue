@@ -10,8 +10,8 @@
     >
       <div class="merchant fs14">
         <div v-show="status == 1">
-          <p class="m-t-3 fs14">{{$store.state.cardPageInfo.resResultDataObj.merchantInfo[0] ? $overall.toFixed((($store.state.cardPageInfo.resResultDataObj.merchantInfo[0].amt - $store.state.cardPageInfo.resResultDataObj.merchantInfo[0].g_amt) / 10000), 2) : '0.00'}}</p>
-          <p class="m-t-3 fs14">G {{$store.state.cardPageInfo.resResultDataObj.merchantInfo[0] ? $overall.toFixed(($store.state.cardPageInfo.resResultDataObj.merchantInfo[0].g_amt / 10000), 2) : '0.00'}}</p>
+          <p class="m-t-3 fs14">{{$overall.toFixed(((merchantAmtInfo.amt - merchantAmtInfo.g_amt) / 10000), 2)}}</p>
+          <p class="m-t-3 fs14">G {{$overall.toFixed((merchantAmtInfo.g_amt / 10000), 2)}}</p>
           <div class="content-table" layout="row" layout-align="center center">
             <div class="table-content">
               <div class="table">
@@ -47,8 +47,8 @@
           </div>
         </div>
         <div v-show="status == 3">
-          <p class="m-t-3 fs14">{{$store.state.cardPageInfo.resResultDataObj.merchantInfo[0] ? $store.state.cardPageInfo.resResultDataObj.merchantInfo[0].amt : '0.00'}}</p>
-          <p class="m-t-3 fs14">G {{$store.state.cardPageInfo.resResultDataObj.merchantInfo[0] ? $store.state.cardPageInfo.resResultDataObj.merchantInfo[0].g_amt : '0.00'}}</p>
+          <p class="m-t-3 fs14">{{$overall.toFixed(((merchantAmtInfo.amt - merchantAmtInfo.g_amt) / 10000), 2)}}</p>
+          <p class="m-t-3 fs14">G {{$overall.toFixed((merchantAmtInfo.g_amt / 10000), 2)}}</p>
           <p class="m-t-3 fs14">【{{currentMerchantInfo.n}}】</p>
           <el-button type="primary" style="width:200px;margin-top: 20px" @click="cancelChangeHandle">取消切换</el-button>
         </div>
@@ -72,7 +72,8 @@ export default {
       leftTableData: [],
       rightTableData: [],
       currentMerchantInfo: {},
-      merchantList: []
+      merchantList: [],
+      merchantAmtInfo: {}
     };
   },
   methods: {
@@ -107,6 +108,15 @@ export default {
           result.sort((a,b) => a.h - b.h)
           this.rightTableData = result.slice(0, 12)
           this.leftTableData = result.slice(12, 24)
+          
+          // 合并传入的金额信息
+          if (!this.merchantAmtInfo.amt && !this.merchantAmtInfo.g_amt && result.length > 0) {
+            // 如果没有传入金额信息，则使用接口返回的数据计算总额
+            this.merchantAmtInfo = {
+              amt: result.reduce((sum, item) => sum + (Number(item.c) || 0), 0),
+              g_amt: result.reduce((sum, item) => sum + (Number(item.g) || 0), 0)
+            };
+          }
         } else {
           this.$message.warning(res.msg)
         }
@@ -164,6 +174,14 @@ export default {
     merchantId: {
       type: [Number, String],
       default: null
+    },
+    amt: {
+      type: [Number, String],
+      default: 0
+    },
+    g_amt: {
+      type: [Number, String],
+      default: 0
     }
   },
   watch: {
@@ -171,7 +189,13 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.status = 1;
-        this.getMerchantTimeAmtList()
+        // 初始化商户金额信息
+        this.merchantAmtInfo = {
+          amt: this.amt || 0,
+          g_amt: this.g_amt || 0
+        };
+        console.log("this.merchantAmtInfo:", this.merchantAmtInfo)
+        this.getMerchantTimeAmtList();
       }
     }
   }

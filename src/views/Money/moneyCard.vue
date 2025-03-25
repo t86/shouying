@@ -327,8 +327,8 @@
               v-if="!safeModeEnabled"
               class="legend-list-item merchant-item"
             >
-              <p class="fs16"  @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id)">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
-              <p class="fs16" v-if="merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id)">{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id, merchantsAmts[0].amt, merchantsAmts[0].g_amt)">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id, merchantsAmts[1].amt, merchantsAmts[1].g_amt)">{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
             </div>
           </div>
           <!-- 操作面板 -->
@@ -966,6 +966,8 @@
     <drawerMerChantInfo
       :showDrawer="showMerchantInfoDrawer"
       :merchantId="selectedMerchantId"
+      :amt="selectedMerchantAmt"
+      :g_amt="selectedMerchantGAmt"
       @showOrHideDrawer="showOrHideMerchantInfoDrawerHandle"
     />
 
@@ -1224,6 +1226,8 @@ export default {
       showMerchantDrawer: false, // 商户号管理
       showMerchantInfoDrawer: false, // 商户号信息
       selectedMerchantId: null,
+      selectedMerchantAmt: 0, // 商户号金额
+      selectedMerchantGAmt: 0, // 商户号G金额
       showMinDetailDrawer: false, // 低消进度统计表
       showXCDetailDrawer: false, // 现抽明细表
       showXCAllInfoDrawer: false, // 现抽汇总表
@@ -1647,9 +1651,12 @@ export default {
     },
 
     // 显示或隐藏商户号信息
-    showOrHideMerchantInfoDrawerHandle(id) {
+    showOrHideMerchantInfoDrawerHandle(id, amt, g_amt) {
+      console.log("id, amt, g_amt:", id, amt, g_amt)
       this.showMerchantInfoDrawer = !this.showMerchantInfoDrawer;
       this.selectedMerchantId = id;
+      this.selectedMerchantAmt = amt;
+      this.selectedMerchantGAmt = g_amt;
     },
 
     // 显示或隐藏低消进度统计表
@@ -2422,9 +2429,9 @@ export default {
       console.log("merchantInfo:", merchantInfo)
       let result = []
       if(merchantInfo[0].cnl_cfg_id2 * 1 === 0) {
-        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt}]
+        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt, g_amt: merchantInfo[0].g_amt}]
       } else {
-        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt}, {id: merchantInfo[0].cnl_cfg_id2, amt: merchantInfo[0].amt2}]
+        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt, g_amt: merchantInfo[0].g_amt}, {id: merchantInfo[0].cnl_cfg_id2, amt: merchantInfo[0].amt2, g_amt: merchantInfo[0].g_amt2}]
       }
       console.log("result:", result)
       return result

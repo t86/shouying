@@ -1004,6 +1004,15 @@ export default {
       
       return hourData;
     },
+
+    // 在methods中添加打开商户号信息抽屉的方法
+    getMerchantInfo(merchantId, amt, g_amt) {
+      this.$emit('openMerchantInfoDrawer', {
+        merchantId,
+        amt,
+        g_amt
+      });
+    },
   },
   created () {
     this.$watch(
