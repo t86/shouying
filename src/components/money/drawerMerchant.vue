@@ -732,6 +732,7 @@ export default {
       // } else {
       //   this.$emit("showOrHideDrawer");
       // }
+      this.$emit("showOrHideDrawer");
     },
 
     // 初始化主体商户号数据
