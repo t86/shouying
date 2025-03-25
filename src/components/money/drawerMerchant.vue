@@ -635,8 +635,12 @@ export default {
         if (area.ss && area.ss.length > 0) {
           area.ss.forEach(seat => {
             if (seat.no) {
-              params.seat_ids.push(seat.id);
-              params.seat_cnl_ids.push( parseInt(seat.no));
+              // 找到对应的商户号ID
+              const merchantInfo = this.merchantList.find(item => item.n.toString() === seat.no.toString());
+              if (merchantInfo) {
+                params.seat_ids.push(seat.id);
+                params.seat_cnl_ids.push(merchantInfo.id);
+              }
             }
           });
         }
@@ -678,7 +682,7 @@ export default {
       this.areaList.forEach(el => {
         el.ss && el.ss.forEach(ele => {
           if(ele.no.toString().length > 1) {
-            const currentMerchantInfo = this.merchantList.find(item => item.n == ele.no)
+            const currentMerchantInfo = this.merchantList.find(item => item.n.toString() === ele.no.toString())
             if(currentMerchantInfo) {
               seatIdIdList.push(ele.id)
               seatMerchantIdList.push(currentMerchantInfo.id)

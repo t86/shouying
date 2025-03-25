@@ -103,7 +103,7 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 32px">点：</span>
+                <span style="width: 38px">点：</span>
                 <span
                   style="display: inline-block; width: calc(100% - 34px)"
                   class="one-txt-cut"
@@ -124,7 +124,7 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 68px">已付：</span>
+                <span style="width: 38px">已付：</span>
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
@@ -145,7 +145,7 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 68px">未付：</span>
+                <span style="width: 38px">未付：</span>
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
@@ -2584,16 +2584,13 @@ export default {
 .card-name {
   margin-top: 2px;
   margin-bottom: 2px;
-  
-  .dixiao-jindu {
-    color: #dddee1;
-  }
 }
 
 .dixiao-jindu {
   font-size: 12px;
   // color: #909399;
-  margin-left: 4px;
+  // margin-left: 1px;
+  margin-right: -10px;
   white-space: nowrap;
   flex-shrink: 0;
 }
