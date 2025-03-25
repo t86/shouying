@@ -720,18 +720,18 @@ export default {
     },
 
     onCancelDrawer() {
-      if(updated) {
-        this.$confirm('您已修改数据，尚未保存，需要保存后退出吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-        }).then(() => {
-          this.onSubmit()
-        }).catch(() => {
-          this.$emit("showOrHideDrawer");          
-        });
-      } else {
-        this.$emit("showOrHideDrawer");
-      }
+      // if(updated) {
+      //   this.$confirm('您已修改数据，尚未保存，需要保存后退出吗?', '提示', {
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //   }).then(() => {
+      //     this.onSubmit()
+      //   }).catch(() => {
+      //     this.$emit("showOrHideDrawer");          
+      //   });
+      // } else {
+      //   this.$emit("showOrHideDrawer");
+      // }
     },
 
     // 初始化主体商户号数据
