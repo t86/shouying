@@ -103,12 +103,12 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 68px">点：</span>
+                <span style="width: 35px">点：</span>
                 <span
-                  class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ Number(item.orderAmt).toFixed(2) }}</span
+                  >¥{{ Number(item.orderAmt).toFixed(2) }} &nbsp;{{ item.diXiaoJindu }}</span
                 >
+                <!-- <span class="dixiao-jindu">{{ item.diXiaoJindu }}</span> -->
               </p>
               <p v-else style="height: 16px"></p>
 
@@ -1448,12 +1448,11 @@ export default {
             });
           }
         }
-      });
-
+      });    
       // 设置图例中显示的抵达数量
       this.setLegendCount(this.tab.activeIndex);
 
-      console.log("cardList", cardList.length);
+      console.log("cardList", cardList);
 
       cardListInfoArr = JSON.parse(JSON.stringify(cardList));
 
@@ -2579,6 +2578,15 @@ export default {
   p {
     margin: 0;
     line-height: 20px;
+  }
+}
+
+.card-name {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  
+  .dixiao-jindu {
+    color: #909399;
   }
 }
 </style>
