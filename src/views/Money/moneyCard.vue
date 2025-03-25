@@ -103,12 +103,12 @@
                 "
                 layout-align="start center"
               >
-                <span style="width: 35px">点：</span>
+                <span style="width: 32px">点：</span>
                 <span
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ Number(item.orderAmt).toFixed(2) }} &nbsp;{{ item.diXiaoJindu }}</span
-                >
-                <!-- <span class="dixiao-jindu">{{ item.diXiaoJindu }}</span> -->
+                  class="one-txt-cut"
+                >¥{{ Number(item.orderAmt).toFixed(2) }}</span>
+                <span class="dixiao-jindu">{{ item.diXiaoJindu }}</span>
               </p>
               <p v-else style="height: 16px"></p>
 
@@ -2588,6 +2588,14 @@ export default {
   .dixiao-jindu {
     color: #909399;
   }
+}
+
+.dixiao-jindu {
+  font-size: 12px;
+  color: #909399;
+  margin-left: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 </style>
 
