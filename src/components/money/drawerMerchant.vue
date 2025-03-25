@@ -194,7 +194,7 @@
                 </div>
               </div>
             </div>
-            <div class="table-content">
+            <!-- <div class="table-content">
               <div class="table">
                 <div class="thead">
                   <div class="tr" layout="row" layout-align="space-between center">
@@ -215,7 +215,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
           </div>
         </div>
@@ -542,9 +542,9 @@ export default {
           // 根据接口返回数据初始化配置
           this.initConfigFromResponse(res.data);
           
-          this.getMerchantList();
+          // this.getMerchantList();
         } else {
-          this.getMerchantList();
+          // this.getMerchantList();
         }
       }
     },
@@ -636,7 +636,7 @@ export default {
           area.ss.forEach(seat => {
             if (seat.no) {
               params.seat_ids.push(seat.id);
-              params.seat_cnl_ids.push(seat.no);
+              params.seat_cnl_ids.push( parseInt(seat.no));
             }
           });
         }
@@ -644,11 +644,11 @@ export default {
       
       // 收集时段配置
       this.leftTableData.forEach(item => {
-        if (item.amt !== '0' || item.checkedId) {
+        // if (item.amt !== '0' || item.checkedId) {
           params.hour_ids.push(item.id);
           params.hour_max_amts.push(parseInt(item.amt) || 0);
           params.hour_cnl_cfg_ids.push(item.checkedId || 0);
-        }
+        // }
       });
       
       console.log('保存商户号配置参数:', params);
@@ -661,7 +661,7 @@ export default {
           if (this.activeTab.startsWith('entity-')) {
             this.loadEntityConfig(cnl_cfg_id);
           } else {
-            this.getMerchantList();
+            // this.getMerchantList();
           }
         } else {
           this.$message.error(res.msg || '保存失败');
