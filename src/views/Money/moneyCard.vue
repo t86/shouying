@@ -2586,13 +2586,13 @@ export default {
   margin-bottom: 2px;
   
   .dixiao-jindu {
-    color: #909399;
+    color: #dddee1;
   }
 }
 
 .dixiao-jindu {
   font-size: 12px;
-  color: #909399;
+  // color: #909399;
   margin-left: 4px;
   white-space: nowrap;
   flex-shrink: 0;
