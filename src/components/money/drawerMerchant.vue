@@ -9,7 +9,7 @@
       size="98%"
     >
       <div class="merchant-tabs" v-if="hasMultipleMainEntities">
-        <el-tabs v-model="activeTab" type="card">
+        <el-tabs v-model="activeTab">
           <el-tab-pane label="全局配置" name="global"></el-tab-pane>
           <el-tab-pane :label="getMainEntityLabel(0)" :name="'entity-' + mainEntities[0].id" v-if="mainEntities.length > 0"></el-tab-pane>
           <el-tab-pane :label="getMainEntityLabel(1)" :name="'entity-' + mainEntities[1].id" v-if="mainEntities.length > 1"></el-tab-pane>
@@ -43,9 +43,9 @@
         
         <!-- 当前主体A -->
         <div v-for="(entity, index) in mainEntities" :key="entity.id" class="entity-section">
-          <div class="coll" layout="row" layout-align="start center">
-            <div class="label">
-              <span>当前主体：</span>
+          <div class="coll current-entity" layout="row" layout-align="start center">
+            <div class="label current-entity-label">
+              <span class="entity-label">当前主体：</span>
             </div>
             <div class="value">
               <span class="entity-name">{{ entity.n }}组</span>
@@ -259,7 +259,7 @@
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <!-- <el-button type="primary" @click="onSubmit">确定</el-button> -->
       </div>
     </el-drawer>
   </div>
@@ -1049,21 +1049,43 @@ export default {
   
   /deep/ .el-tabs__item {
     color: rgba(255, 255, 255, 0.7);
+    font-size: 15px;
+    padding: 0 20px;
     
     &.is-active {
       color: #409EFF;
+      font-weight: bold;
     }
   }
   
   /deep/ .el-tabs__nav-wrap::after {
     background-color: rgba(255, 255, 255, 0.1);
   }
+  
+  /deep/ .el-tabs__active-bar {
+    background-color: #409EFF;
+    height: 3px;
+  }
 }
 
 .entity-name {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
   color: #409EFF;
+  text-shadow: 0 0 5px rgba(64, 158, 255, 0.3);
+}
+
+.current-entity {
+  background-color: rgba(64, 158, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  border-left: 4px solid #409EFF;
+  
+  .entity-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+  }
 }
 
 .entity-section {
@@ -1257,6 +1279,26 @@ export default {
   
   /deep/ .el-checkbox__label {
     color: rgba(255, 255, 255, 0.8);
+  }
+}
+</style>
+
+<style lang="less" scoped>
+.current-entity-label {
+  text-align: left !important;
+  padding-left: 15px;
+}
+
+.current-entity {
+  background-color: rgba(64, 158, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  border-left: 4px solid #409EFF;
+  
+  .entity-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
   }
 }
 </style>
