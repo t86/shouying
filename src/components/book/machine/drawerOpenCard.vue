@@ -176,7 +176,7 @@ export default {
       this.getReloadTime();
       const params = {
         key: this.keyword,//Key 模糊查询关键字,卡台标记,订位人,客人电话,客人姓名
-        dept_id: (this.selDepValue[0] || '0') * 1,
+        dept_id: (this.selDepValue.length > 0 ? this.selDepValue[this.selDepValue.length - 1] : '0') * 1,
         type_id: this.typeOriginList.find(item => item.name == this.typeName).id  //typeId 1 按开台时间排序   2 按部门员工排序  3 按区域排序}
       }
       try {
@@ -239,7 +239,9 @@ export default {
     getDepTree () {
 
       let departmentList = cloneDeep([{id: '0', name:'不限', parentId: 0 }, ...this.$store.state.cardPageInfo.resResultDataObj.departmentInfo]);
-      this.depTree = this.listToTree(departmentList); // list为原始列表数据
+      this.depTree = this.listToTree(departmentList);
+       // list为原始列表数据
+       console.log("this.depTree", this.depTree)
     },
 
     listToTree (newList) {
@@ -248,7 +250,6 @@ export default {
       for (let i = 0; i < newList.length; i++) {
         map[newList[i].id] = i; 
       }
-
       for (let i = 0; i < newList.length; i++) {
         const cur = {...newList[i], label: newList[i].name, value: newList[i].id};
         if (cur.parentId * 1 == 0) {
