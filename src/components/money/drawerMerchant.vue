@@ -143,7 +143,16 @@
             <span>选择商户号：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <div class="merchant-item" :class="{'active': selectMerchantId == item.id}" v-for="item in merchantList" :key="item.id" v-show="item.gs == 2" @click="selectMerchantId = item.id">{{item.n}}</div>
+            <div class="merchant-item" 
+              :class="{
+                'merchant-common': item.gs == 1, 
+                'active': item.id == selectMerchantId
+              }" 
+              v-for="item in merchantList" 
+              :key="item.id" 
+              v-show="item.gs == 2" 
+              @click="selectMerchantId = item.id"
+            >{{item.n}}</div>
           </div>
         </div>
 
@@ -157,7 +166,15 @@
             <span>默认商户号：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <div class="merchant-item" :class="{'merchant-common': item.gs == 1, 'active': defaultMerchantId == item.id}" v-for="item in merchantList" :key="item.id" @click="defaultMerchantId = item.id">{{item.n}}</div>
+            <div class="merchant-item" 
+              :class="{
+                'merchant-common': item.gs == 1, 
+                'active': item.id == defaultMerchantId
+              }" 
+              v-for="item in merchantList" 
+              :key="item.id" 
+              @click="defaultMerchantId = item.id"
+            >{{item.n}}</div>
           </div>
         </div>
 
@@ -228,7 +245,15 @@
             <span>商户号：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <div class="merchant-item" :class="{'merchant-common': item.gs == 1, 'active': currentMerchantInfo.id == item.id}" v-for="item in merchantList" :key="item.id" @click="changeSeatMerchantHandle(item)">{{item.n}}</div>
+            <div class="merchant-item" 
+              :class="{
+                'merchant-common': item.gs == 1, 
+                'active': item.id == currentMerchantInfo.id
+              }" 
+              v-for="item in merchantList" 
+              :key="item.id" 
+              @click="changeSeatMerchantHandle(item)"
+            >{{item.n}}</div>
           </div>
         </div>
 
@@ -240,10 +265,10 @@
               <span class="m-r-3">{{item.n}}</span>
               <el-checkbox v-model="item.checked" :indeterminate="item.isIndeterminate" @change="changeCheckBoxHandle(item)">全选</el-checkbox>
             </h3>
-            <div class="seat-list"  layout="row" layout-align="start start" >
+            <div class="seat-list" layout="row" layout-align="start start">
               <div class="item cursor" 
                 :class="{
-                  'active': items.no === currentMerchantInfo.n,
+                  'active': items.no && items.no === currentMerchantInfo.n,
                   'gray': items.no && items.no !== currentMerchantInfo.n
                 }" 
                 v-for="items in item.ss" 
@@ -476,60 +501,97 @@ export default {
       try {
         const res = await api_money.reqGetMerchantConfig()
         if(res.code == 1) {
+          console.log('接口返回数据:', res.data)
+          
+          // 初始化商户列表
+          this.merchantList = res.data.cnl_cfgs || []
+          console.log('初始化商户列表:', this.merchantList)
+          
+          // 设置商户号相关状态
           this.merchantVal = res.data.e_s == 1
           this.maxAmtVal = res.data.max_amt
-          this.selectMerchantId = res.data.dest_cnl_cfg_id || ''
-          this.defaultMerchantId = res.data.def_cnl_cfg_id || ''
-          this.merchantList = res.data.cnl_cfgs || []
+          this.selectMerchantId = res.data.dest_cnl_cfg_id
+          this.defaultMerchantId = res.data.def_cnl_cfg_id
+
+          // 找到第一个不为0的c值对应的商户
+          let firstNonZeroMerchant = null
+          const regionSeats = res.data.region_seats || []
+          console.log('区域座位数据:', regionSeats)
+          
+          for (const area of regionSeats) {
+            console.log('当前区域:', area)
+            if (area.ss && area.ss.length > 0) {
+              console.log('当前区域的座位:', area.ss)
+              const firstSeatWithC = area.ss.find(seat => seat.c)
+              console.log('找到的第一个有c值的座位:', firstSeatWithC)
+              if (firstSeatWithC && firstSeatWithC.c) {
+                firstNonZeroMerchant = this.merchantList.find(m => m.id === firstSeatWithC.c)
+                console.log('找到的对应商户:', firstNonZeroMerchant)
+                break
+              }
+            }
+          }
+
+          // 设置当前选中的商户
+          if (firstNonZeroMerchant) {
+            console.log('设置currentMerchantInfo前:', this.currentMerchantInfo)
+            this.currentMerchantInfo = {...firstNonZeroMerchant}
+            console.log('设置currentMerchantInfo后:', this.currentMerchantInfo)
+          } else {
+            console.log('未找到符合条件的商户')
+          }
+
+          // 初始化区域座位数据
+          this.areaList = regionSeats.map(item => {
+            const seatList = (item.ss || []).map(items => {
+              const merchantInfo = this.merchantList.find(m => m.id === items.c)
+              return {
+                ...items,
+                no: merchantInfo ? merchantInfo.n : ''
+              }
+            })
+
+            const allSelected = seatList.every(seat => seat.no === this.currentMerchantInfo.n)
+            const someSelected = seatList.some(seat => seat.no === this.currentMerchantInfo.n)
+
+            return {
+              ...item,
+              ss: seatList,
+              checked: allSelected,
+              isIndeterminate: !allSelected && someSelected
+            }
+          })
+          console.log('初始化后的区域列表:', this.areaList)
 
           // 设置时段额度控制
           res.data.hour_cfgs = res.data.hour_cfgs || []
           this.rightTableData = this.rightTableData.map(item => {
             const find = res.data.hour_cfgs.find(items => items.h * 1 === item.id * 1) || {}
-            const merchantListG = this.merchantList.filter(items => items.gs == 2)
             return {
               ...item,
               amt: find.m || '0',
-              checkedId: find.c || (merchantListG.length > 0 ? merchantListG[0].id : '')
+              checkedId: find.c || ''
             }
           })
           this.leftTableData = this.leftTableData.map(item => {
             const find = res.data.hour_cfgs.find(items => items.h * 1 === item.id * 1) || {}
-            const merchantListG = this.merchantList.filter(items => items.gs == 2)
             return {
               ...item,
               amt: find.m || '0',
-              checkedId: find.c || (merchantListG.length > 0 ? merchantListG[0].id : '')
+              checkedId: find.c || ''
             }
           })
-
-          // 初始化区域座位数据
-          this.areaList = (res.data.region_seats || []).map(item => ({
-            ...item,
-            checked: false,
-            isIndeterminate: false,
-            ss: (item.ss || []).map(items => ({
-              ...items,
-              no: items.c ? (this.merchantList.find(ite => ite.id == items.c) || { n: '' }).n : ''
-            }))
-          }))
-
-          // 设置默认选中的商户
-          this.currentMerchantInfo = this.merchantList.length > 0 ? {...this.merchantList[0]} : {}
-
-          // 设置全选半选状态
-          this.setCheckBoxStatus()
           
           updated = false
           setTimeout(() => {
             loaded = true
-          }, 1000);
+          }, 1000)
 
         } else {
           this.$message.warning(res.msg)
         }
       } catch (error) {
-        console.log('数据请求失败', error);
+        console.log('数据请求失败', error)
       }
     },
 
@@ -571,45 +633,46 @@ export default {
       itemInfo.isIndeterminate = false
       itemInfo.ss.forEach(el => {
         if(itemInfo.checked) {
-          // 选中
-          el.no = this.currentMerchantInfo.n || ''
+          // 选中当前商户号
+          el.no = this.currentMerchantInfo.n
         } else {
           el.no = ''
         }
       })
+      this.setCheckBoxStatus()
     },
 
     // 卡台选中商户
     chooseSeatMerchantHandle(itemInfo) {
+      console.log("itemInfo", itemInfo)
+      console.log("this.currentMerchantInfo", this.currentMerchantInfo)
       if (!this.currentMerchantInfo || !this.currentMerchantInfo.n) {
-        this.$message.warning('请先选择商户号');
-        return;
+        this.$message.warning('请先选择商户号')
+        return
       }
       
-      if (itemInfo.no === this.currentMerchantInfo.n) {
-        // 如果已经选中，则取消选中
-        itemInfo.no = '';
-      } else {
-        // 如果未选中，则选中当前商户
-        itemInfo.no = this.currentMerchantInfo.n;
-      }
+      
+      // 切换选中状态
+      itemInfo.no = itemInfo.no === this.currentMerchantInfo.n ? '' : this.currentMerchantInfo.n
       
       // 更新全选和半选状态
-      this.setCheckBoxStatus();
+      this.setCheckBoxStatus()
     },
 
     // 设置区域checkbox的全选半选
     setCheckBoxStatus() {
       this.areaList = this.areaList.map(item => {
-        const allSelected = item.ss.every(items => items.no === this.currentMerchantInfo.n);
-        const someSelected = item.ss.some(items => items.no === this.currentMerchantInfo.n);
+        // 检查是否所有座位都选中了当前商户号
+        const allSelected = item.ss.every(seat => seat.no === this.currentMerchantInfo.n)
+        // 检查是否有座位选中了当前商户号
+        const someSelected = item.ss.some(seat => seat.no === this.currentMerchantInfo.n)
         
         return {
           ...item,
           checked: allSelected,
           isIndeterminate: !allSelected && someSelected
-        };
-      });
+        }
+      })
     },
 
     // 保存非全局配置修改
@@ -971,6 +1034,7 @@ export default {
         };
         
         const res = await api_money.reqGetMerchantConfig(params);
+        console.log("loadEntityConfig返回数据:", res.data)
         if (res.code === 1) {
           this.currentEntityConfig = res.data;
           
@@ -983,21 +1047,56 @@ export default {
           // 初始化商户号列表
           this.merchantList = res.data.cnl_cfgs || [];
           
+          // 找到第一个不为0的c值对应的商户
+          let firstNonZeroMerchant = null;
+          const regionSeats = res.data.region_seats || [];
+          console.log('区域座位数据:', regionSeats);
+          
+          for (const area of regionSeats) {
+            if (area.ss && area.ss.length > 0) {
+              const firstSeatWithC = area.ss.find(seat => seat.c);
+              console.log('找到的第一个有c值的座位:', firstSeatWithC);
+              if (firstSeatWithC && firstSeatWithC.c) {
+                firstNonZeroMerchant = this.merchantList.find(m => m.id === firstSeatWithC.c);
+                console.log('找到的对应商户:', firstNonZeroMerchant);
+                break;
+              }
+            }
+          }
+          
+          // 设置当前选中的商户
+          if (firstNonZeroMerchant) {
+            console.log('设置currentMerchantInfo前:', this.currentMerchantInfo);
+            this.currentMerchantInfo = {...firstNonZeroMerchant};
+            console.log('设置currentMerchantInfo后:', this.currentMerchantInfo);
+          } else {
+            console.log('未找到符合条件的商户');
+          }
+          
           // 初始化时段配置
           this.leftTableData = this.initHourConfigs(res.data.hour_cfgs);
           
           // 初始化区域卡台配置
-          this.areaList = res.data.region_seats || [];
-          this.areaList.forEach(area => {
-            this.$set(area, 'checked', false);
-            this.$set(area, 'isIndeterminate', false);
+          this.areaList = regionSeats.map(item => {
+            const seatList = (item.ss || []).map(items => {
+              const merchantInfo = this.merchantList.find(m => m.id === items.c);
+              return {
+                ...items,
+                no: merchantInfo ? merchantInfo.n : ''
+              };
+            });
             
-            if (area.ss && area.ss.length > 0) {
-              area.ss.forEach(seat => {
-                this.$set(seat, 'no', seat.c || '');
-              });
-            }
+            const allSelected = seatList.every(seat => seat.no === this.currentMerchantInfo.n);
+            const someSelected = seatList.some(seat => seat.no === this.currentMerchantInfo.n);
+            
+            return {
+              ...item,
+              ss: seatList,
+              checked: allSelected,
+              isIndeterminate: !allSelected && someSelected
+            };
           });
+          console.log('初始化后的区域列表:', this.areaList);
           
           // 更新加载状态
           loaded = true;
