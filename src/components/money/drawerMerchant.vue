@@ -118,7 +118,7 @@
             </el-switch>
           </div>
 
-          <el-button type="primary" @click="saveMerchantConfig">保存修改</el-button>
+          <!-- <el-button type="primary" @click="saveMerchantConfig">保存修改</el-button> -->
         </div>
 
         <div class="coll" layout="row" layout-align="start center" v-if="merchantVal">
@@ -241,7 +241,15 @@
               <el-checkbox v-model="item.checked" :indeterminate="item.isIndeterminate" @change="changeCheckBoxHandle(item)">全选</el-checkbox>
             </h3>
             <div class="seat-list"  layout="row" layout-align="start start" >
-              <div class="item cursor" :class="{'gray': items.no.toString().length > 1 && items.no.toString() != currentMerchantInfo.n.toString(), 'active': items.no.toString().length > 1 && items.no.toString() == currentMerchantInfo.n.toString()}" v-for="items in item.ss" :key="items.id" @click="chooseSeatMerchantHandle(items)">
+              <div class="item cursor" 
+                :class="{
+                  'active': items.no === currentMerchantInfo.n,
+                  'gray': items.no && items.no !== currentMerchantInfo.n
+                }" 
+                v-for="items in item.ss" 
+                :key="items.id" 
+                @click="chooseSeatMerchantHandle(items)"
+              >
                 <div class="item-name fs18">{{items.n}}</div>
                 <div class="item-merchant fs14">{{items.no ? (items.no.length > 5 ? ('*****' + items.no.slice(-5)): items.no) : ''}}</div>
               </div>
@@ -259,7 +267,7 @@
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <!-- <el-button type="primary" @click="onSubmit">确定</el-button> -->
+        <el-button type="primary" @click="saveMerchantConfig">保存修改</el-button>
       </div>
     </el-drawer>
   </div>
@@ -495,20 +503,23 @@ export default {
             }
           })
 
+          // 初始化区域座位数据
           this.areaList = (res.data.region_seats || []).map(item => ({
             ...item,
+            checked: false,
+            isIndeterminate: false,
             ss: (item.ss || []).map(items => ({
               ...items,
-              no: (this.merchantList.find(ite => ite.id == items.c) || { n: 0 }).n,  // 商户号id所对应的商户号
+              no: items.c ? (this.merchantList.find(ite => ite.id == items.c) || { n: '' }).n : ''
             }))
           }))
 
+          // 设置默认选中的商户
           this.currentMerchantInfo = this.merchantList.length > 0 ? {...this.merchantList[0]} : {}
 
-          // 设置全选半选
+          // 设置全选半选状态
           this.setCheckBoxStatus()
           
-          // 初始化是否加载完成及是否修改过表单数据
           updated = false
           setTimeout(() => {
             loaded = true
@@ -561,30 +572,44 @@ export default {
       itemInfo.ss.forEach(el => {
         if(itemInfo.checked) {
           // 选中
-          el.no = this.currentMerchantInfo.n
+          el.no = this.currentMerchantInfo.n || ''
         } else {
-          el.no = 0
+          el.no = ''
         }
       })
     },
 
     // 卡台选中商户
-    chooseSeatMerchantHandle(itemInfo){
-      if(itemInfo.no == this.currentMerchantInfo.n) {
-        itemInfo.no = 0
-      } else {
-        itemInfo.no = this.currentMerchantInfo.n
+    chooseSeatMerchantHandle(itemInfo) {
+      if (!this.currentMerchantInfo || !this.currentMerchantInfo.n) {
+        this.$message.warning('请先选择商户号');
+        return;
       }
-      this.setCheckBoxStatus()
+      
+      if (itemInfo.no === this.currentMerchantInfo.n) {
+        // 如果已经选中，则取消选中
+        itemInfo.no = '';
+      } else {
+        // 如果未选中，则选中当前商户
+        itemInfo.no = this.currentMerchantInfo.n;
+      }
+      
+      // 更新全选和半选状态
+      this.setCheckBoxStatus();
     },
 
     // 设置区域checkbox的全选半选
-    setCheckBoxStatus(){
-      this.areaList = this.areaList.map(item => ({
-        ...item,
-        checked: item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()),
-        isIndeterminate: !item.ss.every(items => items.no == this.currentMerchantInfo.n.toString()) && item.ss.some(items => items.no == this.currentMerchantInfo.n.toString())
-      }))
+    setCheckBoxStatus() {
+      this.areaList = this.areaList.map(item => {
+        const allSelected = item.ss.every(items => items.no === this.currentMerchantInfo.n);
+        const someSelected = item.ss.some(items => items.no === this.currentMerchantInfo.n);
+        
+        return {
+          ...item,
+          checked: allSelected,
+          isIndeterminate: !allSelected && someSelected
+        };
+      });
     },
 
     // 保存非全局配置修改
