@@ -201,7 +201,7 @@
                   <div class="tr" v-for="(item, index) in leftTableData" :key="index" layout="row" layout-align="space-between center">
                     <div class="td">{{item.name}}</div>
                     <div class="td">
-                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini"></el-input>
+                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
                     </div>
                     <div class="td" layout="row" style="flex-wrap:wrap">
                       <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
@@ -1141,6 +1141,18 @@ export default {
         amt,
         g_amt
       });
+    },
+
+    // 在methods中添加新方法
+    handleAmtChange(item) {
+      // 如果当前项没有选中的商户号，或者选中的商户号不是对私商户号，且商户列表不为空
+      if ((!item.checkedId || !this.merchantList.find(m => m.id === item.checkedId && m.gs === 2)) && this.merchantList.length > 0) {
+        // 找到第一个对私商户号（gs == 2）
+        const firstPrivateMerchant = this.merchantList.find(m => m.gs === 2);
+        if (firstPrivateMerchant) {
+          item.checkedId = firstPrivateMerchant.id;
+        }
+      }
     },
   },
   created () {
