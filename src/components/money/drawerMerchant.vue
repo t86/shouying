@@ -177,7 +177,7 @@
           </div>
         </div>
 
-        <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定商户号的卡台，线上收款计入选择的默认商户号</div>
+        <!-- <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定商户号的卡台，线上收款计入选择的默认商户号</div> -->
 
         <div class="line"></div>
         
