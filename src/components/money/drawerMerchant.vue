@@ -34,7 +34,6 @@
               {{item.n}}组
             </div>
           </div>
-          <el-button type="primary" @click="saveGlobalConfig">保存修改</el-button>
         </div>
         
         <div class="red-color fs12 m-l-10 p-l-10 m-t-2">未绑定客户号的区域，线上收款计入选择的默认主体</div>
@@ -292,7 +291,8 @@
       <!-- 提交按钮 -->
       <div class="form-btn" layout="row" layout-align="center center">
         <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-        <el-button type="primary" @click="saveMerchantConfig">保存修改</el-button>
+        <el-button type="primary" v-if="activeTab === 'global' && hasMultipleMainEntities" @click="saveGlobalConfig">保存修改</el-button>
+        <el-button type="primary" v-else @click="saveMerchantConfig">保存修改</el-button>
       </div>
     </el-drawer>
   </div>
