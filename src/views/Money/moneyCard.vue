@@ -327,8 +327,8 @@
               v-if="!safeModeEnabled"
               class="legend-list-item merchant-item"
             >
-              <p class="fs16" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id, merchantsAmts[0].amt, merchantsAmts[0].g_amt)">{{ (merchantsAmts[0].amt*1/10000).toFixed(1) }}</p>
-              <p class="fs16" v-if="merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id, merchantsAmts[1].amt, merchantsAmts[1].g_amt)">{{ (merchantsAmts[1].amt*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts && merchantsAmts.length > 0" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id, merchantsAmts[0].amt, merchantsAmts[0].g_amt)">{{ ((merchantsAmts[0].amt || 0)*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts && merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id, merchantsAmts[1].amt, merchantsAmts[1].g_amt)">{{ ((merchantsAmts[1].amt || 0)*1/10000).toFixed(1) }}</p>
             </div>
           </div>
           <!-- 操作面板 -->
@@ -2415,22 +2415,25 @@ export default {
 
   computed: {
     merchantAllAmt() {
-      console.log("cardPageInfo:", this.$store.state.cardPageInfo)
+      console.log("cardPageInfo-------:", this.$store.state.cardPageInfo)
       const { merchantInfo } = this.$store.state.cardPageInfo.resResultDataObj;
-      console.log("merchantInfo:", merchantInfo)
+      console.log("merchantInfo------ :", merchantInfo)
       const resultAmt =
         merchantInfo.length == 0 ? 0 : ((merchantInfo[0].amt || 0) * 1) / 10000;
       return this.$overall.toFixed(resultAmt, 1);
     },
 
     merchantsAmts() {
+      console.log("cardPageInfo-------:", this.$store.state.cardPageInfo)
       const { merchantInfo } = this.$store.state.cardPageInfo.resResultDataObj;
-      console.log("merchantInfo:", merchantInfo)
+      console.log("merchantInfo----------------:", merchantInfo)
       let result = []
-      if(merchantInfo[0].cnl_cfg_id2 * 1 === 0) {
+      if(merchantInfo && merchantInfo[0]) {
+        if(merchantInfo[0].cnl_cfg_id2 * 1 === 0) {
         result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt, g_amt: merchantInfo[0].g_amt}]
-      } else {
-        result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt, g_amt: merchantInfo[0].g_amt}, {id: merchantInfo[0].cnl_cfg_id2, amt: merchantInfo[0].amt2, g_amt: merchantInfo[0].g_amt2}]
+        } else {
+          result = [{id: merchantInfo[0].cnl_cfg_id, amt: merchantInfo[0].amt, g_amt: merchantInfo[0].g_amt}, {id: merchantInfo[0].cnl_cfg_id2, amt: merchantInfo[0].amt2, g_amt: merchantInfo[0].g_amt2}]
+        }
       }
       console.log("result:", result)
       return result
