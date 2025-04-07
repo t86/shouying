@@ -210,7 +210,7 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="table-content">
+            <div class="table-content">
               <div class="table">
                 <div class="thead">
                   <div class="tr" layout="row" layout-align="space-between center">
@@ -223,7 +223,7 @@
                   <div class="tr" v-for="(item, index) in rightTableData" :key="index" layout="row" layout-align="space-between center">
                     <div class="td">{{item.name}}</div>
                     <div class="td">
-                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini"></el-input>
+                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
                     </div>
                     <div class="td" layout="row" style="flex-wrap:wrap">
                       <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
@@ -231,7 +231,7 @@
                   </div>
                 </div>
               </div>
-            </div> -->
+            </div>
           </div>
           </div>
         </div>
@@ -303,78 +303,6 @@ import api_money from "@/api/money";
 let loaded = false // 数据是否加载完成
 let updated = false  // 数据是否被修改
 const leftTableData = [
-{
-    id: 0,
-    name: '00:00-01:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 1,
-    name: '01:00-02:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 2,
-    name: '02:00-03:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 3,
-    name: '03:00-04:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 4,
-    name: '04:00-05:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 5,
-    name: '05:00-06:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 6,
-    name: '06:00-07:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 7,
-    name: '07:00-08:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 8,
-    name: '08:00-09:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 9,
-    name: '09:00-10:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 10,
-    name: '10:00-11:00',
-    amt: '0',
-    checkedId: ''
-  },
-  {
-    id: 11,
-    name: '11:00-12:00',
-    amt: '0',
-    checkedId: ''
-  },
     {
     id: 12,
     name: '12:00-13:00',
@@ -813,6 +741,13 @@ export default {
           params.hour_max_amts.push(parseInt(item.amt) || 0);
           params.hour_cnl_cfg_ids.push(item.checkedId || 0);
         // }
+      });
+      
+      // 收集右侧时段配置
+      this.rightTableData.forEach(item => {
+        params.hour_ids.push(item.id);
+        params.hour_max_amts.push(parseInt(item.amt) || 0);
+        params.hour_cnl_cfg_ids.push(item.checkedId || 0);
       });
       
       console.log('保存商户号配置参数:', params);
