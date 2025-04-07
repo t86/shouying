@@ -327,9 +327,9 @@
               v-if="!safeModeEnabled"
               class="legend-list-item merchant-item"
             >
-              <p class="fs16" v-if="merchantsAmts && merchantsAmts.length > 0" @click.stop="merchantsAmts[0].id && showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id, merchantsAmts[0].amt, merchantsAmts[0].g_amt)">{{ ((merchantsAmts[0].amt || 0)*1/10000).toFixed(1) }}</p>
+              <p class="fs16" v-if="merchantsAmts && merchantsAmts.length > 0" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[0].id, merchantsAmts[0].amt, merchantsAmts[0].g_amt)">{{ ((merchantsAmts[0].amt || 0)*1/10000).toFixed(1) }}</p>
               <p class="fs16" v-if="merchantsAmts && merchantsAmts.length > 1" @click.stop="showOrHideMerchantInfoDrawerHandle(merchantsAmts[1].id, merchantsAmts[1].amt, merchantsAmts[1].g_amt)">{{ ((merchantsAmts[1].amt || 0)*1/10000).toFixed(1) }}</p>
-              <p class="fs16" v-if="merchantsAmts && merchantsAmts.length === 0">0.0</p>
+              <!-- <p class="fs16" v-if="merchantsAmts && merchantsAmts.length === 0">0.0</p> -->
             </div>
           </div>
           <!-- 操作面板 -->
@@ -2439,7 +2439,7 @@ export default {
       console.log("result:", result)
       // 如果result为空数组，添加一个默认对象但不包含id，这样点击时不会跳转
       if (result.length === 0) {
-        result = [{amt: 0, g_amt: 0}]
+        result = [{id:0, amt: 0, g_amt: 0}]
       }
       console.log("length", result.length)
       return result

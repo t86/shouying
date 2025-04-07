@@ -1178,6 +1178,7 @@ export default {
       this.show = newVal;
       if (newVal) {
         this.getMerchantGroup()
+        this.getDetailData()
       }
     },
     activeTab(newVal) {
