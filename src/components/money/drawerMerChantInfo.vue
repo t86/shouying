@@ -39,7 +39,8 @@
             </div>
 
           </div>
-          <el-button type="primary" style="width:200px;margin-top: 20px" @click="getMerchantList">商户号一键切换</el-button>
+          <el-button v-if="!merchantConfig || merchantConfig.enabled !== 1" type="primary" style="width:200px;margin-top: 20px" @click="getMerchantList">商户号一键切换</el-button>
+          <el-button v-else type="primary" style="width:200px;margin-top: 20px" @click="cancelChangeHandle">取消切换</el-button>
         </div>
         <div v-show="status == 2">
           <div class="status2" layout="row" layout-align="start center">
@@ -73,13 +74,15 @@ export default {
       rightTableData: [],
       currentMerchantInfo: {},
       merchantList: [],
-      merchantAmtInfo: {}
+      merchantAmtInfo: {},
+      merchantConfig: null // 存储商户配置信息
     };
   },
   methods: {
     async getMerchantList(){
       try {
         const res = await api_money.reqGetMerchantList()
+        console.log("res", res)
         if(res.code == 1) {
           this.status = 2
           this.merchantList = res.data.cnl_cfgs || []
@@ -165,7 +168,20 @@ export default {
       }  else {
         this.$emit("showOrHideDrawer");
       }
-    }
+    },
+
+    // 检查商户配置
+    async checkMerchantConfig() {
+      try {
+        const res = await api_money.reqGetMerchantList()
+        console.log("merchant config res", res)
+        if(res.code == 1) {
+          this.merchantConfig = res.data;
+        }
+      } catch (error) {
+        console.log('获取商户配置失败', error);
+      }
+    },
   },
   props: {
     showDrawer: {
@@ -196,6 +212,8 @@ export default {
         };
         console.log("this.merchantAmtInfo:", this.merchantAmtInfo)
         this.getMerchantTimeAmtList();
+        // 获取商户配置信息
+        this.checkMerchantConfig();
       }
     }
   }
