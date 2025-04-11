@@ -6,7 +6,7 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="80%"
+      size="70%"
     >
       <div class="account-gave-money">
         <div class="form">
@@ -65,18 +65,18 @@
           <div class="table">
             <div class="thead">
               <div class="tr" layout="row" layout-align="start center">
-                <div class="th" style="flex: 0.5; min-width: 60px;">
+                <div class="th" style="flex: 0.5; min-width: 40px;">
                   <el-checkbox
                     :indeterminate="indeterminate"
                     v-model="checkAll"
                     @change="handleCheckAllChange"
                   >全选</el-checkbox>
                 </div>
-                <div class="th" style="flex: 1; min-width: 100px;">挂账金额</div>
-                <div class="th" style="flex: 1; min-width: 120px;">还款金额</div>
-                <div class="th" style="flex: 1; min-width: 120px;">挂账时间</div>
-                <div class="th" style="flex: 1; min-width: 100px;">卡台名称</div>
-                <div class="th" style="flex: 1; min-width: 100px;">订位人</div>
+                <div class="th" style="flex: 1; min-width: 80px;">挂账金额</div>
+                <div class="th" style="flex: 1; min-width: 100px;">还款金额</div>
+                <div class="th" style="flex: 1; min-width: 100px;">挂账时间</div>
+                <div class="th" style="flex: 1; min-width: 80px;">卡台名称</div>
+                <div class="th" style="flex: 1; min-width: 80px;">订位人</div>
               </div>
             </div>
             <div class="tbody">
@@ -87,26 +87,26 @@
                 v-for="(item, index) in orderList"
                 :key="index"
               >
-                <div class="td" style="flex: 0.5; min-width: 60px;">
+                <div class="td" style="flex: 0.5; min-width: 40px;">
                   <el-checkbox
                     v-model="item.checked"
                     @change="handleItemChange"
                   ></el-checkbox>
                 </div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{formatAmount(item.a)}}</div>
-                <div class="td" style="flex: 1; min-width: 120px;">
+                <div class="td" style="flex: 1; min-width: 80px;">{{formatAmount(item.a)}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">
                   <input 
                     type="number" 
                     v-model="item.returnAmount" 
                     :disabled="!item.checked"
                     @input="validateReturnAmount(item)"
-                    style="width: 100px; height: 40px; font-size: 14px; text-align: center; margin: 5px 0;"
+                    style="width: 80px; height: 40px; font-size: 14px; text-align: center; margin: 5px 0;"
                     class="return-amount-input"
                   />
                 </div>
-                <div class="td" style="flex: 1; min-width: 120px;">{{item.c}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{item.s}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{item.sn}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{item.c}}</div>
+                <div class="td" style="flex: 1; min-width: 80px;">{{item.s}}</div>
+                <div class="td" style="flex: 1; min-width: 80px;">{{item.sn}}</div>
               </div>
               <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
             </div>
