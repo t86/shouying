@@ -6,7 +6,7 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="600px"
+      size="85%"
     >
       <div class="account-gave-money">
         <div class="form">
@@ -72,11 +72,11 @@
                     @change="handleCheckAllChange"
                   >全选</el-checkbox>
                 </div>
+                <div class="th" style="flex: 1; min-width: 120px;">还款金额</div>
                 <div class="th" style="flex: 1; min-width: 120px;">挂账时间</div>
                 <div class="th" style="flex: 1; min-width: 100px;">卡台名称</div>
                 <div class="th" style="flex: 1; min-width: 100px;">订位人</div>
                 <div class="th" style="flex: 1; min-width: 100px;">挂账金额</div>
-                <div class="th" style="flex: 1; min-width: 120px;">还款金额</div>
               </div>
             </div>
             <div class="tbody">
@@ -93,10 +93,6 @@
                     @change="handleItemChange"
                   ></el-checkbox>
                 </div>
-                <div class="td" style="flex: 1; min-width: 120px;">{{item.c}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{item.s}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{item.sn}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{formatAmount(item.a)}}</div>
                 <div class="td" style="flex: 1; min-width: 120px;">
                   <input 
                     type="number" 
@@ -107,6 +103,10 @@
                     class="return-amount-input"
                   />
                 </div>
+                <div class="td" style="flex: 1; min-width: 120px;">{{item.c}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{item.s}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{item.sn}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{formatAmount(item.a)}}</div>
               </div>
               <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
             </div>
@@ -415,6 +415,7 @@ export default {
     margin: 0 20px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
+    width: calc(100% - 40px);
     
     .thead {
       background-color: rgba(255, 255, 255, 0.05);
