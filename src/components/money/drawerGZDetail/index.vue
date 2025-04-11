@@ -46,9 +46,9 @@
                 >全选</el-checkbox>
               </div>
               <div class="th">账户名称</div>
+              <div class="th">剩余挂账金额</div>
               <div class="th">联系人</div>
               <div class="th">联系方式</div>
-              <div class="th">剩余挂账金额</div>
               <div class="th">操作</div>
             </div>
           </div>
@@ -67,9 +67,9 @@
                 >{{index + 1}}</el-checkbox>
               </div>
               <div class="td">{{item.n}}</div>
+              <div class="td">{{item.a}}</div>
               <div class="td">{{item.cn}}</div>
               <div class="td">{{item.cp}}</div>
-              <div class="td">{{item.a}}</div>
               <div class="td">
                 <span :class="{disabled: item.a * 1 <= 0}" @click="showOrHideGaveMoneyDrawer($event, item)">挂账还款</span>
                 <span  @click="showOrHideDetailDrawer($event, item)">查看记录</span>
