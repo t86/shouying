@@ -49,6 +49,13 @@
             </div>
           </div>
           
+          <div class="row">
+            <div class="label"></div>
+            <div class="value">
+              <p class="red-tip">请勾选要还款的订单，勾选后自动填入还款金额，如需部分还款，可修改订单的还款金额</p>
+            </div>
+          </div>
+          
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
               <span>请勾选要还款的订单:</span>
@@ -58,17 +65,18 @@
           <div class="table">
             <div class="thead">
               <div class="tr" layout="row" layout-align="start center">
-                <div class="th">
+                <div class="th" style="flex: 0.5; min-width: 60px;">
                   <el-checkbox
                     :indeterminate="indeterminate"
                     v-model="checkAll"
                     @change="handleCheckAllChange"
                   >全选</el-checkbox>
                 </div>
-                <div class="th">挂账时间</div>
-                <div class="th">卡台名称</div>
-                <div class="th">订位人</div>
-                <div class="th">挂账金额</div>
+                <div class="th" style="flex: 1; min-width: 120px;">挂账时间</div>
+                <div class="th" style="flex: 1; min-width: 100px;">卡台名称</div>
+                <div class="th" style="flex: 1; min-width: 100px;">订位人</div>
+                <div class="th" style="flex: 1; min-width: 100px;">挂账金额</div>
+                <div class="th" style="flex: 1; min-width: 120px;">还款金额</div>
               </div>
             </div>
             <div class="tbody">
@@ -79,16 +87,26 @@
                 v-for="(item, index) in orderList"
                 :key="index"
               >
-                <div class="td">
+                <div class="td" style="flex: 0.5; min-width: 60px;">
                   <el-checkbox
                     v-model="item.checked"
                     @change="handleItemChange"
                   ></el-checkbox>
                 </div>
-                <div class="td">{{item.c}}</div>
-                <div class="td">{{item.s}}</div>
-                <div class="td">{{item.sn}}</div>
-                <div class="td">{{formatAmount(item.a)}}</div>
+                <div class="td" style="flex: 1; min-width: 120px;">{{item.c}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{item.s}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{item.sn}}</div>
+                <div class="td" style="flex: 1; min-width: 100px;">{{formatAmount(item.a)}}</div>
+                <div class="td" style="flex: 1; min-width: 120px;">
+                  <input 
+                    type="number" 
+                    v-model="item.returnAmount" 
+                    :disabled="!item.checked"
+                    @input="validateReturnAmount(item)"
+                    style="width: 100px; height: 40px; font-size: 14px; text-align: center; margin: 5px 0;"
+                    class="return-amount-input"
+                  />
+                </div>
               </div>
               <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
             </div>
@@ -153,7 +171,8 @@ export default {
         if (res.code == 1) {
           this.orderList = (res.data.records || []).map(item => ({
             ...item,
-            checked: false
+            checked: false,
+            returnAmount: (item.a / 100).toFixed(2) // 添加还款金额字段，默认等于挂账金额
           }));
           this.checkAll = false;
           this.indeterminate = false;
@@ -175,6 +194,10 @@ export default {
     handleCheckAllChange(val) {
       this.orderList.forEach(item => {
         item.checked = val;
+        // 更新默认还款金额
+        if (val) {
+          item.returnAmount = (item.a / 100).toFixed(2);
+        }
       });
       this.indeterminate = false;
       this.calculateTotalAmount();
@@ -185,6 +208,14 @@ export default {
       const checkedCount = this.orderList.filter(item => item.checked).length;
       this.checkAll = checkedCount === this.orderList.length;
       this.indeterminate = checkedCount > 0 && checkedCount < this.orderList.length;
+      
+      // 设置被选中项的默认还款金额
+      this.orderList.forEach(item => {
+        if (item.checked && !item.returnAmount) {
+          item.returnAmount = (item.a / 100).toFixed(2);
+        }
+      });
+      
       this.calculateTotalAmount();
     },
     
@@ -192,8 +223,29 @@ export default {
     calculateTotalAmount() {
       const totalAmount = this.orderList
         .filter(item => item.checked)
-        .reduce((sum, item) => sum + item.a, 0);
+        .reduce((sum, item) => sum + parseFloat(item.returnAmount || 0) * 100, 0);
       this.amtCount = (totalAmount / 100).toFixed(2);
+    },
+    
+    // 添加验证还款金额方法
+    validateReturnAmount(item) {
+      // 转为数字类型进行比较
+      const returnAmount = parseFloat(item.returnAmount || 0);
+      const maxAmount = item.a / 100;
+      
+      // 不能超过挂账金额
+      if (returnAmount > maxAmount) {
+        item.returnAmount = maxAmount.toFixed(2);
+        this.$message.warning('还款金额不能超过挂账金额');
+      }
+      
+      // 不能小于0
+      if (returnAmount < 0) {
+        item.returnAmount = '0.00';
+      }
+      
+      // 更新总金额
+      this.calculateTotalAmount();
     },
     
     // 提交
@@ -204,12 +256,19 @@ export default {
       // 获取选中的订单ID和金额
       const checkedOrders = this.orderList.filter(item => item.checked);
       const ids = checkedOrders.map(item => item.id * 1);
-      const amts = checkedOrders.map(item => item.a);
+      const amts = checkedOrders.map(item => Math.round(parseFloat(item.returnAmount || 0) * 100)); // 转换为分
+      
+      // 查找对应的还款方式名称
+      let cnl_name = '';
+      const foundItem = this.returnList.find(item => item.id == this.activeId);
+      if (foundItem) {
+        cnl_name = foundItem.name;
+      }
       
       const params = {
         ids: ids,                                      // 挂账订单Id列表
         amts: amts,                                    // 对应上面挂账订单Id列表的还款金额, 单位分
-        cnl_name: this.returnList[this.activeId - 1].name  // 还款渠道名称
+        cnl_name: cnl_name                             // 还款渠道名称
       };
       
       try {
@@ -292,6 +351,26 @@ export default {
           box-sizing: border-box;
           border: 1px solid rgba(255, 255, 255, 0.15);
           background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .return-amount-input {
+          width: 100px !important;
+          text-align: center;
+          height: 40px !important;
+          line-height: 40px;
+          border-radius: 4px;
+          padding: 0 8px;
+          box-sizing: border-box;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 14px;
+          margin: 5px 0;
+        }
+
+        .red-tip {
+          color: #ff2f64;
+          font-size: 12px;
+          line-height: 1.5;
+          margin-top: 0;
         }
 
         .btn {
