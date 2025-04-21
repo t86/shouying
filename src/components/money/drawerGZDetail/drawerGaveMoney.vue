@@ -31,28 +31,50 @@
               <div class="item">
                 <div
                   class="item-info"
-                  :class="{active: activeId == item.id}"
+                  :class="{active: returnChannels[item.id]}"
                   v-for="item in returnList"
                   :key="item.id"
-                  @click="activeId=item.id"
+                  @click="toggleChannel(item.id)"
                 >{{item.name}}</div>
               </div>
             </div>
           </div>
+          
+          <!-- 渠道金额输入区域 -->
+          <div v-for="item in activeReturnChannels" :key="'input-'+item.id" class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>{{item.name}}还款金额:</span>
+            </div>
+            <div class="value" layout="row" layout-align="start center">
+              <input 
+                type="number" 
+                v-model="channelAmounts[item.id]" 
+                placeholder="0.00" 
+                @input="calculateTotalChannelAmount"
+                style="width: 200px; height: 40px; font-size: 14px; text-align: center;" 
+              />
+            </div>
+          </div>
+          
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
               <span class="red">*</span>
               <span>还款金额:</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
-              <input type="text" v-model="amtCount" placeholder="还款金额=勾选的挂账订单中还款金额总和" disabled />
+              <input type="text" v-model="amtCount" disabled placeholder="各渠道还款金额总和" />
+              <div 
+                class="btn" 
+                :class="{'disabled': !hasCheckedOrders || isAllOrdersFullyPaid}" 
+                @click="handleAutoFillRemaining"
+              >自动填入余额</div>
             </div>
           </div>
           
           <div class="row">
             <div class="label"></div>
             <div class="value">
-              <p class="red-tip">请勾选要还款的订单，勾选后自动填入还款金额，如需部分还款，可修改订单的还款金额</p>
+              <p class="red-tip">请勾选要还款的订单，系统会自动将渠道还款金额拆分到订单上</p>
             </div>
           </div>
           
@@ -95,14 +117,13 @@
                 </div>
                 <div class="td" style="flex: 1; min-width: 80px;">{{formatAmount(item.a)}}</div>
                 <div class="td" style="flex: 1; min-width: 100px;">
-                  <input 
-                    type="number" 
-                    v-model="item.returnAmount" 
-                    :disabled="!item.checked"
-                    @input="validateReturnAmount(item)"
-                    style="width: 80px; height: 40px; font-size: 14px; text-align: center; margin: 5px 0;"
-                    class="return-amount-input"
-                  />
+                  <div v-if="item.checked">
+                    <div class="channel-amount-item" v-for="channelId in getActiveChannelIds(item)" :key="channelId">
+                      {{getChannelName(channelId)}}：{{formatAmount(item.returnAmounts[channelId])}}
+                    </div>
+                    <div v-if="!hasChannelAmounts(item)" class="no-amount">未分配</div>
+                  </div>
+                  <div v-else>-</div>
                 </div>
                 <div class="td" style="flex: 1; min-width: 100px;">{{item.c}}</div>
                 <div class="td" style="flex: 1; min-width: 80px;">{{item.s}}</div>
@@ -127,8 +148,9 @@ export default {
   data() {
     return {
       show: false,
-      activeId: "",
-      amtCount: '',
+      returnChannels: {}, // 选中的渠道 { id: true/false }
+      channelAmounts: {}, // 各渠道的金额 { id: amount }
+      amtCount: '0.00',
       returnList: [
         {
           id: 1,
@@ -160,6 +182,44 @@ export default {
       indeterminate: false
     };
   },
+  computed: {
+    // 活跃的渠道列表（已选中的）
+    activeReturnChannels() {
+      return this.returnList.filter(item => this.returnChannels[item.id]);
+    },
+    
+    // 是否有选中的订单
+    hasCheckedOrders() {
+      return this.orderList.some(item => item.checked);
+    },
+    
+    // 选中订单的总金额
+    totalOrderAmount() {
+      return this.orderList
+        .filter(item => item.checked)
+        .reduce((sum, item) => sum + item.a, 0);
+    },
+    
+    // 选中订单的总金额（元）
+    totalOrderAmountInYuan() {
+      return this.totalOrderAmount / 100;
+    },
+    
+    // 总渠道金额
+    totalChannelAmount() {
+      return parseFloat(this.amtCount || 0);
+    },
+    
+    // 是否所有选中的订单都已完全还款
+    isAllOrdersFullyPaid() {
+      return this.totalOrderAmountInYuan <= this.totalChannelAmount;
+    },
+    
+    // 获取选中的渠道ID
+    selectedChannelIds() {
+      return Object.keys(this.returnChannels).filter(id => this.returnChannels[id]);
+    }
+  },
   methods: {
     // 获取挂账订单列表
     async getOrderList() {
@@ -172,11 +232,19 @@ export default {
           this.orderList = (res.data.records || []).map(item => ({
             ...item,
             checked: false,
-            returnAmount: (item.a / 100).toFixed(2) // 添加还款金额字段，默认等于挂账金额
+            returnAmount: '0.00', // 添加还款金额字段，默认为0
+            returnAmounts: {} // 每个渠道的还款金额
           }));
           this.checkAll = false;
           this.indeterminate = false;
-          this.amtCount = '';
+          this.amtCount = '0.00';
+          
+          // 重置选中渠道和金额
+          this.returnChannels = {};
+          this.channelAmounts = {};
+          this.returnList.forEach(item => {
+            this.channelAmounts[item.id] = '0.00';
+          });
         } else {
           this.$message.warning(res.msg);
         }
@@ -190,17 +258,117 @@ export default {
       return (amount / 100).toFixed(2);
     },
     
+    // 切换渠道选择状态
+    toggleChannel(id) {
+      this.$set(this.returnChannels, id, !this.returnChannels[id]);
+      if (!this.returnChannels[id]) {
+        // 如果取消选中，重置金额
+        this.channelAmounts[id] = '0.00';
+      }
+      this.calculateTotalChannelAmount();
+    },
+    
+    // 计算所有渠道的总金额
+    calculateTotalChannelAmount() {
+      const total = Object.keys(this.channelAmounts)
+        .filter(id => this.returnChannels[id])
+        .reduce((sum, id) => {
+          const amount = parseFloat(this.channelAmounts[id] || 0);
+          return sum + amount;
+        }, 0);
+      
+      this.amtCount = total.toFixed(2);
+      
+      // 如果有选中的订单，自动分配金额
+      if (this.hasCheckedOrders) {
+        this.distributeAmountToOrders();
+      }
+    },
+    
+    // 自动填入剩余金额
+    handleAutoFillRemaining() {
+      if (!this.hasCheckedOrders || this.isAllOrdersFullyPaid) return;
+      
+      // 计算已填入的渠道金额总和
+      const existingTotal = Object.keys(this.channelAmounts)
+        .filter(id => this.returnChannels[id])
+        .reduce((sum, id) => sum + parseFloat(this.channelAmounts[id] || 0), 0);
+      
+      // 计算剩余需要填入的金额
+      const remainingAmount = this.totalOrderAmountInYuan - existingTotal;
+      
+      if (remainingAmount <= 0) return;
+      
+      // 找到第一个选中的渠道
+      const firstSelectedChannel = this.selectedChannelIds[0];
+      if (firstSelectedChannel) {
+        // 将剩余金额填入该渠道
+        const currentAmount = parseFloat(this.channelAmounts[firstSelectedChannel] || 0);
+        this.channelAmounts[firstSelectedChannel] = (currentAmount + remainingAmount).toFixed(2);
+        this.calculateTotalChannelAmount();
+      }
+    },
+    
+    // 分配金额到订单
+    distributeAmountToOrders() {
+      // 首先重置所有订单的还款金额
+      this.orderList.forEach(order => {
+        if (order.checked) {
+          order.returnAmount = '0.00';
+          order.returnAmounts = {};
+        }
+      });
+      
+      // 获取选中的渠道和对应金额
+      const channels = Object.keys(this.returnChannels)
+        .filter(id => this.returnChannels[id])
+        .map(id => ({
+          id,
+          amount: parseFloat(this.channelAmounts[id] || 0) * 100 // 转为分
+        }))
+        .filter(channel => channel.amount > 0);
+      
+      // 按顺序分配每个渠道的金额到订单
+      channels.forEach(channel => {
+        let remainingAmount = channel.amount;
+        
+        // 按顺序遍历选中的订单
+        for (const order of this.orderList.filter(o => o.checked)) {
+          if (remainingAmount <= 0) break;
+          
+          // 计算该订单还可以分配的金额
+          const orderMaxAmount = order.a - Object.values(order.returnAmounts).reduce((sum, amt) => sum + amt, 0);
+          
+          if (orderMaxAmount <= 0) continue;
+          
+          // 决定分配多少给这个订单
+          const amountToAssign = Math.min(remainingAmount, orderMaxAmount);
+          
+          // 更新订单的渠道还款金额
+          if (!order.returnAmounts[channel.id]) {
+            this.$set(order.returnAmounts, channel.id, 0);
+          }
+          order.returnAmounts[channel.id] += amountToAssign;
+          
+          // 更新订单的总还款金额
+          order.returnAmount = (Object.values(order.returnAmounts).reduce((sum, amt) => sum + amt, 0) / 100).toFixed(2);
+          
+          // 减少剩余可分配金额
+          remainingAmount -= amountToAssign;
+        }
+      });
+    },
+    
     // 全选
     handleCheckAllChange(val) {
       this.orderList.forEach(item => {
         item.checked = val;
-        // 更新默认还款金额
-        if (val) {
-          item.returnAmount = (item.a / 100).toFixed(2);
-        }
       });
       this.indeterminate = false;
-      this.calculateTotalAmount();
+      
+      if (this.hasCheckedOrders) {
+        this.distributeAmountToOrders();
+      }
     },
     
     // 单选
@@ -209,22 +377,9 @@ export default {
       this.checkAll = checkedCount === this.orderList.length;
       this.indeterminate = checkedCount > 0 && checkedCount < this.orderList.length;
       
-      // 设置被选中项的默认还款金额
-      this.orderList.forEach(item => {
-        if (item.checked && !item.returnAmount) {
-          item.returnAmount = (item.a / 100).toFixed(2);
-        }
-      });
-      
-      this.calculateTotalAmount();
-    },
-    
-    // 计算总金额
-    calculateTotalAmount() {
-      const totalAmount = this.orderList
-        .filter(item => item.checked)
-        .reduce((sum, item) => sum + parseFloat(item.returnAmount || 0) * 100, 0);
-      this.amtCount = (totalAmount / 100).toFixed(2);
+      if (this.hasCheckedOrders) {
+        this.distributeAmountToOrders();
+      }
     },
     
     // 添加验证还款金额方法
@@ -250,28 +405,66 @@ export default {
     
     // 提交
     async onSubmit() {
-      if(this.activeId == '') return this.$message.warning('请选择还款方式');
-      if(this.amtCount * 1 == 0) return this.$message.warning('请勾选要还款的订单');
-      
-      // 获取选中的订单ID和金额
-      const checkedOrders = this.orderList.filter(item => item.checked);
-      const ids = checkedOrders.map(item => item.id * 1);
-      const amts = checkedOrders.map(item => Math.round(parseFloat(item.returnAmount || 0) * 100)); // 转换为分
-      
-      // 查找对应的还款方式名称
-      let cnl_name = '';
-      const foundItem = this.returnList.find(item => item.id == this.activeId);
-      if (foundItem) {
-        cnl_name = foundItem.name;
+      // 验证是否选择了渠道
+      if (this.selectedChannelIds.length === 0) {
+        return this.$message.warning('请选择至少一种还款方式');
       }
       
-      const params = {
-        ids: ids,                                      // 挂账订单Id列表
-        amts: amts,                                    // 对应上面挂账订单Id列表的还款金额, 单位分
-        cnl_name: cnl_name                             // 还款渠道名称
-      };
+      // 验证是否有渠道金额
+      if (parseFloat(this.amtCount) <= 0) {
+        return this.$message.warning('请输入还款金额');
+      }
+      
+      // 验证是否勾选了订单
+      if (!this.hasCheckedOrders) {
+        return this.$message.warning('请勾选要还款的订单');
+      }
+      
+      // 验证还款金额不能超过挂账总额
+      if (parseFloat(this.amtCount) * 100 > this.totalOrderAmount) {
+        return this.$message.warning('还款金额不能超过选中订单的挂账金额总和');
+      }
       
       try {
+        // 收集所有订单的渠道还款数据
+        const ids = [];
+        const amts = [];
+        const cnl_names = [];
+        
+        // 获取选中的订单
+        const checkedOrders = this.orderList.filter(item => item.checked);
+        
+        // 遍历每个订单
+        checkedOrders.forEach(order => {
+          // 遍历该订单的每个渠道还款
+          Object.keys(order.returnAmounts || {}).forEach(channelId => {
+            const amount = order.returnAmounts[channelId];
+            // 只处理有金额的渠道
+            if (amount > 0) {
+              // 添加订单ID
+              ids.push(order.id * 1);
+              // 添加渠道还款金额（单位：分）
+              amts.push(Math.round(amount));
+              // 添加渠道名称
+              const channel = this.returnList.find(item => item.id == channelId);
+              cnl_names.push(channel.name);
+            }
+          });
+        });
+        
+        // 如果没有有效的还款数据，给出提示
+        if (ids.length === 0) {
+          return this.$message.warning('没有有效的还款数据');
+        }
+        
+        const params = {
+          ids: ids,               // 挂账订单Id列表
+          amts: amts,             // 对应上面挂账订单Id列表的还款金额, 单位分
+          cnl_names: cnl_names    // 还款渠道名称列表
+        };
+        
+        console.log('提交参数:', params);
+        
         const res = await api_money.reqReturnMoney(params);
         if (res.code == 1) {
           this.$message.success("还款成功");
@@ -282,11 +475,28 @@ export default {
         }
       } catch (error) {
         console.log("还款失败", error);
+        this.$message.error("还款失败：" + (error.message || '未知错误'));
       }
     },
     
     onCancelDrawer() {
       this.$emit("showOrHideGaveMoneyDrawer");
+    },
+    
+    // 获取渠道名称
+    getChannelName(channelId) {
+      const channel = this.returnList.find(item => item.id == channelId);
+      return channel ? channel.name : '';
+    },
+    
+    // 获取订单中有金额的渠道ID
+    getActiveChannelIds(order) {
+      return Object.keys(order.returnAmounts || {}).filter(channelId => order.returnAmounts[channelId] > 0);
+    },
+    
+    // 检查订单是否有渠道金额
+    hasChannelAmounts(order) {
+      return Object.values(order.returnAmounts || {}).some(amount => amount > 0);
     }
   },
   mounted() {},
@@ -303,8 +513,9 @@ export default {
       handler(newVal) {
         this.show = newVal;
         if (newVal) {
-          this.activeId = '';
-          this.amtCount = '';
+          this.returnChannels = {};
+          this.channelAmounts = {};
+          this.amtCount = '0.00';
           this.getOrderList();
         } else {
           this.$emit('getTableData');
@@ -346,11 +557,12 @@ export default {
           padding: 0 10px;
           box-sizing: border-box;
           width: 300px;
-          height: 30px;
+          height: 40px;
           border-radius: 8px;
           box-sizing: border-box;
           border: 1px solid rgba(255, 255, 255, 0.15);
           background-color: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.8);
         }
 
         .return-amount-input {
@@ -377,9 +589,9 @@ export default {
           margin-left: 10px;
           background-color: #4b89ff;
           border-radius: 4px;
-          width: 90px;
-          height: 30px;
-          line-height: 30px;
+          width: 100px;
+          height: 40px;
+          line-height: 40px;
           text-align: center;
           cursor: pointer;
 
@@ -450,6 +662,18 @@ export default {
         }
       }
     }
+  }
+
+  .channel-amount-item {
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+    padding: 2px 0;
+  }
+  
+  .no-amount {
+    color: #999;
+    font-size: 12px;
   }
 }
 </style>

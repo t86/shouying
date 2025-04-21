@@ -475,11 +475,12 @@ POST请求 http://ip_or_domain:port/sel/get_cnl_cfg
     axios.post(`${base.htgl}/cnlacct/get_op_logs`, params),
 
   // 挂账还款
-  /**
+  /*
+  POST请求 http://ip_or_domain:port/cnlacct/return
   客户端传入json:
     ids        []int64      //Ids 挂账订单Id列表
     amts       []int64      //Amts 对应上面挂账订单Id列表的还款金额, 单位分, 需前端格式化
-    cnl_name   string     //CnlName 还款渠道名称
+    cnl_names  []string     //CnlNames 对应上面挂账订单Id列表的还款渠道名称列表
   成功返回编码:1, 返回json:
     无
   普通失败, 返回编码<>1, 数据为空
