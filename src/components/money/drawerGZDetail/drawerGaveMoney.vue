@@ -22,6 +22,75 @@
             </div>
             <div class="value" layout="row" layout-align="start center">{{currentInfo.a}}</div>
           </div>
+          
+          <!-- <div class="row">
+            <div class="label"></div>
+            <div class="value">
+              <p class="red-tip">请勾选要还款的订单，系统会自动将渠道还款金额拆分到订单上</p>
+            </div>
+          </div> -->
+          
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>请勾选要还款的订单:</span>
+            </div>
+            <div class="value">
+              <p class="red-tip">请勾选要还款的订单，系统会自动将渠道还款金额拆分到订单上</p>
+            </div>
+          </div>
+          
+          <div class="table-wrapper" layout="row">
+            <div class="label-placeholder"></div>
+            <div class="table">
+              <div class="thead">
+                <div class="tr" layout="row" layout-align="start center">
+                  <div class="th" style="flex: 0.5; min-width: 40px;">
+                    <el-checkbox
+                      :indeterminate="indeterminate"
+                      v-model="checkAll"
+                      @change="handleCheckAllChange"
+                    >全选</el-checkbox>
+                  </div>
+                  <div class="th" style="flex: 1; min-width: 80px;">挂账金额</div>
+                  <div class="th" style="flex: 1; min-width: 100px;">还款金额</div>
+                  <div class="th" style="flex: 1; min-width: 100px;">挂账时间</div>
+                  <div class="th" style="flex: 1; min-width: 80px;">卡台名称</div>
+                  <div class="th" style="flex: 1; min-width: 80px;">订位人</div>
+                </div>
+              </div>
+              <div class="tbody">
+                <div
+                  class="tr"
+                  layout="row"
+                  layout-align="start center"
+                  v-for="(item, index) in orderList"
+                  :key="index"
+                >
+                  <div class="td" style="flex: 0.5; min-width: 40px;">
+                    <el-checkbox
+                      v-model="item.checked"
+                      @change="handleItemChange"
+                    ></el-checkbox>
+                  </div>
+                  <div class="td" style="flex: 1; min-width: 80px;">{{formatAmount(item.a)}}</div>
+                  <div class="td" style="flex: 1; min-width: 100px;">
+                    <div v-if="item.checked">
+                      <div class="channel-amount-item" v-for="channelId in getActiveChannelIds(item)" :key="channelId">
+                        {{getChannelName(channelId)}}：{{formatAmount(item.returnAmounts[channelId])}}
+                      </div>
+                      <div v-if="!hasChannelAmounts(item)" class="no-amount">未分配</div>
+                    </div>
+                    <div v-else>-</div>
+                  </div>
+                  <div class="td" style="flex: 1; min-width: 100px;">{{item.c}}</div>
+                  <div class="td" style="flex: 1; min-width: 80px;">{{item.s}}</div>
+                  <div class="td" style="flex: 1; min-width: 80px;">{{item.sn}}</div>
+                </div>
+                <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
+              </div>
+            </div>
+          </div>
+          
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
               <span class="red">*</span>
@@ -40,6 +109,15 @@
             </div>
           </div>
           
+          <div class="row" layout="row" layout-align="start center">
+            <div class="label">
+              <span>还款金额:</span>
+            </div>
+            <div class="value" layout="row" layout-align="start center">
+              <input type="text" v-model="amtCount" disabled placeholder="各渠道还款金额总和" />
+            </div>
+          </div>
+          
           <!-- 渠道金额输入区域 -->
           <div v-for="item in activeReturnChannels" :key="'input-'+item.id" class="row" layout="row" layout-align="start center">
             <div class="label">
@@ -53,83 +131,12 @@
                 @input="calculateTotalChannelAmount"
                 style="width: 200px; height: 40px; font-size: 14px; text-align: center;" 
               />
-            </div>
-          </div>
-          
-          <div class="row" layout="row" layout-align="start center">
-            <div class="label">
-              <span class="red">*</span>
-              <span>还款金额:</span>
-            </div>
-            <div class="value" layout="row" layout-align="start center">
-              <input type="text" v-model="amtCount" disabled placeholder="各渠道还款金额总和" />
+              <!-- 只在第一个渠道输入框后显示"自动填入余额"按钮 -->
               <div 
                 class="btn" 
                 :class="{'disabled': !hasCheckedOrders || isAllOrdersFullyPaid}" 
-                @click="handleAutoFillRemaining"
+                @click="handleAutoFillRemainingForChannel(item.id)"
               >自动填入余额</div>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="label"></div>
-            <div class="value">
-              <p class="red-tip">请勾选要还款的订单，系统会自动将渠道还款金额拆分到订单上</p>
-            </div>
-          </div>
-          
-          <div class="row" layout="row" layout-align="start center">
-            <div class="label">
-              <span>请勾选要还款的订单:</span>
-            </div>
-          </div>
-          
-          <div class="table">
-            <div class="thead">
-              <div class="tr" layout="row" layout-align="start center">
-                <div class="th" style="flex: 0.5; min-width: 40px;">
-                  <el-checkbox
-                    :indeterminate="indeterminate"
-                    v-model="checkAll"
-                    @change="handleCheckAllChange"
-                  >全选</el-checkbox>
-                </div>
-                <div class="th" style="flex: 1; min-width: 80px;">挂账金额</div>
-                <div class="th" style="flex: 1; min-width: 100px;">还款金额</div>
-                <div class="th" style="flex: 1; min-width: 100px;">挂账时间</div>
-                <div class="th" style="flex: 1; min-width: 80px;">卡台名称</div>
-                <div class="th" style="flex: 1; min-width: 80px;">订位人</div>
-              </div>
-            </div>
-            <div class="tbody">
-              <div
-                class="tr"
-                layout="row"
-                layout-align="start center"
-                v-for="(item, index) in orderList"
-                :key="index"
-              >
-                <div class="td" style="flex: 0.5; min-width: 40px;">
-                  <el-checkbox
-                    v-model="item.checked"
-                    @change="handleItemChange"
-                  ></el-checkbox>
-                </div>
-                <div class="td" style="flex: 1; min-width: 80px;">{{formatAmount(item.a)}}</div>
-                <div class="td" style="flex: 1; min-width: 100px;">
-                  <div v-if="item.checked">
-                    <div class="channel-amount-item" v-for="channelId in getActiveChannelIds(item)" :key="channelId">
-                      {{getChannelName(channelId)}}：{{formatAmount(item.returnAmounts[channelId])}}
-                    </div>
-                    <div v-if="!hasChannelAmounts(item)" class="no-amount">未分配</div>
-                  </div>
-                  <div v-else>-</div>
-                </div>
-                <div class="td" style="flex: 1; min-width: 100px;">{{item.c}}</div>
-                <div class="td" style="flex: 1; min-width: 80px;">{{item.s}}</div>
-                <div class="td" style="flex: 1; min-width: 80px;">{{item.sn}}</div>
-              </div>
-              <p v-if="orderList.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
             </div>
           </div>
         </div>
@@ -307,6 +314,26 @@ export default {
         this.channelAmounts[firstSelectedChannel] = (currentAmount + remainingAmount).toFixed(2);
         this.calculateTotalChannelAmount();
       }
+    },
+    
+    // 为特定渠道自动填入余额
+    handleAutoFillRemainingForChannel(channelId) {
+      if (!this.hasCheckedOrders || this.isAllOrdersFullyPaid) return;
+      
+      // 计算已填入的渠道金额总和
+      const existingTotal = Object.keys(this.channelAmounts)
+        .filter(id => this.returnChannels[id])
+        .reduce((sum, id) => sum + parseFloat(this.channelAmounts[id] || 0), 0);
+      
+      // 计算剩余需要填入的金额
+      const remainingAmount = this.totalOrderAmountInYuan - existingTotal;
+      
+      if (remainingAmount <= 0) return;
+      
+      // 将剩余金额填入指定渠道
+      const currentAmount = parseFloat(this.channelAmounts[channelId] || 0);
+      this.channelAmounts[channelId] = (currentAmount + remainingAmount).toFixed(2);
+      this.calculateTotalChannelAmount();
     },
     
     // 分配金额到订单
@@ -623,41 +650,49 @@ export default {
     }
   }
   
-  .table {
-    margin: 0 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    width: calc(100% - 40px);
+  .table-wrapper {
+    padding: 10px 20px;
     
-    .thead {
-      background-color: rgba(255, 255, 255, 0.05);
-      .tr {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        .th {
-          padding: 10px;
-          text-align: center;
-          flex: 1;
-          &:first-child {
-            flex: 0.5;
+    .label-placeholder {
+      width: 150px;
+    }
+    
+    .table {
+      margin-left: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      width: calc(100% - 160px);
+      
+      .thead {
+        background-color: rgba(255, 255, 255, 0.05);
+        .tr {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+          .th {
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+            &:first-child {
+              flex: 0.5;
+            }
           }
         }
       }
-    }
-    
-    .tbody {
-      max-height: 300px;
-      overflow-y: auto;
-      .tr {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        &:last-child {
-          border-bottom: none;
-        }
-        .td {
-          padding: 10px;
-          text-align: center;
-          flex: 1;
-          &:first-child {
-            flex: 0.5;
+      
+      .tbody {
+        max-height: 300px;
+        overflow-y: auto;
+        .tr {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          &:last-child {
+            border-bottom: none;
+          }
+          .td {
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+            &:first-child {
+              flex: 0.5;
+            }
           }
         }
       }
