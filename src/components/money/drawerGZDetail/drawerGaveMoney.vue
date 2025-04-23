@@ -114,7 +114,7 @@
               <span>总还款金额:</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
-              <input type="text" v-model="amtCount" disabled placeholder="各渠道还款金额总和" />
+              <input type="text" v-model="displayAmtCount" disabled placeholder="总还款金额" />
             </div>
           </div>
           
@@ -127,7 +127,7 @@
               <input 
                 type="number" 
                 v-model="channelAmounts[item.id]" 
-                placeholder="0.00" 
+                placeholder="" 
                 @input="calculateTotalChannelAmount"
                 style="width: 200px; height: 40px; font-size: 14px; text-align: center;" 
               />
@@ -193,6 +193,11 @@ export default {
     // 活跃的渠道列表（已选中的）
     activeReturnChannels() {
       return this.returnList.filter(item => this.returnChannels[item.id]);
+    },
+    
+    // 用于显示的总金额 - 为0时显示空字符串
+    displayAmtCount() {
+      return parseFloat(this.amtCount) > 0 ? this.amtCount : '';
     },
     
     // 是否有选中的订单
@@ -285,6 +290,13 @@ export default {
         }, 0);
       
       this.amtCount = total.toFixed(2);
+      
+      // 清除为0的渠道金额输入，显示为空
+      Object.keys(this.channelAmounts).forEach(id => {
+        if (parseFloat(this.channelAmounts[id] || 0) === 0) {
+          this.channelAmounts[id] = '';
+        }
+      });
       
       // 如果有选中的订单，自动分配金额
       if (this.hasCheckedOrders) {
@@ -704,6 +716,7 @@ export default {
     line-height: 1.4;
     text-align: left;
     padding: 2px 0;
+    color: #ff2f64;
   }
   
   .no-amount {
