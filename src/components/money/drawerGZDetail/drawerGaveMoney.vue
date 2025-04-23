@@ -712,7 +712,7 @@ export default {
   }
 
   .channel-amount-item {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.4;
     text-align: left;
     padding: 2px 0;
