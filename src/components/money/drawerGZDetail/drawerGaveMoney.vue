@@ -111,7 +111,7 @@
           
           <div class="row" layout="row" layout-align="start center">
             <div class="label">
-              <span>还款金额:</span>
+              <span>总还款金额:</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
               <input type="text" v-model="amtCount" disabled placeholder="各渠道还款金额总和" />
@@ -121,7 +121,7 @@
           <!-- 渠道金额输入区域 -->
           <div v-for="item in activeReturnChannels" :key="'input-'+item.id" class="row" layout="row" layout-align="start center">
             <div class="label">
-              <span>{{item.name}}还款金额:</span>
+              <span>{{item.name}}:</span>
             </div>
             <div class="value" layout="row" layout-align="start center">
               <input 
@@ -654,7 +654,7 @@ export default {
     padding: 10px 20px;
     
     .label-placeholder {
-      width: 150px;
+      width: 10px;
     }
     
     .table {
