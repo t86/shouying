@@ -187,52 +187,52 @@
             <span>时段额度控制：</span>
           </div>
           <div class="value" layout="row" layout-align="start center">
-            <div class="content-table" layout="row" layout-align="center center">
-            <div class="table-content">
-              <div class="table">
-                <div class="thead">
-                  <div class="tr" layout="row" layout-align="space-between center">
-                    <div class="th">时间段(不含右区间)</div>
-                    <div class="th">额度金额</div>
-                    <div class="th">选择商户号</div>
+            <div class="content-table" layout="row" layout-align="start start">
+              <div class="table-content left-table">
+                <div class="table">
+                  <div class="thead">
+                    <div class="tr" layout="row" layout-align="space-between center">
+                      <div class="th">时间段(不含右区间)</div>
+                      <div class="th">额度金额</div>
+                      <div class="th">选择商户号</div>
+                    </div>
+                  </div>
+                  <div class="tbody">
+                    <div class="tr" v-for="(item, index) in leftTableData" :key="index" layout="row" layout-align="space-between center">
+                      <div class="td">{{item.name}}</div>
+                      <div class="td">
+                        <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
+                      </div>
+                      <div class="td" layout="row" style="flex-wrap:wrap">
+                        <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="tbody">
-                  <div class="tr" v-for="(item, index) in leftTableData" :key="index" layout="row" layout-align="space-between center">
-                    <div class="td">{{item.name}}</div>
-                    <div class="td">
-                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
+              </div>
+              <div class="table-content right-table">
+                <div class="table">
+                  <div class="thead">
+                    <div class="tr" layout="row" layout-align="space-between center">
+                      <div class="th">时间段(不含右区间)</div>
+                      <div class="th">额度金额</div>
+                      <div class="th">选择商户号</div>
                     </div>
-                    <div class="td" layout="row" style="flex-wrap:wrap">
-                      <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
+                  </div>
+                  <div class="tbody">
+                    <div class="tr" v-for="(item, index) in rightTableData" :key="index" layout="row" layout-align="space-between center">
+                      <div class="td">{{item.name}}</div>
+                      <div class="td">
+                        <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
+                      </div>
+                      <div class="td" layout="row" style="flex-wrap:wrap">
+                        <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="table-content">
-              <div class="table">
-                <div class="thead">
-                  <div class="tr" layout="row" layout-align="space-between center">
-                    <div class="th">时间段(不含右区间)</div>
-                    <div class="th">额度金额</div>
-                    <div class="th">选择商户号</div>
-                  </div>
-                </div>
-                <div class="tbody">
-                  <div class="tr" v-for="(item, index) in rightTableData" :key="index" layout="row" layout-align="space-between center">
-                    <div class="td">{{item.name}}</div>
-                    <div class="td">
-                      <el-input v-model="item.amt" placeholder="请输入金额" size="mini" @change="handleAmtChange(item)"></el-input>
-                    </div>
-                    <div class="td" layout="row" style="flex-wrap:wrap">
-                      <div class="merchant-item" :class="{'active': item.checkedId == items.id}" v-show="items.gs == 2" v-for="items in merchantList" :key="items.id" @click="item.checkedId = items.id">{{items.n}}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
           </div>
         </div>
 
@@ -1081,7 +1081,11 @@ export default {
           }
           
           // 初始化时段配置
-          this.leftTableData = this.initHourConfigs(res.data.hour_cfgs);
+          const allHourConfigs = this.initHourConfigs(res.data.hour_cfgs);
+          
+          // 分离左右表格数据：左边12-23小时，右边0-11小时
+          this.leftTableData = allHourConfigs.filter(item => item.id >= 12 && item.id <= 23);
+          this.rightTableData = allHourConfigs.filter(item => item.id >= 0 && item.id <= 11);
           
           // 初始化区域卡台配置
           this.areaList = regionSeats.map(item => {
@@ -1121,9 +1125,10 @@ export default {
       // 创建24小时的时段配置
       const hourData = [];
       for (let i = 0; i < 24; i++) {
+        const nextHour = (i + 1) % 24;
         const hourItem = {
           id: i,
-          name: `${i.toString().padStart(2, '0')}:00-${(i+1).toString().padStart(2, '0')}:00`,
+          name: `${i.toString().padStart(2, '0')}:00-${nextHour.toString().padStart(2, '0')}:00`,
           amt: '0',
           checkedId: ''
         };
@@ -1375,13 +1380,27 @@ export default {
 <style lang="less" scoped>
 .content-table {
   width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  
   .table-content {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    
+    &.left-table {
+      margin-right: 5px;
+    }
+    
+    &.right-table {
+      margin-left: 5px;
+    }
   }
+  
   .table {
     border: 1px solid #999;
     border-radius: 10px;
-    width: 98%;
+    width: 100%;
     overflow: hidden;
 
     .tr {
@@ -1423,9 +1442,22 @@ export default {
 
     .th,
     .td {
-      width: 50%;
+      flex: 1;
       padding: 0 10px;
       box-sizing: border-box;
+      min-width: 0;
+      
+      &:first-child {
+        min-width: 120px;
+      }
+      
+      &:nth-child(2) {
+        min-width: 120px;
+      }
+      
+      &:last-child {
+        min-width: 180px;
+      }
     }
   }
 }
