@@ -497,9 +497,10 @@ export default {
       return entity ? entity.n : '';
     },
 
-    async getDetailData(){
+    async getDetailData(cnlCfgId = 0){
       try {
-        const res = await api_money.reqGetMerchantConfig()
+        const params = cnlCfgId ? { cnl_cfg_id: cnlCfgId } : {};
+        const res = await api_money.reqGetMerchantConfig(params)
         if(res.code == 1) {
           console.log('接口返回数据:', res.data)
           
@@ -614,10 +615,6 @@ export default {
           
           // 根据接口返回数据初始化配置
           this.initConfigFromResponse(res.data);
-          
-          // this.getMerchantList();
-        } else {
-          // this.getMerchantList();
         }
       }
     },
@@ -1026,11 +1023,36 @@ export default {
 
     // 处理标签页切换
     handleTabChange(tab) {
-      if (tab !== 'global' && this.hasMultipleMainEntities) {
+      if (tab === 'global' && this.hasMultipleMainEntities) {
+        // 切换到全局配置，清空当前配置数据
+        this.resetConfigData();
+      } else if (tab !== 'global' && this.hasMultipleMainEntities) {
         // 获取当前选中的主体ID
         const entityId = tab.replace('entity-', '');
         this.loadEntityConfig(entityId);
       }
+    },
+    
+    // 重置配置数据
+    resetConfigData() {
+      this.merchantVal = false;
+      this.maxAmtVal = '';
+      this.selectMerchantId = '';
+      this.defaultMerchantId = '';
+      this.merchantList = [];
+      this.areaList = [];
+      this.currentMerchantInfo = {};
+      // 重置时段数据为默认值
+      this.leftTableData = this.leftTableData.map(item => ({
+        ...item,
+        amt: '0',
+        checkedId: ''
+      }));
+      this.rightTableData = this.rightTableData.map(item => ({
+        ...item,
+        amt: '0',
+        checkedId: ''
+      }));
     },
     
     // 加载主体配置
@@ -1189,8 +1211,17 @@ export default {
     showDrawer(newVal) {
       this.show = newVal;
       if (newVal) {
-        this.getMerchantGroup()
-        this.getDetailData()
+        this.getMerchantGroup().then(() => {
+          // 如果不是多主体模式，调用getDetailData
+          if (!this.hasMultipleMainEntities) {
+            this.getDetailData();
+          }
+          // 如果是多主体模式，但不在全局配置标签页，需要传递主体ID
+          else if (this.activeTab !== 'global') {
+            const entityId = this.activeTab.replace('entity-', '');
+            this.getDetailData(parseInt(entityId));
+          }
+        });
       }
     },
     activeTab(newVal) {
