@@ -1,13 +1,12 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202503241416",
+  "version": "1.0.202507111711",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-dev": "vue-cli-service build  --mode development && node build.js",
     "build-local": "vue-cli-service build  --mode local && node build.js",
-    "build-production": "vue-cli-service build  --mode production",
     "prod": "node --max-old-space-size=8096 node_modules/@vue/cli-service/bin/vue-cli-service.js build  --mode store --verbose && node build.js",
     "test": "webpack-dev-server --config webpack.config.js",
     "webpack": "webpack --config webpack.config.js",
