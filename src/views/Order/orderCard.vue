@@ -271,6 +271,17 @@
             layout-align="space-between center"
           >
             <div
+              class="dosomething-item vip-recharge-btn"
+              v-show="hasVipRechargeAuth"
+              layout="column"
+              layout-align="center center"
+              @click.stop="showVipRechargeHandle"
+            >
+              <img :src="require('@/assets/money-img/vip-logo.png')" alt />
+              <p class="m-t-1">会员充值</p>
+            </div>
+
+            <div
               class="dosomething-item checkout-btn"
               v-show="hasWineAuth"
               layout="column"
@@ -436,6 +447,12 @@
     <!-- 充公 -->
     <drawerPayToStore v-model="payToStoreInfo.show" />
 
+    <!-- 会员充值 -->
+    <vipRechargeDrawer
+      :showDrawer="vipRechargeInfo.show"
+      @showOrHideDrawer="showOrHideVipRechargeHandle"
+    />
+
     <div class="modal" v-if="modelVisible">
       <div class="modal-content">暂未开启营业日，请联系咨客人员！</div>
     </div>
@@ -484,6 +501,7 @@ import updateAuthPassword from "@/components/common/updateAuthPassword.vue";
 import drawerSaveWine from "@/components/order/saveWine/drawerSaveWine/index.vue";
 import drawerGetWine from "@/components/order/saveWine/drawerGetWine/index.vue";
 import drawerPayToStore from "@/components/order/saveWine/drawerPayToStore/index.vue";
+import vipRechargeDrawer from "@/components/order/vipRecharge/drawerVipRecharge.vue";
 
 
 export default {
@@ -551,6 +569,10 @@ export default {
         show: false,
       },
       payToStoreInfo: {
+        show: false,
+      },
+
+      vipRechargeInfo: {
         show: false,
       },
 
@@ -1248,6 +1270,17 @@ export default {
       this.typeModule = this.typeModule == 1 ? 2 : 1;
     },
 
+    /*
+    会员充值相关
+  */
+    showVipRechargeHandle () {
+      this.vipRechargeInfo.show = true;
+    },
+
+    showOrHideVipRechargeHandle () {
+      this.vipRechargeInfo.show = !this.vipRechargeInfo.show;
+    },
+
     optionsClickHandle (optionsInfo, cardInfo) {
       switch (optionsInfo.id) {
         case 1:
@@ -1570,6 +1603,7 @@ export default {
     drawerMinDetail,
     drawerTYDetail,
     outSomething,
+    vipRechargeDrawer,
   },
 
   watch: {
@@ -1608,6 +1642,14 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(1)
+      );
+    },
+    // 是否有会员充值权限  
+    hasVipRechargeAuth () {
+      return (
+        this.$store.state.userInfo.roleIds &&
+        (this.$store.state.userInfo.roleIds.includes(7) || // 会员中心
+         this.$store.state.userInfo.roleIds.includes(6))   // 系统管理员
       );
     },
     // 不允许查看下属点单消费  只能看自己

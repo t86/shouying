@@ -435,7 +435,7 @@
       >.dosomething-item:nth-child(1) {
         width: 128px;
         height: 52px;
-        background: #009370;
+        background: #2362D5;
         border-radius: 8px;
         margin-right: 24px;
         position: relative;
@@ -451,6 +451,7 @@
           font-family: PingFangSC, PingFang SC;
           font-weight: 600;
           color: #FFFFFF;
+          white-space: nowrap;
         }
 
         &:hover ::before {
@@ -467,6 +468,41 @@
       }
 
       >.dosomething-item:nth-child(2) {
+        width: 128px;
+        height: 52px;
+        background: #009370;
+        border-radius: 8px;
+        margin-right: 24px;
+        position: relative;
+
+        img {
+          width: 20px;
+          margin-right: 4px;
+          margin-top: 2px;
+        }
+
+        span {
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 600;
+          color: #FFFFFF;
+          white-space: nowrap;
+        }
+
+        &:hover ::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(16, 16, 32, 0.4);
+          border-radius: 8px;
+          z-index: 1;
+        }
+      }
+
+      >.dosomething-item:nth-child(3) {
         position: relative;
         width: 96px;
 

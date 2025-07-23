@@ -214,6 +214,12 @@
           </div>
           <!-- 操作面板 -->
           <div class="dosomething" layout="row" layout-align="space-between center">
+            <div class="dosomething-item vip-recharge-btn" v-show="hasVipRechargeAuth" layout="row" layout-align="center center"
+              @click.stop="showVipRechargeHandle">
+              <img :src="require('@/assets/money-img/vip-logo.png')" alt />
+              <span>会员充值</span>
+            </div>
+
             <div class="dosomething-item checkout-btn" v-show="hasWineAuth" layout="row" layout-align="center center"
               @click.stop="checkOutModuleHandle">
               <img :src="require('@/assets/card-imgs/new-checkout.png')" alt />
@@ -294,6 +300,9 @@
     <!-- 充公 -->
     <drawerPayToStore v-model="payToStoreInfo.show" />
 
+    <!-- 会员充值 -->
+    <drawerVipRecharge :showDrawer="vipRechargeInfo.show" @showOrHideDrawer="showOrHideVipRechargeHandle" />
+
     <div class="modal" v-if="modelVisible">
       <div class="modal-content">暂未开启营业日，请联系咨客人员！</div>
     </div>
@@ -342,6 +351,7 @@ import updateAuthPassword from "@/components/common/newUpdateAuthPassword.vue";
 import drawerSaveWine from "@/components/order/newSaveWine/drawerSaveWine/index.vue";
 import drawerGetWine from "@/components/order/newSaveWine/drawerGetWine/index.vue";
 import drawerPayToStore from "@/components/order/newSaveWine/drawerPayToStore/index.vue";
+import drawerVipRecharge from "@/components/order/vipRecharge/drawerVipRecharge.vue";
 
 // 添加 eventVue 引入
 import eventVue from "@/utils/eventVue";
@@ -413,6 +423,9 @@ export default {
         show: false,
       },
       payToStoreInfo: {
+        show: false,
+      },
+      vipRechargeInfo: {
         show: false,
       },
 
@@ -1281,6 +1294,16 @@ export default {
       this.showOrHideTYDetail = !this.showOrHideTYDetail;
     },
 
+    // 显示会员充值
+    showVipRechargeHandle() {
+      this.vipRechargeInfo.show = true;
+    },
+
+    // 显示或隐藏会员充值
+    showOrHideVipRechargeHandle(value) {
+      this.vipRechargeInfo.show = value;
+    },
+
 
     /*
     存酒相关
@@ -1808,6 +1831,7 @@ export default {
     drawerMinDetail,
     drawerTYDetail,
     outSomething,
+    drawerVipRecharge,
   },
 
   watch: {
@@ -1853,6 +1877,14 @@ export default {
       return (
         this.$store.state.userInfo.sys_modules &&
         this.$store.state.userInfo.sys_modules.includes(1)
+      );
+    },
+
+    // 是否有会员充值权限
+    hasVipRechargeAuth() {
+      return (
+        this.$store.state.userInfo.roleIds &&
+        (this.$store.state.userInfo.roleIds.includes(7) || this.$store.state.userInfo.roleIds.includes(6))
       );
     },
 
