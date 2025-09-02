@@ -7,7 +7,7 @@
         style="width: 200px"
         class="m-r-2"
         size="small"
-        placeholder="充公人/商品/卡台"
+        placeholder="充公人/商品/卡台/订台人"
       ></el-input>
       <el-button type="primary" size="small" @click="getTableData"
         >查询</el-button
