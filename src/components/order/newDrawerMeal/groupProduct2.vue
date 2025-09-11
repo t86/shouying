@@ -367,8 +367,9 @@ export default {
         this.$message.success("卡券核销成功");
         this.onCancelDrawer();
       } else {
-        this.$message.warning(res.msg);
+        this.$message.error(res.msg);
       }
+      // 无论成功失败都需要重置提交状态
       this.isSubmitting = false;
       this.$emit('submitting', false);
 

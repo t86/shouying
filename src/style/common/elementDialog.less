@@ -5,20 +5,229 @@
   box-shadow: 0px 0px 10px 0px rgba(26, 137, 255, 0.8);
   border: 1px solid #32B9FF;
   border-radius: 8px;
+  
+  // 响应式设计：弹窗最大尺寸控制
+  max-width: 800px !important; // 符合响应式设计规则
+  max-height: 90vh !important;
+  margin-top: 2vh !important;
+  
+  // 弹窗整体布局为flex，确保footer始终在底部
+  display: flex !important;
+  flex-direction: column !important;
 
   .el-dialog__header .el-dialog__title {
     color: rgba(255, 255, 255, .8);
   }
-
-  .el-dialog__footer .dialog-footer {
-    button {
-      color: rgba(255, 255, 255, .8);
-      &:nth-child(1) {
-        background: #374368;
+  
+  // 弹窗头部样式
+  .el-dialog__header {
+    flex-shrink: 0; // 头部不收缩
+    padding: 15px !important; // 符合响应式设计规则
+    background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+    border-bottom: 1px solid rgba(74, 144, 226, 0.3);
+  }
+  
+  // 弹窗内容区域 - 可滚动
+  .el-dialog__body {
+    flex: 1 !important; // 占用剩余空间
+    overflow-y: auto !important; // 内容可滚动
+    padding: 15px !important; // 符合响应式设计规则
+    max-height: calc(90vh - 150px) !important; // 预留头部和底部空间
+    
+    // 自定义滚动条样式
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(74, 144, 226, 0.1);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(74, 144, 226, 0.4);
+      border-radius: 3px;
+      
+      &:hover {
+        background: rgba(74, 144, 226, 0.6);
       }
-      &:nth-child(2) {
-        background: #4B89FF;
-        // background: linear-gradient(180deg, #4B89FF 0%, #455EFF 100%);
+    }
+  }
+  
+  // 弹窗底部按钮区域 - 固定在底部
+  .el-dialog__footer {
+    flex-shrink: 0 !important; // 底部不收缩
+    padding: 15px !important; // 符合响应式设计规则
+    background: linear-gradient(145deg, #1a202c 0%, #2d3748 100%);
+    border-top: 1px solid rgba(74, 144, 226, 0.3);
+    position: sticky !important; // 粘性定位，确保始终可见
+    bottom: 0 !important;
+    z-index: 10 !important;
+    text-align: center !important; // 按钮居中
+    
+    // 通用按钮样式 - 适配所有可能的按钮结构
+    .dialog-footer,
+    span[slot="footer"],
+    & {
+      button, 
+      .el-button {
+        color: rgba(255, 255, 255, .8) !important;
+        height: 38px !important; // 符合响应式设计规则
+        padding: 8px 20px !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
+        margin: 0 6px !important;
+        min-width: 80px !important;
+        font-size: 14px !important;
+        
+        // 取消按钮样式 (通常是第一个或包含"取消"文字)
+        &:nth-child(1),
+        &:contains("取消"),
+        &.el-button--default {
+          background: linear-gradient(145deg, #374368 0%, #2a303c 100%) !important;
+          border: 1px solid rgba(74, 144, 226, 0.3) !important;
+          
+          &:hover {
+            background: linear-gradient(145deg, #4a5568 0%, #374368 100%) !important;
+            border-color: #4a90e2 !important;
+            transform: translateY(-1px);
+          }
+        }
+        
+        // 确定按钮样式 (通常是第二个或包含"确定"/"确认"文字)
+        &:nth-child(2),
+        &:contains("确定"),
+        &:contains("确认"),
+        &:contains("保存"),
+        &.el-button--primary {
+          background: linear-gradient(145deg, #4B89FF 0%, #357abd 100%) !important;
+          border: 1px solid #4B89FF !important;
+          
+          &:hover {
+            background: linear-gradient(145deg, #5a9bff 0%, #4B89FF 100%) !important;
+            box-shadow: 0 4px 12px rgba(75, 137, 255, 0.4) !important;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+
+  // 竖屏适配
+  @media (orientation: portrait) {
+    width: 95% !important;
+    margin-top: 1vh !important;
+    max-height: 92vh !important;
+    
+    .el-dialog__body {
+      max-height: calc(92vh - 140px) !important;
+      padding: 12px !important;
+    }
+    
+    .el-dialog__header,
+    .el-dialog__footer {
+      padding: 12px !important;
+    }
+  }
+
+  // 小屏幕适配
+  @media (max-width: 900px) {
+    width: 95% !important;
+    border-radius: 4px !important;
+    
+    .el-dialog__footer .dialog-footer button {
+      height: 36px !important;
+      padding: 6px 16px !important;
+      font-size: 14px !important;
+    }
+  }
+}
+
+// 特殊弹窗布局修复类 - 可以手动添加到需要修复的弹窗上
+.dialog-layout-fix {
+  .el-dialog {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh !important;
+    
+    .el-dialog__body {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      max-height: calc(90vh - 150px) !important;
+    }
+    
+    .el-dialog__footer {
+      flex-shrink: 0 !important;
+      position: sticky !important;
+      bottom: 0 !important;
+      background: linear-gradient(145deg, #1a202c 0%, #2d3748 100%) !important;
+      border-top: 1px solid rgba(74, 144, 226, 0.3) !important;
+      z-index: 10 !important;
+    }
+  }
+}
+
+// 应急修复：如果上述样式冲突，使用这个更强的样式
+.emergency-dialog-fix {
+  .el-dialog {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+    
+    .el-dialog__wrapper {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    .el-dialog__body {
+      max-height: calc(90vh - 150px) !important;
+      overflow-y: auto !important;
+      padding: 15px !important;
+      
+      // 优雅的滚动条
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: rgba(74, 144, 226, 0.1);
+        border-radius: 4px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: rgba(74, 144, 226, 0.4);
+        border-radius: 4px;
+        
+        &:hover {
+          background: rgba(74, 144, 226, 0.7);
+        }
+      }
+    }
+    
+    .el-dialog__footer {
+      position: sticky !important;
+      bottom: 0 !important;
+      background: linear-gradient(145deg, #1a202c 0%, #2d3748 100%) !important;
+      border-top: 1px solid rgba(74, 144, 226, 0.3) !important;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2) !important;
+      z-index: 999 !important;
+      
+      button, .el-button {
+        height: 38px !important;
+        margin: 0 6px !important;
+        border-radius: 6px !important;
+        
+        &:first-child {
+          background: linear-gradient(145deg, #374368 0%, #2a303c 100%) !important;
+          border: 1px solid rgba(74, 144, 226, 0.3) !important;
+          color: rgba(255, 255, 255, .8) !important;
+        }
+        
+        &:last-child {
+          background: linear-gradient(145deg, #4B89FF 0%, #357abd 100%) !important;
+          border: 1px solid #4B89FF !important;
+          color: rgba(255, 255, 255, .9) !important;
+        }
       }
     }
   }

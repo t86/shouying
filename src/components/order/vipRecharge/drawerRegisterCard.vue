@@ -9,13 +9,6 @@
       custom-class="register-card-dialog"
       :close-on-click-modal="false"
     >
-      <!-- 提示信息 -->
-      <div class="tips-header">
-        <p>注册开卡用于正式版只有会员手机号的字段。必填：输入手机号码以及姓名字段。</p>
-        <p>1. 输入的手机号已经绑定过其他，则没有会员信息显示。</p>
-        <p>2. 登录界面设计，这是开卡界面的会员。不能为空。</p>
-        <p>3. 输入的手机号未进行过注册他，则需要填写示范会员基本字段。非必填：按性别显示方式，简历开卡。</p>
-      </div>
 
       <!-- 手机号输入模式 -->
       <div v-if="currentMode === 'phone'" class="phone-input-mode">
@@ -140,7 +133,12 @@
                 v-model="formData.recommenderId"
                 placeholder="输入员工姓名或工号"
                 filterable
+                remote
+                reserve-keyword
+                :remote-method="searchEmployees"
+                :loading="loadingEmployees"
                 style="width: 100%"
+                @focus="loadInitialEmployees"
               >
                 <el-option
                   v-for="emp in employeeOptions"
@@ -200,6 +198,7 @@
 
 <script>
 import api_vip from "@/api/vip";
+import api_order from "@/api/order";
 
 export default {
   name: "DrawerRegisterCard",
@@ -224,6 +223,7 @@ export default {
         recommenderId: ""
       },
       employeeOptions: [],
+      loadingEmployees: false,
       isRegistering: false,
       currentFocusField: "name" // 当前焦点字段，用于键盘输入
     };
@@ -308,15 +308,15 @@ export default {
 
       this.isCheckingPhone = true;
       try {
-        // 使用完整手机号查询会员信息
-        const res = await api_vip.reqGetMakeMoneyListOfPhoneNum({ 
-          phone: this.phoneNumber // 使用完整手机号
+        // 使用新的API接口查询客人信息
+        const res = await api_order.get_cust_items_for_csm({ 
+          cust_phone: this.phoneNumber
         });
         
         if (res.code === 1 && res.data && res.data.records && res.data.records.length > 0) {
-          // 手机号已存在会员卡
+          // 手机号已存在会员信息
           this.showExistsButton = true;
-          this.$message.info("检测到该手机号已有会员卡");
+          this.$message.info("检测到该手机号已有客人信息，可能已有会员卡");
         } else {
           // 手机号未注册，切换到表单模式
           this.showExistsButton = false;
@@ -348,21 +348,26 @@ export default {
 
       this.isRegistering = true;
       try {
-        // 使用现有的新增会员卡API
+        // 使用新的API接口创建记名会员卡
         const params = {
-          phone: this.formData.phone,
+          bind_phone: this.formData.phone,
           name: this.formData.name,
-          gender: this.formData.gender,
-          birthday: this.formData.birthday,
-          recommender_id: this.formData.recommenderId
+          sex: this.formData.gender, // 1 男, 2 女, 0 空
+          birth_day: this.formData.birthday || "", // yyyy-mm-dd格式
+          sales_emp_id: this.formData.recommenderId || 0 // 开卡推荐人Id
         };
 
-        const res = await api_vip.reqAddVipCard(params);
+        const res = await api_vip.reqNewCustCardForDept(params);
         
         if (res.code === 1) {
           this.$message.success("注册开卡成功!");
+          // 发送成功事件，包含注册信息用于后续充值
+          this.$emit("registerSuccess", {
+            phone: this.formData.phone,
+            name: this.formData.name,
+            success: true
+          });
           this.onCancelDialog();
-          this.$emit("registerSuccess", res.data);
         } else {
           this.$message.error(res.msg || "注册开卡失败");
         }
@@ -392,6 +397,48 @@ export default {
     onCancelDialog() {
       this.show = false;
       this.$emit("cancel");
+    },
+
+    // 加载初始员工列表
+    async loadInitialEmployees() {
+      if (this.employeeOptions.length === 0) {
+        await this.searchEmployees("");
+      }
+    },
+
+    // 搜索员工
+    async searchEmployees(query) {
+      this.loadingEmployees = true;
+      try {
+        // 从store中获取员工信息
+        const cardPageInfo = this.$store.state.cardPageInfo;
+        const resResultDataObj = cardPageInfo && cardPageInfo.resResultDataObj;
+        const orderPersonInfo = (resResultDataObj && resResultDataObj.orderPersonInfo) || [];
+        
+        if (orderPersonInfo.length > 0) {
+          // 根据查询条件过滤员工
+          const filteredEmployees = query 
+            ? orderPersonInfo.filter(emp => 
+                emp.name.includes(query) || 
+                emp.code.toString().includes(query) ||
+                (emp.namePy && emp.namePy.toLowerCase().includes(query.toLowerCase()))
+              )
+            : orderPersonInfo;
+          
+          this.employeeOptions = filteredEmployees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            code: emp.code
+          }));
+        } else {
+          this.employeeOptions = [];
+        }
+      } catch (error) {
+        console.error("搜索员工失败:", error);
+        this.employeeOptions = [];
+      } finally {
+        this.loadingEmployees = false;
+      }
     }
   }
 };
@@ -749,11 +796,13 @@ export default {
   border-top: none;
 }
 
-// 响应式设计 - 适配竖屏
+// 响应式设计 - 适配竖屏（严格遵循收银系统开发规则）
 @media (orientation: portrait) {
   /deep/ .register-card-dialog .el-dialog {
     width: 95% !important;
+    max-width: 95% !important;
     margin-top: 1vh !important;
+    max-height: 92vh !important;
   }
   
   .form-input-mode {
@@ -768,10 +817,19 @@ export default {
       flex: none;
       
       .keyboard-grid .key-row .key {
-        width: 45px;
-        height: 38px;
+        width: 42px;
+        height: 36px;
         font-size: 14px;
       }
+    }
+  }
+  
+  .phone-input-mode .number-keyboard {
+    max-width: 280px;
+    
+    .keyboard-grid .key-row .key {
+      height: 40px;
+      font-size: 16px;
     }
   }
 }
@@ -780,14 +838,15 @@ export default {
 @media (max-width: 900px) {
   /deep/ .register-card-dialog .el-dialog {
     width: 95% !important;
+    max-width: 95% !important;
   }
   
   .number-keyboard {
-    max-width: 250px !important;
+    max-width: 260px !important;
     
     .keyboard-grid .key-row .key {
-      height: 40px;
-      font-size: 16px;
+      height: 38px;
+      font-size: 15px;
     }
   }
 }

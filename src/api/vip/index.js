@@ -177,6 +177,10 @@ export default {
   reqGetMakeMoneyListOfPhoneNum: (params) =>
     axios.post(`${base.htgl}/mb/card/get_f_deposits`, params),
 
+  // 根据关键字,读取可用会员卡列表, 尾号后4位, 完整手机号, 完整卡号(支持记名卡和不记名卡)
+  reqGetCustCardListForDept: (params) =>
+    axios.post(`${base.htgl}/sel/get_cust_card_list_for_dept`, params),
+
   // 读取会员卡密
   reqGetVipCardPwdMsg: (params) =>
     axios.post(`${base.htgl}/mb/card/get_card_p`, params),
@@ -188,6 +192,10 @@ export default {
   // 读取虚拟会员卡详情for充值
   reqGetVipCardDetailForMakeMoney: (params) =>
     axios.post(`${base.htgl}/mb/card/get_mb_card_f_deposit`, params),
+
+  // 读取门店充送规则(如果没有传会员卡Id,则返回默认规则)
+  reqGetDepositRulesForDept: (params) =>
+    axios.post(`${base.htgl}/sel/get_deposit_rules_for_dept`, params),
 
   // 充值会员卡
   reqMakeMoneyToCard: (params) =>
@@ -450,4 +458,23 @@ export default {
   */  
   reqUnlockVipCard: (params) =>
     axios.post(`${base.htgl}/mb/card/unlock`, params),
+
+  /**
+   * 新的充值开卡相关接口
+   */
+  // 给客人新建一张记名会员卡For充值(pad端员工帮客人充值)
+  reqNewCustCardForDept: (params) =>
+    axios.post(`${base.htgl}/sel/new_cust_card_for_dept`, params),
+
+  // 员工在本地pad端给客人充值,创建充值订单
+  reqNewCustDeptOrder: (params) =>
+    axios.post(`${base.htgl}/wo/new_cust_dept_order`, params),
+
+  // 员工在本地pad端给客人充值,创建充值订单的支付订单
+  reqNewCustDeptOrderPay: (params) =>
+    axios.post(`${base.htgl}/wo/new_cust_dept_order_pay`, params),
+
+  // 读取本地员工给客人充值的订单状态(轮询查询结果用)
+  reqGetCustDeptOrderStatus: (params) =>
+    axios.post(`${base.htgl}/wo/get_cust_dept_order_status`, params),
 };

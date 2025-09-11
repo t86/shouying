@@ -87,21 +87,49 @@
             keyBoardData.push(trArr)
           }
         } else {
-          let trArr = []
-          for (let i = 0; i < 12; i++) {
-            if (i != 0 && i % 3 === 0) {
-              keyBoardData.push(trArr)
-              trArr = []
-            }
-            const item = {
-              id: i === 10 ? 0 : i + 1,
-              name: i >= 9 ? (i === 9 ? this.needPoint ? '.' : '清空' : (i === 10 ? 0 : '回退')) : (i + 1),
+          // 竖屏模式：5x2布局（5列2行）
+          // 第一行：1 2 3 4 5
+          // 第二行：6 7 8 9 0 清空 删除（后两个按钮占两列）
+          const firstRow = []
+          const secondRow = []
+          
+          // 第一行：1-5
+          for (let i = 1; i <= 5; i++) {
+            firstRow.push({
+              id: i,
+              name: i,
               click: false
-            }
-            item.icon = i === 9 ? (this.needPoint ? '' : this.imgSrc.keyboardReset) : (i === 11 ? this.imgSrc.keyboardDel : '')
-            trArr.push(item)
-            if (i === 11) keyBoardData.push(trArr)
+            })
           }
+          
+          // 第二行：6-9, 0, 清空, 删除
+          for (let i = 6; i <= 9; i++) {
+            secondRow.push({
+              id: i,
+              name: i,
+              click: false
+            })
+          }
+          secondRow.push({
+            id: 0,
+            name: 0,
+            click: false
+          })
+          secondRow.push({
+            id: 10,
+            name: '清空',
+            icon: this.imgSrc.keyboardReset,
+            click: false
+          })
+          secondRow.push({
+            id: 11,
+            name: '删除',
+            icon: this.imgSrc.keyboardDel,
+            click: false
+          })
+          
+          keyBoardData.push(firstRow)
+          keyBoardData.push(secondRow)
         }
         return keyBoardData
       },

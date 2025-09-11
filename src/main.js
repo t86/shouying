@@ -3,6 +3,7 @@ import App from "./App.vue";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./style/common/elementDateTimePicker.less";
+import "./style/common/elementDialog.less"; // 全局弹窗布局修复样式
 
 import { projectName } from "./utils/config/projectConfig";
 import VConsole from "vconsole";

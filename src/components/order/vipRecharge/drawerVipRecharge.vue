@@ -6,22 +6,25 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="60%"
+      :size="getDrawerSize()"
       class="vip-recharge-drawer"
+      :class="getDrawerClass()"
     >
-      <div class="drawer-content">
-        <!-- 注册开卡按钮 -->
-        <div class="top-actions">
-          <button class="register-btn" @click="showRegisterCard">
-            注册开卡
-          </button>
-          <div class="search-tip">
-            <span>如搜索不到手机号，可进行新客户可直接注册开卡</span>
+      <div class="drawer-content" :class="getContentClass()">
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+          <!-- 注册开卡按钮 -->
+          <div class="top-actions">
+            <button class="register-btn" @click="showRegisterCard">
+              注册开卡
+            </button>
+            <div class="search-tip">
+              <span>如搜索不到手机号，可进行新客户可直接注册开卡</span>
+            </div>
           </div>
-        </div>
 
-        <!-- 搜索选择充值账户 -->
-        <div class="search-section">
+          <!-- 搜索选择充值账户 -->
+          <div class="search-section">
           <div class="search-label">
             <span class="required">*</span>
             <span>选择充值账户:</span>
@@ -44,13 +47,16 @@
             />
           </div>
           
-          <!-- 提示信息 -->
-          <div class="tips-section">
-            <div class="tip-item">
-              1. 下拉框中显示查询的内容，点击可直接选择进入
-            </div>
-            <div class="tip-item">
-              2. 下拉框提示：手机号-会员卡号-记名/不记名
+          <!-- 搜索结果列表 -->
+          <div class="search-results" v-if="searchResults.length > 0">
+            <div 
+              v-for="(card, index) in searchResults" 
+              :key="card.id"
+              class="card-item"
+              :class="{ active: selectedCardIndex === index }"
+              @click="selectCard(index)"
+            >
+              {{ card.n }}
             </div>
           </div>
         </div>
@@ -106,11 +112,16 @@
                 <div class="option-price">
                   ¥{{ option.display_price }}
                 </div>
-                <div class="option-gift" v-if="option.gift_amount > 0">
-                  {{ option.gift_text }}
-                </div>
-                <div class="option-points" v-if="option.gift_points > 0">
-                  赠{{ option.gift_points }}积分
+                <div class="option-gift" v-if="option.gift_amount > 0 || option.gift_points > 0 || option.gift_coupon">
+                  <div v-if="option.gift_amount > 0" class="gift-money">
+                    赠：¥{{ option.gift_amount.toFixed(2) }}
+                  </div>
+                  <div v-if="option.gift_points > 0" class="gift-points">
+                    赠：{{ option.gift_points }}积分
+                  </div>
+                  <div v-if="option.gift_coupon" class="gift-coupon">
+                    赠：{{ option.gift_coupon }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -120,8 +131,24 @@
           <div class="custom-amount" v-if="isCustomAmount">
             <div class="input-group">
               <label>自定义充值金额:</label>
-              <div class="amount-input">
-                <span class="input-display">{{ customAmount || '请输入金额' }}</span>
+              <div class="amount-input-wrapper">
+                <input
+                  v-if="!showVirtualKeyboard"
+                  type="number"
+                  v-model="customAmount"
+                  placeholder="请输入金额"
+                  class="amount-input"
+                  step="0.01"
+                  min="0"
+                />
+                <div 
+                  v-else
+                  class="amount-input virtual-input"
+                  @click="focusAmountInput"
+                >
+                  <span class="input-display">{{ customAmount || '请输入金额' }}</span>
+                  <span class="cursor-blink" v-if="isAmountInputFocused"></span>
+                </div>
               </div>
             </div>
           </div>
@@ -159,12 +186,12 @@
             />
           </div>
         </div>
+        </div>
 
-        <!-- 键盘输入区域 -->
-        <div class="keyboard-section" v-if="showKeyboard">
-          <keyboard
+        <!-- 虚拟键盘区域 -->
+        <div class="keyboard-section" v-if="showVirtualKeyboard">
+          <vip-keyboard
             :landscape="isLandscape"
-            :oneLine="!isPortrait"
             :itemWidth="keyboardItemWidth"
             :itemHeight="keyboardItemHeight"
             :width="keyboardWidth"
@@ -194,19 +221,49 @@
       @registerSuccess="handleRegisterSuccess"
       @cancel="showRegisterCardDialog = false"
     />
+
+    <!-- 支付方式选择弹窗 -->
+    <PaymentMethodDialog 
+      v-model="showPaymentMethodDialog"
+      :recharge-info="rechargeFlowInfo"
+      @paymentSuccess="handlePaymentSuccess"
+      @cancel="showPaymentMethodDialog = false"
+    />
+
+    <!-- 支付成功弹窗 -->
+    <PaymentSuccessDialog 
+      v-model="showPaymentSuccessDialog"
+      :payment-info="paymentSuccessInfo"
+      @confirm="handlePaymentSuccessConfirm"
+      @close="showPaymentSuccessDialog = false"
+    />
+
+    <!-- 充值流程弹窗 -->
+    <DrawerRechargeFlow 
+      v-model="showRechargeFlowDialog"
+      :recharge-info="rechargeFlowInfo"
+      @rechargeSuccess="handleRechargeFlowSuccess"
+      @cancel="showRechargeFlowDialog = false"
+    />
   </div>
 </template>
 
 <script>
 import api_vip from "@/api/vip";
-import keyboard from "@/components/common/keyBoard.vue";
+import vipKeyboard from "@/components/common/vipKeyBoard.vue";
 import DrawerRegisterCard from "./drawerRegisterCard.vue";
+import DrawerRechargeFlow from "./drawerRechargeFlow.vue";
+import PaymentMethodDialog from "./paymentMethodDialog.vue";
+import PaymentSuccessDialog from "./paymentSuccessDialog.vue";
 
 export default {
   name: "VipRechargeDrawer",
   components: {
-    keyboard,
+    vipKeyboard,
     DrawerRegisterCard,
+    DrawerRechargeFlow,
+    PaymentMethodDialog,
+    PaymentSuccessDialog,
   },
   props: {
     showDrawer: {
@@ -219,6 +276,8 @@ export default {
       show: false,
       searchType: "phone",
       searchKeyword: "",
+      searchResults: [],
+      selectedCardIndex: -1,
       selectedMember: null,
       rechargeOptions: [],
       selectedOptionIndex: -1,
@@ -229,12 +288,27 @@ export default {
       showKeyboard: false,
       isRecharging: false,
       showRegisterCardDialog: false,
+      showPaymentMethodDialog: false,
+      showPaymentSuccessDialog: false,
+      showRechargeFlowDialog: false,
+      rechargeFlowInfo: null,
+      paymentSuccessInfo: null,
+      newMemberInfo: {
+        phone: "",
+        name: ""
+      },
       
       // 键盘相关
       isLandscape: window.innerWidth > window.innerHeight,
       keyboardItemWidth: 88,
       keyboardItemHeight: 88,
       keyboardWidth: 500,
+      showVirtualKeyboard: false,
+      isMobile: false,
+      isTablet: false,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      isAmountInputFocused: false
     };
   },
   computed: {
@@ -264,21 +338,30 @@ export default {
       immediate: true,
     },
     isCustomAmount(newVal) {
-      this.showKeyboard = newVal;
       if (newVal) {
         this.customAmount = "";
+        if (this.showVirtualKeyboard) {
+          this.isAmountInputFocused = true;
+        }
+      } else {
+        this.isAmountInputFocused = false;
       }
     },
   },
   mounted() {
+    this.detectDevice();
     window.addEventListener("resize", this.updateKeyboardLayout);
+    window.addEventListener("resize", this.handleResize);
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.updateKeyboardLayout);
+    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
     initData() {
       this.searchKeyword = "";
+      this.searchResults = [];
+      this.selectedCardIndex = -1;
       this.selectedMember = null;
       this.rechargeOptions = [];
       this.selectedOptionIndex = -1;
@@ -286,64 +369,131 @@ export default {
       this.selectedRecommender = "";
       this.employeeOptions = [];
       this.remarkText = "";
-      this.showKeyboard = false;
       this.isRecharging = false;
+    },
+
+    // 检测设备类型
+    detectDevice() {
+      const userAgent = navigator.userAgent;
+      const platform = navigator.platform;
+      
+      // 检测是否是移动设备
+      this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      
+      // 检测是否是平板
+      this.isTablet = /iPad|Android.*(?=.*\btablet\b)/i.test(userAgent) || 
+                     (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      
+      // 检测是否是桌面浏览器
+      const isDesktop = !this.isMobile && !this.isTablet;
+      
+      // 只有在移动设备或平板上才显示虚拟键盘
+      this.showVirtualKeyboard = (this.isMobile || this.isTablet) && !isDesktop;
+      
+      this.updateScreenSize();
+    },
+
+    // 处理屏幕尺寸变化
+    handleResize() {
+      this.updateScreenSize();
+      this.updateKeyboardLayout();
+    },
+
+    // 更新屏幕尺寸
+    updateScreenSize() {
+      this.windowWidth = window.innerWidth;
+      this.windowHeight = window.innerHeight;
+      this.isLandscape = this.windowWidth > this.windowHeight;
     },
 
     updateKeyboardLayout() {
       this.isLandscape = window.innerWidth > window.innerHeight;
+      
       if (this.isLandscape) {
-        this.keyboardItemWidth = 88;
-        this.keyboardItemHeight = 68;
-        this.keyboardWidth = 600;
+        // 横屏模式
+        if (this.windowWidth >= 1200) {
+          // 大屏幕：键盘可以横向布局，放在右侧
+          this.keyboardItemWidth = 70;
+          this.keyboardItemHeight = 60;
+          this.keyboardWidth = 300;
+        } else {
+          // 小屏幕：键盘竖向布局，两列
+          this.keyboardItemWidth = 65;
+          this.keyboardItemHeight = 55;
+          this.keyboardWidth = 200;
+        }
       } else {
-        this.keyboardItemWidth = 88;
-        this.keyboardItemHeight = 88;
-        this.keyboardWidth = 280;
+        // 竖屏模式：键盘横向布局，放在底部
+        this.keyboardItemWidth = 70;
+        this.keyboardItemHeight = 50;
+        this.keyboardWidth = Math.min(400, this.windowWidth - 40);
       }
     },
 
     async handleSearch() {
       if (this.searchKeyword.length < 4) {
+        this.searchResults = [];
+        this.selectedMember = null;
+        this.rechargeOptions = [];
         return;
       }
       
       try {
-        const res = await api_vip.reqGetMakeMoneyListOfPhoneNum({
-          phone: this.searchKeyword,
+        const res = await api_vip.reqGetCustCardListForDept({
+          key: this.searchKeyword,
         });
         
-        if (res.code === 1 && res.data.records.length > 0) {
-          // 这里可以显示搜索结果供用户选择
-          // 暂时直接选择第一个结果
-          await this.selectMember(res.data.records[0]);
+        if (res.code === 1 && res.data && res.data.records) {
+          this.searchResults = res.data.records;
+          if (this.searchResults.length > 0) {
+            // 默认选中第一个
+            await this.selectCard(0);
+          }
+        } else {
+          this.searchResults = [];
+          this.selectedMember = null;
+          this.rechargeOptions = [];
         }
       } catch (error) {
         console.error("搜索会员失败:", error);
+        this.searchResults = [];
       }
     },
 
-    async selectMember(member) {
-      this.selectedMember = member;
-      await this.loadRechargeOptions(member.id);
+    async selectCard(index) {
+      this.selectedCardIndex = index;
+      const selectedCard = this.searchResults[index];
+      if (selectedCard) {
+        await this.loadRechargeOptions(selectedCard.id);
+      }
     },
 
-    async loadRechargeOptions(memberId) {
+    async loadRechargeOptions(cardId) {
       try {
-        const res = await api_vip.reqGetVipCardDetailForMakeMoney({
-          id: memberId,
+        // 首先获取会员卡详情
+        const cardRes = await api_vip.reqGetVipCardDetailForMakeMoney({
+          id: cardId,
         });
         
-        if (res.code === 1) {
-          this.selectedMember = res.data.mb_card;
-          const rules = res.data.deposit_rules || [];
+        if (cardRes.code === 1) {
+          this.selectedMember = cardRes.data.mb_card;
+        }
+        
+        // 然后获取充值规则
+        const rulesRes = await api_vip.reqGetDepositRulesForDept({
+          id: cardId,
+        });
+        
+        if (rulesRes.code === 1 && rulesRes.data && rulesRes.data.records) {
+          const rules = rulesRes.data.records;
           
           this.rechargeOptions = [
             ...rules.map(rule => ({
               display_price: (rule.d / 100).toFixed(2),
               gift_amount: rule.f / 100,
-              gift_text: rule.f > 0 ? `赠${(rule.f / 100).toFixed(2)}元` : '',
-              gift_points: rule.pt || 0,
+              gift_text: rule.f > 0 ? `充${(rule.d / 100).toFixed(0)}送${(rule.f / 100).toFixed(0)}元` : `充${(rule.d / 100).toFixed(0)}送${(rule.f / 100).toFixed(0)}元`,
+              gift_points: rule.fp || 0,
+              gift_coupon: rule.fkn || '',
               rule_data: rule,
             })),
             {
@@ -351,9 +501,15 @@ export default {
               gift_amount: 0,
               gift_text: "会员充值",
               gift_points: 0,
+              gift_coupon: '',
               rule_data: { d: "自定义", f: 0 },
             },
           ];
+          
+          // 默认选中第一个充值选项
+          if (this.rechargeOptions.length > 0) {
+            this.selectedOptionIndex = 0;
+          }
         }
       } catch (error) {
         console.error("加载充值选项失败:", error);
@@ -395,44 +551,82 @@ export default {
       this.showRegisterCardDialog = true;
     },
 
+    // 注册成功后的处理
+    handleRegisterSuccess(memberInfo) {
+      this.$message.success(`会员 ${memberInfo.name} 注册成功！`);
+      
+      // 设置新会员信息，准备充值
+      this.newMemberInfo = {
+        phone: memberInfo.phone,
+        name: memberInfo.name
+      };
+      
+      // 显示充值流程弹窗
+      this.showRechargeFlowDialog = true;
+    },
+
+    // 支付成功后的处理
+    handlePaymentSuccess(paymentInfo) {
+      // 保存支付成功信息
+      this.paymentSuccessInfo = paymentInfo;
+      
+      // 显示支付成功弹窗
+      this.showPaymentSuccessDialog = true;
+    },
+
+    // 支付成功确认后的处理
+    handlePaymentSuccessConfirm() {
+      // 关闭支付成功弹窗
+      this.showPaymentSuccessDialog = false;
+      
+      // 刷新搜索结果，显示充值后的会员信息
+      if (this.paymentSuccessInfo && this.paymentSuccessInfo.phone) {
+        this.searchKeyword = this.paymentSuccessInfo.phone.slice(-4); // 使用手机号后四位搜索
+        this.handleSearch();
+      }
+      
+      // 清空支付成功信息
+      this.paymentSuccessInfo = null;
+    },
+
+    // 充值流程成功后的处理
+    handleRechargeFlowSuccess(rechargeInfo) {
+      this.$message.success(`充值成功！金额：¥${rechargeInfo.amount}`);
+      
+      // 刷新搜索结果，显示新注册的会员
+      if (rechargeInfo.phone) {
+        this.searchKeyword = rechargeInfo.phone.slice(-4); // 使用手机号后四位搜索
+        this.handleSearch();
+      }
+      
+      // 关闭充值流程弹窗
+      this.showRechargeFlowDialog = false;
+    },
+
     async confirmRecharge() {
       if (!this.canConfirmRecharge) {
         return;
       }
 
-      this.isRecharging = true;
+      // 准备充值信息并跳转到支付方式选择
+      const option = this.rechargeOptions[this.selectedOptionIndex];
+      const isCustom = this.isCustomAmount;
       
-      try {
-        const option = this.rechargeOptions[this.selectedOptionIndex];
-        const isCustom = this.isCustomAmount;
-        
-        const params = {
-          id: this.selectedMember.id,
-          val_amt: isCustom ? this.customAmount : option.rule_data.d / 100,
-          free_amt: isCustom ? "0" : option.rule_data.f / 100,
-          pt_amt: isCustom ? 0 : option.gift_points,
-          m: isCustom ? 2 : 1,
-          oper_emp_id: this.$store.state.userInfo.emp_id,
-          deposit_cnl: 1, // 默认充值渠道
-          sales_emp_id: this.selectedRecommender || 0,
-          remark: this.remarkText,
-        };
+      const rechargeInfo = {
+        member: this.selectedMember,
+        mode: isCustom ? 2 : 1, // 1: 标准充值, 2: 自定义充值
+        depositAmount: isCustom ? this.customAmount : (option.rule_data.d / 100),
+        freeAmount: isCustom ? 0 : (option.rule_data.f / 100),
+        freePoints: isCustom ? 0 : (option.gift_points || 0),
+        freeKqId: isCustom ? 0 : (option.rule_data.fk || 0), // 传递卡券ID
+        salesEmpId: this.selectedRecommender || 0,
+        remark: this.remarkText || "",
+        option: option // 传递选择的充值档位信息
+      };
 
-        const res = await api_vip.reqMakeMoneyToCard(params);
-        
-        if (res.code === 1) {
-          this.$message.success("充值成功!");
-          this.onCancelDrawer();
-          this.$emit("rechargeSuccess");
-        } else {
-          this.$message.error(res.msg || "充值失败");
-        }
-      } catch (error) {
-        console.error("充值失败:", error);
-        this.$message.error("充值失败，请重试");
-      } finally {
-        this.isRecharging = false;
-      }
+      // 显示支付方式选择弹窗
+      this.showPaymentMethodDialog = true;
+      this.rechargeFlowInfo = rechargeInfo;
     },
 
     onCancelDrawer() {
@@ -447,6 +641,61 @@ export default {
         this.searchKeyword = memberData.bind_phone || memberData.card_no;
         this.$message.success("注册开卡成功，可以直接进行充值");
       }
+    },
+
+    // 焦点控制
+    focusAmountInput() {
+      this.isAmountInputFocused = true;
+    },
+
+    blurAmountInput() {
+      this.isAmountInputFocused = false;
+    },
+
+
+    // 获取弹窗尺寸
+    getDrawerSize() {
+      if (!this.showVirtualKeyboard) {
+        return "60%";
+      }
+      
+      // 有虚拟键盘时，根据屏幕方向调整
+      if (this.isLandscape) {
+        // 横屏：如果是大屏幕，增加宽度以容纳键盘
+        return this.windowWidth >= 1200 ? "80%" : "95%";
+      } else {
+        // 竖屏：需要更大的宽度来容纳内容和键盘
+        return "90%";
+      }
+    },
+
+    // 获取弹窗样式类
+    getDrawerClass() {
+      const classes = [];
+      if (this.showVirtualKeyboard) {
+        classes.push('with-keyboard');
+        if (this.isLandscape) {
+          classes.push('landscape-keyboard');
+        } else {
+          classes.push('portrait-keyboard');
+        }
+      }
+      return classes;
+    },
+
+    // 获取内容区域样式类
+    getContentClass() {
+      const classes = [];
+      if (this.showVirtualKeyboard) {
+        if (this.isLandscape && this.windowWidth >= 1200) {
+          classes.push('side-keyboard-layout');
+        } else if (this.isLandscape) {
+          classes.push('compact-layout');
+        } else {
+          classes.push('bottom-keyboard-layout');
+        }
+      }
+      return classes;
     },
   },
 };
@@ -503,22 +752,34 @@ export default {
         margin-bottom: 10px;
       }
       
-      .tips-section {
-        background: #fff3cd;
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid #ffeaa7;
+      .search-results {
+        margin-top: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 6px;
         
-        .tip-item {
-          font-size: 12px;
-          color: #856404;
-          margin-bottom: 5px;
+        .card-item {
+          padding: 12px 15px;
+          border-bottom: 1px solid #f0f0f0;
+          cursor: pointer;
+          transition: all 0.2s;
           
           &:last-child {
-            margin-bottom: 0;
+            border-bottom: none;
+          }
+          
+          &:hover {
+            background: #f8f9fa;
+          }
+          
+          &.active {
+            background: #409eff;
+            color: white;
           }
         }
       }
+      
     }
 
     .recharge-content {
@@ -574,8 +835,8 @@ export default {
           gap: 10px;
           
           .option-card {
-            width: 120px;
-            height: 80px;
+            width: 180px;
+            min-height: 100px;
             border: 1px solid #ddd;
             border-radius: 8px;
             display: flex;
@@ -585,36 +846,49 @@ export default {
             cursor: pointer;
             background: #f8f9fa;
             transition: all 0.3s;
+            padding: 10px;
             
             &:hover {
-              border-color: #007bff;
+              border-color: #409eff;
               background: #e3f2fd;
             }
             
             &.active {
-              border-color: #007bff;
-              background: #007bff;
+              border-color: #409eff;
+              background: #409eff;
               color: white;
             }
             
             .option-price {
               font-size: 18px;
               font-weight: bold;
-              margin-bottom: 4px;
+              margin-bottom: 8px;
             }
             
             .option-gift {
+              text-align: center;
               font-size: 12px;
-              color: #28a745;
+              line-height: 1.4;
+              
+              .gift-money {
+                color: #67c23a;
+                margin-bottom: 2px;
+              }
+              
+              .gift-points {
+                color: #e6a23c;
+                margin-bottom: 2px;
+              }
+              
+              .gift-coupon {
+                color: #f56c6c;
+                margin-bottom: 2px;
+              }
             }
             
-            .option-points {
-              font-size: 11px;
-              color: #ffc107;
-            }
-            
-            &.active .option-gift,
-            &.active .option-points {
+            &.active .option-gift .gift-money,
+            &.active .option-gift .gift-points,
+            &.active .option-gift .gift-coupon {
               color: white;
             }
           }
@@ -633,15 +907,50 @@ export default {
             min-width: 120px;
           }
           
-          .amount-input {
-            .input-display {
-              display: inline-block;
-              padding: 8px 12px;
+          .amount-input-wrapper {
+            .amount-input {
+              height: 40px;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              padding: 0 10px;
+              font-size: 16px;
+              width: 200px;
+              
+              &:focus {
+                border-color: #409eff;
+                outline: none;
+              }
+            }
+            
+            .virtual-input {
+              height: 40px;
               border: 1px solid #ddd;
               border-radius: 4px;
               background: #f8f9fa;
-              min-width: 200px;
-              font-size: 16px;
+              padding: 0 10px;
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+              position: relative;
+              width: 200px;
+              
+              &:hover {
+                border-color: #409eff;
+              }
+              
+              .input-display {
+                color: #333;
+                font-size: 16px;
+                flex: 1;
+              }
+              
+              .cursor-blink {
+                width: 1px;
+                height: 20px;
+                background: #333;
+                animation: blink 1s infinite;
+                margin-left: 2px;
+              }
             }
           }
         }
@@ -668,6 +977,69 @@ export default {
     }
   }
 
+  // 有虚拟键盘时的布局
+  &.with-keyboard {
+    .drawer-content {
+      height: 100%;
+      
+      // 大屏幕横屏：左右布局
+      &.side-keyboard-layout {
+        display: flex;
+        gap: 20px;
+        
+        .main-content {
+          flex: 1;
+          max-width: calc(100% - 350px);
+        }
+        
+        .keyboard-section {
+          width: 320px;
+          margin-top: 0;
+          height: fit-content;
+          position: sticky;
+          top: 20px;
+        }
+      }
+      
+      // 小屏幕横屏：紧凑布局
+      &.compact-layout {
+        .main-content {
+          margin-bottom: 20px;
+        }
+        
+        .keyboard-section {
+          position: sticky;
+          bottom: 20px;
+          margin-top: 10px;
+          z-index: 10;
+        }
+      }
+      
+      // 竖屏：键盘在底部
+      &.bottom-keyboard-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        
+        .main-content {
+          flex: 1;
+          overflow-y: auto;
+          margin-bottom: 10px;
+        }
+        
+        .keyboard-section {
+          position: sticky;
+          bottom: 0;
+          margin-top: auto;
+          z-index: 10;
+          background: white;
+          border-top: 2px solid #e0e0e0;
+        }
+      }
+    }
+  }
+}
+
   .drawer-footer {
     position: absolute;
     bottom: 0;
@@ -680,7 +1052,6 @@ export default {
     justify-content: center;
     gap: 20px;
   }
-}
 
 /deep/ .el-drawer__header {
   background: #007bff;
@@ -702,5 +1073,29 @@ export default {
 /deep/ .el-drawer__body {
   padding: 0;
   position: relative;
+}
+
+// 竖屏模式下确保弹窗宽度
+@media (orientation: portrait) {
+  /deep/ .el-drawer.rtl {
+    width: 90% !important;
+  }
+}
+
+// 小屏幕横屏模式
+@media (orientation: landscape) and (max-width: 1200px) {
+  /deep/ .el-drawer.rtl {
+    width: 95% !important;
+  }
+}
+
+// 动画
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
 }
 </style>
