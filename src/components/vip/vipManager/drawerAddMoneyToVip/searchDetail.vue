@@ -228,15 +228,11 @@ export default {
           const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
           console.log("Store 中的推荐人列表:", result);
+          this.personOptions = result;
           
-          // 直接调用接口获取默认推荐人
-          this.personOptions = result; // 先设置所有推荐人
-          await this.getDefaultRecommender(this.vipInfo.id);
+          // 按照三层规则设置推荐人
+          await this.setRecommenderByRules(this.vipInfo.id, this.vipInfo.sales_emp_id);
           
-          // 如果没有找到历史推荐人，设置默认值
-          if (!this.form.personVal && this.personOptions.length > 0) {
-            this.form.personVal = this.personOptions[0].id;
-          }
           console.log("最终设置的推荐人:", this.form.personVal);
           this.typeOption = res.data.depoist_cnls || [];
           this.depositRules = res.data.deposit_rules || [];
@@ -250,39 +246,69 @@ export default {
       }
     },
 
-    // 获取历史推荐人
-    async getDefaultRecommender(cardId) {
+    // 按照三层规则设置推荐人
+    async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
-        console.log("开始获取会员卡默认推荐人，卡ID:", cardId);
+        console.log("开始按规则设置推荐人，卡ID:", cardId, "开卡推荐人ID:", openCardSalesEmpId);
+        
+        // 第一层：查询该卡上次充值时的充值推荐人
         const params = {
           card_id: cardId
         };
-        const res = await api_vip.get_cust_card_last_sales(params);
-        console.log("默认推荐人接口返回:", res);
+        const res = await api_vip.reqGetCustCardLastSales(params);
+        console.log("上次充值推荐人接口返回:", res);
         
         if (res.code == 1 && res.data && res.data.id) {
-          const defaultSalesEmpId = res.data.id;
-          console.log("找到默认推荐人ID:", defaultSalesEmpId, "姓名:", res.data.name);
+          const lastRechargeSalesEmpId = res.data.id;
+          console.log("第一层：找到上次充值推荐人ID:", lastRechargeSalesEmpId, "姓名:", res.data.name);
           
-          // 从所有推荐人中找到匹配的推荐人
-          const allPersons = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-          const matchedPersons = allPersons.filter(
-            (item) => item.id.includes(defaultSalesEmpId.toString())
-          );
-          
-          if (matchedPersons.length > 0) {
-            console.log("找到匹配的默认推荐人:", matchedPersons);
-            this.form.personVal = matchedPersons[0].id;
-            console.log("设置默认推荐人为默认值:", this.form.personVal);
+          // 尝试在推荐人列表中找到匹配的推荐人
+          const matchedPerson = this.findPersonInOptions(lastRechargeSalesEmpId);
+          if (matchedPerson) {
+            this.form.personVal = matchedPerson.id;
+            console.log("第一层：设置上次充值推荐人为默认值:", this.form.personVal);
+            return;
           } else {
-            console.log("没有找到匹配的默认推荐人，保持所有推荐人可选");
+            console.log("第一层：上次充值推荐人不在当前推荐人列表中");
           }
         } else {
-          console.log("没有找到默认推荐人或接口返回失败");
+          console.log("第一层：没有找到上次充值推荐人");
         }
+        
+        // 第二层：如果没有上次充值推荐人，则使用开卡推荐人
+        if (openCardSalesEmpId) {
+          console.log("第二层：尝试使用开卡推荐人ID:", openCardSalesEmpId);
+          const matchedPerson = this.findPersonInOptions(openCardSalesEmpId);
+          if (matchedPerson) {
+            this.form.personVal = matchedPerson.id;
+            console.log("第二层：设置开卡推荐人为默认值:", this.form.personVal);
+            return;
+          } else {
+            console.log("第二层：开卡推荐人不在当前推荐人列表中");
+          }
+        } else {
+          console.log("第二层：没有开卡推荐人信息");
+        }
+        
+        // 第三层：如果前两层都没有，则推荐人为空白
+        console.log("第三层：推荐人设置为空白，允许用户手动选择");
+        this.form.personVal = "";
+        
       } catch (error) {
-        console.error("获取默认推荐人失败:", error);
+        console.error("设置推荐人失败:", error);
+        this.form.personVal = "";
       }
+    },
+    
+    // 在推荐人选项中查找指定ID的推荐人
+    findPersonInOptions(salesEmpId) {
+      if (!salesEmpId) return null;
+      
+      const salesEmpIdStr = salesEmpId.toString();
+      return this.personOptions.find(person => 
+        person.id.toString() === salesEmpIdStr || 
+        person.id.includes(salesEmpIdStr)
+      );
     },
 
     remoteMethod(query) {

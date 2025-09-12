@@ -489,11 +489,14 @@ export default {
         ]);
         
         console.log("Promise.all 完成，开始加载默认推荐人");
-        // 加载默认推荐人
-        await this.loadDefaultRecommender(cardId);
         
         if (cardRes.code === 1) {
           this.selectedMember = cardRes.data.mb_card;
+          // 获取会员卡信息后，传递开卡推荐人信息
+          await this.setRecommenderByRules(cardId, this.selectedMember.sales_emp_id);
+        } else {
+          // 如果获取会员卡信息失败，只根据上次充值推荐人设置
+          await this.setRecommenderByRules(cardId, null);
         }
         
         if (rulesRes.code === 1 && rulesRes.data && rulesRes.data.records) {
@@ -528,54 +531,81 @@ export default {
       }
     },
 
-    // 加载默认推荐人
-    async loadDefaultRecommender(cardId) {
+    // 按照三层规则设置推荐人
+    async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
-        console.log("开始加载默认推荐人，卡片ID:", cardId);
-        // 调用接口获取上次充值推荐人
+        console.log("开始按规则设置推荐人，卡ID:", cardId, "开卡推荐人ID:", openCardSalesEmpId);
+        
+        // 获取所有员工选项
+        const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        this.employeeOptions = orderPersonInfo;
+        
+        // 第一层：查询该卡上次充值时的充值推荐人
         const res = await api_vip.reqGetCustCardLastSales({
           card_id: cardId,
         });
-        console.log("获取推荐人接口响应:", res);
+        console.log("上次充值推荐人接口返回:", res);
         
-        if (res.code === 1 && res.data) {
-          const { id, name } = res.data;
+        if (res.code === 1 && res.data && res.data.id) {
+          const lastRechargeSalesEmpId = res.data.id;
+          console.log("第一层：找到上次充值推荐人ID:", lastRechargeSalesEmpId, "姓名:", res.data.name);
           
-          if (id && id > 0 && name) {
-            // 找到上次充值推荐人，设置为默认推荐人
-            this.selectedRecommender = id;
-            
-            // 确保员工选项中包含这个推荐人
-            const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-            const existingEmployee = orderPersonInfo.find(emp => emp.id === id);
-            
-            if (!existingEmployee) {
-              // 如果员工列表中没有这个推荐人，添加到选项中
-              this.employeeOptions = [{
-                id: id,
-                name: name,
-                code: '' // 如果没有工号，显示为空
-              }, ...orderPersonInfo];
-            } else {
-              // 如果已存在，确保在选项中
-              this.employeeOptions = orderPersonInfo;
-            }
-            
-            console.log(`自动设置充值推荐人: ${name} (ID: ${id})`);
+          // 尝试在员工列表中找到匹配的推荐人
+          const matchedEmployee = this.findEmployeeInOptions(lastRechargeSalesEmpId);
+          if (matchedEmployee) {
+            this.selectedRecommender = matchedEmployee.id;
+            console.log("第一层：设置上次充值推荐人为默认值:", this.selectedRecommender);
+            return;
           } else {
-            // 没有找到上次充值推荐人，推荐人保持空白
-            this.selectedRecommender = "";
-            console.log("未找到上次充值推荐人，推荐人保持空白");
+            console.log("第一层：上次充值推荐人不在当前员工列表中，添加到选项");
+            // 将上次充值推荐人添加到员工选项中
+            this.employeeOptions = [{
+              id: lastRechargeSalesEmpId,
+              name: res.data.name,
+              code: ''
+            }, ...orderPersonInfo];
+            this.selectedRecommender = lastRechargeSalesEmpId;
+            console.log("第一层：添加并设置上次充值推荐人为默认值:", this.selectedRecommender);
+            return;
           }
         } else {
-          // 接口调用失败或返回空数据，推荐人保持空白
-          this.selectedRecommender = "";
-          console.log("获取推荐人信息失败，推荐人保持空白");
+          console.log("第一层：没有找到上次充值推荐人");
         }
+        
+        // 第二层：如果没有上次充值推荐人，则使用开卡推荐人
+        if (openCardSalesEmpId) {
+          console.log("第二层：尝试使用开卡推荐人ID:", openCardSalesEmpId);
+          const matchedEmployee = this.findEmployeeInOptions(openCardSalesEmpId);
+          if (matchedEmployee) {
+            this.selectedRecommender = matchedEmployee.id;
+            console.log("第二层：设置开卡推荐人为默认值:", this.selectedRecommender);
+            return;
+          } else {
+            console.log("第二层：开卡推荐人不在当前员工列表中");
+          }
+        } else {
+          console.log("第二层：没有开卡推荐人信息");
+        }
+        
+        // 第三层：如果前两层都没有，则推荐人为空白
+        console.log("第三层：推荐人设置为空白，允许用户手动选择");
+        this.selectedRecommender = "";
+        
       } catch (error) {
-        console.error("加载默认推荐人失败:", error);
+        console.error("设置推荐人失败:", error);
         this.selectedRecommender = "";
       }
+    },
+    
+    // 在员工选项中查找指定ID的员工
+    findEmployeeInOptions(salesEmpId) {
+      if (!salesEmpId) return null;
+      
+      const salesEmpIdStr = salesEmpId.toString();
+      return this.employeeOptions.find(employee => 
+        employee.id.toString() === salesEmpIdStr || 
+        employee.id === salesEmpId
+      );
     },
 
     selectOption(index) {
