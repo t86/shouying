@@ -477,4 +477,8 @@ export default {
   // 读取本地员工给客人充值的订单状态(轮询查询结果用)
   reqGetCustDeptOrderStatus: (params) =>
     axios.post(`${base.htgl}/wo/get_cust_dept_order_status`, params),
+
+  // 读取会员卡默认充值推荐人
+  reqGetCustCardLastSales: (params) =>
+    axios.post(`${base.htgl}/wo/get_cust_card_last_sales`, params),
 };

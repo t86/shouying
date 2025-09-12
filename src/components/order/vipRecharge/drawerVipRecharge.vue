@@ -155,23 +155,27 @@
 
           <!-- 推荐人选择 -->
           <div class="recommender-section">
-            <div class="section-title">推荐人:</div>
+            <div class="section-title">充值推荐人:</div>
             <el-select
               v-model="selectedRecommender"
-              placeholder="输入员工姓名或工号"
+              placeholder="输入员工姓名或工号进行查询"
               filterable
               remote
               :remote-method="searchEmployee"
               style="width: 300px;"
               size="small"
+              clearable
             >
               <el-option
                 v-for="emp in employeeOptions"
                 :key="emp.id"
-                :label="`${emp.name} (${emp.code})`"
+                :label="`${emp.name}${emp.code ? ' (' + emp.code + ')' : ''}`"
                 :value="emp.id"
               />
             </el-select>
+            <div class="recommender-tip" v-if="selectedRecommender">
+              <span class="tip-text">已自动设置推荐人，允许修改</span>
+            </div>
           </div>
 
           <!-- 备注信息 -->
@@ -370,6 +374,10 @@ export default {
       this.employeeOptions = [];
       this.remarkText = "";
       this.isRecharging = false;
+      
+      // 重置员工选项为完整列表
+      const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      this.employeeOptions = [...orderPersonInfo];
     },
 
     // 检测设备类型
@@ -461,8 +469,10 @@ export default {
     },
 
     async selectCard(index) {
+      console.log("选择会员卡，索引:", index);
       this.selectedCardIndex = index;
       const selectedCard = this.searchResults[index];
+      console.log("选中的会员卡:", selectedCard);
       if (selectedCard) {
         await this.loadRechargeOptions(selectedCard.id);
       }
@@ -470,19 +480,21 @@ export default {
 
     async loadRechargeOptions(cardId) {
       try {
-        // 首先获取会员卡详情
-        const cardRes = await api_vip.reqGetVipCardDetailForMakeMoney({
-          id: cardId,
-        });
+        console.log("开始加载充值选项，卡片ID:", cardId);
+        
+        // 并行获取会员卡详情、充值规则，然后加载默认推荐人
+        const [cardRes, rulesRes] = await Promise.all([
+          api_vip.reqGetVipCardDetailForMakeMoney({ id: cardId }),
+          api_vip.reqGetDepositRulesForDept({ id: cardId })
+        ]);
+        
+        console.log("Promise.all 完成，开始加载默认推荐人");
+        // 加载默认推荐人
+        await this.loadDefaultRecommender(cardId);
         
         if (cardRes.code === 1) {
           this.selectedMember = cardRes.data.mb_card;
         }
-        
-        // 然后获取充值规则
-        const rulesRes = await api_vip.reqGetDepositRulesForDept({
-          id: cardId,
-        });
         
         if (rulesRes.code === 1 && rulesRes.data && rulesRes.data.records) {
           const rules = rulesRes.data.records;
@@ -516,6 +528,56 @@ export default {
       }
     },
 
+    // 加载默认推荐人
+    async loadDefaultRecommender(cardId) {
+      try {
+        console.log("开始加载默认推荐人，卡片ID:", cardId);
+        // 调用接口获取上次充值推荐人
+        const res = await api_vip.reqGetCustCardLastSales({
+          card_id: cardId,
+        });
+        console.log("获取推荐人接口响应:", res);
+        
+        if (res.code === 1 && res.data) {
+          const { id, name } = res.data;
+          
+          if (id && id > 0 && name) {
+            // 找到上次充值推荐人，设置为默认推荐人
+            this.selectedRecommender = id;
+            
+            // 确保员工选项中包含这个推荐人
+            const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+            const existingEmployee = orderPersonInfo.find(emp => emp.id === id);
+            
+            if (!existingEmployee) {
+              // 如果员工列表中没有这个推荐人，添加到选项中
+              this.employeeOptions = [{
+                id: id,
+                name: name,
+                code: '' // 如果没有工号，显示为空
+              }, ...orderPersonInfo];
+            } else {
+              // 如果已存在，确保在选项中
+              this.employeeOptions = orderPersonInfo;
+            }
+            
+            console.log(`自动设置充值推荐人: ${name} (ID: ${id})`);
+          } else {
+            // 没有找到上次充值推荐人，推荐人保持空白
+            this.selectedRecommender = "";
+            console.log("未找到上次充值推荐人，推荐人保持空白");
+          }
+        } else {
+          // 接口调用失败或返回空数据，推荐人保持空白
+          this.selectedRecommender = "";
+          console.log("获取推荐人信息失败，推荐人保持空白");
+        }
+      } catch (error) {
+        console.error("加载默认推荐人失败:", error);
+        this.selectedRecommender = "";
+      }
+    },
+
     selectOption(index) {
       this.selectedOptionIndex = index;
     },
@@ -539,11 +601,42 @@ export default {
     },
 
     searchEmployee(query) {
+      const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      
       if (query) {
-        const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-        this.employeeOptions = orderPersonInfo.filter(
-          emp => emp.name.includes(query) || emp.code.includes(query)
+        // 过滤匹配查询条件的员工
+        let filteredEmployees = orderPersonInfo.filter(
+          emp => emp.name.includes(query) || (emp.code && emp.code.includes(query))
         );
+        
+        // 如果当前有选中的推荐人，且该推荐人不在过滤结果中，将其添加到结果顶部
+        if (this.selectedRecommender) {
+          const selectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender);
+          if (selectedEmp && !filteredEmployees.find(emp => emp.id === this.selectedRecommender)) {
+            // 检查选中的推荐人是否匹配查询条件
+            if (selectedEmp.name.includes(query) || (selectedEmp.code && selectedEmp.code.includes(query))) {
+              filteredEmployees.unshift(selectedEmp);
+            }
+          }
+        }
+        
+        this.employeeOptions = filteredEmployees;
+      } else {
+        // 没有查询条件时，显示所有员工，但确保自动设置的推荐人在列表中
+        this.employeeOptions = [...orderPersonInfo];
+        
+        // 确保自动设置的推荐人在选项中
+        if (this.selectedRecommender) {
+          const selectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender);
+          if (!selectedEmp) {
+            // 如果推荐人不在标准员工列表中，从之前保存的选项中寻找
+            const autoSelectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender) ||
+                                   orderPersonInfo.find(emp => emp.id === this.selectedRecommender);
+            if (autoSelectedEmp) {
+              this.employeeOptions.unshift(autoSelectedEmp);
+            }
+          }
+        }
       }
     },
 
@@ -963,6 +1056,19 @@ export default {
         .section-title {
           margin-bottom: 10px;
           font-size: 14px;
+        }
+        
+        .recommender-tip {
+          margin-top: 8px;
+          
+          .tip-text {
+            color: #67c23a;
+            font-size: 12px;
+            background: #f0f9ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #b3e5fc;
+          }
         }
       }
     }

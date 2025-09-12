@@ -216,16 +216,28 @@ export default {
         const res = await api_vip.reqGetVipCardDetailForMakeMoney(params);
         if (res.code == 1) {
           this.vipInfo = res.data.mb_card;
+          console.log("会员卡信息:", this.vipInfo);
+          console.log("会员卡 sales_emp_id:", this.vipInfo.sales_emp_id);
+          
           this.makeMoneyList = [
             ...(res.data.deposit_rules || []),
             { d: "自定义", f: 0 },
           ];
+          
+          // 获取所有推荐人列表
           const result =
           this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-          this.personOptions = result.filter(
-            (item) => this.vipInfo.sales_emp_id != 0 && item.id.includes(this.vipInfo.sales_emp_id) 
-          );
-          this.form.personVal = this.personOptions.length > 0 && this.personOptions[0].id || ''
+          console.log("Store 中的推荐人列表:", result);
+          
+          // 直接调用接口获取默认推荐人
+          this.personOptions = result; // 先设置所有推荐人
+          await this.getDefaultRecommender(this.vipInfo.id);
+          
+          // 如果没有找到历史推荐人，设置默认值
+          if (!this.form.personVal && this.personOptions.length > 0) {
+            this.form.personVal = this.personOptions[0].id;
+          }
+          console.log("最终设置的推荐人:", this.form.personVal);
           this.typeOption = res.data.depoist_cnls || [];
           this.depositRules = res.data.deposit_rules || [];
           this.base_amt = res.data.base_amt;
@@ -235,6 +247,41 @@ export default {
         }
       } catch (error) {
         console.log("获取充值前会员卡信息失败", error);
+      }
+    },
+
+    // 获取历史推荐人
+    async getDefaultRecommender(cardId) {
+      try {
+        console.log("开始获取会员卡默认推荐人，卡ID:", cardId);
+        const params = {
+          card_id: cardId
+        };
+        const res = await api_vip.get_cust_card_last_sales(params);
+        console.log("默认推荐人接口返回:", res);
+        
+        if (res.code == 1 && res.data && res.data.id) {
+          const defaultSalesEmpId = res.data.id;
+          console.log("找到默认推荐人ID:", defaultSalesEmpId, "姓名:", res.data.name);
+          
+          // 从所有推荐人中找到匹配的推荐人
+          const allPersons = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+          const matchedPersons = allPersons.filter(
+            (item) => item.id.includes(defaultSalesEmpId.toString())
+          );
+          
+          if (matchedPersons.length > 0) {
+            console.log("找到匹配的默认推荐人:", matchedPersons);
+            this.form.personVal = matchedPersons[0].id;
+            console.log("设置默认推荐人为默认值:", this.form.personVal);
+          } else {
+            console.log("没有找到匹配的默认推荐人，保持所有推荐人可选");
+          }
+        } else {
+          console.log("没有找到默认推荐人或接口返回失败");
+        }
+      } catch (error) {
+        console.error("获取默认推荐人失败:", error);
       }
     },
 
