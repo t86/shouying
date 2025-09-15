@@ -7,3 +7,45 @@
     display: table;
     width: 100%;
 }
+
+/* 全局设置 Element UI cascader 下拉框高度 */
+.el-cascader__dropdown {
+    max-height: 400px !important;
+}
+
+.el-cascader-panel {
+    max-height: 400px !important;
+}
+
+.el-cascader-menu {
+    max-height: 400px !important;
+}
+
+.el-cascader-menu__wrap {
+    max-height: 400px !important;
+}
+
+.el-cascader-menu__list {
+    max-height: 400px !important;
+}
+
+.el-scrollbar {
+    max-height: 400px !important;
+}
+
+.el-scrollbar__wrap {
+    max-height: 400px !important;
+}
+
+/* 特别针对开台记录的部门下拉框 */
+.dept-cascader-dropdown .el-cascader-panel {
+    max-height: 400px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}
+
+.dept-cascader-dropdown .el-cascader-menu {
+    max-height: 400px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}

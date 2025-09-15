@@ -26,9 +26,12 @@
             v-model="selDepValue"
             :options="depTree"
             collapse-tags
-            :props="{checkStrictly: true}"
+            :props="{checkStrictly: true, expandTrigger: 'hover'}"
             size="mini"
             clearable
+            popper-class="dept-cascader-dropdown"
+            :show-all-levels="false"
+            filterable
           ></el-cascader>
         <input style="margin-left: 10px;" v-model="keyword" placeholder="卡台标记/台位/订位人/客户姓名/电话" />
         <button class="search" @click="getTableData">查询</button>
@@ -327,6 +330,54 @@ export default {
     },
     getOptionHandle () {
       this.typeList = [...this.typeOriginList];
+    },
+
+    addCascaderStyles() {
+      console.log('添加 Cascader 样式');
+      const style = document.createElement('style');
+      style.id = 'custom-cascader-styles';
+      style.textContent = `
+        /* 设置部门下拉框的高度 */
+        .el-cascader-menu {
+          max-height: 400px !important;
+          height: 400px !important;
+          overflow-y: auto !important;
+          min-height: 200px !important;
+        }
+        
+        /* 确保滚动容器也有正确的高度 */
+        .el-cascader-menu .el-scrollbar {
+          max-height: 400px !important;
+          height: 400px !important;
+        }
+        
+        .el-cascader-menu .el-scrollbar__wrap {
+          max-height: 400px !important;
+          height: 400px !important;
+        }
+        
+        .el-cascader-menu .el-scrollbar__view {
+          max-height: 400px !important;
+          height: auto !important;
+        }
+        
+        /* 针对特定的部门下拉框 */
+        .dept-cascader-dropdown .el-cascader-menu {
+          max-height: 400px !important;
+          height: 400px !important;
+          overflow-y: auto !important;
+          min-height: 200px !important;
+        }
+      `;
+      
+      // 移除旧的样式
+      const oldStyle = document.getElementById('custom-cascader-styles');
+      if (oldStyle) {
+        oldStyle.remove();
+      }
+      
+      document.head.appendChild(style);
+      console.log('Cascader 样式已添加到页面头部');
     }
   },
   props: {
@@ -341,6 +392,10 @@ export default {
   components: {
     mySelect
   },
+  mounted() {
+    // 动态添加样式来增加部门下拉框高度
+    this.addCascaderStyles();
+  },
   watch: {
     showDrawer (newVal) {
       this.show = newVal;
@@ -348,6 +403,12 @@ export default {
         this.getSelectOption();
         this.getDepTree();
         this.resetSearchVal();
+        // 延迟应用样式，确保DOM已渲染
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.addCascaderStyles();
+          }, 100);
+        });
       };
     }
   }
@@ -370,6 +431,27 @@ export default {
 /deep/.options li {
   font-size: 14px;
 }
+
+/* 使用深度选择器增加部门下拉框高度 */
+/deep/.dept-cascader-dropdown .el-cascader-panel {
+  max-height: 400px !important;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+/deep/.dept-cascader-dropdown .el-cascader-menu {
+  max-height: 400px !important;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+/deep/.dept-cascader-dropdown .el-scrollbar {
+  max-height: 400px !important;
+}
+
+/deep/.dept-cascader-dropdown .el-scrollbar__wrap {
+  max-height: 400px !important;
+}
 </style>
 
 <style>
@@ -390,5 +472,72 @@ export default {
 
 .el-cascader-panel {
   border: none;
+}
+
+/* 增加部门下拉框的高度 */
+.dept-cascader-dropdown {
+  max-height: 400px !important;
+}
+
+.dept-cascader-dropdown .el-cascader-panel {
+  max-height: 400px !important;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+.dept-cascader-dropdown .el-cascader-menu {
+  max-height: 400px !important;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+.dept-cascader-dropdown .el-scrollbar {
+  max-height: 400px !important;
+}
+
+.dept-cascader-dropdown .el-scrollbar__wrap {
+  max-height: 400px !important;
+}
+
+.dept-cascader-dropdown .el-cascader-menu__wrap {
+  max-height: 400px !important;
+}
+
+/* 全局样式作为备选方案 - 直接覆盖所有cascader */
+.el-cascader__dropdown {
+  max-height: 400px !important;
+}
+
+.el-cascader-panel {
+  max-height: 400px !important;
+}
+
+.el-cascader-panel .el-scrollbar {
+  max-height: 400px !important;
+}
+
+.el-cascader-panel .el-scrollbar__wrap {
+  max-height: 400px !important;
+}
+
+.el-cascader-menu {
+  max-height: 400px !important;
+}
+
+.el-cascader-menu__wrap {
+  max-height: 400px !important;
+}
+
+.el-cascader-menu__list {
+  max-height: 400px !important;
+}
+
+/* 更具体的选择器 */
+.el-popper[x-placement^="bottom"] .el-cascader-panel {
+  max-height: 400px !important;
+}
+
+.el-popper[x-placement^="bottom"] .el-cascader-menu {
+  max-height: 400px !important;
 }
 </style>
