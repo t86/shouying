@@ -98,6 +98,18 @@ export default new Vuex.Store({
         info["clone_emp_id"] = loginUser ? loginUser.clone_emp_id : "";
         info["roleIds"] = roleIds;
         info["sys_modules"] = sys_module_ids;
+        
+        // 添加子权限支持
+        info["sub_permissions"] = [];
+        const subPermissions = state.cardPageInfo.resResultDataObj["subPermissions"] || [];
+        const userSubPermissions = subPermissions.filter(
+          (item) => item.emp_id == info.emp_id && item.status == 1
+        );
+        info["sub_permissions"] = userSubPermissions.map((item) => ({
+          parent_id: item.parent_id,
+          sub_permission_id: item.sub_permission_id
+        }));
+        
         info["isShopManager"] =
           state.cardPageInfo.resResultDataObj["shopManagerConfig"] &&
           state.cardPageInfo.resResultDataObj["shopManagerConfig"].find(

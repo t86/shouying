@@ -329,40 +329,10 @@ export default {
             }
           });
           console.log("未权限过滤的信息", resultData)
-          // const authList = [];
-          // for(let i = 0;i<resultData.length;i++){
-          //   let el = resultData[i]
-          //   if(this.hasLookOrder){
-          //     authList.push(el);
-          //     continue
-          //   }
-          //   // 自己的 先添加
-          //   if (el.wei == this.$store.state.userInfo.emp_id) {
-          //     authList.push(el);
-          //     continue
-          //   }
-          //   // 权限限制只能看自己的 非自己的返回
-          //   if (this.hasOnlyLookSelf) {
-          //     continue;
-          //   }
-          //   // 下属的
-          //   if (
-          //     !this.hasOnlyLookSelf &&
-          //     this.loginUserSubordinateIds.includes(el.wei)
-          //   ) {
-          //     authList.push(el);
-          //     continue;
-          //   }
-
-          //   // 能看同组的 非同组的返回
-          //   const upper_emp_id = el.personInfo&&el.personInfo.upper_emp_id || ''
-          //   if ( this.hasCanLookDept &&
-          //     this.loginUserInfo.upper_emp_id == upper_emp_id && upper_emp_id != 0 ){
-          //       authList.push(el);
-          //   } 
-          // }
-          // this.orderList = authList;
-          this.orderList = resultData;
+          
+          // 应用权限过滤
+          const authList = this.applyPermissionFilter(resultData);
+          this.orderList = authList;
 
           // 处理存取酒数据
           this.wineList = res.data.wine_ops || [];
@@ -483,6 +453,94 @@ export default {
     switchTab(tab) {
       this.activeTab = tab;
     },
+
+    // 应用权限过滤
+    applyPermissionFilter(resultData) {
+      const authList = [];
+      const userInfo = this.$store.state.userInfo;
+      
+      // 检查是否有全场赠送权限
+      const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
+      
+      // 检查全场赠送权限的子权限
+      let canViewCurrentTableConsumption = true; // 默认可以查看当台消费
+      if (hasFullVenueGiftPermission) {
+        // 这里需要从后端获取用户的具体子权限设置
+        // 暂时使用默认值，实际应该从用户权限数据中获取
+        canViewCurrentTableConsumption = this.checkSubPermission(userInfo, 98); // 98对应可查看当台消费
+      } else {
+        // 如果没有全场赠送权限，也按照可以查看处理
+        canViewCurrentTableConsumption = true;
+      }
+      
+      for (let i = 0; i < resultData.length; i++) {
+        let el = resultData[i];
+        
+        // 如果有查单权限，可以查看所有
+        if (this.hasLookOrder) {
+          authList.push(el);
+          continue;
+        }
+        
+        // 自己的点单，先添加
+        if (el.wei == userInfo.emp_id) {
+          authList.push(el);
+          continue;
+        }
+        
+        // 权限限制只能看自己的，非自己的返回
+        if (this.hasOnlyLookSelf) {
+          continue;
+        }
+        
+        // 下属的点单
+        if (!this.hasOnlyLookSelf && this.loginUserSubordinateIds.includes(el.wei)) {
+          authList.push(el);
+          continue;
+        }
+        
+        // 能看同组的，非同组的返回
+        const upper_emp_id = el.personInfo && el.personInfo.upper_emp_id || '';
+        if (this.hasCanLookDept && 
+            userInfo.upper_emp_id == upper_emp_id && upper_emp_id != 0) {
+          authList.push(el);
+          continue;
+        }
+        
+        // 全场赠送权限的特殊处理
+        if (hasFullVenueGiftPermission) {
+          // 如果选择的是"不可查看当台消费"，只能看到自己赠送的商品
+          if (!canViewCurrentTableConsumption) {
+            // 只显示自己赠送的商品（优惠人是自己）
+            if (el.at == 2 || el.at == 3) { // 优惠或优惠2
+              if (el.ae == userInfo.emp_id) { // 优惠人是自己
+                authList.push(el);
+              }
+            }
+          } else {
+            // 如果选择的是"可查看当台消费"，可以查看所有
+            authList.push(el);
+          }
+        } else {
+          // 如果没有全场赠送权限，也按照可以查看处理
+          authList.push(el);
+        }
+      }
+      
+      return authList;
+    },
+
+    // 检查子权限
+    checkSubPermission(userInfo, subPermissionId) {
+      // 检查用户是否有指定的权限ID在sys_modules中
+      if (userInfo.sys_modules && userInfo.sys_modules.length > 0) {
+        return userInfo.sys_modules.includes(subPermissionId);
+      }
+      
+      // 如果没有sys_modules字段或为空，返回默认值
+      // 98对应可查看当台消费，99对应不可查看当台消费
+      return subPermissionId === 98; // 默认返回可查看当台消费
+    },
   },
   created() {
     setTimeout(() => {
@@ -546,45 +604,45 @@ export default {
       );
     },
     // 是否有查单权限
-    // hasLookOrder() {
-    //   return (
-    //     this.$store.state.userInfo.roleIds &&
-    //     this.$store.state.userInfo.roleIds.includes(11)
-    //   );
-    // },
-    // // 不允许查看下属点单消费  只能看自己
-    // hasOnlyLookSelf() {
-    //   return (
-    //     (this.$store.state.userInfo.sys_modules &&
-    //       this.$store.state.userInfo.sys_modules.includes(6)) ||
-    //     this.$store.state.userInfo.sys_modules.includes(10)
-    //   );
-    // },
+    hasLookOrder() {
+      return (
+        this.$store.state.userInfo.roleIds &&
+        this.$store.state.userInfo.roleIds.includes(11)
+      );
+    },
+    // 不允许查看下属点单消费  只能看自己
+    hasOnlyLookSelf() {
+      return (
+        (this.$store.state.userInfo.sys_modules &&
+          this.$store.state.userInfo.sys_modules.includes(6)) ||
+        this.$store.state.userInfo.sys_modules.includes(10)
+      );
+    },
 
-    // //能查看同组点单消费
-    // hasCanLookDept() {
-    //   return (
-    //     this.$store.state.userInfo.sys_modules &&
-    //     (this.$store.state.userInfo.sys_modules.includes(7) ||
-    //       this.$store.state.userInfo.sys_modules.includes(11))
-    //   );
-    // },
+    //能查看同组点单消费
+    hasCanLookDept() {
+      return (
+        this.$store.state.userInfo.sys_modules &&
+        (this.$store.state.userInfo.sys_modules.includes(7) ||
+          this.$store.state.userInfo.sys_modules.includes(11))
+      );
+    },
 
-    // // 当前户信息
-    // loginUserInfo() {
-    //   return this.$store.state.userInfo;
-    // },
-    // // loginUser 下属列表
-    // loginUserSubordinateIds() {
-    //   const orderPersonInfo =
-    //     this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
-    //     [];
-    //   const subordinateList = orderPersonInfo.filter(
-    //     (item) => item.upper_emp_id == this.loginUserInfo.emp_id
-    //   );
-    //   const ids = subordinateList.map((d) => d.id);
-    //   return ids;
-    // },
+    // 当前用户信息
+    loginUserInfo() {
+      return this.$store.state.userInfo;
+    },
+    // loginUser 下属列表
+    loginUserSubordinateIds() {
+      const orderPersonInfo =
+        this.$store.state.cardPageInfo.resResultDataObj["orderPersonInfo"] ||
+        [];
+      const subordinateList = orderPersonInfo.filter(
+        (item) => item.upper_emp_id == this.loginUserInfo.emp_id
+      );
+      const ids = subordinateList.map((d) => d.id);
+      return ids;
+    },
   },
 };
 </script>

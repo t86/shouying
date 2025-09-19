@@ -200,6 +200,11 @@ export default {
       this.groupCanNotSelectArr = this.groupDetailArr
           .filter(el => el.grpId == 1)
           .sort((a, b) => a.seqId - b.seqId);
+      
+      console.log('=== 套餐明细初始化调试 ===');
+      console.log('所有套餐明细 groupDetailArr:', this.groupDetailArr);
+      console.log('固定商品 groupCanNotSelectArr:', this.groupCanNotSelectArr);
+      console.log('可选商品 groupCanSelectArr (初始):', this.groupCanSelectArr);
 
       this.groupCanSelectArr = JSON.parse(JSON.stringify(this.groupCanSelectArr))
       this.groupCanSelectArr.forEach(el => {
@@ -360,7 +365,19 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       }
-      console.log('params:==================================================', params)
+      console.log('=== 兑换券核销调试信息 ===');
+      console.log('groupCanNotSelectArr (固定商品):', this.groupCanNotSelectArr);
+      console.log('groupCanSelectArr (可选商品):', this.groupCanSelectArr);
+      console.log('canNotSelectInfo:', canNotSelectInfo);
+      console.log('canSelectInfo:', canSelectInfo);
+      console.log('数组长度检查:');
+      console.log('固定商品数量:', this.groupCanNotSelectArr.length);
+      console.log('grp_ids length:', params.grp_ids.length, '内容:', params.grp_ids);
+      console.log('dtl_prd_ids length:', params.dtl_prd_ids.length, '内容:', params.dtl_prd_ids);
+      console.log('dtl_prd_cnts length:', params.dtl_prd_cnts.length, '内容:', params.dtl_prd_cnts);
+      console.log('sel_cnts length:', params.sel_cnts.length, '内容:', params.sel_cnts);
+      console.log('requirements length:', params.requirements.length, '内容:', params.requirements);
+      console.log('完整参数:', params);
 
       const res = await api_order.csm_coupon_v2(params)
       if(res.code === 1) {
@@ -443,7 +460,7 @@ export default {
         el.selectedProductsArr.forEach(ele => {
           if (ele.selectedCount) {
             canSelectInfo.grpId.push(ele.grpId * 1);
-            canSelectInfo.dtlPrdId.push(ele.dtlPrdId * 1);
+            canSelectInfo.dtlPrdId.push(parseInt(ele.dtlPrdId));
             canSelectInfo.prdCnt.push(ele.prdCnt * 1);
             canSelectInfo.grpSelCnt.push(ele.selectedCount * 1);
             canSelectInfo.requireText.push(ele.requireText);
@@ -453,10 +470,10 @@ export default {
 
       this.groupCanNotSelectArr.forEach(el => {
         canNotSelectInfo.grpId.push(el.grpId * 1);
-        canNotSelectInfo.dtlPrdId.push(el.dtlPrdId * 1);
+        canNotSelectInfo.dtlPrdId.push(parseInt(el.dtlPrdId));
         canNotSelectInfo.prdCnt.push(el.prdCnt * 1);
-        canNotSelectInfo.grpSelCnt.push(el.prdCnt / el.prdCnt);
-        canNotSelectInfo.requireText.push(el.requireText);
+        canNotSelectInfo.grpSelCnt.push(1); // 安全处理，避免除零
+        canNotSelectInfo.requireText.push(el.requireText || '');
       });
 
       return {

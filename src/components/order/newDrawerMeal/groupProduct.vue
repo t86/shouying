@@ -624,8 +624,8 @@ export default {
         canNotSelectInfo.grpId.push(el.grpId * 1);
         canNotSelectInfo.dtlPrdId.push(el.dtlPrdId * 1);
         canNotSelectInfo.prdCnt.push(el.prdCnt * 1);
-        canNotSelectInfo.grpSelCnt.push(el.prdCnt / el.prdCnt);
-        canNotSelectInfo.requireText.push(el.requireText);
+        canNotSelectInfo.grpSelCnt.push(1);
+        canNotSelectInfo.requireText.push(el.requireText || '');
       });
 
       return {
