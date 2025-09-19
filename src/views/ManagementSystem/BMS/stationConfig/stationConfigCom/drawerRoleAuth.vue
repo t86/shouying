@@ -25,12 +25,12 @@
           </div>
         </div>
 
-        <div class="coll p-t-3" v-for="items in subList" :key="items.id">
+        <div class="coll p-t-3" v-for="(items, index) in subList" :key="items.id">
           <div class="label">{{ items.t }}</div>
           <div
             layout="row"
             class="row value m-t-3 m-l-10"
-            v-if="items.val.findIndex((i) => !i.row) >= 0"
+            v-if="items.val.findIndex((i) => !i.row) >= 0 && !isSupervisorRole(items.t)"
           >
             <div class="m-t-2 m-b-2 m-l-2" v-for="item in items.val">
               <el-checkbox
@@ -50,6 +50,7 @@
             layout="row"
             class="row value m-t-3 m-l-10"
             v-for="item in items.val.filter((i) => i.row && ![98, 99].includes(i.id))"
+            v-if="!isSupervisorRole(items.t)"
           >
             <div class="m-t-2 m-b-2 m-l-2">
               <el-checkbox
@@ -81,6 +82,40 @@
                       {{ subItem.n }}
                     </el-radio>
                   </el-radio-group>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 督查权限的子权限选择 - 只在第一个督查权限组显示 -->
+          <div v-if="isSupervisorRole(items.t) && hasFullLookupPermission(items.val) && index === firstSupervisorGroupIndex" class=" m-t-2 m-l-4">
+            <div class="supervisor-permission-options">
+              <!-- 全场查单选项 -->
+              <div class="full-lookup-section m-b-3">
+                <el-checkbox
+                  :value="isFullLookupSelectedGlobally()"
+                  @input="handleFullLookupChangeGlobally($event)"
+                  :disabled="!hasAnySupervisorPermissionGlobally()"
+                >
+                  全场查单
+                </el-checkbox>
+              </div>
+              
+              <!-- 区域选择 -->
+              <div class="region-selection-section">
+                <div class="region-title m-b-2">可查单区域 （请勾选可查单的区域）</div>
+                <div class="region-checkboxes">
+                  <el-checkbox
+                    v-for="regionItem in getAllSupervisorRegions()"
+                    :key="regionItem.id"
+                    :value="regionItem.checked"
+                    @input="handleRegionChangeGlobally(regionItem.id, $event)"
+                    :disabled="!hasAnySupervisorPermissionGlobally() || isFullLookupSelectedGlobally()"
+                    class="region-checkbox"
+                  >
+                    {{ regionItem.n }}
+                  </el-checkbox>
                 </div>
               </div>
             </div>
@@ -339,6 +374,15 @@ export default {
         }
       }
 
+      // 处理督查角色选择
+      const supervisorRoleItem = this.erpList.find(role => role.id === item.rId && this.isSupervisorRole(role.n));
+      if(supervisorRoleItem) {
+        // 如果督查角色被选中，初始化督查权限
+        if(supervisorRoleItem.checked) {
+          this.initializeSupervisorPermissions(supervisorRoleItem.subList);
+        }
+      }
+
       // rId
       const erpItem = this.erpList.find((e) => e.id == item.rId);
 
@@ -415,6 +459,7 @@ export default {
     // 初始化子权限状态
     initializeSubPermissions() {
       for(let s of this.subList) {
+        // 处理全场优惠权限
         const fullDiscountPermission = s.val.find(v => v.id === 12);
         const subPermissions = s.val.filter(v => [98, 99].includes(v.id));
         
@@ -443,7 +488,173 @@ export default {
             }
           }
         }
+
+        // 处理督查权限
+        this.initializeSupervisorPermissions(s);
       }
+    },
+
+    // 初始化督查权限状态
+    initializeSupervisorPermissions(subListItem) {
+      if(!this.isSupervisorRole(subListItem.t)) return;
+      
+      const fullLookupPermissions = subListItem.val.filter(v => [0, 97].includes(v.id));
+      const regionPermissions = subListItem.val.filter(v => ![0, 97].includes(v.id));
+      
+      // 如果是老数据且没有任何权限被选中，默认选择全场查单
+      const hasAnySelected = subListItem.val.some(v => v.checked);
+      if(!hasAnySelected && fullLookupPermissions.length > 0) {
+        // 默认选择全场查单（优先选择id=0，如果没有则选择id=97）
+        const defaultFullLookup = fullLookupPermissions.find(v => v.id === 0) || fullLookupPermissions[0];
+        if(defaultFullLookup) {
+          defaultFullLookup.checked = true;
+          defaultFullLookup.st = 1;
+        }
+      }
+    },
+
+    // 判断是否为督查角色
+    isSupervisorRole(roleTitle) {
+      return roleTitle && roleTitle.includes('督查');
+    },
+
+    // 判断是否有全场查单权限
+    hasFullLookupPermission(permissions) {
+      return permissions.some(p => [0, 97].includes(p.id));
+    },
+
+    // 判断是否有任何督查权限
+    hasAnySupervisorPermission(permissions) {
+      const supervisorRole = this.erpList.find(role => 
+        role.subList && role.subList.val === permissions && this.isSupervisorRole(role.n + '权限')
+      );
+      return supervisorRole && supervisorRole.checked;
+    },
+
+
+    // 判断是否是区域权限
+    isRegionPermission(permission) {
+      // 区域权限的ID通常比较大，且不是0和97
+      return permission.id && ![0, 97, 98, 99].includes(permission.id) && permission.id > 1000;
+    },
+
+    // 判断是否选择了全场查单
+    isFullLookupSelected(permissions) {
+      return permissions.some(p => [0, 97].includes(p.id) && p.checked);
+    },
+
+    // 获取督查区域权限
+    getSupervisorRegions(permissions) {
+      return permissions.filter(p => ![0, 97].includes(p.id));
+    },
+
+    // 处理全场查单变化
+    handleFullLookupChange(permissions, isChecked) {
+      const fullLookupPermissions = permissions.filter(p => [0, 97].includes(p.id));
+      const regionPermissions = permissions.filter(p => ![0, 97].includes(p.id));
+
+      if(isChecked) {
+        // 选择全场查单，取消所有区域选择
+        regionPermissions.forEach(p => {
+          p.checked = false;
+          p.st = 2;
+        });
+        
+        // 选择全场查单（优先选择id=0）
+        const primaryFullLookup = fullLookupPermissions.find(p => p.id === 0) || fullLookupPermissions[0];
+        if(primaryFullLookup) {
+          primaryFullLookup.checked = true;
+          primaryFullLookup.st = 1;
+        }
+        
+        // 取消其他全场查单权限
+        fullLookupPermissions.forEach(p => {
+          if(p !== primaryFullLookup) {
+            p.checked = false;
+            p.st = 2;
+          }
+        });
+      } else {
+        // 取消全场查单
+        fullLookupPermissions.forEach(p => {
+          p.checked = false;
+          p.st = 2;
+        });
+      }
+    },
+
+    // 处理区域权限变化
+    handleRegionChange(permissions, regionId, isChecked) {
+      const regionPermission = permissions.find(p => p.id === regionId);
+      const fullLookupPermissions = permissions.filter(p => [0, 97].includes(p.id));
+
+      if(regionPermission) {
+        regionPermission.checked = isChecked;
+        regionPermission.st = isChecked ? 1 : 2;
+      }
+
+      // 如果选择了任何区域，取消全场查单
+      if(isChecked) {
+        fullLookupPermissions.forEach(p => {
+          p.checked = false;
+          p.st = 2;
+        });
+      }
+    },
+
+    // 全局督查权限方法 - 处理所有督查权限组
+    getAllSupervisorGroups() {
+      return this.subList.filter(group => 
+        this.isSupervisorRole(group.t) && this.hasFullLookupPermission(group.val)
+      );
+    },
+
+    // 判断是否有任何督查权限（全局）
+    hasAnySupervisorPermissionGlobally() {
+      return this.getAllSupervisorGroups().some(group => {
+        const supervisorRole = this.erpList.find(role => 
+          role.subList && role.subList.val === group.val && this.isSupervisorRole(role.n + '权限')
+        );
+        return supervisorRole && supervisorRole.checked;
+      });
+    },
+
+    // 判断是否选择了全场查单（全局）
+    isFullLookupSelectedGlobally() {
+      return this.getAllSupervisorGroups().some(group =>
+        group.val.some(p => [0, 97].includes(p.id) && p.checked)
+      );
+    },
+
+    // 获取所有督查区域权限（全局）
+    getAllSupervisorRegions() {
+      const allRegions = [];
+      const regionMap = new Map();
+      
+      this.getAllSupervisorGroups().forEach(group => {
+        group.val.filter(p => ![0, 97].includes(p.id)).forEach(region => {
+          if(!regionMap.has(region.id)) {
+            regionMap.set(region.id, region);
+            allRegions.push(region);
+          }
+        });
+      });
+      
+      return allRegions.sort((a, b) => a.id - b.id);
+    },
+
+    // 处理全场查单变化（全局）
+    handleFullLookupChangeGlobally(isChecked) {
+      this.getAllSupervisorGroups().forEach(group => {
+        this.handleFullLookupChange(group.val, isChecked);
+      });
+    },
+
+    // 处理区域权限变化（全局）
+    handleRegionChangeGlobally(regionId, isChecked) {
+      this.getAllSupervisorGroups().forEach(group => {
+        this.handleRegionChange(group.val, regionId, isChecked);
+      });
     },
   },
   mounted() {},
@@ -458,6 +669,13 @@ export default {
   computed: {
     title() {
       return "角色权限";
+    },
+
+    // 获取第一个督查权限组的索引
+    firstSupervisorGroupIndex() {
+      return this.subList.findIndex(group => 
+        this.isSupervisorRole(group.t) && this.hasFullLookupPermission(group.val)
+      );
     },
 
     show: {
@@ -550,6 +768,101 @@ export default {
         &.is-disabled {
           .el-radio__label {
             color: #c0c4cc;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 督查权限容器样式
+.supervisor-permission-container {
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  padding: 15px;
+  background-color: #f8faff;
+  margin-top: 8px;
+  max-width: 95%;
+  
+  @media (orientation: portrait) {
+    width: 95% !important;
+    padding: 12px;
+  }
+  
+  @media (max-width: 900px) {
+    width: 95% !important;
+    padding: 12px;
+  }
+  
+  .supervisor-permission-title {
+    font-weight: 500;
+    color: #409eff;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  
+  .supervisor-permission-options {
+    .full-lookup-section {
+      border-bottom: 1px solid #ebeef5;
+      padding-bottom: 15px;
+      
+      .el-checkbox {
+        height: 38px;
+        line-height: 38px;
+        
+        .el-checkbox__label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #409eff;
+        }
+        
+        &.is-disabled {
+          .el-checkbox__label {
+            color: #c0c4cc;
+          }
+        }
+      }
+    }
+    
+    .region-selection-section {
+      padding-top: 15px;
+      
+      .region-title {
+        font-size: 13px;
+        color: #606266;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+      
+      .region-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        
+        @media (orientation: portrait) {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        @media (max-width: 900px) {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .region-checkbox {
+          height: 38px;
+          line-height: 38px;
+          min-width: 80px;
+          
+          .el-checkbox__label {
+            font-size: 13px;
+            color: #606266;
+          }
+          
+          &.is-disabled {
+            .el-checkbox__label {
+              color: #c0c4cc;
+            }
           }
         }
       }
