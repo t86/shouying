@@ -515,6 +515,31 @@ export default {
       for (let i = 0; i < resultData.length; i++) {
         let el = resultData[i];
         
+        // 1. 督查权限判断（优先级最高）
+        if (userInfo.roleIds && userInfo.roleIds.includes(11)) {
+          // 1.1 检查是否有全场查单权限
+          if (this.hasFullLookupPermission()) {
+            authList.push(el); // 可以查看所有点单
+            continue;
+          }
+          
+          // 1.2 检查当前点单所在区域是否在督查权限范围内
+          // 这里需要根据点单数据获取区域信息，暂时先允许查看所有
+          // 实际应用中需要根据el中的区域信息进行判断
+          const orderRegionId = el.regionId || el.region_id; // 假设点单数据中有区域信息
+          if (orderRegionId && this.hasSupervisorRegionPermission(orderRegionId)) {
+            authList.push(el);
+            continue;
+          }
+          
+          // 如果没有区域权限，只能看自己的点单
+          if (el.wei == userInfo.emp_id) {
+            authList.push(el);
+          }
+          continue;
+        }
+        
+        // 2. 其他角色的原有逻辑
         // 如果有查单权限，可以查看所有
         if (this.hasLookOrder) {
           authList.push(el);
@@ -625,12 +650,11 @@ export default {
         this.$store.state.userInfo.sys_modules.includes(4)
       );
     },
-  // 是否有查单权限
+  // 是否有查单权限（非督查角色的全场查单权限）
     hasLookOrder() {
-      return (
-        this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(11)
-      );
+      // 督查角色的查单权限现在由新的督查权限逻辑处理，这里不再包含督查角色
+      // 其他角色的全场查单权限可以在这里添加
+      return false;
     },
     // 不允许查看下属点单消费  只能看自己
     hasOnlyLookSelf() {

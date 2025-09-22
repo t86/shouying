@@ -498,13 +498,13 @@ export default {
     initializeSupervisorPermissions(subListItem) {
       if(!this.isSupervisorRole(subListItem.t)) return;
       
-      const fullLookupPermissions = subListItem.val.filter(v => [0, 97].includes(v.id));
-      const regionPermissions = subListItem.val.filter(v => ![0, 97].includes(v.id));
+      const fullLookupPermissions = subListItem.val.filter(v => [0].includes(v.id));
+      const regionPermissions = subListItem.val.filter(v => ![0].includes(v.id));
       
       // 如果是老数据且没有任何权限被选中，默认选择全场查单
       const hasAnySelected = subListItem.val.some(v => v.checked);
       if(!hasAnySelected && fullLookupPermissions.length > 0) {
-        // 默认选择全场查单（优先选择id=0，如果没有则选择id=97）
+        // 默认选择全场查单（选择id=0）
         const defaultFullLookup = fullLookupPermissions.find(v => v.id === 0) || fullLookupPermissions[0];
         if(defaultFullLookup) {
           defaultFullLookup.checked = true;
@@ -520,7 +520,7 @@ export default {
 
     // 判断是否有全场查单权限
     hasFullLookupPermission(permissions) {
-      return permissions.some(p => [0, 97].includes(p.id));
+      return permissions.some(p => [0].includes(p.id));
     },
 
     // 判断是否有任何督查权限
@@ -534,24 +534,24 @@ export default {
 
     // 判断是否是区域权限
     isRegionPermission(permission) {
-      // 区域权限的ID通常比较大，且不是0和97
-      return permission.id && ![0, 97, 98, 99].includes(permission.id) && permission.id > 1000;
+      // 区域权限的ID通常比较大，且不是0
+      return permission.id && ![0, 98, 99].includes(permission.id) && permission.id > 1000;
     },
 
     // 判断是否选择了全场查单
     isFullLookupSelected(permissions) {
-      return permissions.some(p => [0, 97].includes(p.id) && p.checked);
+      return permissions.some(p => [0].includes(p.id) && p.checked);
     },
 
     // 获取督查区域权限
     getSupervisorRegions(permissions) {
-      return permissions.filter(p => ![0, 97].includes(p.id));
+      return permissions.filter(p => ![0].includes(p.id));
     },
 
     // 处理全场查单变化
     handleFullLookupChange(permissions, isChecked) {
-      const fullLookupPermissions = permissions.filter(p => [0, 97].includes(p.id));
-      const regionPermissions = permissions.filter(p => ![0, 97].includes(p.id));
+      const fullLookupPermissions = permissions.filter(p => [0].includes(p.id));
+      const regionPermissions = permissions.filter(p => ![0].includes(p.id));
 
       if(isChecked) {
         // 选择全场查单，取消所有区域选择
@@ -586,7 +586,7 @@ export default {
     // 处理区域权限变化
     handleRegionChange(permissions, regionId, isChecked) {
       const regionPermission = permissions.find(p => p.id === regionId);
-      const fullLookupPermissions = permissions.filter(p => [0, 97].includes(p.id));
+      const fullLookupPermissions = permissions.filter(p => [0].includes(p.id));
 
       if(regionPermission) {
         regionPermission.checked = isChecked;
@@ -622,7 +622,7 @@ export default {
     // 判断是否选择了全场查单（全局）
     isFullLookupSelectedGlobally() {
       return this.getAllSupervisorGroups().some(group =>
-        group.val.some(p => [0, 97].includes(p.id) && p.checked)
+        group.val.some(p => [0].includes(p.id) && p.checked)
       );
     },
 
@@ -632,7 +632,7 @@ export default {
       const regionMap = new Map();
       
       this.getAllSupervisorGroups().forEach(group => {
-        group.val.filter(p => ![0, 97].includes(p.id)).forEach(region => {
+        group.val.filter(p => ![0].includes(p.id)).forEach(region => {
           if(!regionMap.has(region.id)) {
             regionMap.set(region.id, region);
             allRegions.push(region);

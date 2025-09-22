@@ -107,5 +107,60 @@ export default {
 
       return prdList;
     },
+
+    // 检查是否有全场查单权限（督查）
+    hasFullLookupPermission() {
+      return this.$store.state.userInfo.sys_modules &&
+        (this.$store.state.userInfo.sys_modules.includes(0));
+    },
+
+    // 获取督查区域权限ID列表
+    getSupervisorRegionPermissions() {
+      const userInfo = this.$store.state.userInfo;
+      
+      // 检查用户是否有督查角色
+      if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
+        return [];
+      }
+      
+      const allSupervisorModules = userInfo.sys_modules || [];
+      // 过滤出督查区域权限ID（排除全场查单的0）
+      return allSupervisorModules.filter(id => id !== 0);
+    },
+
+    // 判断是否为督查区域权限ID
+    isSupervisorRegionPermission(moduleId) {
+      // 从store中获取督查相关的权限数据，动态判断
+      // 如果用户是督查角色且有该权限，就认为是督查区域权限
+      const userInfo = this.$store.state.userInfo;
+      
+      // 检查用户是否有督查角色
+      if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
+        return false;
+      }
+      
+      // 检查该权限ID是否在用户的sys_modules中，且不是全场查单权限
+      return userInfo.sys_modules && 
+             userInfo.sys_modules.includes(moduleId) && 
+             moduleId !== 0;
+    },
+
+    // 检查督查是否有某个区域的权限
+    hasSupervisorRegionPermission(regionId) {
+      const userInfo = this.$store.state.userInfo;
+      
+      // 检查用户是否有督查角色
+      if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
+        return false;
+      }
+      
+      // 如果有全场查单权限，可以查看所有区域
+      if (this.hasFullLookupPermission()) {
+        return true;
+      }
+      
+      // 检查是否有该区域的权限
+      return userInfo.sys_modules && userInfo.sys_modules.includes(regionId);
+    },
   },
 };

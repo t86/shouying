@@ -614,7 +614,17 @@ export default {
       if (roleIds.includes(4)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
-      if (this.hasLookOrder) {
+      // 督查权限处理
+      if (roleIds.includes(11)) {
+        if (this.hasFullLookupPermission()) {
+          // 全场查单权限，显示所有区域
+          QCTabList = [...arr];
+        } else {
+          // 区域查单权限，只显示有权限的区域
+          const supervisorRegions = this.getSupervisorRegionPermissions();
+          QCTabList = arr.filter(area => supervisorRegions.includes(area.id));
+        }
+      } else if (this.hasLookOrder) {
         QCTabList = [...arr];
       }
 
@@ -623,7 +633,8 @@ export default {
           roleIds.includes(2) ||
           roleIds.includes(3) ||
           roleIds.includes(4) ||
-          this.hasLookOrder
+          this.hasLookOrder ||
+          roleIds.includes(11)
         )
       ) {
         // 无任何权限
@@ -1182,6 +1193,19 @@ export default {
     },
     // 当前卡台是否有查单权限
     currentCardCanLookOrder (n, cardItemInfo) {
+      // 1. 督查角色权限判断（优先级最高）
+      if (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(11)) {
+        // 1.1 检查是否有全场查单权限
+        if (this.hasFullLookupPermission()) {
+          return true; // 可以查看所有卡台
+        }
+        
+        // 1.2 检查当前卡台所在区域是否在督查权限范围内
+        const cardRegionId = cardItemInfo.region_id;
+        return this.hasSupervisorRegionPermission(cardRegionId);
+      }
+
+      // 2. 其他角色的原有逻辑
       // 仅为营销时 不走下面鉴权 走接口返回的卡台列表
       if (this.isOnlySales) {
         let isLook = false;
@@ -1630,12 +1654,10 @@ export default {
         this.$store.state.userInfo.sys_modules.includes(5)
       );
     },
-    // 是否有查单权限
+    // 是否有查单权限（非督查角色的全场查单权限）
     hasLookOrder () {
-      return ((
-        this.$store.state.userInfo.roleIds &&
-        this.$store.state.userInfo.roleIds.includes(11)
-      ) || this.$store.state.userInfo.isShopManager);
+      // 督查角色的查单权限现在由新的督查权限逻辑处理，这里不再包含督查角色
+      return this.$store.state.userInfo.isShopManager;
     },
     // 是否有存取酒
     hasWineAuth () {

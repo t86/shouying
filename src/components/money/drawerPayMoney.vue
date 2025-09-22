@@ -49,6 +49,27 @@
             </div>
           </div>
 
+          <!-- 客人付款码 -->
+          <div class="customer-payment-code" v-if="payActiveInfo.id == 9998">
+            <div class="payment-info" layout="row" layout-align="center center">
+              <p class="label">本次收款:</p>
+              <p class="amount">￥{{ count || notPayAmt }}</p>
+            </div>
+            <div class="scan-actions" layout="row" layout-align="center center">
+              <button 
+                class="scan-btn" 
+                @click="startCustomerPaymentScan"
+                :disabled="!count || count <= 0"
+              >
+                {{ scanStatus === 'scanning' ? '等待扫码...' : '点击扫描' }}
+              </button>
+            </div>
+            <div class="scan-tips" v-if="scanStatus === 'scanning'">
+              <p>请使用扫码枪扫描客人付款码</p>
+              <button class="cancel-scan-btn" @click="cancelCustomerPaymentScan">取消扫描</button>
+            </div>
+          </div>
+
           <!-- 会员卡落单 -->
           <div class="vip-com" v-if="payActiveInfo.id == 5">
             <div class="form-item">
@@ -587,8 +608,58 @@
         <h3>{{ consumeMessage }}</h3>
         <div slot="footer" class="dialog-footer">
           <el-button type="primary" @click="closeConsume">关闭</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 客人付款码扫码输入界面 -->
+    <div class="customer-scan-input" v-if="showCustomerScanInput">
+      <div class="scan-container">
+        <div class="scan-header" layout="row" layout-align="space-between center">
+          <div class="title">扫客人付款码</div>
+          <i class="el-icon-close cursor" @click="cancelCustomerPaymentScan"></i>
         </div>
-      </el-dialog>
+        
+        <div class="scan-content">
+          <div class="amount-display" layout="row" layout-align="center center">
+            <span class="label">收款金额:</span>
+            <span class="amount">￥{{ count || notPayAmt }}</span>
+          </div>
+          
+          <!-- 隐藏的输入框用于接收扫码枪输入 -->
+          <input 
+            ref="customerPaymentCodeInput"
+            v-model="customerPaymentCode"
+            class="hidden-scan-input"
+            placeholder="请使用扫码枪扫描客人付款码"
+            @input="onCustomerPaymentCodeInput"
+            @keydown.enter="processCustomerPayment"
+            @blur="focusInput"
+          />
+          
+          <div class="scan-status" v-if="paymentStatus === 'processing'">
+            <div class="loading-icon"></div>
+            <p>正在处理支付...</p>
+          </div>
+          
+          <div class="scan-instructions" v-else>
+            <div class="scan-icon">📱</div>
+            <p>请使用扫码枪扫描客人付款码</p>
+            <p class="sub-text">或手动输入付款码</p>
+          </div>
+        </div>
+        
+        <div class="scan-footer" layout="row" layout-align="center center">
+          <button class="cancel-btn" @click="cancelCustomerPaymentScan">取消</button>
+          <button 
+            class="confirm-btn" 
+            @click="processCustomerPayment"
+            :disabled="!customerPaymentCode || paymentStatus === 'processing'"
+          >
+            确认支付
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -665,6 +736,14 @@ export default {
       },
       consumeMessage: "", // 消费提示信息
       showConsumed: false, // 是否显示消费提示信息
+      
+      // 客人付款码相关
+      showCustomerScanInput: false, // 是否显示扫码输入界面
+      customerPaymentCode: "", // 客人付款码
+      scanStatus: "idle", // 扫码状态: idle, scanning, processing
+      paymentStatus: "idle", // 支付状态: idle, processing, success, failed
+      scanTimeout: null, // 扫码超时定时器
+      paymentTimeout: null, // 支付超时定时器
     };
   },
   methods: {
@@ -708,6 +787,17 @@ export default {
         };
       }
 
+      // 客人付款码支付方式
+      const customerPaymentCodeInfo = {
+        id: 9998, // 渠道id
+        name: "客人付款码", //  渠道名称
+        pay_type: 1, // 支付类型: 1 联动渠道 2 不联动渠道(只落单)
+        auth_type: 2, // 授权类型: 1 需要授权 2 不需要授权
+        value_type: 1, // 价值类型: 1 全有价 2 全免费 3 混合
+        status: 1, // 状态: 1有效 3 删除
+        dsp: -2, // 显示顺序（排在滞留金之前）
+      };
+
       // 门店设置的渠道
       const effectPayList = this.$store.state.cardPageInfo.resResultDataObj[
         "payListFilter"
@@ -728,11 +818,17 @@ export default {
         payList = [...canConfigPayList];
       }
       // 线下支付订单
-      this.payList = bookPayInfo.id
-        ? [{ ...bookPayInfo }, ...payList, ...vipPayList, ...yudingPayList].sort(
-            (a, b) => a.dsp - b.dsp
-          )
-        : [...payList, ...vipPayList, ...yudingPayList].sort((a, b) => a.dsp - b.dsp);
+      let allPaymentMethods = [...payList, ...vipPayList, ...yudingPayList];
+      
+      // 添加客人付款码支付方式
+      allPaymentMethods.unshift(customerPaymentCodeInfo);
+      
+      // 如果有滞留金，添加到列表中
+      if (bookPayInfo.id) {
+        allPaymentMethods.unshift(bookPayInfo);
+      }
+      
+      this.payList = allPaymentMethods.sort((a, b) => a.dsp - b.dsp);
       this.payActiveInfo = this.payList.length > 0 ? this.payList[0] : {};
     },
     // 获取已选择好的支付渠道（购物车）
@@ -831,6 +927,11 @@ export default {
       if (this.payActiveInfo.id == 500) {
         // 添加会员卡渠道
         return this.addVipInfo();
+      }
+      
+      if (this.payActiveInfo.id == 9998) {
+        // 客人付款码支付
+        return this.handleCustomerPaymentCode();
       }
       try {
         let params = {
@@ -1247,6 +1348,214 @@ export default {
         this.addChooseList()
       }
     },
+
+    // 客人付款码相关方法
+    handleCustomerPaymentCode() {
+      if (!this.count || this.count <= 0) {
+        return this.$message.warning("请输入收款金额");
+      }
+      this.startCustomerPaymentScan();
+    },
+
+    // 开始客人付款码扫描
+    startCustomerPaymentScan() {
+      this.scanStatus = "scanning";
+      this.showCustomerScanInput = true;
+      this.customerPaymentCode = "";
+      this.paymentStatus = "idle";
+      
+      // 清除之前的定时器
+      this.clearTimeouts();
+      
+      // 设置扫码超时（60秒）
+      this.scanTimeout = setTimeout(() => {
+        this.$message.warning("扫码超时，请重试");
+        this.cancelCustomerPaymentScan();
+      }, 60000);
+      
+      // 设置扫码回调
+      const that = this;
+      function customer_scan_callback(value) {
+        try {
+          console.log("customer_scan_callback:", JSON.stringify(value));
+          // 清除扫码超时
+          if (that.scanTimeout) {
+            clearTimeout(that.scanTimeout);
+            that.scanTimeout = null;
+          }
+          
+          if (value && value.code === 0) {
+            that.customerPaymentCode = value.data;
+            that.processCustomerPayment();
+          } else {
+            that.$message.warning("扫码取消");
+            that.cancelCustomerPaymentScan();
+          }
+        } catch (error) {
+          console.log("扫码失败：", error);
+          that.$message.warning("扫码失败：" + error);
+          that.cancelCustomerPaymentScan();
+        }
+      }
+      
+      window.customer_scan_callback = customer_scan_callback;
+      
+      // 尝试启动原生扫码
+      if (window.atool && "startScan" in window.atool) {
+        window.atool.startScan("customer_scan_callback");
+      } else {
+        // 使用备用输入方式
+        this.focusInput();
+      }
+    },
+
+    // 取消客人付款码扫描
+    cancelCustomerPaymentScan() {
+      this.scanStatus = "idle";
+      this.showCustomerScanInput = false;
+      this.customerPaymentCode = "";
+      this.paymentStatus = "idle";
+      
+      // 清理定时器
+      this.clearTimeouts();
+      
+      // 清理扫码回调
+      if (window.customer_scan_callback) {
+        delete window.customer_scan_callback;
+      }
+    },
+
+    // 清理所有定时器
+    clearTimeouts() {
+      if (this.scanTimeout) {
+        clearTimeout(this.scanTimeout);
+        this.scanTimeout = null;
+      }
+      if (this.paymentTimeout) {
+        clearTimeout(this.paymentTimeout);
+        this.paymentTimeout = null;
+      }
+    },
+
+    // 聚焦输入框
+    focusInput() {
+      this.$nextTick(() => {
+        if (this.$refs.customerPaymentCodeInput) {
+          this.$refs.customerPaymentCodeInput.focus();
+        }
+      });
+    },
+
+    // 付款码输入处理
+    onCustomerPaymentCodeInput() {
+      // 如果付款码长度达到预期，自动处理支付
+      if (this.customerPaymentCode && this.customerPaymentCode.length >= 18) {
+        // 延迟一点处理，确保扫码枪输入完成
+        setTimeout(() => {
+          this.processCustomerPayment();
+        }, 100);
+      }
+    },
+
+    // 处理客人付款码支付
+    async processCustomerPayment() {
+      if (!this.customerPaymentCode) {
+        return this.$message.warning("请扫描或输入客人付款码");
+      }
+
+      if (!this.count || this.count <= 0) {
+        return this.$message.warning("请输入收款金额");
+      }
+
+      this.paymentStatus = "processing";
+
+      // 设置支付超时（30秒）
+      this.paymentTimeout = setTimeout(() => {
+        if (this.paymentStatus === "processing") {
+          this.paymentStatus = "failed";
+          this.$message.error("支付超时，请重试");
+          this.resetPaymentInput();
+        }
+      }, 30000);
+
+      try {
+        const params = {
+          id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64 卡台Id
+          pay_cnl_id: this.payActiveInfo.id * 1, // int 支付渠道Id
+          pay_amt: this.count.toString(), // string 支付金额
+          auth_code: this.customerPaymentCode, // string 付款码
+          biz_id: 0,
+        };
+
+        // 调用客人付款码支付API
+        const res = await api_money.reqCustomerPaymentCodePay(params);
+        
+        // 清除支付超时
+        if (this.paymentTimeout) {
+          clearTimeout(this.paymentTimeout);
+          this.paymentTimeout = null;
+        }
+        
+        if (res.code === 1) {
+          this.paymentStatus = "success";
+          this.$message.success("支付成功");
+          
+          // 添加到购物车
+          await this.getChoosePayList();
+          
+          // 关闭扫码界面
+          this.cancelCustomerPaymentScan();
+          
+          // 重置金额输入
+          this.count = "";
+        } else {
+          this.paymentStatus = "failed";
+          const errorMsg = res.msg || "支付失败";
+          this.$message.error(errorMsg);
+          
+          // 根据错误类型提供不同的处理建议
+          if (errorMsg.includes("余额不足")) {
+            this.$message.warning("客人付款码余额不足，请使用其他付款码");
+          } else if (errorMsg.includes("过期") || errorMsg.includes("无效")) {
+            this.$message.warning("付款码已过期或无效，请重新扫描");
+          }
+          
+          this.resetPaymentInput();
+        }
+      } catch (error) {
+        console.log("客人付款码支付失败", error);
+        
+        // 清除支付超时
+        if (this.paymentTimeout) {
+          clearTimeout(this.paymentTimeout);
+          this.paymentTimeout = null;
+        }
+        
+        this.paymentStatus = "failed";
+        
+        // 根据错误类型提供更友好的提示
+        if (error.message && error.message.includes("Network Error")) {
+          this.$message.error("网络连接失败，请检查网络后重试");
+        } else if (error.message && error.message.includes("timeout")) {
+          this.$message.error("请求超时，请重试");
+        } else {
+          this.$message.error("支付失败，请重试");
+        }
+        
+        this.resetPaymentInput();
+      }
+    },
+
+    // 重置支付输入状态
+    resetPaymentInput() {
+      setTimeout(() => {
+        if (this.paymentStatus === "failed") {
+          this.paymentStatus = "idle";
+          this.customerPaymentCode = "";
+          this.focusInput();
+        }
+      }, 2000);
+    },
   },
   mounted() {
     this.init();
@@ -1379,6 +1688,15 @@ export default {
       deep: true,
     },
   },
+  beforeDestroy() {
+    // 清理定时器
+    this.clearTimeouts();
+    
+    // 清理扫码回调
+    if (window.customer_scan_callback) {
+      delete window.customer_scan_callback;
+    }
+  },
 };
 </script>
 
@@ -1386,6 +1704,7 @@ export default {
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementFormBtn.less";
 @import "../../style/money/drawerPayMoney.less";
+@import "../../style/money/customerPaymentCode.less";
 @import "../../style/common/scrollBar.less";
 </style>
 

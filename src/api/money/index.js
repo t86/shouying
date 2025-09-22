@@ -75,6 +75,10 @@ export default {
   // 结账
   reqPayOrder: (params) => axios.post(`${base.htgl}/sel/pay_order`, params),
 
+  // 客人付款码支付
+  reqCustomerPaymentCodePay: (params) => 
+    axios.post(`${base.htgl}/sel/customer_payment_code_pay`, params),
+
   // 获取对应卡台的指定翻台的订单和支付信息
   reqGetCardPayInfo: (params) =>
     axios.post(`${base.htgl}/sel/csm_orders`, params),
