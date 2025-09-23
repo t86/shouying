@@ -86,6 +86,7 @@ export const resResultDataArr = [
   'vipSettleRule', // 53-会员结算规则
   'safeMode', // 54-安全模式
   'positionYH', // 55-岗位优惠开关
+  'supervisorRegionConfig', // 56-督查可查区域配置
 ]
 
 // 图例列表

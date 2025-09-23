@@ -481,4 +481,12 @@ export default {
   // 读取会员卡默认充值推荐人
   reqGetCustCardLastSales: (params) =>
     axios.post(`${base.htgl}/wo/get_cust_card_last_sales`, params),
+
+  // 修改充值订位人
+  reqChangeDepositSales: (params) =>
+    axios.post(`${base.htgl}/sel/chg_deposit_sales`, params),
+
+  // 取消充值订单
+  reqCancelDeposit: (params) =>
+    axios.post(`${base.htgl}/sel/cancel_deposit`, params),
 };

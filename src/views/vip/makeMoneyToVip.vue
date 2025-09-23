@@ -93,6 +93,7 @@
               <div class="th">赠送积分</div>
               <div class="th">充值方式</div>
               <div class="th">充值推荐人</div>
+              <div class="th">状态</div>
               <div class="th" :style="{
                 visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
               }">
@@ -117,11 +118,28 @@
               <div class="td">{{ item.p }}</div>
               <div class="td">{{ item.c }}</div>
               <div class="td">{{item.sd}}-{{ item.s }}</div>
+              <div class="td">
+                <span 
+                  :class="{ 
+                    'status-normal': item.b == 2, 
+                    'status-refunded': item.b == 1 
+                  }"
+                >
+                  {{ item.b == 1 ? '已退款' : '正常' }}
+                </span>
+              </div>
               <div class="td" :style="{
                 visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
               }">
                 <span @click="printHandle(item)">重打小票</span>
-                <span @click="showOrHideModal($event, item)">退款</span>
+                <span 
+                  @click="item.b == 2 ? showOrHideModal($event, item) : null" 
+                  :class="{ 'disabled': item.b == 1 }"
+                  :title="item.b == 1 ? '已退款' : '退款'"
+                >
+                  {{ item.b == 1 ? '已退款' : '退款' }}
+                </span>
+                <span @click="showChangeDepositSalesDialog(item)">修改充值推荐人</span>
               </div>
             </div>
             <div class="no-data" v-if="tableData.length == 0">
@@ -137,24 +155,36 @@
           :current-page="pageInfo.page" @current-change="changePageHandle"></el-pagination>
       </div>
 
-      <div class="modal" v-if="showModal">
-        <div class="content">
-          <div class="title">确认退款？</div>
-          <div class="btn-area">
-            <button class="btn primary m-r-6" @click="backMoneyHandle">
-              确认
-            </button>
-            <button class="btn info" @click="showOrHideModal">取消</button>
-          </div>
-        </div>
-      </div>
     </div>
+
+    <!-- 修改充值推荐人弹窗 -->
+    <drawerChangeDepositSales
+      :showDialog="showChangeDepositSalesDialogFlag"
+      :depositInfo="currentDepositInfo"
+      @showOrHideDialog="hideChangeDepositSalesDialog"
+      @refreshTable="getTableData"
+    />
+
+    <!-- 退款弹窗 -->
+    <drawerRefundDeposit
+      :showDialog="showModal"
+      :depositInfo="currentInfo"
+      @showOrHideDialog="showOrHideModal"
+      @refreshTable="getTableData"
+    />
   </div>
 </template>
 
 <script>
 import api_vip from "@/api/vip";
+import drawerChangeDepositSales from "@/components/vip/drawerChangeDepositSales.vue";
+import drawerRefundDeposit from "@/components/vip/drawerRefundDeposit.vue";
+
 export default {
+  components: {
+    drawerChangeDepositSales,
+    drawerRefundDeposit
+  },
   data() {
     return {
       form: {
@@ -186,6 +216,8 @@ export default {
       },
       currentInfo: {},
       showModal: false,
+      showChangeDepositSalesDialogFlag: false,
+      currentDepositInfo: {},
     };
   },
   methods: {
@@ -247,15 +279,19 @@ export default {
       }
     },
     showOrHideModal(e, itemInfo) {
-      if (!this.showModal && itemInfo && itemInfo.id)
-        this.currentInfo = itemInfo;
-      this.showModal = !this.showModal;
-    },
-    async backMoneyHandle() {
-      console.log(this.currentInfo);
-      this.$message.warning("开发中，敬请期待");
-      this.showOrHideModal();
-      this.getTableData();
+      if (typeof e === 'boolean') {
+        // 来自子组件的事件
+        this.showModal = e;
+        if (!e) {
+          this.currentInfo = {};
+        }
+      } else {
+        // 来自点击事件
+        if (!this.showModal && itemInfo && itemInfo.id) {
+          this.currentInfo = itemInfo;
+        }
+        this.showModal = !this.showModal;
+      }
     },
     resetHandle() {
       this.initDate();
@@ -295,6 +331,14 @@ export default {
     changePageHandle(page) {
       this.pageInfo.page = page;
       this.getTableData();
+    },
+    showChangeDepositSalesDialog(itemInfo) {
+      this.currentDepositInfo = itemInfo;
+      this.showChangeDepositSalesDialogFlag = true;
+    },
+    hideChangeDepositSalesDialog() {
+      this.showChangeDepositSalesDialogFlag = false;
+      this.currentDepositInfo = {};
     },
   },
   mounted() {

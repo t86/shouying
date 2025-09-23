@@ -26,6 +26,7 @@ let keys = {
   48: ["queue_type_id", "queue_no"],
   50: ["station_id", "seat_id"],
   52: ["tpl_id", "seq_id"],
+  56: ["station_id", "region_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {

@@ -648,6 +648,16 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
             status: el[4], // 状态 1 有效 1 有效 其他无效
           })
         })
+        break
+    case 56: // 督查可查区域配置
+      arr.forEach(el => {
+        resultArr.push({
+          station_id: el[0], // 岗位id
+          region_id: el[1], // 区域id (=0代表全场)
+          status: el[2], // 状态 1 有效 其他无效
+        })
+      })
+      break
   }
   return resultArr
 }
