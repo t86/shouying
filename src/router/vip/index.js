@@ -118,6 +118,13 @@ export default [
         meta: { title: "更改等级记录表" },
         component: () => import("@/views/vip/changeLevelRecordForm.vue"),
       },
+      // 滞留金管理
+      {
+        path: "/lateDepositManage",
+        name: "lateDepositManage",
+        meta: { title: "滞留金管理" },
+        component: () => import("@/views/vip/lateDepositManage.vue"),
+      },
     ],
   },
 ];

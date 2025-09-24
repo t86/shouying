@@ -34,6 +34,11 @@ export default [
         name: "会员卡类型",
         routerName: "vipType",
       },
+      {
+        id: 24,
+        name: "滞留金管理",
+        routerName: "lateDepositManage",
+      },
       // {
       //   id: 23,
       //   name: "积分设置",

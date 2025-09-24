@@ -238,12 +238,19 @@ export default {
       vipManager: 21,
       vipType: 22,
       qwVip: 23,
+      lateDepositManage: 24,
       onlineMakeMoneyToVip: 31,
       vipNumRules: 32,
       vipBillRules: 33,
       makeMoneyToVip: 41,
       payMoneyAll: 42,
       vipPay: 43,
+      pointRecords: 44,
+      memberBalanceSum: 45,
+      memberConsumeRank: 46,
+      customerRelationShipMaintence: 47,
+      logoutRecordForm: 48,
+      changeLevelRecordForm: 49,
     };
     this.firstCateId = Math.floor(routerParams[this.$route.name] / 10);
     this.secondCateId = routerParams[this.$route.name];

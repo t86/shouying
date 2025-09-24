@@ -489,4 +489,15 @@ export default {
   // 取消充值订单
   reqCancelDeposit: (params) =>
     axios.post(`${base.htgl}/sel/cancel_deposit`, params),
+
+  /**
+   * 滞留金管理
+   */
+  // 读取充值滞留金管理列表
+  reqGetDepositLateList: (params) =>
+    axios.post(`${base.htgl}/sel/get_deposit_late_list`, params),
+
+  // 充值滞留金发起退款
+  reqBackDepositLate: (params) =>
+    axios.post(`${base.htgl}/sel/back_deposit_late`, params),
 };
