@@ -212,12 +212,14 @@ import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 import drawerMyOrder from "@/components/order/myOrder/newDrawerMyOrder";
 import drawerPrintOrder from "@/components/order/myOrder/newDrawerPrintOrder";
 import HeaderInfo from '@/components/HeaderInfo.vue';
+import authStatus from "@/mixin/authStatus";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
 
 export default {
+  mixins: [authStatus],
   data() {
     return {
       isRect: true, // 是否为横屏

@@ -264,12 +264,14 @@ import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 
 import drawerMyOrder from "@/components/order/myOrder/drawerMyOrder";
 import drawerPrintOrder from "@/components/order/myOrder/drawerPrintOrder";
+import authStatus from "@/mixin/authStatus";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
 
 export default {
+  mixins: [authStatus],
   data() {
     return {
       isRect: true, // 是否为横屏

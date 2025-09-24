@@ -855,10 +855,12 @@ export default {
 
       if (
         (this.$store.state.userInfo.roleIds.includes(2) ||
-          this.$store.state.userInfo.roleIds.includes(3)) &&
+          this.$store.state.userInfo.roleIds.includes(3) ||
+          this.$store.state.userInfo.roleIds.includes(4) ||
+          this.$store.state.userInfo.roleIds.includes(11)) &&
         !this.modelVisible
       ) {
-        // 服务员/营销/特饮  且已开启营业日
+        // 服务员/营销/特饮/督查  且已开启营业日
         cardList = await this.addOwnPayedAmtToCard(cardList);
       }
 
@@ -875,9 +877,11 @@ export default {
       await this.getTabList(JSON.parse(JSON.stringify(resResultDataObj["areaInfo"])));
 
       // 如果是服务员或者特饮，需要根据可点区域限制可点卡台
+      // 督查角色不应该被当作服务员处理，避免受到服务员权限限制
       if (
-        this.$store.state.userInfo.roleIds.includes(2) ||
-        this.$store.state.userInfo.roleIds.includes(4)
+        (this.$store.state.userInfo.roleIds.includes(2) ||
+        this.$store.state.userInfo.roleIds.includes(4)) &&
+        !this.$store.state.userInfo.roleIds.includes(11)
       ) {
         cardListInfoArr = JSON.parse(JSON.stringify(cardList.filter(
           (item) =>
@@ -1188,6 +1192,7 @@ export default {
     },
     // 当前卡台是否有查单权限
     currentCardCanLookOrder (n, cardItemInfo) {
+      console.log("currentCardCanLookOrder", cardItemInfo)
       // 1. 督查角色权限判断（优先级最高）
       if (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(11)) {
         // 1.1 检查是否有全场查单权限
@@ -1196,7 +1201,11 @@ export default {
         }
         
         // 1.2 检查当前卡台所在区域是否在督查权限范围内
-        const cardRegionId = cardItemInfo.region_id;
+        // 通过seatId在cardInfo中查找对应的区域ID
+        const allCardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+        const cardInfo = allCardInfo.find(card => card.id === cardItemInfo.seatId);
+        const cardRegionId = cardInfo ? cardInfo.regionId : null;
+        console.log("cardRegionId", cardRegionId, "seatId", cardItemInfo.seatId)
         return this.hasSupervisorRegionPermission(cardRegionId);
       }
 
