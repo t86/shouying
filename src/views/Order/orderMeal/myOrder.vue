@@ -524,9 +524,12 @@ export default {
           }
           
           // 1.2 检查当前点单所在区域是否在督查权限范围内
-          // 这里需要根据点单数据获取区域信息，暂时先允许查看所有
-          // 实际应用中需要根据el中的区域信息进行判断
-          const orderRegionId = el.regionId || el.region_id; // 假设点单数据中有区域信息
+          // 通过点单的seat_id获取卡台信息，再获取区域信息
+          const seatId = el.si; // 点单记录中的卡台ID
+          const cardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+          const currentCard = cardInfo.find(card => card.id === seatId);
+          const orderRegionId = currentCard ? currentCard.regionId : null;
+          
           if (orderRegionId && this.hasSupervisorRegionPermission(orderRegionId)) {
             authList.push(el);
             continue;
