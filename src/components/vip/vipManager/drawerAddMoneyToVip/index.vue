@@ -41,6 +41,24 @@
         <el-button type="primary" v-if="step==2" @click="onSubmit" :disabled="charging" >确定</el-button>
       </div>
     </el-drawer>
+
+    <!-- 滞留金选择弹窗 -->
+    <lateDepositDialog
+      v-model="showLateDepositDialog"
+      :rechargeInfo="currentRechargeInfo"
+      :lateDepositList="lateDepositList"
+      :currentCardNo="getCurrentCardNo()"
+      @confirm="handleLateDepositConfirm"
+    />
+
+    <!-- 客人付款码扫描弹窗 -->
+    <customerPaymentScanDialog
+      v-model="showCustomerPaymentScanDialog"
+      :paymentAmount="currentPaymentAmount"
+      :rechargeInfo="currentRechargeInfo"
+      :selectedLateDeposits="currentSelectedLateDeposits"
+      @success="handlePaymentSuccess"
+    />
   </div>
 </template>
  
@@ -49,6 +67,8 @@ import md5 from "js-md5";
 import api_vip from "@/api/vip";
 import searchList from "./searchList.vue";
 import searchDetail from "./searchDetail.vue";
+import lateDepositDialog from "./lateDepositDialog.vue";
+import customerPaymentScanDialog from "./customerPaymentScanDialog.vue";
 export default {
   data() {
     return {
@@ -60,6 +80,12 @@ export default {
       vipIdOfSwiper: "",
       stepTwoInfo: {},
       charging: false, //充值处理中
+      showLateDepositDialog: false, // 显示滞留金选择弹窗
+      currentRechargeInfo: {}, // 当前充值信息
+      lateDepositList: [], // 滞留金列表
+      showCustomerPaymentScanDialog: false, // 显示客人付款码扫描弹窗
+      currentPaymentAmount: "0.00", // 当前支付金额
+      currentSelectedLateDeposits: [], // 当前选中的滞留金
     };
   },
   methods: {
@@ -90,6 +116,50 @@ export default {
       const isCustom = this.stepTwoInfo.makeAmtInfo.d == '自定义'
       const makeAmt = isCustom ? (this.stepTwoInfo.makeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.d / 100).toFixed(2)
       const freeAmt = isCustom ? (this.stepTwoInfo.freeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.f / 100).toFixed(2)
+      
+      if (!this.stepTwoInfo.typeVal)  {
+        this.charging = false
+        return this.$message.warning("请选择充值方式");
+      }
+      
+      // 如果选择的是客人付款码，检查是否有滞留金
+      if (this.stepTwoInfo.typeVal == 9998) {
+        await this.handleCustomerPaymentCodeRecharge(makeAmt, freeAmt, isCustom);
+        return;
+      }
+      
+      // 普通充值流程
+      await this.processNormalRecharge(makeAmt, freeAmt, isCustom);
+    },
+
+    // 处理客人付款码充值
+    async handleCustomerPaymentCodeRecharge(makeAmt, freeAmt, isCustom) {
+      try {
+        // 检查滞留金
+        const lateDepositList = await this.checkLateDeposit();
+        
+        if (lateDepositList && lateDepositList.length > 0) {
+          // 有滞留金，显示滞留金选择弹窗
+          this.openLateDepositDialog({
+            makeAmt,
+            freeAmt,
+            isCustom,
+            lateDepositList
+          });
+        } else {
+          // 没有滞留金，直接进入扫码流程
+          this.startCustomerPaymentScan(makeAmt, freeAmt, isCustom);
+        }
+      } catch (error) {
+        console.error("检查滞留金失败:", error);
+        this.$message.error("检查滞留金失败，请重试");
+      } finally {
+        this.charging = false;
+      }
+    },
+
+    // 处理普通充值
+    async processNormalRecharge(makeAmt, freeAmt, isCustom) {
       const params = {
         id: (this.currentInfo.id || this.vipIdOfSwiper) * 1 , //    int64    会员卡Id
         val_amt: makeAmt ? makeAmt : "0", //    string   有价金额(最多支持两位小数)
@@ -101,10 +171,7 @@ export default {
         sales_emp_id: this.stepTwoInfo.personVal * 1, // int64    推荐人(员工)
         remark: this.stepTwoInfo.remark //     string    充值备注
       };
-      if (!params.deposit_cnl)  {
-        this.charging = false
-        return this.$message.warning("请选择充值方式");
-      } 
+      
       try {
         const res = await api_vip.reqMakeMoneyToCard(params);
         if (res.code == 1) {
@@ -116,8 +183,131 @@ export default {
         }
       } catch (error) {
         console.log("充值失败", error);
+      } finally {
+        this.charging = false;
       }
-      this.charging = false
+    },
+
+    // 检查滞留金
+    async checkLateDeposit() {
+      try {
+        // 调用新API检查当前会员是否有可用的充值滞留金
+        const params = {
+          mb_card_id: (this.currentInfo.id || this.vipIdOfSwiper) * 1 // 会员卡ID
+        };
+        
+        const res = await api_vip.reqGetDepositLateListForDeposit(params);
+        
+        if (res.code === 1) {
+          return res.data || [];
+        } else {
+          console.warn("获取滞留金列表失败:", res.msg);
+          return [];
+        }
+      } catch (error) {
+        console.error("检查滞留金失败:", error);
+        return [];
+      }
+    },
+
+    // 显示滞留金选择弹窗
+    openLateDepositDialog(rechargeInfo) {
+      this.currentRechargeInfo = rechargeInfo;
+      this.lateDepositList = rechargeInfo.lateDepositList || [];
+      this.showLateDepositDialog = true;
+    },
+
+    // 获取当前会员卡号
+    getCurrentCardNo() {
+      if (this.currentInfo && this.currentInfo.card_no) {
+        return this.currentInfo.card_no;
+      }
+      // 如果是刷卡进入，需要从其他地方获取卡号
+      return "";
+    },
+
+    // 处理滞留金选择确认
+    handleLateDepositConfirm(result) {
+      const { selectedDeposits, remainingAmount, rechargeInfo } = result;
+      
+      if (remainingAmount > 0) {
+        // 还有剩余金额需要用扫码支付
+        this.processPartialPayment(selectedDeposits, remainingAmount, rechargeInfo);
+      } else {
+        // 滞留金完全覆盖充值金额
+        this.processFullLateDepositPayment(selectedDeposits, rechargeInfo);
+      }
+    },
+
+    // 处理部分支付（滞留金 + 扫码）
+    async processPartialPayment(selectedDeposits, remainingAmount, rechargeInfo) {
+      // 这里需要实现部分支付逻辑
+      console.log("部分支付", { selectedDeposits, remainingAmount, rechargeInfo });
+      this.$message.info(`使用滞留金 ¥${(parseFloat(rechargeInfo.makeAmt) - remainingAmount).toFixed(2)}，剩余 ¥${remainingAmount.toFixed(2)} 需要扫码支付`);
+      
+      // 跳转到扫码支付
+      this.startCustomerPaymentScan(remainingAmount.toString(), "0", false, selectedDeposits);
+    },
+
+    // 处理完全滞留金支付
+    async processFullLateDepositPayment(selectedDeposits, rechargeInfo) {
+      // 这里需要实现完全滞留金支付逻辑
+      console.log("完全滞留金支付", { selectedDeposits, rechargeInfo });
+      
+      try {
+        // 调用充值API，使用滞留金支付
+        // 根据接口文档，如果是使用滞留金结账，deposit_cnl字段对应的是滞留金的id
+        const params = {
+          id: (this.currentInfo.id || this.vipIdOfSwiper) * 1,
+          val_amt: rechargeInfo.makeAmt,
+          free_amt: rechargeInfo.freeAmt,
+          pt_amt: this.stepTwoInfo.sendPoint ? this.stepTwoInfo.sendPoint * 1 : 0,
+          m: rechargeInfo.isCustom ? 2 : 1,
+          oper_emp_id: this.$store.state.userInfo.emp_id * 1,
+          deposit_cnl: selectedDeposits[0].id, // 使用第一个滞留金的ID作为充值渠道
+          sales_emp_id: this.stepTwoInfo.personVal * 1,
+          remark: this.stepTwoInfo.remark
+        };
+        
+        const res = await api_vip.reqMakeMoneyToCard(params);
+        if (res.code == 1) {
+          this.$message.success("充值成功");
+          this.onCancelDrawer();
+          this.$emit('getTableData');
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.error("滞留金充值失败:", error);
+        this.$message.error("充值失败，请重试");
+      }
+    },
+
+    // 开始客人付款码扫描
+    startCustomerPaymentScan(makeAmt, freeAmt, isCustom, selectedLateDeposits = []) {
+      // 准备充值信息
+      const rechargeInfo = {
+        memberId: (this.currentInfo.id || this.vipIdOfSwiper) * 1,
+        makeAmt: makeAmt,
+        freeAmt: freeAmt,
+        isCustom: isCustom,
+        sendPoint: this.stepTwoInfo.sendPoint || 0,
+        salesEmpId: this.stepTwoInfo.personVal * 1,
+        remark: this.stepTwoInfo.remark || ""
+      };
+      
+      this.currentRechargeInfo = rechargeInfo;
+      this.currentPaymentAmount = makeAmt;
+      this.currentSelectedLateDeposits = selectedLateDeposits;
+      this.showCustomerPaymentScanDialog = true;
+    },
+
+    // 处理支付成功
+    handlePaymentSuccess(result) {
+      console.log("支付成功", result);
+      this.$message.success(`充值成功！金额：¥${result.amount}`);
+      this.onCancelDrawer();
+      this.$emit('getTableData');
     },
 
     changeStep(step = 1) {
@@ -232,7 +422,9 @@ export default {
   },
   components: {
     searchList,
-    searchDetail
+    searchDetail,
+    lateDepositDialog,
+    customerPaymentScanDialog
   },
   watch: {
     showDrawer: {

@@ -497,6 +497,10 @@ export default {
   reqGetDepositLateList: (params) =>
     axios.post(`${base.htgl}/sel/get_deposit_late_list`, params),
 
+  // 读取可用充值滞留金列表
+  reqGetDepositLateListForDeposit: (params) =>
+    axios.post(`${base.htgl}/mb/card/get_deposit_late_list_f_dep`, params),
+
   // 充值滞留金发起退款
   reqBackDepositLate: (params) =>
     axios.post(`${base.htgl}/sel/back_deposit_late`, params),

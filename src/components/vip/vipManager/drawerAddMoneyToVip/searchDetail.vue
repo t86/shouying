@@ -238,6 +238,7 @@ export default {
           this.depositRules = res.data.deposit_rules || [];
           this.base_amt = res.data.base_amt;
           console.log("获取充值前会员卡信息成功", this.depositRules);
+          console.log("充值渠道列表:", this.typeOption);
         } else {
           this.$message.warning(res.msg);
         }
