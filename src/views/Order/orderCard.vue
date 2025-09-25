@@ -1193,14 +1193,34 @@ export default {
     // 当前卡台是否有查单权限
     currentCardCanLookOrder (n, cardItemInfo) {
       console.log("currentCardCanLookOrder", cardItemInfo)
-      // 1. 督查角色权限判断（优先级最高）
+      
+      // 1. 营销权限中"不可查看当台消费"的检查（优先级最高）
+      const userInfo = this.$store.state.userInfo;
+      const isMarketingRole = userInfo.roleIds && userInfo.roleIds.includes(3); // 3是营销角色
+      
+      if (isMarketingRole) {
+        // 检查是否有全场优惠权限
+        const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
+        
+        if (hasFullVenueGiftPermission) {
+          // 检查是否配置了"不可查看当台消费"权限
+          const cannotViewConsumption = userInfo.sys_modules && userInfo.sys_modules.includes(99);
+          
+          if (cannotViewConsumption) {
+            // 配置了"不可查看当台消费"，则不能查看任何卡台的金额
+            return false;
+          }
+        }
+      }
+      
+      // 2. 督查角色权限判断
       if (this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(11)) {
-        // 1.1 检查是否有全场查单权限
+        // 2.1 检查是否有全场查单权限
         if (this.hasFullLookupPermission()) {
           return true; // 可以查看所有卡台
         }
         
-        // 1.2 检查当前卡台所在区域是否在督查权限范围内
+        // 2.2 检查当前卡台所在区域是否在督查权限范围内
         // 通过seatId在cardInfo中查找对应的区域ID
         const allCardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
         const cardInfo = allCardInfo.find(card => card.id === cardItemInfo.seatId);
