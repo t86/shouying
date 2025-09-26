@@ -334,6 +334,8 @@ export default {
           
           // 应用权限过滤
           const authList = this.applyPermissionFilter(resultData);
+          console.log("权限过滤后的订单列表:", authList);
+          console.log("原始订单数量:", resultData.length, "过滤后订单数量:", authList.length);
           this.orderList = authList;
 
           // 处理存取酒数据
@@ -480,27 +482,48 @@ export default {
         
         // 1. 督查权限判断（优先级最高）
         if (userInfo.roleIds && userInfo.roleIds.includes(11)) {
+          console.log("督查角色处理订单:", el);
+          
           // 1.1 检查是否有全场查单权限
           if (this.hasFullLookupPermission()) {
+            console.log("督查有全场权限，添加订单");
             authList.push(el); // 可以查看所有点单
             continue;
           }
           
           // 1.2 检查当前点单所在区域是否在督查权限范围内
-          // 通过点单的seat_id获取卡台信息，再获取区域信息
-          const seatId = el.si; // 点单记录中的卡台ID
+          // 使用当前选中的卡台ID，因为这个页面显示的是当前卡台的订单
+          const currentSeatId = this.$store.state.orderInfo.currentCardInfo.seatId;
+          const orderSeatId = el.si; // 订单记录中的卡台ID
+          const seatId = orderSeatId || currentSeatId; // 优先使用订单中的卡台ID，如果没有则使用当前卡台ID
+          
           const cardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
-          const currentCard = cardInfo.find(card => card.id === seatId);
+          const currentCard = cardInfo.find(card => card.id * 1 === seatId * 1);
           const orderRegionId = currentCard ? currentCard.regionId : null;
           
+          console.log("applyPermissionFilter - supervisor check:", {
+            currentSeatId,
+            orderSeatId,
+            finalSeatId: seatId,
+            orderRegionId, 
+            hasPermission: orderRegionId ? this.hasSupervisorRegionPermission(orderRegionId) : false,
+            cardFound: !!currentCard,
+            orderItem: el,
+            orderKeys: Object.keys(el)
+          });
+          
           if (orderRegionId && this.hasSupervisorRegionPermission(orderRegionId)) {
+            console.log("督查有区域权限，添加订单");
             authList.push(el);
             continue;
           }
           
           // 如果没有区域权限，只能看自己的点单
           if (el.wei == userInfo.emp_id) {
+            console.log("督查自己的订单，添加");
             authList.push(el);
+          } else {
+            console.log("督查无权限查看此订单，跳过");
           }
           continue;
         }
@@ -557,6 +580,7 @@ export default {
         }
       }
       
+      console.log("applyPermissionFilter 最终返回结果:", authList);
       return authList;
     },
 

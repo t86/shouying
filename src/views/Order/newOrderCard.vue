@@ -1255,9 +1255,9 @@ export default {
         // 2.2 检查当前卡台所在区域是否在督查权限范围内
         // 通过seatId在cardInfo中查找对应的区域ID
         const allCardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
-        const cardInfo = allCardInfo.find(card => card.id === cardItemInfo.seatId);
+        const cardInfo = allCardInfo.find(card => card.id * 1 === cardItemInfo.seatId * 1);
         const cardRegionId = cardInfo ? cardInfo.regionId : null;
-        console.log("cardRegionId", cardRegionId, "seatId", cardItemInfo.seatId)
+        console.log("currentCardCanLookOrder - cardRegionId", cardRegionId, "seatId", cardItemInfo.seatId, "cardInfo found:", !!cardInfo)
         return this.hasSupervisorRegionPermission(cardRegionId);
       }
 

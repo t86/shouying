@@ -167,16 +167,19 @@ export default {
       
       // 获取督查可查区域配置数据（56号数据）
       const supervisorRegionConfig = this.$store.state.cardPageInfo.resResultDataObj["supervisorRegionConfig"] || [];
-      console.log("isSupervisorRegionPermission, supervisorRegionConfig", supervisorRegionConfig, supervisorRegionConfig.some(config => 
-        config.status === 1 && 
-        config.station_id === userInfo.station_id && 
-        config.region_id === regionId
-      ))
+      console.log("isSupervisorRegionPermission 详细信息:", {
+        supervisorRegionConfig,
+        regionId,
+        regionIdType: typeof regionId,
+        stationId: userInfo.station_id,
+        stationIdType: typeof userInfo.station_id,
+        hasConfig: supervisorRegionConfig.length > 0
+      });
       // 检查该区域ID是否在当前用户的权限范围内
       return supervisorRegionConfig.some(config => 
-        config.status === 1 && 
-        config.station_id === userInfo.station_id && 
-        config.region_id === regionId
+        config.status * 1 === 1 && 
+        config.station_id * 1 === userInfo.station_id * 1 && 
+        config.region_id * 1 === regionId * 1
       );
     },
 
@@ -184,19 +187,25 @@ export default {
     hasSupervisorRegionPermission(regionId) {
       const userInfo = this.$store.state.userInfo;
       
+      console.log("hasSupervisorRegionPermission called with regionId:", regionId);
+      
       // 检查用户是否有督查角色
       if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
+        console.log("用户不是督查角色");
         return false;
       }
       
       // 如果有全场查单权限，可以查看所有区域
       if (this.hasFullLookupPermission()) {
+        console.log("督查有全场权限");
         return true;
       }
       
       // 检查是否有该区域的权限
-      console.log("hasSupervisorRegionPermission, regionId", regionId)
-      return this.isSupervisorRegionPermission(regionId);
+      console.log("检查区域权限, regionId", regionId);
+      const result = this.isSupervisorRegionPermission(regionId);
+      console.log("区域权限检查结果:", result);
+      return result;
     },
   },
 };
