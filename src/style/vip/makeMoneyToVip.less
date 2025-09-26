@@ -37,10 +37,16 @@
     transform: translate(0, 0);
 
     .table {
-      min-width: 1770px;
+      min-width: 1810px; // 增加最小宽度以适应操作列宽度增加
 
       .thead .th {
         background-color: #BEC5D5;
+      }
+      
+      // 为表头的固定列确保背景色
+      .thead .th:nth-child(1),
+      .thead .th:nth-child(2) {
+        background-color: #BEC5D5 !important;
       }
 
       .tbody .tr {
@@ -48,108 +54,52 @@
           .td {
             background-color: #BEC5D5;
           }
+          // 为固定列设置正确的背景色
+          .td:nth-child(1), 
+          .td:nth-child(2) {
+            background-color: #BEC5D5 !important;
+          }
         }
 
         &:nth-child(2n + 1) {
           .td {
             background-color: #CCD1DC;
           }
+          // 为固定列设置正确的背景色
+          .td:nth-child(1), 
+          .td:nth-child(2) {
+            background-color: #CCD1DC !important;
+          }
         }
       }
 
       .tr {
+        // 序号列 - 固定在最左侧
         .th:nth-child(1),
         .td:nth-child(1) {
           padding-left: 10px;
           width: 80px;
           position: sticky;
           left: 0px;
+          z-index: 10;
+          // 添加边框右侧阴影效果，增强固定列的视觉分离
+          box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
         }
 
+        // 操作列 - 固定在序号列后面
         .th:nth-child(2),
         .td:nth-child(2) {
-          width: 150px;
+          width: 240px; // 增加宽度以确保"修改充值推荐人"不换行
           position: sticky;
-          left: 85px;
-        }
-
-        .th:nth-child(3),
-        .td:nth-child(3) {
-          width: 120px;
-        }
-
-        .th:nth-child(4),
-        .td:nth-child(4) {
-          width: 120px;
-        }
-
-        .th:nth-child(5),
-        .td:nth-child(5) {
-          width: 120px;
-        }
-
-        .th:nth-child(6),
-        .td:nth-child(6) {
-          width: 120px;
-        }
-
-        .th:nth-child(7),
-        .td:nth-child(7) {
-          width: 120px;
-        }
-
-        .th:nth-child(8),
-        .td:nth-child(8) {
-          width: 120px;
-        }
-
-        .th:nth-child(9),
-        .td:nth-child(9) {
-          width: 120px;
-        }
-
-        .th:nth-child(10),
-        .td:nth-child(10) {
-          width: 120px;
-        }
-
-        .th:nth-child(11),
-        .td:nth-child(11) {
-          width: 120px;
-        }
-
-        .th:nth-child(12),
-        .td:nth-child(12) {
-          width: 120px;
-        }
-
-        .th:nth-child(13),
-        .td:nth-child(13) {
-          width: 120px;
-        }
-        .th:nth-child(14),
-        .td:nth-child(14) {
-          width: 120px;
-        }
-        .th:nth-child(15),
-        .td:nth-child(15) {
-          width: 80px;
-          .status-normal {
-            color: #67c23a;
-            font-weight: 500;
-          }
-          .status-refunded {
-            color: #f56c6c;
-            font-weight: 500;
-          }
-        }
-        .th:nth-child(16),
-        .td:nth-child(16) {
-          width: 200px;
+          left: 95px;
+          z-index: 10;
+          // 添加边框右侧阴影效果，增强固定列的视觉分离
+          box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
           span{
             color: #2362D5;
             cursor: pointer;
             margin-right: 10px;
+            white-space: nowrap; // 防止换行
             &:last-child {
               margin-right: 0;
             }
@@ -159,6 +109,98 @@
               opacity: 0.6;
             }
           };
+        }
+
+        // 充值日期
+        .th:nth-child(3),
+        .td:nth-child(3) {
+          width: 150px;
+        }
+
+        // 充值类型
+        .th:nth-child(4),
+        .td:nth-child(4) {
+          width: 120px;
+        }
+
+        // 会员姓名
+        .th:nth-child(5),
+        .td:nth-child(5) {
+          width: 120px;
+        }
+
+        // 绑定手机
+        .th:nth-child(6),
+        .td:nth-child(6) {
+          width: 120px;
+        }
+
+        // 联系手机
+        .th:nth-child(7),
+        .td:nth-child(7) {
+          width: 120px;
+        }
+
+        // 会员卡号
+        .th:nth-child(8),
+        .td:nth-child(8) {
+          width: 120px;
+        }
+
+        // 卡类型
+        .th:nth-child(9),
+        .td:nth-child(9) {
+          width: 120px;
+        }
+
+        // 会员卡等级
+        .th:nth-child(10),
+        .td:nth-child(10) {
+          width: 120px;
+        }
+
+        // 充值金额
+        .th:nth-child(11),
+        .td:nth-child(11) {
+          width: 120px;
+        }
+
+        // 赠送金额
+        .th:nth-child(12),
+        .td:nth-child(12) {
+          width: 120px;
+        }
+
+        // 赠送积分
+        .th:nth-child(13),
+        .td:nth-child(13) {
+          width: 120px;
+        }
+
+        // 充值方式
+        .th:nth-child(14),
+        .td:nth-child(14) {
+          width: 120px;
+        }
+
+        // 充值推荐人
+        .th:nth-child(15),
+        .td:nth-child(15) {
+          width: 120px;
+        }
+
+        // 状态
+        .th:nth-child(16),
+        .td:nth-child(16) {
+          width: 80px;
+          .status-normal {
+            color: #67c23a;
+            font-weight: 500;
+          }
+          .status-refunded {
+            color: #f56c6c;
+            font-weight: 500;
+          }
         }
       }
     }

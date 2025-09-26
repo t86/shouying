@@ -127,7 +127,6 @@ export default {
         config.region_id * 1 === 0
       );
 
-      console.log("hasFullLookupPermission, hasFullAccess", supervisorRegionConfig, userInfo, hasFullAccess)
       
       return hasFullAccess;
     },

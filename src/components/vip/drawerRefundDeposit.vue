@@ -40,7 +40,7 @@
             v-model="refundRemark"
             type="textarea"
             :rows="3"
-            placeholder="输入退款备注，不超过30个字"
+            placeholder="可填退款备注，不超过30个字"
             maxlength="30"
             show-word-limit
             style="width: 100%;"
@@ -108,16 +108,12 @@ export default {
 
     // 确认退款
     async confirmRefund() {
-      if (!this.refundRemark.trim()) {
-        this.$message.warning("请输入退款备注");
-        return;
-      }
-
       this.submitLoading = true;
       try {
+        const remarkText = (this.refundRemark || "").trim();
         const params = {
           id: this.depositInfo.id, // 充值订单ID
-          remark: this.refundRemark.trim() // 退款备注
+          remark: remarkText // 退款备注（可为空）
         };
 
         const res = await api_vip.reqCancelDeposit(params);

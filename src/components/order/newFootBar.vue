@@ -110,7 +110,7 @@
         "  -->
         <!-- 消费情况 -->
         <div class="new-one" v-if="isRect &&
-          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt) && !safeModeEnabled" style="padding-top: 8px; " layout="row"
+          ($store.state.userInfo.authStatus == 4 || canLookOrderAmt) && !safeModeEnabled && !shouldHideBottomAmounts" style="padding-top: 8px; " layout="row"
           layout-align="start start">
           <p class="new-one-txt-cut">
             <!-- 折前：当太总消费的应收金额（不含赠送） -->
@@ -145,7 +145,7 @@
     </div>
 
     <div layout="row" layout-align="center center" style="padding-top: 8px; width: 100%;" v-if="(!isRect) &&
-      ($store.state.userInfo.authStatus == 4 || canLookOrderAmt)">
+      ($store.state.userInfo.authStatus == 4 || canLookOrderAmt) && !shouldHideBottomAmounts">
       <!-- 消费情况 -->
       <div class="new-one" layout="row" layout-align="start start">
         <p class="new-one-txt-cut">
@@ -1655,6 +1655,22 @@ export default {
     },
     isValidCard() {
       return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
+    },
+    // 营销 + 全场优惠子权限为不可查看当台消费 时，在PC端隐藏底部金额
+    shouldHideBottomAmounts() {
+      try {
+        const userInfo = this.$store.state.userInfo || {};
+        const roleIds = userInfo.roleIds || [];
+        const isMarketing = roleIds.includes(3);
+        const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
+        const cannotViewConsumption = userInfo.sys_modules && userInfo.sys_modules.includes(99);
+        const isPc = window.atool && typeof window.atool.getTermType === 'function'
+          ? window.atool.getTermType() === 'pc'
+          : !/android|iphone|ipad/i.test(navigator.userAgent);
+        return Boolean(isPc && isMarketing && hasFullVenueGiftPermission && cannotViewConsumption);
+      } catch (e) {
+        return false;
+      }
     }
   },
   components: {
@@ -1662,7 +1678,7 @@ export default {
     drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
     drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
-    drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
+  drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
     fullPageTable, // 全屏表格数据
     cardDrawer

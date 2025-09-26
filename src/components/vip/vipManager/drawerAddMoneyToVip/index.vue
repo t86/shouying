@@ -122,9 +122,9 @@ export default {
         return this.$message.warning("请选择充值方式");
       }
       
-      // 如果选择的是客人付款码，检查是否有滞留金
-      if (this.stepTwoInfo.typeVal == 9998) {
-        await this.handleCustomerPaymentCodeRecharge(makeAmt, freeAmt, isCustom);
+      // 如果选择的是线上付款，检查是否有滞留金
+      if (this.stepTwoInfo.typeVal == 9) {
+        await this.handleOnlinePaymentRecharge(makeAmt, freeAmt, isCustom);
         return;
       }
       
@@ -132,8 +132,8 @@ export default {
       await this.processNormalRecharge(makeAmt, freeAmt, isCustom);
     },
 
-    // 处理客人付款码充值
-    async handleCustomerPaymentCodeRecharge(makeAmt, freeAmt, isCustom) {
+    // 处理线上付款充值
+    async handleOnlinePaymentRecharge(makeAmt, freeAmt, isCustom) {
       try {
         // 检查滞留金
         const lateDepositList = await this.checkLateDeposit();

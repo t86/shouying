@@ -80,6 +80,11 @@
           <div class="thead">
             <div class="tr" layout="row" layout-align="space-between center">
               <div class="th">序号</div>
+              <div class="th" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
+                操作
+              </div>
               <div class="th">充值日期</div>
               <div class="th">充值类型</div>
               <div class="th">会员姓名</div>
@@ -94,17 +99,25 @@
               <div class="th">充值方式</div>
               <div class="th">充值推荐人</div>
               <div class="th">状态</div>
-              <div class="th" :style="{
-                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-              }">
-                操作
-              </div>
             </div>
           </div>
           <div class="tbody">
             <div class="tr" v-for="(item, index) in tableData" :key="index" layout="row"
               layout-align="space-between center">
               <div class="td">{{ index + 1 }}</div>
+              <div class="td" :style="{
+                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
+              }">
+                <span @click="printHandle(item)">重打小票</span>
+                <span 
+                  @click="item.b == 2 ? showOrHideModal($event, item) : null" 
+                  :class="{ 'disabled': item.b == 1 }"
+                  :title="item.b == 1 ? '已退款' : '退款'"
+                >
+                  {{ item.b == 1 ? '已退款' : '退款' }}
+                </span>
+                <span @click="showChangeDepositSalesDialog(item)">修改充值推荐人</span>
+              </div>
               <div class="td">{{ item.d }}</div>
               <div class="td">{{ item.t }}</div>
               <div class="td">{{ item.n }}</div>
@@ -127,19 +140,6 @@
                 >
                   {{ item.b == 1 ? '已退款' : '正常' }}
                 </span>
-              </div>
-              <div class="td" :style="{
-                visibility: $store.getters.vipAuth ? 'visible' : 'hidden',
-              }">
-                <span @click="printHandle(item)">重打小票</span>
-                <span 
-                  @click="item.b == 2 ? showOrHideModal($event, item) : null" 
-                  :class="{ 'disabled': item.b == 1 }"
-                  :title="item.b == 1 ? '已退款' : '退款'"
-                >
-                  {{ item.b == 1 ? '已退款' : '退款' }}
-                </span>
-                <span @click="showChangeDepositSalesDialog(item)">修改充值推荐人</span>
               </div>
             </div>
             <div class="no-data" v-if="tableData.length == 0">

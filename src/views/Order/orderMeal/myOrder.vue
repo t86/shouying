@@ -172,6 +172,7 @@
           class="my-order-content-bottom"
           layout="row"
           layout-align="space-between center"
+          v-if="!shouldHideBottomAmounts"
         >
           <div class="amt" layout="row">
             <div class="p m-r-5" layout="row" layout-align="start center">
@@ -641,6 +642,20 @@ export default {
     downKeyCode = [0, 0];
   },
   computed: {
+    // 是否需要在PC端隐藏底部金额（营销 + 全场优惠子权限为不可查看当台消费）
+    shouldHideBottomAmounts() {
+      try {
+        const userInfo = this.$store.state.userInfo || {};
+        const roleIds = userInfo.roleIds || [];
+        const isMarketing = roleIds.includes(3);
+        const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
+        const cannotViewConsumption = userInfo.sys_modules && userInfo.sys_modules.includes(99);
+        const isPc = window.atool && typeof window.atool.getTermType === 'function' ? (window.atool.getTermType() === 'pc') : (!/android|iphone|ipad/i.test(navigator.userAgent));
+        return Boolean(isPc && isMarketing && hasFullVenueGiftPermission && cannotViewConsumption);
+      } catch (e) {
+        return false;
+      }
+    },
     // 是否退单权限
     hasOrderBackAuth() {
       return (

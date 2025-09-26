@@ -113,7 +113,9 @@ export default {
       paymentStatus: "idle", // idle, processing, success, failed
       scanTimeout: null,
       paymentTimeout: null,
-      showManualInput: false
+      showManualInput: false,
+      currentOrderId: null,
+      paymentTimer: null
     };
   },
   computed: {
@@ -249,45 +251,66 @@ export default {
       }, 30000);
 
       try {
-        // 使用标准的充值接口，客人付款码的渠道ID为9998
-        const params = {
+        // 第一步：创建充值订单
+        const orderParams = {
           id: this.rechargeInfo.memberId, // 会员ID
           val_amt: this.rechargeInfo.makeAmt,
           free_amt: this.rechargeInfo.freeAmt,
           pt_amt: this.rechargeInfo.sendPoint || 0,
           m: this.rechargeInfo.isCustom ? 2 : 1,
           oper_emp_id: this.$store.state.userInfo.emp_id * 1,
-          deposit_cnl: 9998, // 客人付款码渠道ID（暂定）
           sales_emp_id: this.rechargeInfo.salesEmpId * 1,
           remark: this.rechargeInfo.remark || "",
+          pay_amt: Math.round(parseFloat(this.paymentAmount) * 100), // 支付金额（分）
+          pay_type: 1, // 支付类型：1-支付宝，2-微信
           auth_code: this.customerPaymentCode, // 付款码
-          pay_amt: this.paymentAmount.toString() // 实际支付金额
+          late_deposit_ids: this.selectedLateDeposits.map(item => item.id).join(',') // 滞留金ID列表
         };
 
-        // 调用标准充值API
-        const res = await api_vip.reqMakeMoneyToCard(params);
+        const orderRes = await api_vip.reqNewCustDeptOrder(orderParams);
         
-        // 清除支付超时
-        if (this.paymentTimeout) {
-          clearTimeout(this.paymentTimeout);
-          this.paymentTimeout = null;
-        }
-        
-        if (res.code === 1) {
-          this.paymentStatus = "success";
-          this.$message.success("充值成功");
+        if (orderRes.code === 1 && orderRes.data.pay_id) {
+          // 第二步：创建支付订单
+          const payParams = {
+            pay_id: orderRes.data.pay_id,
+            pay_amt: Math.round(parseFloat(this.paymentAmount) * 100),
+            pay_type: 1, // 支付类型
+            auth_code: this.customerPaymentCode
+          };
+
+          const payRes = await api_vip.reqNewCustDeptOrderPay(payParams);
           
-          // 发射成功事件
-          this.$emit("success", {
-            amount: this.paymentAmount,
-            paymentCode: this.customerPaymentCode,
-            lateDeposits: this.selectedLateDeposits
-          });
-          
-          this.onCancel();
+          if (payRes.code === 1) {
+            if (payRes.data.pay_rst === 1) {
+              // 直接支付成功
+              this.paymentStatus = "success";
+              this.$message.success("充值成功");
+              
+              // 发射成功事件
+              this.$emit("success", {
+                amount: this.paymentAmount,
+                paymentCode: this.customerPaymentCode,
+                lateDeposits: this.selectedLateDeposits
+              });
+              
+              this.onCancel();
+            } else if (payRes.data.pay_rst === 0) {
+              // 需要轮询检查支付状态
+              this.startPaymentStatusCheck(orderRes.data.order_id);
+            } else {
+              // 支付失败
+              this.paymentStatus = "failed";
+              this.$message.error("支付失败");
+              this.resetPaymentInput();
+            }
+          } else {
+            this.paymentStatus = "failed";
+            this.$message.error(payRes.msg || "创建支付订单失败");
+            this.resetPaymentInput();
+          }
         } else {
           this.paymentStatus = "failed";
-          this.$message.error(res.msg || "支付失败");
+          this.$message.error(orderRes.msg || "创建订单失败");
           this.resetPaymentInput();
         }
       } catch (error) {
@@ -324,6 +347,10 @@ export default {
         clearTimeout(this.paymentTimeout);
         this.paymentTimeout = null;
       }
+      if (this.paymentTimer) {
+        clearInterval(this.paymentTimer);
+        this.paymentTimer = null;
+      }
     },
 
     // 取消
@@ -333,6 +360,73 @@ export default {
 
     onCancelDialog() {
       this.show = false;
+    },
+
+    // 开始支付状态检查
+    startPaymentStatusCheck(orderId) {
+      this.currentOrderId = orderId;
+      this.paymentTimer = setInterval(async () => {
+        await this.checkPaymentStatus();
+      }, 2000); // 每2秒检查一次
+
+      // 设置最大检查时间（2分钟）
+      setTimeout(() => {
+        if (this.paymentTimer) {
+          clearInterval(this.paymentTimer);
+          this.paymentTimer = null;
+          if (this.paymentStatus === "processing") {
+            this.paymentStatus = "failed";
+            this.$message.error("支付超时");
+            this.resetPaymentInput();
+          }
+        }
+      }, 120000);
+    },
+
+    // 检查支付状态
+    async checkPaymentStatus() {
+      if (!this.currentOrderId) return;
+
+      try {
+        const statusRes = await api_vip.reqGetCustDeptOrderStatus({
+          order_id: this.currentOrderId
+        });
+
+        if (statusRes.code === 1) {
+          if (statusRes.data.pay_rst === 1) {
+            // 支付成功
+            if (this.paymentTimer) {
+              clearInterval(this.paymentTimer);
+              this.paymentTimer = null;
+            }
+            
+            this.paymentStatus = "success";
+            this.$message.success("充值成功");
+            
+            // 发射成功事件
+            this.$emit("success", {
+              amount: this.paymentAmount,
+              paymentCode: this.customerPaymentCode,
+              lateDeposits: this.selectedLateDeposits
+            });
+            
+            this.onCancel();
+          } else if (statusRes.data.pay_rst === 2) {
+            // 支付失败
+            if (this.paymentTimer) {
+              clearInterval(this.paymentTimer);
+              this.paymentTimer = null;
+            }
+            
+            this.paymentStatus = "failed";
+            this.$message.error("支付失败");
+            this.resetPaymentInput();
+          }
+          // pay_rst === 0 继续等待
+        }
+      } catch (error) {
+        console.error("检查支付状态失败:", error);
+      }
     }
   },
 
