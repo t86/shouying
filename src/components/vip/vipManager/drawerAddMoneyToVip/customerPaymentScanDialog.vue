@@ -52,6 +52,7 @@
               placeholder="手动输入客人付款码"
               size="small"
               style="width: 300px; margin-top: 15px;"
+              ref="manualPaymentCodeInput"
               @keydown.enter.native="processManualPayment"
             />
             <el-button 
@@ -198,7 +199,9 @@ export default {
     // 聚焦输入框
     focusInput() {
       this.$nextTick(() => {
-        if (this.$refs.customerPaymentCodeInput) {
+        if (this.showManualInput && this.$refs.manualPaymentCodeInput) {
+          this.$refs.manualPaymentCodeInput.focus();
+        } else if (this.$refs.customerPaymentCodeInput) {
           this.$refs.customerPaymentCodeInput.focus();
         }
       });
@@ -220,6 +223,13 @@ export default {
       if (this.showManualInput) {
         this.manualPaymentCode = "";
       }
+      this.$nextTick(() => {
+        if (this.showManualInput && this.$refs.manualPaymentCodeInput) {
+          this.$refs.manualPaymentCodeInput.focus();
+        } else {
+          this.focusInput();
+        }
+      });
     },
 
     // 处理手动输入支付
@@ -253,18 +263,14 @@ export default {
       try {
         // 第一步：创建充值订单
         const orderParams = {
-          id: this.rechargeInfo.memberId, // 会员ID
-          val_amt: this.rechargeInfo.makeAmt,
-          free_amt: this.rechargeInfo.freeAmt,
-          pt_amt: this.rechargeInfo.sendPoint || 0,
-          m: this.rechargeInfo.isCustom ? 2 : 1,
-          oper_emp_id: this.$store.state.userInfo.emp_id * 1,
-          sales_emp_id: this.rechargeInfo.salesEmpId * 1,
-          remark: this.rechargeInfo.remark || "",
-          pay_amt: Math.round(parseFloat(this.paymentAmount) * 100), // 支付金额（分）
-          pay_type: 1, // 支付类型：1-支付宝，2-微信
-          auth_code: this.customerPaymentCode, // 付款码
-          late_deposit_ids: this.selectedLateDeposits.map(item => item.id).join(',') // 滞留金ID列表
+          mode: this.rechargeInfo.isCustom ? 2 : 1,
+          id: this.rechargeInfo.memberId,
+          deposit_amt: Math.round(parseFloat(this.rechargeInfo.makeAmt || this.paymentAmount || 0) * 100),
+          free_amt: Math.round(parseFloat(this.rechargeInfo.freeAmt || 0) * 100),
+          free_pt_amt: parseInt(this.rechargeInfo.sendPoint || 0, 10),
+          free_kq_id: parseInt(this.rechargeInfo.freeKqId || 0, 10),
+          sales_emp_id: parseInt(this.rechargeInfo.salesEmpId || 0, 10),
+          remark: this.rechargeInfo.remark || ""
         };
 
         const orderRes = await api_vip.reqNewCustDeptOrder(orderParams);
@@ -369,18 +375,6 @@ export default {
         await this.checkPaymentStatus();
       }, 2000); // 每2秒检查一次
 
-      // 设置最大检查时间（2分钟）
-      setTimeout(() => {
-        if (this.paymentTimer) {
-          clearInterval(this.paymentTimer);
-          this.paymentTimer = null;
-          if (this.paymentStatus === "processing") {
-            this.paymentStatus = "failed";
-            this.$message.error("支付超时");
-            this.resetPaymentInput();
-          }
-        }
-      }, 120000);
     },
 
     // 检查支付状态

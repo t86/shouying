@@ -214,9 +214,9 @@ export default {
           id: this.rechargeInfo.member.id,
           deposit_amt: Math.round(parseFloat(this.rechargeAmount) * 100), // 转换为分
           free_amt: Math.round(parseFloat(this.giftAmount) * 100),
-          free_pt_amt: parseInt(this.rechargeInfo.freePoints || 0),
-          free_kq_id: parseInt(this.rechargeInfo.freeKqId || 0), // 传递卡券ID
-          sales_emp_id: this.rechargeInfo.salesEmpId || 0,
+          free_pt_amt: parseInt(this.rechargeInfo.freePoints || 0, 10),
+          free_kq_id: parseInt(this.rechargeInfo.freeKqId || 0, 10),
+          sales_emp_id: parseInt(this.rechargeInfo.salesEmpId || 0, 10),
           remark: this.rechargeInfo.remark || ""
         };
 

@@ -385,9 +385,9 @@ export default {
           id: this.currentMember.id,
           deposit_amt: Math.round(parseFloat(this.rechargeForm.depositAmount || 0) * 100), // 转换为分
           free_amt: Math.round(parseFloat(this.rechargeForm.freeAmount || 0) * 100),
-          free_pt_amt: parseInt(this.rechargeForm.freePoints || 0),
+          free_pt_amt: parseInt(this.rechargeForm.freePoints || 0, 10),
           free_kq_id: 0,
-          sales_emp_id: (this.rechargeInfo && this.rechargeInfo.salesEmpId) * 1 || 0,
+          sales_emp_id: parseInt((this.rechargeInfo && this.rechargeInfo.salesEmpId) || 0, 10),
           remark: this.rechargeForm.remark || ""
         };
 
