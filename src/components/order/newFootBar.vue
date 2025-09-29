@@ -397,6 +397,7 @@ import Observer, { BIND_EMP } from "@/observer";
 import fullPageTable from "@/components/book/machine/fullPageZTOrder.vue";
 import cardDrawer from "@/components/book/machine/cardDrawerZTOrder.vue";
 import {cardPageMixins} from "@/mixin/cardPage";
+import authStatus from "@/mixin/authStatus";
 import {cardOptions} from "@/utils/config/card";
 
 const orderNavList = [
@@ -1657,18 +1658,48 @@ export default {
       return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
     },
     // 营销 + 全场优惠子权限为不可查看当台消费 时，在PC端隐藏底部金额
+    // 督查角色没有当前卡台区域权限时，也隐藏底部金额
     shouldHideBottomAmounts() {
       try {
         const userInfo = this.$store.state.userInfo || {};
         const roleIds = userInfo.roleIds || [];
         const isMarketing = roleIds.includes(3);
+        const isSupervisor = roleIds.includes(11);
         const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
         const cannotViewConsumption = userInfo.sys_modules && userInfo.sys_modules.includes(99);
         const isPc = window.atool && typeof window.atool.getTermType === 'function'
           ? window.atool.getTermType() === 'pc'
           : !/android|iphone|ipad/i.test(navigator.userAgent);
-        return Boolean(isPc && isMarketing && hasFullVenueGiftPermission && cannotViewConsumption);
+        
+        // 营销角色的权限控制
+        const shouldHideForMarketing = Boolean(isPc && isMarketing && hasFullVenueGiftPermission && cannotViewConsumption);
+        
+        // 督查角色的权限控制
+        let shouldHideForSupervisor = false;
+        if (isSupervisor) {
+          // 获取当前卡台的区域ID
+          const currentCardInfo = this.$store.state.orderInfo.currentCardInfo || {};
+          const currentSeatId = currentCardInfo.seatId;
+          const cardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+          const currentCard = cardInfo.find(card => card.id * 1 === currentSeatId * 1);
+          const currentRegionId = currentCard ? currentCard.regionId : null;
+          
+          console.log("shouldHideBottomAmounts - supervisor check:", {
+            currentSeatId,
+            currentRegionId,
+            hasPermission: currentRegionId ? this.hasSupervisorRegionPermission(currentRegionId) : false,
+            hasFullLookup: this.hasFullLookupPermission()
+          });
+          
+          // 如果督查角色没有全场权限，且没有当前区域权限，则隐藏金额
+          if (!this.hasFullLookupPermission() && currentRegionId && !this.hasSupervisorRegionPermission(currentRegionId)) {
+            shouldHideForSupervisor = true;
+          }
+        }
+        
+        return shouldHideForMarketing || shouldHideForSupervisor;
       } catch (e) {
+        console.error("shouldHideBottomAmounts error:", e);
         return false;
       }
     }
@@ -1697,7 +1728,7 @@ export default {
     // 移除事件监听
     eventVue.$off("safeModeChanged");
   },
-  mixins: [cardPageMixins],
+  mixins: [cardPageMixins, authStatus],
 };
 </script>
 <style>
