@@ -1,0 +1,215 @@
+.choose-pay-type {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+
+  .contain {
+    width: 784px;
+    max-width: 95%;
+    height: 356px;
+    background: #DCE1EA;
+    border-radius: 20px;
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    z-index: 3001;
+    
+    .top {
+      padding: 0 20px;
+      height: 40px;
+      background: #C4CBD7;
+      font-size: 18px;
+      font-family: PingFangSC, PingFang SC;
+      font-weight: 600;
+      color: #1A1A21;
+    }
+
+    .center {
+      flex-wrap: wrap;
+      margin-top: 20px;
+
+      .choose {
+        width: 240px;
+        height: 80px;
+        cursor: pointer;
+        margin: 0 0 12px 12px;
+        border: 1px solid #C4CBD7;
+        color: #08080A;
+        border-radius: 6px;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        background: #ECEFF4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.active {
+          color: #3373E8;
+          background: #CBE8FF;
+          border: 1px solid #2170FF;
+        }
+
+        .tuijian {
+          display: inline-block;
+          padding: 3px 4px;
+          background: #E63122;
+          border-radius: 4px;
+          text-align: center;
+          line-height: 24px;
+          font-size: 18px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 600;
+          color: #FFF3CD;
+          margin-left: 4px;
+        }
+      }
+    }
+
+    .bottom {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 64px;
+      background: #FAFAFC;
+
+      .button {
+        width: 112px;
+        height: 52px;
+        background: #374368;
+        box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 600;
+        color: #FFFFFF;
+        text-align: center;
+        line-height: 52px;
+        
+        &.primary {
+          box-shadow: none;
+          background-color: #4b89ff;
+          margin-left: 4px;
+        }
+      }
+    }
+  }
+
+  @media (orientation: portrait) {
+    .contain {
+      width: 95% !important;
+      height: auto;
+      max-height: 90vh;
+    }
+  }
+}
+
+.scan_input {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+
+  .contain {
+    width: 660px;
+    max-width: 95%;
+    height: 550px;
+    border-radius: 8px;
+    background: #202c4a;
+    box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+
+    .top {
+      padding: 0 20px;
+      height: 50px;
+      background-color: #1e2944;
+
+      .value {
+        width: 100%;
+        height: 42px;
+        margin: 0 auto;
+        line-height: 42px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 0 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+
+        &.text {
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        &.focus {
+          border: 1px solid #32b9ff;
+        }
+      }
+    }
+
+    .center {
+      flex-wrap: wrap;
+      margin-top: 20px;
+
+      .choose {
+        width: 160px;
+        cursor: pointer;
+        padding: 8px 16px;
+        margin: 0 0 20px 20px;
+        border: 1px solid #999;
+        color: #999;
+        border-radius: 6px;
+
+        &.active {
+          border-color: #4b89ff;
+          color: #4b89ff;
+        }
+      }
+    }
+
+    .bottom {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 50px;
+      background-color: #202c4a;
+
+      .button {
+        padding: 6px 16px;
+        border-radius: 6px;
+        margin: 0 10px;
+        font-size: 14px;
+
+        &.primary {
+          background-color: #4b89ff;
+        }
+
+        &.info {
+          background-color: #374368;
+        }
+      }
+    }
+  }
+
+  @media (orientation: portrait) {
+    .contain {
+      width: 95% !important;
+      max-height: 90vh;
+    }
+  }
+}

@@ -38,7 +38,7 @@
         </div>
         <!-- 输入金额 -->
         <div class="center">
-          <div class="center-top" layout="row" layout-align="center center">
+          <div class="center-top" layout="row" layout-align="center center" v-if="payActiveInfo.id != 10">
             <div
               class="center-top-left"
               layout="row"
@@ -49,25 +49,12 @@
             </div>
           </div>
 
-          <!-- 客人付款码 -->
-          <div class="customer-payment-code" v-if="payActiveInfo.id == 9">
-            <div class="payment-info" layout="row" layout-align="center center">
-              <p class="label">本次收款:</p>
-              <p class="amount">￥{{ count || notPayAmt }}</p>
-            </div>
-            <div class="scan-actions" layout="row" layout-align="center center">
-              <button 
-                class="scan-btn" 
-                @click="startOnlinePaymentScan"
-                :disabled="!count || count <= 0"
-              >
-                {{ scanStatus === 'scanning' ? '等待扫码...' : '点击扫描' }}
-              </button>
-            </div>
-            <div class="scan-tips" v-if="scanStatus === 'scanning'">
-              <p>请使用扫码枪扫描客人付款码</p>
-              <button class="cancel-scan-btn" @click="cancelOnlinePaymentScan">取消扫描</button>
-            </div>
+          <!-- 线上收款（买单+滞留金） -->
+          <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 10">
+            <onlinePaymentChannel 
+              @showBuyOrder="handleShowBuyOrder" 
+              @showBookAmt="handleShowBookAmt" 
+            />
           </div>
 
           <!-- 会员卡落单 -->
@@ -433,7 +420,7 @@
             </p>
           </div>
           <div
-            v-if="![9999, 202].includes(payActiveInfo.id * 1)"
+            v-if="![9999, 202, 10].includes(payActiveInfo.id * 1)"
             class="center-bottom"
             layout="row"
             layout-align="center center"
@@ -604,62 +591,34 @@
       />
     </el-drawer>
 
+    <!-- 线上买单：选择支付方式 -->
+    <choosePayTypeDialog 
+      v-model="showOnlineBuyOrder"
+      :orderIds="selectedOrderIds"
+      @success="handleOpenPayQR"
+    />
+
+    <!-- 线上支付二维码弹窗 -->
+    <drawerPayQR 
+      :showDrawer="showOnlinePayQR" 
+      :payType="onlinePayType" 
+      :orderInfoDetail="onlineOrderInfo"
+      @showOrHideQRDrawerHandle="handleClosePayQR"
+      @subSecondLogoutHandle="handleOnlinePaySuccess"
+    />
+
+    <!-- 线上滞留金弹窗 -->
+    <drawerAddBookAmt 
+      v-model="showOnlineBookAmt"
+      @subSecondLogoutHandle="handleOnlineBookAmtSuccess"
+    />
+
     <el-dialog class="custom-dialog" title="提示" :visible="showConsumed" append-to-body @close="closeConsume">
         <h3>{{ consumeMessage }}</h3>
         <div slot="footer" class="dialog-footer">
           <el-button type="primary" @click="closeConsume">关闭</el-button>
       </div>
     </el-dialog>
-
-    <!-- 客人付款码扫码输入界面 -->
-    <div class="customer-scan-input" v-if="showCustomerScanInput">
-      <div class="scan-container">
-        <div class="scan-header" layout="row" layout-align="space-between center">
-          <div class="title">扫客人付款码</div>
-          <i class="el-icon-close cursor" @click="cancelCustomerPaymentScan"></i>
-        </div>
-        
-        <div class="scan-content">
-          <div class="amount-display" layout="row" layout-align="center center">
-            <span class="label">收款金额:</span>
-            <span class="amount">￥{{ count || notPayAmt }}</span>
-          </div>
-          
-          <!-- 隐藏的输入框用于接收扫码枪输入 -->
-          <input 
-            ref="customerPaymentCodeInput"
-            v-model="customerPaymentCode"
-            class="hidden-scan-input"
-            placeholder="请使用扫码枪扫描客人付款码"
-            @input="onCustomerPaymentCodeInput"
-            @keydown.enter="processOnlinePayment"
-            @blur="focusInput"
-          />
-          
-          <div class="scan-status" v-if="paymentStatus === 'processing'">
-            <div class="loading-icon"></div>
-            <p>正在处理支付...</p>
-          </div>
-          
-          <div class="scan-instructions" v-else>
-            <div class="scan-icon">📱</div>
-            <p>请使用扫码枪扫描客人付款码</p>
-            <p class="sub-text">或手动输入付款码</p>
-          </div>
-        </div>
-        
-        <div class="scan-footer" layout="row" layout-align="center center">
-          <button class="cancel-btn" @click="cancelOnlinePaymentScan">取消</button>
-          <button 
-            class="confirm-btn" 
-            @click="processOnlinePayment"
-            :disabled="!customerPaymentCode || paymentStatus === 'processing'"
-          >
-            确认支付
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -674,6 +633,10 @@ import drawerChooseYudingjin from "./drawerChooseYudingjin.vue";
 import keyBoard from "@/components/common/keyBoard";
 import authComponent from "@/components/money/drawerPayMoneyAuth";
 import mySelect from "@/components/book/select";
+import onlinePaymentChannel from "./onlinePaymentChannel.vue";
+import choosePayTypeDialog from "../order/choosePayTypeDialog.vue";
+import drawerAddBookAmt from "../order/newDrawerAddBookAmt.vue";
+import drawerPayQR from "../order/newDrawerPayQR.vue";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 export default {
@@ -736,16 +699,14 @@ export default {
       },
       consumeMessage: "", // 消费提示信息
       showConsumed: false, // 是否显示消费提示信息
-      
-      // 线上付款相关
-      showCustomerScanInput: false, // 是否显示扫码输入界面
-      customerPaymentCode: "", // 客人付款码
-      scanStatus: "idle", // 扫码状态: idle, scanning, processing
-      paymentStatus: "idle", // 支付状态: idle, processing, success, failed
-      scanTimeout: null, // 扫码超时定时器
-      paymentTimeout: null, // 支付超时定时器
-      currentOrderId: null, // 当前订单ID
-      paymentTimer: null, // 支付状态检查定时器
+
+      // 线上买单和滞留金弹窗状态
+      showOnlineBuyOrder: false, // 显示线上买单选择支付方式弹窗
+      showOnlinePayQR: false, // 显示线上买单支付二维码弹窗
+      onlinePayType: "", // 线上买单支付类型
+      onlineOrderInfo: {}, // 线上买单订单信息
+      showOnlineBookAmt: false, // 显示线上滞留金弹窗
+      selectedOrderIds: [], // 勾选的订单ID列表
     };
   },
   methods: {
@@ -789,15 +750,15 @@ export default {
         };
       }
 
-      // 客人付款码支付方式（线上付款）
-      const customerPaymentCodeInfo = {
-        id: 9, // 渠道id - 线上付款
-        name: "线上付款", //  渠道名称
+      // 线上收款（买单+滞留金）
+      const onlinePaymentChannelInfo = {
+        id: 10, // 渠道id - 线上收款
+        name: "线上收款", //  渠道名称
         pay_type: 1, // 支付类型: 1 联动渠道 2 不联动渠道(只落单)
         auth_type: 2, // 授权类型: 1 需要授权 2 不需要授权
         value_type: 1, // 价值类型: 1 全有价 2 全免费 3 混合
         status: 1, // 状态: 1有效 3 删除
-        dsp: -2, // 显示顺序（排在滞留金之前）
+        dsp: -3, // 显示顺序（排在线上付款之前）
       };
 
       // 门店设置的渠道
@@ -822,8 +783,8 @@ export default {
       // 线下支付订单
       let allPaymentMethods = [...payList, ...vipPayList, ...yudingPayList];
       
-      // 添加客人付款码支付方式
-      allPaymentMethods.unshift(customerPaymentCodeInfo);
+      // 添加线上收款方式（买单+滞留金）
+      allPaymentMethods.unshift(onlinePaymentChannelInfo);
       
       // 如果有滞留金，添加到列表中
       if (bookPayInfo.id) {
@@ -1615,6 +1576,71 @@ export default {
         }
       }, 2000);
     },
+
+    // 处理线上支付成功
+    async handleOnlinePaymentSuccess() {
+      // 刷新购物车
+      await this.getChoosePayList();
+      // 通知父组件支付成功
+      this.$emit("paySuccess");
+    },
+
+    // 处理显示买单弹窗
+    handleShowBuyOrder() {
+      console.log("handleShowBuyOrder被调用，打开买单弹窗");
+      
+      // 从 choosePayOrderList 中提取订单ID列表
+      const orderIds = [];
+      this.choosePayOrderList.forEach((el) => {
+        if (!el.oid && el.at != 2 && el.at != 3 && el.at != 5 && el.at != 6 && !el.back) {
+          // 非线上订单且非特殊类型订单
+          if (el.id && orderIds.indexOf(el.id * 1) === -1) {
+            orderIds.push(el.id * 1);
+          }
+        }
+      });
+      
+      this.selectedOrderIds = orderIds;
+      console.log("选中的订单ID列表:", this.selectedOrderIds);
+      
+      this.showOnlineBuyOrder = true;
+    },
+
+    // 处理打开支付二维码弹窗
+    handleOpenPayQR({ payType, orderInfo }) {
+      this.onlinePayType = payType;
+      this.onlineOrderInfo = { ...orderInfo, r: orderInfo.r || 0 };
+      this.showOnlinePayQR = true;
+    },
+
+    // 关闭支付二维码弹窗
+    handleClosePayQR() {
+      this.showOnlinePayQR = false;
+      this.onlinePayType = "";
+      this.onlineOrderInfo = {};
+    },
+
+    // 线上买单支付成功回调
+    handleOnlinePaySuccess() {
+      this.showOnlinePayQR = false;
+      this.onlinePayType = "";
+      this.onlineOrderInfo = {};
+      this.getChoosePayList();
+      this.$emit("paySuccess");
+    },
+
+    // 处理显示滞留金弹窗
+    handleShowBookAmt() {
+      console.log("handleShowBookAmt被调用，打开滞留金弹窗");
+      this.showOnlineBookAmt = true;
+    },
+
+    // 线上滞留金支付成功回调
+    handleOnlineBookAmtSuccess() {
+      this.showOnlineBookAmt = false;
+      this.getChoosePayList();
+      this.$emit("paySuccess");
+    },
   },
   mounted() {
     this.init();
@@ -1664,6 +1690,10 @@ export default {
     drawerChooseVipCard,
     drawerChooseYudingjin,
     mySelect,
+    onlinePaymentChannel,
+    choosePayTypeDialog,
+    drawerPayQR,
+    drawerAddBookAmt,
   },
   watch: {
     showDrawer(newVal) {
