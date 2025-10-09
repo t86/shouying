@@ -714,7 +714,14 @@ export default {
             this.subSecondLogoutHandle();
             return;
           }
-          this.showOrHideQRDrawerHandle();
+          
+          // 确保支付方式选择弹窗完全关闭后再显示二维码弹窗
+          this.showChoosePayType = false;
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.showOrHideQRDrawerHandle();
+            }, 100);
+          });
         } else if (res.code == 2) {
           const result = await this.showConfirmHandle("买单", res.msg);
           if (result == "confirm") {

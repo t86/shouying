@@ -1,39 +1,41 @@
 <template>
-  <!-- 付款二维码 -->
-  <div class="pay-QR" v-if="show">
-    <div class="contain">
-      <div class="header">买单</div>
-      <div class="content" v-if="[1, 2, 3].includes(payType)">
-        <p class="label">
-          <span class="label-title">线下订单待支付金额:</span>
-          <span class="amt">¥{{ (orderInfoDetail.pay_amt / 100).toFixed(2) }}</span>
-        </p>
-        <div class="qr" layout="column" layout-align="center center">
-          <vue-qr ref="qrCode" :text="textValue" :size="240" :margin="8" />
+  <div>
+    <!-- 付款二维码 -->
+    <div class="pay-QR" v-if="show" v-show="show">
+      <div class="contain">
+        <div class="header">买单</div>
+        <div class="content" v-if="[1, 2, 3].includes(payType * 1)">
+          <p class="label">
+            <span class="label-title">线下订单待支付金额:</span>
+            <span class="amt">¥{{ (orderInfoDetail.pay_amt / 100).toFixed(2) }}</span>
+          </p>
+          <div class="qr" layout="column" layout-align="center center">
+            <vue-qr ref="qrCode" :text="textValue" :size="240" :margin="8" />
+          </div>
+          <div class="tips">
+            请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
+          </div>
         </div>
-        <div class="tips">
-          请客人使用{{ payType == 1 ? "支付宝" : "微信" }}扫描二维码进行付款
+        <div class="wait_content" v-if="[5, 6].includes(payType * 1)">
+          <div v-if="this.orderInfoDetail.r == 0">
+            <img
+              class="loading"
+              :src="require('@/assets/order-img/loading.png')"
+            />
+            <div class="wait_tip">等待支付结果…</div>
+          </div>
+          <div class="fail" v-if="this.orderInfoDetail.r == 2">
+            <i class="el-icon-warning" />
+            <div class="tip">支付失败</div>
+          </div>
         </div>
-      </div>
-      <div class="wait_content" v-if="[5, 6].includes(payType)">
-        <div v-if="this.orderInfoDetail.r == 0">
-          <img
-            class="loading"
-            :src="require('@/assets/order-img/loading.png')"
-          />
-          <div class="wait_tip">等待支付结果…</div>
+        <div class="footer" layout="row" layout-align="center center">
+          <div v-if="this.orderInfoDetail.r == 2">
+            <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+            <el-button type="info" @click="reloadQrRequest">重新扫码</el-button>
+          </div>
+          <el-button v-else type="info" @click="notPayHandle">暂不支付</el-button>
         </div>
-        <div class="fail" v-if="this.orderInfoDetail.r == 2">
-          <i class="el-icon-warning" />
-          <div class="tip">支付失败</div>
-        </div>
-      </div>
-      <div class="footer" layout="row" layout-align="center center">
-        <div v-if="this.orderInfoDetail.r == 2">
-          <el-button type="info" @click="onCancelDrawer">关闭</el-button>
-          <el-button type="info" @click="reloadQrRequest">重新扫码</el-button>
-        </div>
-        <el-button v-else type="info" @click="notPayHandle">暂不支付</el-button>
       </div>
     </div>
   </div>
@@ -56,15 +58,27 @@ export default {
   },
   methods: {
     init() {
+      console.log("二维码弹窗 init 方法被调用");
+      console.log("orderInfoDetail.r:", this.orderInfoDetail.r);
+      console.log("orderInfoDetail:", this.orderInfoDetail);
+      
       if (this.orderInfoDetail.r !== 2) {
+        console.log("开始设置二维码信息");
         this.setQRCodeInfo();
+      } else {
+        console.log("订单状态为失败，不设置二维码");
       }
       this.reloadMyOrderTableData();
     },
 
     // 生成二维码并设置询问状态
     setQRCodeInfo() {
+      console.log("setQRCodeInfo 被调用");
+      console.log("pay_url:", this.orderInfoDetail.pay_url);
+      
       this.textValue = this.orderInfoDetail.pay_url;
+      console.log("设置 textValue:", this.textValue);
+      
       if (this.timer) clearInterval(this.timer);
       this.startTimer = 15*60;
       this.timer = setInterval(() => {
@@ -176,18 +190,57 @@ export default {
       default: 1,
     },
   },
+  created() {
+    console.log("=== newDrawerPayQR 组件创建 ===");
+    console.log("初始 showDrawer:", this.showDrawer);
+    console.log("初始 payType:", this.payType);
+    console.log("初始 orderInfoDetail:", this.orderInfoDetail);
+  },
+  mounted() {
+    console.log("=== newDrawerPayQR 组件挂载 ===");
+    console.log("挂载时 showDrawer:", this.showDrawer);
+    console.log("挂载时 payType:", this.payType);
+    console.log("挂载时 orderInfoDetail:", this.orderInfoDetail);
+  },
   components: {
     VueQr,
   },
   watch: {
     showDrawer(newVal) {
+      console.log("=== 二维码弹窗 showDrawer 变化 ===");
+      console.log("showDrawer 变化:", newVal);
+      console.log("当前 payType:", this.payType, "类型:", typeof this.payType);
+      console.log("当前 orderInfoDetail:", JSON.stringify(this.orderInfoDetail));
+      
       this.show = newVal;
+      console.log("设置 show 为:", this.show);
+      
+      this.$nextTick(() => {
+        console.log("nextTick 中 show 状态:", this.show);
+        console.log("DOM 元素是否存在:", document.querySelector('.pay-QR'));
+      });
+      
       if (newVal) {
+        console.log("开始初始化二维码弹窗");
         this.init();
       } else {
+        console.log("关闭二维码弹窗");
         this.textValue = "";
         if (this.timer) clearInterval(this.timer);
       }
+    },
+    payType: {
+      handler(newVal) {
+        console.log("=== payType 变化 ===", newVal, "类型:", typeof newVal);
+      },
+      immediate: true,
+    },
+    orderInfoDetail: {
+      handler(newVal) {
+        console.log("=== orderInfoDetail 变化 ===", JSON.stringify(newVal));
+      },
+      immediate: true,
+      deep: true,
     },
   },
 

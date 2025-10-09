@@ -1608,9 +1608,24 @@ export default {
 
     // 处理打开支付二维码弹窗
     handleOpenPayQR({ payType, orderInfo }) {
+      console.log("handleOpenPayQR被调用", { payType, orderInfo });
+      console.log("orderInfo详细信息:", JSON.stringify(orderInfo, null, 2));
+      
       this.onlinePayType = payType;
       this.onlineOrderInfo = { ...orderInfo, r: orderInfo.r || 0 };
-      this.showOnlinePayQR = true;
+      
+      // 确保选择支付方式弹窗完全关闭后再显示二维码弹窗
+      this.showOnlineBuyOrder = false;
+      this.$nextTick(() => {
+        setTimeout(() => {
+          console.log("准备显示二维码弹窗");
+          console.log("showOnlinePayQR状态:", this.showOnlinePayQR);
+          console.log("onlinePayType:", this.onlinePayType);
+          console.log("onlineOrderInfo:", this.onlineOrderInfo);
+          this.showOnlinePayQR = true;
+          console.log("设置后showOnlinePayQR状态:", this.showOnlinePayQR);
+        }, 150); // 稍微增加延迟时间
+      });
     },
 
     // 关闭支付二维码弹窗
