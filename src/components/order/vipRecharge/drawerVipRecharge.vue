@@ -39,11 +39,14 @@
               <el-option label="输入手机号后四位或会员卡号搜索" value="phone" />
             </el-select>
             <el-input
+              ref="searchKeywordInput"
               v-model="searchKeyword"
               :placeholder="searchType === 'phone' ? '输入手机号后四位或会员卡号' : '请选择搜索方式'"
               style="width: 300px; margin-right: 10px;"
               size="small"
               @input="handleSearch"
+              @focus="handleSearchInputFocus"
+              @blur="handleSearchInputBlur"
             />
           </div>
           
@@ -139,6 +142,8 @@
                   class="amount-input"
                   step="0.01"
                   min="0"
+                  @focus="focusAmountInput"
+                  @blur="blurAmountInput"
                 />
               </div>
             </div>
@@ -182,6 +187,7 @@
           </div>
         </div>
         </div>
+
       </div>
 
       <!-- 底部按钮 -->
@@ -267,7 +273,6 @@ export default {
       selectedRecommender: "",
       employeeOptions: [],
       remarkText: "",
-      showKeyboard: false,
       isRecharging: false,
       showRegisterCardDialog: false,
       showPaymentMethodDialog: false,
@@ -278,7 +283,13 @@ export default {
       newMemberInfo: {
         phone: "",
         name: ""
-      }
+      },
+      
+      // 系统键盘控制
+      isLandscape: window.innerWidth > window.innerHeight,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      isAmountInputFocused: false
     };
   },
   computed: {
@@ -303,6 +314,18 @@ export default {
       },
       immediate: true,
     },
+    isCustomAmount(newVal) {
+      if (newVal) {
+        this.customAmount = "";
+      }
+    },
+  },
+  mounted() {
+    this.updateScreenSize();
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
     initData() {
@@ -321,6 +344,55 @@ export default {
       // 重置员工选项为完整列表
       const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
       this.employeeOptions = [...orderPersonInfo];
+    },
+
+    // 处理屏幕尺寸变化
+    handleResize() {
+      this.updateScreenSize();
+    },
+
+    // 更新屏幕尺寸
+    updateScreenSize() {
+      this.windowWidth = window.innerWidth;
+      this.windowHeight = window.innerHeight;
+      this.isLandscape = this.windowWidth > this.windowHeight;
+    },
+
+    // 处理搜索输入框获得焦点 - 显示系统键盘
+    handleSearchInputFocus() {
+      this.keyboardShow('searchKeywordInput');
+    },
+
+    // 处理搜索输入框失去焦点 - 隐藏系统键盘
+    handleSearchInputBlur() {
+      this.keyboardLeave('searchKeywordInput');
+    },
+
+    // 显示系统键盘
+    keyboardShow(refString) {
+      if (
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        "showSoftInput" in window.atool
+      ) {
+        atool.showSoftInput();
+        atool.executeJs(`this.$refs.${refString}.focus()`);
+      }
+    },
+
+    // 隐藏系统键盘
+    keyboardLeave(refString) {
+      setTimeout(() => {
+        if (
+          window.atool &&
+          window.atool.getTermType() == "android" &&
+          "hideSoftInput" in window.atool
+        ) {
+          atool.executeJs(`this.$refs.${refString}.blur()`);
+          atool.hideSoftInput();
+          atool.restart();
+        }
+      }, 10);
     },
 
     async handleSearch() {
@@ -633,19 +705,36 @@ export default {
       }
     },
 
+    // 焦点控制
+    focusAmountInput() {
+      this.isAmountInputFocused = true;
+    },
+
+    blurAmountInput() {
+      this.isAmountInputFocused = false;
+    },
+
+
     // 获取弹窗尺寸
     getDrawerSize() {
-      return "60%";
+      // 使用响应式宽度
+      return this.windowWidth >= 1200 ? "60%" : "90%";
     },
 
     // 获取弹窗样式类
     getDrawerClass() {
-      return '';
+      const classes = [];
+      if (this.isLandscape) {
+        classes.push('landscape');
+      } else {
+        classes.push('portrait');
+      }
+      return classes;
     },
 
     // 获取内容区域样式类
     getContentClass() {
-      return '';
+      return [];
     },
   },
 };
@@ -948,16 +1037,6 @@ export default {
 @media (orientation: landscape) and (max-width: 1200px) {
   /deep/ .el-drawer.rtl {
     width: 95% !important;
-  }
-}
-
-// 动画
-@keyframes blink {
-  0%, 50% {
-    opacity: 1;
-  }
-  51%, 100% {
-    opacity: 0;
   }
 }
 </style>
