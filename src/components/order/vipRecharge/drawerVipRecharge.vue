@@ -133,7 +133,6 @@
               <label>自定义充值金额:</label>
               <div class="amount-input-wrapper">
                 <input
-                  v-if="!showVirtualKeyboard"
                   type="number"
                   v-model="customAmount"
                   placeholder="请输入金额"
@@ -141,14 +140,6 @@
                   step="0.01"
                   min="0"
                 />
-                <div 
-                  v-else
-                  class="amount-input virtual-input"
-                  @click="focusAmountInput"
-                >
-                  <span class="input-display">{{ customAmount || '请输入金额' }}</span>
-                  <span class="cursor-blink" v-if="isAmountInputFocused"></span>
-                </div>
               </div>
             </div>
           </div>
@@ -190,17 +181,6 @@
             />
           </div>
         </div>
-        </div>
-
-        <!-- 虚拟键盘区域 -->
-        <div class="keyboard-section" v-if="showVirtualKeyboard">
-          <vip-keyboard
-            :landscape="isLandscape"
-            :itemWidth="keyboardItemWidth"
-            :itemHeight="keyboardItemHeight"
-            :width="keyboardWidth"
-            @changeNum="handleKeyboardInput"
-          />
         </div>
       </div>
 
@@ -254,7 +234,6 @@
 
 <script>
 import api_vip from "@/api/vip";
-import vipKeyboard from "@/components/common/vipKeyBoard.vue";
 import DrawerRegisterCard from "./drawerRegisterCard.vue";
 import DrawerRechargeFlow from "./drawerRechargeFlow.vue";
 import PaymentMethodDialog from "./paymentMethodDialog.vue";
@@ -263,7 +242,6 @@ import PaymentSuccessDialog from "./paymentSuccessDialog.vue";
 export default {
   name: "VipRechargeDrawer",
   components: {
-    vipKeyboard,
     DrawerRegisterCard,
     DrawerRechargeFlow,
     PaymentMethodDialog,
@@ -300,25 +278,10 @@ export default {
       newMemberInfo: {
         phone: "",
         name: ""
-      },
-      
-      // 键盘相关
-      isLandscape: window.innerWidth > window.innerHeight,
-      keyboardItemWidth: 88,
-      keyboardItemHeight: 88,
-      keyboardWidth: 500,
-      showVirtualKeyboard: false,
-      isMobile: false,
-      isTablet: false,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-      isAmountInputFocused: false
+      }
     };
   },
   computed: {
-    isPortrait() {
-      return !this.isLandscape;
-    },
     isCustomAmount() {
       return this.selectedOptionIndex === this.rechargeOptions.length - 1;
     },
@@ -336,30 +299,10 @@ export default {
         this.show = newVal;
         if (newVal) {
           this.initData();
-          this.updateKeyboardLayout();
         }
       },
       immediate: true,
     },
-    isCustomAmount(newVal) {
-      if (newVal) {
-        this.customAmount = "";
-        if (this.showVirtualKeyboard) {
-          this.isAmountInputFocused = true;
-        }
-      } else {
-        this.isAmountInputFocused = false;
-      }
-    },
-  },
-  mounted() {
-    this.detectDevice();
-    window.addEventListener("resize", this.updateKeyboardLayout);
-    window.addEventListener("resize", this.handleResize);
-  },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.updateKeyboardLayout);
-    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
     initData() {
@@ -378,64 +321,6 @@ export default {
       // 重置员工选项为完整列表
       const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
       this.employeeOptions = [...orderPersonInfo];
-    },
-
-    // 检测设备类型
-    detectDevice() {
-      const userAgent = navigator.userAgent;
-      const platform = navigator.platform;
-      
-      // 检测是否是移动设备
-      this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-      
-      // 检测是否是平板
-      this.isTablet = /iPad|Android.*(?=.*\btablet\b)/i.test(userAgent) || 
-                     (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      
-      // 检测是否是桌面浏览器
-      const isDesktop = !this.isMobile && !this.isTablet;
-      
-      // 只有在移动设备或平板上才显示虚拟键盘
-      this.showVirtualKeyboard = (this.isMobile || this.isTablet) && !isDesktop;
-      
-      this.updateScreenSize();
-    },
-
-    // 处理屏幕尺寸变化
-    handleResize() {
-      this.updateScreenSize();
-      this.updateKeyboardLayout();
-    },
-
-    // 更新屏幕尺寸
-    updateScreenSize() {
-      this.windowWidth = window.innerWidth;
-      this.windowHeight = window.innerHeight;
-      this.isLandscape = this.windowWidth > this.windowHeight;
-    },
-
-    updateKeyboardLayout() {
-      this.isLandscape = window.innerWidth > window.innerHeight;
-      
-      if (this.isLandscape) {
-        // 横屏模式
-        if (this.windowWidth >= 1200) {
-          // 大屏幕：键盘可以横向布局，放在右侧
-          this.keyboardItemWidth = 70;
-          this.keyboardItemHeight = 60;
-          this.keyboardWidth = 300;
-        } else {
-          // 小屏幕：键盘竖向布局，两列
-          this.keyboardItemWidth = 65;
-          this.keyboardItemHeight = 55;
-          this.keyboardWidth = 200;
-        }
-      } else {
-        // 竖屏模式：键盘横向布局，放在底部
-        this.keyboardItemWidth = 70;
-        this.keyboardItemHeight = 50;
-        this.keyboardWidth = Math.min(400, this.windowWidth - 40);
-      }
     },
 
     async handleSearch() {
@@ -612,24 +497,6 @@ export default {
       this.selectedOptionIndex = index;
     },
 
-    handleKeyboardInput(keyId) {
-      if (keyId === 10) {
-        // 清空
-        this.customAmount = "";
-      } else if (keyId === 11) {
-        // 删除
-        if (this.customAmount.length > 0) {
-          this.customAmount = this.customAmount.slice(0, -1);
-        }
-      } else if (keyId >= 0 && keyId <= 9) {
-        // 数字输入
-        if (this.customAmount.includes('.') && this.customAmount.split('.')[1].length >= 2) {
-          return; // 限制小数点后两位
-        }
-        this.customAmount += keyId.toString();
-      }
-    },
-
     searchEmployee(query) {
       const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
       
@@ -766,59 +633,19 @@ export default {
       }
     },
 
-    // 焦点控制
-    focusAmountInput() {
-      this.isAmountInputFocused = true;
-    },
-
-    blurAmountInput() {
-      this.isAmountInputFocused = false;
-    },
-
-
     // 获取弹窗尺寸
     getDrawerSize() {
-      if (!this.showVirtualKeyboard) {
-        return "60%";
-      }
-      
-      // 有虚拟键盘时，根据屏幕方向调整
-      if (this.isLandscape) {
-        // 横屏：如果是大屏幕，增加宽度以容纳键盘
-        return this.windowWidth >= 1200 ? "80%" : "95%";
-      } else {
-        // 竖屏：需要更大的宽度来容纳内容和键盘
-        return "90%";
-      }
+      return "60%";
     },
 
     // 获取弹窗样式类
     getDrawerClass() {
-      const classes = [];
-      if (this.showVirtualKeyboard) {
-        classes.push('with-keyboard');
-        if (this.isLandscape) {
-          classes.push('landscape-keyboard');
-        } else {
-          classes.push('portrait-keyboard');
-        }
-      }
-      return classes;
+      return '';
     },
 
     // 获取内容区域样式类
     getContentClass() {
-      const classes = [];
-      if (this.showVirtualKeyboard) {
-        if (this.isLandscape && this.windowWidth >= 1200) {
-          classes.push('side-keyboard-layout');
-        } else if (this.isLandscape) {
-          classes.push('compact-layout');
-        } else {
-          classes.push('bottom-keyboard-layout');
-        }
-      }
-      return classes;
+      return '';
     },
   },
 };
@@ -1044,37 +871,6 @@ export default {
                 outline: none;
               }
             }
-            
-            .virtual-input {
-              height: 40px;
-              border: 1px solid #ddd;
-              border-radius: 4px;
-              background: #f8f9fa;
-              padding: 0 10px;
-              display: flex;
-              align-items: center;
-              cursor: pointer;
-              position: relative;
-              width: 200px;
-              
-              &:hover {
-                border-color: #409eff;
-              }
-              
-              .input-display {
-                color: #333;
-                font-size: 16px;
-                flex: 1;
-              }
-              
-              .cursor-blink {
-                width: 1px;
-                height: 20px;
-                background: #333;
-                animation: blink 1s infinite;
-                margin-left: 2px;
-              }
-            }
           }
         }
       }
@@ -1103,76 +899,6 @@ export default {
       }
     }
 
-    .keyboard-section {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-    }
-  }
-
-  // 有虚拟键盘时的布局
-  &.with-keyboard {
-    .drawer-content {
-      height: 100%;
-      
-      // 大屏幕横屏：左右布局
-      &.side-keyboard-layout {
-        display: flex;
-        gap: 20px;
-        
-        .main-content {
-          flex: 1;
-          max-width: calc(100% - 350px);
-        }
-        
-        .keyboard-section {
-          width: 320px;
-          margin-top: 0;
-          height: fit-content;
-          position: sticky;
-          top: 20px;
-        }
-      }
-      
-      // 小屏幕横屏：紧凑布局
-      &.compact-layout {
-        .main-content {
-          margin-bottom: 20px;
-        }
-        
-        .keyboard-section {
-          position: sticky;
-          bottom: 20px;
-          margin-top: 10px;
-          z-index: 10;
-        }
-      }
-      
-      // 竖屏：键盘在底部
-      &.bottom-keyboard-layout {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        
-        .main-content {
-          flex: 1;
-          overflow-y: auto;
-          margin-bottom: 10px;
-        }
-        
-        .keyboard-section {
-          position: sticky;
-          bottom: 0;
-          margin-top: auto;
-          z-index: 10;
-          background: white;
-          border-top: 2px solid #e0e0e0;
-        }
-      }
-    }
   }
 }
 
