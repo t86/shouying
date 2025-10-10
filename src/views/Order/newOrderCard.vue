@@ -1933,10 +1933,10 @@ export default {
 
     // 是否有会员充值权限
     hasVipRechargeAuth() {
-      console.log('hasVipRechargeAuth', this.$store.state.userInfo.roleIds)
+      console.log('hasVipRechargeAuth', this.$store.state.userInfo.sys_modules)
       return (
-        this.$store.state.userInfo.roleIds &&
-        (this.$store.state.userInfo.roleIds.includes(92))
+        this.$store.state.userInfo.sys_modules &&
+        (this.$store.state.userInfo.sys_modules.includes(92) || this.$store.state.userInfo.sys_modules.includes(93) || this.$store.state.userInfo.sys_modules.includes(91))
       );
     },
 

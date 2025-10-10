@@ -34,11 +34,6 @@ export default [
         name: "会员卡类型",
         routerName: "vipType",
       },
-      {
-        id: 24,
-        name: "滞留金管理",
-        routerName: "lateDepositManage",
-      },
       // {
       //   id: 23,
       //   name: "积分设置",
@@ -82,41 +77,46 @@ export default [
       },
       {
         id: 42,
+        name: "滞留金管理",
+        routerName: "lateDepositManage",
+      },
+      {
+        id: 43,
         name: "消费记录",
         routerName: "payMoneyAll",
       },
       {
-        id: 43,
+        id: 44,
         name: "扣款记录",
         routerName: "vipPay",
       },
       {
-        id: 44,
+        id: 45,
         name: "积分记录",
         routerName: "pointRecords",
       },
       {
-        id: 45,
+        id: 46,
         name: "会员卡余额汇总表",
         routerName: "memberBalanceSum",
       },
       {
-        id: 46,
+        id: 47,
         name: "会员消费排名表",
         routerName: "memberConsumeRank",
       },
       {
-        id: 47,
+        id: 48,
         name: "客户关系维护表",
         routerName: "customerRelationShipMaintence",
       },
       {
-        id: 48,
+        id: 49,
         name: "注销记录表",
         routerName: "logoutRecordForm",
       },
       {
-        id: 49,
+        id: 50,
         name: "更改等级记录表",
         routerName: "changeLevelRecordForm",
       },
