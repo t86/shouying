@@ -30,14 +30,7 @@
             <span>选择充值账户:</span>
           </div>
           <div class="search-input">
-            <el-select
-              v-model="searchType"
-              placeholder="请选择搜索方式"
-              style="width: 200px; margin-right: 10px;"
-              size="small"
-            >
-              <el-option label="输入手机号后四位或会员卡号搜索" value="phone" />
-            </el-select>
+
             <el-input
               ref="searchKeywordInput"
               v-model="searchKeyword"

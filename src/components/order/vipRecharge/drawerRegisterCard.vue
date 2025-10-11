@@ -354,7 +354,7 @@ export default {
           name: this.formData.name,
           sex: this.formData.gender, // 1 男, 2 女, 0 空
           birth_day: this.formData.birthday || "", // yyyy-mm-dd格式
-          sales_emp_id: this.formData.recommenderId || 0 // 开卡推荐人Id
+          sales_emp_id: this.formData.recommenderId * 1 || 0 // 开卡推荐人Id
         };
 
         const res = await api_vip.reqNewCustCardForDept(params);

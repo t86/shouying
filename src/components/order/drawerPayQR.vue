@@ -148,15 +148,16 @@ export default {
 
     // 操作确认框
     async showConfirmHandle(title = "", content = "") {
-      return this.$confirm(content, title, {
-        distinguishCancelAndClose: true,
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-      })
-        .then((res) => {
-          return res;
-        })
-        .catch((e) => "");
+      try {
+        await this.$confirm(content, title, {
+          distinguishCancelAndClose: true,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+        });
+        return "confirm";
+      } catch (error) {
+        return "cancel";
+      }
     },
     onCancelDrawer() {
       this.$emit("showOrHideQRDrawerHandle");

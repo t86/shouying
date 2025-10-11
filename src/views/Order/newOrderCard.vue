@@ -1042,6 +1042,29 @@ export default {
         return this.$message.warning("空台/锁台/预定状态卡台不可点单！");
       }
 
+      // 督查角色权限检查
+      const userInfo = this.$store.state.userInfo;
+      if (userInfo.roleIds && userInfo.roleIds.includes(11)) {
+        // 如果没有全场查单权限，需要检查区域权限
+        if (!this.hasFullLookupPermission()) {
+          // 获取卡台所在区域ID
+          const allCardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+          const cardInfo = allCardInfo.find(card => card.id * 1 === info.seatId * 1);
+          const cardRegionId = cardInfo ? cardInfo.regionId : null;
+          
+          console.log("督查点击卡台权限检查:", {
+            seatId: info.seatId,
+            cardRegionId,
+            hasPermission: cardRegionId ? this.hasSupervisorRegionPermission(cardRegionId) : false
+          });
+          
+          // 如果没有该区域的权限，禁止点击
+          if (cardRegionId && !this.hasSupervisorRegionPermission(cardRegionId)) {
+            return this.$message.warning("您没有权限查看该区域的卡台！");
+          }
+        }
+      }
+
       try {
         // 开启骨架屏
         this.$store.commit('setSkeletonDebug', true);

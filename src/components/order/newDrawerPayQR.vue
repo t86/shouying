@@ -34,7 +34,14 @@
             <el-button type="info" @click="onCancelDrawer">关闭</el-button>
             <el-button type="info" @click="reloadQrRequest">重新扫码</el-button>
           </div>
-          <el-button v-else type="info" @click="notPayHandle">暂不支付</el-button>
+          <el-button 
+            v-else 
+            type="info" 
+            @click="notPayHandle"
+            style="pointer-events: auto; z-index: 999;"
+          >
+            暂不支付
+          </el-button>
         </div>
       </div>
     </div>
@@ -145,33 +152,62 @@ export default {
 
     // 暂不支付
     async notPayHandle() {
-      const res = await this.showConfirmHandle(
-        "确认",
-        "点击暂不支付后，如果客人已经成功付款，则该金额将进入到滞留金列表，是否确认暂不支付？"
-      );
-      if (res == "confirm") {
-        // const result = await this.cancelPayOrder();
-        this.reloadMyOrderTableData();
-        this.onCancelDrawer();
-        // if (result == "success") {
-          this.$emit("subSecondLogoutHandle");
-        // }
+      console.log("=== notPayHandle 被调用 ===");
+      try {
+        const res = await this.showConfirmHandle(
+          "确认",
+          "点击暂不支付后，如果客人已经成功付款，则该金额将进入到滞留金列表，是否确认暂不支付？"
+        );
+        console.log("确认对话框返回结果:", res);
+        
+        if (res == "confirm") {
+          console.log("用户确认暂不支付，开始取消订单");
+          const result = await this.cancelPayOrder();
+          console.log("取消订单结果:", result);
+          
+          this.reloadMyOrderTableData();
+          this.onCancelDrawer();
+          
+          if (result == "success") {
+            this.$emit("subSecondLogoutHandle");
+          }
+        } else {
+          console.log("用户取消了暂不支付操作");
+        }
+      } catch (error) {
+        console.error("notPayHandle 执行出错:", error);
       }
     },
 
     // 操作确认框
     async showConfirmHandle(title = "", content = "") {
-      return this.$confirm(content, title, {
-        distinguishCancelAndClose: true,
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-      })
-        .then((res) => {
-          return res;
-        })
-        .catch((e) => "");
+      console.log("=== showConfirmHandle 被调用 ===");
+      console.log("title:", title);
+      console.log("content:", content);
+      
+      try {
+        console.log("准备显示确认对话框...");
+        
+        const result = await this.$confirm(content, title, {
+          distinguishCancelAndClose: true,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: 'warning',
+          center: true,
+          customClass: 'pay-confirm-dialog',
+          zIndex: 10000
+        });
+        
+        console.log("用户点击了确定, result:", result);
+        return "confirm";
+      } catch (error) {
+        console.log("用户点击了取消或关闭:", error);
+        return "cancel";
+      }
     },
     onCancelDrawer() {
+      console.log("=== onCancelDrawer 被调用 ===");
+      console.log("准备发射 showOrHideQRDrawerHandle 事件");
       this.$emit("showOrHideQRDrawerHandle");
     },
     reloadQrRequest() {
@@ -253,4 +289,38 @@ export default {
 <style scoped lang="less">
 @import "../../style/common/newElementDrawer.less";
 @import "../../style/order/orderMeal/newDrawerPayQr.less";
+</style>
+
+<style>
+/* 确保确认对话框显示在最顶层 */
+.pay-confirm-dialog {
+  z-index: 10000 !important;
+}
+
+.pay-confirm-dialog .el-message-box {
+  z-index: 10000 !important;
+}
+
+/* 确保遮罩层也在正确的层级 */
+.v-modal {
+  z-index: 9999 !important;
+}
+
+/* 确保 Element UI 的确认对话框能正确显示 */
+.el-message-box-wrapper {
+  z-index: 10000 !important;
+}
+
+.el-message-box {
+  z-index: 10000 !important;
+}
+
+/* 全局设置 Element UI 确认对话框的层级 */
+body .el-message-box__wrapper {
+  z-index: 10000 !important;
+}
+
+body .el-message-box {
+  z-index: 10000 !important;
+}
 </style>

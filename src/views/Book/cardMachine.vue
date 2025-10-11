@@ -1439,6 +1439,31 @@ export default {
           );
       }
 
+      // 督查角色权限检查 (只在点击卡台时检查)
+      if (isClickCard) {
+        const userInfo = this.$store.state.userInfo;
+        if (userInfo.roleIds && userInfo.roleIds.includes(11)) {
+          // 如果没有全场查单权限，需要检查区域权限
+          if (!this.hasFullLookupPermission()) {
+            // 获取卡台所在区域ID
+            const allCardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+            const cardInfo = allCardInfo.find(card => card.id * 1 === itemInfo.id * 1);
+            const cardRegionId = cardInfo ? cardInfo.regionId : null;
+            
+            console.log("督查点击订位卡台权限检查:", {
+              seatId: itemInfo.id,
+              cardRegionId,
+              hasPermission: cardRegionId ? this.hasSupervisorRegionPermission(cardRegionId) : false
+            });
+            
+            // 如果没有该区域的权限，禁止点击
+            if (cardRegionId && !this.hasSupervisorRegionPermission(cardRegionId)) {
+              return this.$message.warning("您没有权限查看该区域的卡台！");
+            }
+          }
+        }
+      }
+
       this.card.cardList.forEach((el, i) => {
         el.showOption = index === i ? !el.showOption : false;
       });
