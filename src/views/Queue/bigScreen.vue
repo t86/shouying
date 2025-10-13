@@ -6,7 +6,7 @@
         </div>
         <div class="table">
             <div class="thead">
-            <div class="tr" layout="row" layout-align="start center">
+            <div class="tr">
               <div class="th">类型</div>
               <div class="th">当前叫号</div>
               <div class="th">当前取号</div>
@@ -17,8 +17,6 @@
           <div class="tbody">
             <div
               class="tr"
-              layout="row"
-              layout-align="start center"
               v-for="(item, index) in typeList"
               :key="index"
             >
@@ -49,6 +47,13 @@ export default {
     },
 
     async mounted() {
+      // 清除 body 和 html 的默认边距
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.documentElement.style.margin = '0';
+      document.documentElement.style.padding = '0';
+      document.body.style.overflow = 'hidden';
+      
       setTimeout(() => {
         document.onkeydown = this.keydownHandle;
       }, 200);
@@ -61,6 +66,13 @@ export default {
       this.orgName = this.$store.state.cardPageInfo.resResultDataObj.storeStatusInfo.org_name
     },
     beforeDestroy() {
+      // 恢复 body 和 html 的原始样式
+      document.body.style.margin = '';
+      document.body.style.padding = '';
+      document.documentElement.style.margin = '';
+      document.documentElement.style.padding = '';
+      document.body.style.overflow = '';
+      
       this.$observer.unsubscribe(QUEUE_TASK, this.callback);
     },
     methods: {
@@ -204,15 +216,31 @@ export default {
     background-position: center center;
     background-repeat: no-repeat;
     background-image: url('../../assets/img/bigscreen.webp');
-    padding: 16px;
-    height: 100vh;
-    width: 100vw;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    min-height: 100vh !important;
+    min-width: 100vw !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
     .header {
         display: flex;
-        width: 100%;
+        width: 92%;
+        max-width: 1400px;
         justify-content: center;
         align-items: center;
         position: relative;
+        padding: 30px 0 20px 0;
+        margin: 0 auto;
         .title {
             font-weight: normal;
             font-size: 48px;
@@ -222,7 +250,7 @@ export default {
         .date {
             position: absolute;
             right: 0;
-            top: 0px;
+            top: 30px;
             font-family: 'PingFang-SC', sans-serif;
             font-weight: 400;
             font-size: 30px;
@@ -232,77 +260,73 @@ export default {
     }
     .table{
         border-radius: 10px;
-        height: 100%;
-        padding-top: 180px;
+        width: 92%;
+        max-width: 1400px;
+        flex: 1;
         overflow-y: auto;
-
-        .tr{
-          padding: 0 20px;
-          box-sizing: border-box;
-          //height: 36px;
-          line-height: 36px;
-          font-size: 14px;
-        }
-
-        .th {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-        }
-
-        .td {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-
-        //.th:nth-child(1), .td:nth-child(1){
-        //  width: 25%;
-        //}
-        //.th:nth-child(2), .td:nth-child(2){
-        //  width: 25%;
-        //}
-        //.th:nth-child(3), .td:nth-child(3){
-        //  width: 25%;
-        //}
-        //.th:nth-child(4), .td:nth-child(4){
-        //  width: 25%;
-        //}
+        box-sizing: border-box;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 30px 0;
+        margin: 0 auto;
 
         .thead{
+          display: flex !important;
+          flex-direction: column !important;
           font-family: 'PingFang-SC', sans-serif;
-          //position: sticky;
-          //top: 0;
-          // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
           color: rgba(255, 255, 255, .5);
-          .th {
-            width: 25%;
-            font-weight: 500;
-            font-size: 40px;
-            color: rgba(255,255,255,0.8);
-            line-height: 40px;
+          width: 100%;
+          
+          .tr {
+            display: flex !important;
+            width: 100% !important;
           }
-
+          
+          .th {
+            flex: 1 !important;
+            text-align: center !important;
+            vertical-align: middle !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 500;
+            font-size: 36px;
+            color: rgba(255,255,255,0.8);
+            line-height: 36px;
+            padding: 20px 10px;
+          }
         }
 
       .tbody{
+          display: flex !important;
+          flex-direction: column !important;
           font-family: 'PingFang-SC', sans-serif;
-          //position: sticky;
-          //top: 0;
           color: rgba(255, 255, 255, .8);
+          width: 100%;
+          
+          .tr {
+            display: flex !important;
+            width: 100% !important;
+          }
+          
           .nodata {
             font-weight: 500;
             font-size: 40px;
             color: rgba(255,255,255,0.8);
             line-height: 40px;
           }
+          
           .td {
-            width: 25%;
+            flex: 1 !important;
+            text-align: center !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             font-weight: 500;
-            font-size: 40px;
+            font-size: 36px;
             color: rgba(255,255,255,0.8);
-            line-height: 80px;
+            line-height: 60px;
+            padding: 15px 10px;
           }
         }
 

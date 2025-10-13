@@ -39,6 +39,8 @@ export default {
   color: #2c3e50;
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   user-select: none;
   outline: none;
@@ -56,10 +58,12 @@ export default {
 }
 
 html {
-  min-height: max-content;
-  /* min-height: -webkit-max-content; */
   width: 100%;
-  /* height:100%; */
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #080b16; /* 匹配大屏背景色 */
 }
 
 body {
@@ -67,6 +71,7 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  background-color: #080b16; /* 匹配大屏背景色 */
 
   /* 解决elementui出现弹框纵向滚动条被隐藏页面向右闪动的问题 */
   &.el-popup-parent--hidden {
