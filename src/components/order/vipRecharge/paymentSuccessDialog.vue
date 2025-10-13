@@ -19,14 +19,14 @@
       <div class="success-title">支付成功！</div>
       
       <!-- 支付信息 -->
-      <div class="payment-info">
+      <div class="payment-info" v-if="paymentInfo">
         <div class="info-item">
           <span class="label">会员姓名：</span>
-          <span class="value">{{ paymentInfo.name }}</span>
+          <span class="value">{{ paymentInfo.name || '-' }}</span>
         </div>
         <div class="info-item">
           <span class="label">支付金额：</span>
-          <span class="value amount">¥{{ paymentInfo.amount }}</span>
+          <span class="value amount">¥{{ paymentInfo.amount || '0.00' }}</span>
         </div>
         <div class="info-item" v-if="paymentInfo.phone">
           <span class="label">手机号码：</span>

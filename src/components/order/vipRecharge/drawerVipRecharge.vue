@@ -640,8 +640,10 @@ export default {
         this.handleSearch();
       }
       
-      // 清空支付成功信息
-      this.paymentSuccessInfo = null;
+      // 延迟清空支付成功信息，等待对话框关闭动画完成
+      setTimeout(() => {
+        this.paymentSuccessInfo = null;
+      }, 300);
     },
 
     // 充值流程成功后的处理
