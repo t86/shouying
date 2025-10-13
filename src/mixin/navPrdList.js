@@ -33,8 +33,8 @@ export default {
 
       let YH2PrdListId = []; // 优惠2可优惠商品id
 
-      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
-        // 当前岗位可点商品没有限制
+      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
+        // 当前岗位可点商品没有限制（收银员、督查）
         // 此时此刻不需要进行岗位限制的筛选
         // 只需要获取所有的商品二级分类即可
         // 此处为了配合接下来的流程中区域筛选，将数据处理成与有限制的可点商品二级分类一致的
@@ -119,9 +119,10 @@ export default {
       let currentAreaAllProduct = [];
       if ((this.$route.name == "moneyCard" && this.$store.state.userInfo.authStatus == 4) 
       || (this.$route.name == 'orderCard' && this.$store.state.userInfo.authStatus == 2)
+      || this.$store.state.userInfo.roleIds.includes(11) // 督查角色可以看到所有区域商品
       || isGQ
       ) {
-        // 估清
+        // 估清 或 督查
         currentAreaAllProduct = this.$store.state.cardPageInfo.resResultDataObj[
           "areaProduct"
         ].filter((el) => el.status == 1);
@@ -350,8 +351,8 @@ export default {
       let resultSYProductArr = []; // 收银点单的可点商品
       let resultDDProductArr = []; // 点单系统（服务员、营销、花篮）的可点商品
 
-      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
-        // 收银员
+      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
+        // 收银员 或 督查
         const SYResultProductArrList = [];
         stationAllProduct.forEach((el) => {
           const findProduct = currentAreaAllProduct.find(
@@ -504,8 +505,8 @@ export default {
       }
 
       // 给收银系统的所以商品匹配自己在点单系统的身份权限
-      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
-        // 收银系统
+      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
+        // 收银系统 或 督查
         resultSYProductArr.forEach((el) => {
           const find = resultDDProductArr.find((item) => item.id == el.id);
           if (find) {
