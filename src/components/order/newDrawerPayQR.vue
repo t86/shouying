@@ -301,8 +301,8 @@ export default {
   z-index: 10000 !important;
 }
 
-/* 确保遮罩层也在正确的层级 */
-.v-modal {
+/* 只为确认对话框的遮罩层设置层级，不影响其他组件 */
+.pay-confirm-dialog + .v-modal {
   z-index: 9999 !important;
 }
 

@@ -1,14 +1,16 @@
 <template>
   <div>
     <!-- 注册开卡弹窗 -->
-    <el-dialog
-      title="注册开卡"
-      :visible.sync="show"
-      :before-close="onCancelDialog"
-      width="800px"
-      custom-class="register-card-dialog"
-      :close-on-click-modal="false"
-    >
+  <el-dialog
+    title="注册开卡"
+    :visible.sync="show"
+    :before-close="onCancelDialog"
+    width="800px"
+    custom-class="register-card-dialog"
+    :close-on-click-modal="false"
+    :append-to-body="true"
+    :modal-append-to-body="true"
+  >
 
       <!-- 手机号输入模式 -->
       <div v-if="currentMode === 'phone'" class="phone-input-mode">
@@ -752,6 +754,10 @@ export default {
       }
     }
   }
+}
+
+/deep/ .register-card-dialog {
+  z-index: 3100 !important;
 }
 
 /deep/ .register-card-dialog .el-dialog {

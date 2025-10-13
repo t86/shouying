@@ -8,6 +8,8 @@
       width="800px"
       custom-class="recharge-flow-dialog"
       :close-on-click-modal="false"
+      :append-to-body="true"
+      :modal-append-to-body="true"
     >
       <!-- 会员信息显示 -->
       <div class="member-info-section">
@@ -206,6 +208,8 @@
       custom-class="qrcode-dialog"
       :close-on-click-modal="false"
       :show-close="false"
+      :append-to-body="true"
+      :modal-append-to-body="true"
     >
       <div class="qrcode-section">
         <div class="qrcode-container" v-if="paymentQRCode">

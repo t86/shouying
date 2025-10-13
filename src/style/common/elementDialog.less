@@ -1,3 +1,58 @@
+// ====================================
+// 全局 z-index 层级修复
+// 解决所有弹窗、抽屉、遮罩层级问题
+// ====================================
+
+// Element UI 默认 z-index 基准值修复
+// 策略：
+// - .v-modal 遮罩层设置为 1，让它不遮挡内容
+// - 但要确保 Dialog/Drawer 包裹层的 z-index 足够高
+// - 自定义弹窗使用 10000+ 范围，避免冲突
+.v-modal {
+  z-index: 1 !important; // 设置为极低值，避免遮挡内容
+  pointer-events: none !important; // 禁用点击，避免阻止交互
+  opacity: 0 !important; // 完全透明，不显示遮罩层
+}
+
+.el-dialog__wrapper {
+  z-index: 2001 !important; // Dialog 包裹层
+}
+
+.el-drawer__wrapper {
+  z-index: 2001 !important; // Drawer 包裹层
+}
+
+.el-message-box__wrapper {
+  z-index: 3001 !important; // MessageBox 应该在普通弹窗之上
+}
+
+.el-loading-mask {
+  z-index: 2500 !important; // Loading 遮罩
+}
+
+.el-notification {
+  z-index: 4000 !important; // 通知应该在最上层
+}
+
+.el-message {
+  z-index: 4000 !important; // 消息提示应该在最上层
+}
+
+.el-popover,
+.el-popper {
+  z-index: 2100 !important; // Popover/Popper 在弹窗之上
+}
+
+.el-picker-panel,
+.el-date-picker,
+.el-time-picker {
+  z-index: 2200 !important; // 日期时间选择器在 Popover 之上
+}
+
+.el-select-dropdown {
+  z-index: 2200 !important; // 下拉选择在 Popover 之上
+}
+
 // element-ui dialog 弹框组件
 /deep/ .el-dialog {
   background: #202C4A;

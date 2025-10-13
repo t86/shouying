@@ -172,7 +172,7 @@ export default {
     border-radius: 4px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     user-select: none;
-    z-index: 9999;
+    z-index: 2100;
     touch-action: none; /* 防止触摸事件引起页面滚动 */
 }
 

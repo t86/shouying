@@ -6,6 +6,8 @@
     width="600px"
     custom-class="payment-method-dialog"
     :close-on-click-modal="false"
+    :append-to-body="true"
+    :modal-append-to-body="true"
   >
     <!-- 充值信息摘要 -->
     <div class="recharge-summary">
@@ -86,7 +88,8 @@
       custom-class="qrcode-dialog"
       :close-on-click-modal="false"
       :show-close="false"
-      append-to-body
+      :append-to-body="true"
+      :modal-append-to-body="true"
     >
       <div class="qrcode-section">
         <div class="qrcode-container" v-if="paymentQRCode">

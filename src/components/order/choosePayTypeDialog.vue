@@ -1,48 +1,52 @@
 <template>
   <div>
-    <!-- 选择支付渠道方式 -->
-    <div class="choose-pay-type" v-show="show">
-      <div class="contain">
-        <div class="top" layout="row" layout-align="space-between center">
-          <div>选择支付方式</div>
-          <i class="el-icon-close cursor" style="color: #1A1A21;" @click="handleClose"></i>
-        </div>
-
-        <div class="center" layout="row" layout-align="start center">
-          <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
-            @click="payType = item.id">
-            <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
-            <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
-              class="tuijian">推荐</span>
+    <!-- 选择支付渠道方式 - 使用 Teleport 挂载到 body -->
+    <teleport to="body">
+      <div class="choose-pay-type" v-show="show">
+        <div class="contain">
+          <div class="top" layout="row" layout-align="space-between center">
+            <div>选择支付方式</div>
+            <i class="el-icon-close cursor" style="color: #1A1A21;" @click="handleClose"></i>
           </div>
-        </div>
 
-        <div class="bottom" layout="row" layout-align="center center">
-          <div class="button info cursor" @click="handleClose">
-            取消
+          <div class="center" layout="row" layout-align="start center">
+            <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
+              @click="payType = item.id">
+              <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
+              <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
+                class="tuijian">推荐</span>
+            </div>
           </div>
-          <div class="button primary cursor" @click="handleConfirm">
-            确定
+
+          <div class="bottom" layout="row" layout-align="center center">
+            <div class="button info cursor" @click="handleClose">
+              取消
+            </div>
+            <div class="button primary cursor" @click="handleConfirm">
+              确定
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </teleport>
 
-    <!-- 扫码输入支付码 -->
-    <div class="scan_input" v-if="scanStart">
-      <div class="contain">
-        <div class="top center" layout="row" layout-align="space-between center">
-          <input style="width: 260px" v-model="scanCode" class="value focus" size="small" placeholder="请输入支付码" />
-        </div>
-        <div class="m-t-6">
-          <keyBoard @changeNum="changeCode" />
-        </div>
-        <div class="bottom" layout="row" layout-align="center center">
-          <div class="button info cursor" @click="onCancelScan">取消</div>
-          <div class="button primary cursor" @click="onSubmitScan">确定</div>
+    <!-- 扫码输入支付码 - 使用 Teleport 挂载到 body -->
+    <teleport to="body">
+      <div class="scan_input" v-if="scanStart">
+        <div class="contain">
+          <div class="top center" layout="row" layout-align="space-between center">
+            <input style="width: 260px" v-model="scanCode" class="value focus" size="small" placeholder="请输入支付码" />
+          </div>
+          <div class="m-t-6">
+            <keyBoard @changeNum="changeCode" />
+          </div>
+          <div class="bottom" layout="row" layout-align="center center">
+            <div class="button info cursor" @click="onCancelScan">取消</div>
+            <div class="button primary cursor" @click="onSubmitScan">确定</div>
+          </div>
         </div>
       </div>
-    </div>
+    </teleport>
 
     <!-- 扫客人付款码弹窗 -->
     <customerPaymentScanDialog

@@ -9,6 +9,8 @@
       :size="getDrawerSize()"
       class="vip-recharge-drawer"
       :class="getDrawerClass()"
+      :append-to-body="true"
+      :modal-append-to-body="true"
     >
       <div class="drawer-content" :class="getContentClass()">
         <!-- 主要内容区域 -->
@@ -998,6 +1000,10 @@ export default {
     justify-content: center;
     gap: 20px;
   }
+
+/deep/ .vip-recharge-drawer {
+  z-index: 3000 !important;
+}
 
 /deep/ .el-drawer__header {
   background: #007bff;

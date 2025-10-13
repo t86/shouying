@@ -366,26 +366,41 @@ export default {
         return;
       }
 
+      console.log('🔍 [DEBUG] onSubmit - 当前 orderMealStatus:', this.orderMealStatus);
+      console.log('🔍 [DEBUG] onSubmit - orderMealStatus 是否为 NaN:', isNaN(this.orderMealStatus));
+      console.log('🔍 [DEBUG] onSubmit - orderMealStatus 类型:', typeof this.orderMealStatus);
+
+      // 🚨 防止 NaN 导致的逻辑错误
+      if (isNaN(this.orderMealStatus)) {
+        console.error('❌ [ERROR] orderMealStatus 为 NaN，无法正确处理购物车逻辑');
+        this.$message.warning('商品状态异常(NaN)，请刷新页面重试');
+        return;
+      }
+
       // 收银下单
       if (this.$store.state.userInfo.authStatus == 4) {
+         console.log('🔍 [DEBUG] onSubmit - 执行收银下单逻辑');
          this.orderMealToShoppingCart(this.shopCount, false);
          return
       }
 
       // 服务员可点商品加入购物车
       if (this.orderMealStatus == 1) {
+        console.log('🔍 [DEBUG] onSubmit - 执行服务员下单逻辑');
         this.orderMealToShoppingCart(this.shopCount, false);
         return
       }
 
       // 营销/花篮加入购物车
       if (this.orderMealStatus == 2 || this.orderMealStatus == 3) {
+        console.log('🔍 [DEBUG] onSubmit - 执行营销/花篮下单逻辑');
         this.sealToShoppingCart(this.shopCount);
         return
       }
 
       // 优惠2加入购物车
       if (this.orderMealStatus == 5) {
+        console.log('🔍 [DEBUG] onSubmit - 执行优惠2下单逻辑');
         this.showOrHideYH2Drawer();
         return
       }
@@ -394,10 +409,13 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 ||
         this.$store.state.orderInfo.currentCardInfo.bizType == 4
       ) {
+        console.log('🔍 [DEBUG] onSubmit - 执行功能台下单逻辑');
         this.orderMealToShoppingCart(this.shopCount, false);
         return
       }
-      this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
+      
+      console.error('❌ [ERROR] 未匹配到任何下单逻辑，orderMealStatus:', this.orderMealStatus);
+      this.$message.warning('商品状态异常，不能加入购物车, orderMealStatus: ' + this.orderMealStatus)
     },
 
     // 服务员/收银加入购物车
@@ -538,6 +556,12 @@ export default {
 
     // 获取当前商品的可点状态  1：服务员可下单  2：营销可下单  3：花篮可下单  5:优惠2下单
     getOrderMealStatus() {
+      console.log('🔍 [DEBUG] getOrderMealStatus - productInfo:', this.productInfo);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canOrderMeal:', this.productInfo.canOrderMeal);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canSeal:', this.productInfo.canSeal);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canHL:', this.productInfo.canHL);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canSealYH2:', this.productInfo.canSealYH2);
+      
       const status = [];
       if (this.productInfo.canOrderMeal) {
         status.push(1);
@@ -553,6 +577,15 @@ export default {
       if (this.productInfo.canSealYH2) {
         status.push(5);
       }
+      
+      console.log('🔍 [DEBUG] getOrderMealStatus - 计算结果:', status);
+      
+      // 🚨 防止返回空数组导致 NaN
+      if (status.length === 0) {
+        console.warn('⚠️ [WARNING] getOrderMealStatus 返回空数组，默认设置为服务员可下单(1)');
+        status.push(1); // 默认为服务员可下单
+      }
+      
       return status;
     },
 

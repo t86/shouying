@@ -2608,5 +2608,7 @@ export default {
 <style>
 .v-modal {
   z-index: 1 !important;
+  pointer-events: none !important; /* 禁用点击事件，避免阻止交互 */
+  opacity: 0 !important; /* 完全透明，不显示遮罩层 */
 }
 </style>

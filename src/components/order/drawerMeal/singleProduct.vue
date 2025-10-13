@@ -544,6 +544,12 @@ export default {
 
     // 获取当前商品的可点状态  1：服务员可下单  2：营销可下单  3：花篮可下单  5:优惠2下单
     getOrderMealStatus() {
+      console.log('🔍 [DEBUG] getOrderMealStatus - productInfo:', this.productInfo);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canOrderMeal:', this.productInfo.canOrderMeal);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canSeal:', this.productInfo.canSeal);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canHL:', this.productInfo.canHL);
+      console.log('🔍 [DEBUG] getOrderMealStatus - canSealYH2:', this.productInfo.canSealYH2);
+      
       const status = [];
       if (this.productInfo.canOrderMeal) {
         status.push(1);
@@ -558,6 +564,15 @@ export default {
       if (this.productInfo.canSealYH2) {
         status.push(5);
       }
+      
+      console.log('🔍 [DEBUG] getOrderMealStatus - 计算结果:', status);
+      
+      // 🚨 防止返回空数组导致 NaN
+      if (status.length === 0) {
+        console.warn('⚠️ [WARNING] getOrderMealStatus 返回空数组，默认设置为服务员可下单(1)');
+        status.push(1); // 默认为服务员可下单
+      }
+      
       return status;
     },
 
@@ -625,12 +640,16 @@ export default {
             if (this.$store.state.userInfo.authStatus != 4 && !this.isGQ) {
               setTimeout(() => {
                 const resultOrderMealStatusArr = this.getOrderMealStatus();
+                console.log('🔍 [DEBUG] watch show - resultOrderMealStatusArr:', resultOrderMealStatusArr);
+                
                 this.showModal = resultOrderMealStatusArr.length > 1;
-                if (!this.showModal)
-                  this.$emit(
-                    "updateOrderMealStatus",
-                    resultOrderMealStatusArr[0] * 1
-                  );
+                if (!this.showModal) {
+                  const statusValue = resultOrderMealStatusArr[0] * 1;
+                  console.log('🔍 [DEBUG] watch show - 发送 updateOrderMealStatus:', statusValue);
+                  console.log('🔍 [DEBUG] watch show - statusValue 是否为 NaN:', isNaN(statusValue));
+                  
+                  this.$emit("updateOrderMealStatus", statusValue);
+                }
               }, 300);
             }
           } else {

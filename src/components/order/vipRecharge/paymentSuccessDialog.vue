@@ -8,6 +8,8 @@
     :close-on-click-modal="false"
     :show-close="false"
     center
+    :append-to-body="true"
+    :modal-append-to-body="true"
   >
     <div class="success-content">
       <!-- 成功图标 -->

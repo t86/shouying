@@ -107,7 +107,17 @@ export default {
 
     // 选择下单进购物车方式  1：直接下单  2：优惠下单  3：花篮下单
     updateOrderMealStatus(status=1){
-      this.orderMealStatus = status
+      console.log('🔍 [DEBUG] updateOrderMealStatus - 接收到的 status:', status);
+      console.log('🔍 [DEBUG] updateOrderMealStatus - status 是否为 NaN:', isNaN(status));
+      
+      // 🚨 防止 NaN 值
+      if (isNaN(status) || status === undefined || status === null) {
+        console.warn('⚠️ [WARNING] updateOrderMealStatus 接收到无效值，设置为默认值 1');
+        status = 1;
+      }
+      
+      this.orderMealStatus = status;
+      console.log('🔍 [DEBUG] updateOrderMealStatus - 最终设置的 orderMealStatus:', this.orderMealStatus);
     }
   },
   props: {
