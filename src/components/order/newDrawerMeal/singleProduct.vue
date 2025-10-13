@@ -266,6 +266,11 @@ export default {
     },
 
     async onSubmit() {
+      // 🚨 防止重复提交
+      if (this.isSubmitting) {
+        return this.$message.warning("请勿重复提交，请稍候...");
+      }
+      
       // 设置为正在提交状态
       this.isSubmitting = true;
 
@@ -275,14 +280,22 @@ export default {
         this.shopCount = this.isGQ ? 0 : 1;
       }
 
+      // 🛠️ 验证逻辑 - 失败时重置按钮状态
       if (
         this.shopCount.toString().indexOf(".") > -1 &&
         this.shopCount.toString().indexOf(".") < this.shopCount.toString().length - 1
-      )
+      ) {
+        this.isSubmitting = false;
         return this.$message.warning("商品数量必须为整数");
-      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !this.shopCount)
+      }
+      if (this.$route.name != "moneyCard" && this.$route.name != "orderCard" && !this.shopCount) {
+        this.isSubmitting = false;
         return this.$message.warning("商品数量默认1");
-      if (isNaN(this.shopCount * 1)) return this.$message.warning("请输入数字！");
+      }
+      if (isNaN(this.shopCount * 1)) {
+        this.isSubmitting = false;
+        return this.$message.warning("请输入数字！");
+      }
 
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
@@ -321,6 +334,7 @@ export default {
         this.productInfo.outSomethingCount != "many" &&
         this.shopCount * 1 > this.productInfo.outSomethingCount
       ) {
+        this.isSubmitting = false;
         return this.$message.warning(
           `商品数量超过了可点最大数量${this.productInfo.outSomethingCount}`
         );
@@ -338,6 +352,7 @@ export default {
         isOutOfSomethingPrd.status == 1
       ) {
         // 当前商品是估清商品,且点单数量超过了估清数量
+        this.isSubmitting = false;
         return this.$message.warning(
           "点单数量已超过当前可点估清数量" + isOutOfSomethingPrd.cnt
         );
@@ -348,6 +363,7 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
         this.productInfo.prdType != 2
       ) {
+        this.isSubmitting = false;
         return (this.showBJDrawer = true);
       }
 
@@ -362,6 +378,7 @@ export default {
           require: this.requestInfoArr.join(";"),
         };
 
+        this.isSubmitting = false;
         this.$emit("getYh2ProInfo", resultProductInfo);
         return;
       }
@@ -373,6 +390,7 @@ export default {
       // 🚨 防止 NaN 导致的逻辑错误
       if (isNaN(this.orderMealStatus)) {
         console.error('❌ [ERROR] orderMealStatus 为 NaN，无法正确处理购物车逻辑');
+        this.isSubmitting = false;
         this.$message.warning('商品状态异常(NaN)，请刷新页面重试');
         return;
       }
@@ -415,6 +433,7 @@ export default {
       }
       
       console.error('❌ [ERROR] 未匹配到任何下单逻辑，orderMealStatus:', this.orderMealStatus);
+      this.isSubmitting = false;
       this.$message.warning('商品状态异常，不能加入购物车, orderMealStatus: ' + this.orderMealStatus)
     },
 
@@ -452,8 +471,10 @@ export default {
           !this.amt &&
           this.productInfo.prdType != 13 &&
           this.productInfo.prdType != 14
-        )
+        ) {
+          this.isSubmitting = false;
           return this.$message.warning("请输入金额");
+        }
 
         const params = {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
@@ -478,6 +499,9 @@ export default {
           }
         } catch (error) {
           console.log("加入购物车授权失败", error);
+        } finally {
+          // 🛠️ 确保无论成功失败都重置按钮状态
+          this.isSubmitting = false;
         }
       } else {
         // 正常商品添加购物车
@@ -490,20 +514,26 @@ export default {
           } else this.$message.warning(res.msg);
         } catch (error) {
           console.log("加入购物车失败", error);
+        } finally {
+          // 🛠️ 确保无论成功失败都重置按钮状态
+          this.isSubmitting = false;
         }
       }
     },
 
     // 营销/花篮赠送
     async sealToShoppingCart(c) {
-      if (!this.formData.selectedInfo.name && this.orderMealStatus == 2)
+      if (!this.formData.selectedInfo.name && this.orderMealStatus == 2) {
+        this.isSubmitting = false;
         return this.$message.warning("请选择优惠理由");
+      }
       else if (
         this.orderMealStatus == 3 &&
         this.amt === "" &&
         this.productInfo.prdType != 13 &&
         this.productInfo.prdType != 14
       ){
+        this.isSubmitting = false;
         return this.$message.warning("请输入金额");
       }
 
@@ -551,6 +581,9 @@ export default {
         }
       } catch (error) {
         console.log("营销账号赠送失败", error);
+      } finally {
+        // 🛠️ 确保无论成功失败都重置按钮状态
+        this.isSubmitting = false;
       }
     },
 
