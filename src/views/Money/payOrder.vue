@@ -1718,9 +1718,6 @@ export default {
       );
 
       if (!this.drawer.payDrawer.showDrawer && hasOnlinePayOrder) {
-        if (this.drawer.payDrawer.showDrawer) this.$router.go(0);
-        this.drawer.payDrawer.showDrawer = !this.drawer.payDrawer.showDrawer;
-
         return this.$message.warning("所选订单包含线上支付订单");
       }
 
