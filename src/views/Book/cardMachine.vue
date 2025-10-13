@@ -527,6 +527,7 @@ import api_auth from "@/api/UtilAuth";
 import {cardOptions, legendList} from "@/utils/config/card";
 
 import {cardPageMixins} from "@/mixin/cardPage";
+import authStatus from "@/mixin/authStatus";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 import more from "@/assets/card-imgs/more.png";
@@ -1950,7 +1951,7 @@ export default {
     },
   },
 
-  mixins: [cardPageMixins],
+  mixins: [cardPageMixins, authStatus],
 };
 </script>
 
