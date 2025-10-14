@@ -450,6 +450,8 @@ export default {
       console.log("选中的会员卡:", selectedCard);
       if (selectedCard) {
         await this.loadRechargeOptions(selectedCard.id);
+        // 选择会员后清空搜索结果列表，隐藏下拉框
+        this.searchResults = [];
       }
     },
 

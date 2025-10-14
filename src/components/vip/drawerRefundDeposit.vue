@@ -120,6 +120,7 @@ export default {
         if (res.code == 1) {
           this.$message.success("退款成功");
           this.onCancelDialog();
+          // 刷新表格数据
           this.$emit('refreshTable');
         } else {
           this.$message.warning(res.msg || "退款失败");
