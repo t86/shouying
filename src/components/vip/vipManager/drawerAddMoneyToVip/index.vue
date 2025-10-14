@@ -138,8 +138,12 @@ export default {
         // 检查滞留金
         const lateDepositList = await this.checkLateDeposit();
         
+        console.log("🔍 检查滞留金结果:", lateDepositList);
+        console.log("🔍 滞留金数量:", lateDepositList ? lateDepositList.length : 0);
+        
         if (lateDepositList && lateDepositList.length > 0) {
           // 有滞留金，显示滞留金选择弹窗
+          console.log("✅ 有滞留金，打开滞留金选择弹窗");
           this.openLateDepositDialog({
             makeAmt,
             freeAmt,
@@ -148,6 +152,7 @@ export default {
           });
         } else {
           // 没有滞留金，直接进入扫码流程
+          console.log("❌ 无滞留金，直接进入扫码流程");
           this.startCustomerPaymentScan(makeAmt, freeAmt, isCustom);
         }
       } catch (error) {
@@ -191,11 +196,18 @@ export default {
     // 检查滞留金
     async checkLateDeposit() {
       try {
+        console.log("📞 开始调用滞留金API...");
         // 调用新API检查当前会员是否有可用的充值滞留金
         // 根据接口文档，该接口不需要传入参数
         const res = await api_vip.reqGetDepositLateListForDeposit({});
         
+        console.log("📦 API返回结果:", res);
+        console.log("📦 res.code:", res.code);
+        console.log("📦 res.data:", res.data);
+        console.log("📦 res.data.records:", res.data ? res.data.records : null);
+        
         if (res.code === 1 && res.data && res.data.records) {
+          console.log("✅ API返回成功，records长度:", res.data.records.length);
           // 转换数据格式：接口返回的字段名(a, c, t)转换为组件使用的字段名
           const lateDepositList = res.data.records.map(item => ({
             id: item.id,           // 滞留金ID
@@ -203,13 +215,14 @@ export default {
             card_no: item.c,       // 卡号
             create_time: item.t    // 滞留时间
           }));
+          console.log("🔄 转换后的数据:", lateDepositList);
           return lateDepositList;
         } else {
-          console.warn("获取滞留金列表失败:", res.msg);
+          console.warn("⚠️ 获取滞留金列表失败:", res.msg);
           return [];
         }
       } catch (error) {
-        console.error("检查滞留金失败:", error);
+        console.error("❌ 检查滞留金失败:", error);
         return [];
       }
     },
