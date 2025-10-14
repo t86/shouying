@@ -97,9 +97,12 @@
             <div class="form-label">姓名：</div>
             <div class="form-input">
               <el-input
+                ref="nameInput"
                 v-model="formData.name"
                 placeholder="请输入姓名"
                 @focus="currentFocusField = 'name'"
+                @click.native="handleNameInputClick"
+                @blur="handleNameInputBlur"
               />
             </div>
           </div>
@@ -132,6 +135,7 @@
             <div class="form-label">开卡推荐人：</div>
             <div class="form-input">
               <el-select
+                ref="recommenderSelect"
                 v-model="formData.recommenderId"
                 placeholder="输入员工姓名或工号"
                 filterable
@@ -140,7 +144,8 @@
                 :remote-method="searchEmployees"
                 :loading="loadingEmployees"
                 style="width: 100%"
-                @focus="loadInitialEmployees"
+                @focus="handleRecommenderFocus"
+                @blur="handleRecommenderBlur"
               >
                 <el-option
                   v-for="emp in employeeOptions"
@@ -440,6 +445,64 @@ export default {
         this.employeeOptions = [];
       } finally {
         this.loadingEmployees = false;
+      }
+    },
+
+    // 处理姓名输入框点击 - 显示系统键盘
+    handleNameInputClick() {
+      this.keyboardShow('nameInput');
+    },
+
+    // 处理姓名输入框失去焦点 - 隐藏系统键盘
+    handleNameInputBlur() {
+      this.keyboardLeave();
+    },
+
+    // 处理推荐人选择框聚焦
+    handleRecommenderFocus() {
+      this.loadInitialEmployees();
+      this.keyboardShow('recommenderSelect');
+    },
+
+    // 处理推荐人选择框失焦
+    handleRecommenderBlur() {
+      this.keyboardLeave();
+    },
+
+    // 显示系统键盘
+    keyboardShow(refString) {
+      if (
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        "showSoftInput" in window.atool
+      ) {
+        atool.showSoftInput();
+        // 对于 el-input 组件，需要获取其内部的 input 元素
+        // 对于 el-select 组件，需要特殊处理
+        this.$nextTick(() => {
+          const refElement = this.$refs[refString];
+          if (refElement) {
+            // 如果是 el-input 组件，需要调用其 focus 方法
+            if (refElement.focus && typeof refElement.focus === 'function') {
+              refElement.focus();
+            }
+            // 如果是原生 input 元素，直接 focus
+            else if (refElement.tagName === 'INPUT') {
+              refElement.focus();
+            }
+          }
+        });
+      }
+    },
+
+    // 隐藏系统键盘
+    keyboardLeave() {
+      if (
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        "hideSoftInput" in window.atool
+      ) {
+        atool.hideSoftInput();
       }
     }
   }
