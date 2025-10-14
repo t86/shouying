@@ -174,11 +174,14 @@
           <div class="remark-section">
             <div class="section-title">备注:</div>
             <el-input
+              ref="remarkInput"
               type="textarea"
               :rows="3"
               placeholder="请输入备注信息"
               v-model="remarkText"
               style="width: 100%;"
+              @click.native="handleRemarkInputClick"
+              @blur="handleRemarkInputBlur"
             />
           </div>
         </div>
@@ -373,6 +376,16 @@ export default {
       this.keyboardLeave();
     },
 
+    // 处理备注输入框点击 - 显示系统键盘
+    handleRemarkInputClick() {
+      this.keyboardShow('remarkInput');
+    },
+
+    // 处理备注输入框失去焦点 - 隐藏系统键盘
+    handleRemarkInputBlur() {
+      this.keyboardLeave();
+    },
+
     // 显示系统键盘
     keyboardShow(refString) {
       if (
@@ -428,10 +441,7 @@ export default {
         
         if (res.code === 1 && res.data && res.data.records) {
           this.searchResults = res.data.records;
-          if (this.searchResults.length > 0) {
-            // 默认选中第一个
-            await this.selectCard(0);
-          }
+          // 不自动选中，让用户手动点击选择
         } else {
           this.searchResults = [];
           this.selectedMember = null;

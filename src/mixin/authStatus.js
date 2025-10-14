@@ -121,13 +121,13 @@ export default {
       const supervisorRegionConfig = this.$store.state.cardPageInfo.resResultDataObj["supervisorRegionConfig"] || [];
       
       // 检查当前用户岗位是否有全场权限（region_id = 0）
-      const hasFullAccess = supervisorRegionConfig.some(config => 
-        config.status * 1 === 1 && 
-        config.station_id * 1 === userInfo.station_id * 1 && 
-        config.region_id * 1 === 0
-      );
+      const hasFullAccess = supervisorRegionConfig.some(config => {
+        const isValid = config.status * 1 === 1;
+        const isMyStation = config.station_id * 1 === userInfo.station_id * 1;
+        const isFullRegion = config.region_id * 1 === 0;
+        return isValid && isMyStation && isFullRegion;
+      });
 
-      
       return hasFullAccess;
     },
 
@@ -145,11 +145,13 @@ export default {
       
       // 获取当前用户岗位的区域权限ID列表（排除全场查单的0）
       const regionPermissions = supervisorRegionConfig
-        .filter(config => 
-          config.status === 1 && 
-          config.station_id === userInfo.station_id && 
-          config.region_id !== 0
-        )
+        .filter(config => {
+          // 使用 * 1 转换为数字进行比较，避免字符串和数字类型不匹配
+          const isValid = config.status * 1 === 1;
+          const isMyStation = config.station_id * 1 === userInfo.station_id * 1;
+          const isNotFullRegion = config.region_id * 1 !== 0;
+          return isValid && isMyStation && isNotFullRegion;
+        })
         .map(config => config.region_id);
       
       return regionPermissions;
@@ -159,7 +161,6 @@ export default {
     isSupervisorRegionPermission(regionId) {
       const userInfo = this.$store.state.userInfo;
       
-      console.log("isSupervisorRegionPermission, userInfo", userInfo)
       // 检查用户是否有督查角色
       if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
         return false;
@@ -167,45 +168,34 @@ export default {
       
       // 获取督查可查区域配置数据（56号数据）
       const supervisorRegionConfig = this.$store.state.cardPageInfo.resResultDataObj["supervisorRegionConfig"] || [];
-      console.log("isSupervisorRegionPermission 详细信息:", {
-        supervisorRegionConfig,
-        regionId,
-        regionIdType: typeof regionId,
-        stationId: userInfo.station_id,
-        stationIdType: typeof userInfo.station_id,
-        hasConfig: supervisorRegionConfig.length > 0
-      });
+      
       // 检查该区域ID是否在当前用户的权限范围内
-      return supervisorRegionConfig.some(config => 
-        config.status * 1 === 1 && 
-        config.station_id * 1 === userInfo.station_id * 1 && 
-        config.region_id * 1 === regionId * 1
-      );
+      const hasPermission = supervisorRegionConfig.some(config => {
+        const isValid = config.status * 1 === 1;
+        const isMyStation = config.station_id * 1 === userInfo.station_id * 1;
+        const isTargetRegion = config.region_id * 1 === regionId * 1;
+        return isValid && isMyStation && isTargetRegion;
+      });
+      
+      return hasPermission;
     },
 
     // 检查督查是否有某个区域的权限
     hasSupervisorRegionPermission(regionId) {
       const userInfo = this.$store.state.userInfo;
       
-      console.log("hasSupervisorRegionPermission called with regionId:", regionId);
-      
       // 检查用户是否有督查角色
       if (!userInfo.roleIds || !userInfo.roleIds.includes(11)) {
-        console.log("用户不是督查角色");
         return false;
       }
       
       // 如果有全场查单权限，可以查看所有区域
       if (this.hasFullLookupPermission()) {
-        console.log("督查有全场权限");
         return true;
       }
       
       // 检查是否有该区域的权限
-      console.log("检查区域权限, regionId", regionId);
-      const result = this.isSupervisorRegionPermission(regionId);
-      console.log("区域权限检查结果:", result);
-      return result;
+      return this.isSupervisorRegionPermission(regionId);
     },
   },
 };

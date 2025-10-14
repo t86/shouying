@@ -614,11 +614,19 @@ export default {
       if (roleIds.includes(4)) {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
-      // 督查权限处理 - 督查角色遵循设备限制，查单权限另外控制  
+      // 督查权限处理 - 督查角色根据可查单区域权限过滤
       if (roleIds.includes(11)) {
-        // 督查角色遵循设备限制，不绕过machineArea配置
-        // 查单权限在currentCardCanLookOrder方法中单独控制
-        QCTabList = [...arr];
+        // 检查是否有全场查单权限
+        if (this.hasFullLookupPermission()) {
+          // 有全场查单权限，显示所有区域
+          QCTabList = [...arr];
+        } else {
+          // 只显示有查单权限的区域
+          const supervisorRegions = this.getSupervisorRegionPermissions();
+          console.log("督察可查单区域ID列表:", supervisorRegions);
+          QCTabList = arr.filter(region => supervisorRegions.includes(region.id));
+          console.log("督察过滤后的区域列表:", QCTabList);
+        }
       } else if (this.hasLookOrder) {
         QCTabList = [...arr];
       }

@@ -1324,11 +1324,50 @@ export default {
 
     // 获取tab数据
     getTabList(arr = []) {
+      console.log("========== 营业额报表 - 区域Tab过滤开始 ==========");
+      console.log("1. 原始区域列表 arr:", arr);
+      
       arr = arr.sort((a, b) => Number(a.dsp) - Number(b.dsp));
       let tabList = arr.filter((el) => el.status === "1"); // status:  1:有效 2:无效
+      console.log("2. 有效区域列表 (status=1):", tabList);
+      
+      // 督查权限处理 - 根据可查单区域权限过滤
+      const roleIds = this.$store.state.userInfo.roleIds || [];
+      console.log("3. 当前用户角色ID列表:", roleIds);
+      console.log("4. 是否包含督察角色(11):", roleIds.includes(11));
+      
+      if (roleIds.includes(11)) {
+        console.log("5. 督察权限配置数据 supervisorRegionConfig:", this.$store.state.supervisorRegionConfig);
+        
+        const hasFullPermission = this.hasFullLookupPermission();
+        console.log("6. 是否有全场查单权限:", hasFullPermission);
+        
+        if (!hasFullPermission) {
+          // 只显示有查单权限的区域
+          const supervisorRegions = this.getSupervisorRegionPermissions();
+          console.log("7. 督察可查单区域ID列表:", supervisorRegions);
+          console.log("8. 过滤前的区域列表:", tabList.map(r => ({ id: r.id, name: r.name })));
+          
+          tabList = tabList.filter(region => {
+            const hasPermission = supervisorRegions.includes(region.id);
+            console.log(`   - 区域 ${region.name}(ID:${region.id}): ${hasPermission ? '✅有权限' : '❌无权限'}`);
+            return hasPermission;
+          });
+          
+          console.log("9. 过滤后的区域列表:", tabList.map(r => ({ id: r.id, name: r.name })));
+        } else {
+          console.log("7. 有全场查单权限，不过滤区域");
+        }
+      } else {
+        console.log("5. 非督察角色，不进行督察权限过滤");
+      }
+      
+      console.log("10. 准备进行卡台数量过滤...");
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0
       );
+      console.log("11. 卡台数量过滤后的区域列表:", tabList.map(r => ({ id: r.id, name: r.name })));
+      console.log("========== 营业额报表 - 区域Tab过滤结束 ==========\n");
 
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(tabList));
       this.$store.commit("updateTabList", this.tab.tabListOrigin);

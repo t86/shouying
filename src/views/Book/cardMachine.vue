@@ -674,6 +674,19 @@ export default {
         tabList = tabList.filter(el => !el.name.includes('特饮'));
       }
       
+      // 督查权限处理 - 根据可查单区域权限过滤
+      const roleIds = this.$store.state.userInfo.roleIds || [];
+      if (roleIds.includes(11)) {
+        // 检查是否有全场查单权限
+        if (!this.hasFullLookupPermission()) {
+          // 只显示有查单权限的区域
+          const supervisorRegions = this.getSupervisorRegionPermissions();
+          console.log("预订系统-督察可查单区域ID列表:", supervisorRegions);
+          tabList = tabList.filter(region => supervisorRegions.includes(region.id));
+          console.log("预订系统-督察过滤后的区域列表:", tabList);
+        }
+      }
+      
       tabList = tabList.filter(
         (e) => this.filterCardList("regionId", e.id).length > 0
       );

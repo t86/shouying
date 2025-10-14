@@ -514,11 +514,18 @@ export default {
         HLTabList = this.getAuthArea(JSON.parse(JSON.stringify(arr)));
       }
       
-      // 督查权限处理 - 督查角色遵循设备限制，查单权限另外控制
+      // 督查权限处理 - 督查角色根据可查单区域权限过滤
       if (roleIds.includes(11)) {
-        // 督查角色遵循设备限制，不绕过machineArea配置
-        // 查单权限在currentCardCanLookOrder方法中单独控制
-        QCTabList = [...arr];
+        const hasFullPermission = this.hasFullLookupPermission();
+        
+        if (hasFullPermission) {
+          // 有全场查单权限，显示所有区域
+          QCTabList = [...arr];
+        } else {
+          // 只显示有查单权限的区域
+          const supervisorRegions = this.getSupervisorRegionPermissions();
+          QCTabList = arr.filter(region => supervisorRegions.includes(region.id));
+        }
       } else if (this.hasLookOrder) {
         QCTabList = [...arr];
       }
@@ -527,25 +534,38 @@ export default {
         // 无任何权限
         arr = [];
       } else {
-        arr = [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
-          (item, index, arr) => arr.findIndex((items) => items.id == item.id) == index
-        );
+        // 督察权限优先策略：如果有督察角色且无全场权限，只使用督察权限过滤的结果
+        if (roleIds.includes(11) && !this.hasFullLookupPermission()) {
+          arr = [...QCTabList].filter(
+            (item, index, arr) => arr.findIndex((items) => items.id == item.id) == index
+          );
+        } else {
+          arr = [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList].filter(
+            (item, index, arr) => arr.findIndex((items) => items.id == item.id) == index
+          );
+        }
       }
 
       let tabList = arr
         .sort((a, b) => a.dsp - b.dsp)
         .filter((item) => item.status == 1); // status:  1:有效 2:无效
 
+      // tabListOrigin 也应用督察权限优先策略
+      let originList;
+      if (roleIds.includes(11) && !this.hasFullLookupPermission()) {
+        originList = [...QCTabList];
+      } else {
+        originList = [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList];
+      }
+      
       this.tab.tabListOrigin = JSON.parse(JSON.stringify(
-        [...FUTabList, ...YXTabList, ...HLTabList, ...QCTabList]
+        originList
           .filter((item, index, arr) => arr.findIndex((items) => items.id == item.id) == index)
           .sort((a, b) => a.dsp - b.dsp)
           .filter((item) => item.status == 1)
       ));
 
-      tabList = tabList.filter(
-        (e) => this.filterCardList("regionId", e.id).length > 0
-      );
+      tabList = tabList.filter((e) => this.filterCardList("regionId", e.id).length > 0);
 
       this.$store.commit("updateTabList", this.tab.tabListOrigin);
 
@@ -565,7 +585,7 @@ export default {
           name: "其它",
         });
       }
-
+      
       this.tab.tabList = tabList;
       if(this.safeModeEnabled) {
         this.tab.tabList = this.tab.tabList.filter(item => !item.name.includes('特饮'));
@@ -1720,21 +1740,26 @@ export default {
           (el) => el.status == 1
         );
       const authStationId = this.$store.state.userInfo.station_id || "";
+      
       // 将要展示在页面上的最终岗位可点区域
       const resultAreaInfo = authStationArea.filter(
         (el) => el.station_id == authStationId
       );
+      
       resultAreaInfo.forEach((el) => {
         const info = arr.find((ele) => ele.id == el.region_id);
         if (info) canPayOrderAreaList.push(info);
       });
+      
       // 可查单区域tab
       let canGetOrderAreaList = [];
       // 用户配置可查单区域
       const configAreaIdList = this.$store.state.userInfo.check_regions || [];
+      
       canGetOrderAreaList = arr.filter((item) =>
         configAreaIdList.find((items) => items == item.id)
       );
+      
       const tabList = [...canPayOrderAreaList, ...canGetOrderAreaList];
       return tabList.filter(
         (item, i, array) => array.findIndex((items) => items.id == item.id) == i
