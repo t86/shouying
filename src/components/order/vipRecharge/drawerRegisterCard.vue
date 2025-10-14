@@ -95,12 +95,11 @@
 
           <div class="form-row">
             <div class="form-label">姓名：</div>
-            <div class="form-input">
+            <div class="form-input" :class="{ 'input-focused': currentFocusField === 'name' }">
               <el-input
                 ref="nameInput"
                 v-model="formData.name"
                 placeholder="请输入姓名"
-                @focus="currentFocusField = 'name'"
                 @click.native="handleNameInputClick"
                 @blur="handleNameInputBlur"
               />
@@ -133,7 +132,7 @@
 
           <div class="form-row">
             <div class="form-label">开卡推荐人：</div>
-            <div class="form-input">
+            <div class="form-input" :class="{ 'input-focused': currentFocusField === 'recommender' }">
               <el-select
                 ref="recommenderSelect"
                 v-model="formData.recommenderId"
@@ -449,61 +448,81 @@ export default {
     },
 
     // 处理姓名输入框点击 - 显示系统键盘
-    handleNameInputClick() {
+    handleNameInputClick(event) {
+      console.log('姓名输入框被点击');
+      this.currentFocusField = 'name';
       this.keyboardShow('nameInput');
     },
 
     // 处理姓名输入框失去焦点 - 隐藏系统键盘
     handleNameInputBlur() {
+      console.log('姓名输入框失去焦点');
+      this.currentFocusField = '';
       this.keyboardLeave();
     },
 
     // 处理推荐人选择框聚焦
     handleRecommenderFocus() {
+      console.log('推荐人选择框获得焦点');
+      this.currentFocusField = 'recommender';
       this.loadInitialEmployees();
       this.keyboardShow('recommenderSelect');
     },
 
     // 处理推荐人选择框失焦
     handleRecommenderBlur() {
+      console.log('推荐人选择框失去焦点');
+      this.currentFocusField = '';
       this.keyboardLeave();
     },
 
     // 显示系统键盘
     keyboardShow(refString) {
+      console.log('尝试显示系统键盘，ref:', refString);
       if (
         window.atool &&
         window.atool.getTermType() == "android" &&
         "showSoftInput" in window.atool
       ) {
+        console.log('调用 atool.showSoftInput()');
         atool.showSoftInput();
         // 对于 el-input 组件，需要获取其内部的 input 元素
         // 对于 el-select 组件，需要特殊处理
         this.$nextTick(() => {
           const refElement = this.$refs[refString];
+          console.log('获取到的 ref 元素:', refElement);
           if (refElement) {
             // 如果是 el-input 组件，需要调用其 focus 方法
             if (refElement.focus && typeof refElement.focus === 'function') {
+              console.log('调用 focus 方法');
               refElement.focus();
             }
             // 如果是原生 input 元素，直接 focus
             else if (refElement.tagName === 'INPUT') {
+              console.log('原生 input 元素 focus');
               refElement.focus();
             }
           }
         });
+      } else {
+        console.log('atool 不可用或非 android 环境');
       }
     },
 
     // 隐藏系统键盘
     keyboardLeave() {
-      if (
-        window.atool &&
-        window.atool.getTermType() == "android" &&
-        "hideSoftInput" in window.atool
-      ) {
-        atool.hideSoftInput();
-      }
+      console.log('隐藏系统键盘');
+      setTimeout(() => {
+        if (
+          window.atool &&
+          window.atool.getTermType() == "android" &&
+          "hideSoftInput" in window.atool
+        ) {
+          console.log('调用 atool.hideSoftInput()');
+          atool.hideSoftInput();
+          atool.restart();
+        }
+      }, 10);
     }
   }
 };
@@ -674,12 +693,24 @@ export default {
 
         .form-input {
           flex: 1;
+          transition: all 0.3s ease;
+
+          // 焦点高亮效果
+          &.input-focused {
+            /deep/ .el-input__inner,
+            /deep/ .el-select .el-input__inner {
+              border-color: #409eff !important;
+              box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2) !important;
+              background-color: #f0f9ff !important;
+            }
+          }
 
           /deep/ .el-input__inner {
             height: 38px;
             font-size: 14px;
             border: 1px solid #dcdfe6;
             border-radius: 6px;
+            transition: all 0.3s ease;
             
             &:focus {
               border-color: #409eff;
