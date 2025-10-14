@@ -162,15 +162,15 @@ export default {
         
         if (res == "confirm") {
           console.log("用户确认暂不支付，开始取消订单");
-          const result = await this.cancelPayOrder();
-          console.log("取消订单结果:", result);
+          // const result = await this.cancelPayOrder();
+          // console.log("取消订单结果:", result);
           
           this.reloadMyOrderTableData();
           this.onCancelDrawer();
           
-          if (result == "success") {
+          // if (result == "success") {
             this.$emit("subSecondLogoutHandle");
-          }
+          // }
         } else {
           console.log("用户取消了暂不支付操作");
         }
