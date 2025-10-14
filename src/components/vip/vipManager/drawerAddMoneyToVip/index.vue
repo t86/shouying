@@ -192,14 +192,18 @@ export default {
     async checkLateDeposit() {
       try {
         // 调用新API检查当前会员是否有可用的充值滞留金
-        const params = {
-          mb_card_id: (this.currentInfo.id || this.vipIdOfSwiper) * 1 // 会员卡ID
-        };
+        // 根据接口文档，该接口不需要传入参数
+        const res = await api_vip.reqGetDepositLateListForDeposit({});
         
-        const res = await api_vip.reqGetDepositLateListForDeposit(params);
-        
-        if (res.code === 1) {
-          return res.data || [];
+        if (res.code === 1 && res.data && res.data.records) {
+          // 转换数据格式：接口返回的字段名(a, c, t)转换为组件使用的字段名
+          const lateDepositList = res.data.records.map(item => ({
+            id: item.id,           // 滞留金ID
+            amount: item.a,        // 金额(单位分)
+            card_no: item.c,       // 卡号
+            create_time: item.t    // 滞留时间
+          }));
+          return lateDepositList;
         } else {
           console.warn("获取滞留金列表失败:", res.msg);
           return [];
@@ -241,20 +245,29 @@ export default {
 
     // 处理部分支付（滞留金 + 扫码）
     async processPartialPayment(selectedDeposits, remainingAmount, rechargeInfo) {
-      // 这里需要实现部分支付逻辑
       console.log("部分支付", { selectedDeposits, remainingAmount, rechargeInfo });
-      this.$message.info(`使用滞留金 ¥${(parseFloat(rechargeInfo.makeAmt) - remainingAmount).toFixed(2)}，剩余 ¥${remainingAmount.toFixed(2)} 需要扫码支付`);
       
-      // 跳转到扫码支付
-      this.startCustomerPaymentScan(remainingAmount.toString(), "0", false, selectedDeposits);
+      // 计算已使用的滞留金总额
+      const usedAmount = parseFloat(rechargeInfo.makeAmt) - remainingAmount;
+      this.$message.info(`使用滞留金 ¥${usedAmount.toFixed(2)}，剩余 ¥${remainingAmount.toFixed(2)} 需要扫码支付`);
+      
+      // 注意：部分支付场景下，会先通过扫码完成剩余金额的支付
+      // 然后在支付成功后，会使用滞留金ID作为deposit_cnl进行充值
+      // 跳转到扫码支付，并携带选中的滞留金信息
+      this.startCustomerPaymentScan(remainingAmount.toString(), rechargeInfo.freeAmt, rechargeInfo.isCustom, selectedDeposits);
     },
 
     // 处理完全滞留金支付
     async processFullLateDepositPayment(selectedDeposits, rechargeInfo) {
-      // 这里需要实现完全滞留金支付逻辑
       console.log("完全滞留金支付", { selectedDeposits, rechargeInfo });
       
       try {
+        // 注意：如果选择了多个滞留金，只使用第一个滞留金的ID
+        // 因为接口的deposit_cnl字段只接受单个滞留金ID
+        if (selectedDeposits.length > 1) {
+          console.warn("选择了多个滞留金，但只会使用第一个滞留金ID进行充值");
+        }
+        
         // 调用充值API，使用滞留金支付
         // 根据接口文档，如果是使用滞留金结账，deposit_cnl字段对应的是滞留金的id
         const params = {
@@ -266,7 +279,7 @@ export default {
           oper_emp_id: this.$store.state.userInfo.emp_id * 1,
           deposit_cnl: selectedDeposits[0].id, // 使用第一个滞留金的ID作为充值渠道
           sales_emp_id: this.stepTwoInfo.personVal * 1,
-          remark: this.stepTwoInfo.remark
+          remark: this.stepTwoInfo.remark || ""
         };
         
         const res = await api_vip.reqMakeMoneyToCard(params);
