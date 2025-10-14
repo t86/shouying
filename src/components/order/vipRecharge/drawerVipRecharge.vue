@@ -40,7 +40,7 @@
               style="width: 300px; margin-right: 10px;"
               size="small"
               @input="handleSearch"
-              @focus="handleSearchInputFocus"
+              @click.native="handleSearchInputClick"
               @blur="handleSearchInputBlur"
             />
           </div>
@@ -131,14 +131,15 @@
               <label>自定义充值金额:</label>
               <div class="amount-input-wrapper">
                 <input
+                  ref="customAmountInput"
                   type="number"
                   v-model="customAmount"
                   placeholder="请输入金额"
                   class="amount-input"
                   step="0.01"
                   min="0"
-                  @focus="focusAmountInput"
-                  @blur="blurAmountInput"
+                  @click="handleAmountInputClick"
+                  @blur="handleAmountInputBlur"
                 />
               </div>
             </div>
@@ -283,8 +284,7 @@ export default {
       // 系统键盘控制
       isLandscape: window.innerWidth > window.innerHeight,
       windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-      isAmountInputFocused: false
+      windowHeight: window.innerHeight
     };
   },
   computed: {
@@ -353,14 +353,24 @@ export default {
       this.isLandscape = this.windowWidth > this.windowHeight;
     },
 
-    // 处理搜索输入框获得焦点 - 显示系统键盘
-    handleSearchInputFocus() {
+    // 处理搜索输入框点击 - 显示系统键盘
+    handleSearchInputClick() {
       this.keyboardShow('searchKeywordInput');
     },
 
     // 处理搜索输入框失去焦点 - 隐藏系统键盘
     handleSearchInputBlur() {
-      this.keyboardLeave('searchKeywordInput');
+      this.keyboardLeave();
+    },
+
+    // 处理自定义金额输入框点击 - 显示系统键盘
+    handleAmountInputClick() {
+      this.keyboardShow('customAmountInput');
+    },
+
+    // 处理自定义金额输入框失去焦点 - 隐藏系统键盘
+    handleAmountInputBlur() {
+      this.keyboardLeave();
     },
 
     // 显示系统键盘
@@ -371,19 +381,32 @@ export default {
         "showSoftInput" in window.atool
       ) {
         atool.showSoftInput();
-        atool.executeJs(`this.$refs.${refString}.focus()`);
+        // 对于 el-input 组件，需要获取其内部的 input 元素
+        // 对于原生 input，直接使用 ref
+        this.$nextTick(() => {
+          const refElement = this.$refs[refString];
+          if (refElement) {
+            // 如果是 el-input 组件，需要调用其 focus 方法
+            if (refElement.focus && typeof refElement.focus === 'function') {
+              refElement.focus();
+            }
+            // 如果是原生 input 元素，直接 focus
+            else if (refElement.tagName === 'INPUT') {
+              refElement.focus();
+            }
+          }
+        });
       }
     },
 
     // 隐藏系统键盘
-    keyboardLeave(refString) {
+    keyboardLeave() {
       setTimeout(() => {
         if (
           window.atool &&
           window.atool.getTermType() == "android" &&
           "hideSoftInput" in window.atool
         ) {
-          atool.executeJs(`this.$refs.${refString}.blur()`);
           atool.hideSoftInput();
           atool.restart();
         }
@@ -701,16 +724,6 @@ export default {
         this.$message.success("注册开卡成功，可以直接进行充值");
       }
     },
-
-    // 焦点控制
-    focusAmountInput() {
-      this.isAmountInputFocused = true;
-    },
-
-    blurAmountInput() {
-      this.isAmountInputFocused = false;
-    },
-
 
     // 获取弹窗尺寸
     getDrawerSize() {
