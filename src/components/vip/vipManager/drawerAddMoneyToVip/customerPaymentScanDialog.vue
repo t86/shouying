@@ -113,6 +113,7 @@ export default {
       manualPaymentCode: "",
       paymentStatus: "idle", // idle, processing, success, failed
       scanTimeout: null,
+      scanInputTimeout: null,
       paymentTimeout: null,
       showManualInput: false,
       currentOrderId: null,
@@ -158,6 +159,7 @@ export default {
       
       // 设置扫码超时（60秒）
       this.scanTimeout = setTimeout(() => {
+        console.log('scanTimeout go')
         this.$message.warning("扫码超时，请重试");
         this.onCancel();
       }, 60000);
@@ -210,11 +212,18 @@ export default {
     // 扫码输入处理
     onCustomerPaymentCodeInput() {
       // 延迟处理，等待完整的扫码输入
-      setTimeout(() => {
+
         if (this.customerPaymentCode && this.customerPaymentCode.length > 10) {
-          this.processCustomerPayment();
+          console.log('scan out ', this.customerPaymentCode)
+          if(this.scanInputTimeout != null) {
+            clearTimeout(this.scanInputTimeout);
+          }
+          this.scanInputTimeout = setTimeout(()=> {
+            console.log('scan in ', this.customerPaymentCode)
+            this.processCustomerPayment();
+          })
+
         }
-      }, 100);
     },
 
     // 切换手动输入
@@ -361,6 +370,7 @@ export default {
 
     // 取消
     onCancel() {
+      this.clearTimeouts();
       this.show = false;
     },
 
@@ -370,7 +380,11 @@ export default {
 
     // 开始支付状态检查
     startPaymentStatusCheck(orderId) {
+      console.log('startPaymentStatusCheck go')
       this.currentOrderId = orderId;
+      if (this.paymentTimer) {
+              clearInterval(this.paymentTimer);
+      }
       this.paymentTimer = setInterval(async () => {
         await this.checkPaymentStatus();
       }, 2000); // 每2秒检查一次
@@ -381,6 +395,7 @@ export default {
     async checkPaymentStatus() {
       if (!this.currentOrderId) return;
 
+      console.log('checkPaymentStatus go')
       try {
         const statusRes = await api_vip.reqGetCustDeptOrderStatus({
           order_id: this.currentOrderId
