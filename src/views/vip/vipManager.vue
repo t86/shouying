@@ -34,8 +34,15 @@
         </el-select>
       </div>
       <div class="row" layout="row" layout-align="start center">
-        <el-input class="m-r-2" v-model="form.keyword" size="small" placeholder="姓名/手机号/会员卡号"
-          style="width: 200px"></el-input>
+        <el-input 
+          class="m-r-2" 
+          v-model="form.keyword" 
+          size="small" 
+          placeholder="姓名/手机号(支持11位)/会员卡号"
+          style="width: 240px"
+          @keyup.enter="getTableData"
+          clearable
+        ></el-input>
         <button class="btn primary m-l-4" @click="getTableData">查询</button>
         <button class="btn info m-l-4" @click="resetHandle">重置</button>
         <button class="btn info m-l-4" @click="exportExcel">导出</button>
@@ -239,6 +246,17 @@ export default {
     },
     async getTableData(rest = false) {
       if (rest) this.pageInfo.page = 1;
+      
+      // 🔍 手机号搜索优化
+      const keyword = this.form.keyword.trim();
+      if (keyword && this.isPhoneNumber(keyword)) {
+        console.log("🎯 [会员搜索] 检测到手机号搜索:", keyword);
+        if (keyword.length !== 11) {
+          this.$message.warning("请输入完整的11位手机号");
+          return;
+        }
+      }
+      
       const params = {
         page_num: this.pageInfo.page, //   int   第几页
         page_size: this.pageInfo.pageSize, //  int     每页行数
@@ -247,9 +265,12 @@ export default {
         end_birth_day: this.form.end_birth_day || "", // string  生日月份与日期(结束,包含),格式 mm-dd 不过滤,传空
         card_type_id: this.form.typeVal, // int64    卡类型Id
         card_level_id: this.form.deepVal, // int64   卡等级Id
-        key: this.form.keyword, //    string    关键字, 姓名/手机号/会员卡号
+        key: keyword, //    string    关键字, 姓名/手机号/会员卡号
         sales_emp_id: this.form.personVal * 1, // string 开卡推荐人关键字
       };
+      
+      console.log("🎯 [会员搜索] 搜索参数:", params);
+      
       try {
         const res = await api_vip.reqGetVipCardList(params);
         if (res.code == 1) {
@@ -261,11 +282,22 @@ export default {
             showTips: false,
             pointerX: 0,
           }));
+          
+          // 🎯 搜索结果提示
+          if (keyword && this.isPhoneNumber(keyword)) {
+            console.log("🎯 [会员搜索] 手机号搜索结果数量:", this.tableData.length);
+            if (this.tableData.length === 0) {
+              this.$message.info("未找到该手机号对应的会员信息");
+            } else {
+              this.$message.success(`找到 ${this.tableData.length} 条相关会员信息`);
+            }
+          }
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
         console.log("会员管理表格数据获取失败", error);
+        this.$message.error("搜索失败，请重试");
       }
     },
     async exportExcel() {
@@ -508,6 +540,12 @@ export default {
         }, 1000);
       }
     },
+    // 判断是否为手机号格式
+    isPhoneNumber(str) {
+      // 检查是否全为数字且长度在4-11位之间（支持部分手机号搜索）
+      return /^\d{4,11}$/.test(str);
+    },
+    
     remoteMethod(query) {
       if (query !== "") {
         this.remoteLoading = true;

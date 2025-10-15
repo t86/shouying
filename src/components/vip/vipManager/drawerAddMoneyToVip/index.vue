@@ -13,7 +13,7 @@
           <el-input
             size="small"
             v-model="keyword"
-            placeholder="输入手机号后四位后，方可搜索"
+            placeholder="输入完整手机号或后4位，方可搜索"
             style="width:284px"
             @input="searchHandle"
           ></el-input>
@@ -90,11 +90,11 @@ export default {
   },
   methods: {
     async searchHandle(e) {
-      if (typeof e === "object" && this.keyword.length != 4)
-        return this.$message.warning("输入手机号后四位，方可搜索");
-      if (this.keyword.length != 4) return this.tableData = [];
+      if (typeof e === "object" && this.keyword.length != 4 && this.keyword.length != 11)
+        return this.$message.warning("输入手机号后四位或完整手机号，方可搜索");
+      if (this.keyword.length != 4 && this.keyword.length != 11) return this.tableData = [];
       const params = {
-        phone: this.keyword //    string   手机号后4位
+        phone: this.keyword //    string   手机号后4位或 11 位
       };
       try {
         const res = await api_vip.reqGetMakeMoneyListOfPhoneNum(params);
@@ -116,6 +116,18 @@ export default {
       const isCustom = this.stepTwoInfo.makeAmtInfo.d == '自定义'
       const makeAmt = isCustom ? (this.stepTwoInfo.makeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.d / 100).toFixed(2)
       const freeAmt = isCustom ? (this.stepTwoInfo.freeAmt * 1).toFixed(2) : (this.stepTwoInfo.makeAmtInfo.f / 100).toFixed(2)
+      
+      // 🔍 调试信息：打印充值流程开始
+      console.log("🎯 [充值流程] 开始充值流程 (onSubmit)");
+      console.log("📋 [充值流程] 充值参数:");
+      console.log("  - 是否自定义 (isCustom):", isCustom, typeof isCustom);
+      console.log("  - 有价金额 (makeAmt):", makeAmt, typeof makeAmt);
+      console.log("  - 赠送金额 (freeAmt):", freeAmt, typeof freeAmt);
+      console.log("  - 当前会员信息:", this.currentInfo);
+      console.log("  - 第二步信息:", this.stepTwoInfo);
+      console.log("  - 用户信息:", this.$store.state.userInfo);
+      console.log("  - 充值方式 (typeVal):", this.stepTwoInfo.typeVal);
+      console.log("  - 推荐人 (personVal):", this.stepTwoInfo.personVal);
       
       if (!this.stepTwoInfo.typeVal)  {
         this.charging = false
@@ -177,16 +189,48 @@ export default {
         remark: this.stepTwoInfo.remark //     string    充值备注
       };
       
+      // 🔍 调试信息：打印充值参数
+      console.log("🔍 [普通充值] 准备调用充值接口");
+      console.log("📋 [普通充值] 接口参数详情:");
+      console.log("  - 会员卡ID (id):", params.id, typeof params.id);
+      console.log("  - 有价金额 (val_amt):", params.val_amt, typeof params.val_amt);
+      console.log("  - 赠送金额 (free_amt):", params.free_amt, typeof params.free_amt);
+      console.log("  - 赠送积分 (pt_amt):", params.pt_amt, typeof params.pt_amt);
+      console.log("  - 充值模式 (m):", params.m, typeof params.m, params.m === 1 ? "规则模式" : "自定义模式");
+      console.log("  - 操作员工 (oper_emp_id):", params.oper_emp_id, typeof params.oper_emp_id);
+      console.log("  - 充值渠道 (deposit_cnl):", params.deposit_cnl, typeof params.deposit_cnl);
+      console.log("  - 推荐人 (sales_emp_id):", params.sales_emp_id, typeof params.sales_emp_id);
+      console.log("  - 备注 (remark):", params.remark, typeof params.remark);
+      console.log("📦 [普通充值] 完整参数对象:", JSON.stringify(params, null, 2));
+      
       try {
+        console.log("🚀 [普通充值] 开始调用 reqMakeMoneyToCard 接口...");
         const res = await api_vip.reqMakeMoneyToCard(params);
+        
+        // 🔍 调试信息：打印接口响应
+        console.log("📥 [普通充值] 接口响应:");
+        console.log("  - 响应码 (code):", res.code, typeof res.code);
+        console.log("  - 响应消息 (msg):", res.msg);
+        console.log("  - 响应数据 (data):", res.data);
+        console.log("📦 [普通充值] 完整响应对象:", JSON.stringify(res, null, 2));
+        
         if (res.code == 1) {
+          console.log("✅ [普通充值] 充值成功");
           this.$message.success("充值成功");
           this.onCancelDrawer();
-          this.$emit('getTableData')
+          this.$emit('getTableData');
+          
+          // 充值成功后跳转到收银首页卡台列表
+          if (this.$store.state.userInfo.authStatus == 4) {
+            // 收银系统，跳转到收银首页
+            this.$router.replace({ name: "moneyCard" });
+          }
         } else {
+          console.log("❌ [普通充值] 充值失败:", res.msg);
           this.$message.warning(res.msg);
         }
       } catch (error) {
+        console.error("💥 [普通充值] 接口调用异常:", error);
         console.log("充值失败", error);
       } finally {
         this.charging = false;
@@ -208,12 +252,20 @@ export default {
         
         if (res.code === 1 && res.data && res.data.records) {
           console.log("✅ API返回成功，records长度:", res.data.records.length);
-          // 转换数据格式：接口返回的字段名(a, c, t)转换为组件使用的字段名
+          // 转换数据格式：接口返回的字段名(a, c, t, n, p)转换为组件使用的字段名
           const lateDepositList = res.data.records.map(item => ({
             id: item.id,           // 滞留金ID
             amount: item.a,        // 金额(单位分)
             card_no: item.c,       // 卡号
-            create_time: item.t    // 滞留时间
+            create_time: item.t,   // 滞留时间
+            name: item.n,          // 姓名
+            phone: item.p,         // 手机号
+            // 保留原始字段以兼容现有代码
+            a: item.a,
+            c: item.c,
+            t: item.t,
+            n: item.n,
+            p: item.p
           }));
           console.log("🔄 转换后的数据:", lateDepositList);
           return lateDepositList;
@@ -295,15 +347,52 @@ export default {
           remark: this.stepTwoInfo.remark || ""
         };
         
+        // 🔍 调试信息：打印滞留金充值参数
+        console.log("🔍 [滞留金充值] 准备调用充值接口");
+        console.log("📋 [滞留金充值] 接口参数详情:");
+        console.log("  - 会员卡ID (id):", params.id, typeof params.id);
+        console.log("  - 有价金额 (val_amt):", params.val_amt, typeof params.val_amt);
+        console.log("  - 赠送金额 (free_amt):", params.free_amt, typeof params.free_amt);
+        console.log("  - 赠送积分 (pt_amt):", params.pt_amt, typeof params.pt_amt);
+        console.log("  - 充值模式 (m):", params.m, typeof params.m, params.m === 1 ? "规则模式" : "自定义模式");
+        console.log("  - 操作员工 (oper_emp_id):", params.oper_emp_id, typeof params.oper_emp_id);
+        console.log("  - 充值渠道/滞留金ID (deposit_cnl):", params.deposit_cnl, typeof params.deposit_cnl);
+        console.log("  - 推荐人 (sales_emp_id):", params.sales_emp_id, typeof params.sales_emp_id);
+        console.log("  - 备注 (remark):", params.remark, typeof params.remark);
+        console.log("📦 [滞留金充值] 完整参数对象:", JSON.stringify(params, null, 2));
+        console.log("🏷️ [滞留金充值] 选中的滞留金信息:", selectedDeposits.map(d => ({
+          id: d.id,
+          amount: d.amount || d.a,
+          card_no: d.card_no || d.c
+        })));
+        
+        console.log("🚀 [滞留金充值] 开始调用 reqMakeMoneyToCard 接口...");
         const res = await api_vip.reqMakeMoneyToCard(params);
+        
+        // 🔍 调试信息：打印接口响应
+        console.log("📥 [滞留金充值] 接口响应:");
+        console.log("  - 响应码 (code):", res.code, typeof res.code);
+        console.log("  - 响应消息 (msg):", res.msg);
+        console.log("  - 响应数据 (data):", res.data);
+        console.log("📦 [滞留金充值] 完整响应对象:", JSON.stringify(res, null, 2));
+        
         if (res.code == 1) {
+          console.log("✅ [滞留金充值] 充值成功");
           this.$message.success("充值成功");
           this.onCancelDrawer();
           this.$emit('getTableData');
+          
+          // 充值成功后跳转到收银首页卡台列表
+          if (this.$store.state.userInfo.authStatus == 4) {
+            // 收银系统，跳转到收银首页
+            this.$router.replace({ name: "moneyCard" });
+          }
         } else {
+          console.log("❌ [滞留金充值] 充值失败:", res.msg);
           this.$message.warning(res.msg);
         }
       } catch (error) {
+        console.error("💥 [滞留金充值] 接口调用异常:", error);
         console.error("滞留金充值失败:", error);
         this.$message.error("充值失败，请重试");
       }
@@ -334,6 +423,12 @@ export default {
       this.$message.success(`充值成功！金额：¥${result.amount}`);
       this.onCancelDrawer();
       this.$emit('getTableData');
+      
+      // 充值成功后跳转到收银首页卡台列表
+      if (this.$store.state.userInfo.authStatus == 4) {
+        // 收银系统，跳转到收银首页
+        this.$router.replace({ name: "moneyCard" });
+      }
     },
 
     changeStep(step = 1) {
@@ -432,7 +527,7 @@ export default {
         // 通过普通充值按钮点击进入
         this.changeStep(1);
         setTimeout(() => {
-          this.$message.info("输入手机后四位后，方可自动搜索");
+          this.$message.info("输入完整手机号或后四位后，方可自动搜索");
         }, 200);
       }
     }

@@ -39,8 +39,8 @@
         >
             <div class="deposit-amount" :style="{ textAlign: 'left', display: 'block', float: 'none', direction: 'ltr', marginLeft: '0', marginRight: 'auto', transform: 'none', position: 'relative', left: '0', right: 'auto' }">¥{{ formatAmount(deposit) }}</div>
             <div class="deposit-info">卡号：{{ deposit.c || deposit.card_no }}</div>
-            <div class="deposit-name">姓名：{{ deposit.n }}</div>
-            <div class="deposit-phone">手机号：{{ deposit.p }}</div>
+            <div class="deposit-name">姓名：{{ deposit.n || deposit.name }}</div>
+            <div class="deposit-phone">手机号：{{ deposit.p || deposit.phone }}</div>
             <div class="deposit-date">{{ deposit.t || deposit.create_time }}</div>
         </div>
       </div>
@@ -59,8 +59,8 @@
         >
           <div class="deposit-amount" :style="{ textAlign: 'left', display: 'block', float: 'none', direction: 'ltr', marginLeft: '0', marginRight: 'auto', transform: 'none', position: 'relative', left: '0', right: 'auto' }">¥{{ formatAmount(deposit) }}</div>
           <div class="deposit-info">卡号：{{ deposit.c || deposit.card_no }}</div>
-          <div class="deposit-name">姓名：{{ deposit.n }}</div>
-          <div class="deposit-phone">手机号：{{ deposit.p }}</div>
+          <div class="deposit-name">姓名：{{ deposit.n || deposit.name }}</div>
+          <div class="deposit-phone">手机号：{{ deposit.p || deposit.phone }}</div>
           <div class="deposit-date">{{ deposit.t || deposit.create_time }}</div>
         </div>
       </div>

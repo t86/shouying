@@ -1614,8 +1614,19 @@ export default {
       this.onlinePayType = payType;
       this.onlineOrderInfo = { ...orderInfo, r: orderInfo.r || 0 };
       
-      // 确保选择支付方式弹窗完全关闭后再显示二维码弹窗
+      // 关闭选择支付方式弹窗
       this.showOnlineBuyOrder = false;
+      
+      // 检查是否是扫客人支付且已经支付成功
+      if ([5, 6].includes(payType) && orderInfo.r === 1) {
+        // 扫客人支付成功，直接处理支付成功逻辑，不显示二维码弹窗
+        console.log("扫客人支付已成功，直接处理支付成功逻辑");
+        this.$message.success("支付成功");
+        this.handleOnlinePaySuccess();
+        return;
+      }
+      
+      // 其他支付方式或未完成的支付，显示二维码弹窗
       this.$nextTick(() => {
         setTimeout(() => {
           console.log("准备显示二维码弹窗");
@@ -1640,8 +1651,16 @@ export default {
       this.showOnlinePayQR = false;
       this.onlinePayType = "";
       this.onlineOrderInfo = {};
+      
+      // 刷新购物车数据
       this.getChoosePayList();
+      
+      // 发送支付成功事件给父组件
       this.$emit("paySuccess");
+      
+      // 关闭收银弹窗，返回卡台界面
+      this.showDrawer = false;
+      this.$emit("showOrHideDrawer", false);
     },
 
     // 处理显示滞留金弹窗

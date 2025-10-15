@@ -33,23 +33,6 @@
         </div>
       </div>
 
-      <!-- 充值模式选择 -->
-      <div class="recharge-mode-section">
-        <div class="section-header">
-          <i class="el-icon-money"></i>
-          <span>充值模式</span>
-        </div>
-        <el-radio-group v-model="rechargeForm.mode" @change="handleModeChange">
-          <el-radio :label="1" class="mode-radio">
-            <span class="mode-title">标准充值</span>
-            <span class="mode-desc">使用预设充值规则</span>
-          </el-radio>
-          <el-radio :label="2" class="mode-radio">
-            <span class="mode-title">自定义充值</span>
-            <span class="mode-desc">自定义充值金额和赠送</span>
-          </el-radio>
-        </el-radio-group>
-      </div>
 
       <!-- 充值表单 -->
       <div class="recharge-form-section">
@@ -320,13 +303,6 @@ export default {
       };
     },
 
-    handleModeChange(mode) {
-      if (mode === 1) {
-        // 标准模式，清空自定义字段
-        this.rechargeForm.freeAmount = "";
-        this.rechargeForm.freePoints = "";
-      }
-    },
 
     handleAmountInput(value) {
       // 只允许数字和小数点
@@ -612,7 +588,7 @@ export default {
     }
   }
 
-  .recharge-mode-section, .payment-section {
+  .payment-section {
     margin-bottom: 20px;
 
     .section-header {
@@ -627,37 +603,6 @@ export default {
         margin-right: 8px;
         font-size: 18px;
         color: #409eff;
-      }
-    }
-
-    .mode-radio {
-      display: block;
-      margin-bottom: 12px;
-      padding: 12px;
-      border: 1px solid #e4e7ed;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        border-color: #409eff;
-        background: #f0f9ff;
-      }
-
-      /deep/ .el-radio__input.is-checked + .el-radio__label {
-        color: #409eff;
-      }
-
-      .mode-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #262626;
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .mode-desc {
-        font-size: 12px;
-        color: #8c8c8c;
       }
     }
 

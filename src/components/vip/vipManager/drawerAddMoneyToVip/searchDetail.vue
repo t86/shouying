@@ -3,7 +3,7 @@
     <div class="form-grid">
       <div class="row">
         <div class="label">会员卡号:</div>
-        <div class="value">{{ vipInfo.card_no }}</div>
+        <div class="value">{{ vipInfo.card_no || '暂无' }}</div>
       </div>
       <div class="row">
         <div class="label">会员卡等级:</div>
@@ -41,11 +41,16 @@
         <div class="label">赠送余额:</div>
         <div class="value">{{ vipInfo.free_bal }}</div>
       </div>
+      <div class="row">
+        <div class="label">注册推荐人:</div>
+        <div class="value">{{ getRegisterRecommenderName() }}</div>
+      </div>
       <!-- <div class="row">
         <div class="label">剩余积分:</div>
         <div class="value">00001</div>
       </div>-->
     </div>
+    
     <div class="form">
       <div class="row">
         <div class="label m-t-2">
@@ -207,6 +212,25 @@ export default {
         : this.vipIdOfSwiper * 1;
       this.getVipDetailInfo(id);
     },
+    
+    // 获取注册推荐人姓名
+    getRegisterRecommenderName() {
+      // 优先使用新接口返回的充值推荐人信息
+      if (this.vipInfo.deposit_sales_emp_name) {
+        return this.vipInfo.deposit_sales_emp_name;
+      }
+      
+      // 兼容原有逻辑
+      if (!this.vipInfo.sales_emp_id || !this.personOptions.length) {
+        return '暂无';
+      }
+      
+      const recommender = this.personOptions.find(person => 
+        person.id === this.vipInfo.sales_emp_id
+      );
+      
+      return recommender ? `${recommender.name} (${recommender.code})` : '暂无';
+    },
     // 获取vip详情
     async getVipDetailInfo(id) {
       const params = {
@@ -217,6 +241,7 @@ export default {
         if (res.code == 1) {
           this.vipInfo = res.data.mb_card;
           console.log("会员卡信息:", this.vipInfo);
+          console.log("会员卡号:", this.vipInfo.card_no);
           console.log("会员卡 sales_emp_id:", this.vipInfo.sales_emp_id);
           
           this.makeMoneyList = [
@@ -237,8 +262,24 @@ export default {
           this.typeOption = res.data.depoist_cnls || [];
           this.depositRules = res.data.deposit_rules || [];
           this.base_amt = res.data.base_amt;
-          console.log("获取充值前会员卡信息成功", this.depositRules);
-          console.log("充值渠道列表:", this.typeOption);
+          
+          // 🔍 调试信息：检查积分相关数据
+          console.log("🎯 [积分调试] 获取充值前会员卡信息成功");
+          console.log("📋 [积分调试] 接口返回的完整数据:", res.data);
+          console.log("📋 [积分调试] 积分基数 (base_amt):", res.data.base_amt, typeof res.data.base_amt);
+          console.log("📋 [积分调试] 充值规则 (deposit_rules):", this.depositRules);
+          console.log("📋 [积分调试] 充值渠道列表:", this.typeOption);
+          console.log("📋 [积分调试] 当前设置的 base_amt:", this.base_amt);
+          
+          // 检查充值规则中的积分配置
+          if (this.depositRules && this.depositRules.length > 0) {
+            this.depositRules.forEach((rule, index) => {
+              console.log(`📋 [积分调试] 规则 ${index}:`, rule);
+              if (rule.p !== undefined) {
+                console.log(`  - 规则 ${index} 积分配置 (p):`, rule.p, typeof rule.p);
+              }
+            });
+          }
         } else {
           this.$message.warning(res.msg);
         }
@@ -353,15 +394,35 @@ export default {
   computed:{
     sendPoint(){
        let point = "";
-       if(this.base_amt == 0){
-        point = '0';
-       }else{
-        if(this.form.activeDetailId == this.makeMoneyList.length - 1){
-         point = Math.floor(this.form.makeAmt * 1 / this.base_amt);
-       }else{
-         point = Math.floor(this.makeMoneyList[this.form.activeDetailId].d * 1 / this.base_amt);
+       
+       console.log("🎯 [积分计算] 开始计算赠送积分");
+       console.log("📋 [积分计算] 当前选择的充值详情ID:", this.form.activeDetailId);
+       console.log("📋 [积分计算] 充值列表:", this.makeMoneyList);
+       
+       // 检查是否是自定义模式（最后一个选项）
+       if(this.form.activeDetailId == this.makeMoneyList.length - 1){
+         // 自定义模式：基于 base_amt 计算积分
+         if(this.base_amt == 0){
+           point = '0';
+           console.log("📋 [积分计算] 自定义模式 - base_amt 为 0，不赠送积分");
+         } else {
+           const makeAmt = this.form.makeAmt * 1;
+           point = Math.floor(makeAmt / this.base_amt);
+           console.log("📋 [积分计算] 自定义模式 - 充值金额:", makeAmt, "积分基数:", this.base_amt, "计算积分:", point);
+         }
+       } else {
+         // 规则模式：直接使用规则中的 p 字段
+         const currentRule = this.makeMoneyList[this.form.activeDetailId];
+         if (currentRule && currentRule.p !== undefined) {
+           point = currentRule.p;
+           console.log("📋 [积分计算] 规则模式 - 直接使用规则积分 (p):", point);
+         } else {
+           point = '0';
+           console.log("📋 [积分计算] 规则模式 - 规则中没有积分配置，不赠送积分");
+         }
        }
-       }
+       
+       console.log("📋 [积分计算] 最终积分结果:", point);
        return point
     }
   }
@@ -440,6 +501,87 @@ export default {
             }
           }
         }
+      }
+    }
+  }
+}
+
+/* 充值规则说明样式 */
+.recharge-rules-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #e9ecef;
+  
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    
+    .rule-item {
+      background: white;
+      border-radius: 6px;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        border-color: #409eff;
+        box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+      }
+      
+      .rule-amount {
+        font-size: 16px;
+        font-weight: 600;
+        color: #409eff;
+        margin-bottom: 8px;
+      }
+      
+      .rule-benefits {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        
+        .benefit-item {
+          font-size: 14px;
+          color: #666;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .rules-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (orientation: portrait) {
+    padding: 15px;
+    
+    .rules-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      
+      .rule-item {
+        padding: 12px;
       }
     }
   }

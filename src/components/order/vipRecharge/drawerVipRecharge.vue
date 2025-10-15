@@ -646,11 +646,17 @@ export default {
     // 注册成功后的处理
     handleRegisterSuccess(memberInfo) {
       this.$message.success(`会员 ${memberInfo.name} 注册成功！`);
+      console.log("注册成功，接收到的会员信息:", memberInfo);
       
-      // 设置新会员信息，准备充值
+      // 设置新会员信息，包含新的接口返回字段
       this.newMemberInfo = {
         phone: memberInfo.phone,
-        name: memberInfo.name
+        name: memberInfo.name,
+        // 新增接口返回的字段
+        card_no: memberInfo.cardInfo && memberInfo.cardInfo.card_no,
+        bind_phone: memberInfo.cardInfo && memberInfo.cardInfo.bind_phone,
+        deposit_sales_emp_id: memberInfo.cardInfo && memberInfo.cardInfo.deposit_sales_emp_id,
+        deposit_sales_emp_name: memberInfo.cardInfo && memberInfo.cardInfo.deposit_sales_emp_name
       };
       
       // 显示充值流程弹窗
@@ -728,14 +734,6 @@ export default {
       this.$emit("showOrHideDrawer");
     },
 
-    handleRegisterSuccess(memberData) {
-      // 注册成功后，将新会员信息填入充值表单
-      if (memberData) {
-        this.selectedMember = memberData;
-        this.searchKeyword = memberData.bind_phone || memberData.card_no;
-        this.$message.success("注册开卡成功，可以直接进行充值");
-      }
-    },
 
     // 获取弹窗尺寸
     getDrawerSize() {
