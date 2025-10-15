@@ -227,20 +227,12 @@
       @close="showPaymentSuccessDialog = false"
     />
 
-    <!-- 充值流程弹窗 -->
-    <DrawerRechargeFlow 
-      v-model="showRechargeFlowDialog"
-      :recharge-info="rechargeFlowInfo"
-      @rechargeSuccess="handleRechargeFlowSuccess"
-      @cancel="showRechargeFlowDialog = false"
-    />
   </div>
 </template>
 
 <script>
 import api_vip from "@/api/vip";
 import DrawerRegisterCard from "./drawerRegisterCard.vue";
-import DrawerRechargeFlow from "./drawerRechargeFlow.vue";
 import PaymentMethodDialog from "./paymentMethodDialog.vue";
 import PaymentSuccessDialog from "./paymentSuccessDialog.vue";
 
@@ -248,7 +240,6 @@ export default {
   name: "VipRechargeDrawer",
   components: {
     DrawerRegisterCard,
-    DrawerRechargeFlow,
     PaymentMethodDialog,
     PaymentSuccessDialog,
   },
@@ -271,12 +262,12 @@ export default {
       customAmount: "",
       selectedRecommender: "",
       employeeOptions: [],
+      autoSelectedRecommender: null, // 缓存自动设置的推荐人信息
       remarkText: "",
       isRecharging: false,
       showRegisterCardDialog: false,
       showPaymentMethodDialog: false,
       showPaymentSuccessDialog: false,
-      showRechargeFlowDialog: false,
       rechargeFlowInfo: null,
       paymentSuccessInfo: null,
       newMemberInfo: {
@@ -336,11 +327,21 @@ export default {
       this.customAmount = "";
       this.selectedRecommender = "";
       this.employeeOptions = [];
+      this.autoSelectedRecommender = null;
       this.remarkText = "";
       this.isRecharging = false;
       
+      // 重置弹窗状态
+      this.showRegisterCardDialog = false;
+      this.showPaymentMethodDialog = false;
+      this.showPaymentSuccessDialog = false;
+      this.rechargeFlowInfo = null;
+      this.paymentSuccessInfo = null;
+      
       // 重置员工选项为完整列表
       const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      console.log("resetRechargeForm - 员工数据:", orderPersonInfo);
+      console.log("resetRechargeForm - 员工数据长度:", orderPersonInfo.length);
       this.employeeOptions = [...orderPersonInfo];
     },
 
@@ -482,8 +483,10 @@ export default {
           // 获取会员卡信息后，传递开卡推荐人信息
           await this.setRecommenderByRules(cardId, this.selectedMember.sales_emp_id);
         } else {
-          // 如果获取会员卡信息失败，只根据上次充值推荐人设置
-          await this.setRecommenderByRules(cardId, null);
+          // 如果获取会员卡信息失败，检查是否是新建会员卡
+          const openCardSalesEmpId = this.selectedMember && this.selectedMember.sales_emp_id;
+          console.log("获取会员卡详情失败，使用已有的开卡推荐人信息:", openCardSalesEmpId);
+          await this.setRecommenderByRules(cardId, openCardSalesEmpId);
         }
         
         if (rulesRes.code === 1 && rulesRes.data && rulesRes.data.records) {
@@ -518,6 +521,90 @@ export default {
       }
     },
 
+    // 加载默认充值选项（用于新注册会员）
+    async loadDefaultRechargeOptions() {
+      try {
+        console.log("加载默认充值选项");
+        
+        // 获取默认充值规则
+        const rulesRes = await api_vip.reqGetDepositRulesForDept({ id: 0 }); // 使用0获取默认规则
+        
+        if (rulesRes.code === 1 && rulesRes.data && rulesRes.data.records) {
+          const rules = rulesRes.data.records;
+          
+          this.rechargeOptions = [
+            ...rules.map(rule => ({
+              display_price: (rule.d / 100).toFixed(2),
+              gift_amount: rule.f / 100,
+              gift_text: rule.f > 0 ? `充${(rule.d / 100).toFixed(0)}送${(rule.f / 100).toFixed(0)}元` : `充${(rule.d / 100).toFixed(0)}送${(rule.f / 100).toFixed(0)}元`,
+              gift_points: rule.fp || 0,
+              gift_coupon: rule.fkn || '',
+              rule_data: rule,
+            })),
+            {
+              display_price: "自定义",
+              gift_amount: 0,
+              gift_text: "会员充值",
+              gift_points: 0,
+              gift_coupon: '',
+              rule_data: { d: "自定义", f: 0 },
+            },
+          ];
+          
+          console.log("默认充值选项加载完成:", this.rechargeOptions);
+        } else {
+          // 如果获取默认规则失败，提供基础的充值选项
+          this.rechargeOptions = [
+            {
+              display_price: "100.00",
+              gift_amount: 0,
+              gift_text: "充100送0元",
+              gift_points: 0,
+              gift_coupon: '',
+              rule_data: { d: 10000, f: 0, fp: 0, fk: 0 }
+            },
+            {
+              display_price: "200.00",
+              gift_amount: 0,
+              gift_text: "充200送0元",
+              gift_points: 0,
+              gift_coupon: '',
+              rule_data: { d: 20000, f: 0, fp: 0, fk: 0 }
+            },
+            {
+              display_price: "自定义",
+              gift_amount: 0,
+              gift_text: "会员充值",
+              gift_points: 0,
+              gift_coupon: '',
+              rule_data: { d: "自定义", f: 0 },
+            }
+          ];
+          
+          console.log("使用基础充值选项:", this.rechargeOptions);
+        }
+        
+        // 默认选中第一个充值选项
+        if (this.rechargeOptions.length > 0) {
+          this.selectedOptionIndex = 0;
+        }
+      } catch (error) {
+        console.error("加载默认充值选项失败:", error);
+        // 提供最基础的充值选项
+        this.rechargeOptions = [
+          {
+            display_price: "自定义",
+            gift_amount: 0,
+            gift_text: "会员充值",
+            gift_points: 0,
+            gift_coupon: '',
+            rule_data: { d: "自定义", f: 0 },
+          }
+        ];
+        this.selectedOptionIndex = 0;
+      }
+    },
+
     // 按照三层规则设置推荐人
     async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
@@ -525,38 +612,58 @@ export default {
         
         // 获取所有员工选项
         const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        console.log("员工数据:", orderPersonInfo);
+        console.log("员工数据长度:", orderPersonInfo.length);
         this.employeeOptions = orderPersonInfo;
         
-        // 第一层：查询该卡上次充值时的充值推荐人
-        const res = await api_vip.reqGetCustCardLastSales({
-          card_id: cardId,
-        });
-        console.log("上次充值推荐人接口返回:", res);
+        // 第一层：查询该卡上次充值时的充值推荐人（只有当cardId有效时才查询）
+        let res = null;
+        if (cardId && cardId !== '' && cardId !== null && cardId !== undefined) {
+          res = await api_vip.reqGetCustCardLastSales({
+            card_id: cardId,
+          });
+          console.log("上次充值推荐人接口返回:", res);
+        } else {
+          console.log("第一层：卡ID无效，跳过上次充值推荐人查询");
+        }
         
-        if (res.code === 1 && res.data && res.data.id) {
+        if (res && res.code === 1 && res.data && res.data.id) {
           const lastRechargeSalesEmpId = res.data.id;
           console.log("第一层：找到上次充值推荐人ID:", lastRechargeSalesEmpId, "姓名:", res.data.name);
           
           // 尝试在员工列表中找到匹配的推荐人
           const matchedEmployee = this.findEmployeeInOptions(lastRechargeSalesEmpId);
           if (matchedEmployee) {
+            this.autoSelectedRecommender = matchedEmployee; // 缓存推荐人信息
+            this.ensureSelectedRecommenderInOptions();
+            // 使用nextTick确保DOM更新后再设置值
+            await this.$nextTick();
             this.selectedRecommender = matchedEmployee.id;
+            // 强制更新组件以确保el-select正确显示
+            this.$forceUpdate();
             console.log("第一层：设置上次充值推荐人为默认值:", this.selectedRecommender);
             return;
           } else {
             console.log("第一层：上次充值推荐人不在当前员工列表中，添加到选项");
             // 将上次充值推荐人添加到员工选项中
-            this.employeeOptions = [{
+            const recommenderInfo = {
               id: lastRechargeSalesEmpId,
               name: res.data.name,
               code: ''
-            }, ...orderPersonInfo];
+            };
+            this.employeeOptions = [recommenderInfo, ...orderPersonInfo];
+            this.autoSelectedRecommender = recommenderInfo; // 缓存推荐人信息
+            this.ensureSelectedRecommenderInOptions();
+            // 使用nextTick确保DOM更新后再设置值
+            await this.$nextTick();
             this.selectedRecommender = lastRechargeSalesEmpId;
+            // 强制更新组件以确保el-select正确显示
+            this.$forceUpdate();
             console.log("第一层：添加并设置上次充值推荐人为默认值:", this.selectedRecommender);
             return;
           }
         } else {
-          console.log("第一层：没有找到上次充值推荐人");
+          console.log("第一层：没有找到上次充值推荐人，原因:", res ? res.msg || '未知' : '未查询');
         }
         
         // 第二层：如果没有上次充值推荐人，则使用开卡推荐人
@@ -564,7 +671,13 @@ export default {
           console.log("第二层：尝试使用开卡推荐人ID:", openCardSalesEmpId);
           const matchedEmployee = this.findEmployeeInOptions(openCardSalesEmpId);
           if (matchedEmployee) {
+            this.autoSelectedRecommender = matchedEmployee; // 缓存推荐人信息
+            this.ensureSelectedRecommenderInOptions();
+            // 使用nextTick确保DOM更新后再设置值
+            await this.$nextTick();
             this.selectedRecommender = matchedEmployee.id;
+            // 强制更新组件以确保el-select正确显示
+            this.$forceUpdate();
             console.log("第二层：设置开卡推荐人为默认值:", this.selectedRecommender);
             return;
           } else {
@@ -574,13 +687,33 @@ export default {
           console.log("第二层：没有开卡推荐人信息");
         }
         
-        // 第三层：如果前两层都没有，则推荐人为空白
-        console.log("第三层：推荐人设置为空白，允许用户手动选择");
-        this.selectedRecommender = "";
+        // 第三层：如果前两层都没有，设置第一个员工为默认推荐人
+        if (orderPersonInfo && orderPersonInfo.length > 0) {
+          const firstEmployee = orderPersonInfo[0];
+          this.autoSelectedRecommender = firstEmployee;
+          this.ensureSelectedRecommenderInOptions();
+          await this.$nextTick();
+          this.selectedRecommender = firstEmployee.id;
+          this.$forceUpdate();
+          console.log("第三层：设置第一个员工为默认推荐人:", this.selectedRecommender, firstEmployee.name);
+        } else {
+          console.log("第三层：没有员工数据，推荐人设置为空白");
+          this.selectedRecommender = "";
+        }
         
       } catch (error) {
-        console.error("设置推荐人失败:", error);
-        this.selectedRecommender = "";
+        console.error("设置推荐人时出错:", error);
+        // 出错时也尝试设置第一个员工为默认值
+        const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+        if (orderPersonInfo && orderPersonInfo.length > 0) {
+          const firstEmployee = orderPersonInfo[0];
+          this.selectedRecommender = firstEmployee.id;
+          this.autoSelectedRecommender = firstEmployee;
+          console.log("错误处理：设置第一个员工为默认推荐人:", this.selectedRecommender);
+        } else {
+          this.selectedRecommender = "";
+          this.autoSelectedRecommender = null;
+        }
       }
     },
     
@@ -599,8 +732,9 @@ export default {
       this.selectedOptionIndex = index;
     },
 
-    searchEmployee(query) {
+    async searchEmployee(query) {
       const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
+      console.log("searchEmployee - 查询:", query, "员工数据长度:", orderPersonInfo.length);
       
       if (query) {
         // 过滤匹配查询条件的员工
@@ -610,8 +744,12 @@ export default {
         
         // 如果当前有选中的推荐人，且该推荐人不在过滤结果中，将其添加到结果顶部
         if (this.selectedRecommender) {
-          const selectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender);
-          if (selectedEmp && !filteredEmployees.find(emp => emp.id === this.selectedRecommender)) {
+          // 优先从缓存中获取推荐人信息，如果没有则从当前选项中查找
+          const selectedEmp = (this.autoSelectedRecommender && this.autoSelectedRecommender.id.toString() === this.selectedRecommender.toString()) 
+            ? this.autoSelectedRecommender 
+            : this.employeeOptions.find(emp => emp.id.toString() === this.selectedRecommender.toString());
+            
+          if (selectedEmp && !filteredEmployees.find(emp => emp.id.toString() === this.selectedRecommender.toString())) {
             // 检查选中的推荐人是否匹配查询条件
             if (selectedEmp.name.includes(query) || (selectedEmp.code && selectedEmp.code.includes(query))) {
               filteredEmployees.unshift(selectedEmp);
@@ -620,21 +758,34 @@ export default {
         }
         
         this.employeeOptions = filteredEmployees;
+        
+        // 确保选中的推荐人在选项列表中
+        await this.ensureSelectedRecommenderInOptions();
       } else {
         // 没有查询条件时，显示所有员工，但确保自动设置的推荐人在列表中
         this.employeeOptions = [...orderPersonInfo];
         
-        // 确保自动设置的推荐人在选项中
-        if (this.selectedRecommender) {
-          const selectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender);
-          if (!selectedEmp) {
-            // 如果推荐人不在标准员工列表中，从之前保存的选项中寻找
-            const autoSelectedEmp = this.employeeOptions.find(emp => emp.id === this.selectedRecommender) ||
-                                   orderPersonInfo.find(emp => emp.id === this.selectedRecommender);
-            if (autoSelectedEmp) {
-              this.employeeOptions.unshift(autoSelectedEmp);
-            }
-          }
+        // 确保选中的推荐人在选项列表中
+        await this.ensureSelectedRecommenderInOptions();
+      }
+    },
+
+    // 确保选中的推荐人在选项列表中
+    async ensureSelectedRecommenderInOptions() {
+      if (!this.selectedRecommender) return;
+      
+      // 检查当前选中的推荐人是否在选项列表中
+      const selectedEmp = this.employeeOptions.find(emp => emp.id.toString() === this.selectedRecommender.toString());
+      
+      if (!selectedEmp) {
+        // 如果不在列表中，尝试从缓存中获取并添加
+        if (this.autoSelectedRecommender && this.autoSelectedRecommender.id.toString() === this.selectedRecommender.toString()) {
+          console.log("添加缓存的推荐人到选项列表:", this.autoSelectedRecommender);
+          this.employeeOptions.unshift(this.autoSelectedRecommender);
+          // 等待DOM更新
+          await this.$nextTick();
+        } else {
+          console.warn("选中的推荐人不在选项列表中，且没有缓存信息:", this.selectedRecommender);
         }
       }
     },
@@ -644,23 +795,53 @@ export default {
     },
 
     // 注册成功后的处理
-    handleRegisterSuccess(memberInfo) {
+    async handleRegisterSuccess(memberInfo) {
       this.$message.success(`会员 ${memberInfo.name} 注册成功！`);
       console.log("注册成功，接收到的会员信息:", memberInfo);
       
-      // 设置新会员信息，包含新的接口返回字段
-      this.newMemberInfo = {
-        phone: memberInfo.phone,
+      // 关闭注册弹窗
+      this.showRegisterCardDialog = false;
+      
+      // 构造会员信息对象，模拟搜索结果的数据结构
+      const newMember = {
+        id: memberInfo.cardId, // 使用接口返回的卡ID
+        card_no: memberInfo.cardId, // 卡号就是ID
+        bind_phone: memberInfo.phone,
         name: memberInfo.name,
-        // 新增接口返回的字段
-        card_no: memberInfo.cardInfo && memberInfo.cardInfo.card_no,
-        bind_phone: memberInfo.cardInfo && memberInfo.cardInfo.bind_phone,
-        deposit_sales_emp_id: memberInfo.cardInfo && memberInfo.cardInfo.deposit_sales_emp_id,
-        deposit_sales_emp_name: memberInfo.cardInfo && memberInfo.cardInfo.deposit_sales_emp_name
+        phone: memberInfo.phone,
+        // 新注册的会员余额为0
+        balance: 0,
+        points: 0,
+        // 开卡推荐人信息
+        sales_emp_id: memberInfo.openCardRecommenderId
       };
       
-      // 显示充值流程弹窗
-      this.showRechargeFlowDialog = true;
+      // 直接选中新注册的会员，不需要显示在搜索结果中
+      this.selectedMember = newMember;
+      this.selectedCardIndex = -1; // 重置选中索引
+      
+      // 设置搜索关键词为手机号，方便用户识别
+      this.searchKeyword = memberInfo.phone;
+      
+      // 清空搜索结果，因为已经选中了会员
+      this.searchResults = [];
+      
+      // 加载新会员的充值选项，使用卡ID
+      if (memberInfo.cardId) {
+        await this.loadRechargeOptions(memberInfo.cardId);
+      } else {
+        // 如果没有卡ID，直接加载默认充值规则
+        await this.loadDefaultRechargeOptions();
+      }
+      
+      // 重置充值相关状态
+      this.selectedOptionIndex = 0;
+      this.isCustomAmount = false;
+      this.customAmount = '';
+      this.remarkText = '';
+      // 注意：推荐人会在loadRechargeOptions中通过setRecommenderByRules自动设置
+      
+      console.log("已将新注册会员添加到充值列表:", newMember);
     },
 
     // 支付成功后的处理
@@ -689,19 +870,6 @@ export default {
       }, 300);
     },
 
-    // 充值流程成功后的处理
-    handleRechargeFlowSuccess(rechargeInfo) {
-      this.$message.success(`充值成功！金额：¥${rechargeInfo.amount}`);
-      
-      // 刷新搜索结果，显示新注册的会员
-      if (rechargeInfo.phone) {
-        this.searchKeyword = rechargeInfo.phone.slice(-4); // 使用手机号后四位搜索
-        this.handleSearch();
-      }
-      
-      // 关闭充值流程弹窗
-      this.showRechargeFlowDialog = false;
-    },
 
     async confirmRecharge() {
       if (!this.canConfirmRecharge) {

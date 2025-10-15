@@ -369,18 +369,14 @@ export default {
           this.$message.success("注册开卡成功!");
           console.log("新建会员卡返回数据:", res.data);
           
-          // 发送成功事件，包含注册信息和新的接口返回字段用于后续充值
+          // 发送成功事件，包含注册信息和新的卡ID
           this.$emit("registerSuccess", {
             phone: this.formData.phone,
             name: this.formData.name,
             success: true,
-            // 新增接口返回的字段
-            cardInfo: {
-              card_no: res.data.card_no, // 卡号
-              bind_phone: res.data.bind_phone, // 绑定手机号
-              deposit_sales_emp_id: res.data.deposit_sales_emp_id, // 充值推荐人ID
-              deposit_sales_emp_name: res.data.deposit_sales_emp_name // 充值推荐人姓名
-            }
+            // 使用接口返回的卡ID
+            cardId: res.data.id, // 新建会员卡的ID
+            openCardRecommenderId: this.formData.recommenderId // 开卡推荐人ID
           });
           this.onCancelDialog();
         } else {

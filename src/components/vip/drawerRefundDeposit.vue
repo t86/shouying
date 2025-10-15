@@ -119,9 +119,10 @@ export default {
         const res = await api_vip.reqCancelDeposit(params);
         if (res.code == 1) {
           this.$message.success("退款成功");
-          this.onCancelDialog();
-          // 刷新表格数据
+          // 先通知父组件刷新表格数据
           this.$emit('refreshTable');
+          // 然后关闭弹窗
+          this.onCancelDialog();
         } else {
           this.$message.warning(res.msg || "退款失败");
         }

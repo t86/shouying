@@ -170,7 +170,7 @@
       :showDialog="showModal"
       :depositInfo="currentInfo"
       @showOrHideDialog="showOrHideModal"
-      @refreshTable="getTableData"
+      @refreshTable="handleRefundSuccess"
     />
   </div>
 </template>
@@ -339,6 +339,30 @@ export default {
     hideChangeDepositSalesDialog() {
       this.showChangeDepositSalesDialogFlag = false;
       this.currentDepositInfo = {};
+    },
+    
+    // 处理退款成功
+    async handleRefundSuccess() {
+      // 立即更新本地状态，确保用户能看到状态变化
+      if (this.currentInfo && this.currentInfo.id) {
+        const index = this.tableData.findIndex(item => item.id === this.currentInfo.id);
+        if (index !== -1) {
+          // 更新本地记录状态为已退款
+          this.$set(this.tableData[index], 'b', 1);
+          console.log(`已更新记录 ${this.currentInfo.id} 状态为已退款`);
+        }
+      }
+      
+      // 延迟重新获取数据，确保后端数据已更新并保持数据同步
+      setTimeout(async () => {
+        try {
+          await this.getTableData();
+          console.log('退款后表格数据已刷新');
+        } catch (error) {
+          console.error('刷新表格数据失败:', error);
+          // 如果刷新失败，至少保持本地状态更新
+        }
+      }, 800); // 增加延迟时间确保后端事务完成
     },
   },
   mounted() {
