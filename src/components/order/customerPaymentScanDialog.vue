@@ -109,6 +109,7 @@ export default {
       manualPaymentCode: "",
       paymentStatus: "idle", // idle, processing, success, failed
       scanTimeout: null,
+      scanInputTimeout: null,
       paymentTimeout: null,
       showManualInput: false,
       olPayId: null, // 在线支付订单ID
@@ -210,7 +211,10 @@ export default {
     // 扫码输入处理
     onCustomerPaymentCodeInput() {
       // 延迟处理，等待完整的扫码输入
-      setTimeout(() => {
+      if (this.scanInputTimeout != null) {
+        clearTimeout(this.scanInputTimeout);
+      }
+      this.scanInputTimeout = setTimeout(() => {
         if (this.customerPaymentCode && this.customerPaymentCode.length > 10) {
           this.processCustomerPayment();
         }

@@ -8,16 +8,14 @@
     :close-on-click-modal="false"
   >
     <!-- 充值信息摘要 -->
-    <div class="recharge-summary">
-      <div class="summary-content">
-        <div class="info-row">
-          <span class="label">本次充值金额：</span>
-          <span class="value amount">¥{{ rechargeInfo.makeAmt || '0.00' }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">剩余待支付金额：</span>
-          <span class="value amount">¥{{ remainingAmount }}</span>
-        </div>
+    <div class="amount-info-container">
+      <div class="amount-row">
+        <div class="label-column">剩余待支付金额：</div>
+        <div class="amount-column">¥{{ remainingAmount }}</div>
+      </div>
+      <div class="amount-row">
+        <div class="label-column">选择滞留金：</div>
+        <div class="amount-column">¥{{ selectedTotalAmount }}</div>
       </div>
     </div>
 
@@ -39,9 +37,11 @@
           :class="{ active: isSelected(deposit.id) }"
           @click="toggleDeposit(deposit)"
         >
-          <div class="deposit-amount">¥{{ formatAmount(deposit.amount) }}</div>
-          <div class="deposit-info">{{ deposit.card_no }}</div>
-          <div class="deposit-date">{{ deposit.create_time }}</div>
+            <div class="deposit-amount" :style="{ textAlign: 'left', display: 'block', float: 'none', direction: 'ltr', marginLeft: '0', marginRight: 'auto', transform: 'none', position: 'relative', left: '0', right: 'auto' }">¥{{ formatAmount(deposit) }}</div>
+            <div class="deposit-info">卡号：{{ deposit.c || deposit.card_no }}</div>
+            <div class="deposit-name">姓名：{{ deposit.n }}</div>
+            <div class="deposit-phone">手机号：{{ deposit.p }}</div>
+            <div class="deposit-date">{{ deposit.t || deposit.create_time }}</div>
         </div>
       </div>
     </div>
@@ -57,16 +57,13 @@
           :class="{ active: isSelected(deposit.id) }"
           @click="toggleDeposit(deposit)"
         >
-          <div class="deposit-amount">¥{{ formatAmount(deposit.amount) }}</div>
-          <div class="deposit-info">{{ deposit.card_no }}</div>
-          <div class="deposit-date">{{ deposit.create_time }}</div>
+          <div class="deposit-amount" :style="{ textAlign: 'left', display: 'block', float: 'none', direction: 'ltr', marginLeft: '0', marginRight: 'auto', transform: 'none', position: 'relative', left: '0', right: 'auto' }">¥{{ formatAmount(deposit) }}</div>
+          <div class="deposit-info">卡号：{{ deposit.c || deposit.card_no }}</div>
+          <div class="deposit-name">姓名：{{ deposit.n }}</div>
+          <div class="deposit-phone">手机号：{{ deposit.p }}</div>
+          <div class="deposit-date">{{ deposit.t || deposit.create_time }}</div>
         </div>
       </div>
-    </div>
-
-    <!-- 滞留金过多自动排行提示 -->
-    <div class="auto-sort-notice" v-if="lateDepositList.length > 10">
-      <p>滞留金过多了自动排行，要求显示出所有滞留金；所以该弹框页面尽量大一些</p>
     </div>
 
     <!-- 底部按钮 -->
@@ -110,24 +107,32 @@ export default {
     // 推荐的滞留金（卡号相同）
     recommendedDeposits() {
       return this.lateDepositList.filter(deposit => 
-        deposit.card_no === this.currentCardNo
+        (deposit.c || deposit.card_no) === this.currentCardNo
       );
     },
     
     // 其他滞留金（卡号不同）
     otherDeposits() {
       return this.lateDepositList.filter(deposit => 
-        deposit.card_no !== this.currentCardNo
+        (deposit.c || deposit.card_no) !== this.currentCardNo
       );
     },
     
     // 剩余待支付金额
     remainingAmount() {
       const totalSelected = this.selectedDeposits.reduce((sum, deposit) => 
-        sum + parseFloat(deposit.amount), 0
+        sum + parseFloat((deposit.a || deposit.amount)/100), 0
       );
       const rechargeAmount = parseFloat(this.rechargeInfo.makeAmt || 0);
       return Math.max(0, rechargeAmount - totalSelected).toFixed(2);
+    },
+    
+    // 选中滞留金的总金额
+    selectedTotalAmount() {
+      const totalSelected = this.selectedDeposits.reduce((sum, deposit) => 
+        sum + parseFloat((deposit.a || deposit.amount)/100), 0
+      );
+      return totalSelected.toFixed(2);
     }
   },
   watch: {
@@ -150,7 +155,8 @@ export default {
     },
 
     // 格式化金额（分转元）
-    formatAmount(amount) {
+    formatAmount(deposit) {
+      const amount = deposit.a || deposit.amount;
       if (!amount) return '0.00';
       return (amount / 100).toFixed(2);
     },
@@ -170,9 +176,9 @@ export default {
       } else {
         // 未选中，检查是否超过充值金额
         const currentTotal = this.selectedDeposits.reduce((sum, d) => 
-          sum + parseFloat(this.formatAmount(d.amount)), 0
+          sum + parseFloat(this.formatAmount(d)), 0
         );
-        const depositAmount = parseFloat(this.formatAmount(deposit.amount));
+        const depositAmount = parseFloat(this.formatAmount(deposit));
         const rechargeAmount = parseFloat(this.rechargeInfo.makeAmt || 0);
         
         if (currentTotal + depositAmount > rechargeAmount) {
@@ -215,6 +221,62 @@ export default {
 </script>
 
 <style scoped lang="less">
+/* 全局强制左对齐样式 - 最高优先级 */
+:deep(.deposit-amount) {
+  text-align: left !important;
+  display: block !important;
+  float: none !important;
+  direction: ltr !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  transform: none !important;
+  position: relative !important;
+  left: 0 !important;
+  right: auto !important;
+}
+
+/* 更强的全局样式重置 - 只针对内容区域，不影响标题 */
+:deep(.late-deposit-dialog) {
+  .el-dialog__body * {
+    text-align: inherit !important;
+  }
+  
+  .deposit-amount {
+    text-align: left !important;
+    display: block !important;
+    float: none !important;
+    direction: ltr !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    transform: none !important;
+    position: relative !important;
+    left: 0 !important;
+    right: auto !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+  }
+}
+/* 确保对话框标题正常显示 */
+:deep(.late-deposit-dialog) {
+  .el-dialog__header {
+    position: relative !important;
+    z-index: 1 !important;
+    text-align: center !important;
+    background: #fff !important;
+  }
+  
+  .el-dialog__title {
+    text-align: center !important;
+    font-weight: 600 !important;
+    color: #303133 !important;
+  }
+  
+  .el-dialog__body {
+    position: relative !important;
+    z-index: 0 !important;
+  }
+}
+
 .late-deposit-dialog {
   @media (orientation: portrait) {
     width: 95% !important;
@@ -225,39 +287,40 @@ export default {
   }
 }
 
-.recharge-summary {
+.amount-info-container {
   background: #f8f9fa;
   border-radius: 6px;
   padding: 15px;
   margin-bottom: 20px;
   
-  .summary-content {
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
+  .amount-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .label-column {
+      width: 140px;
+      flex-shrink: 0;
       font-size: 14px;
-      
-      &:last-child {
-        margin-bottom: 0;
-      }
-      
-      .label {
-        color: #666;
-      }
-      
-      .value {
-        font-weight: 600;
-        
-        &.amount {
-          color: #409eff;
-          font-size: 16px;
-        }
-      }
+      color: #606266;
+      font-weight: 500;
+      text-align: left;
+    }
+    
+    .amount-column {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      color: #409eff;
+      text-align: left;
     }
   }
 }
+
 
 .instruction-text {
   background: #fff3cd;
@@ -291,6 +354,26 @@ export default {
   margin-bottom: 20px;
 }
 
+/* 强制金额左对齐 - 最高优先级 */
+.late-deposit-dialog .deposit-card .deposit-amount,
+.late-deposit-dialog .deposits-grid .deposit-card .deposit-amount,
+.late-deposit-dialog div.deposit-card div.deposit-amount,
+.el-dialog .late-deposit-dialog .deposit-card .deposit-amount {
+  text-align: left !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  display: block !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  float: none !important;
+  direction: ltr !important;
+  position: relative !important;
+  left: 0 !important;
+  right: auto !important;
+  width: auto !important;
+  transform: none !important;
+}
+
 .deposit-card {
   border: 2px solid #e4e7ed;
   border-radius: 8px;
@@ -298,6 +381,11 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  text-align: left !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
   
   &:hover {
     border-color: #409eff;
@@ -315,17 +403,53 @@ export default {
     font-weight: 600;
     color: #409eff;
     margin-bottom: 8px;
+    text-align: left !important;
+    float: none !important;
+    display: block !important;
+    width: auto !important;
+    position: relative !important;
+    left: 0 !important;
+    right: auto !important;
+    direction: ltr !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    transform: none !important;
+    box-sizing: border-box !important;
   }
   
   .deposit-info {
     font-size: 14px;
     color: #666;
     margin-bottom: 4px;
+    font-weight: 500;
+    text-align: left !important;
+    float: none !important;
+  }
+  
+  .deposit-name {
+    font-size: 13px;
+    color: #303133;
+    margin-bottom: 3px;
+    font-weight: 500;
+    text-align: left !important;
+    float: none !important;
+  }
+  
+  .deposit-phone {
+    font-size: 12px;
+    color: #606266;
+    margin-bottom: 4px;
+    text-align: left !important;
+    float: none !important;
   }
   
   .deposit-date {
     font-size: 12px;
     color: #999;
+    text-align: left !important;
+    float: none !important;
   }
 }
 
