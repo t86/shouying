@@ -1661,6 +1661,14 @@ export default {
       // 关闭收银弹窗，返回卡台界面
       this.showDrawer = false;
       this.$emit("showOrHideDrawer", false);
+      
+      // 检查是否还有未结订单，如果没有则跳转回首页
+      this.$nextTick(() => {
+        // 调用父组件的方法重新获取订单信息，并检查是否需要返回首页
+        if (this.$parent && this.$parent.getOrderInfo) {
+          this.$parent.getOrderInfo(this.$parent.getPayTabList, true);
+        }
+      });
     },
 
     // 处理显示滞留金弹窗
