@@ -421,21 +421,21 @@ export default {
   .recharge-summary {
     background: linear-gradient(135deg, #e6f7ff, #f0f9ff);
     border: 1px solid #91d5ff;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
 
     .summary-header {
       display: flex;
       align-items: center;
-      margin-bottom: 12px;
-      font-size: 16px;
+      margin-bottom: 8px;
+      font-size: 14px;
       font-weight: 600;
       color: #0050b3;
 
       i {
-        margin-right: 8px;
-        font-size: 18px;
+        margin-right: 6px;
+        font-size: 16px;
       }
     }
 
@@ -443,30 +443,30 @@ export default {
       .info-row {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
 
         &:last-child {
           margin-bottom: 0;
         }
 
         .label {
-          font-size: 14px;
+          font-size: 13px;
           color: #595959;
-          width: 100px;
-          min-width: 100px;
+          width: 85px;
+          min-width: 85px;
           text-align: left;
-          padding-right: 8px;
+          padding-right: 6px;
         }
 
         .value {
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 600;
           color: #262626;
           flex: 1;
 
           &.amount {
             color: #1890ff;
-            font-size: 16px;
+            font-size: 15px;
           }
 
           &.gift {
@@ -478,37 +478,37 @@ export default {
   }
 
   .payment-methods-section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 
     .section-header {
       display: flex;
       align-items: center;
-      margin-bottom: 15px;
-      font-size: 16px;
+      margin-bottom: 10px;
+      font-size: 14px;
       font-weight: 600;
       color: #262626;
 
       i {
-        margin-right: 8px;
-        font-size: 18px;
+        margin-right: 6px;
+        font-size: 16px;
         color: #409eff;
       }
     }
 
     .payment-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
 
       .payment-card {
         border: 2px solid #e4e7ed;
         border-radius: 6px;
-        padding: 12px;
+        padding: 10px 8px;
         text-align: center;
         cursor: pointer;
         transition: all 0.2s ease;
         background: #fafafa;
-        min-height: 100px;
+        min-height: 75px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -516,43 +516,43 @@ export default {
         &:hover {
           border-color: #409eff;
           background: #f0f9ff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
         }
 
         &.active {
           border-color: #409eff;
           background: #409eff;
           color: white;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
         }
 
         .payment-icon {
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           display: flex;
           justify-content: center;
           align-items: center;
-          height: 36px;
+          height: 28px;
 
           img {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             object-fit: contain;
           }
         }
 
         .payment-name {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
-          margin-bottom: 3px;
-          line-height: 1.3;
+          margin-bottom: 2px;
+          line-height: 1.2;
         }
 
         .payment-desc {
-          font-size: 11px;
+          font-size: 10px;
           color: #8c8c8c;
-          line-height: 1.2;
+          line-height: 1.1;
         }
 
         &.active .payment-desc {
@@ -565,26 +565,26 @@ export default {
   .total-payment {
     background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
     border: 1px solid #91d5ff;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 0;
 
     .payment-amount {
       display: flex;
       align-items: center;
 
       .label {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #262626;
-        width: 100px;
-        min-width: 100px;
+        width: 85px;
+        min-width: 85px;
         text-align: left;
-        padding-right: 8px;
+        padding-right: 6px;
       }
 
       .amount {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 700;
         color: #1890ff;
         flex: 1;
@@ -594,16 +594,16 @@ export default {
 
   .dialog-footer {
     text-align: center;
-    padding: 15px 0;
+    padding: 12px 0;
     border-top: 1px solid #e4e7ed;
     background: #fafafa;
 
       .el-button {
-        width: 120px;
-        height: 42px;
+        width: 110px;
+        height: 38px;
         font-size: 14px;
         font-weight: 500;
-        margin: 0 10px;
+        margin: 0 8px;
         border-radius: 6px;
       
       &.el-button--primary {
@@ -667,30 +667,30 @@ export default {
 
 // 全局弹窗样式
 /deep/ .payment-method-dialog .el-dialog {
-  margin-top: 15vh !important;
-  margin-bottom: auto !important;
+  margin-top: 5vh !important;
+  margin-bottom: 5vh !important;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  max-height: 70vh;
-  max-width: 800px;
+  max-height: 88vh;
+  max-width: 700px;
   overflow-y: auto;
 }
 
 /deep/ .payment-method-dialog .el-dialog__header {
   background: linear-gradient(135deg, #409eff, #337ecc);
-  padding: 15px 20px;
+  padding: 12px 15px;
   border-bottom: none;
 
   .el-dialog__title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #ffffff;
   }
 
   .el-dialog__close {
     color: #ffffff;
-    font-size: 18px;
+    font-size: 16px;
     
     &:hover {
       color: #ffffff;
@@ -701,7 +701,7 @@ export default {
 }
 
 /deep/ .payment-method-dialog .el-dialog__body {
-  padding: 15px;
+  padding: 12px;
   background: #ffffff;
 }
 
@@ -743,58 +743,78 @@ export default {
   /deep/ .payment-method-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
-    margin-top: 10vh !important;
-    margin-bottom: auto !important;
-    max-height: 80vh !important;
+    margin-top: 2vh !important;
+    margin-bottom: 2vh !important;
+    max-height: 95vh !important;
   }
 
   .payment-methods-section .payment-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px;
   }
   
   .payment-methods-section .payment-card {
-    padding: 10px;
-    min-height: 90px;
+    padding: 8px 6px;
+    min-height: 70px;
+    
+    .payment-icon {
+      height: 24px;
+      
+      img {
+        width: 22px;
+        height: 22px;
+      }
+    }
     
     .payment-name {
-      font-size: 12px;
+      font-size: 11px;
     }
     
     .payment-desc {
-      font-size: 10px;
+      font-size: 9px;
     }
   }
 
   // iPad 竖屏时充值信息区域适配
+  .recharge-summary {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  
   .recharge-summary .summary-content .info-row {
+    margin-bottom: 5px;
+    
     .label {
-      width: 95px;
-      min-width: 95px;
-      font-size: 14px;
-      padding-right: 6px;
+      width: 80px;
+      min-width: 80px;
+      font-size: 12px;
+      padding-right: 5px;
     }
     
     .value {
-      font-size: 14px;
+      font-size: 12px;
       
       &.amount {
-        font-size: 15px;
+        font-size: 14px;
       }
     }
   }
 
   // iPad 竖屏时底部金额区域适配
+  .total-payment {
+    padding: 8px 12px;
+  }
+  
   .total-payment .payment-amount {
     .label {
-      width: 95px;
-      min-width: 95px;
-      font-size: 15px;
-      padding-right: 6px;
+      width: 80px;
+      min-width: 80px;
+      font-size: 13px;
+      padding-right: 5px;
     }
     
     .amount {
-      font-size: 22px;
+      font-size: 18px;
     }
   }
 }
@@ -803,33 +823,34 @@ export default {
   /deep/ .payment-method-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
-    margin-top: 4vh !important;
-    margin-bottom: 4vh !important;
+    margin-top: 2vh !important;
+    margin-bottom: 2vh !important;
+    max-height: 95vh !important;
   }
 
   .payment-methods-section .payment-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
   
   .payment-methods-section .payment-card {
-    padding: 12px;
-    min-height: 95px;
+    padding: 8px 6px;
+    min-height: 70px;
   }
 
   // 小屏幕时充值信息区域适配
   .recharge-summary .summary-content .info-row {
     .label {
-      width: 100px;
-      min-width: 100px;
-      font-size: 14px;
+      width: 80px;
+      min-width: 80px;
+      font-size: 12px;
     }
     
     .value {
-      font-size: 14px;
+      font-size: 12px;
       
       &.amount {
-        font-size: 16px;
+        font-size: 14px;
       }
     }
   }
@@ -837,13 +858,13 @@ export default {
   // 小屏幕时底部金额区域适配
   .total-payment .payment-amount {
     .label {
-      width: 100px;
-      min-width: 100px;
-      font-size: 16px;
+      width: 80px;
+      min-width: 80px;
+      font-size: 13px;
     }
     
     .amount {
-      font-size: 24px;
+      font-size: 18px;
     }
   }
 }
@@ -851,15 +872,16 @@ export default {
 // iPad适配
 @media (max-width: 1024px) and (min-width: 768px) {
   /deep/ .payment-method-dialog .el-dialog {
-    width: 85% !important;
-    max-width: 800px !important;
-    margin-top: 4vh !important;
-    margin-bottom: 4vh !important;
+    width: 90% !important;
+    max-width: 700px !important;
+    margin-top: 3vh !important;
+    margin-bottom: 3vh !important;
+    max-height: 92vh !important;
   }
   
   .payment-methods-section .payment-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 }
 
@@ -867,17 +889,17 @@ export default {
 @media (max-width: 768px) {
   .recharge-summary .summary-content .info-row {
     .label {
-      width: 85px;
-      min-width: 85px;
-      font-size: 13px;
-      padding-right: 6px;
+      width: 75px;
+      min-width: 75px;
+      font-size: 11px;
+      padding-right: 5px;
     }
     
     .value {
-      font-size: 13px;
+      font-size: 11px;
       
       &.amount {
-        font-size: 15px;
+        font-size: 13px;
       }
     }
   }
@@ -885,14 +907,36 @@ export default {
   // 超小屏幕时底部金额区域适配
   .total-payment .payment-amount {
     .label {
-      width: 85px;
-      min-width: 85px;
-      font-size: 15px;
-      padding-right: 6px;
+      width: 75px;
+      min-width: 75px;
+      font-size: 12px;
+      padding-right: 5px;
     }
     
     .amount {
-      font-size: 20px;
+      font-size: 16px;
+    }
+  }
+  
+  .payment-methods-section .payment-card {
+    padding: 6px 4px;
+    min-height: 65px;
+    
+    .payment-icon {
+      height: 20px;
+      
+      img {
+        width: 20px;
+        height: 20px;
+      }
+    }
+    
+    .payment-name {
+      font-size: 10px;
+    }
+    
+    .payment-desc {
+      font-size: 8px;
     }
   }
 }
