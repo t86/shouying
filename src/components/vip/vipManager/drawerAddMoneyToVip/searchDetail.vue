@@ -454,71 +454,24 @@ export default {
     .row {
       font-size: 14px;
       display: flex;
-      width: 50%;
+      width: 100%; // 🎯 改为单列布局，适配600px弹窗
       min-height: 32px;
       align-items: center;
-      padding: 2px 0;
+      padding: 4px 0; // 增加垂直间距
 
       .label {
-        width: 120px;
-        min-width: 120px;
+        width: 110px;
+        min-width: 110px;
         text-align: left;
         color: #666;
         padding-right: 8px;
+        font-size: 14px;
       }
       .value {
         flex: 1;
         color: #333;
         font-weight: 500;
-      }
-      
-      // 小屏幕适配
-      @media (max-width: 900px) {
-        width: 100%;
-        padding: 4px 0;
-        
-        .label {
-          width: 100px;
-          min-width: 100px;
-          font-size: 14px;
-        }
-        
-        .value {
-          font-size: 14px;
-        }
-      }
-      
-      // iPad 竖屏适配
-      @media (orientation: portrait) {
-        width: 100%;
-        min-height: 28px;
-        padding: 3px 0;
-        
-        .label {
-          width: 95px;
-          min-width: 95px;
-          font-size: 14px;
-          padding-right: 6px;
-        }
-        
-        .value {
-          font-size: 14px;
-        }
-      }
-      
-      // 超小屏幕适配
-      @media (max-width: 768px) {
-        width: 100%;
-        
-        .label {
-          width: 85px;
-          min-width: 85px;
-          font-size: 13px;
-        }
-        
-        .value {
-          font-size: 13px;
-        }
+        font-size: 14px;
       }
     }
   }

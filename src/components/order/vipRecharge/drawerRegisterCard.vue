@@ -143,9 +143,7 @@
                 :remote-method="searchEmployees"
                 :loading="loadingEmployees"
                 style="width: 100%"
-                @click.native="handleRecommenderClick"
-                @focus="handleRecommenderFocus"
-                @blur="handleRecommenderBlur"
+                clearable
               >
                 <el-option
                   v-for="emp in employeeOptions"
@@ -457,7 +455,25 @@ export default {
     handleNameInputClick() {
       console.log('姓名输入框被点击');
       this.currentFocusField = 'name';
-      this.keyboardShow('nameInput');
+      
+      // 在Android环境下，先调用系统键盘API
+      if (
+        window.atool &&
+        window.atool.getTermType() == "android" &&
+        "showSoftInput" in window.atool
+      ) {
+        console.log('Android环境：调用系统键盘');
+        atool.showSoftInput();
+        
+        // 然后手动让输入框获得焦点
+        this.$nextTick(() => {
+          const inputElement = this.$refs.nameInput;
+          if (inputElement && inputElement.focus) {
+            inputElement.focus();
+            console.log('姓名输入框已获得焦点');
+          }
+        });
+      }
     },
 
     // 处理姓名输入框失去焦点 - 隐藏系统键盘
@@ -465,69 +481,6 @@ export default {
       console.log('姓名输入框失去焦点');
       this.currentFocusField = '';
       this.keyboardLeave();
-    },
-
-    // 处理推荐人选择框点击（安卓环境主要入口）
-    handleRecommenderClick() {
-      console.log('推荐人选择框被点击');
-      this.currentFocusField = 'recommender';
-      // 加载员工列表
-      this.loadInitialEmployees();
-      // 显示系统键盘（Android环境）
-      this.keyboardShow('recommenderSelect');
-    },
-
-    // 处理推荐人选择框聚焦（Web环境主要入口）
-    handleRecommenderFocus() {
-      console.log('推荐人选择框获得焦点');
-      this.currentFocusField = 'recommender';
-      // 加载员工列表
-      this.loadInitialEmployees();
-      // 显示系统键盘（Android环境）
-      this.keyboardShow('recommenderSelect');
-    },
-
-    // 处理推荐人选择框失焦
-    handleRecommenderBlur() {
-      console.log('推荐人选择框失去焦点');
-      this.currentFocusField = '';
-      this.keyboardLeave();
-    },
-
-    // 显示系统键盘
-    keyboardShow(refString) {
-      console.log('尝试显示系统键盘，ref:', refString);
-      
-      // 只在 Android 环境下执行
-      if (
-        window.atool &&
-        window.atool.getTermType() == "android" &&
-        "showSoftInput" in window.atool
-      ) {
-        console.log('Android 环境：调用 atool.showSoftInput()');
-        // 先调用系统键盘 API
-        atool.showSoftInput();
-        
-        // 然后再让元素获得焦点
-        this.$nextTick(() => {
-          const refElement = this.$refs[refString];
-          console.log('获取到的 ref 元素:', refElement);
-          if (refElement) {
-            // 如果是 el-input 组件，需要调用其 focus 方法
-            if (refElement.focus && typeof refElement.focus === 'function') {
-              console.log('调用 el-input/el-select 的 focus 方法');
-              refElement.focus();
-            }
-            // 如果是原生 input 元素，直接 focus
-            else if (refElement.tagName === 'INPUT') {
-              console.log('原生 input 元素 focus');
-              refElement.focus();
-            }
-          }
-        });
-      } else {
-        console.log('非 Android 环境，不执行键盘操作');
-      }
     },
 
     // 隐藏系统键盘

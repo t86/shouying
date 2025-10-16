@@ -991,8 +991,8 @@ export default {
 
     // 获取弹窗尺寸
     getDrawerSize() {
-      // 使用响应式宽度
-      return this.windowWidth >= 1200 ? "60%" : "90%";
+      // 使用响应式宽度 - 保持半屏效果
+      return this.windowWidth >= 1200 ? "50%" : "65%";
     },
 
     // 获取弹窗样式类
@@ -1304,17 +1304,17 @@ export default {
   position: relative;
 }
 
-// 竖屏模式下确保弹窗宽度
+// 竖屏模式下确保弹窗宽度 - 保持半屏效果
 @media (orientation: portrait) {
   /deep/ .el-drawer.rtl {
-    width: 90% !important;
+    width: 70% !important;
   }
 }
 
-// 小屏幕横屏模式
+// 小屏幕横屏模式 - 保持半屏效果
 @media (orientation: landscape) and (max-width: 1200px) {
   /deep/ .el-drawer.rtl {
-    width: 95% !important;
+    width: 65% !important;
   }
 }
 </style>

@@ -6,7 +6,8 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="1000"
+      size="800px"
+      custom-class="vip-recharge-drawer-small"
     >
       <div class="session p-5">
         <div class="search">
@@ -704,5 +705,21 @@ export default {
 .red {
   font-size: 14px;
   color: #e0304f;
+}
+</style>
+
+<style lang="less">
+// 充值弹窗响应式样式 - 半屏效果（固定600px，不使用响应式避免跳动）
+/deep/ .vip-recharge-drawer-small {
+  &.el-drawer.rtl {
+    width: 800px !important;
+    max-width: 95% !important; // 小屏幕时不超出屏幕
+    transition: none !important; // 🔥 禁用过渡动画，避免跳动
+  }
+  
+  // 禁用 Drawer 内容的过渡动画
+  .el-drawer__body {
+    transition: none !important;
+  }
 }
 </style>
