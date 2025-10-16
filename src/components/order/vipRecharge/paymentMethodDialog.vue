@@ -162,12 +162,7 @@ export default {
           desc: "商家收款码",
           icon: weixin_kerensaowo
         },
-        {
-          value: 3,
-          name: "微信小程序自助",
-          desc: "小程序自助支付",
-          icon: weixinxiaochengxu
-        },
+
         {
           value: 5,
           name: "扫客人-支付宝",

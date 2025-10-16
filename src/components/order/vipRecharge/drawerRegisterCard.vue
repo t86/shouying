@@ -132,14 +132,12 @@
 
           <div class="form-row">
             <div class="form-label">开卡推荐人：</div>
-            <div class="form-input" :class="{ 'input-focused': currentFocusField === 'recommender' }">
+            <div class="form-input">
               <el-select
-                ref="recommenderSelect"
                 v-model="formData.recommenderId"
-                placeholder="输入员工姓名或工号"
+                placeholder="输入员工姓名或工号进行查询"
                 filterable
                 remote
-                reserve-keyword
                 :remote-method="searchEmployees"
                 :loading="loadingEmployees"
                 style="width: 100%"
@@ -148,7 +146,7 @@
                 <el-option
                   v-for="emp in employeeOptions"
                   :key="emp.id"
-                  :label="`${emp.name} (${emp.code})`"
+                  :label="`${emp.name}${emp.code ? ' (' + emp.code + ')' : ''}`"
                   :value="emp.id"
                 />
               </el-select>
