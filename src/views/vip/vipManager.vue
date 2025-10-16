@@ -39,7 +39,7 @@
           v-model="form.keyword" 
           size="small" 
           placeholder="姓名/手机号(支持11位)/会员卡号"
-          style="width: 240px"
+          style="width: 480px"
           @keyup.enter="getTableData"
           clearable
         ></el-input>
@@ -269,10 +269,12 @@ export default {
         sales_emp_id: this.form.personVal * 1, // string 开卡推荐人关键字
       };
       
-      console.log("🎯 [会员搜索] 搜索参数:", params);
+      console.log("🎯 [会员搜索] 开始请求，参数:", params);
+      console.log("🎯 [会员搜索] 是否初始化:", rest ? "是" : "否");
       
       try {
         const res = await api_vip.reqGetVipCardList(params);
+        console.log("✅ [会员搜索] 请求成功，响应:", res);
         if (res.code == 1) {
           this.form.typeOption = res.data.card_types || [];
           this.pageInfo.total = res.data.row_cnt || 0;
@@ -296,8 +298,19 @@ export default {
           this.$message.warning(res.msg);
         }
       } catch (error) {
-        console.log("会员管理表格数据获取失败", error);
-        this.$message.error("搜索失败，请重试");
+        // 如果是请求被取消（频率限制），不显示错误提示
+        if (error.__CANCEL__ || error.message === '请求频率过快，已自动拦截') {
+          console.warn("⚠️ [会员管理] 请求被拦截，不显示错误提示");
+          return;
+        }
+        
+        console.error("🚨 [会员管理] 获取表格数据失败:", error);
+        console.error("🚨 [会员管理] 错误详情:", error.response || error.message);
+        console.error("🚨 [会员管理] 请求参数:", params);
+        
+        // 显示更详细的错误信息
+        const errorMsg = (error.response && error.response.data && error.response.data.msg) || error.message || "网络连接失败";
+        this.$message.error(`获取会员列表失败: ${errorMsg}`);
       }
     },
     async exportExcel() {

@@ -108,7 +108,6 @@ export default {
       customerPaymentCode: "",
       manualPaymentCode: "",
       paymentStatus: "idle", // idle, processing, success, failed
-      scanTimeout: null,
       scanInputTimeout: null,
       paymentTimeout: null,
       showManualInput: false,
@@ -157,11 +156,6 @@ export default {
     startScan() {
       this.focusInput();
       
-      // 设置扫码超时（60秒）
-      this.scanTimeout = setTimeout(() => {
-        this.$message.warning("扫码超时，请重试");
-        this.onCancel();
-      }, 60000);
       
       // 设置扫码回调
       const that = this;
@@ -169,11 +163,6 @@ export default {
         try {
           console.log("customer_scan_callback:", JSON.stringify(value));
           
-          // 清除扫码超时
-          if (that.scanTimeout) {
-            clearTimeout(that.scanTimeout);
-            that.scanTimeout = null;
-          }
           
           if (value && value.code === 0) {
             that.customerPaymentCode = value.data;
@@ -424,10 +413,6 @@ export default {
 
     // 清除定时器
     clearTimeouts() {
-      if (this.scanTimeout) {
-        clearTimeout(this.scanTimeout);
-        this.scanTimeout = null;
-      }
       if (this.paymentTimeout) {
         clearTimeout(this.paymentTimeout);
         this.paymentTimeout = null;

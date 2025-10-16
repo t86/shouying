@@ -51,12 +51,21 @@
       @confirm="handleLateDepositConfirm"
     />
 
+    <!-- 支付方式选择弹窗 -->
+    <paymentMethodDialog
+      v-model="showPaymentMethodDialog"
+      :rechargeInfo="paymentDialogRechargeInfo"
+      @scanCustomerPayment="handleScanCustomerPayment"
+      @paymentSuccess="handlePaymentSuccess"
+    />
+
     <!-- 客人付款码扫描弹窗 -->
     <customerPaymentScanDialog
       v-model="showCustomerPaymentScanDialog"
       :paymentAmount="currentPaymentAmount"
       :rechargeInfo="currentRechargeInfo"
       :selectedLateDeposits="currentSelectedLateDeposits"
+      :payType="selectedPayType"
       @success="handlePaymentSuccess"
     />
   </div>
@@ -68,6 +77,7 @@ import api_vip from "@/api/vip";
 import searchList from "./searchList.vue";
 import searchDetail from "./searchDetail.vue";
 import lateDepositDialog from "./lateDepositDialog.vue";
+import paymentMethodDialog from "@/components/order/vipRecharge/paymentMethodDialog.vue";
 import customerPaymentScanDialog from "./customerPaymentScanDialog.vue";
 export default {
   data() {
@@ -83,6 +93,9 @@ export default {
       showLateDepositDialog: false, // 显示滞留金选择弹窗
       currentRechargeInfo: {}, // 当前充值信息
       lateDepositList: [], // 滞留金列表
+      showPaymentMethodDialog: false, // 显示支付方式选择弹窗
+      paymentDialogRechargeInfo: {}, // 支付对话框所需的充值信息
+      selectedPayType: 5, // 选中的支付类型 5:支付宝 6:微信
       showCustomerPaymentScanDialog: false, // 显示客人付款码扫描弹窗
       currentPaymentAmount: "0.00", // 当前支付金额
       currentSelectedLateDeposits: [], // 当前选中的滞留金
@@ -214,18 +227,15 @@ export default {
         console.log("  - 响应数据 (data):", res.data);
         console.log("📦 [普通充值] 完整响应对象:", JSON.stringify(res, null, 2));
         
-        if (res.code == 1) {
-          console.log("✅ [普通充值] 充值成功");
-          this.$message.success("充值成功");
-          this.onCancelDrawer();
-          this.$emit('getTableData');
-          
-          // 充值成功后跳转到收银首页卡台列表
-          if (this.$store.state.userInfo.authStatus == 4) {
-            // 收银系统，跳转到收银首页
-            this.$router.replace({ name: "moneyCard" });
-          }
-        } else {
+          if (res.code == 1) {
+            console.log("✅ [普通充值] 充值成功");
+            this.$message.success("充值成功");
+            this.onCancelDrawer();
+            this.$emit('getTableData');
+            
+            // 充值成功后的跳转逻辑
+            this.handlePostRechargeRedirect();
+          } else {
           console.log("❌ [普通充值] 充值失败:", res.msg);
           this.$message.warning(res.msg);
         }
@@ -382,11 +392,8 @@ export default {
           this.onCancelDrawer();
           this.$emit('getTableData');
           
-          // 充值成功后跳转到收银首页卡台列表
-          if (this.$store.state.userInfo.authStatus == 4) {
-            // 收银系统，跳转到收银首页
-            this.$router.replace({ name: "moneyCard" });
-          }
+          // 充值成功后的跳转逻辑
+          this.handlePostRechargeRedirect();
         } else {
           console.log("❌ [滞留金充值] 充值失败:", res.msg);
           this.$message.warning(res.msg);
@@ -414,6 +421,31 @@ export default {
       this.currentRechargeInfo = rechargeInfo;
       this.currentPaymentAmount = makeAmt;
       this.currentSelectedLateDeposits = selectedLateDeposits;
+      
+      // 准备支付对话框所需的数据格式
+      this.paymentDialogRechargeInfo = {
+        member: {
+          id: (this.currentInfo.id || this.vipIdOfSwiper) * 1,
+          card_no: this.currentInfo.card_no || "",
+          name: this.currentInfo.name || "",
+          bind_phone: this.currentInfo.bind_phone || ""
+        },
+        depositAmount: makeAmt,
+        freeAmount: freeAmt,
+        mode: isCustom ? 2 : 1,
+        freePoints: this.stepTwoInfo.sendPoint || 0,
+        salesEmpId: this.stepTwoInfo.personVal * 1,
+        remark: this.stepTwoInfo.remark || ""
+      };
+      
+      // 打开支付方式选择对话框
+      this.showPaymentMethodDialog = true;
+    },
+    
+    // 处理扫客人付款码
+    handleScanCustomerPayment(payType) {
+      this.selectedPayType = payType;
+      // 打开扫码对话框
       this.showCustomerPaymentScanDialog = true;
     },
 
@@ -424,15 +456,66 @@ export default {
       this.onCancelDrawer();
       this.$emit('getTableData');
       
-      // 充值成功后跳转到收银首页卡台列表
-      if (this.$store.state.userInfo.authStatus == 4) {
-        // 收银系统，跳转到收银首页
-        this.$router.replace({ name: "moneyCard" });
-      }
+      // 充值成功后的跳转逻辑
+      this.handlePostRechargeRedirect();
     },
 
     changeStep(step = 1) {
       this.step = step;
+    },
+
+    // 充值成功后的智能跳转逻辑
+    handlePostRechargeRedirect() {
+      console.log("🎯 [跳转逻辑] 开始处理充值成功后的跳转");
+      console.log("  - 当前路由:", this.$route.name);
+      console.log("  - 用户权限状态:", this.$store.state.userInfo.authStatus);
+      
+      // 1. 如果是在会员管理页面，不跳转，留在当前页面
+      if (this.$route.name === 'vipManager') {
+        console.log("✅ [跳转逻辑] 会员管理页面充值，留在当前页面");
+        return;
+      }
+      
+      // 2. 如果是在收银系统中
+      if (this.$store.state.userInfo.authStatus == 4) {
+        console.log("🏪 [跳转逻辑] 收银系统中的充值");
+        
+        // 2.1 如果是在payOrder结账页面，需要检查是否还有未结订单
+        if (this.$route.name === 'payOrder') {
+          console.log("💰 [跳转逻辑] 在结账页面充值，检查卡台订单状态");
+          this.checkOrderStatusAndRedirect();
+        } else {
+          // 2.2 其他收银页面，直接跳转到收银首页
+          console.log("🏠 [跳转逻辑] 跳转到收银首页");
+          this.$router.replace({ name: "moneyCard" });
+        }
+      }
+    },
+
+    // 检查订单状态并决定跳转
+    checkOrderStatusAndRedirect() {
+      const currentCardInfo = this.$store.state.orderInfo.currentCardInfo;
+      console.log("🔍 [订单检查] 当前卡台信息:", currentCardInfo);
+      
+      if (!currentCardInfo || !currentCardInfo.bizStatus) {
+        console.log("⚠️ [订单检查] 无卡台信息，跳转到收银首页");
+        this.$router.replace({ name: "moneyCard" });
+        return;
+      }
+      
+      const bizStatus = currentCardInfo.bizStatus;
+      console.log("📊 [订单检查] 卡台业务状态:", bizStatus);
+      
+      // bizStatus: 1-空台, 2-锁定, 3-预订, 4-开台, 5-点单未结账, 6-部分结账, 7-已结账
+      if (bizStatus == 1 || bizStatus == 7) {
+        // 空台或已结账，没有未结订单，跳转到收银首页
+        console.log("✅ [订单检查] 无未结订单，跳转到收银首页");
+        this.$router.replace({ name: "moneyCard" });
+      } else {
+        // 有未结订单，留在当前结账页面
+        console.log("📋 [订单检查] 有未结订单，留在结账页面");
+        // 不跳转，留在payOrder页面
+      }
     },
 
     updateCurrentInfo(currentInfo) {
@@ -545,6 +628,7 @@ export default {
     searchList,
     searchDetail,
     lateDepositDialog,
+    paymentMethodDialog,
     customerPaymentScanDialog
   },
   watch: {

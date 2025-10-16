@@ -11,6 +11,10 @@
     <div class="payment-summary">
       <div class="summary-content">
         <div class="info-row">
+          <span class="label">支付方式：</span>
+          <span class="value">{{ payTypeText }}</span>
+        </div>
+        <div class="info-row">
           <span class="label">收款金额：</span>
           <span class="value amount">¥{{ paymentAmount }}</span>
         </div>
@@ -104,6 +108,10 @@ export default {
     selectedLateDeposits: {
       type: Array,
       default: () => []
+    },
+    payType: {
+      type: Number,
+      default: 5 // 5:扫客人-支付宝 6:扫客人-微信
     }
   },
   data() {
@@ -125,6 +133,9 @@ export default {
       return this.selectedLateDeposits.reduce((sum, deposit) => {
         return sum + parseFloat((deposit.amount / 100).toFixed(2));
       }, 0);
+    },
+    payTypeText() {
+      return this.payType === 5 ? '扫客人-支付宝' : this.payType === 6 ? '扫客人-微信' : '扫客人付款码';
     }
   },
   watch: {
@@ -157,12 +168,8 @@ export default {
     startScan() {
       this.focusInput();
       
-      // 设置扫码超时（60秒）
-      this.scanTimeout = setTimeout(() => {
-        console.log('scanTimeout go')
-        this.$message.warning("扫码超时，请重试");
-        this.onCancel();
-      }, 60000);
+      // 移除扫码超时限制，用户手动取消即可
+      // 不再设置60秒超时，界面不关就一直尝试
       
       // 设置扫码回调
       const that = this;
@@ -260,14 +267,7 @@ export default {
 
       this.paymentStatus = "processing";
 
-      // 设置支付超时（30秒）
-      this.paymentTimeout = setTimeout(() => {
-        if (this.paymentStatus === "processing") {
-          this.paymentStatus = "failed";
-          this.$message.error("支付超时，请重试");
-          this.resetPaymentInput();
-        }
-      }, 30000);
+      // 移除支付超时限制，允许用户手动取消，界面不关就一直尝试
 
       try {
         // 第一步：创建充值订单
@@ -286,10 +286,11 @@ export default {
         
         if (orderRes.code === 1 && orderRes.data.pay_id) {
           // 第二步：创建支付订单
+          // 使用正确的支付类型参数：5=扫客人支付宝 6=扫客人微信
           const payParams = {
             pay_id: orderRes.data.pay_id,
             pay_amt: Math.round(parseFloat(this.paymentAmount) * 100),
-            pay_type: 1, // 支付类型
+            pay_type: this.payType, // 使用传入的支付类型：5=扫客人支付宝 6=扫客人微信
             auth_code: this.customerPaymentCode
           };
 
@@ -333,12 +334,6 @@ export default {
         this.paymentStatus = "failed";
         this.$message.error("支付失败，请重试");
         this.resetPaymentInput();
-        
-        // 清除支付超时
-        if (this.paymentTimeout) {
-          clearTimeout(this.paymentTimeout);
-          this.paymentTimeout = null;
-        }
       }
     },
 

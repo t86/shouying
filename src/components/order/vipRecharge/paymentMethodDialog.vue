@@ -24,11 +24,15 @@
           <span class="label">会员姓名：</span>
           <span class="value">{{ rechargeInfo.member.name }}</span>
         </div>
+        <div class="info-row" >
+          <span class="label">手机号：</span>
+          <span class="value">{{ rechargeInfo.member.bind_phone }}</span>
+        </div>
         <div class="info-row">
           <span class="label">充值金额：</span>
           <span class="value amount">¥{{ rechargeAmount }}</span>
         </div>
-        <div class="info-row" v-if="giftAmount > 0">
+        <div class="info-row" >
           <span class="label">赠送金额：</span>
           <span class="value gift">¥{{ giftAmount }}</span>
         </div>
@@ -120,6 +124,8 @@ import QRCode from "qrcode";
 import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
 import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
 import zhifubao_kerensaowo from "@/assets/pay-img/zhifubao_kerensaowo.png";
+import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
+import zhifubaozhifu_saokeren from "@/assets/pay-img/zhifubaozhifu_saokeren.png";
 
 export default {
   name: "PaymentMethodDialog",
@@ -161,6 +167,18 @@ export default {
           name: "微信小程序自助",
           desc: "小程序自助支付",
           icon: weixinxiaochengxu
+        },
+        {
+          value: 5,
+          name: "扫客人-支付宝",
+          desc: "扫客人付款码",
+          icon: zhifubaozhifu_saokeren
+        },
+        {
+          value: 6,
+          name: "扫客人-微信",
+          desc: "扫客人付款码",
+          icon: weixin_saokeren
         }
       ]
     };
@@ -206,6 +224,13 @@ export default {
 
     async confirmPayment() {
       if (!this.selectedPaymentMethod || !this.rechargeInfo) {
+        return;
+      }
+
+      // 如果选择的是扫客人付款码（pay_type 5或6），直接触发扫码对话框
+      if (this.selectedPaymentMethod === 5 || this.selectedPaymentMethod === 6) {
+        this.show = false; // 关闭当前对话框
+        this.$emit("scanCustomerPayment", this.selectedPaymentMethod); // 通知父组件打开扫码对话框
         return;
       }
 
@@ -348,7 +373,9 @@ export default {
       const types = {
         1: "支付宝",
         2: "微信",
-        3: "微信小程序"
+        3: "微信小程序",
+        5: "支付宝",
+        6: "微信"
       };
       return types[this.selectedPaymentMethod] || "支付宝";
     },
@@ -409,7 +436,6 @@ export default {
     .summary-content {
       .info-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         margin-bottom: 8px;
 
@@ -420,12 +446,17 @@ export default {
         .label {
           font-size: 14px;
           color: #595959;
+          width: 100px;
+          min-width: 100px;
+          text-align: left;
+          padding-right: 8px;
         }
 
         .value {
           font-size: 14px;
           font-weight: 600;
           color: #262626;
+          flex: 1;
 
           &.amount {
             color: #1890ff;
@@ -461,16 +492,20 @@ export default {
     .payment-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      gap: 12px;
 
       .payment-card {
-        border: 1px solid #e4e7ed;
+        border: 2px solid #e4e7ed;
         border-radius: 6px;
-        padding: 15px;
+        padding: 12px;
         text-align: center;
         cursor: pointer;
         transition: all 0.2s ease;
         background: #fafafa;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
 
         &:hover {
           border-color: #409eff;
@@ -488,32 +523,34 @@ export default {
         }
 
         .payment-icon {
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           display: flex;
           justify-content: center;
           align-items: center;
-          height: 40px;
+          height: 36px;
 
           img {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             object-fit: contain;
           }
         }
 
         .payment-name {
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 4px;
+          font-size: 13px;
+          font-weight: 600;
+          margin-bottom: 3px;
+          line-height: 1.3;
         }
 
         .payment-desc {
-          font-size: 12px;
+          font-size: 11px;
           color: #8c8c8c;
+          line-height: 1.2;
         }
 
         &.active .payment-desc {
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.85);
         }
       }
     }
@@ -528,19 +565,23 @@ export default {
 
     .payment-amount {
       display: flex;
-      justify-content: space-between;
       align-items: center;
 
       .label {
         font-size: 16px;
         font-weight: 600;
         color: #262626;
+        width: 100px;
+        min-width: 100px;
+        text-align: left;
+        padding-right: 8px;
       }
 
       .amount {
         font-size: 24px;
         font-weight: 700;
         color: #1890ff;
+        flex: 1;
       }
     }
   }
@@ -620,11 +661,12 @@ export default {
 
 // 全局弹窗样式
 /deep/ .payment-method-dialog .el-dialog {
-  margin-top: 2vh !important;
+  margin-top: 15vh !important;
+  margin-bottom: auto !important;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  max-height: 90vh;
+  max-height: 70vh;
   max-width: 800px;
   overflow-y: auto;
 }
@@ -666,8 +708,9 @@ export default {
   border-radius: 6px;
   overflow: hidden;
   max-width: 500px;
-  max-height: 90vh;
-  margin-top: 2vh !important;
+  max-height: 85vh;
+  margin-top: 8vh !important;
+  margin-bottom: 8vh !important;
 }
 
 // QR码对话框响应式设计
@@ -675,7 +718,8 @@ export default {
   /deep/ .qrcode-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
-    margin-top: 1vh !important;
+    margin-top: 5vh !important;
+    margin-bottom: 5vh !important;
   }
 }
 
@@ -683,6 +727,8 @@ export default {
   /deep/ .qrcode-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
+    margin-top: 6vh !important;
+    margin-bottom: 6vh !important;
   }
 }
 
@@ -691,17 +737,59 @@ export default {
   /deep/ .payment-method-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
-    margin-top: 1vh !important;
-    max-height: 90vh !important;
+    margin-top: 10vh !important;
+    margin-bottom: auto !important;
+    max-height: 80vh !important;
   }
 
   .payment-methods-section .payment-grid {
-    grid-template-columns: 1fr !important;
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
   }
   
   .payment-methods-section .payment-card {
-    padding: 15px;
+    padding: 10px;
+    min-height: 90px;
+    
+    .payment-name {
+      font-size: 12px;
+    }
+    
+    .payment-desc {
+      font-size: 10px;
+    }
+  }
+
+  // iPad 竖屏时充值信息区域适配
+  .recharge-summary .summary-content .info-row {
+    .label {
+      width: 95px;
+      min-width: 95px;
+      font-size: 14px;
+      padding-right: 6px;
+    }
+    
+    .value {
+      font-size: 14px;
+      
+      &.amount {
+        font-size: 15px;
+      }
+    }
+  }
+
+  // iPad 竖屏时底部金额区域适配
+  .total-payment .payment-amount {
+    .label {
+      width: 95px;
+      min-width: 95px;
+      font-size: 15px;
+      padding-right: 6px;
+    }
+    
+    .amount {
+      font-size: 22px;
+    }
   }
 }
 
@@ -709,15 +797,48 @@ export default {
   /deep/ .payment-method-dialog .el-dialog {
     width: 95% !important;
     max-width: 95% !important;
+    margin-top: 4vh !important;
+    margin-bottom: 4vh !important;
   }
 
   .payment-methods-section .payment-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
   
   .payment-methods-section .payment-card {
-    padding: 15px;
+    padding: 12px;
+    min-height: 95px;
+  }
+
+  // 小屏幕时充值信息区域适配
+  .recharge-summary .summary-content .info-row {
+    .label {
+      width: 100px;
+      min-width: 100px;
+      font-size: 14px;
+    }
+    
+    .value {
+      font-size: 14px;
+      
+      &.amount {
+        font-size: 16px;
+      }
+    }
+  }
+
+  // 小屏幕时底部金额区域适配
+  .total-payment .payment-amount {
+    .label {
+      width: 100px;
+      min-width: 100px;
+      font-size: 16px;
+    }
+    
+    .amount {
+      font-size: 24px;
+    }
   }
 }
 
@@ -726,11 +847,47 @@ export default {
   /deep/ .payment-method-dialog .el-dialog {
     width: 85% !important;
     max-width: 800px !important;
+    margin-top: 4vh !important;
+    margin-bottom: 4vh !important;
   }
   
   .payment-methods-section .payment-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
+  }
+}
+
+// 超小屏幕适配
+@media (max-width: 768px) {
+  .recharge-summary .summary-content .info-row {
+    .label {
+      width: 85px;
+      min-width: 85px;
+      font-size: 13px;
+      padding-right: 6px;
+    }
+    
+    .value {
+      font-size: 13px;
+      
+      &.amount {
+        font-size: 15px;
+      }
+    }
+  }
+
+  // 超小屏幕时底部金额区域适配
+  .total-payment .payment-amount {
+    .label {
+      width: 85px;
+      min-width: 85px;
+      font-size: 15px;
+      padding-right: 6px;
+    }
+    
+    .amount {
+      font-size: 20px;
+    }
   }
 }
 </style>

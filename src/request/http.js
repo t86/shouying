@@ -22,7 +22,14 @@ instance.interceptors.request.use(
       store.dispatch('setLoading', true); // 在请求开始时显示loading
 
     }
-    if (!canRequest(config.url) && !config.url.includes("/oss/pt")) return;
+    
+    // 🔧 修复：如果请求被频率限制拦截，返回一个被取消的 Promise
+    if (!canRequest(config.url) && !config.url.includes("/oss/pt")) {
+      console.warn("⚠️ [请求拦截] 请求频率过快，已拦截:", config.url);
+      const cancelError = new axios.Cancel('请求频率过快，已自动拦截');
+      store.dispatch('setLoading', false);
+      return Promise.reject(cancelError);
+    }
 
     if (localStorage.getItem("tk")) {
       config.headers.common["tk"] = localStorage.getItem("tk");
@@ -48,7 +55,7 @@ instance.interceptors.request.use(
     } else {
       router.push({ path: "/" });
     }
-    return Promise.error(error);
+    return Promise.reject(error);
   }
 );
 
@@ -84,11 +91,18 @@ instance.interceptors.response.use(
     store.dispatch('setLoading', false); // 在响应错误时隐藏loading
     console.log("requestErr", error);
     console.log("errorMessage", error.message);
-    if (!error.message.includes("(reading 'cancelToken')"))
+    
+    // 🔧 修复：不对被取消的请求显示错误提示
+    const shouldShowError = !error.message.includes("(reading 'cancelToken')") 
+      && error.message !== '请求频率过快，已自动拦截'
+      && !error.__CANCEL__;
+      
+    if (shouldShowError) {
       Message({
         message: "服务器响应失败",
         type: "error",
       });
+    }
 
     return Promise.reject(error);
   }
