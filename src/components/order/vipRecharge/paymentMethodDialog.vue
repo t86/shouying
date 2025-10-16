@@ -229,8 +229,14 @@ export default {
 
       // 如果选择的是扫客人付款码（pay_type 5或6），直接触发扫码对话框
       if (this.selectedPaymentMethod === 5 || this.selectedPaymentMethod === 6) {
-        this.show = false; // 关闭当前对话框
-        this.$emit("scanCustomerPayment", this.selectedPaymentMethod); // 通知父组件打开扫码对话框
+        console.log("🔍 [支付方式选择] 选择了扫客人付款码，支付类型:", this.selectedPaymentMethod);
+        
+        // 同时发送两种事件名，确保兼容性
+        this.$emit("scanCustomerPayment", this.selectedPaymentMethod);
+        this.$emit("scan-customer-payment", this.selectedPaymentMethod);
+        
+        // 关闭当前对话框
+        this.show = false;
         return;
       }
 

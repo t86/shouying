@@ -215,8 +215,20 @@
     <PaymentMethodDialog 
       v-model="showPaymentMethodDialog"
       :recharge-info="rechargeFlowInfo"
+      @scanCustomerPayment="handleScanCustomerPayment"
+      @scan-customer-payment="handleScanCustomerPayment"
       @paymentSuccess="handlePaymentSuccess"
       @cancel="showPaymentMethodDialog = false"
+    />
+
+    <!-- 客人付款码扫描弹窗 -->
+    <customerPaymentScanDialog
+      v-model="showCustomerPaymentScanDialog"
+      :paymentAmount="currentPaymentAmount"
+      :payType="currentPaymentType"
+      :rechargeInfo="currentRechargeInfo"
+      :selectedLateDeposits="[]"
+      @success="handleCustomerPaymentSuccess"
     />
 
     <!-- 支付成功弹窗 -->
@@ -235,6 +247,7 @@ import api_vip from "@/api/vip";
 import DrawerRegisterCard from "./drawerRegisterCard.vue";
 import PaymentMethodDialog from "./paymentMethodDialog.vue";
 import PaymentSuccessDialog from "./paymentSuccessDialog.vue";
+import customerPaymentScanDialog from "@/components/vip/vipManager/drawerAddMoneyToVip/customerPaymentScanDialog.vue";
 
 export default {
   name: "VipRechargeDrawer",
@@ -242,6 +255,7 @@ export default {
     DrawerRegisterCard,
     PaymentMethodDialog,
     PaymentSuccessDialog,
+    customerPaymentScanDialog,
   },
   props: {
     showDrawer: {
@@ -268,6 +282,10 @@ export default {
       showRegisterCardDialog: false,
       showPaymentMethodDialog: false,
       showPaymentSuccessDialog: false,
+      showCustomerPaymentScanDialog: false,
+      currentPaymentAmount: 0,
+      currentPaymentType: 0,
+      currentRechargeInfo: null,
       rechargeFlowInfo: null,
       paymentSuccessInfo: null,
       newMemberInfo: {
@@ -842,6 +860,74 @@ export default {
       // 注意：推荐人会在loadRechargeOptions中通过setRecommenderByRules自动设置
       
       console.log("已将新注册会员添加到充值列表:", newMember);
+    },
+
+    // 处理扫客人付款码
+    async handleScanCustomerPayment(paymentType) {
+      console.log("===========================================");
+      console.log("🎯 [订单充值] 接收到扫客人付款事件，支付类型:", paymentType);
+      console.log("===========================================");
+
+      if (!this.rechargeFlowInfo) {
+        this.$message.error("充值信息不完整");
+        return;
+      }
+
+      try {
+        const rechargeInfo = this.rechargeFlowInfo;
+        
+        // 准备充值信息，传递给扫码对话框
+        // 扫码对话框会自己调用 reqNewCustDeptOrder 和 reqNewCustDeptOrderPay
+        this.currentRechargeInfo = {
+          memberId: rechargeInfo.member.id,
+          makeAmt: rechargeInfo.depositAmount,
+          freeAmt: rechargeInfo.freeAmount,
+          isCustom: rechargeInfo.mode === 2,
+          sendPoint: rechargeInfo.freePoints || 0,
+          freeKqId: rechargeInfo.freeKqId || 0,
+          salesEmpId: rechargeInfo.salesEmpId || 0,
+          remark: rechargeInfo.remark || "",
+          member: rechargeInfo.member
+        };
+        
+        this.currentPaymentAmount = rechargeInfo.depositAmount;
+        this.currentPaymentType = paymentType;
+
+        console.log("🔍 [订单充值] 准备打开扫码对话框");
+        console.log("🔍 [订单充值] 支付金额:", this.currentPaymentAmount);
+        console.log("🔍 [订单充值] 支付类型:", this.currentPaymentType);
+        console.log("🔍 [订单充值] 充值信息:", this.currentRechargeInfo);
+
+        // 关闭支付方式对话框
+        this.showPaymentMethodDialog = false;
+
+        // 打开扫码对话框
+        this.showCustomerPaymentScanDialog = true;
+        console.log("🔍 [订单充值] 扫码对话框已打开");
+      } catch (error) {
+        console.error("❌ [订单充值] 准备扫码失败:", error);
+        this.$message.error(error.message || "准备扫码失败");
+      }
+    },
+
+    // 处理客人付款成功
+    handleCustomerPaymentSuccess(paymentResult) {
+      console.log("🎉 [订单充值] 客人付款成功:", paymentResult);
+
+      // 关闭扫码对话框
+      this.showCustomerPaymentScanDialog = false;
+
+      // 准备支付成功信息
+      const paymentInfo = {
+        ...this.currentRechargeInfo.member,
+        depositAmount: this.currentRechargeInfo.makeAmt,
+        freeAmount: this.currentRechargeInfo.freeAmt,
+        freePoints: this.currentRechargeInfo.sendPoint,
+        totalAmount: this.currentRechargeInfo.makeAmt + this.currentRechargeInfo.freeAmt,
+      };
+
+      // 触发支付成功处理
+      this.handlePaymentSuccess(paymentInfo);
     },
 
     // 支付成功后的处理

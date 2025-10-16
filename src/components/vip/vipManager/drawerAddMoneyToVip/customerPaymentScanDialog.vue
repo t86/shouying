@@ -6,6 +6,8 @@
     width="80%"
     custom-class="customer-payment-scan-dialog"
     :close-on-click-modal="false"
+    :append-to-body="true"
+    :modal-append-to-body="true"
   >
     <!-- 充值信息摘要 -->
     <div class="payment-summary">
@@ -142,20 +144,77 @@ export default {
     value: {
       immediate: true,
       handler(val) {
+        console.log("=== 📱 [扫客人付款码组件] value变化 ===");
+        console.log("  - 新值:", val);
+        console.log("  - payType:", this.payType);
+        console.log("  - paymentAmount:", this.paymentAmount);
+        console.log("  - rechargeInfo:", this.rechargeInfo);
+        console.log("  - 当前 show 值:", this.show);
+        
         this.show = val;
+        console.log("  - 设置后 show 值:", this.show);
+        
         if (val) {
+          console.log("  - ✅ 开始重置对话框并启动扫码");
           this.resetDialog();
           this.startScan();
+          // 确保对话框显示在最上层
+          this.$nextTick(() => {
+            this.fixZIndex();
+          });
         } else {
+          console.log("  - ❌ 值为 false，清理超时");
           this.clearTimeouts();
         }
+        console.log("=== 📱 [扫客人付款码组件] value变化 结束 ===");
       }
     },
     show(val) {
+      console.log("=== 📱 [扫客人付款码组件] show变化 ===");
+      console.log("  - 新值:", val);
+      console.log("  - 触发 input 事件");
       this.$emit("input", val);
+      console.log("=== 📱 [扫客人付款码组件] show变化 结束 ===");
     }
   },
+  created() {
+    console.log("=== 📱 [扫客人付款码组件] created ===");
+    console.log("  - value:", this.value);
+    console.log("  - payType:", this.payType);
+    console.log("  - paymentAmount:", this.paymentAmount);
+  },
+  mounted() {
+    console.log("=== 📱 [扫客人付款码组件] mounted ===");
+    console.log("  - value:", this.value);
+    console.log("  - show:", this.show);
+  },
   methods: {
+    // 修复 z-index，确保对话框显示在 drawer 之上
+    fixZIndex() {
+      try {
+        // 找到对话框的 wrapper 元素
+        const dialogWrapper = document.querySelector('.el-dialog__wrapper .customer-payment-scan-dialog');
+        if (dialogWrapper) {
+          const wrapper = dialogWrapper.closest('.el-dialog__wrapper');
+          if (wrapper) {
+            wrapper.style.zIndex = '3100';
+            console.log('✅ 设置对话框 z-index 为 3100');
+          }
+        }
+        
+        // 找到遮罩层
+        const modals = document.querySelectorAll('.v-modal');
+        if (modals.length > 0) {
+          // 设置最后一个遮罩层（最新的）
+          const lastModal = modals[modals.length - 1];
+          lastModal.style.zIndex = '3099';
+          console.log('✅ 设置遮罩层 z-index 为 3099');
+        }
+      } catch (error) {
+        console.error('❌ 设置 z-index 失败:', error);
+      }
+    },
+
     resetDialog() {
       this.customerPaymentCode = "";
       this.manualPaymentCode = "";
@@ -442,6 +501,8 @@ export default {
 
 <style scoped lang="less">
 .customer-payment-scan-dialog {
+  z-index: 3100 !important;
+  
   @media (orientation: portrait) {
     width: 95% !important;
   }
@@ -582,5 +643,17 @@ export default {
   .scan-area {
     min-height: 250px;
   }
+}
+</style>
+
+<style lang="less">
+/* 确保对话框在 drawer (z-index: 3000) 之上 */
+body > .el-dialog__wrapper:has(.customer-payment-scan-dialog) {
+  z-index: 3100 !important;
+}
+
+/* 遮罩层也需要在 drawer 之上，但在对话框之下 */
+body > .v-modal {
+  z-index: 3099 !important;
 }
 </style>

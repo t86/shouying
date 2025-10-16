@@ -53,9 +53,12 @@
 
     <!-- 支付方式选择弹窗 -->
     <paymentMethodDialog
-      v-model="showPaymentMethodDialog"
+      ref="paymentMethodDialogRef"
+      :value="showPaymentMethodDialog"
+      @input="showPaymentMethodDialog = $event"
       :rechargeInfo="paymentDialogRechargeInfo"
       @scanCustomerPayment="handleScanCustomerPayment"
+      @scan-customer-payment="handleScanCustomerPayment"
       @paymentSuccess="handlePaymentSuccess"
     />
 
@@ -444,9 +447,26 @@ export default {
     
     // 处理扫客人付款码
     handleScanCustomerPayment(payType) {
+      console.log("===========================================");
+      console.log("🎯 [会员充值] 接收到扫客人付款事件，支付类型:", payType);
+      console.log("  - 当前充值信息:", this.currentRechargeInfo);
+      console.log("  - 当前支付金额:", this.currentPaymentAmount);
+      console.log("  - 选中的滞留金:", this.currentSelectedLateDeposits);
+      console.log("  - this.$refs:", this.$refs);
+      console.log("  - showCustomerPaymentScanDialog 修改前:", this.showCustomerPaymentScanDialog);
+      
       this.selectedPayType = payType;
       // 打开扫码对话框
       this.showCustomerPaymentScanDialog = true;
+      
+      console.log("  - showCustomerPaymentScanDialog 修改后:", this.showCustomerPaymentScanDialog);
+      
+      // 强制更新视图
+      this.$nextTick(() => {
+        console.log("  - $nextTick 中 showCustomerPaymentScanDialog:", this.showCustomerPaymentScanDialog);
+        console.log("  - DOM中的对话框:", document.querySelectorAll('.customer-payment-scan-dialog'));
+      });
+      console.log("===========================================");
     },
 
     // 处理支付成功
@@ -615,7 +635,15 @@ export default {
       }
     }
   },
-  mounted() {},
+  mounted() {
+    console.log("🎯 [会员充值] 组件已挂载");
+    console.log("  - paymentMethodDialogRef:", this.$refs.paymentMethodDialogRef);
+    
+    // 监听所有事件（调试用）
+    this.$on('scanCustomerPayment', (payType) => {
+      console.log("🎯 [会员充值] $on 捕获到 scanCustomerPayment 事件:", payType);
+    });
+  },
   props: {
     showDrawer: {
       default: false // 是否显示drawer
