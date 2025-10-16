@@ -143,6 +143,7 @@
                 :remote-method="searchEmployees"
                 :loading="loadingEmployees"
                 style="width: 100%"
+                @click.native="handleRecommenderClick"
                 @focus="handleRecommenderFocus"
                 @blur="handleRecommenderBlur"
               >
@@ -453,7 +454,7 @@ export default {
     },
 
     // 处理姓名输入框点击 - 显示系统键盘
-    handleNameInputClick(event) {
+    handleNameInputClick() {
       console.log('姓名输入框被点击');
       this.currentFocusField = 'name';
       this.keyboardShow('nameInput');
@@ -466,11 +467,23 @@ export default {
       this.keyboardLeave();
     },
 
-    // 处理推荐人选择框聚焦
+    // 处理推荐人选择框点击（安卓环境主要入口）
+    handleRecommenderClick() {
+      console.log('推荐人选择框被点击');
+      this.currentFocusField = 'recommender';
+      // 加载员工列表
+      this.loadInitialEmployees();
+      // 显示系统键盘（Android环境）
+      this.keyboardShow('recommenderSelect');
+    },
+
+    // 处理推荐人选择框聚焦（Web环境主要入口）
     handleRecommenderFocus() {
       console.log('推荐人选择框获得焦点');
       this.currentFocusField = 'recommender';
+      // 加载员工列表
       this.loadInitialEmployees();
+      // 显示系统键盘（Android环境）
       this.keyboardShow('recommenderSelect');
     },
 
@@ -484,22 +497,25 @@ export default {
     // 显示系统键盘
     keyboardShow(refString) {
       console.log('尝试显示系统键盘，ref:', refString);
+      
+      // 只在 Android 环境下执行
       if (
         window.atool &&
         window.atool.getTermType() == "android" &&
         "showSoftInput" in window.atool
       ) {
-        console.log('调用 atool.showSoftInput()');
+        console.log('Android 环境：调用 atool.showSoftInput()');
+        // 先调用系统键盘 API
         atool.showSoftInput();
-        // 对于 el-input 组件，需要获取其内部的 input 元素
-        // 对于 el-select 组件，需要特殊处理
+        
+        // 然后再让元素获得焦点
         this.$nextTick(() => {
           const refElement = this.$refs[refString];
           console.log('获取到的 ref 元素:', refElement);
           if (refElement) {
             // 如果是 el-input 组件，需要调用其 focus 方法
             if (refElement.focus && typeof refElement.focus === 'function') {
-              console.log('调用 focus 方法');
+              console.log('调用 el-input/el-select 的 focus 方法');
               refElement.focus();
             }
             // 如果是原生 input 元素，直接 focus
@@ -510,7 +526,7 @@ export default {
           }
         });
       } else {
-        console.log('atool 不可用或非 android 环境');
+        console.log('非 Android 环境，不执行键盘操作');
       }
     },
 
