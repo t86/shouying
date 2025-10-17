@@ -165,7 +165,13 @@ export default {
         },
       ], // 状态
       checkStatus: -1, // 选中的状态
-      callback: null
+      callback: null,
+      // 音频播放相关
+      audioBaseUrl: 'http://nls.server.com/server/wavs/',
+      currentAudio: null, // 当前播放的音频实例
+      audioQueue: [], // 待播放的音频队列
+      isPlaying: false, // 是否正在播放
+      queueConfig: null // 排队配置
     };
   },
   async mounted() {
@@ -175,12 +181,108 @@ export default {
     // this.$observer.subscribe(QUEUE_TASK, this.callback);
   },
   beforeDestroy() {
-    // if (this.timer) {
-    //   clearInterval(this.timer);
-    // }
-    // this.$observer.unsubscribe(QUEUE_TASK, this.callback);
+    // 停止音频播放
+    this.stopAudio();
+    
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    if (this.callback) {
+      this.$observer.unsubscribe(QUEUE_TASK, this.callback);
+    }
   },
   methods: {
+    // 停止音频播放
+    stopAudio() {
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+        this.currentAudio = null;
+      }
+      this.audioQueue = [];
+      this.isPlaying = false;
+    },
+
+    // 根据号码生成音频文件列表 (例如: A12 -> ['A', '1', '2'])
+    generateAudioFiles(queueNo) {
+      const files = [];
+      const queueNoStr = String(queueNo).toUpperCase();
+      
+      for (let i = 0; i < queueNoStr.length; i++) {
+        const char = queueNoStr[i];
+        files.push(`${this.audioBaseUrl}${char}.WAV`);
+      }
+      
+      return files;
+    },
+
+    // 播放下一个音频
+    playNextAudio() {
+      if (this.audioQueue.length === 0) {
+        this.isPlaying = false;
+        this.currentAudio = null;
+        return;
+      }
+
+      const audioUrl = this.audioQueue.shift();
+      this.currentAudio = new Audio(audioUrl);
+      
+      this.currentAudio.addEventListener('ended', () => {
+        this.playNextAudio();
+      });
+
+      this.currentAudio.addEventListener('error', (e) => {
+        console.error('音频播放失败:', audioUrl, e);
+        // 继续播放下一个
+        this.playNextAudio();
+      });
+
+      this.currentAudio.play().catch(err => {
+        console.error('播放音频时出错:', err);
+        // 继续播放下一个
+        this.playNextAudio();
+      });
+    },
+
+    // 播放音频序列
+    playAudioSequence(queueNo) {
+      // 检查配置
+      if (!this.queueConfig) {
+        console.log('排队配置不存在，跳过音频播放');
+        return;
+      }
+
+      // 检查语音播报开关
+      if (this.queueConfig.sound_on * 1 !== 1) {
+        console.log('语音播报已关闭');
+        return;
+      }
+
+      // 停止当前正在播放的音频
+      this.stopAudio();
+
+      // 获取播放次数
+      const repeatCount = this.queueConfig.sound_cnt * 1 || 1;
+      
+      // 生成单次播放的音频文件列表
+      const singlePlayList = [
+        `${this.audioBaseUrl}PREFIX.WAV`,
+        ...this.generateAudioFiles(queueNo),
+        `${this.audioBaseUrl}SUFFIX.WAV`
+      ];
+
+      // 根据播放次数重复
+      this.audioQueue = [];
+      for (let i = 0; i < repeatCount; i++) {
+        this.audioQueue.push(...singlePlayList);
+      }
+
+      console.log('开始播放音频队列:', this.audioQueue);
+      
+      this.isPlaying = true;
+      this.playNextAudio();
+    },
+
     async call(item){
       console.log(item)
       let queue_no
@@ -203,6 +305,8 @@ export default {
               const res =  await api_money.reqQueueCall(params)
               if (res.code === 1) {
                 this.$message.success("叫号成功");
+                // 播放叫号音频
+                this.playAudioSequence(item.curr_num);
               } else {
                 this.$message.warning(res.msg);
               }
@@ -232,6 +336,8 @@ export default {
               const res =  await api_money.reqQueueEnter(params)
               if (res.code === 1) {
                 this.$message.success("进店成功");
+                // 停止音频播放
+                this.stopAudio();
               } else {
                 this.$message.warning(res.msg);
               }
@@ -261,6 +367,8 @@ export default {
               const res =  await api_money.reqQueueOverdue(params)
               if (res.code === 1) {
                 this.$message.success("设置过号成功");
+                // 停止音频播放
+                this.stopAudio();
               } else {
                 this.$message.warning(res.msg);
               }
@@ -273,6 +381,8 @@ export default {
 
     closeDrawerHandle () {
       this.$emit("showOrHideDrawer", false);
+      // 停止音频播放
+      this.stopAudio();
     },
 
     onCancelDrawer () {
@@ -397,6 +507,8 @@ export default {
 
       if (config && config.length > 0) {
         this.numberType = config[0].number_type
+        // 保存排队配置用于音频播放
+        this.queueConfig = config[0]
       }
 
       // 计算排队叫号
