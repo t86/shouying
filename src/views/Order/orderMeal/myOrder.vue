@@ -515,10 +515,24 @@ export default {
         canViewCurrentTableConsumption = true;
       }
       
+      // 【优先级最高】如果配置了"全场赠送 + 不可查看当台消费"，只显示自己赠送的商品
+      const hasCannotViewPermission = hasFullVenueGiftPermission && !canViewCurrentTableConsumption;
+      
       for (let i = 0; i < resultData.length; i++) {
         let el = resultData[i];
         
-        // 1. 督查权限判断（优先级最高）
+        // 0. 全场赠送 + 不可查看当台消费权限判断（优先级最高）
+        if (hasCannotViewPermission) {
+          // 只显示自己赠送的商品（优惠人是自己）
+          if (el.at == 2 || el.at == 3) { // 优惠或优惠2
+            if (el.ae == userInfo.emp_id) { // 优惠人是自己
+              authList.push(el);
+            }
+          }
+          continue; // 跳过所有其他权限判断
+        }
+        
+        // 1. 督查权限判断
         if (userInfo.roleIds && userInfo.roleIds.includes(11)) {
           console.log("myOrder - 督查角色处理订单:", el);
           
@@ -597,24 +611,8 @@ export default {
           continue;
         }
         
-        // 全场赠送权限的特殊处理
-        if (hasFullVenueGiftPermission) {
-          // 如果选择的是"不可查看当台消费"，只能看到自己赠送的商品
-          if (!canViewCurrentTableConsumption) {
-            // 只显示自己赠送的商品（优惠人是自己）
-            if (el.at == 2 || el.at == 3) { // 优惠或优惠2
-              if (el.ae == userInfo.emp_id) { // 优惠人是自己
-                authList.push(el);
-              }
-            }
-          } else {
-            // 如果选择的是"可查看当台消费"，可以查看所有
-            authList.push(el);
-          }
-        } else {
-          // 如果没有全场赠送权限，也按照可以查看处理
-          authList.push(el);
-        }
+        // 其他情况，默认可以查看
+        authList.push(el);
       }
       
       return authList;
