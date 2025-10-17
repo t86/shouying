@@ -33,8 +33,9 @@ export default {
 
       let YH2PrdListId = []; // 优惠2可优惠商品id
 
-      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
-        // 当前岗位可点商品没有限制（收银员、督查）
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
+        // 当前岗位可点商品没有限制（收银员）
+        // 注意：督察角色的查单权限不等于点单权限，督察在点单时应该按照其岗位配置的可点商品
         // 此时此刻不需要进行岗位限制的筛选
         // 只需要获取所有的商品二级分类即可
         // 此处为了配合接下来的流程中区域筛选，将数据处理成与有限制的可点商品二级分类一致的
@@ -119,15 +120,14 @@ export default {
       let currentAreaAllProduct = [];
       if ((this.$route.name == "moneyCard" && this.$store.state.userInfo.authStatus == 4) 
       || (this.$route.name == 'orderCard' && this.$store.state.userInfo.authStatus == 2)
-      || this.$store.state.userInfo.roleIds.includes(11) // 督查角色可以看到所有区域商品
       || isGQ
       ) {
-        // 估清 或 督查
+        // 估清（不包括督察，督察的查单权限不等于点单权限）
         currentAreaAllProduct = this.$store.state.cardPageInfo.resResultDataObj[
           "areaProduct"
         ].filter((el) => el.status == 1);
       } else {
-        // 服务员  或  营销  或  花篮  或  优惠  或  优惠2
+        // 服务员  或  营销  或  花篮  或  优惠  或  优惠2  或  督察（督察按区域过滤）
         currentAreaAllProduct = this.$store.state.cardPageInfo.resResultDataObj[
           "areaProduct"
         ].filter(
@@ -349,10 +349,10 @@ export default {
 
       // 此处将两个系统分开，是为了让收银人获取到在点单系统中自己对商品的优惠权限（收银系统中，优惠授权时，如果自己又此商品的优惠权限，则显示自己授权，否则不显示）
       let resultSYProductArr = []; // 收银点单的可点商品
-      let resultDDProductArr = []; // 点单系统（服务员、营销、花篮）的可点商品
+      let resultDDProductArr = []; // 点单系统（服务员、营销、花篮、督察）的可点商品
 
-      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
-        // 收银员 或 督查
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
+        // 收银员（不包括督察，督察按岗位配置过滤商品）
         const SYResultProductArrList = [];
         stationAllProduct.forEach((el) => {
           const findProduct = currentAreaAllProduct.find(
@@ -505,8 +505,8 @@ export default {
       }
 
       // 给收银系统的所以商品匹配自己在点单系统的身份权限
-      if (this.$store.state.userInfo.authStatus == 4 || this.$store.state.userInfo.roleIds.includes(11) || isGQ) {
-        // 收银系统 或 督查
+      if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
+        // 收银系统（不包括督察）
         resultSYProductArr.forEach((el) => {
           const find = resultDDProductArr.find((item) => item.id == el.id);
           if (find) {
@@ -522,7 +522,7 @@ export default {
           }
         });
       } else {
-        // 点单系统
+        // 点单系统（服务员、营销、督察等）
         resultProductArr = [...resultDDProductArr];
       }
 
@@ -544,12 +544,12 @@ export default {
       console.log('resultProductArr--------------:', resultProductArr)
 
       
-      // 点单系统
+      // 点单系统 - 花篮/赔偿商品处理
       // if (sessionStorage.getItem("client") == "order" 
-      if (true
-      && (this.$store.state.userInfo.roleIds.includes(2) 
-      || this.$store.state.userInfo.roleIds.includes(4)) 
-      && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
+      // 修复：只要有服务员或特饮角色，并且配置了花篮商品权限，就可以看到花篮商品，不受卡台类型限制
+      const hasWaiterOrDrinkRole = this.$store.state.userInfo.roleIds.includes(2) || this.$store.state.userInfo.roleIds.includes(4);
+      
+      if (true && hasWaiterOrDrinkRole && !isGQ) {
         resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
         ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
