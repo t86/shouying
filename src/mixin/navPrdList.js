@@ -47,12 +47,13 @@ export default {
       }
       /**
        * 无论是否为收银系统，都要去查看当前登录账号对商品的可点权限，目的是为了在收银系统中，对商品进行优惠操作时，如果自己有权限则显示自己优惠按钮，否则不显示
+       * 修复：移除 isWaiter 条件，对于拥有服务员权限的用户，不管打开什么类型的卡台都需要构建 FWYSecondCategory
        */
       if (true) {
         if ((this.$store.state.userInfo.roleIds.includes(2) 
         || this.$store.state.userInfo.roleIds.includes(4)) 
-        && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
-          // 服务员 特饮 且是服务员可点卡台
+        && !isGQ) {
+          // 服务员 特饮
           // 查看是否为不限可点
           if (
             notLimitStationId
@@ -149,10 +150,17 @@ export default {
 
       /**
        *  服务员
+       *  修复：对于拥有服务员权限的用户，不管打开什么类型的卡台（服务员卡台或营销卡台），
+       *  都需要构建服务员商品列表，因为在营销卡台中也需要显示 canOrderMeal 权限标记
        */
       if ((this.$store.state.userInfo.roleIds.includes(2) 
       || this.$store.state.userInfo.roleIds.includes(4)) 
-      && this.$store.state.orderInfo.currentCardInfo.isWaiter && !isGQ) {
+      && !isGQ) {
+        console.log('🔍 [DEBUG] 开始构建服务员商品列表');
+        console.log('  - currentAreaAllProduct 数量:', currentAreaAllProduct.length);
+        console.log('  - FWYSecondCategory 数量:', FWYSecondCategory.length);
+        console.log('  - stationAllProduct 数量:', stationAllProduct.length);
+        
         // 当前区域下服务员可点商品
         const FWYAreaPrdList = [];
         currentAreaAllProduct.forEach((el) => {
@@ -193,11 +201,18 @@ export default {
           );
           if (find) FWYAllProductList.push({...find});
         });
+        
+        console.log('🔍 [DEBUG] 服务员商品列表构建完成:');
+        console.log('  - FWYAreaPrdList 数量:', FWYAreaPrdList.length);
+        console.log('  - FWYSecondCategoryPrdList 数量:', FWYSecondCategoryPrdList.length);
+        console.log('  - FWYAllProductList (过滤前) 数量:', FWYAllProductList.length);
       }
       // 去掉元数据42中所有服务员的不可点商品
       let noOrderPrdList = this.$store.state.cardPageInfo.resResultDataObj["orderPrdList"]
       .filter(item => item.station_id == authStationId && item.status == 1).map(item => item.prd_id)
       FWYAllProductList = FWYAllProductList.filter(item => !noOrderPrdList.includes(item.id))
+      
+      console.log('🔍 [DEBUG] FWYAllProductList (过滤后) 数量:', FWYAllProductList.length, FWYAllProductList.slice(0, 3).map(p => ({id: p.id, name: p.name, canOrderMeal: p.canOrderMeal})))
 
       /**
        * 营销
@@ -374,28 +389,13 @@ export default {
       // 获取所有系统中的权限
       if (true) {
         // 服务员、营销、花篮、优惠2
-
-        // 合并服务员 和  营销，以id为唯一键合并FWYAllProductList和YXAllProductList到mergePrdList
-        const mergePrdList = [];
-        const limitConfigIdList = new Set([...FWYAllProductList, ...YXAllProductList].map(item => item.id))
         
-        limitConfigIdList.forEach((el) => {
-          const findFWYPrd = FWYAllProductList.find((item) => item.id == el);
-          const findYXPrd = YXAllProductList.find((item) => item.id == el);
-          if (findFWYPrd) {
-            mergePrdList.push({...findFWYPrd});
-          } else if(findYXPrd) {
-            mergePrdList.push({...findYXPrd});
-          }
-        });
+        console.log('🔍 [DEBUG] FWYAllProductList 数量:', FWYAllProductList.length, FWYAllProductList.map(p => p.name));
+        console.log('🔍 [DEBUG] YXAllProductList 数量:', YXAllProductList.length, YXAllProductList.map(p => p.name));
+        console.log('🔍 [DEBUG] YH2AllProductList 数量:', YH2AllProductList.length, YH2AllProductList.map(p => p.name));
 
-
-        // // FWYAllProductList.filter(item => YXAllProductList.find(items => item.id == items.id))
-        // FWYAllProductList.forEach((el) => {
-        //   const find = YXAllProductList.find((item) => item.id == el.id);
-        //   if (find) mergePrdList.push({...find});
-        // });
-
+        // 合并服务员 和 营销，以id为唯一键合并FWYAllProductList和YXAllProductList
+        // 关键修复：既可点又可优惠的商品，需要同时保留 canOrderMeal 和 canSeal 标记
         const tempResultProductArrList = [
           ...FWYAllProductList,
           ...YXAllProductList,
@@ -403,32 +403,33 @@ export default {
           (item, index, arr) =>
             arr.findIndex((items) => item.id == items.id) == index
         );
-        mergePrdList.forEach((el) => {
+        
+        console.log('🔍 [DEBUG] tempResultProductArrList 合并去重后数量:', tempResultProductArrList.length);
+        
+        // 标记每个商品的权限：canOrderMeal（可点）和 canSeal（可优惠）
+        tempResultProductArrList.forEach((el) => {
           const findFWYPrd = FWYAllProductList.find((item) => item.id == el.id);
           const findYXPrd = YXAllProductList.find((item) => item.id == el.id);
+          
+          // 初始化为 undefined
+          el.canOrderMeal = undefined;
+          el.canSeal = undefined;
+          
+          // 如果在服务员列表中，标记为可点
           if (findFWYPrd) {
-            el.canOrderMeal = findFWYPrd.canOrderMeal
+            el.canOrderMeal = true;
           }
+          // 如果在营销列表中，标记为可优惠
           if (findYXPrd) {
-            el.canSeal = findYXPrd.canSeal
+            el.canSeal = true;
           }
+          
+          console.log(`🔍 [DEBUG] 权限标记 - 商品 ${el.name} (${el.id}): canOrderMeal=${el.canOrderMeal}, canSeal=${el.canSeal}`);
+          
+          // 关键：如果同时在两个列表中，会同时拥有 canOrderMeal: true 和 canSeal: true
         });
 
-        tempResultProductArrList.forEach((el) => {
-          const find = mergePrdList.find((item) => item.id == el.id);
-          if (find) {
-            el.canOrderMeal = find.canOrderMeal;
-            el.canSeal = find.canSeal;
-          }
-        });
-
-        // 在原服务员  与  营销 合并基础上 与  优惠2  合并  求并集
-        const mergePrdList2 = [];
-        tempResultProductArrList.forEach((el) => {
-          const find = YH2AllProductList.find((item) => item.id == el.id);
-          if (find) mergePrdList2.push({...find});
-        });
-
+        // 在原服务员 与 营销合并基础上 与 优惠2 合并 求并集
         const tempResultProductArrList2 = [
           ...tempResultProductArrList,
           ...YH2AllProductList,
@@ -436,25 +437,24 @@ export default {
           (item, index, arr) =>
             arr.findIndex((items) => item.id == items.id) == index
         );
-        mergePrdList2.forEach((el) => {
-          const findMergePrd = tempResultProductArrList.find(
-            (item) => item.id == el.id
-          );
-          const findYH2Prd = YH2AllProductList.find((item) => item.id == el.id);
-          if (findMergePrd && findYH2Prd) {
-            (el.canOrderMeal = findMergePrd.canOrderMeal),
-              (el.canSeal = findMergePrd.canSeal);
-            el.canSealYH2 = findYH2Prd.canSealYH2;
-          }
-        });
-
+        
+        // 标记优惠2权限，同时保留原有的 canOrderMeal 和 canSeal
         tempResultProductArrList2.forEach((el) => {
-          const find = mergePrdList2.find((item) => item.id == el.id);
-          if (find) {
-            el.canOrderMeal = find.canOrderMeal;
-            el.canSeal = find.canSeal;
-            el.canSealYH2 = find.canSealYH2;
+          const findMergePrd = tempResultProductArrList.find((item) => item.id == el.id);
+          const findYH2Prd = YH2AllProductList.find((item) => item.id == el.id);
+          
+          // 继承之前的权限标记
+          if (findMergePrd) {
+            el.canOrderMeal = findMergePrd.canOrderMeal;
+            el.canSeal = findMergePrd.canSeal;
           }
+          
+          // 如果在优惠2列表中，添加 canSealYH2 标记
+          if (findYH2Prd) {
+            el.canSealYH2 = true;
+          }
+          
+          // 关键：既可点又可优惠2的商品，会同时拥有多个权限标记
         });
 
         //  在原合并基础上  再次  合并  花篮/消费/赔偿
@@ -498,18 +498,19 @@ export default {
         //   }
         // });
 
-        // 点单系统中的人员权限
-        resultDDProductArr = [...tempResultProductArrList2];
+      // 点单系统中的人员权限
+      resultDDProductArr = [...tempResultProductArrList2];
 
-        // console.log('resultDDProductArr', resultDDProductArr)
+      console.log('🔍 [DEBUG] resultDDProductArr 生成完成，数量:', resultDDProductArr.length);
       }
 
-      // 给收银系统的所以商品匹配自己在点单系统的身份权限
+      // 给收银系统的所有商品匹配自己在点单系统的身份权限
       if (this.$store.state.userInfo.authStatus == 4 || isGQ) {
         // 收银系统（不包括督察）
         resultSYProductArr.forEach((el) => {
           const find = resultDDProductArr.find((item) => item.id == el.id);
           if (find) {
+            // 重要：保留所有权限标记，确保既可点又可优惠的商品能正确触发选择弹窗
             resultProductArr.push({
               ...el,
               canOrderMeal: find.canOrderMeal,
@@ -523,11 +524,15 @@ export default {
         });
       } else {
         // 点单系统（服务员、营销、督察等）
+        console.log('🔍 [DEBUG] 点单系统路径 - 直接复制 resultDDProductArr');
         resultProductArr = [...resultDDProductArr];
       }
 
+      console.log('🔍 [DEBUG] 当前卡台 bizType:', this.$store.state.orderInfo.currentCardInfo.bizType);
+      
       // 判断是否当前卡台为补交卡台（不能点优惠/优惠2）
       if (this.$store.state.orderInfo.currentCardInfo.bizType == 3 && !isGQ) {
+        console.log('🔍 [DEBUG] 补交卡台处理 - 过滤前数量:', resultProductArr.length);
         resultProductArr = resultProductArr.filter(
           (item) =>
             (!item.canSeal && !item.canSealYH2) ||
@@ -540,6 +545,7 @@ export default {
           // canSeal: false,
           canSealYH2: false,
         }));
+        console.log('🔍 [DEBUG] 补交卡台处理 - 过滤后数量:', resultProductArr.length);
       }
       console.log('resultProductArr--------------:', resultProductArr)
 
@@ -553,6 +559,17 @@ export default {
         resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
         ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
+          // 重要：保留所有权限标记，包括 canSealYH2 和 canHL
+          const original = resultProductArr.find(i => i.id == item.id)
+          if(original) {
+            return {
+              ...item,
+              canOrderMeal: original.canOrderMeal,
+              canSeal: original.canSeal,
+              canSealYH2: original.canSealYH2,
+              canHL: true  // 花篮商品标记
+            }
+          }
           return {...item, canHL: true}
         }), ...resultProductArr]
       }
@@ -560,21 +577,36 @@ export default {
       // if (sessionStorage.getItem("client") == "order" 
       if (true
       && (this.$store.state.orderInfo.currentCardInfo.bizType == '3' || this.$store.state.orderInfo.currentCardInfo.bizType == '4') && !isGQ) {
+        console.log('🔍 [DEBUG] 功能性卡台处理 - bizType:', this.$store.state.orderInfo.currentCardInfo.bizType);
+        console.log('🔍 [DEBUG] 功能性卡台处理 - 处理前 resultProductArr:', resultProductArr);
+        
         // 先从stationAllProduct筛选出符合条件的商品
         let tmpArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "funcOrderPrdConfig"
         ].findIndex(i => i.prd_id == item.id && i.seat_id == this.$store.state.orderInfo.currentCardInfo.id && i.status == '1') >= 0)]
+        
+        console.log('🔍 [DEBUG] 功能性卡台处理 - tmpArr:', tmpArr);
+        
         resultProductArr = tmpArr.map(item => {
           const original = resultProductArr.find(i => i.id == item.id)
+          console.log(`🔍 [DEBUG] 功能性卡台处理 - 商品 ${item.name} (${item.id}), original:`, original);
           if(original) {
-            return {
+            // 重要：保留所有权限标记
+            const result = {
               ...item,
               canOrderMeal: original.canOrderMeal,
-              canSeal: original.canSeal
-            }
+              canSeal: original.canSeal,
+              canSealYH2: original.canSealYH2,
+              canHL: original.canHL
+            };
+            console.log(`🔍 [DEBUG] 功能性卡台处理 - 商品 ${item.name} 权限保留结果:`, result);
+            return result;
           }
+          console.log(`🔍 [DEBUG] 功能性卡台处理 - 商品 ${item.name} 未找到 original，返回 null`);
           return null
         }).filter(item => item !== null) // 移除未匹配的项
+        
+        console.log('🔍 [DEBUG] 功能性卡台处理 - 处理后 resultProductArr:', resultProductArr);
       }
 
       /* 通过 this.$store.state.cardPageInfo.resResultDataObj["areaProduct"]，结构如下
