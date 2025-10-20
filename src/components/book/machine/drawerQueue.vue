@@ -669,6 +669,13 @@ export default {
         }
       }
 
+      // 按照取号时间降序排序，最新的在最上面
+      queues.sort((a, b) => {
+        // obtain_time 格式如: 20231020101230
+        // 直接比较字符串或转换为数字比较都可以
+        return (b.obtain_time || '').localeCompare(a.obtain_time || '')
+      })
+
       this.typeList = types
       this.queues = queues
       console.log('======this.typeList', this.typeList)
