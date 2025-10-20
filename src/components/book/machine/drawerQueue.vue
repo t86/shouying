@@ -78,6 +78,19 @@
             <div class="label">状态：</div>
             <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="{'btn-selected': item.id === checkStatus}">{{ item.name }}</div>
           </div>
+          <div class="search-export-layout">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="支持排队号码、手机号或者昵称"
+              size="small"
+              clearable
+              @clear="handleSearch"
+              @keyup.enter.native="handleSearch"
+              style="width: 280px;"
+            ></el-input>
+            <el-button type="primary" size="small" @click="handleSearch" style="margin-left: 10px;">查询</el-button>
+            <el-button type="primary" size="small" @click="exportQueueList" style="margin-left: 10px;">导出</el-button>
+          </div>
         </div>
 
         <div class="table">
@@ -133,6 +146,7 @@ import {QUEUE_TASK} from "@/observer";
 import {cardPageMixins} from "@/mixin/cardPage";
 import api from "@/api";
 import api_money from "@/api/money";
+import api_book from "@/api/Book";
 
 export default {
   data () {
@@ -165,6 +179,7 @@ export default {
         },
       ], // 状态
       checkStatus: -1, // 选中的状态
+      searchKeyword: '', // 搜索关键词
       callback: null,
       // 音频播放相关
       audioBaseUrl: 'http://nls.server.com/server/wavs/',
@@ -244,8 +259,25 @@ export default {
       });
     },
 
+    // 格式化排队号码（补零并拼接前缀）
+    formatQueueNumber(queueNo, numPrefix) {
+      let formattedNo = String(queueNo);
+      
+      // 根据 numberType 补零
+      if (this.numberType * 1 === 2) {
+        formattedNo = formattedNo.padStart(2, '0');
+      } else if (this.numberType * 1 === 3) {
+        formattedNo = formattedNo.padStart(3, '0');
+      }
+      
+      // 拼接前缀
+      return numPrefix + formattedNo;
+    },
+
     // 播放音频序列
     playAudioSequence(queueNo) {
+
+      console.log('playAudioSequence: ', queueNo)
       // 检查配置
       if (!this.queueConfig) {
         console.log('排队配置不存在，跳过音频播放');
@@ -284,13 +316,17 @@ export default {
     },
 
     async call(item){
-      console.log(item)
+      console.log('call: ', item)
       let queue_no
       if (item.current_status * 1 === 1){
-        queue_no = item.curr_num_id * 1
+        queue_no = item.curr_num_id  * 1
       } else {
         queue_no = item.wait_no * 1
       }
+      
+      // 生成完整的排队号码用于音频播放
+      let fullQueueNo = this.formatQueueNumber(queue_no, item.num_prefix);
+      
       this.showConfirmHandle(
           "叫号",
           "是否确认叫号",
@@ -303,8 +339,8 @@ export default {
               const res =  await api_money.reqQueueCall(params)
               if (res.code === 1) {
                 this.$message.success("叫号成功");
-                // 播放叫号音频
-                this.playAudioSequence(item.curr_num);
+                // 播放叫号音频 - 使用完整的排队号码
+                this.playAudioSequence(fullQueueNo);
               } else {
                 this.$message.warning(res.msg);
               }
@@ -360,7 +396,7 @@ export default {
             try {
               let params = {
                 queue_type_id:  item.id * 1,    //QueueTypeId 排队类型Id
-                queue_no: queue_no,      //QueueNo 排队号
+                queue_no: queue_no * 1,      //QueueNo 排队号
               }
               const res =  await api_money.reqQueueOverdue(params)
               if (res.code === 1) {
@@ -637,27 +673,76 @@ export default {
       this.queues = queues
       console.log('======this.typeList', this.typeList)
     },
-    filterQueue(queueType, queryStatus){
-      console.log('queueType, queryStatus', queueType, queryStatus)
-      if(queueType > 0 && queryStatus > 0) {
-        this.queues.map(queue => {
-          queue.show = (queue.status === queryStatus && queue.queue_type_id === queueType);
-        })
-      } else if (queueType > 0) {
-        this.queues.map(queue => {
-          queue.show = (queue.queue_type_id === queueType);
-        })
-      } else if (queryStatus > 0) {
-        this.queues.map(queue => {
-          queue.show = (queue.status === queryStatus);
-        })
-      } else {
-        this.queues.map(queue => {
-          queue.show = true
-        })
-      }
+    filterQueue(queueType, queryStatus, searchKeyword = ''){
+      console.log('queueType, queryStatus, searchKeyword', queueType, queryStatus, searchKeyword)
+      
+      const keyword = searchKeyword.trim();
+      
+      this.queues.map(queue => {
+        // 先判断类型和状态
+        let typeMatch = queueType > 0 ? queue.queue_type_id === queueType : true;
+        let statusMatch = queryStatus > 0 ? queue.status === queryStatus : true;
+        
+        // 判断搜索关键词
+        let searchMatch = true;
+        if (keyword) {
+          // 排队号码匹配（不区分大小写）
+          const queueNoMatch = queue.queue_no_name && 
+            queue.queue_no_name.toLowerCase().includes(keyword.toLowerCase());
+          
+          // 手机号匹配：支持完整手机号搜索和后4位搜索
+          const phoneMatch = queue.phone_num && 
+            (queue.phone_num.includes(keyword) || 
+             (keyword.length <= 4 && queue.phone_num.slice(-4).includes(keyword)));
+          
+          // 客户姓名匹配
+          const nameMatch = queue.name && 
+            queue.name.toLowerCase().includes(keyword.toLowerCase());
+          
+          searchMatch = queueNoMatch || phoneMatch || nameMatch;
+        }
+        
+        queue.show = typeMatch && statusMatch && searchMatch;
+      })
+      
       console.log('queues now', this.queues)
       this.queues = [...this.queues]
+    },
+
+    // 处理搜索
+    handleSearch() {
+      this.filterQueue(this.checkType, this.checkStatus, this.searchKeyword);
+    },
+
+    // 导出排队列表
+    async exportQueueList() {
+      const params = {
+        queue_type_id: this.checkType > 0 ? this.checkType * 1 : 0, // 排队类型Id, =0代表全部
+        status: this.checkStatus > 0 ? this.checkStatus * 1 : 0 // 状态, 0代表全部 1排队中 2已过号 3已取消 5已到店
+      }
+      try {
+        const res = await api_book.reqExportQueueList(params);
+        if (!res.msg) {
+          const url = window.URL.createObjectURL(
+            new Blob([res], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            })
+          );
+          const a = document.createElement("a");
+          document.body.appendChild(a);
+          a.href = url;
+          a.setAttribute("download", decodeURIComponent(res.fileName || "排队列表.xlsx"));
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          this.$message.success("导出成功");
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("导出排队列表失败", error);
+        this.$message.error("导出失败");
+      }
     }
 
   },
@@ -672,6 +757,9 @@ export default {
     showDrawer (newVal) {
       this.show = newVal;
       if (newVal) {
+        // 清空搜索条件
+        this.searchKeyword = '';
+        
         this.callback =  () => {
           this.getData();
         }
@@ -681,10 +769,10 @@ export default {
       }
     },
     checkType(newVal) {
-      this.filterQueue(newVal, this.checkStatus)
+      this.filterQueue(newVal, this.checkStatus, this.searchKeyword)
     },
     checkStatus(newVal) {
-      this.filterQueue(this.checkType, newVal)
+      this.filterQueue(this.checkType, newVal, this.searchKeyword)
     }
   },
   mixins: [cardPageMixins],

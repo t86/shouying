@@ -329,7 +329,13 @@ export default {
       
       // 计算已使用的滞留金总额
       const usedAmount = parseFloat(rechargeInfo.makeAmt) - remainingAmount;
-      this.$message.info(`使用滞留金 ¥${usedAmount.toFixed(2)}，剩余 ¥${remainingAmount.toFixed(2)} 需要扫码支付`);
+      
+      // 根据是否使用滞留金显示不同的提示信息
+      if (selectedDeposits && selectedDeposits.length > 0) {
+        this.$message.info(`使用滞留金 ¥${usedAmount.toFixed(2)}，剩余 ¥${remainingAmount.toFixed(2)} 需要扫码支付`);
+      } else {
+        console.log("未选择滞留金，直接进入扫码支付流程");
+      }
       
       // 注意：部分支付场景下，会先通过扫码完成剩余金额的支付
       // 然后在支付成功后，会使用滞留金ID作为deposit_cnl进行充值

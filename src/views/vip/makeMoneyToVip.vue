@@ -110,11 +110,11 @@
               }">
                 <span @click="printHandle(item)">重打小票</span>
                 <span 
-                  @click="item.b == 2 ? showOrHideModal($event, item) : null" 
-                  :class="{ 'disabled': item.b == 1 }"
-                  :title="item.b == 1 ? '已退款' : '退款'"
+                  @click="canRefund(item) ? showOrHideModal($event, item) : null" 
+                  :class="getRefundButtonClass(item)"
+                  :title="getRefundButtonTitle(item)"
                 >
-                  {{ item.b == 1 ? '已退款' : '退款' }}
+                  {{ getRefundButtonText(item) }}
                 </span>
                 <span @click="showChangeDepositSalesDialog(item)">修改充值推荐人</span>
               </div>
@@ -339,6 +339,46 @@ export default {
     hideChangeDepositSalesDialog() {
       this.showChangeDepositSalesDialogFlag = false;
       this.currentDepositInfo = {};
+    },
+    
+    // 判断是否可以退款
+    canRefund(item) {
+      // b: 1 已退款, 2 正常
+      // cb: 1 可以退款, 2 不可以退款
+      return item.b == 2 && item.cb == 1;
+    },
+    
+    // 获取退款按钮样式类
+    getRefundButtonClass(item) {
+      if (item.b == 1) {
+        return 'refunded'; // 已退款 - 红色
+      }
+      if (item.cb == 2) {
+        return 'disabled'; // 不可退款 - 置灰
+      }
+      return ''; // 可退款 - 默认蓝色
+    },
+    
+    // 获取退款按钮显示文本
+    getRefundButtonText(item) {
+      if (item.b == 1) {
+        return '已退款';
+      }
+      if (item.cb == 2) {
+        return '不可退款';
+      }
+      return '退款';
+    },
+    
+    // 获取退款按钮提示文本
+    getRefundButtonTitle(item) {
+      if (item.b == 1) {
+        return '已退款';
+      }
+      if (item.cb == 2) {
+        return '此充值记录不允许退款';
+      }
+      return '退款';
     },
     
     // 处理退款成功

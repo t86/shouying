@@ -24,6 +24,7 @@
       <p><strong>说明：</strong></p>
       <p>1. 点击即可选中使用当前滞留金，再次点击取消选中</p>
       <p>2. 选择的滞留金不得超过本次充值金额</p>
+      <p>3. 可以不选择滞留金，直接点击"支付"进入下一步</p>
     </div>
 
     <!-- 推荐滞留金 -->
@@ -69,7 +70,7 @@
     <!-- 底部按钮 -->
     <div slot="footer" class="dialog-footer">
       <el-button @click="onCancel">取消</el-button>
-      <el-button type="primary" @click="onConfirm" :disabled="selectedDeposits.length === 0">
+      <el-button type="primary" @click="onConfirm">
         支付
       </el-button>
     </div>
@@ -198,15 +199,16 @@ export default {
 
     // 确认
     onConfirm() {
-      if (this.selectedDeposits.length === 0) {
-        this.$message.warning("请选择要使用的滞留金");
-        return;
-      }
+      // 允许不选择滞留金，直接支付
+      // 如果没有选择滞留金，剩余金额就是全部充值金额
+      const remainingAmt = this.selectedDeposits.length === 0 
+        ? parseFloat(this.rechargeInfo.makeAmt || 0)
+        : parseFloat(this.remainingAmount);
 
       // 发射选择结果
       this.$emit("confirm", {
         selectedDeposits: this.selectedDeposits,
-        remainingAmount: parseFloat(this.remainingAmount),
+        remainingAmount: remainingAmt,
         rechargeInfo: this.rechargeInfo
       });
 

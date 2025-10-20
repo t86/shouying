@@ -134,4 +134,7 @@ export default {
 
   // 过号
   reqExpired: params => axios.post(`${base.htgl}/custq/expired`, params),
+
+  // 导出排队列表
+  reqExportQueueList: params => axios.binaryFilePost(`${base.htgl}/custq/exp_cust_queue_list`, params),
 }
