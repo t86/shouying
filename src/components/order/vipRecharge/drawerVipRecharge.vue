@@ -402,9 +402,6 @@ export default {
 
     // 处理自定义金额输入框点击 - 显示系统键盘
     handleAmountInputClick() {
-      if(this.selectedOptionIndex == -1) {
-        this.selectedOptionIndex = 0;
-      }
       this.keyboardShow('customAmountInput');
     },
 
@@ -547,9 +544,26 @@ export default {
             },
           ];
           
+          
+          // 🔧 规则为空时，至少添加一个"自定义"选项
+          if (this.rechargeOptions.length === 0) {
+            console.log("⚠️ 充值规则为空，添加默认自定义选项");
+            this.rechargeOptions = [
+              {
+                display_price: "自定义",
+                gift_amount: 0,
+                gift_text: "会员充值",
+                gift_points: 0,
+                gift_coupon: '',
+                rule_data: { d: "自定义", f: 0 },
+              }
+            ];
+          }
+          
           // 默认选中第一个充值选项
           if (this.rechargeOptions.length > 0) {
             this.selectedOptionIndex = 0;
+            console.log("✅ 已选中充值选项索引:", this.selectedOptionIndex, "选项:", this.rechargeOptions[0]);
           }
         }
       } catch (error) {
@@ -591,22 +605,7 @@ export default {
         } else {
           // 如果获取默认规则失败，提供基础的充值选项
           this.rechargeOptions = [
-            {
-              display_price: "100.00",
-              gift_amount: 0,
-              gift_text: "充100送0元",
-              gift_points: 0,
-              gift_coupon: '',
-              rule_data: { d: 10000, f: 0, fp: 0, fk: 0 }
-            },
-            {
-              display_price: "200.00",
-              gift_amount: 0,
-              gift_text: "充200送0元",
-              gift_points: 0,
-              gift_coupon: '',
-              rule_data: { d: 20000, f: 0, fp: 0, fk: 0 }
-            },
+
             {
               display_price: "自定义",
               gift_amount: 0,
