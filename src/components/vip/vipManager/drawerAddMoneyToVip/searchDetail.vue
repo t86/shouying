@@ -433,31 +433,35 @@ export default {
 .search-detail {
   border-top: 1px solid #b0b7c6;
   .form-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); // 🎯 两列布局
+    gap: 8px 20px; // 行间距8px，列间距20px
     border-bottom: 1px solid #b0b7c6;
     padding-bottom: 15px;
     margin-bottom: 20px;
     
-    // 小屏幕适配
+    // 小屏幕适配 - 改为单列
     @media (max-width: 900px) {
+      grid-template-columns: 1fr; // 单列
       padding-bottom: 12px;
       margin-bottom: 15px;
+      gap: 6px;
     }
     
-    // iPad 竖屏适配
+    // iPad 竖屏适配 - 改为单列
     @media (orientation: portrait) {
+      grid-template-columns: 1fr; // 单列
       padding-bottom: 10px;
       margin-bottom: 12px;
+      gap: 6px;
     }
 
     .row {
       font-size: 14px;
       display: flex;
-      width: 100%; // 🎯 改为单列布局，适配600px弹窗
+      width: 100%;
       min-height: 32px;
       align-items: center;
-      padding: 4px 0; // 增加垂直间距
 
       .label {
         width: 110px;
@@ -472,6 +476,7 @@ export default {
         color: #333;
         font-weight: 500;
         font-size: 14px;
+        word-break: break-all; // 防止长文本溢出
       }
     }
   }

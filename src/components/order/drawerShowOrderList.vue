@@ -344,13 +344,54 @@ export default {
           }
         });
       }
-      this.originTableData = resultNotPayData
+      // 应用权限过滤
+      const filteredData = this.applyPermissionFilter(resultNotPayData);
+      
+      this.originTableData = filteredData
       this.tableData = this.originTableData.map(item => ({
         ...item,
         checked: !item.oid
       }))
 
       this.sortOrderHandle()
+    },
+
+    // 应用权限过滤（与 myOrder 页面逻辑一致）
+    applyPermissionFilter(resultData) {
+      const userInfo = this.$store.state.userInfo;
+      
+      // 检查是否有全场赠送权限
+      const hasFullVenueGiftPermission = userInfo.sys_modules && userInfo.sys_modules.includes(12);
+      
+      // 检查全场赠送权限的子权限
+      let canViewCurrentTableConsumption = true; // 默认可以查看当台消费
+      if (hasFullVenueGiftPermission) {
+        // 检查是否有"可查看当台消费"权限
+        canViewCurrentTableConsumption = userInfo.sys_modules && userInfo.sys_modules.includes(98);
+      }
+      
+      // 【优先级最高】如果配置了"全场赠送 + 不可查看当台消费"，只显示本人点单的订单
+      const hasCannotViewPermission = hasFullVenueGiftPermission && !canViewCurrentTableConsumption;
+      
+      if (hasCannotViewPermission) {
+        console.log("买单页面应用权限过滤：只显示本人点单的订单");
+        // 只显示本人点单的订单
+        return resultData.filter(el => {
+          // 线上订单特殊处理
+          if (el.oid && el.resultNotPayData) {
+            // 线上订单包含多个子订单，过滤掉非本人点单的子订单
+            el.resultNotPayData = el.resultNotPayData.filter(item => item.wei == userInfo.emp_id);
+            // 如果过滤后还有订单，保留这个线上订单
+            return el.resultNotPayData.length > 0;
+          } else {
+            // 线下订单直接过滤
+            return el.wei == userInfo.emp_id;
+          }
+        });
+      }
+      
+      // 如果没有特殊权限限制，返回所有订单
+      return resultData;
     },
 
     // 订单排序

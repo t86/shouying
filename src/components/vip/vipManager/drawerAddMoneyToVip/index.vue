@@ -6,7 +6,7 @@
       :visible.sync="show"
       :before-close="onCancelDrawer"
       direction="rtl"
-      size="800px"
+      size="1000px"
       custom-class="vip-recharge-drawer-small"
     >
       <div class="session p-5">
@@ -302,8 +302,9 @@ export default {
 
     // 获取当前会员卡号
     getCurrentCardNo() {
-      if (this.currentInfo && this.currentInfo.card_no) {
-        return this.currentInfo.card_no;
+      if (this.currentInfo) {
+        // 兼容两种字段名格式：card_no（完整）和 c（缩写）
+        return this.currentInfo.card_no || this.currentInfo.c || "";
       }
       // 如果是刷卡进入，需要从其他地方获取卡号
       return "";
@@ -427,12 +428,13 @@ export default {
       this.currentSelectedLateDeposits = selectedLateDeposits;
       
       // 准备支付对话框所需的数据格式
+      // 注意：searchList 返回的字段是缩写（c, n, p），searchDetail 返回的字段是完整名称
       this.paymentDialogRechargeInfo = {
         member: {
           id: (this.currentInfo.id || this.vipIdOfSwiper) * 1,
-          card_no: this.currentInfo.card_no || "",
-          name: this.currentInfo.name || "",
-          bind_phone: this.currentInfo.bind_phone || ""
+          card_no: this.currentInfo.card_no || this.currentInfo.c || "",
+          name: this.currentInfo.name || this.currentInfo.n || "",
+          bind_phone: this.currentInfo.bind_phone || this.currentInfo.p || ""
         },
         depositAmount: makeAmt,
         freeAmount: freeAmt,

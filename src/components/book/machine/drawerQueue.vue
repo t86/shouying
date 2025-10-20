@@ -288,9 +288,7 @@ export default {
       let queue_no
       if (item.current_status * 1 === 1){
         queue_no = item.curr_num_id * 1
-      } else if (item.current_status * 1 === 2 || item.current_status * 1 === 5){
-        queue_no = item.wait_no * 1
-      } else if (item.current_status * 1 === 0){
+      } else {
         queue_no = item.wait_no * 1
       }
       this.showConfirmHandle(

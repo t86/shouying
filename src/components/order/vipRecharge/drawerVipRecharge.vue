@@ -304,6 +304,21 @@ export default {
       return this.selectedOptionIndex === this.rechargeOptions.length - 1;
     },
     canConfirmRecharge() {
+      const hasSelectedMember = !!this.selectedMember;
+      const hasSelectedOption = this.selectedOptionIndex >= 0;
+      const isCustom = this.isCustomAmount;
+      const hasValidAmount = !isCustom || (this.customAmount && parseFloat(this.customAmount) > 0);
+      
+      // 🔍 调试信息
+      console.log("🎯 [充值按钮状态] canConfirmRecharge 计算:");
+      console.log("  - hasSelectedMember:", hasSelectedMember, this.selectedMember);
+      console.log("  - hasSelectedOption:", hasSelectedOption, "selectedOptionIndex:", this.selectedOptionIndex);
+      console.log("  - isCustomAmount:", isCustom);
+      console.log("  - customAmount:", this.customAmount, typeof this.customAmount);
+      console.log("  - parseFloat(customAmount):", parseFloat(this.customAmount));
+      console.log("  - hasValidAmount:", hasValidAmount);
+      console.log("  - 最终结果:", hasSelectedMember && hasSelectedOption && hasValidAmount);
+      
       return (
         this.selectedMember &&
         this.selectedOptionIndex >= 0 &&
@@ -387,6 +402,9 @@ export default {
 
     // 处理自定义金额输入框点击 - 显示系统键盘
     handleAmountInputClick() {
+      if(this.selectedOptionIndex == -1) {
+        this.selectedOptionIndex = 0;
+      }
       this.keyboardShow('customAmountInput');
     },
 
@@ -958,10 +976,21 @@ export default {
 
 
     async confirmRecharge() {
+      console.log("🎯 [确认充值] 按钮被点击");
+      console.log("  - canConfirmRecharge:", this.canConfirmRecharge);
+      console.log("  - selectedMember:", this.selectedMember);
+      console.log("  - selectedOptionIndex:", this.selectedOptionIndex);
+      console.log("  - isCustomAmount:", this.isCustomAmount);
+      console.log("  - customAmount:", this.customAmount);
+      
       if (!this.canConfirmRecharge) {
+        console.warn("❌ [确认充值] 条件不满足，终止操作");
+        console.log("  - 请检查上面的调试信息，找出哪个条件未满足");
         return;
       }
 
+      console.log("✅ [确认充值] 条件满足，继续执行充值流程");
+      
       // 准备充值信息并跳转到支付方式选择
       const option = this.rechargeOptions[this.selectedOptionIndex];
       const isCustom = this.isCustomAmount;

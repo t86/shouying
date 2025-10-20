@@ -521,7 +521,7 @@ export default {
   .summary-content {
     .info-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       margin-bottom: 8px;
       font-size: 14px;
@@ -532,6 +532,7 @@ export default {
       
       .label {
         color: #666;
+        margin-right: 10px;
       }
       
       .value {

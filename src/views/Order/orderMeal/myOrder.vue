@@ -515,7 +515,7 @@ export default {
         canViewCurrentTableConsumption = true;
       }
       
-      // 【优先级最高】如果配置了"全场赠送 + 不可查看当台消费"，只显示自己赠送的商品
+      // 【优先级最高】如果配置了"全场赠送 + 不可查看当台消费"，只显示本人点单的订单
       const hasCannotViewPermission = hasFullVenueGiftPermission && !canViewCurrentTableConsumption;
       
       for (let i = 0; i < resultData.length; i++) {
@@ -523,11 +523,9 @@ export default {
         
         // 0. 全场赠送 + 不可查看当台消费权限判断（优先级最高）
         if (hasCannotViewPermission) {
-          // 只显示自己赠送的商品（优惠人是自己）
-          if (el.at == 2 || el.at == 3) { // 优惠或优惠2
-            if (el.ae == userInfo.emp_id) { // 优惠人是自己
-              authList.push(el);
-            }
+          // 只显示本人点单的订单（点单人是自己）
+          if (el.wei == userInfo.emp_id) {
+            authList.push(el);
           }
           continue; // 跳过所有其他权限判断
         }
