@@ -541,25 +541,25 @@ export default {
             continue;
           }
           
-          // 1.2 检查当前点单所在区域是否在督查权限范围内
-          // 使用当前选中的卡台ID，因为这个页面显示的是当前卡台的订单
-          const currentSeatId = this.$store.state.orderInfo.currentCardInfo.seatId;
-          const orderSeatId = el.si; // 订单记录中的卡台ID
-          const seatId = orderSeatId || currentSeatId; // 优先使用订单中的卡台ID，如果没有则使用当前卡台ID
-          
-          const cardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
-          const currentCard = cardInfo.find(card => card.id * 1 === seatId * 1);
-          const orderRegionId = currentCard ? currentCard.regionId : null;
-          
-          console.log("myOrder applyPermissionFilter - supervisor check:", {
-            currentSeatId,
-            orderSeatId,
-            finalSeatId: seatId,
-            orderRegionId, 
-            hasPermission: orderRegionId ? this.hasSupervisorRegionPermission(orderRegionId) : false,
-            cardFound: !!currentCard,
-            orderItem: el
-          });
+        // 1.2 检查当前点单所在区域是否在督查权限范围内
+        // "我的点单"页面显示的都是当前卡台的订单，直接使用当前卡台ID
+        const currentSeatId = this.$store.state.orderInfo.currentCardInfo.seatId;
+        const seatId = currentSeatId; // 使用当前卡台ID（注意：el.si 对于套餐是子商品数组，不是卡台ID）
+        
+        const cardInfo = this.$store.state.cardPageInfo.resResultDataObj.cardInfo || [];
+        const currentCard = cardInfo.find(card => card.id * 1 === seatId * 1);
+        const orderRegionId = currentCard ? currentCard.regionId : null;
+        
+        console.log("myOrder applyPermissionFilter - supervisor check:", {
+          currentSeatId,
+          seatId,
+          orderRegionId, 
+          hasPermission: orderRegionId ? this.hasSupervisorRegionPermission(orderRegionId) : false,
+          cardFound: !!currentCard,
+          orderItem: el,
+          isTaocan: (el.is == 1 || el.is == 2),
+          productInfo: el.productInfo
+        });
           
           if (orderRegionId && this.hasSupervisorRegionPermission(orderRegionId)) {
             console.log("myOrder - 督查有区域权限，添加订单");
