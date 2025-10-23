@@ -758,7 +758,7 @@ export default {
         auth_type: 2, // 授权类型: 1 需要授权 2 不需要授权
         value_type: 1, // 价值类型: 1 全有价 2 全免费 3 混合
         status: 1, // 状态: 1有效 3 删除
-        dsp: -3, // 显示顺序（排在线上付款之前）
+        dsp: 9999, // 显示顺序（排在最后）
       };
 
       // 门店设置的渠道
@@ -784,7 +784,7 @@ export default {
       let allPaymentMethods = [...payList, ...vipPayList, ...yudingPayList];
       
       // 添加线上收款方式（买单+滞留金）
-      allPaymentMethods.unshift(onlinePaymentChannelInfo);
+      allPaymentMethods.push(onlinePaymentChannelInfo);
       
       // 如果有滞留金，添加到列表中
       if (bookPayInfo.id) {
