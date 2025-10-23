@@ -881,21 +881,24 @@ export default {
 
     // 加入已选择好的支付渠道列表
     async addChooseList() {
+      console.log("=== addChooseList 被调用 ===");
+      console.log("当前支付方式:", this.payActiveInfo);
+      console.log("当前金额 count:", this.count, "类型:", typeof this.count);
+      console.log("金额验证条件: !this.count =", !this.count, ", payActiveInfo.id =", this.payActiveInfo.id);
+      
       if (!this.count && this.payActiveInfo.id != 5)
         return this.$message.warning("请输入金额");
       if (this.payActiveInfo.auth_type == 1) {
         // 抹零授权（先自己授权）
+        console.log("走授权流程");
         return this.selfAuth();
       }
       if (this.payActiveInfo.id == 500) {
         // 添加会员卡渠道
+        console.log("添加会员卡渠道");
         return this.addVipInfo();
       }
       
-      if (this.payActiveInfo.id == 9) {
-        // 线上付款（异步订单处理）
-        return this.handleOnlinePayment();
-      }
       try {
         let params = {
           id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //         int64   卡台Id
@@ -906,6 +909,9 @@ export default {
               : this.count.toString(), //    string   支付金额
           biz_id: 0, //  int64   当渠道为 预付金抵扣(202) 的时候,传预付金账户Id; 当渠道为 挂账账户 的时候,传挂账账户Id, 其他情况下传0
         };
+        
+        console.log("初始params:", params);
+        
         // 会员卡落单
         if (this.payActiveInfo.id == 5) {
           params = {
@@ -940,9 +946,15 @@ export default {
             card_no: this.isOrderGZ && this.GZInfo.selectInfo.gzValue == '2' ?  this.GZInfo.selectInfo.orderVal : bizItem ? '' : this.GZInfo.selectInfo.selectVal
           };
         }
+        
+        console.log("最终params:", params);
+        console.log("准备调用 reqAddPayListToShopping API");
         const res = await api_money.reqAddPayListToShopping(params);
+        console.log("API返回结果:", res);
+        
         if (res.code === 1) {
           this.$message.success("加入成功");
+          this.count = ""; // 清空金额输入
           this.vipPayInfo = {
             id: "", // 会员卡id
             cardNo: "", // 会员卡号
@@ -959,6 +971,7 @@ export default {
         }
       } catch (error) {
         console.log("加入选择好的支付渠道失败", error);
+        this.$message.error("操作失败: " + error.message);
       }
     },
 
