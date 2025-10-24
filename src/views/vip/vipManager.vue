@@ -249,13 +249,13 @@ export default {
       
       // 🔍 手机号搜索优化
       const keyword = this.form.keyword.trim();
-      if (keyword && this.isPhoneNumber(keyword)) {
-        console.log("🎯 [会员搜索] 检测到手机号搜索:", keyword);
-        if (keyword.length !== 11) {
-          this.$message.warning("请输入完整的11位手机号");
-          return;
-        }
-      }
+      // if (keyword && this.isPhoneNumber(keyword)) {
+      //   console.log("🎯 [会员搜索] 检测到手机号搜索:", keyword);
+      //   if (keyword.length !== 11) {
+      //     this.$message.warning("请输入完整的11位手机号");
+      //     return;
+      //   }
+      // }
       
       const params = {
         page_num: this.pageInfo.page, //   int   第几页
@@ -286,13 +286,19 @@ export default {
           }));
           
           // 🎯 搜索结果提示
-          if (keyword && this.isPhoneNumber(keyword)) {
-            console.log("🎯 [会员搜索] 手机号搜索结果数量:", this.tableData.length);
-            if (this.tableData.length === 0) {
-              this.$message.info("未找到该手机号对应的会员信息");
-            } else {
-              this.$message.success(`找到 ${this.tableData.length} 条相关会员信息`);
-            }
+          // if (keyword && this.isPhoneNumber(keyword)) {
+          //   console.log("🎯 [会员搜索] 手机号搜索结果数量:", this.tableData.length);
+          //   if (this.tableData.length === 0) {
+          //     this.$message.info("未找到该手机号对应的会员信息");
+          //   } else {
+          //     this.$message.success(`找到 ${this.tableData.length} 条相关会员信息`);
+          //   }
+          // }
+
+          if (this.tableData.length === 0) {
+            this.$message.info("未找到对应的会员信息");
+          } else {
+            this.$message.success(`找到 ${this.tableData.length} 条相关会员信息`);
           }
         } else {
           this.$message.warning(res.msg);
