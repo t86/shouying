@@ -49,7 +49,7 @@
                   <button v-if="item.id && item.disabled && index != 0" class="btn mini info m-l-2" @click="item.disabled=false">编辑</button>
                 </div>
                 <div class="td" layout="row" layout-align="start center">
-                  <span class="default">{{item.coupon_name}}</span>
+                  <span class="default">{{item.coupon_name || '未配置'}}</span>
                   <button  v-if="item.id && item.disabled && index != 0" class="btn mini info m-l-2" @click="editCoupon(item)">编辑</button>
                 </div>
               </div>
@@ -144,7 +144,7 @@
                 <span>赠送卡券或礼包:</span>
               </div>
               <div>
-                <div>{{this.selectCoupon ? this.selectCoupon.n + "-" + this.selectCoupon.tn : ''}}</div>
+                <div>{{(this.selectCoupon && this.selectCoupon.n && this.selectCoupon.tn) ? (this.selectCoupon.n + "-" + this.selectCoupon.tn) : '未配置'}}</div>
                 <el-button size="mini" type="primary" @click="addCoupon">添加</el-button>
               </div>
             </div>
@@ -330,7 +330,7 @@ export default {
         for(let item of this.cardInfoList) {
           if (this.couponEditId === item.id) {
             item.coupon_id = this.selectCoupon.id
-            item.coupon_name = this.selectCoupon.n
+            item.coupon_name = (this.selectCoupon.n && this.selectCoupon.tn) ? (this.selectCoupon.n + "-" + this.selectCoupon.tn) : ''
             break
           }
         }
@@ -699,8 +699,8 @@ export default {
             disabled: true,
             bgiName: bgiName,
             experince: this.experince * 1,
-            coupon_id: this.selectCoupon.id,
-            coupon_name: this.selectCoupon.name,
+            coupon_id: this.selectCoupon.id || 0,
+            coupon_name: (this.selectCoupon.n && this.selectCoupon.tn) ? (this.selectCoupon.n + "-" + this.selectCoupon.tn) : '',
           }]
           console.log('add vip type card info list:', this.cardInfoList)
         } else {
@@ -802,6 +802,12 @@ export default {
         // 会员卡等级
         if(!this.formDeep.deepName && this.subStatus == 1) return this.$message.warning('请输入会员卡等级')
         if(!this.activeBgiUid) return this.$message.warning('请选择会员卡背景图')
+        // 验证等级经验值（当开启自动升级时，且是新增等级操作）
+        if(this.autoUpgradeEnabled && (this.subStatus == 1 || this.subStatus == 3)) {
+          if(!this.experince || this.experince <= 0) {
+            return this.$message.warning('请输入等级经验值')
+          }
+        }
         const bgiInfo = this.defaultBgiImgList.find(item => item.uid == this.activeBgiUid) || this.uploadBgiImgList.find(item => item.uid == this.activeBgiUid)
         if(this.subStatus == 1 || this.subStatus == 3) {
           // try {
