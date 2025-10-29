@@ -401,6 +401,7 @@ export default {
       this.resetData()
     },
     async saveExperience() {
+    console.log('save experience', this.cardInfoList)
       const params = {
           id: this.editInfo.id,
           ls: this.cardInfoList.filter(i => i.d != 1).map(i => i.id),
@@ -692,6 +693,16 @@ export default {
         if (res.code == 1) {
           // return res.data.id
           this.$message.success('新建等级成功')
+          this.cardInfoList = [...this.cardInfoList, {
+            id: res.data.id,
+            name: deepName,
+            disabled: true,
+            bgiName: bgiName,
+            experince: this.experince * 1,
+            coupon_id: this.selectCoupon.id,
+            coupon_name: this.selectCoupon.name,
+          }]
+          console.log('add vip type card info list:', this.cardInfoList)
         } else {
           this.$message.warning(res.msg)
         }
@@ -806,15 +817,6 @@ export default {
           // }
 
           await this.addVipDeep(this.formDeep.deepName, bgiInfo.name)
-            
-          let id = +new Date()
-          this.cardInfoList = [...this.cardInfoList, {
-            id,
-            name: this.formDeep.deepName,
-            disabled: true,
-            bgiName: bgiInfo.name,
-            experince: this.experince * 1,
-          }]
         } else if (this.subStatus == 2) {
           // 修改等级封面
           const cardInfoList = [...this.cardInfoList]
