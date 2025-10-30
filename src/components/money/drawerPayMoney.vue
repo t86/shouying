@@ -38,7 +38,7 @@
         </div>
         <!-- 输入金额 -->
         <div class="center">
-          <div class="center-top" layout="row" layout-align="center center" v-if="payActiveInfo.id != 10">
+          <div class="center-top" layout="row" layout-align="center center" v-if="payActiveInfo.id != 1000">
             <div
               class="center-top-left"
               layout="row"
@@ -50,7 +50,7 @@
           </div>
 
           <!-- 线上收款（买单+滞留金） -->
-          <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 10">
+          <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 1000">
             <onlinePaymentChannel 
               @showBuyOrder="handleShowBuyOrder" 
               @showBookAmt="handleShowBookAmt" 
@@ -420,7 +420,7 @@
             </p>
           </div>
           <div
-            v-if="![9999, 202, 10].includes(payActiveInfo.id * 1)"
+            v-if="![9999, 202, 1000].includes(payActiveInfo.id * 1)"
             class="center-bottom"
             layout="row"
             layout-align="center center"
@@ -752,7 +752,7 @@ export default {
 
       // 线上收款（买单+滞留金）
       const onlinePaymentChannelInfo = {
-        id: 10, // 渠道id - 线上收款
+        id: 1000, // 渠道id - 线上收款（使用1000避免与后台渠道ID冲突，特别是抹零的ID 10）
         name: "线上收款", //  渠道名称
         pay_type: 1, // 支付类型: 1 联动渠道 2 不联动渠道(只落单)
         auth_type: 2, // 授权类型: 1 需要授权 2 不需要授权
