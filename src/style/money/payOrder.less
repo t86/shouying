@@ -204,15 +204,16 @@
       >span {
         position: absolute;
         z-index: 9;
-        top:10px;
+        top: 14px; // 调整垂直位置，让按钮居中
         right: 0;
-        padding: 10px 16px;
+        padding: 0 16px; // 移除垂直内边距，减少容器高度
         flex-wrap: wrap;
         background: #222d47;
         // background: linear-gradient(to bottom, #222d47 0%, #182037 100%);
         border-radius: 20px 20px 0 0;
         display: flex;
         align-items: center;
+        height: 32px; // 固定高度，与按钮一致
         
         // 固定的"全部消费"按钮
         .fixed-all-consume-pay {
