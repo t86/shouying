@@ -10,13 +10,22 @@
       >
         <li
           :class="{ active: turnOverInfo.activeTurnOverCount == item.id }"
-          v-for="(item, index) in turnOverInfo.turnOverTabList"
+          v-for="(item, index) in turnOverInfo.turnOverTabList.slice(0, -1)"
           :key="index"
           @click.stop="changeTab('turnOverCount', item.id)"
         >
           {{ item.name }}
         </li>
       </ul>
+      <!-- 固定的"全部消费"按钮 -->
+      <div 
+        class="fixed-all-consume"
+        v-if="turnOverInfo.turnOverTabList.length > 0"
+        :class="{ active: turnOverInfo.activeTurnOverCount == turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].id }"
+        @click.stop="changeTab('turnOverCount', turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].id)"
+      >
+        {{ turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].name }}
+      </div>
     </div>
     <!-- 订单详情 -->
     <div
@@ -41,14 +50,25 @@
             {{ item.name }}
           </li>
         </ul>
-        <div layout="row" layout-align="end center" v-if="showEmp && bindGuestOpen"  style="padding: 10px 10px;">
+        
+        <span v-if="showEmp && bindGuestOpen">
+          <!-- 固定的"全部消费"按钮 -->
+          <div 
+            class="fixed-all-consume-pay"
+            v-if="payTabInfo.payTabList.length > 0"
+            :class="{ active: payTabInfo.activePayId == -1 }"
+            @click.stop="changeTab('order', -1)"
+          >
+            全部消费
+          </div>
+          
           <span style="font-weight: 400; width: 150px;font-size: 16px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">客人：{{ customName || '-'}}</span>
           <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
           <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
             <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
             <div class="bind-emp-text">修改</div>
           </div>
-        </div>
+        </span>
 
           
       </div>
@@ -701,6 +721,10 @@ export default {
             i.toString().padStart(3, 0),
         });
       }
+      
+      console.log('🔴 初始化翻台列表 - turnoverCnt:', turnoverCnt);
+      console.log('🔴 初始化翻台列表 - tabList:', tabList);
+      
       this.turnOverInfo.turnOverTabList = tabList;
       this.turnOverInfo.activeTurnOverCount = turnoverCnt;
       // 存储初始化tab数据
@@ -716,6 +740,11 @@ export default {
         const turnOverTabDom = this.$refs.turnOverTabRef;
         const offsetWidth = turnOverTabDom.offsetWidth - 16; // 16的padding
         const maxCountOfOneLine = Math.floor(offsetWidth / turnOverTabWidth);
+        
+        console.log('🔴 sortTurnOverTab - offsetWidth:', offsetWidth);
+        console.log('🔴 sortTurnOverTab - maxCountOfOneLine:', maxCountOfOneLine);
+        console.log('🔴 sortTurnOverTab - turnOverTabList.length:', turnOverTabList.length);
+        
         if (turnOverTabList.length > maxCountOfOneLine) {
           const index = turnOverTabList.findIndex((item) => item.id === id);
           const resultTurnOverTabList = JSON.parse(
@@ -730,7 +759,10 @@ export default {
             name: "其它",
           });
 
+          console.log('🔴 sortTurnOverTab - 最终列表:', resultTurnOverTabList);
           this.turnOverInfo.turnOverTabList = resultTurnOverTabList;
+        } else {
+          console.log('🔴 sortTurnOverTab - 列表长度不够，不需要排序');
         }
       }, 200);
     },
@@ -786,10 +818,11 @@ export default {
 
       // 拼接全部结账数据
       // if (hasPayed) {
-      payTabList.unshift({
-        name: `全部消费`,
-        id: "-1",
-      });
+      // "全部消费"现在是固定按钮，不需要加到列表里
+      // payTabList.unshift({
+      //   name: `全部消费`,
+      //   id: "-1",
+      // });
       this.cardAllOrderInfo.push(allOrderInfo);
       // }
 
@@ -2177,6 +2210,9 @@ export default {
   },
   created() {},
   mounted() {
+    console.log('🔴 payOrder mounted - 开始初始化');
+    console.log('🔴 turnOverTabList:', this.turnOverInfo.turnOverTabList);
+    
     this.getMenuInfo();
     this.init();
     document.body.addEventListener("click", () => {
