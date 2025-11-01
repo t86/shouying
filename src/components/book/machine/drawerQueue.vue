@@ -6,136 +6,144 @@
       :before-close="closeDrawerHandle"
       direction="rtl"
       size="90%"
+      class="queue-drawer"
     >
-    <el-tabs v-model="activeTab" @tab-click="handleClick" class="tab-list" >
-      <el-tab-pane label="排队叫号" name="1" class="tab-pane">
-        <div class="table">
-          <div class="content">
-            <div class="thead">
-              <div class="tr">
-                <div class="th w120" style="background-color: #182037;">类型</div>
-                <div class="th w120">当前叫号</div>
-                <div class="th w120">当前取号</div>
-                <div class="th w120">等待桌数</div>
-                <div class="th w120">等待叫号</div>
-                <div class="th w200">操作</div>
-              </div>
-            </div>
-            <div class="tbody" ref="scrollDom">
-              <div
-                  v-if="typeList.length==0"
-                  style="text-align:center;transform:translateY(40px)"
-              >暂无数据</div>
-              <div v-else ref="scrollItem">
-                <div class="coll" v-for="(item,i) in typeList" :key="i">
-                  <div class="detail tr">
-                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.name}}</div>
-                    <div class="td w120">{{item.curr_num}}</div>
-                    <div class="td w120">{{item.num}}</div>
-                    <div class="td w120">{{item.num_cnt}}</div>
-                    <div class="td w120">{{item.wait}}</div>
-                    <div class="td">
-                      <div class="action">
-<!--                        <el-button  key="1" type="primary" :disabled="!item.canCall" class="btn" size="medium" @click="call(item)">叫号</el-button>-->
-                        <div class="btn"
-                             :class="{ active: item.canCall }"
-                             @click.stop="call(item)">
-                          <span>叫号</span>
+      <div class="drawer-content-wrapper">
+        <div class="drawer-tabs-wrapper">
+          <el-tabs v-model="activeTab" @tab-click="handleClick" class="tab-list" >
+            <el-tab-pane label="排队叫号" name="1" class="tab-pane">
+              <div class="table-wrapper">
+                <div class="table">
+                  <div class="content">
+                    <div class="thead">
+                      <div class="tr">
+                        <div class="th w120" style="background-color: #182037;">类型</div>
+                        <div class="th w120">当前叫号</div>
+                        <div class="th w120">当前取号</div>
+                        <div class="th w120">等待桌数</div>
+                        <div class="th w120">等待叫号</div>
+                        <div class="th w200">操作</div>
+                      </div>
+                    </div>
+                    <div class="tbody" ref="scrollDom" :class="{ 'no-data-scroll': typeList.length === 0 }">
+                      <div
+                          v-if="typeList.length==0"
+                          style="text-align:center;transform:translateY(40px)"
+                      >暂无数据</div>
+                      <div v-else ref="scrollItem">
+                        <div class="coll" v-for="(item,i) in typeList" :key="i">
+                          <div class="detail tr">
+                            <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.name}}</div>
+                            <div class="td w120">{{item.curr_num}}</div>
+                            <div class="td w120">{{item.num}}</div>
+                            <div class="td w120">{{item.num_cnt}}</div>
+                            <div class="td w120">{{item.wait}}</div>
+                            <div class="td">
+                              <div class="action">
+  <!--                        <el-button  key="1" type="primary" :disabled="!item.canCall" class="btn" size="medium" @click="call(item)">叫号</el-button>-->
+                                <div class="btn"
+                                     :class="{ active: item.canCall }"
+                                     @click.stop="call(item)">
+                                  <span>叫号</span>
+                                </div>
+
+                                <div class="btn"
+                                     :class="{ active: item.canEnter }"
+                                     @click.stop="enter(item)">
+                                  <span>进店</span>
+                                </div>
+
+
+                                <div class="btn"
+                                     :class="{ active: item.canOverdue }"
+                                     @click.stop="overdue(item)">
+                                  <span>过号</span>
+                                </div>
+
+  <!--                        <el-button key="2" type="primary" :disabled="!item.canEnter"  class="btn" size="medium" @click="enter(item)">进店</el-button>-->
+  <!--                        <el-button key="3" type="primary" :disabled="!item.canOverdue"  class="btn" size="medium" @click="overdue(item)">过号</el-button>-->
+                              </div>
+                            </div>
+                          </div>
                         </div>
-
-                        <div class="btn"
-                             :class="{ active: item.canEnter }"
-                             @click.stop="enter(item)">
-                          <span>进店</span>
-                        </div>
-
-
-                        <div class="btn"
-                             :class="{ active: item.canOverdue }"
-                             @click.stop="overdue(item)">
-                          <span>过号</span>
-                        </div>
-
-<!--                        <el-button key="2" type="primary" :disabled="!item.canEnter"  class="btn" size="medium" @click="enter(item)">进店</el-button>-->
-<!--                        <el-button key="3" type="primary" :disabled="!item.canOverdue"  class="btn" size="medium" @click="overdue(item)">过号</el-button>-->
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="排队列表" name="2" class="tab-pane">
-        <div class="header">
-          <div class="queue-type-layout">
-            <div class="label">排队类型：</div>
-            <div class="btn" v-for="(item, index) in typeList" :key="index" @click="onTypeClick(item)" :class="{'btn-selected': item.id === checkType}">{{ item.name }}</div>
+            </el-tab-pane>
+            <el-tab-pane label="排队列表" name="2" class="tab-pane">
+              <div class="tab-content-wrapper">
+                <div class="header">
+                  <div class="queue-type-layout">
+                    <div class="label">排队类型：</div>
+                    <div class="btn" v-for="(item, index) in typeList" :key="index" @click="onTypeClick(item)" :class="{'btn-selected': item.id === checkType}">{{ item.name }}</div>
 
-          </div>
-          <div class="queue-status-layout">
-            <div class="label">状态：</div>
-            <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="{'btn-selected': item.id === checkStatus}">{{ item.name }}</div>
-          </div>
-          <div class="search-export-layout">
-            <el-input
-              v-model="searchKeyword"
-              placeholder="支持排队号码、手机号或者昵称"
-              size="small"
-              clearable
-              @clear="handleSearch"
-              @keyup.enter.native="handleSearch"
-              style="width: 280px;"
-            ></el-input>
-            <el-button type="primary" size="small" @click="handleSearch" style="margin-left: 10px;">查询</el-button>
-            <el-button type="primary" size="small" @click="exportQueueList" style="margin-left: 10px;">导出</el-button>
-          </div>
-        </div>
+                  </div>
+                  <div class="queue-status-layout">
+                    <div class="label">状态：</div>
+                    <div class="btn" v-for="(item, index) in statusList" :key="index" @click="onStatusClick(item)" :class="{'btn-selected': item.id === checkStatus}">{{ item.name }}</div>
+                  </div>
+                  <div class="search-export-layout">
+                    <el-input
+                      v-model="searchKeyword"
+                      placeholder="支持排队号码、手机号或者昵称"
+                      size="small"
+                      clearable
+                      @clear="handleSearch"
+                      @keyup.enter.native="handleSearch"
+                      style="width: 280px;"
+                    ></el-input>
+                    <el-button type="primary" size="small" @click="handleSearch" style="margin-left: 10px;">查询</el-button>
+                    <el-button type="primary" size="small" @click="exportQueueList" style="margin-left: 10px;">导出</el-button>
+                  </div>
+                </div>
 
-        <div class="table">
-          <div class="content">
-            <div class="thead">
-              <div class="tr">
-                <div class="th w120" style="background-color: #182037;">排队号码</div>
-                <div class="th w120">排队类型</div>
-                <div class="th w120">客户姓名</div>
-                <div class="th w120">前方桌数</div>
-                <div class="th w120">状态</div>
-                <div class="th w120">电话</div>
-                <div class="th w200">等待时间</div>
-                <div class="th w200">取号时间</div>
-              </div>
-            </div>
-            <div class="tbody" ref="scrollDom">
-              <div
-                  v-if="queues.length===0"
-                  style="text-align:center;transform:translateY(40px)"
-              >暂无数据</div>
-              <div v-else ref="scrollItem">
-                <div class="coll" v-for="(item,i) in queues" :key="i" :style="{ display: item.show ? '' : 'none'}">
-                  <div class="detail tr">
-                    <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no_name}}</div>
-                    <div class="td w120">{{item.queue_name}}</div>
-                    <div class="td w120">{{item.name}}</div>
-                    <div class="td w120">{{item.desk_cnt}}</div>
-                    <div class="td w120">{{item.status_name}}</div>
-                    <div class="td w120">{{item.phone_num}}</div>
-                    <div class="td w200">{{item.wait_time_t }}</div>
-                    <div class="td w200">{{item.obtain_time_t}}</div>
+                <div class="table">
+                  <div class="content">
+                    <div class="thead">
+                      <div class="tr">
+                        <div class="th w120" style="background-color: #182037;">排队号码</div>
+                        <div class="th w120">排队类型</div>
+                        <div class="th w120">客户姓名</div>
+                        <div class="th w120">前方桌数</div>
+                        <div class="th w120">状态</div>
+                        <div class="th w120">电话</div>
+                        <div class="th w200">等待时间</div>
+                        <div class="th w200">取号时间</div>
+                      </div>
+                    </div>
+                    <div class="tbody" ref="scrollDom" :class="{ 'no-data-scroll': queues.length === 0 }">
+                      <div
+                          v-if="queues.length===0"
+                          style="text-align:center;transform:translateY(40px)"
+                      >暂无数据</div>
+                      <div v-else ref="scrollItem">
+                        <div class="coll" v-for="(item,i) in queues" :key="i" :style="{ display: item.show ? '' : 'none'}">
+                          <div class="detail tr">
+                            <div class="td w120" :style=" {backgroundColor : i % 2== 0 ? '#202c42' : '#293449'}">{{item.queue_no_name}}</div>
+                            <div class="td w120">{{item.queue_name}}</div>
+                            <div class="td w120">{{item.name}}</div>
+                            <div class="td w120">{{item.desk_cnt}}</div>
+                            <div class="td w120">{{item.status_name}}</div>
+                            <div class="td w120">{{item.phone_num}}</div>
+                            <div class="td w200">{{item.wait_time_t }}</div>
+                            <div class="td w200">{{item.obtain_time_t}}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </el-tab-pane>
+          </el-tabs>
         </div>
-      </el-tab-pane>
 
-    </el-tabs>
-
-      <!-- 提交按钮 -->
-      <div class="form-btn" layout="row" layout-align="center center">
-        <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+        <!-- 提交按钮 -->
+        <div class="form-btn" layout="row" layout-align="center center">
+          <el-button type="info" @click="onCancelDrawer">关闭</el-button>
+        </div>
       </div>
     </el-drawer>
   </div>

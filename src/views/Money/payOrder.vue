@@ -51,7 +51,7 @@
           </li>
         </ul>
         
-        <span v-if="showEmp && bindGuestOpen">
+        <span v-if="showEmp && bindGuestOpen" ref="rightInfoRef">
           <!-- 固定的"全部消费"按钮 -->
           <div 
             class="fixed-all-consume-pay"
@@ -835,22 +835,71 @@ export default {
 
       setTimeout(() => {
         const payTableRef = this.$refs.payTableRef;
-        const offsetWidth = payTableRef.offsetWidth - 32 - 200; // padding占据32px
+        if (!payTableRef) return;
+        
+        // 获取父容器（order-content-tab）的宽度
+        const parentContainer = payTableRef.parentElement;
+        if (!parentContainer) return;
+        
+        const containerWidth = parentContainer.offsetWidth;
+        
+        // 根据屏幕尺寸动态调整默认宽度
+        let defaultRightWidth = 570;
+        if (window.innerWidth <= 900) {
+          defaultRightWidth = 350; // 小屏幕
+        } else if (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) {
+          defaultRightWidth = 400; // 竖屏
+        }
+        
+        // 动态获取右侧区域的宽度
+        let rightAreaWidth = defaultRightWidth;
+        if (this.$refs.rightInfoRef && this.showEmp && this.bindGuestOpen) {
+          const actualWidth = this.$refs.rightInfoRef.offsetWidth;
+          if (actualWidth > 0) {
+            rightAreaWidth = actualWidth;
+          }
+        }
+        
+        // 计算可用宽度：容器宽度 - 右侧区域宽度 - ul的padding（左右各12px）
+        const offsetWidth = containerWidth - rightAreaWidth - 24;
         const maxCountOfOneLine = Math.floor(offsetWidth / payTabWidth);
-        console.log('sortTab', maxCountOfOneLine, this.payTabInfo.payTabList.length, offsetWidth, payTableRef.offsetWidth)
-        if (this.payTabInfo.payTabList.length > maxCountOfOneLine) {
-          // 换行
-          this.payTabInfo.payTabList.splice(maxCountOfOneLine - 1, 0, {
+        
+        console.log('sortTab', {
+          maxCountOfOneLine, 
+          totalCount: this.payTabInfo.payTabList.length, 
+          offsetWidth, 
+          containerWidth,
+          rightAreaWidth,
+          payTabWidth
+        });
+        
+        if (this.payTabInfo.payTabList.length > maxCountOfOneLine && maxCountOfOneLine > 0) {
+          // 换行，添加"其它"按钮
+          // 先移除可能存在的"其它"按钮
+          const otherIndex = this.payTabInfo.payTabList.findIndex(item => item.id == "-2");
+          if (otherIndex > -1) {
+            this.payTabInfo.payTabList.splice(otherIndex, 1);
+          }
+          
+          // 在合适位置插入"其它"按钮
+          const insertIndex = Math.max(1, maxCountOfOneLine - 1);
+          this.payTabInfo.payTabList.splice(insertIndex, 0, {
             name: `其它`,
             id: "-2",
           });
+          
           this.payTabInfo.showPayTabList = this.payTabInfo.payTabList.slice(
             0,
             maxCountOfOneLine
           );
           this.payTabInfo.otherIndex = maxCountOfOneLine;
         } else {
-          this.payTabInfo.showPayTabList = this.payTabInfo.payTabList
+          // 不需要"其它"按钮，移除可能存在的
+          const otherIndex = this.payTabInfo.payTabList.findIndex(item => item.id == "-2");
+          if (otherIndex > -1) {
+            this.payTabInfo.payTabList.splice(otherIndex, 1);
+          }
+          this.payTabInfo.showPayTabList = this.payTabInfo.payTabList;
           this.payTabInfo.otherIndex = this.payTabInfo.payTabList.length;
         }
       }, 200);
@@ -2234,6 +2283,61 @@ export default {
 
     document.onkeydown = this.keyHandle;
     document.onkeyup = this.keyHandle;
+    
+    // 监听窗口大小改变，重新计算tab布局
+    this.handleResize = () => {
+      if (this.payTabInfo && this.payTabInfo.payTabList && this.payTabInfo.payTabList.length > 0) {
+        // 重新计算tab布局
+        setTimeout(() => {
+          const payTableRef = this.$refs.payTableRef;
+          if (!payTableRef) return;
+          
+          const parentContainer = payTableRef.parentElement;
+          if (!parentContainer) return;
+          
+          const containerWidth = parentContainer.offsetWidth;
+          // 根据屏幕尺寸动态调整默认宽度
+          let defaultRightWidth = 570;
+          if (window.innerWidth <= 900) {
+            defaultRightWidth = 350; // 小屏幕
+          } else if (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) {
+            defaultRightWidth = 400; // 竖屏
+          }
+          
+          let rightAreaWidth = defaultRightWidth;
+          if (this.$refs.rightInfoRef && this.showEmp && this.bindGuestOpen) {
+            const actualWidth = this.$refs.rightInfoRef.offsetWidth;
+            if (actualWidth > 0) {
+              rightAreaWidth = actualWidth;
+            }
+          }
+          
+          const offsetWidth = containerWidth - rightAreaWidth - 24;
+          const maxCountOfOneLine = Math.floor(offsetWidth / payTabWidth);
+          
+          if (this.payTabInfo.payTabList.length > maxCountOfOneLine && maxCountOfOneLine > 0) {
+            const otherIndex = this.payTabInfo.payTabList.findIndex(item => item.id == "-2");
+            if (otherIndex === -1) {
+              const insertIndex = Math.max(1, maxCountOfOneLine - 1);
+              this.payTabInfo.payTabList.splice(insertIndex, 0, {
+                name: `其它`,
+                id: "-2",
+              });
+            }
+            this.payTabInfo.showPayTabList = this.payTabInfo.payTabList.slice(0, maxCountOfOneLine);
+            this.payTabInfo.otherIndex = maxCountOfOneLine;
+          } else {
+            const otherIndex = this.payTabInfo.payTabList.findIndex(item => item.id == "-2");
+            if (otherIndex > -1) {
+              this.payTabInfo.payTabList.splice(otherIndex, 1);
+            }
+            this.payTabInfo.showPayTabList = this.payTabInfo.payTabList;
+            this.payTabInfo.otherIndex = this.payTabInfo.payTabList.length;
+          }
+        }, 100);
+      }
+    };
+    window.addEventListener('resize', this.handleResize);
   },
   mixins: [navPrdList],
   components: {
@@ -2323,6 +2427,10 @@ export default {
     document.onkeydown = null;
     document.onkeyup = null;
     downKeyCode = [0, 0];
+    // 移除窗口大小改变监听
+    if (this.handleResize) {
+      window.removeEventListener('resize', this.handleResize);
+    }
   },
 };
 </script>

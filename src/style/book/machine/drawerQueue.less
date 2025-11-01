@@ -1,14 +1,75 @@
+// Drawer 布局样式 - 固定顶部tabs和底部按钮，只滚动内容
+/deep/ .queue-drawer .el-drawer__body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.drawer-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.drawer-tabs-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
 .tab-list {
   // background-color: #34495e;
   border-radius: 4px;
   margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/deep/ .tab-list .el-tabs__header {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 20px;
+}
+
+/deep/ .tab-list .el-tabs__content {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .tab-pane {
   color: #bfcbd9;
-  padding: 10px 20px;
+  padding: 0;
   border-radius: 4px;
   transition: background-color 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// 第一个tab的表格包装器
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+// 第二个tab的内容包装器
+.tab-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 
@@ -25,6 +86,12 @@
 }
 /deep/.el-tabs__nav-wrap::after {
   display: none;
+}
+
+.header {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: transparent;
 }
 
 .queue-type-layout,.queue-status-layout {
@@ -80,24 +147,32 @@
 }
 
 .table {
-  // width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   width: calc(100% - 40px);
   margin: 0 20px;
   //font-size: 14px;
   color: #fff;
-  overflow-x: auto;
 
   .content {
-    //min-width: 2300px;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .thead {
+    flex-shrink: 0;
     position: sticky;
     top: 0;
     background: #182037;
     // background: linear-gradient(180deg, #182037 0%, #11182D 100%);
     border-radius: 10px 10px 0 0;
     color: rgba(255, 255, 255, .5);
+    z-index: 10;
 
     .tr {
       position: relative;
@@ -109,11 +184,21 @@
   }
 
   .tbody {
-    height: calc(100vh - 320px);
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
     color: rgba(255, 255, 255, .8);
+    min-height: 0;
 
     .coll:nth-child(2n) {
       background-color: #293449;
+    }
+    
+    // 无数据时禁用滚动
+    &.no-data-scroll {
+      overflow: hidden;
+      height: auto;
+      max-height: none;
     }
   }
 
@@ -170,4 +255,14 @@ height: 32px;
 border-radius: 8px;
 border-color: rgba(255, 255, 255, 0.15);
 background-color: rgba(0, 0, 0, 0.2);
+}
+
+// 底部关闭按钮固定
+.form-btn {
+  flex-shrink: 0;
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #202c42;
+  text-align: center;
+  z-index: 100;
 }
