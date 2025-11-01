@@ -106,7 +106,7 @@
 
     <div class="card-name-top2" ref="cardNameTop2" v-if="bindGuestOpen">
       <div class="card-name-title" ref="cardNameTitle" v-if="displayCustName !== '' " @click="bindGuest">
-        <span style="font-size: 16px; margin-right: 3px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{ displayCustName }}</span>
+        <span style="font-size: 16px; margin-right: 10px; cursor: pointer; color:  rgba(59, 130, 246, 0.8)">{{ displayCustName }}</span>
       </div>
       <div  class="bind-guest" v-else @click="bindGuest">
         <img :src="require('@/assets/card-imgs/bangdingfuwuyuan.png')" style="width: 16px;height: 16px" alt />
