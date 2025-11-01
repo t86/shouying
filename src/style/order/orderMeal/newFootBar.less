@@ -11,12 +11,26 @@
   padding: 0 10px;
   box-sizing: border-box;
   z-index: 100;
+  overflow: visible !important;
+
+  > div {
+    overflow: visible !important;
+    
+    > div {
+      overflow: visible !important;
+      
+      > div {
+        overflow: visible !important;
+      }
+    }
+  }
 
   .bind-emp,.author{
     flex-grow: 1;
     font-size: 14px;
     color: #08080A;
     margin-right: 10px;
+    overflow: visible;
   }
   .item-img {
     margin-left: 10px;
@@ -477,13 +491,18 @@
   display: flex;
   align-items: center;
   min-width: 80%;
+  overflow: visible !important;
+  
+  * {
+    overflow: visible !important;
+  }
 }
 
 .new-one-txt-cut {
   display: flex;
   flex-direction: column;
   margin-right: 8px;
-  overflow: visible;
+  overflow: visible !important;
 
 
   .new-one-txt-title {

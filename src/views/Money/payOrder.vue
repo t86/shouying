@@ -17,7 +17,7 @@
           {{ item.name }}
         </li>
       </ul>
-      <!-- 固定的"全部消费"按钮 -->
+
       <div 
         class="fixed-all-consume"
         v-if="turnOverInfo.turnOverTabList.length > 0"
@@ -51,23 +51,24 @@
           </li>
         </ul>
         
-        <span v-if="showEmp && bindGuestOpen" ref="rightInfoRef">
+        <span ref="rightInfoRef">
           <!-- 固定的"全部消费"按钮 -->
           <div 
             class="fixed-all-consume-pay"
-            v-if="payTabInfo.payTabList.length > 0"
             :class="{ active: payTabInfo.activePayId == -1 }"
             @click.stop="changeTab('order', -1)"
           >
             全部消费
           </div>
           
-          <span style="font-weight: 400; width: 150px;font-size: 16px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">客人：{{ customName || '-'}}</span>
-          <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
-          <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
-            <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
-            <div class="bind-emp-text">修改</div>
-          </div>
+          <template v-if="showEmp && bindGuestOpen">
+            <span style="font-weight: 400; width: 150px;font-size: 16px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">客人：{{ customName || '-'}}</span>
+            <span style="font-weight: 400; min-width: 150px;font-size: 18px;color: #FFFFFF;line-height: 18px;text-align: right;font-style: normal;">{{ selFwyName || '-'}}</span>
+            <div class="bind-emp" layout="row" layout-align="end center" @click="showChangeFwy = true" >
+              <img :src="require('@/assets/card-imgs/xiugai_fuwuyuan.png')" style="width: 20px;height: 20px" alt />
+              <div class="bind-emp-text">修改</div>
+            </div>
+          </template>
         </span>
 
           
