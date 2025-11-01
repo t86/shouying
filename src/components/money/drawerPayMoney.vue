@@ -52,6 +52,7 @@
           <!-- 线上收款（买单+滞留金） -->
           <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 1000">
             <onlinePaymentChannel 
+              :amount="notPayAmt"
               @showBuyOrder="handleShowBuyOrder" 
               @showBookAmt="handleShowBookAmt" 
             />
@@ -378,7 +379,7 @@
             </p>
           </div>
 
-          <div v-else class="center-center m-t-8">
+          <div v-else-if="payActiveInfo.id != 1000" class="center-center m-t-8">
             <p layout="row" layout-align="start center">
               <span>{{ payActiveInfo.name }}金额:</span>
               <span class="count" layout="row" style="position: relative">
