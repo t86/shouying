@@ -294,11 +294,13 @@
       left: 0;
       bottom: 0;
       width: 100%;
-      height: 64px;
-      padding: 0 20px;
+      min-height: 96px;
+      height: auto;
+      padding: 12px 20px;
       box-sizing: border-box;
       background: #182037;
       border-radius: 0px 0px 20px 20px;
+      overflow: visible;
 
       &-left {
         width: 40%;
@@ -311,19 +313,90 @@
           width: 70%
         }
 
+        .money-list-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          justify-content: center;
+          overflow: visible;
+        }
+
         .money {
-          margin-right: 30px;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          min-height: 24px;
+          line-height: 24px;
+          overflow: visible;
 
           span {
-            font-size: 18px;
+            font-size: 14px;
             color: rgba(255, 255, 255, .8);
-            line-height: 14px;
+            line-height: 24px;
             word-break: keep-all;
+            display: inline-block;
+            vertical-align: top;
+            overflow: visible;
 
             &.amt {
               font-weight: 500;
-              font-size: 24px;
+              font-size: 16px;
               color: #1EDAAD;
+              margin-left: 6px;
+              line-height: 24px;
+              overflow: visible;
+            }
+          }
+        }
+
+        // 竖屏适配
+        @media (orientation: portrait) {
+          &.pay-item {
+            width: 65%;
+          }
+
+          .money-list-wrapper {
+            gap: 5px;
+          }
+
+          .money {
+            min-height: 22px;
+            line-height: 22px;
+
+            span {
+              font-size: 13px;
+              line-height: 22px;
+
+              &.amt {
+                font-size: 15px;
+                line-height: 22px;
+              }
+            }
+          }
+        }
+
+        // 小屏幕适配
+        @media (max-width: 900px) {
+          &.pay-item {
+            width: 60%;
+          }
+
+          .money-list-wrapper {
+            gap: 5px;
+          }
+
+          .money {
+            min-height: 20px;
+            line-height: 20px;
+
+            span {
+              font-size: 12px;
+              line-height: 20px;
+
+              &.amt {
+                font-size: 14px;
+                line-height: 20px;
+              }
             }
           }
         }

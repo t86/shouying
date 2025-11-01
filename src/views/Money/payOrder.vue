@@ -132,7 +132,7 @@
             </span>
           </div>
 
-          <div v-else layout="row" layout-align="start center">
+          <div v-else class="money-list-wrapper">
             <div class="money" layout="row" layout-align="start center">
               <span>折前:</span>
               <span class="amt">

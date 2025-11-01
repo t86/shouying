@@ -483,23 +483,30 @@
   display: flex;
   flex-direction: column;
   margin-right: 8px;
+  overflow: visible;
 
 
   .new-one-txt-title {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     color: #1A1A21;
-    line-height: 18px;
+    line-height: 20px;
+    min-height: 20px;
     text-overflow: ellipsis;
+    overflow: visible;
+    display: inline-block;
   }
 
   .new-one-txt-price {
     font-family: PingFangSC, PingFang SC;
     font-weight: 600;
     color: #1A1A21;
-    line-height: 24px;
+    line-height: 22px;
+    min-height: 22px;
     margin-top: 2px;
     text-overflow: ellipsis;
+    overflow: visible;
+    display: inline-block;
   }
 
   .payed-val-amt {
@@ -512,28 +519,77 @@
 }
 
 @media (max-width: 1065px) and (min-width: 1024px){
-  .new-one-txt-title,
+  .new-one-txt-title {
+    font-size: 12px;
+    line-height: 18px;
+    min-height: 18px;
+  }
   .new-one-txt-price {
     font-size: 12px;
+    line-height: 20px;
+    min-height: 20px;
   }
 }
 
 @media (max-width: 1120px) and (min-width: 1065px){
-  .new-one-txt-title,
+  .new-one-txt-title {
+    font-size: 14px;
+    line-height: 20px;
+    min-height: 20px;
+  }
   .new-one-txt-price {
     font-size: 14px;
+    line-height: 22px;
+    min-height: 22px;
   }
 }
 @media (max-width: 1280px) and (min-width: 1120px){
-  .new-one-txt-title,
+  .new-one-txt-title {
+    font-size: 16px;
+    line-height: 22px;
+    min-height: 22px;
+  }
   .new-one-txt-price {
     font-size: 16px;
+    line-height: 24px;
+    min-height: 24px;
   }
 }
 
 @media (min-width: 1280px) {
-  .new-one-txt-title,
+  .new-one-txt-title {
+    font-size: 18px;
+    line-height: 24px;
+    min-height: 24px;
+  }
   .new-one-txt-price {
-    font-size:18px;
+    font-size: 18px;
+    line-height: 26px;
+    min-height: 26px;
+  }
+}
+
+// 竖屏适配
+@media (orientation: portrait) {
+  .new-one-txt-title {
+    line-height: 20px;
+    min-height: 20px;
+  }
+  .new-one-txt-price {
+    line-height: 22px;
+    min-height: 22px;
+  }
+  
+  @media (max-width: 1065px) {
+    .new-one-txt-title {
+      font-size: 12px;
+      line-height: 18px;
+      min-height: 18px;
+    }
+    .new-one-txt-price {
+      font-size: 12px;
+      line-height: 20px;
+      min-height: 20px;
+    }
   }
 }
