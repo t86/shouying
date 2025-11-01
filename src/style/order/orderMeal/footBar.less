@@ -164,6 +164,13 @@
         }
       }
     }
+
+    // 覆盖 .one-txt-cut 的 overflow: hidden，确保文字完全显示
+    .one-txt-cut {
+      overflow: visible !important;
+      white-space: normal !important;
+      text-overflow: clip !important;
+    }
   }
 }
 
