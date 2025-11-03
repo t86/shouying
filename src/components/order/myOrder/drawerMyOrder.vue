@@ -1259,7 +1259,7 @@ export default {
         };
         const res = await api_money.reqChgWkorderWaiter(params)
         if (res.code == 1) {
-          this.$message.success('修改订位人成功');
+          this.$message.success('修改下单人成功');
           this.$parent.$parent.getOrderInfo();
           this.onCancelDrawer(true);
         } else {

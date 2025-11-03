@@ -43,12 +43,14 @@
               <div class="th">区域</div>
               <div class="th">卡台名称</div>
               <div class="th">下单/补交时间</div>
-              <div class="th">点单人</div>
-              <div class="th">点单人部门</div>
+              <div class="th">授权人</div>
+              <div class="th">授权人部门</div>
               <div class="th">商品一级分类</div>
               <div class="th">商品二级分类</div>
               <div class="th">商品名称</div>
               <div class="th">点单金额</div>
+              <div class="th">点单人</div>
+              <div class="th">点单人部门</div>
               <div class="th">订台人</div>
               <div class="th">订位部门</div>
               <div class="th">关联功能台</div>
@@ -75,6 +77,8 @@
               <div class="td">{{ item.tn }}</div>
               <div class="td">{{ item.n }}</div>
               <div class="td">{{ item.a }}</div>
+              <div class="td">{{ item.w }}</div>
+              <div class="td">{{ item.wd }}</div>
               <div class="td">{{ item.se }}</div>
               <div class="td">{{ item.sd }}</div>
               <div class="td">{{ item.bs }}</div>

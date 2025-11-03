@@ -83,7 +83,11 @@
           :payedOrderInfo="payedData.payedOrderInfo"
           :payTabList="payTabInfo.payTabList"
           :isTurnOver="isOldOrder"
+          :showBatchWaiterDrawer="showBatchWaiterDrawer"
+          :showBatchAutherDrawer="showBatchAutherDrawer"
           @updateChangedOrderData="updateBackOrderData"
+          @hideBatchUpdateWaiter="hideBatchUpdateWaiter"
+          @hideBatchUpdateAuther="hideBatchUpdateAuther"
         />
       </div>
 
@@ -166,7 +170,6 @@
           >
             转单
           </div>
-
           <div
             class="button"
             v-if="payTabInfo.activePayId == 0"
@@ -277,6 +280,22 @@
             打印未结消费单
           </div>
 
+
+          <div
+            class="button"
+            v-if="payTabInfo.activePayId != 0"
+            @click="showBatchUpdateWaiter"
+          >
+            批量修改下单人
+          </div>
+          <div
+            class="button"
+            v-if="payTabInfo.activePayId != 0"
+            @click="showBatchUpdateAuther"
+          >
+            批量修改授权人
+          </div>
+          
           <div class="button"  v-if="payTabInfo.activePayId != 0"
           @click="changeOrderToAnotherSeatForPaid"
           >
@@ -393,6 +412,7 @@
       @showOrHideDrawer="showOrHideBackDrawer"
       @updateBackOrderData="updateBackOrderData"
     />
+
 
     <!-- 并台 -->
     <fullPageTable
@@ -551,6 +571,10 @@ export default {
       showExportFormat: false, // 选择导出数据格式
       exportType: '1', // 汇总
       isPaidTransfer: false, // 添加标识是否为已付款转单
+      
+      // 批量修改下单人和授权人
+      showBatchWaiterDrawer: false,
+      showBatchAutherDrawer: false,
     };
   },
   methods: {
@@ -1297,8 +1321,11 @@ export default {
 
     // 获取退单后页面表格相关数据（退单结束后操作）
     async updateBackOrderData() {
+      // 保存当前选中的tab
+      const currentActivePayId = this.payTabInfo.activePayId;
       await this.getOrderInfo(this.getPayTabList);
-      this.changeTab("order", 0);
+      // 恢复之前选中的tab
+      this.changeTab("order", currentActivePayId, false);
     },
 
     // 打印优惠2消费单
@@ -1860,6 +1887,22 @@ export default {
     showOrHideBackDrawer() {
       this.drawer.orderBackDrawer.showDrawer =
         !this.drawer.orderBackDrawer.showDrawer;
+    },
+
+    // 批量修改下单人
+    showBatchUpdateWaiter() {
+      this.showBatchWaiterDrawer = true;
+    },
+    hideBatchUpdateWaiter() {
+      this.showBatchWaiterDrawer = false;
+    },
+
+    // 批量修改授权人
+    showBatchUpdateAuther() {
+      this.showBatchAutherDrawer = true;
+    },
+    hideBatchUpdateAuther() {
+      this.showBatchAutherDrawer = false;
     },
 
     // 确认框

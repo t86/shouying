@@ -1,6 +1,6 @@
 <template>
   <!-- 已支付订单表格展示订单详细信息组件 -->
-  <div>
+  <div class="payed-order-wrapper">
     <div class="order-info" layout="row" layout-align="center start">
       <!-- 支付途径列表 -->
       <div class="order-info-left">
@@ -406,6 +406,23 @@
       :orderList="tableData"
       @showOrHideDrawer="showOrHideUpdateDetailDrawer"
     />
+
+    <!-- 批量修改下单人drawer -->
+    <drawerBatchUpdateWaiter
+      :showDrawer="showBatchWaiterDrawer"
+      :orderList="tableData"
+      @showOrHideDrawer="handleCloseBatchWaiter"
+      @success="handleBatchUpdateSuccess"
+    />
+
+    <!-- 批量修改授权人drawer -->
+    <drawerBatchUpdateAuther
+      :showDrawer="showBatchAutherDrawer"
+      :orderList="tableData"
+      @showOrHideDrawer="handleCloseBatchAuther"
+      @success="handleBatchUpdateSuccess"
+    />
+
   </div>
 </template>
 
@@ -419,6 +436,8 @@ import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 
 import drawerPayMoney from "@/components/money/drawerPayMoney";
 import drawerMyOrder from "@/components/order/myOrder/drawerMyOrder";
+import drawerBatchUpdateWaiter from "@/components/money/drawerBatchUpdateWaiter";
+import drawerBatchUpdateAuther from "@/components/money/drawerBatchUpdateAuther";
 
 export default {
   data() {
@@ -440,6 +459,7 @@ export default {
         sanJiao,
       },
       status: 4, // 4:更改套餐明细 5：套餐退单后查看套餐明细
+      
     };
   },
   methods: {
@@ -491,6 +511,22 @@ export default {
     handlePaySuccess() {
       // 选中"未结账"tab
       this.$parent.changeTab('order', 0);
+    },
+
+    // 关闭批量修改下单人drawer
+    handleCloseBatchWaiter() {
+      this.$emit('hideBatchUpdateWaiter');
+    },
+
+    // 关闭批量修改授权人drawer
+    handleCloseBatchAuther() {
+      this.$emit('hideBatchUpdateAuther');
+    },
+
+    // 批量修改成功后刷新数据
+    handleBatchUpdateSuccess() {
+      // 通知父组件刷新订单数据
+      this.$emit('updateChangedOrderData');
     },
 
     // 退单（完成退单操作）
@@ -599,6 +635,16 @@ export default {
       default: () => [],
     },
     isTurnOver: false, // 是否为已翻台的订单
+    showBatchWaiterDrawer: {
+      // 是否显示批量修改下单人弹窗
+      type: Boolean,
+      default: false,
+    },
+    showBatchAutherDrawer: {
+      // 是否显示批量修改授权人弹窗
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     showChangeTypeBtn() {
@@ -618,6 +664,8 @@ export default {
   components: {
     drawerMyOrder,
     drawerPayMoney,
+    drawerBatchUpdateWaiter,
+    drawerBatchUpdateAuther,
   },
   watch: {
     payedOrderList: {

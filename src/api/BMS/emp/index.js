@@ -120,5 +120,10 @@ const article = {
   // 获取我的同组
   reqGetMyEqList: params => axios.post(`${base.htgl}/emp/get_emp_eq_list`, params),
 
+  // 读取最近一次部门的默认员工上级部门(用于新建员工)
+  requestGetDeptLastUpperEmp(data) {
+    return axios.post(`${base.htgl}/emp/get_dept_last_upper_emp`, data);
+  },
+
 }
 export default article;

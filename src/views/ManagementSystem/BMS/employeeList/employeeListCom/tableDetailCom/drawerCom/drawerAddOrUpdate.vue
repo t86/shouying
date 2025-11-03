@@ -354,6 +354,32 @@ export default {
       }
     },
 
+    // 获取部门最近一次的默认直属上级
+    async getDeptLastUpperEmp(){
+      try {
+        const deptId = this.menuId ? this.menuId * 1 : 0;
+        if(deptId === 0) return;
+        
+        const res = await this.$api.BMS.emp.requestGetDeptLastUpperEmp({
+          dept_id: deptId
+        })
+        if(res.code == 1 && res.data) {
+          const upperId = res.data.id;
+          const upperName = res.data.n;
+          // 如果返回的id大于0，说明有默认直属上级
+          if(upperId > 0) {
+            this.upperEmpId = upperId + '';
+            this.upperEmpOption = [{
+              id: upperId + '',
+              n: upperName
+            }];
+          }
+        }
+      } catch (error) {
+        console.log('获取默认直属上级失败', error);
+      }
+    },
+
     async getPyName(){
       const params = {
         str: this.empName || ''
@@ -878,11 +904,13 @@ export default {
             // 新建员工
             this.getEmpCode()
             this.getStationOption()
+            this.getDeptLastUpperEmp()
           } else if(this.type == 23) {
             // 类似创建员工
             this.getDetail()
             this.getEmpCode()
             this.getStationOption()
+            this.getDeptLastUpperEmp()
           } else {
             // 新增部门
             this.groupSonName = ''

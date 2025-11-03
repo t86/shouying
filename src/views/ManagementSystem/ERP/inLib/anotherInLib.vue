@@ -68,6 +68,7 @@
             <div class="th">入库仓库</div>
             <div class="th">发票类型</div>
             <div class="th">入库总额</div>
+            <div class="th">供应商</div>
             <div class="th">备注</div>
             <div class="th">入库时间</div>
             <div class="th">入库操作人</div>
@@ -86,6 +87,7 @@
             <div class="td">{{ item.sn }}</div>
             <div class="td">{{ item.f }}</div>
             <div class="td">{{ item.ta }}</div>
+            <div class="td">{{ item.spn || '---' }}</div>
             <div class="td">{{ item.r }}</div>
             <div class="td">{{ item.st }}</div>
             <div class="td">{{ item.en }}</div>

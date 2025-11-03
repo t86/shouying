@@ -1095,6 +1095,27 @@ export default {
         }
       });
     },
+    // 获取部门最近一次的默认直属上级
+    getDeptLastUpperEmp() {
+      this.$api.BMS.emp.requestGetDeptLastUpperEmp({
+        dept_id: Number(this.propsId)
+      }).then((res) => {
+        if (res.code == 1 && res.data) {
+          const upperId = res.data.id;
+          const upperName = res.data.n;
+          // 如果返回的id大于0，说明有默认直属上级
+          if (upperId > 0) {
+            this.upperEmpId = upperId + "";
+            this.empoptions = [{
+              id: upperId + "",
+              n: upperName
+            }];
+          }
+        }
+      }).catch(err => {
+        console.log('获取默认直属上级失败', err);
+      });
+    },
     // 输入规则
     limitingRule(i) {
       switch (Number(i)) {
@@ -1242,6 +1263,7 @@ export default {
       this.edit();
       this.czyangs();
       this.getEmpGencode();
+      this.getDeptLastUpperEmp();
       this.mistake = "";
     },
     // 创建员工
