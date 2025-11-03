@@ -10,22 +10,13 @@
       >
         <li
           :class="{ active: turnOverInfo.activeTurnOverCount == item.id }"
-          v-for="(item, index) in turnOverInfo.turnOverTabList.slice(0, -1)"
+          v-for="(item, index) in turnOverInfo.turnOverTabList"
           :key="index"
           @click.stop="changeTab('turnOverCount', item.id)"
         >
           {{ item.name }}
         </li>
       </ul>
-
-      <div 
-        class="fixed-all-consume"
-        v-if="turnOverInfo.turnOverTabList.length > 0"
-        :class="{ active: turnOverInfo.activeTurnOverCount == turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].id }"
-        @click.stop="changeTab('turnOverCount', turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].id)"
-      >
-        {{ turnOverInfo.turnOverTabList[turnOverInfo.turnOverTabList.length - 1].name }}
-      </div>
     </div>
     <!-- 订单详情 -->
     <div
