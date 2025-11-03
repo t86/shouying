@@ -5,17 +5,13 @@
       title="批量修改授权人"
       :visible.sync="show"
       :before-close="onCancelDialog"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       append-to-body
       class="batch-update-auther-dialog"
     >
       <div class="dialog-content">
-        <p class="tip">
-          列出当前页面所有的<span class="highlight">含授权人</span>的订单，默认全部勾选
-          <span class="tip-sub">【直接过滤掉普通订单，普通订单没有授权人的概念】</span>
-        </p>
         
         <!-- 订单列表 -->
         <div class="order-list">
@@ -271,6 +267,7 @@ export default {
     background: #fff;
     display: flex;
     flex-direction: column;
+    overflow: visible;
   }
 
   /deep/ .el-dialog__header {
@@ -295,6 +292,8 @@ export default {
     padding: 15px;
     flex: 1;
     overflow: visible;
+    position: relative;
+    z-index: 1;
   }
 
   /deep/ .el-dialog__footer {
@@ -326,8 +325,8 @@ export default {
     margin-bottom: 20px;
     border: 1px solid #e8e8e8;
     border-radius: 6px;
-    overflow: hidden;
     max-height: 350px;
+    overflow-x: hidden;
     overflow-y: auto;
 
     .order-header {
@@ -341,7 +340,8 @@ export default {
       border-bottom: 1px solid #e8e8e8;
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 2;
+      background-clip: padding-box;
     }
 
     .order-body {
@@ -388,48 +388,55 @@ export default {
     }
 
     .col {
-      padding: 0 6px;
+      padding: 0 8px;
 
       &.col-check {
-        width: 8%;
+        width: 50px;
         flex-shrink: 0;
+        position: relative;
+        z-index: 0;
+        
+        /deep/ .el-checkbox {
+          position: relative;
+          z-index: 0;
+        }
       }
 
       &.col-name {
-        width: 20%;
-        flex-shrink: 0;
+        flex: 1;
+        min-width: 120px;
       }
 
       &.col-cnt {
-        width: 10%;
+        width: 60px;
         flex-shrink: 0;
-        text-align: right;
+        text-align: center;
       }
 
       &.col-price {
-        width: 12%;
+        width: 80px;
         flex-shrink: 0;
         text-align: right;
       }
 
       &.col-total {
-        width: 12%;
+        width: 90px;
         flex-shrink: 0;
         text-align: right;
       }
 
       &.col-waiter {
-        width: 13%;
+        width: 90px;
         flex-shrink: 0;
       }
 
       &.col-auth {
-        width: 13%;
+        width: 90px;
         flex-shrink: 0;
       }
 
       &.col-time {
-        width: 12%;
+        width: 120px;
         flex-shrink: 0;
       }
     }
@@ -484,7 +491,16 @@ export default {
 }
 
 // 响应式适配
-@media (max-width: 900px), (orientation: portrait) {
+@media (max-width: 1100px) {
+  .batch-update-auther-dialog {
+    /deep/ .el-dialog {
+      width: 95% !important;
+      max-width: 95%;
+    }
+  }
+}
+
+@media (orientation: portrait) {
   .batch-update-auther-dialog {
     /deep/ .el-dialog {
       width: 95% !important;

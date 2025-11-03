@@ -282,14 +282,14 @@
 
 
           <div
-            class="button"
+            class="button batch-update-btn"
             v-if="payTabInfo.activePayId != 0"
             @click="showBatchUpdateWaiter"
           >
             批量修改下单人
           </div>
           <div
-            class="button"
+            class="button batch-update-btn"
             v-if="payTabInfo.activePayId != 0"
             @click="showBatchUpdateAuther"
           >

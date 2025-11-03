@@ -374,6 +374,28 @@
             background: #FF2F64;
             box-shadow: inset 0px 1px 1px 0px rgba(255, 255, 255, 0.5);
           }
+
+          // 批量修改按钮特殊样式
+          &.batch-update-btn {
+            min-width: 120px;
+            width: auto;
+            padding: 0 15px;
+            white-space: nowrap;
+
+            // 竖屏适配
+            @media (orientation: portrait) {
+              min-width: 110px;
+              padding: 0 12px;
+              font-size: 13px;
+            }
+
+            // 小屏幕适配
+            @media (max-width: 900px) {
+              min-width: 100px;
+              padding: 0 10px;
+              font-size: 12px;
+            }
+          }
         }
 
         .arrow {
