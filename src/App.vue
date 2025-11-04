@@ -98,10 +98,10 @@ a {
   background-color: #f5f5f5 !important;
 }
 
-.el-select-dropdown__item.hover,
-.el-select-dropdown__item:hover {
-  // background-color: #e5e5e5;
-}
+// .el-select-dropdown__item.hover,
+// .el-select-dropdown__item:hover {
+//   background-color: #e5e5e5;
+// }
 
 .el-switch {
   display: inline-flex;
@@ -137,5 +137,10 @@ a {
 .el-drawer__body {
   flex: 1;
   overflow: scroll;
+}
+
+/* 更多功能下拉菜单 - 充值按钮图标颜色修复 */
+.more-function-dropdown .recharge-item img {
+  filter: brightness(0) saturate(100%) !important;
 }
 </style>

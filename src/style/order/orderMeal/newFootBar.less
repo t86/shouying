@@ -612,3 +612,14 @@
     }
   }
 }
+
+// 更多功能下拉菜单 - 充值按钮图标样式
+/deep/ .more-function-dropdown {
+  .recharge-item {
+    img {
+      // 将白色图标转换为黑色（适用于浅色背景）
+      filter: brightness(0) saturate(100%) !important;
+      vertical-align: middle;
+    }
+  }
+}

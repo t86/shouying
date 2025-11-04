@@ -262,6 +262,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    sourceRoute: {
+      type: String,
+      default: '', // 来源路由：orderCard (点单页面), moneyCard (收银首页), 空字符串表示直接在会员管理页面
+    },
   },
   data() {
     return {

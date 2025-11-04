@@ -33,6 +33,7 @@
             v-if="step == 2"
             :currentInfo="currentInfo"
             :vipIdOfSwiper="vipIdOfSwiper"
+            :defaultRecommender="defaultRecommender"
             @updateFormInfo="updateFormInfo"
           />
         </div>
@@ -497,24 +498,67 @@ export default {
     handlePostRechargeRedirect() {
       console.log("🎯 [跳转逻辑] 开始处理充值成功后的跳转");
       console.log("  - 当前路由:", this.$route.name);
+      console.log("  - 来源路由:", this.sourceRoute);
+      console.log("  - URL参数 openRecharge:", this.$route.query.openRecharge);
       console.log("  - 用户权限状态:", this.$store.state.userInfo.authStatus);
       
-      // 1. 如果是在会员管理页面，不跳转，留在当前页面
+      // 0. 特殊处理：在会员管理页面直接点击充值按钮的情况
+      // 如果当前在会员管理页面，且URL中没有openRecharge参数，说明是直接点击充值按钮
+      // 这种情况下应该留在当前页面，不管sourceRoute是什么
+      if (this.$route.name === 'vipManager' && !this.$route.query.openRecharge) {
+        console.log("✅ [跳转逻辑] 会员管理页面直接充值，留在当前页面（忽略sourceRoute残留值）");
+        return;
+      }
+      
+      // 1. 如果有来源路由标识，优先根据来源路由处理
+      if (this.sourceRoute) {
+        console.log("🔙 [跳转逻辑] 检测到来源路由，准备回跳");
+        
+        // 1.1 来自收银系统（moneyCard）
+        if (this.sourceRoute === 'moneyCard') {
+          console.log("💰 [跳转逻辑] 来自收银系统，返回收银首页");
+          this.$router.replace({ name: "moneyCard" });
+          return;
+        }
+        
+        // 1.2 来自点单系统（orderCard）
+        if (this.sourceRoute === 'orderCard') {
+          console.log("🍽️ [跳转逻辑] 来自点单系统，返回点单页面");
+          this.$router.replace({ name: "orderCard" });
+          return;
+        }
+        
+        // 1.3 来自点餐列表页面（orderMealList）
+        if (this.sourceRoute === 'orderMealList') {
+          console.log("📋 [跳转逻辑] 来自点餐列表页面，返回点餐页面");
+          this.$router.replace({ name: "orderMealList" });
+          return;
+        }
+        
+        // 1.4 来自结账页面（payOrder），需要检查订单状态
+        if (this.sourceRoute === 'payOrder') {
+          console.log("💳 [跳转逻辑] 来自结账页面，检查订单状态后决定回跳");
+          this.checkOrderStatusAndRedirect();
+          return;
+        }
+      }
+      
+      // 2. 如果是在会员管理页面，不跳转，留在当前页面
       if (this.$route.name === 'vipManager') {
         console.log("✅ [跳转逻辑] 会员管理页面充值，留在当前页面");
         return;
       }
       
-      // 2. 如果是在收银系统中
+      // 3. 兜底逻辑：根据当前所在页面和权限状态判断
       if (this.$store.state.userInfo.authStatus == 4) {
-        console.log("🏪 [跳转逻辑] 收银系统中的充值");
+        console.log("🏪 [跳转逻辑] 收银系统中的充值（兜底逻辑）");
         
-        // 2.1 如果是在payOrder结账页面，需要检查是否还有未结订单
+        // 3.1 如果是在payOrder结账页面，需要检查是否还有未结订单
         if (this.$route.name === 'payOrder') {
           console.log("💰 [跳转逻辑] 在结账页面充值，检查卡台订单状态");
           this.checkOrderStatusAndRedirect();
         } else {
-          // 2.2 其他收银页面，直接跳转到收银首页
+          // 3.2 其他收银页面，直接跳转到收银首页
           console.log("🏠 [跳转逻辑] 跳转到收银首页");
           this.$router.replace({ name: "moneyCard" });
         }
@@ -541,9 +585,16 @@ export default {
         console.log("✅ [订单检查] 无未结订单，跳转到收银首页");
         this.$router.replace({ name: "moneyCard" });
       } else {
-        // 有未结订单，留在当前结账页面
-        console.log("📋 [订单检查] 有未结订单，留在结账页面");
-        // 不跳转，留在payOrder页面
+        // 有未结订单，应该跳转回结账页面
+        console.log("📋 [订单检查] 有未结订单，跳转回结账页面");
+        
+        // 如果当前不在结账页面（例如在会员管理页面充值），需要跳转回去
+        if (this.$route.name !== 'payOrder') {
+          console.log("🔙 [订单检查] 当前不在结账页面，执行跳转");
+          this.$router.replace({ name: "payOrder" });
+        } else {
+          console.log("✅ [订单检查] 已在结账页面，无需跳转");
+        }
       }
     },
 
@@ -659,6 +710,14 @@ export default {
     },
     currentVipId: {
       default: ''
+    },
+    sourceRoute: {
+      type: String,
+      default: '' // 来源路由，用于充值成功后的回跳
+    },
+    defaultRecommender: {
+      type: Number,
+      default: 0 // 默认推荐人ID（卡台订位人）
     }
   },
   components: {

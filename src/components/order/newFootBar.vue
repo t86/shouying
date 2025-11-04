@@ -63,7 +63,8 @@
               <img :src="imgSrc.orderQRPayIcon" alt />
               <span>更多功能</span>
             </div>
-            <el-dropdown-menu slot="dropdown" class="button">
+            <el-dropdown-menu slot="dropdown" class="button more-function-dropdown">
+              <el-dropdown-item class="recharge-item" style="font-size: 20px; font-weight: bold; height: 45px" command="d"><img :src="imgSrc.money_add" style="margin-right: 10px;" alt />充值</el-dropdown-item>
               <el-dropdown-item v-if="isShowPayBtn" style="font-size: 20px; font-weight: bold; height: 45px" command="a"><img :src="imgSrc.caozuo_zhiliujin" style="margin-right: 10px;" alt />滞留金</el-dropdown-item>
               <el-dropdown-item v-if="hasQingTaiAuth" style="font-size: 20px; font-weight: bold; height: 45px" command="b"><img :src="imgSrc.caozuo_qingtai" style="margin-right: 10px" alt />清台</el-dropdown-item>
               <el-dropdown-item v-if="hasZhuantaiAuth" style="font-size: 20px; font-weight: bold; height: 45px" command="c"><img :src="imgSrc.caozuo_zhuantai" style="margin-right: 10px" alt />转台</el-dropdown-item>
@@ -388,6 +389,7 @@ import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 import caozuo_zhiliujin from "@/assets/order-img/caozuo_zhiliujin.png";
 import caozuo_zhuantai from "@/assets/order-img/caozuo_zhuantai.png";
 import caozuo_qingtai from "@/assets/order-img/caozuo_qingtai.png";
+import money_add from "@/assets/money-img/money_add.png";
 import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
 import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
 import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
@@ -589,7 +591,8 @@ export default {
         zhiliujin,
         caozuo_zhiliujin,
         caozuo_zhuantai,
-        caozuo_qingtai
+        caozuo_qingtai,
+        money_add
       },
 
       payTypeList, // 支付方式
@@ -1038,6 +1041,29 @@ export default {
           return
         }
         this.showFullPageTable = true
+      } else if ('d' === command) {
+        // 跳转到会员充值页面并打开充值弹窗
+        // 判断当前所在页面，确定来源路由
+        let sourceRoute = '';
+        if (this.$route.name === 'payOrder') {
+          sourceRoute = 'payOrder';  // 来自结账页面
+        } else if (this.$route.name === 'orderCard') {
+          sourceRoute = 'orderCard'; // 来自点单页面
+        } else if (this.$route.name === 'moneyCard') {
+          sourceRoute = 'moneyCard'; // 来自收银首页
+        } else if (this.$route.name === 'orderMealList') {
+          sourceRoute = 'orderMealList'; // 来自点餐列表页面
+        }
+        
+        console.log("🎯 [充值跳转] 从", sourceRoute, "跳转到充值页面");
+        
+        this.$router.push({ 
+          name: 'vipManager',
+          query: { 
+            openRecharge: 'true',
+            sourceRoute: sourceRoute
+          }
+        });
       }
     },
     keyboardShow() {
@@ -1203,7 +1229,6 @@ export default {
       }
       this.authInfo = { ...this.authInfo };
     },
-
 
     // 清台
     clearCardHandle() {

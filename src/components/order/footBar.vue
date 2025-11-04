@@ -49,24 +49,28 @@
             !this.$route.path.startsWith('/orderMeal') &&
             $store.state.orderInfo.currentCardInfo.bizStatus != 1
           " layout="row">
-            <div class="button" layout="row" layout-align="center center"
-              @click="$router.push({ name: 'orderMealList' })">
-              <img :src="imgSrc.shoppingNav" alt />
-              <span>点单</span>
-            </div>
-            <!-- <div
-          class="button"
-          @click="$router.push({name:'orderMealList', query:{give:true}})"
-          layout="row"
-          layout-align="center center"
-        >
-          <img :src="imgSrc.giveNav" alt />
-          <span>优惠2</span>
-        </div> -->
-            <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
-              <img :src="imgSrc.clearNav" alt />
-              <span>清台</span>
-            </div>
+          <div class="button" layout="row" layout-align="center center"
+            @click="$router.push({ name: 'orderMealList' })">
+            <img :src="imgSrc.shoppingNav" alt />
+            <span>点单</span>
+          </div>
+          <!-- <div
+        class="button"
+        @click="$router.push({name:'orderMealList', query:{give:true}})"
+        layout="row"
+        layout-align="center center"
+      >
+        <img :src="imgSrc.giveNav" alt />
+        <span>优惠2</span>
+      </div> -->
+          <div class="button" @click="goToVipRecharge" layout="row" layout-align="center center">
+            <img :src="require('@/assets/money-img/money_add.png')" alt />
+            <span>充值</span>
+          </div>
+          <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
+            <img :src="imgSrc.clearNav" alt />
+            <span>清台</span>
+          </div>
 
             <div class="button" @click.stop="showMerchantConfig = true" style="width: 140px" layout="row"
               layout-align="center center">
@@ -466,6 +470,29 @@ export default {
         minute: date.getMinutes().toString().padStart(2, 0),
         name: this.$store.state.userInfo.name,
       };
+    },
+
+    // 跳转到会员充值页面
+    goToVipRecharge() {
+      // 判断当前所在页面，确定来源路由
+      let sourceRoute = '';
+      if (this.$route.name === 'payOrder') {
+        sourceRoute = 'payOrder';  // 来自结账页面
+      } else if (this.$route.name === 'orderCard') {
+        sourceRoute = 'orderCard'; // 来自点单页面
+      } else if (this.$route.name === 'moneyCard') {
+        sourceRoute = 'moneyCard'; // 来自收银首页
+      }
+      
+      console.log("🎯 [充值跳转] 从", sourceRoute, "跳转到充值页面");
+      
+      this.$router.push({ 
+        name: 'vipManager',
+        query: { 
+          openRecharge: 'true',
+          sourceRoute: sourceRoute
+        }
+      });
     },
 
     // 清台

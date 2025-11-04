@@ -288,56 +288,74 @@ export default {
       }
     },
 
-    // 按照三层规则设置推荐人
+    // 按照四层规则设置推荐人
     async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
-        console.log("开始按规则设置推荐人，卡ID:", cardId, "开卡推荐人ID:", openCardSalesEmpId);
+        console.log("🎯 [推荐人设置] 开始按规则设置推荐人");
+        console.log("  - 卡ID:", cardId);
+        console.log("  - 开卡推荐人ID:", openCardSalesEmpId);
+        console.log("  - 默认推荐人ID (卡台订位人):", this.defaultRecommender);
         
         // 第一层：查询该卡上次充值时的充值推荐人
         const params = {
           card_id: cardId
         };
         const res = await api_vip.reqGetCustCardLastSales(params);
-        console.log("上次充值推荐人接口返回:", res);
+        console.log("✅ [第一层] 上次充值推荐人接口返回:", res);
         
         if (res.code == 1 && res.data && res.data.id) {
           const lastRechargeSalesEmpId = res.data.id;
-          console.log("第一层：找到上次充值推荐人ID:", lastRechargeSalesEmpId, "姓名:", res.data.name);
+          console.log("✅ [第一层] 找到上次充值推荐人ID:", lastRechargeSalesEmpId, "姓名:", res.data.name);
           
           // 尝试在推荐人列表中找到匹配的推荐人
           const matchedPerson = this.findPersonInOptions(lastRechargeSalesEmpId);
           if (matchedPerson) {
             this.form.personVal = matchedPerson.id;
-            console.log("第一层：设置上次充值推荐人为默认值:", this.form.personVal);
+            console.log("✅ [第一层] 设置上次充值推荐人为默认值:", this.form.personVal, matchedPerson.name);
             return;
           } else {
-            console.log("第一层：上次充值推荐人不在当前推荐人列表中");
+            console.log("⚠️ [第一层] 上次充值推荐人不在当前推荐人列表中");
           }
         } else {
-          console.log("第一层：没有找到上次充值推荐人");
+          console.log("⚠️ [第一层] 没有找到上次充值推荐人");
         }
         
         // 第二层：如果没有上次充值推荐人，则使用开卡推荐人
         if (openCardSalesEmpId) {
-          console.log("第二层：尝试使用开卡推荐人ID:", openCardSalesEmpId);
+          console.log("🔍 [第二层] 尝试使用开卡推荐人ID:", openCardSalesEmpId);
           const matchedPerson = this.findPersonInOptions(openCardSalesEmpId);
           if (matchedPerson) {
             this.form.personVal = matchedPerson.id;
-            console.log("第二层：设置开卡推荐人为默认值:", this.form.personVal);
+            console.log("✅ [第二层] 设置开卡推荐人为默认值:", this.form.personVal, matchedPerson.name);
             return;
           } else {
-            console.log("第二层：开卡推荐人不在当前推荐人列表中");
+            console.log("⚠️ [第二层] 开卡推荐人不在当前推荐人列表中");
           }
         } else {
-          console.log("第二层：没有开卡推荐人信息");
+          console.log("⚠️ [第二层] 没有开卡推荐人信息");
         }
         
-        // 第三层：如果前两层都没有，则推荐人为空白
-        console.log("第三层：推荐人设置为空白，允许用户手动选择");
+        // 第三层：使用卡台订位人（从props传入的defaultRecommender）
+        if (this.defaultRecommender && this.defaultRecommender > 0) {
+          console.log("🔍 [第三层] 尝试使用卡台订位人ID:", this.defaultRecommender);
+          const matchedPerson = this.findPersonInOptions(this.defaultRecommender);
+          if (matchedPerson) {
+            this.form.personVal = matchedPerson.id;
+            console.log("✅ [第三层] 设置卡台订位人为默认值:", this.form.personVal, matchedPerson.name);
+            return;
+          } else {
+            console.log("⚠️ [第三层] 卡台订位人不在当前推荐人列表中");
+          }
+        } else {
+          console.log("⚠️ [第三层] 没有卡台订位人信息");
+        }
+        
+        // 第四层：如果前三层都没有，则推荐人为空白
+        console.log("⚠️ [第四层] 推荐人设置为空白，允许用户手动选择");
         this.form.personVal = "";
         
       } catch (error) {
-        console.error("设置推荐人失败:", error);
+        console.error("❌ [推荐人设置] 设置推荐人失败:", error);
         this.form.personVal = "";
       }
     },
@@ -374,6 +392,10 @@ export default {
     vipIdOfSwiper: {
       default: "",
     },
+    defaultRecommender: {
+      type: Number,
+      default: 0 // 默认推荐人ID（卡台订位人）
+    }
   },
   watch: {
     form: {

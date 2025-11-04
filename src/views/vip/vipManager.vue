@@ -143,8 +143,14 @@
     <drawerOptionEvent :showDrawer="showOptionDrawer" :optionObj="optionObj" @getTableData="getTableData"
       @showOrHideDrawer="showOrHideOptionDrawerHandle" />
     <!-- 会员充值 -->
-    <drawerAddMoneyToVip :showDrawer="showAddMoneyToVipDrawer" :currentVipId="currentVipId" @getTableData="getTableData"
-      @showOrHideDrawer="showOrHideAddMoneyToVipDrawerHandle" />
+    <drawerAddMoneyToVip 
+      :showDrawer="showAddMoneyToVipDrawer" 
+      :currentVipId="currentVipId" 
+      :sourceRoute="rechargeSourceRoute"
+      :defaultRecommender="rechargeDefaultRecommender"
+      @getTableData="getTableData"
+      @showOrHideDrawer="showOrHideAddMoneyToVipDrawerHandle" 
+    />
     <!-- 会员卡识别 -->
     <drawerReadCard :showDrawer="showReadCardDrawer" @showOrHideDrawer="showOrHideReadCardDrawerHandle"
       @updateVipDetailHandle="preVipDetail" />
@@ -218,6 +224,8 @@ export default {
         btnArr: ["关闭", "充值", "制卡"],
       },
       personOptions: [], //开卡推荐人
+      rechargeSourceRoute: '', // 充值来源路由
+      rechargeDefaultRecommender: 0, // 充值默认推荐人（卡台订位人）
     };
   },
   mounted() {
@@ -462,6 +470,21 @@ export default {
     },
     showOrHideAddMoneyToVipDrawerHandle() {
       this.showAddMoneyToVipDrawer = !this.showAddMoneyToVipDrawer;
+      
+      // 如果是关闭充值弹窗，清空来源路由参数
+      if (!this.showAddMoneyToVipDrawer) {
+        console.log("🔄 [会员管理] 关闭充值弹窗，清空来源路由参数");
+        this.rechargeSourceRoute = '';
+        this.rechargeDefaultRecommender = 0;
+      } else {
+        // 如果是直接在会员管理页面点击充值按钮（不是通过路由参数跳转）
+        // 确保来源路由为空，这样充值成功后就不会跳转
+        if (!this.$route.query.openRecharge) {
+          console.log("📍 [会员管理] 直接在会员管理页面打开充值，不设置来源路由");
+          this.rechargeSourceRoute = '';
+          this.rechargeDefaultRecommender = 0;
+        }
+      }
     },
     showOrHideReadCardDrawerHandle() {
       this.showReadCardDrawer = !this.showReadCardDrawer;
@@ -564,6 +587,26 @@ export default {
     this.getTableData(true);
     this.changeInitStep(1);
     this.updateVipIdHandle("");
+    
+    // 检查路由参数，如果需要打开充值弹窗
+    if (this.$route.query.openRecharge === 'true') {
+      // 获取来源路由和默认推荐人
+      this.rechargeSourceRoute = this.$route.query.sourceRoute || '';
+      
+      // 从store中获取当前卡台的订位人ID
+      const currentCardInfo = this.$store.state.orderInfo.currentCardInfo;
+      if (currentCardInfo && currentCardInfo.salesEmpId) {
+        this.rechargeDefaultRecommender = currentCardInfo.salesEmpId;
+        console.log("🎯 [会员管理] 从卡台信息获取订位人ID:", this.rechargeDefaultRecommender);
+      } else {
+        this.rechargeDefaultRecommender = 0;
+        console.log("⚠️ [会员管理] 未找到卡台订位人信息");
+      }
+      
+      this.$nextTick(() => {
+        this.showOrHideAddMoneyToVipDrawerHandle();
+      });
+    }
   },
   components: {
     IconButton,

@@ -195,7 +195,19 @@ export default {
       switch (type) {
         case "firstCate":
           if (itemInfo.id == 0) {
-            this.$router.replace("moneyCard");
+            // 返回按钮：根据URL参数中的sourceRoute决定返回位置
+            const sourceRoute = this.$route.query.sourceRoute;
+            console.log("🔙 [返回按钮] 点击返回，来源路由:", sourceRoute);
+            
+            if (sourceRoute) {
+              // 如果有来源路由，返回到来源页面
+              console.log("✅ [返回按钮] 返回到来源页面:", sourceRoute);
+              this.$router.replace({ name: sourceRoute });
+            } else {
+              // 没有来源路由，默认返回收银首页
+              console.log("⚠️ [返回按钮] 无来源路由，返回收银首页");
+              this.$router.replace("moneyCard");
+            }
           } else if (itemInfo.id == 1) {
             return this.$message.warning("开发中，敬请期待...");
           } else {
