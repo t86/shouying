@@ -137,6 +137,10 @@ export default {
     rechargeInfo: {
       type: Object,
       default: () => ({})
+    },
+    csmId: {
+      type: Number,
+      default: 0 // 流水记录ID（从卡台入口充值时传递）
     }
   },
   data() {
@@ -248,6 +252,12 @@ export default {
           sales_emp_id: parseInt(this.rechargeInfo.salesEmpId || 0, 10),
           remark: this.rechargeInfo.remark || ""
         };
+        
+        // 如果从卡台入口充值，添加流水ID
+        if (this.csmId && this.csmId > 0) {
+          orderParams.csm_id = this.csmId;
+          console.log("🎯 [支付方式弹窗] 添加流水ID (csm_id):", orderParams.csm_id);
+        }
 
         const orderRes = await api_vip.reqNewCustDeptOrder(orderParams);
         

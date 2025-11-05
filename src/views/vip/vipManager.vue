@@ -148,6 +148,7 @@
       :currentVipId="currentVipId" 
       :sourceRoute="rechargeSourceRoute"
       :defaultRecommender="rechargeDefaultRecommender"
+      :csmId="rechargeCsmId"
       @getTableData="getTableData"
       @showOrHideDrawer="showOrHideAddMoneyToVipDrawerHandle" 
     />
@@ -226,6 +227,7 @@ export default {
       personOptions: [], //开卡推荐人
       rechargeSourceRoute: '', // 充值来源路由
       rechargeDefaultRecommender: 0, // 充值默认推荐人（卡台订位人）
+      rechargeCsmId: 0, // 充值流水ID（从卡台入口时传递）
     };
   },
   mounted() {
@@ -476,6 +478,7 @@ export default {
         console.log("🔄 [会员管理] 关闭充值弹窗，清空来源路由参数");
         this.rechargeSourceRoute = '';
         this.rechargeDefaultRecommender = 0;
+        this.rechargeCsmId = 0;
       } else {
         // 如果是直接在会员管理页面点击充值按钮（不是通过路由参数跳转）
         // 确保来源路由为空，这样充值成功后就不会跳转
@@ -483,6 +486,7 @@ export default {
           console.log("📍 [会员管理] 直接在会员管理页面打开充值，不设置来源路由");
           this.rechargeSourceRoute = '';
           this.rechargeDefaultRecommender = 0;
+          this.rechargeCsmId = 0;
         }
       }
     },
@@ -593,14 +597,30 @@ export default {
       // 获取来源路由和默认推荐人
       this.rechargeSourceRoute = this.$route.query.sourceRoute || '';
       
-      // 从store中获取当前卡台的订位人ID
+      // 从store中获取当前卡台的订位人ID和流水ID
       const currentCardInfo = this.$store.state.orderInfo.currentCardInfo;
-      if (currentCardInfo && currentCardInfo.salesEmpId) {
-        this.rechargeDefaultRecommender = currentCardInfo.salesEmpId;
-        console.log("🎯 [会员管理] 从卡台信息获取订位人ID:", this.rechargeDefaultRecommender);
+      if (currentCardInfo) {
+        // 获取订位人ID
+        if (currentCardInfo.salesEmpId) {
+          this.rechargeDefaultRecommender = currentCardInfo.salesEmpId;
+          console.log("🎯 [会员管理] 从卡台信息获取订位人ID:", this.rechargeDefaultRecommender);
+        } else {
+          this.rechargeDefaultRecommender = 0;
+          console.log("⚠️ [会员管理] 未找到卡台订位人信息");
+        }
+        
+        // 获取流水ID（仅从卡台入口时有效）
+        if (currentCardInfo.wkCsmId && currentCardInfo.wkCsmId > 0) {
+          this.rechargeCsmId = currentCardInfo.wkCsmId;
+          console.log("🎯 [会员管理] 从卡台信息获取流水ID:", this.rechargeCsmId);
+        } else {
+          this.rechargeCsmId = 0;
+          console.log("⚠️ [会员管理] 未找到卡台流水ID");
+        }
       } else {
         this.rechargeDefaultRecommender = 0;
-        console.log("⚠️ [会员管理] 未找到卡台订位人信息");
+        this.rechargeCsmId = 0;
+        console.log("⚠️ [会员管理] 未找到卡台信息");
       }
       
       this.$nextTick(() => {

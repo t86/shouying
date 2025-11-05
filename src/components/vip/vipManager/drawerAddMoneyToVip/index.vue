@@ -59,6 +59,7 @@
       :value="showPaymentMethodDialog"
       @input="showPaymentMethodDialog = $event"
       :rechargeInfo="paymentDialogRechargeInfo"
+      :csmId="csmId"
       @scanCustomerPayment="handleScanCustomerPayment"
       @scan-customer-payment="handleScanCustomerPayment"
       @paymentSuccess="handlePaymentSuccess"
@@ -71,6 +72,7 @@
       :rechargeInfo="currentRechargeInfo"
       :selectedLateDeposits="currentSelectedLateDeposits"
       :payType="selectedPayType"
+      :csmId="csmId"
       @success="handlePaymentSuccess"
     />
   </div>
@@ -206,6 +208,12 @@ export default {
         sales_emp_id: this.stepTwoInfo.personVal * 1, // int64    推荐人(员工)
         remark: this.stepTwoInfo.remark //     string    充值备注
       };
+      
+      // 如果从卡台入口充值，添加流水ID
+      if (this.csmId && this.csmId > 0) {
+        params.csm_id = this.csmId;
+        console.log("🎯 [普通充值] 添加流水ID (csm_id):", params.csm_id);
+      }
       
       // 🔍 调试信息：打印充值参数
       console.log("🔍 [普通充值] 准备调用充值接口");
@@ -368,6 +376,12 @@ export default {
           sales_emp_id: this.stepTwoInfo.personVal * 1,
           remark: this.stepTwoInfo.remark || ""
         };
+        
+        // 如果从卡台入口充值，添加流水ID
+        if (this.csmId && this.csmId > 0) {
+          params.csm_id = this.csmId;
+          console.log("🎯 [滞留金充值] 添加流水ID (csm_id):", params.csm_id);
+        }
         
         // 🔍 调试信息：打印滞留金充值参数
         console.log("🔍 [滞留金充值] 准备调用充值接口");
@@ -718,6 +732,10 @@ export default {
     defaultRecommender: {
       type: Number,
       default: 0 // 默认推荐人ID（卡台订位人）
+    },
+    csmId: {
+      type: Number,
+      default: 0 // 流水记录ID（从卡台入口充值时传递）
     }
   },
   components: {

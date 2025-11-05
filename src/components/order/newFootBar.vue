@@ -259,6 +259,14 @@
       @showOrHideQRDrawerHandle="showOrHideQRDrawerHandle" @subSecondLogoutHandle="subSecondLogoutHandle"
       @reloadQrRequest="showChoosePayTypeHandle" />
 
+    <!-- 会员充值弹窗 -->
+    <drawerVipRecharge 
+      :showDrawer="showVipRechargeDrawer" 
+      :sourceRoute="currentSourceRoute"
+      :csmId="currentCsmId"
+      @showOrHideDrawer="handleCloseVipRecharge" 
+    />
+
     <!-- 服务员让客人扫码添加滞留金 -->
     <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
     <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
@@ -617,6 +625,9 @@ export default {
       showEmp: false,
       loading: false,
       safeModeEnabled: false, // 添加 safeModeEnabled
+      showVipRechargeDrawer: false, // 是否显示会员充值弹窗
+      currentSourceRoute: '', // 来源路由
+      currentCsmId: 0, // 流水ID
     };
   },
   methods: {
@@ -1042,7 +1053,7 @@ export default {
         }
         this.showFullPageTable = true
       } else if ('d' === command) {
-        // 跳转到会员充值页面并打开充值弹窗
+        // 在点单系统直接打开会员充值弹窗
         // 判断当前所在页面，确定来源路由
         let sourceRoute = '';
         if (this.$route.name === 'payOrder') {
@@ -1053,17 +1064,28 @@ export default {
           sourceRoute = 'moneyCard'; // 来自收银首页
         } else if (this.$route.name === 'orderMealList') {
           sourceRoute = 'orderMealList'; // 来自点餐列表页面
+        } else if (this.$route.name === 'shoppingCart') {
+          sourceRoute = 'shoppingCart'; // 来自购物车页面
+        } else if (this.$route.name === 'myOrder') {
+          sourceRoute = 'myOrder'; // 来自我的点单页面
         }
         
-        console.log("🎯 [充值跳转] 从", sourceRoute, "跳转到充值页面");
+        // 获取流水ID（仅从卡台入口时有效）
+        const currentCardInfo = this.$store.state.orderInfo.currentCardInfo;
+        let csmId = 0;
+        if (currentCardInfo && currentCardInfo.wkCsmId && currentCardInfo.wkCsmId > 0) {
+          csmId = currentCardInfo.wkCsmId;
+          console.log("🎯 [充值弹窗] 从卡台信息获取流水ID:", csmId);
+        } else {
+          console.log("⚠️ [充值弹窗] 未找到卡台流水ID");
+        }
         
-        this.$router.push({ 
-          name: 'vipManager',
-          query: { 
-            openRecharge: 'true',
-            sourceRoute: sourceRoute
-          }
-        });
+        console.log("🎯 [充值弹窗] 从", sourceRoute, "打开充值弹窗, 流水ID:", csmId);
+        
+        // 设置来源路由、流水ID并打开充值弹窗
+        this.currentSourceRoute = sourceRoute;
+        this.currentCsmId = csmId;
+        this.showVipRechargeDrawer = true;
       }
     },
     keyboardShow() {
@@ -1600,6 +1622,13 @@ export default {
       this.payType = data.payType
       this.orderInfoDetail = data.orderInfoDetail
       this.showOrHideQRDrawer = true
+    },
+
+    // 关闭会员充值弹窗
+    handleCloseVipRecharge() {
+      this.showVipRechargeDrawer = false;
+      this.currentSourceRoute = '';
+      this.currentCsmId = 0;
     }
   },
   mounted() {
@@ -1741,7 +1770,8 @@ export default {
     drawerAddBookAmt: () => import("./newDrawerAddBookAmt.vue"),
     drawerMerchantConfig: () => import("./drawerMerchantConfig.vue"),
     drawerOrderList: () => import("./newDrawerShowOrderList.vue"),
-  drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
+    drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
+    drawerVipRecharge: () => import("./vipRecharge/drawerVipRecharge.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
     fullPageTable, // 全屏表格数据
     cardDrawer

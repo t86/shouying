@@ -215,6 +215,7 @@
     <PaymentMethodDialog 
       v-model="showPaymentMethodDialog"
       :recharge-info="rechargeFlowInfo"
+      :csm-id="csmId"
       @scanCustomerPayment="handleScanCustomerPayment"
       @scan-customer-payment="handleScanCustomerPayment"
       @paymentSuccess="handlePaymentSuccess"
@@ -265,6 +266,10 @@ export default {
     sourceRoute: {
       type: String,
       default: '', // 来源路由：orderCard (点单页面), moneyCard (收银首页), 空字符串表示直接在会员管理页面
+    },
+    csmId: {
+      type: Number,
+      default: 0, // 流水记录ID（从卡台入口充值时传递）
     },
   },
   data() {

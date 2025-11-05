@@ -44,11 +44,11 @@
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
               <div class="th">序号</div>
-              <div class="th">区域</div>
-              <div class="th">卡台名称</div>
               <div class="th">优惠部门</div>
               <div class="th">优惠人</div>
               <div class="th">优惠总额</div>
+              <div class="th">区域</div>
+              <div class="th">卡台名称</div>
               <div class="th">优惠时间</div>
               <div class="th">优惠类型</div>
               <div class="th">优惠理由</div>
@@ -75,11 +75,11 @@
               :key="index"
             >
               <div class="td">{{index + 1}}</div>
-              <div class="td">{{item.rn}}</div>
-              <div class="td">{{item.s}}</div>
               <div class="td">{{item.ad}}</div>
               <div class="td">{{item.ae}}</div>
               <div class="td">{{item.a}}</div>
+              <div class="td">{{item.rn}}</div>
+              <div class="td">{{item.s}}</div>
               <div class="td">{{item.o}}</div>
               <div class="td">{{item.t}}</div>
               <div class="td">{{item.r}}</div>
