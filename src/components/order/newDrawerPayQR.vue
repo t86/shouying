@@ -61,6 +61,8 @@ export default {
       textValue: "",
       timer: "",
       startTimer: 15*60,
+      // 创建本地数据快照，避免父组件修改影响支付流程
+      localOrderInfo: null,
     };
   },
   methods: {
@@ -69,7 +71,16 @@ export default {
       console.log("orderInfoDetail.r:", this.orderInfoDetail.r);
       console.log("orderInfoDetail:", this.orderInfoDetail);
       
-      if (this.orderInfoDetail.r !== 2) {
+      // 创建数据快照，防止父组件修改影响支付流程
+      this.localOrderInfo = {
+        pay_url: this.orderInfoDetail.pay_url,
+        ol_pay_id: this.orderInfoDetail.ol_pay_id,
+        pay_amt: this.orderInfoDetail.pay_amt,
+        r: this.orderInfoDetail.r
+      };
+      console.log("创建本地数据快照:", this.localOrderInfo);
+      
+      if (this.localOrderInfo.r !== 2) {
         console.log("开始设置二维码信息");
         this.setQRCodeInfo();
       } else {
@@ -81,9 +92,32 @@ export default {
     // 生成二维码并设置询问状态
     setQRCodeInfo() {
       console.log("setQRCodeInfo 被调用");
-      console.log("pay_url:", this.orderInfoDetail.pay_url);
+      console.log("localOrderInfo:", this.localOrderInfo);
+      console.log("pay_url:", this.localOrderInfo?.pay_url);
+      console.log("ol_pay_id:", this.localOrderInfo?.ol_pay_id);
       
-      this.textValue = this.orderInfoDetail.pay_url;
+      // 校验必要参数
+      if (!this.localOrderInfo) {
+        console.error("localOrderInfo 为空，无法设置二维码");
+        this.onCancelDrawer();
+        return;
+      }
+      
+      if (!this.localOrderInfo.pay_url) {
+        console.error("pay_url 为空，无法生成二维码");
+        this.$message.error("支付链接获取失败");
+        this.onCancelDrawer();
+        return;
+      }
+      
+      if (!this.localOrderInfo.ol_pay_id) {
+        console.error("ol_pay_id 为空，无法查询支付状态");
+        this.$message.error("订单ID获取失败");
+        this.onCancelDrawer();
+        return;
+      }
+      
+      this.textValue = this.localOrderInfo.pay_url;
       console.log("设置 textValue:", this.textValue);
       
       if (this.timer) clearInterval(this.timer);
@@ -103,9 +137,34 @@ export default {
 
     // 询问订单支付状态
     async getOrderPayStatus() {
+      // 使用本地快照数据，避免父组件修改影响
+      if (!this.localOrderInfo || !this.localOrderInfo.ol_pay_id) {
+        console.error("本地订单信息或ol_pay_id不存在，停止查询支付状态");
+        console.log("localOrderInfo:", this.localOrderInfo);
+        
+        // 清除定时器并关闭弹窗
+        if (this.timer) {
+          clearInterval(this.timer);
+          this.timer = null;
+        }
+        this.onCancelDrawer();
+        return;
+      }
+
       const params = {
-        ol_pay_id: this.orderInfoDetail.ol_pay_id * 1, // int64   锁定订单Id
+        ol_pay_id: this.localOrderInfo.ol_pay_id * 1, // int64   锁定订单Id
       };
+
+      // 再次验证参数有效性
+      if (!params.ol_pay_id || params.ol_pay_id <= 0 || isNaN(params.ol_pay_id)) {
+        console.error("ol_pay_id参数无效:", params.ol_pay_id);
+        if (this.timer) {
+          clearInterval(this.timer);
+          this.timer = null;
+        }
+        this.onCancelDrawer();
+        return;
+      }
 
       try {
         const res = await api_order.reqGetOrderOnlinePayStatus(params);
@@ -134,7 +193,7 @@ export default {
     async cancelPayOrder() {
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64   卡台Id
-        ol_pay_id: this.orderInfoDetail.ol_pay_id * 1, // int64   锁定订单Id
+        ol_pay_id: this.localOrderInfo.ol_pay_id * 1, // int64   锁定订单Id
       };
 
       try {
@@ -263,6 +322,9 @@ export default {
         console.log("关闭二维码弹窗");
         this.textValue = "";
         if (this.timer) clearInterval(this.timer);
+        // 清空本地数据快照
+        this.localOrderInfo = null;
+        console.log("已清空本地数据快照");
       }
     },
     payType: {
