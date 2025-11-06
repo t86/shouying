@@ -255,7 +255,7 @@ export default {
         
         // 如果从卡台入口充值，添加流水ID
         if (this.csmId && this.csmId > 0) {
-          orderParams.csm_id = this.csmId;
+          orderParams.csm_id = this.csmId * 1;
           console.log("🎯 [支付方式弹窗] 添加流水ID (csm_id):", orderParams.csm_id);
         }
 
