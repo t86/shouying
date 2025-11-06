@@ -93,8 +93,8 @@ export default {
     setQRCodeInfo() {
       console.log("setQRCodeInfo 被调用");
       console.log("localOrderInfo:", this.localOrderInfo);
-      console.log("pay_url:", this.localOrderInfo?.pay_url);
-      console.log("ol_pay_id:", this.localOrderInfo?.ol_pay_id);
+      console.log("pay_url:", this.localOrderInfo && this.localOrderInfo.pay_url);
+      console.log("ol_pay_id:", this.localOrderInfo && this.localOrderInfo.ol_pay_id);
       
       // 校验必要参数
       if (!this.localOrderInfo) {

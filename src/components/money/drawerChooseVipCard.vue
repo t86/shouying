@@ -53,6 +53,27 @@
                       <div v-else class="btn" @click="getTableData">搜索</div>
                     </div>
                   </div>
+                  
+                  <!-- 历史手机号列表 -->
+                  <div class="row" layout="row" layout-align="start center" v-if="historyPhoneNums.length > 0">
+                    <div class="label">
+                      <span>当台已有手机号:</span>
+                    </div>
+                    <div class="value" layout="row" layout-align="start center">
+                      <div class="phone-list">
+                        <div 
+                          v-for="(phone, index) in historyPhoneNums" 
+                          :key="index"
+                          :class="['phone-item', { selected: selectedPhone === phone }]"
+                          @click="selectPhoneNum(phone)"
+                        >
+                          {{ phone }}
+                        </div>
+                        <p class="phone-tips">点击手机号，上方将输入并直接搜索会员卡；并自动跳过验证流程</p>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div class="row" layout="row" layout-align="start center">
                     <div class="label">
                       <span class="red" v-if="needValidateCode">*</span>
@@ -233,6 +254,7 @@
 <script>
 import api_money from "@/api/money";
 import api_vip from "@/api/vip";
+import api_order from "@/api/order";
 import common_money from "@/utils/common/money";
 export default {
   data() {
@@ -245,6 +267,8 @@ export default {
       authCodeStr: "",
       tableData: [],
       hasChoosedListArr: [], // 选择好支付方式的列表（购物车）
+      historyPhoneNums: [], // 历史手机号列表
+      selectedPhone: "", // 当前选中的历史手机号
     };
   },
   methods: {
@@ -254,7 +278,68 @@ export default {
       this.validateVal = "";
       this.tableData = [];
       this.hasChoosedListArr = []; //
+      this.historyPhoneNums = []; // 重置历史手机号
+      this.selectedPhone = ""; // 重置选中状态
       this.getChoosePayList();
+      this.loadHistoryPhoneNums(); // 加载历史手机号
+    },
+    
+    // 加载历史手机号
+    async loadHistoryPhoneNums() {
+      try {
+        const seatId = this.$store.state.orderInfo.currentCardInfo.seatId;
+        if (!seatId) {
+          console.log("未找到卡台ID，无法加载历史手机号");
+          return;
+        }
+        
+        const res = await api_order.get_csm_phone_nums({
+          id: seatId * 1 // CsmId 流水Id
+        });
+        
+        console.log("res:", res);
+        if (res.code === 1 && res.data && res.data.records) {
+          this.historyPhoneNums = res.data.records;
+          console.log("加载历史手机号成功:", this.historyPhoneNums);
+        } else {
+          this.historyPhoneNums = [];
+          console.log("未找到历史手机号或接口返回失败");
+        }
+      } catch (error) {
+        console.error("加载历史手机号失败:", error);
+        this.historyPhoneNums = [];
+      }
+    },
+    
+    // 选择历史手机号
+    async selectPhoneNum(phone) {
+      this.selectedPhone = phone; // 设置选中状态
+      this.phoneNumVal = phone;
+      // 直接搜索，跳过验证码流程
+      await this.getTableDataDirectly();
+    },
+    
+    // 直接搜索（不需要验证码）
+    async getTableDataDirectly() {
+      const params = {
+        sms_auth_code: 'NO_NEED_VALIDATE', // 历史手机号不需要验证码
+        phone_num: this.phoneNumVal
+      };
+
+      try {
+        const res = await api_money.reqGetVipCardFormPhoneNum(params);
+        if (res.code == 1) {
+          this.tableData = (res.data.records || []).map((item) => ({
+            ...item,
+            chooseAmt: "",
+          }));
+          this.cardPayInfo();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log("通过手机号查询会员卡失败", error);
+      }
     },
     interValHandle() {
       const storageSecondCount = this.$sessionStorage.getItem(
@@ -577,8 +662,19 @@ export default {
   .form {
     .row {
       padding: 10px 20px;
+      
+      // 标签列：固定最小宽度
+      .label {
+        flex-shrink: 0;
+        min-width: 120px;
+        white-space: nowrap;
+      }
+      
+      // 值列：占据剩余空间
       .value {
         padding-left: 10px;
+        flex: 1;
+        
         input {
           padding: 0 10px;
           box-sizing: border-box;
@@ -603,6 +699,58 @@ export default {
             background-color: #aaa;
             color: #eee;
             cursor: no-drop;
+          }
+        }
+        
+        // 历史手机号列表样式
+        .phone-list {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          
+          .phone-item {
+            padding: 6px 15px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.12);
+              border-color: rgba(255, 255, 255, 0.25);
+              transform: translateY(-1px);
+              box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+            }
+            
+            &:active {
+              transform: translateY(0);
+            }
+            
+            // 选中状态 - 蓝色高亮
+            &.selected {
+              background-color: #409eff;
+              border-color: #409eff;
+              color: #fff;
+              box-shadow: 0 2px 8px rgba(64, 158, 255, 0.4);
+              
+              &:hover {
+                background-color: #66b1ff;
+                border-color: #66b1ff;
+              }
+            }
+          }
+          
+          .phone-tips {
+            width: 100%;
+            margin: 8px 0 0 0;
+            font-size: 12px;
+            color: #e6a23c;
+            line-height: 18px;
           }
         }
       }
