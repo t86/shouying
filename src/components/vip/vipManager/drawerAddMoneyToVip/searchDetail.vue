@@ -288,13 +288,38 @@ export default {
       }
     },
 
-    // 按照四层规则设置推荐人
+    // 按照五层规则设置推荐人
     async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
         console.log("🎯 [推荐人设置] 开始按规则设置推荐人");
         console.log("  - 卡ID:", cardId);
         console.log("  - 开卡推荐人ID:", openCardSalesEmpId);
         console.log("  - 默认推荐人ID (卡台订位人):", this.defaultRecommender);
+        console.log("  - 来源路由 (sourceRoute):", this.sourceRoute);
+        console.log("  - 当前卡台信息:", this.$store.state.orderInfo && this.$store.state.orderInfo.currentCardInfo);
+        
+        // 第零层：如果是从收银卡台进入（orderCard 或 orderMealList），直接使用卡台的订位人
+        if (this.sourceRoute === 'moneyCard' || this.sourceRoute === 'payOrder') {
+          const currentCardSalesEmpId = this.$store.state.orderInfo && 
+                                        this.$store.state.orderInfo.currentCardInfo && 
+                                        this.$store.state.orderInfo.currentCardInfo.salesEmpId;
+          if (currentCardSalesEmpId) {
+            console.log("🎯 [第零层] 从收银卡台进入，使用卡台订位人ID:", currentCardSalesEmpId);
+            
+            const matchedPerson = this.findPersonInOptions(currentCardSalesEmpId);
+            if (matchedPerson) {
+              this.form.personVal = matchedPerson.id;
+              console.log("✅ [第零层] 设置卡台订位人为默认值:", this.form.personVal, matchedPerson.name);
+              return;
+            } else {
+              console.log("⚠️ [第零层] 卡台订位人不在当前推荐人列表中");
+            }
+          } else {
+            console.log("⚠️ [第零层] 卡台没有订位人信息");
+          }
+        } else {
+          console.log("⚠️ [第零层] 不是从收银卡台进入，跳过第零层逻辑");
+        }
         
         // 第一层：查询该卡上次充值时的充值推荐人
         const params = {
@@ -395,6 +420,10 @@ export default {
     defaultRecommender: {
       type: Number,
       default: 0 // 默认推荐人ID（卡台订位人）
+    },
+    sourceRoute: {
+      type: String,
+      default: '' // 来源路由：orderCard (点单页面), orderMealList (点餐列表), 空字符串表示直接从会员管理页面
     }
   },
   watch: {

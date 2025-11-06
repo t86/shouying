@@ -34,6 +34,7 @@
             :currentInfo="currentInfo"
             :vipIdOfSwiper="vipIdOfSwiper"
             :defaultRecommender="defaultRecommender"
+            :sourceRoute="sourceRoute"
             @updateFormInfo="updateFormInfo"
           />
         </div>
