@@ -653,12 +653,38 @@ export default {
     async setRecommenderByRules(cardId, openCardSalesEmpId) {
       try {
         console.log("开始按规则设置推荐人，卡ID:", cardId, "开卡推荐人ID:", openCardSalesEmpId);
+        console.log("来源路由:", this.sourceRoute);
         
         // 获取所有员工选项
         const orderPersonInfo = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
         console.log("员工数据:", orderPersonInfo);
         console.log("员工数据长度:", orderPersonInfo.length);
         this.employeeOptions = orderPersonInfo;
+        
+        // 第零层：如果是从卡台进入，直接使用卡台的订位人
+        if (this.sourceRoute === 'orderCard' || this.sourceRoute === 'orderMealList') {
+          const currentCardSalesEmpId = this.$store.state.orderInfo.currentCardInfo.salesEmpId;
+          console.log("第零层：从卡台进入，使用卡台订位人ID:", currentCardSalesEmpId);
+          
+          if (currentCardSalesEmpId) {
+            const matchedEmployee = this.findEmployeeInOptions(currentCardSalesEmpId);
+            if (matchedEmployee) {
+              this.autoSelectedRecommender = matchedEmployee; // 缓存推荐人信息
+              this.ensureSelectedRecommenderInOptions();
+              // 使用nextTick确保DOM更新后再设置值
+              await this.$nextTick();
+              this.selectedRecommender = matchedEmployee.id;
+              // 强制更新组件以确保el-select正确显示
+              this.$forceUpdate();
+              console.log("第零层：设置卡台订位人为默认值:", this.selectedRecommender, matchedEmployee.name);
+              return;
+            } else {
+              console.log("第零层：卡台订位人不在当前员工列表中");
+            }
+          } else {
+            console.log("第零层：卡台没有订位人信息");
+          }
+        }
         
         // 第一层：查询该卡上次充值时的充值推荐人（只有当cardId有效时才查询）
         let res = null;
