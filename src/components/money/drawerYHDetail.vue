@@ -41,63 +41,65 @@
         </div>
 
         <div class="table">
-          <div class="thead">
-            <div class="tr" layout="row" layout-align="start center">
-              <div class="th">序号</div>
-              <div class="th">优惠部门</div>
-              <div class="th">优惠人</div>
-              <div class="th">优惠总额</div>
-              <div class="th">区域</div>
-              <div class="th">卡台名称</div>
-              <div class="th">优惠时间</div>
-              <div class="th">优惠类型</div>
-              <div class="th">优惠理由</div>
-              <div class="th">商品一级分类</div>
-              <div class="th">商品二级分类</div>
-              <div class="th">商品名称</div>
-              <div class="th">商品单价</div>
-              <div class="th">优惠数量</div>
-              <div class="th">优惠金额小计</div>
-              <div class="th">订台人</div>
-              <div class="th">订台部门</div>
-              <div class="th">优惠2关联功能台</div>
-              <div class="th">优惠2关联功能台区域</div>
-              <div class="th">优惠2订位人</div>
-              <div class="th">优惠2订位人部门</div>
-            </div>
-          </div>
-          <div class="tbody">
-            <div
-              class="tr"
-              layout="row"
-              layout-align="start center"
-              v-for="(item, index) in tableData"
-              :key="index"
-            >
-              <div class="td">{{index + 1}}</div>
-              <div class="td">{{item.ad}}</div>
-              <div class="td">{{item.ae}}</div>
-              <div class="td">{{item.a}}</div>
-              <div class="td">{{item.rn}}</div>
-              <div class="td">{{item.s}}</div>
-              <div class="td">{{item.o}}</div>
-              <div class="td">{{item.t}}</div>
-              <div class="td">{{item.r}}</div>
-              <div class="td">{{item.on}}</div>
-              <div class="td">{{item.tn}}</div>
-              <div class="td">{{item.n}}</div>
-              <div class="td">{{item.p}}</div>
-              <div class="td">{{item.c}}</div>
-              <div class="td">{{item.a}}</div>
-              <div class="td">{{item.se}}</div>
-              <div class="td">{{item.sd}}</div>
-              <div class="td">{{item.es}}</div>
-              <div class="td">{{item.er}}</div>
-              <div class="td">{{item.ee}}</div>
-              <div class="td">{{item.ed}}</div>
-            </div>
-            <p v-if="tableData.length == 0" class="m-t-10 fs14" style="text-align:center">暂无数据</p>
-          </div>
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>优惠部门</th>
+                <th>优惠人</th>
+                <th>优惠总额</th>
+                <th>区域</th>
+                <th>卡台名称</th>
+                <th>优惠时间</th>
+                <th>优惠类型</th>
+                <th>优惠理由</th>
+                <th>商品一级分类</th>
+                <th>商品二级分类</th>
+                <th>商品名称</th>
+                <th>商品单价</th>
+                <th>优惠数量</th>
+                <th>优惠金额小计</th>
+                <th>订台人</th>
+                <th>订台部门</th>
+                <th>优惠2关联功能台</th>
+                <th>优惠2关联功能台区域</th>
+                <th>优惠2订位人</th>
+                <th>优惠2订位人部门</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-if="flatTableData.length > 0">
+                <tr v-for="(item, index) in flatTableData" :key="index">
+                  <td>{{item.rowNum}}</td>
+                  <!-- 优惠部门、优惠人、优惠总额需要合并单元格 -->
+                  <td v-if="item.isFirstInGroup" :rowspan="item.groupRowspan">{{item.ad}}</td>
+                  <td v-if="item.isFirstInGroup" :rowspan="item.groupRowspan">{{item.ae}}</td>
+                  <td v-if="item.isFirstInGroup" :rowspan="item.groupRowspan">{{item.a}}</td>
+                  <!-- 以下是明细字段，每行都显示 -->
+                  <td>{{item.rn}}</td>
+                  <td>{{item.s}}</td>
+                  <td>{{item.o}}</td>
+                  <td>{{item.t}}</td>
+                  <td>{{item.r}}</td>
+                  <td>{{item.on}}</td>
+                  <td>{{item.tn}}</td>
+                  <td>{{item.n}}</td>
+                  <td>{{item.p}}</td>
+                  <td>{{item.c}}</td>
+                  <td>{{item.dtlAmt}}</td>
+                  <td>{{item.se}}</td>
+                  <td>{{item.sd}}</td>
+                  <td>{{item.es}}</td>
+                  <td>{{item.er}}</td>
+                  <td>{{item.ee}}</td>
+                  <td>{{item.ed}}</td>
+                </tr>
+              </template>
+              <tr v-else>
+                <td colspan="21" style="text-align:center;padding:20px">暂无数据</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
       </div>
@@ -136,6 +138,7 @@ export default {
       },
       keyword: "",
       tableData: [],
+      flatTableData: [], // 展平后的表格数据
     };
   },
   methods: {
@@ -149,12 +152,59 @@ export default {
         const res = await api_money.reqGetYHList(params);
         if (res.code == 1) {
           this.tableData = res.data.records || []
+          this.processFlatTableData();
         } else {
           this.$message.warning(res.msg);
         }
       } catch (error) {
         console.log("表格数据获取失败", error);
       }
+    },
+
+    // 处理数据：将嵌套结构展平，并标记合并单元格信息
+    processFlatTableData() {
+      const flatData = [];
+      let rowNum = 1; // 序号计数器
+
+      this.tableData.forEach((record) => {
+        // record 包含: ad(优惠部门), ae(优惠人), a(优惠金额), dtls(明细数组)
+        const dtls = record.dtls || [];
+        const groupRowspan = dtls.length; // 该组需要合并的行数
+
+        dtls.forEach((dtl, dtlIndex) => {
+          flatData.push({
+            // 序号
+            rowNum: rowNum++,
+            // 合并单元格标识
+            isFirstInGroup: dtlIndex === 0, // 是否是分组的第一行
+            groupRowspan: groupRowspan, // 合并的行数
+            // 优惠部门、优惠人、优惠金额（来自父级record）
+            ad: record.ad || '',
+            ae: record.ae || '',
+            a: record.a || '',
+            // 明细字段（来自dtl）
+            rn: dtl.rn || '', // 区域名称
+            s: dtl.s || '',   // 卡台名称
+            o: dtl.o || '',   // 优惠操作时间
+            t: dtl.t || '',   // 优惠类型
+            r: dtl.r || '',   // 优惠理由
+            on: dtl.on || '', // 商品一级分类
+            tn: dtl.tn || '', // 商品二级分类
+            n: dtl.n || '',   // 商品名称
+            p: dtl.p || '',   // 商品单价
+            c: dtl.c || '',   // 优惠数量
+            dtlAmt: dtl.a || '', // 优惠金额小计（明细中的a字段）
+            se: dtl.se || '', // 订位人
+            sd: dtl.sd || '', // 订位部门
+            es: dtl.es || '', // 优惠2关联功能台
+            er: dtl.er || '', // 优惠2关联功能台区域
+            ee: dtl.ee || '', // 优惠2订位人
+            ed: dtl.ed || '', // 优惠2订位人部门
+          });
+        });
+      });
+
+      this.flatTableData = flatData;
     },
 
     

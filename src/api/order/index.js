@@ -96,31 +96,8 @@ export default {
 
   // 读取流水对应的会员手机号
   get_csm_phone_nums: (params) => {
-    // 🧪 Mock 数据 - 用于测试展示效果
-    const mockData = {
-      code: 1,
-      msg: 'success',
-      data: {
-            records: [
-            '18217053807',
-            '18083746372',
-            '13800138000',
-            '13912345678',
-            '15988776655',
-            '18600001111',
-            '13611112222',
-            '15800003333',
-            '15800003323',
-            '15800003133',
-          ]
-      }
-    };
-    
-    // 返回 mock 数据（模拟 Promise 响应）
-    return Promise.resolve(mockData);
-    
     // 🚨 正式上线前，取消注释下面这行，删除上面的 mock 代码
-    // return axios.post(`${base.htgl}/sel/get_csm_phone_nums`, params);
+    return axios.post(`${base.htgl}/sel/get_csm_phone_nums`, params);
   },
 
   // 修改流水服务员
