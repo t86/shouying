@@ -498,6 +498,14 @@
       @showOrHideDrawer="showOrHideQueueDrawerHandle"
     />
 
+    <!-- 复台流水选择 -->
+    <drawerChooseTurnback
+      :visible.sync="showTurnbackDialog"
+      :seatId="turnbackSeatId"
+      @confirm="handleTurnbackConfirm"
+      @close="showTurnbackDialog = false"
+    />
+
     <!-- 修改密码 -->
     <updatePassword
       ref="updatePassword"
@@ -519,6 +527,8 @@ import drawerReservedRecord from '@/components/book/machine/drawerReservedRecord
 import drawerQueue from "@/components/book/machine/drawerQueue.vue"; // 排队详情
 // 线上预订记录
 import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue";
+// 复台流水选择
+import drawerChooseTurnback from "../../components/money/drawerChooseTurnback.vue";
 
 import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
 import api_card from "@/api/Book";
@@ -565,6 +575,8 @@ export default {
       showOrHideOnlineBookingDrawer: false, // 是否显示线上预订记录drawer
       showSeatOpeningDrawer: false,
       showQueueDrawer: false,
+      showTurnbackDialog: false, // 是否显示复台流水选择对话框
+      turnbackSeatId: null, // 复台操作的卡台ID
       dateTab: {
         dateTabList: [],
         activeIndex: 0,
@@ -1401,17 +1413,9 @@ export default {
           }
           return;
           case 25:
-          this.showConfirmHandle("复台", "是否确认复台", async () => {
-            try {
-              const res = await api_money.reqReserveCardStatus({
-                seat_id: cardInfo.id * 1, //    int64  卡台Id
-              });
-              this.confirmSuccess(res);
-            } catch (error) {
-              console.log(error);
-              this.$message.warning("复台失败");
-            }
-          });
+          // 显示复台流水选择对话框
+          this.turnbackSeatId = cardInfo.id;
+          this.showTurnbackDialog = true;
           return;
         
           case 23:
@@ -1647,6 +1651,28 @@ export default {
      */
     showOrHideQueueDrawerHandle() {
       this.showQueueDrawer = !this.showQueueDrawer;
+    },
+
+    /**
+     * 处理复台确认
+     */
+    async handleTurnbackConfirm(data) {
+      try {
+        const res = await api_money.reqReserveCardStatus({
+          id: data.csmId * 1, // int64 流水Id
+        });
+        
+        if (res.code === 1) {
+          this.$message.success("复台成功");
+          // 复台成功后刷新页面数据
+          // 这里会通过websocket自动更新，不需要手动刷新
+        } else {
+          this.$message.warning(res.msg || "复台失败");
+        }
+      } catch (error) {
+        console.error("复台失败:", error);
+        this.$message.error("复台失败");
+      }
     },
 
     /**
@@ -1932,6 +1958,7 @@ export default {
     drawerReservedRecord, // 预留记录
     drawerOnlineBooking, // 线上预订记录
     drawerQueue, // 排队详情
+    drawerChooseTurnback, // 复台流水选择
   },
 
   filters: {

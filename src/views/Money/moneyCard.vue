@@ -1047,6 +1047,14 @@
       :showDrawer="showMtDyHxDrawer"
       @showOrHideMtDyHx="showOrHideDyMtHx"
     />
+    
+    <!-- 复台流水选择对话框 -->
+    <drawerChooseTurnback
+      :visible="showTurnbackDialog"
+      :seatId="turnbackSeatId"
+      @update:visible="showTurnbackDialog = $event"
+      @confirm="handleTurnbackConfirm"
+    />
   </div>
 </template>
 
@@ -1169,6 +1177,9 @@ import drawerMtDyHx from "../../components/money/drawerMtDyHx.vue"
 // 历史点单记录
 import drawerHistoryOrder from "../../components/money/drawerHistoryOrder.vue";
 
+// 复台流水选择对话框
+import drawerChooseTurnback from "../../components/money/drawerChooseTurnback.vue";
+
 import { cardPageMixins } from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import eventVue from "@/utils/eventVue";
@@ -1242,6 +1253,8 @@ export default {
       showXSAllInfoDrawer: false, // 部门销售汇总表
       showMtDyHxDrawer: false, //美团抖音卡券核销
       showHistoryOrderDrawer: false, // 历史点单记录
+      showTurnbackDialog: false, // 是否显示复台流水选择对话框
+      turnbackSeatId: null, // 待复台的卡台ID
       keyWord: "",
       tab: {
         tabListOrigin: [], // 原始数据（只经过排序处理的数据）
@@ -2074,24 +2087,35 @@ export default {
       });
     },
 
-    // 复台
+    // 复台 - 显示流水选择对话框
     reserveCard(info) {
-      this.showConfirmHandle("复台", "确定要进行复台操作吗？", async () => {
-        try {
-          const res = await api_money.reqReserveCardStatus({
-            seat_id: info.seatId * 1, // int64   卡台Id
-          });
-          if (res.code === 1) {
-            this.$message.success("复台成功");
-            info.showOption = false;
-            this.$forceUpdate();
-          } else {
-            this.$message.warning(res.msg);
-          }
-        } catch (error) {
-          console.log("复台失败", error);
+      this.turnbackSeatId = info.seatId;
+      this.showTurnbackDialog = true;
+      // 隐藏卡台操作选项
+      info.showOption = false;
+      this.$forceUpdate();
+    },
+
+    /**
+     * 处理复台确认
+     */
+    async handleTurnbackConfirm(data) {
+      try {
+        const res = await api_money.reqReserveCardStatus({
+          id: data.csmId * 1, // int64 流水Id
+        });
+        
+        if (res.code === 1) {
+          this.$message.success("复台成功");
+          // 复台成功后刷新页面数据
+          // 这里会通过websocket自动更新，不需要手动刷新
+        } else {
+          this.$message.warning(res.msg || "复台失败");
         }
-      });
+      } catch (error) {
+        console.error("复台失败:", error);
+        this.$message.error("复台失败");
+      }
     },
 
     // 页面滚动隐藏目前页面中显示的卡台操作选项
@@ -2530,6 +2554,7 @@ export default {
     drawerSetYDJYE,
     drawerMtDyHx,
     drawerHistoryOrder,
+    drawerChooseTurnback,
   },
 
   watch: {

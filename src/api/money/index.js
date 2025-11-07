@@ -98,6 +98,10 @@ export default {
   // 清台
   reqClearCard: (params) => axios.post(`${base.htgl}/sel/seat_clean`, params),
 
+  // 读取待复台流水
+  reqGetSeatTurnbackList: (params) =>
+    axios.post(`${base.htgl}/sel/get_seat_turnback_list`, params),
+
   // 复台(恢复上一当翻台,当前卡台必须为空台状态)
   reqReserveCardStatus: (params) =>
     axios.post(`${base.htgl}/sel/seat_turn_back`, params),
