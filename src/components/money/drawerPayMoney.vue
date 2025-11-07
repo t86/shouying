@@ -133,17 +133,17 @@
               layout-align="space-around center"
               style="padding: 0 15%"
             >
-              <span style="color: #ff2f64">会员卡刷卡</span>
-              <span
-                style="width: 130px; color: #4b89ff; cursor: pointer"
-                @click="showOrHideChooseVipCardDrawer(1)"
-                >服务码选择会员卡</span
-              >
               <span
                 style="width: 130px; color: #4b89ff; cursor: pointer"
                 @click="showOrHideChooseVipCardDrawer(2)"
                 >手机号选择会员卡</span
               >
+              <span
+                style="width: 130px; color: #4b89ff; cursor: pointer"
+                @click="showOrHideChooseVipCardDrawer(1)"
+                >服务码选择会员卡</span
+              >
+              <span style="color: #ff2f64">会员卡刷卡</span>
             </div>
             <div class="form-item" v-if="!vipPayInfo.show">
               <span>请刷会员卡</span>
