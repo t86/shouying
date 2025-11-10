@@ -292,14 +292,56 @@ export default {
           that.prds = res.data.prds
           this.step = 1
         } else {
+          // 接口返回 code 不为 1，提示用户并终止流程
           console.log("处理失败：", res);
-          that.$message.warning("处理失败：" + res.msg);
-          this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
+          const errorMsg = res.msg || res.message || '券码处理失败，请重试';
+          that.$message.error(errorMsg);
+          // 重置状态，终止流程
+          that.authCode = '';
+          that.prds = [];
+          that.selectedPrdId = -1;
+          that.csmInfo = {
+            order_id: 0,
+            kq_order_id: "",
+            title: "",
+            coupon_amt: 0,
+            coupon_pay_amt: 0,
+            verify_token: "",
+            pt_sku_id: 0,
+            receipt_code: "",
+            prd_type: 12,
+            wkday_id: 0,
+            csm_id: 0,
+            coupon_type: ''
+          };
+          this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
+          return; // 终止流程，不继续执行
         }
       } catch (error) {
-        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
+        // 接口异常，提示用户并终止流程
         console.log("处理失败：", error);
-        that.$message.warning("处理失败：" + error);
+        const errorMsg = error?.message || error?.msg || (typeof error === 'string' ? error : '网络异常，请重试');
+        that.$message.error(errorMsg);
+        // 重置状态，终止流程
+        that.authCode = '';
+        that.prds = [];
+        that.selectedPrdId = -1;
+        that.csmInfo = {
+          order_id: 0,
+          kq_order_id: "",
+          title: "",
+          coupon_amt: 0,
+          coupon_pay_amt: 0,
+          verify_token: "",
+          pt_sku_id: 0,
+          receipt_code: "",
+          prd_type: 12,
+          wkday_id: 0,
+          csm_id: 0,
+          coupon_type: ''
+        };
+        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
+        return; // 终止流程，不继续执行
       }
     }
 
