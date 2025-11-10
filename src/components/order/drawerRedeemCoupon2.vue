@@ -320,7 +320,7 @@ export default {
       } catch (error) {
         // 接口异常，提示用户并终止流程
         console.log("处理失败：", error);
-        const errorMsg = error?.message || error?.msg || (typeof error === 'string' ? error : '网络异常，请重试');
+        const errorMsg = (error && error.message) || (error && error.msg) || (typeof error === 'string' ? error : '网络异常，请重试');
         that.$message.error(errorMsg);
         // 重置状态，终止流程
         that.authCode = '';
