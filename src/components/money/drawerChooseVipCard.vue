@@ -525,10 +525,7 @@ export default {
         all_mb_card_ids: cardIds,
       };
       const res = await api_money.reqGetVipCardAmountInfo(params);
-      this.tableData = this.tableData.map((item) => {
-        const i = res.data.records.find((a) => a.id == item.id);
-        return { ...item, ...i };
-      });
+      this.tableData = res.data.records
       // 获取卡信息后，自动填充使用金额
       this.autoFillCardAmounts();
     },
