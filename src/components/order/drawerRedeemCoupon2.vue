@@ -266,37 +266,6 @@ export default {
       }
       try {
         let res = await api_order.csm_coupon_preparev2(params)
-        // const res = {
-        //   "code": 1,
-        //   "msg": "",
-        //   "data": {
-        //     "order_id": 389,
-        //     "kq_order_id": "",
-        //     "title": "【中心卡座无附加费】早场啤酒薅羊毛套餐",
-        //     "coupon_amt": 1990,
-        //     "coupon_pay_amt": 1990,
-        //     "verify_token": "",
-        //     "pt_sku_id": 1099976424,
-        //     "receipt_code": "6909584274",
-        //     "prd_type": 12,
-        //     "wkday_id": 242082100418841,
-        //     "csm_id": 242131306419786,
-        //     "prds": [
-        //       {
-        //         "id": 240751037365436,
-        //         "n": "美团套餐",
-        //         "p": 2000,
-        //         "r": ""
-        //       },
-        //       {
-        //         "id": 240791006365816,
-        //         "n": "美团开业套餐",
-        //         "p": 900,
-        //         "r": "套餐定价低于卡券支付金额"
-        //       }
-        //     ]
-        //   }
-        // }
         if (res.code === 1) {
           that.csmInfo.order_id = res.data.order_id
           that.csmInfo.kq_order_id = res.data.kq_order_id
@@ -324,7 +293,7 @@ export default {
           this.step = 1
         } else {
           console.log("处理失败：", res);
-          that.$message.warning(res.msg);
+          that.$message.warning("处理失败：" + res.msg);
           this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0
         }
       } catch (error) {

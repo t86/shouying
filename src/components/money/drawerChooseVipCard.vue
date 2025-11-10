@@ -315,12 +315,15 @@ export default {
     async selectPhoneNum(phone) {
       this.selectedPhone = phone; // 设置选中状态
       this.phoneNumVal = phone;
-      // 直接搜索，跳过验证码流程
-      await this.getTableDataDirectly();
+      if(this.phoneNumVal) {
+        // 直接搜索，跳过验证码流程
+        await this.getTableDataDirectly();
+      }
     },
     
     // 直接搜索（不需要验证码）
     async getTableDataDirectly() {
+      if(!this.phoneNumVal) return;
       const params = {
         sms_auth_code: 'NO_NEED_VALIDATE', // 历史手机号不需要验证码
         phone_num: this.phoneNumVal
@@ -406,7 +409,8 @@ export default {
       const res = await api_money.reqUpdateVipCardIntoBillChannel(param);
       if (res.code == 1 || res.code == 2) {
         this.$message.success("加入成功");
-        this.getChoosePayList();
+        // 先更新已收金额，再自动填充卡使用金额
+        await this.getChoosePayList();
         this.cardPayInfo();
       } else {
         this.$message.warning(res.msg);
@@ -521,6 +525,74 @@ export default {
         const i = res.data.records.find((a) => a.id == item.id);
         return { ...item, ...i };
       });
+      // 获取卡信息后，自动填充使用金额
+      this.autoFillCardAmounts();
+    },
+    
+    // 自动填充会员卡使用金额
+    autoFillCardAmounts() {
+      if (!this.tableData || this.tableData.length === 0) {
+        return;
+      }
+      
+      // 获取待支付金额（单位：元）
+      // 待支付金额 = 本次应收金额 - 已收金额
+      const allAmt = parseFloat(this.allAmt) || 0;
+      const chooseAmt = parseFloat(this.chooseAmt) || 0;
+      const needPayAmount = allAmt - chooseAmt;
+      
+      if (needPayAmount <= 0) {
+        // 如果已收金额已经大于等于应收金额，清空所有卡的使用金额
+        this.tableData.forEach(item => {
+          item.useAmt = "";
+        });
+        return;
+      }
+      
+      // 先清空所有卡的使用金额
+      this.tableData.forEach(item => {
+        item.useAmt = "";
+      });
+      
+      let remainingAmount = needPayAmount; // 剩余需要支付的金额（单位：元）
+      
+      // 遍历所有会员卡，自动分配使用金额
+      for (let i = 0; i < this.tableData.length; i++) {
+        const card = this.tableData[i];
+        
+        // 计算当前卡的可用余额（单位：元）
+        // 使用 uv 和 uf 字段，与表格显示的"卡可用余额"保持一致
+        // uv: 可用储值余额（单位：分），uf: 可用赠送余额（单位：分）
+        const valAmt = (card.uv || 0) * 1; // 可用储值余额（分）
+        const freeAmt = (card.uf || 0) * 1; // 可用赠送余额（分）
+        const maxAvailable = valAmt + freeAmt; // 总可用余额（分）
+        const availableAmount = maxAvailable / 100; // 转换为元
+        
+        if (availableAmount <= 0) {
+          // 如果当前卡没有可用余额，跳过
+          continue;
+        }
+        
+        if (remainingAmount <= 0) {
+          // 如果已经满足支付金额，停止分配
+          break;
+        }
+        
+        // 计算当前卡应该使用的金额
+        let useAmount = 0;
+        if (availableAmount >= remainingAmount) {
+          // 当前卡余额足够支付剩余金额
+          useAmount = remainingAmount;
+          remainingAmount = 0;
+        } else {
+          // 当前卡余额不足，使用全部可用余额
+          useAmount = availableAmount;
+          remainingAmount -= availableAmount;
+        }
+        
+        // 将使用金额填入输入框（保留两位小数）
+        this.$set(card, 'useAmt', useAmount.toFixed(2));
+      }
     },
 
     changeInput(item) {

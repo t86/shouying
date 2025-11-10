@@ -212,7 +212,7 @@ export default {
       
       // 如果从卡台入口充值，添加流水ID
       if (this.csmId && this.csmId > 0) {
-        params.csm_id = this.csmId;
+        params.csm_id = this.csmId * 1;
         console.log("🎯 [普通充值] 添加流水ID (csm_id):", params.csm_id);
       }
       
@@ -380,7 +380,7 @@ export default {
         
         // 如果从卡台入口充值，添加流水ID
         if (this.csmId && this.csmId > 0) {
-          params.csm_id = this.csmId;
+          params.csm_id = this.csmId * 1;
           console.log("🎯 [滞留金充值] 添加流水ID (csm_id):", params.csm_id);
         }
         
