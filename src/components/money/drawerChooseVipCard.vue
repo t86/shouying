@@ -301,6 +301,10 @@ export default {
         if (res.code === 1 && res.data && res.data.records) {
           this.historyPhoneNums = res.data.records;
           console.log("加载历史手机号成功:", this.historyPhoneNums);
+          // 若为手机号选择模式，且存在返回记录，则默认选中第一个并自动查询会员卡
+          if (this.type !== 1 && this.historyPhoneNums.length > 0) {
+            await this.selectPhoneNum(this.historyPhoneNums[0]);
+          }
         } else {
           this.historyPhoneNums = [];
           console.log("未找到历史手机号或接口返回失败");
