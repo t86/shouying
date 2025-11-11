@@ -125,7 +125,7 @@
                     <div class="td one-txt-cut">
                       {{ index + 1 }}
                     </div>
-                    <div class="td one-txt-cut">{{ item.c }}</div>
+                    <div class="td one-txt-cut">{{ item.c || item.o }}</div>
                     <div class="td one-txt-cut">{{ item.n }}</div>
                     <div class="td one-txt-cut">{{ (((item.vb || 0)* 1  + (item.fb || 0)* 1 ) / 100).toFixed(2)  }}</div>
                     <div class="td one-txt-cut">{{  ((item.vb || 0)/100).toFixed(2)  }}</div>
