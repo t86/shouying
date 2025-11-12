@@ -368,4 +368,52 @@ export default {
   // 导出存酒查询,不需要分页
   reqExportExcelOfSaveSearchReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/wine/rpt/exp_wine_op_log`, params),
+
+  /**
+   * 存酒借还
+   */
+
+  // 读取借酒出库/还酒入库操作列表(分页)
+  reqGetWineBorrowReturnList: (params) =>
+    axios.post(`${base.htgl}/wine/get_wine_borrow_return_list`, params),
+
+  // 模糊读取可借酒水及数量
+  reqGetWineCanBorrowList: (params) =>
+    axios.post(`${base.htgl}/wine/get_wine_can_borrow_list`, params),
+
+  // 借酒(需提供header.tk)
+  reqNewWineBorrow: (params) =>
+    axios.post(`${base.htgl}/wine/new_wine_borrow`, params),
+
+  // 还酒(需提供header.tk)
+  reqNewWineReturn: (params) =>
+    axios.post(`${base.htgl}/wine/new_wine_return`, params),
+
+  // 读取未还酒水数量列表(需提供header.tk)
+  reqGetWineBorrowInvtList: (params) =>
+    axios.post(`${base.htgl}/wine/get_wine_borrow_invt_list`, params),
+
+  // 读取借酒列表(分页) - 兼容旧接口
+  reqGetBorrowWineList: (params) =>
+    axios.post(`${base.htgl}/wine/get_borrow_wine_list`, params),
+
+  // 读取还酒列表(分页) - 兼容旧接口
+  reqGetReturnWineList: (params) =>
+    axios.post(`${base.htgl}/wine/get_return_wine_list`, params),
+
+  // 读取未还酒水列表(分页) - 兼容旧接口
+  reqGetUnreturnedWineList: (params) =>
+    axios.post(`${base.htgl}/wine/get_unreturned_wine_list`, params),
+
+  // 读取借还明细
+  reqGetBorrowReturnDetail: (params) =>
+    axios.post(`${base.htgl}/wine/get_borrow_return_detail`, params),
+
+  // 导出未还酒水列表
+  reqExportUnreturnedWineList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/wine/rpt/exp_unreturned_wine_list`, params),
+
+  // 导出未还酒水数量列表(需提供header.tk)
+  reqExportWineBorrowInvtList: () =>
+    axios.binaryFilePost(`${base.htgl}/wine/exp_wine_borrow_invt_list`, {}),
 };

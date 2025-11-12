@@ -76,5 +76,19 @@ export default [
   {
     path: '/wine/saveWineSearch', name: "saveWineSearch", meta: { title: '存酒查询' },
     component: () => import('@/views/ManagementSystem/wine/saveWineSearch/saveWineSearch.vue')
+  },
+  // 存酒借还begin
+  {
+    path: '/wine/borrowWine', name: "borrowWine", meta: { title: '借酒' },
+    component: () => import('@/views/ManagementSystem/wine/borrowWine/borrowWine.vue')
+  },
+  {
+    path: '/wine/returnWine', name: "returnWine", meta: { title: '还酒' },
+    component: () => import('@/views/ManagementSystem/wine/returnWine/returnWine.vue')
+  },
+  {
+    path: '/wine/unreturnedWine', name: "unreturnedWine", meta: { title: '未还酒水' },
+    component: () => import('@/views/ManagementSystem/wine/unreturnedWine/unreturnedWine.vue')
   }
+  // 存酒借还end
 ]

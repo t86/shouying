@@ -85,40 +85,62 @@ export default [{
     }
   ]
 },
-{
-  name: "报表管理",
-  sys_priv: [3],
-  system: ["wine"],
-  img: "report_manage1.png",
-  content: [
-    {
-      name: "存取酒记录",
-      url: "/wine/saveAndGetReport"
-    },
-    {
-      name: "延期记录",
-      url: "/wine/passTimeLongReport"
-    },
-    {
-      name: "充公出库记录",
-      url: "/wine/toStoreOutReport"
-    },
-    {
-      name: "入库统计",
-      url: "/wine/saveAllDataReport"
-    },
-    {
-      name: "出库统计",
-      url: "/wine/getAllDataReport"
-    },
-    {
-      name: "充公统计",
-      url: "/wine/toStoreAllDataReport"
-    },
-    {
-      name: "存酒查询",
-      url: "/wine/saveWineSearch"
-    }
-  ]
-}
+  {
+    name: "报表管理",
+    sys_priv: [3],
+    system: ["wine"],
+    img: "report_manage1.png",
+    content: [
+      {
+        name: "存取酒记录",
+        url: "/wine/saveAndGetReport"
+      },
+      {
+        name: "延期记录",
+        url: "/wine/passTimeLongReport"
+      },
+      {
+        name: "充公出库记录",
+        url: "/wine/toStoreOutReport"
+      },
+      {
+        name: "入库统计",
+        url: "/wine/saveAllDataReport"
+      },
+      {
+        name: "出库统计",
+        url: "/wine/getAllDataReport"
+      },
+      {
+        name: "充公统计",
+        url: "/wine/toStoreAllDataReport"
+      },
+      {
+        name: "存酒查询",
+        url: "/wine/saveWineSearch"
+      }
+    ]
+  },
+  {
+    name: "存酒借还",
+    sys_priv: [3],
+    auth: ["wine"],
+    system: ["wine"],
+    needAuth: true,
+    img: "save_wine_manage.png",
+    content: [
+      {
+        name: "借酒",
+        url: "/wine/borrowWine"
+      },
+      {
+        name: "还酒",
+        url: "/wine/returnWine"
+      },
+      {
+        name: "未还酒水",
+        url: "/wine/unreturnedWine"
+      }
+    ]
+  }
 ]
