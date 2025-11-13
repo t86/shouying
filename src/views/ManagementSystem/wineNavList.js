@@ -118,6 +118,10 @@ export default [{
       {
         name: "存酒查询",
         url: "/wine/saveWineSearch"
+      },
+      {
+        name: "日实时库存",
+        url: "/wine/nowInvtReport"
       }
     ]
   },

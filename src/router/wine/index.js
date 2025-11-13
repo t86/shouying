@@ -77,6 +77,10 @@ export default [
     path: '/wine/saveWineSearch', name: "saveWineSearch", meta: { title: '存酒查询' },
     component: () => import('@/views/ManagementSystem/wine/saveWineSearch/saveWineSearch.vue')
   },
+  {
+    path: '/wine/nowInvtReport', name: "nowInvtReport", meta: { title: '日实时库存' },
+    component: () => import('@/views/ManagementSystem/wine/nowInvtReport/nowInvtReport.vue')
+  },
   // 存酒借还begin
   {
     path: '/wine/borrowWine', name: "borrowWine", meta: { title: '借酒' },

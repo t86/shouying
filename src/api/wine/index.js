@@ -416,4 +416,16 @@ export default {
   // 导出未还酒水数量列表(需提供header.tk)
   reqExportWineBorrowInvtList: () =>
     axios.binaryFilePost(`${base.htgl}/wine/exp_wine_borrow_invt_list`, {}),
+
+  /**
+   * 日实时库存
+   */
+
+  // 读取存酒库当日库存(需提供header.tk)
+  reqGetWineNowInvtList: (params) =>
+    axios.post(`${base.htgl}/wine/get_wine_now_invt_list`, params),
+
+  // 导出存酒库当日库存(需提供header.tk)
+  reqExportWineNowInvtList: (params) =>
+    axios.binaryFilePost(`${base.htgl}/wine/exp_wine_now_invt_list`, params),
 };
