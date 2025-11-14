@@ -290,7 +290,7 @@ export default {
           }
           that.csmInfo.coupon_type = coupon_type
           that.prds = res.data.prds
-          this.step = 1
+          that.step = 1
         } else {
           // 接口返回 code 不为 1，提示用户并终止流程
           console.log("处理失败：", res);
@@ -314,7 +314,7 @@ export default {
             csm_id: 0,
             coupon_type: ''
           };
-          this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
+          that.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
           return; // 终止流程，不继续执行
         }
       } catch (error) {
@@ -340,7 +340,7 @@ export default {
           csm_id: 0,
           coupon_type: ''
         };
-        this.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
+        that.step = window.atool && ("startScan" in window.atool || window.atool.getTermType() == "android") ? 1 : 0;
         return; // 终止流程，不继续执行
       }
     }
