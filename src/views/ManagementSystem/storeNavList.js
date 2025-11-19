@@ -39,6 +39,10 @@ export default [
               name: "部门员工管理",
               url: "/BMS/employeeList"
             },
+            {
+              name: "入职审批",
+              url: "/BMS/onboardingApproval"
+            },
             // {
             //   name: "部门员工管理(old)",
             //   url: "/BMS/dept"

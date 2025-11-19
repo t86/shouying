@@ -125,5 +125,26 @@ const article = {
     return axios.post(`${base.htgl}/emp/get_dept_last_upper_emp`, data);
   },
 
+  // 读取入职申请单部门列表
+  requestGetEmpRzDeptList(data) {
+    return axios.post(`${base.htgl}/emp/get_emp_rz_dept_list`, data || {});
+  },
+  // 读取入职审批表
+  requestGetEmpRzList(data) {
+    return axios.post(`${base.htgl}/emp/get_emp_rz_list`, data);
+  },
+  // 修改入职申请
+  requestSaveEmpRzForApprove(data) {
+    return axios.post(`${base.htgl}/emp/save_emp_rz_for_approve`, data);
+  },
+  // 批量同意入职申请
+  requestEmpRzApproveBatchYes(data) {
+    return axios.post(`${base.htgl}/emp/emp_rz_approve_batch_yes`, data);
+  },
+  // 批量驳回入职申请
+  requestEmpRzApproveBatchDeny(data) {
+    return axios.post(`${base.htgl}/emp/emp_rz_approve_batch_deny`, data);
+  },
+
 }
 export default article;
