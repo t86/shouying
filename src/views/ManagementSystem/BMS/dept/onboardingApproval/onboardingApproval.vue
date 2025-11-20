@@ -16,37 +16,72 @@
     </div>
 
     <!-- 表格 -->
-    <div class="table-container">
+    <div class="table-container" ref="tableContainer">
       <el-table
         :data="tableData"
         v-loading="loading"
         @selection-change="handleSelectionChange"
         style="width: 100%"
-        :max-height="tableMaxHeight"
+        :height="tableHeight"
+        :key="`table-${activeTab}-${tableData.length}`"
+        border
+        stripe
       >
         <el-table-column
           type="selection"
           width="55"
           v-if="activeTab === 'pending'"
         ></el-table-column>
-        <el-table-column prop="index" label="序号" width="60" align="center">
+        <el-table-column label="序号" width="60" align="center">
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="n" label="姓名" width="120"></el-table-column>
-        <el-table-column prop="np" label="拼音" width="100"></el-table-column>
-        <el-table-column prop="d" label="部门" min-width="150"></el-table-column>
-        <el-table-column prop="sn" label="岗位" width="120"></el-table-column>
-        <el-table-column prop="s" label="性别" width="80" align="center">
+        <el-table-column prop="n" label="姓名" width="120">
           <template slot-scope="scope">
-            {{ scope.row.s === 1 ? '男' : '女' }}
+            {{ scope.row.n || '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="ue" label="直属上级" width="120"></el-table-column>
-        <el-table-column prop="p" label="电话" width="130"></el-table-column>
-        <el-table-column prop="rn" label="真实姓名" width="120"></el-table-column>
-        <el-table-column prop="r" label="申请时间" width="160"></el-table-column>
+        <el-table-column prop="np" label="拼音" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.np || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="d" label="部门" min-width="150">
+          <template slot-scope="scope">
+            {{ scope.row.d || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="sn" label="岗位" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.sn || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="s" label="性别" width="80" align="center">
+          <template slot-scope="scope">
+            {{ scope.row.s === 1 ? '男' : scope.row.s === 2 ? '女' : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="ue" label="直属上级" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.ue || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="p" label="电话" width="130">
+          <template slot-scope="scope">
+            {{ scope.row.p || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="rn" label="真实姓名" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.rn || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="r" label="申请时间" width="160">
+          <template slot-scope="scope">
+            {{ scope.row.r || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="100" align="center" v-if="activeTab === 'pending'">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
@@ -202,28 +237,46 @@ export default {
       upperEmpOptions: [], // 所有上级员工选项
       filteredUpperEmpOptions: [], // 过滤后的上级员工选项
       upperEmpLoading: false,
-      tableMaxHeight: 500,
+      tableHeight: null, // 表格高度，null 表示自动计算
       currentEditDeptId: null // 当前编辑行的部门ID
     }
   },
   mounted() {
-    this.calculateTableHeight()
     this.loadData()
     this.loadDeptOptions()
     this.loadStationOptions()
-    window.addEventListener('resize', this.calculateTableHeight)
+    this.$nextTick(() => {
+      this.calculateTableHeight()
+      window.addEventListener('resize', this.calculateTableHeight)
+    })
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.calculateTableHeight)
   },
   methods: {
     calculateTableHeight() {
-      const windowHeight = window.innerHeight
-      this.tableMaxHeight = windowHeight - 400
+      this.$nextTick(() => {
+        if (!this.$refs.tableContainer) return
+        
+        const container = this.$refs.tableContainer
+        const containerRect = container.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        
+        // 计算可用高度：窗口高度 - 容器顶部距离窗口顶部的距离 - 底部边距
+        // 减去一些安全边距，确保不会超出
+        const availableHeight = windowHeight - containerRect.top - 20
+        
+        // 确保最小高度
+        this.tableHeight = Math.max(availableHeight, 300)
+      })
     },
     handleTabClick(tab) {
       this.activeTab = tab.name
       this.loadData()
+      // 切换标签后重新计算表格高度
+      this.$nextTick(() => {
+        this.calculateTableHeight()
+      })
     },
     loadData() {
       this.loading = true
@@ -237,6 +290,11 @@ export default {
             ...item,
             index: index + 1
           }))
+          // 数据加载完成后，重新计算表格高度并强制更新
+          this.$nextTick(() => {
+            this.calculateTableHeight()
+            this.$forceUpdate()
+          })
         } else {
           this.$message.warning(res.msg)
         }
@@ -765,9 +823,24 @@ export default {
   .table-container {
     flex: 1;
     overflow: hidden;
+    min-height: 0; // 确保 flex 子元素可以收缩
+    display: flex;
+    flex-direction: column;
     
     /deep/ .el-table {
       font-size: 14px;
+      flex: 1;
+      width: 100%;
+      
+      // 确保表格支持横向滚动
+      .el-table__body-wrapper {
+        overflow-x: auto;
+        overflow-y: auto;
+      }
+      
+      .el-table__header-wrapper {
+        overflow-x: auto;
+      }
       
       .el-table__header th {
         background-color: #f5f5f5;
