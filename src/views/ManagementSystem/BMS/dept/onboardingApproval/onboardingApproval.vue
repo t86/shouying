@@ -34,7 +34,7 @@
         ></el-table-column>
         <el-table-column label="序号" width="60" align="center">
           <template slot-scope="scope">
-            {{ scope.$index + 1 }}
+            {{ (pagination.pageNum - 1) * pagination.pageSize + scope.$index + 1 }}
           </template>
         </el-table-column>
         <el-table-column prop="n" label="姓名" width="120">
@@ -88,6 +88,23 @@
           </template>
         </el-table-column>
       </el-table>
+    </div>
+
+    <div
+      class="pagination-container"
+      v-show="pagination.total > 0"
+    >
+      <el-pagination
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pagination.total"
+        :current-page="pagination.pageNum"
+        :page-size="pagination.pageSize"
+        :page-sizes="pagination.pageSizes"
+        :hide-on-single-page="false"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
 
     <!-- 编辑对话框 -->
@@ -212,6 +229,12 @@ export default {
       editDialogVisible: false,
       batchApproveDialogVisible: false,
       batchRejectDialogVisible: false,
+      pagination: {
+        pageNum: 1,
+        pageSize: 20,
+        total: 0,
+        pageSizes: [10, 20, 30, 50]
+      },
       editForm: {
         id: '',
         name: '',
@@ -272,6 +295,7 @@ export default {
     },
     handleTabClick(tab) {
       this.activeTab = tab.name
+      this.resetPagination()
       this.loadData()
       // 切换标签后重新计算表格高度
       this.$nextTick(() => {
@@ -282,13 +306,23 @@ export default {
       this.loading = true
       // 状态映射：1 申请中 2 已驳回 5 已通过
       const status = this.activeTab === 'pending' ? 1 : this.activeTab === 'approved' ? 5 : 2
+      const { pageNum, pageSize } = this.pagination
       this.$api.BMS.emp.requestGetEmpRzList({
-        s: status
+        s: status,
+        page_num: pageNum,
+        page_size: pageSize
       }).then(res => {
         if (res.code == 1) {
-          this.tableData = (res.data.records || []).map((item, index) => ({
+          const data = res.data || {}
+          const records = data.records || []
+          const currentPage = Number(data.page_num) || pageNum
+          const currentSize = Number(data.page_size) || pageSize
+          this.pagination.pageNum = currentPage
+          this.pagination.pageSize = currentSize
+          this.pagination.total = Number(data.row_cnt) || 0
+          this.tableData = records.map((item, index) => ({
             ...item,
-            index: index + 1
+            index: (this.pagination.pageNum - 1) * this.pagination.pageSize + index + 1
           }))
           // 数据加载完成后，重新计算表格高度并强制更新
           this.$nextTick(() => {
@@ -303,6 +337,21 @@ export default {
         console.error('加载数据失败', err)
         this.loading = false
       })
+    },
+    handleSizeChange(size) {
+      if (this.pagination.pageSize === size) return
+      this.pagination.pageSize = size
+      this.pagination.pageNum = 1
+      this.loadData()
+    },
+    handleCurrentChange(page) {
+      if (this.pagination.pageNum === page) return
+      this.pagination.pageNum = page
+      this.loadData()
+    },
+    resetPagination() {
+      this.pagination.pageNum = 1
+      this.pagination.total = 0
     },
     loadDeptOptions() {
       // 编辑表单需要树形结构的部门数据，优先从resResultDataObj获取
@@ -956,6 +1005,19 @@ export default {
         padding: 0 20px;
         font-size: 14px;
       }
+    }
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+  }
+
+  @media (orientation: portrait) {
+    .pagination-container {
+      justify-content: center;
+      padding-top: 12px;
     }
   }
 }
