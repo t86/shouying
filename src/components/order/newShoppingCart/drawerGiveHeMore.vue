@@ -7,6 +7,7 @@
       direction="rtl"
       :size="size"
       :before-close="onCancelDrawer"
+      :wrapperClosable="false"
     >
       <!-- 批量赠送 、 批量自用 -->
       <div class="content">
@@ -239,10 +240,35 @@
             
             <div class="form m-t-6" v-if="status==6">
               <el-form label-position="right" :model="formData" @submit.native.prevent>
-                <el-form-item label="选择批量优惠理由：" required>
+                <!-- 订位人（优惠人） -->
+                <el-form-item label="订位人" class="required">
+                  <input-select
+                    style="width:50%"
+                    :value="formData.sealPerson.name"
+                    placeholder="请输入姓名或工号"
+                    :optionsList="formData.sealPerson.info_option"
+                    @selectInputHandle="inputSealPersonName"
+                    @selectOptionItem="changeSealPerson"
+                    @selectBlurHandle="selectSealPersonBlurHandle"
+                  />
+                </el-form-item>
+                <!-- 批量优惠理由（非必填，支持自定义） -->
+                <el-form-item label="批量优惠理由：">
                   <ul class="reason-list" layout="row" layout-align="start center">
-                    <li :class="{'active': formData.reason == item.name}" v-for="item in reasonList" :key="item.id" @click="formData.reason=item.name">{{item.name}}</li>
+                    <li
+                      :class="{'active': formData.reason == item.name}"
+                      v-for="item in reasonList"
+                      :key="item.id"
+                      @click="() => { formData.reason = item.name; formData.customReason = ''; }"
+                    >{{item.name}}</li>
                   </ul>
+                  <el-input
+                    style="margin-top: 8px; width: 50%;"
+                    v-model="formData.customReason"
+                    placeholder="请输入自定义理由（选填）"
+                    size="small"
+                    @input="onCustomReasonInput"
+                  />
                 </el-form-item>
               </el-form>
             </div>
@@ -322,6 +348,7 @@ import groupProduct from "@/components/order/newDrawerMeal/groupProduct";
 import authorization from "@/components/order/newShoppingCart/authorization";
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 import drawerYH2Submit from "@/components/order/newDrawerMeal/drawerYH2Submit.vue";
+import inputSelect from "@/components/book/inputSelect";
 
 import md5 from "js-md5";
 export default {
@@ -341,6 +368,13 @@ export default {
         radio: "2",
         authTypeList: [], // 赠送类型
         reason: '',
+        customReason: '',
+        sealPerson: {
+          name: '',
+          code: '',
+          emp_id: '',
+          info_option: []
+        }
       },
       // 授权
       authorizationInfo: {
@@ -440,12 +474,93 @@ export default {
     // },
 
     goAuthorization() {
-      if (!this.formData.reason)
-        return this.$message.warning(
-          `请选择${this.status == 1 || this.status == 6 ? (this.status == 1 ? "优惠" : '优惠2') : "自用"}理由`
-        );
-
+      const needReason = this.status === 1 || this.status === 2;
+      if (needReason && !this.formData.reason) {
+        const actionText = this.status === 1 ? "优惠" : "自用";
+        return this.$message.warning(`请选择${actionText}理由`);
+      }
       this.subStatus = 2;
+    },
+
+    resetBatchDiscountForm() {
+      this.formData.reason = "";
+      this.formData.customReason = "";
+      this.formData.sealPerson.name = "";
+      this.formData.sealPerson.code = "";
+      this.formData.sealPerson.emp_id = "";
+      this.formData.sealPerson.info_option = [];
+    },
+
+    getOrderPersonList() {
+      return (
+        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || []
+      );
+    },
+
+    prefillSealPerson() {
+      const currentCardInfo =
+        this.$store.state.orderInfo.currentCardInfo || {};
+      const defaultEmpId = currentCardInfo.salesEmpId;
+      if (!defaultEmpId) {
+        this.formData.sealPerson.name = "";
+        this.formData.sealPerson.code = "";
+        this.formData.sealPerson.emp_id = "";
+        this.formData.sealPerson.info_option = [];
+        return;
+      }
+      const defaultInfo = this.getOrderPersonList().find(
+        (el) => el.id == defaultEmpId
+      );
+      if (defaultInfo) {
+        this.formData.sealPerson.name = defaultInfo.name || "";
+        this.formData.sealPerson.code = defaultInfo.code || "";
+        this.formData.sealPerson.emp_id = defaultInfo.id || "";
+      } else {
+        this.formData.sealPerson.name = "";
+        this.formData.sealPerson.code = "";
+        this.formData.sealPerson.emp_id = "";
+      }
+      this.formData.sealPerson.info_option = [];
+    },
+
+    inputSealPersonName(query) {
+      this.formData.sealPerson.name = query;
+      this.formData.sealPerson.code = "";
+      this.formData.sealPerson.emp_id = "";
+      const keyword = (query || "").trim();
+      const orderPersonList = this.getOrderPersonList();
+      if (!keyword) {
+        this.formData.sealPerson.info_option = orderPersonList.slice(0, 50);
+        return;
+      }
+      const lowerKeyword = keyword.toLowerCase();
+      this.formData.sealPerson.info_option = orderPersonList
+        .filter(
+          (el) =>
+            (el.code && el.code.toString().includes(keyword)) ||
+            (el.name && el.name.toString().includes(keyword)) ||
+            (el.namePy &&
+              el.namePy.toString().toLowerCase().includes(lowerKeyword))
+        )
+        .slice(0, 50);
+    },
+
+    changeSealPerson(info) {
+      this.formData.sealPerson.name = info.name || "";
+      this.formData.sealPerson.code = info.code || "";
+      this.formData.sealPerson.emp_id = info.id || "";
+      this.formData.sealPerson.info_option = [];
+    },
+
+    selectSealPersonBlurHandle() {
+      this.formData.sealPerson.info_option = [];
+    },
+
+    onCustomReasonInput(value) {
+      this.formData.customReason = value;
+      if (value && value.trim()) {
+        this.formData.reason = "";
+      }
     },
 
     updateAuthorizationInfo({ key, value }) {
@@ -702,36 +817,26 @@ export default {
           }
           break;
         case 6:
-          // 确认批量优惠商品
-          if (this.subStatus == 1) {
-            this.sealManyInfo.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item =>({
-              ...item,
-              pc: item.changeCount
-            }))
-            if (this.sealManyInfo.choosePrdList.length == 0) return this.$message.warning('请选择需要批量优惠的商品')
-            // 判断当前操作人员是否有全部商品优惠的权限
-            this.sealManyInfo.authLimits = this.sealManyInfo.choosePrdList.every(item => item.productInfo.canSeal)
-            return this.goAuthorization();
-          }
+          this.sealManyInfo.choosePrdList = this.sealProductList.filter(item => item.checked && item.changeCount > 0).map(item =>({
+            ...item,
+            pc: item.changeCount
+          }))
+          if (this.sealManyInfo.choosePrdList.length == 0) return this.$message.warning('请选择需要批量优惠的商品')
+          this.sealManyInfo.authLimits = this.sealManyInfo.choosePrdList.every(item => item.productInfo.canSeal)
+          if (!this.formData.sealPerson.emp_id) return this.$message.warning('请选择订位人')
 
-          // 授权批量优惠
-          authEmpCode = this.getCodeAndPwd(personType, empCardInfo, type).authEmpCode
-          authEmpPasswd = this.getCodeAndPwd(personType, empCardInfo, type).authEmpPasswd
-
+          const authEmpCodeStr = (this.formData.sealPerson.code || this.formData.sealPerson.emp_id || '').toString()
           params = {
-            auth_emp_code: authEmpCode, // string  授权员工工号, 如果不传, 代表本账号授权
-            auth_emp_passwd: authEmpPasswd, // string  授权员工密码
-            auth_reason: this.formData.reason, // string   授权理由
+            auth_emp_id: this.formData.sealPerson.emp_id * 1,
+            auth_emp_code: authEmpCodeStr,
+            auth_emp_passwd: '',
+            auth_reason: this.batchDiscountReason,
             seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64    卡台Id
             shopping_cart_ids: this.sealManyInfo.choosePrdList.map(item => item.id * 1), // []int64    要授权的购物车项Id
             auth_cnts: this.sealManyInfo.choosePrdList.map(item => item.pc * 1), //  []int   要授权的购物车项Id对应的数量
-            pass_type : type  // 1:账号密码， 2：刷卡
+            pass_type : 1
           };
 
-          if (!params.auth_emp_code && personType != "self")
-            return this.$message.warning("请输入授权员工号");
-          if (!params.auth_emp_passwd && personType != "self")
-            return this.$message.warning("请输入授权密码");
           try {
             const res = await api_order.reqAuthorizationShopping(params);
             if (res.code == 1) {
@@ -739,11 +844,9 @@ export default {
               this.$parent.getShoppingCartData();
               this.onCancelDrawer(true);
             } else {
-              window.loopReadCard()
               this.$message.warning(res.msg);
             }
           } catch (error) {
-            window.loopReadCard()
             console.log("批量优惠授权失败", error);
           }
           
@@ -915,6 +1018,10 @@ export default {
       return this.$store.state.cardPageInfo.resResultDataObj.reasonList.filter(item => item.status == 1 && item.type_id == 1)
     },
 
+    batchDiscountReason() {
+      return (this.formData.customReason || "").trim() || this.formData.reason;
+    },
+
 
     isIndeterminate(){
       return !this.checkAll && this.sealProductList.some(item => item.checked)
@@ -925,7 +1032,8 @@ export default {
     groupProduct,
     authorization,
     drawerChooseRequireInfo,
-    drawerYH2Submit
+    drawerYH2Submit,
+    inputSelect
   },
   watch: {
     showDrawer(newVal) {
@@ -935,6 +1043,7 @@ export default {
         eventVue.$on('empShoppingCartHandle', empCardInfo => { this.swipingOrderHandle(empCardInfo) })
 
         this.subStatus = 1;
+        this.resetBatchDiscountForm();
 
         if(this.status < 6) {
           // 优惠 自用  加要求  更改明细
@@ -1006,6 +1115,9 @@ export default {
               changeCount: item.pc,
               checked: true
             }))
+            if (this.status == 6) {
+              this.prefillSealPerson()
+            }
             break
             
         }

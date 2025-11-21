@@ -844,6 +844,22 @@ export default {
     
     /deep/ .el-tabs__header {
       margin: 0;
+      border: none;
+    }
+    
+    /deep/ .el-tabs__nav-wrap {
+      border: none;
+      &::after {
+        display: none;
+      }
+    }
+    
+    /deep/ .el-tabs__nav-scroll {
+      border: none;
+    }
+    
+    /deep/ .el-tabs__nav {
+      border: none;
     }
     
     /deep/ .el-tabs__item {
@@ -880,15 +896,63 @@ export default {
       font-size: 14px;
       flex: 1;
       width: 100%;
+      border: none;
       
       // 确保表格支持横向滚动
       .el-table__body-wrapper {
         overflow-x: auto;
         overflow-y: auto;
+        border: none;
+        
+        &::after {
+          display: none;
+        }
+        
+        &::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+          background-color: #c0c4cc;
+          border-radius: 4px;
+        }
+        
+        &::-webkit-scrollbar-track {
+          background-color: #f5f5f5;
+        }
       }
       
       .el-table__header-wrapper {
         overflow-x: auto;
+        border: none;
+        
+        &::after {
+          display: none;
+        }
+        
+        &::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+          background-color: #c0c4cc;
+          border-radius: 4px;
+        }
+        
+        &::-webkit-scrollbar-track {
+          background-color: #f5f5f5;
+        }
+      }
+      
+      // 隐藏表格整体的边框
+      &::before {
+        display: none;
+      }
+      
+      &::after {
+        display: none;
       }
       
       .el-table__header th {

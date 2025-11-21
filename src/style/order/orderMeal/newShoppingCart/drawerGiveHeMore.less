@@ -182,6 +182,52 @@
 
 // 批量优惠/批量优惠2
 .new-seal-many {
+  .form {
+    margin-top: 12px;
+
+    /deep/ .el-form-item {
+      margin-bottom: 20px;
+    }
+
+    /deep/ .el-form-item__label {
+      padding-left: 8px;
+      line-height: 42px;
+    }
+
+    .required.el-form-item::before {
+      left: -6px;
+      top: 18px;
+    }
+
+    /deep/ .el-input__inner,
+    /deep/ input,
+    /deep/ textarea,
+    /deep/ .is-disabled .el-input__inner {
+      background: #FFFFFF;
+      border: 1px solid #D6DAE2;
+      border-radius: 8px;
+      color: #1F2329;
+      height: 42px;
+      line-height: 42px;
+      box-shadow: inset 0 1px 2px rgba(15, 24, 41, 0.06);
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    /deep/ .el-input__inner:focus,
+    /deep/ input:focus,
+    /deep/ textarea:focus {
+      border-color: #409eff;
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.15);
+      background: #FFFFFF;
+    }
+
+    /deep/ .el-input__inner::placeholder,
+    /deep/ input::placeholder,
+    /deep/ textarea::placeholder {
+      color: #A0A5B1;
+    }
+  }
+
   .title {
     color: #D44F44;
     font-size: 22px;

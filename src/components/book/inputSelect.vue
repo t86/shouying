@@ -32,8 +32,20 @@
         }
       },
       getOptionsOffset() {
-        this.selectOptionWidth = this.$refs.selectOption.children[0].offsetWidth;
-        this.selectOptionTop = this.$refs.selectOption.children[0].offsetHeight;
+        this.$nextTick(() => {
+          const inputWrapper = this.$refs.selectInput && this.$refs.selectInput.$el;
+          if (!inputWrapper) {
+            return;
+          }
+          const inner = inputWrapper.querySelector('.el-input__inner');
+          const target = inner || inputWrapper;
+          const rect = target.getBoundingClientRect && target.getBoundingClientRect();
+          const targetHeight = (rect && rect.height) || target.offsetHeight || inputWrapper.offsetHeight || 0;
+          // 额外预留 40px 间距，确保能完整看到输入框（包含输入框阴影 / 边框，并与下拉之间留出清晰空隙）
+          const extraGap = 40;
+          this.selectOptionWidth = inputWrapper.offsetWidth || target.offsetWidth || 0;
+          this.selectOptionTop = targetHeight + extraGap;
+        });
       },
       inputHandle(value) {
         console.log("input handle ...")
@@ -97,13 +109,16 @@
         }
       }
     },
-    created() { },
+    created() {
+      this.boundResizeHandler = this.getOptionsOffset.bind(this);
+    },
     // updated() {
     //   this.inputFocusHandle()
     // },
     mounted() {
       this.getOptionsOffset();
       document.addEventListener("click", this.inputBlurHandle);
+      window.addEventListener("resize", this.boundResizeHandler);
       document.onkeydown = this.keyHandle      
       this.inputFocusHandle()
     },
@@ -136,8 +151,9 @@
         this.selectInputVal = val;
       },
       optionsList: {
-        handler(newVal){
+        handler(){
           document.onkeydown = this.keyHandle
+          this.getOptionsOffset();
         },
         deep: true,
         immediate: true
@@ -145,6 +161,7 @@
     },
     beforeDestroy() {
       document.removeEventListener("click", this.inputBlurHandle);
+      window.removeEventListener("resize", this.boundResizeHandler);
     },
   };
 </script>
@@ -165,6 +182,8 @@
     background-color: #2A3959;
     box-sizing: border-box;
     max-height: 300px;
+    /* 再预留一点视觉上的间隔，配合 JS 计算的 top 使用 */
+    margin-top: 4px;
     overflow-y: auto;
   }
 
