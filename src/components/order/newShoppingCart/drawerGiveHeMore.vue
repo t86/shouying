@@ -241,7 +241,7 @@
             <div class="form m-t-6" v-if="status==6">
               <el-form label-position="right" :model="formData" @submit.native.prevent>
                 <!-- 订位人（优惠人） -->
-                <el-form-item label="订位人" class="required">
+                <el-form-item label="赠送人" class="required">
                   <input-select
                     style="width:50%"
                     :value="formData.sealPerson.name"
@@ -500,27 +500,12 @@ export default {
     prefillSealPerson() {
       const currentCardInfo =
         this.$store.state.orderInfo.currentCardInfo || {};
-      const defaultEmpId = currentCardInfo.salesEmpId;
-      if (!defaultEmpId) {
+
         this.formData.sealPerson.name = "";
         this.formData.sealPerson.code = "";
         this.formData.sealPerson.emp_id = "";
         this.formData.sealPerson.info_option = [];
-        return;
-      }
-      const defaultInfo = this.getOrderPersonList().find(
-        (el) => el.id == defaultEmpId
-      );
-      if (defaultInfo) {
-        this.formData.sealPerson.name = defaultInfo.name || "";
-        this.formData.sealPerson.code = defaultInfo.code || "";
-        this.formData.sealPerson.emp_id = defaultInfo.id || "";
-      } else {
-        this.formData.sealPerson.name = "";
-        this.formData.sealPerson.code = "";
-        this.formData.sealPerson.emp_id = "";
-      }
-      this.formData.sealPerson.info_option = [];
+     
     },
 
     inputSealPersonName(query) {
@@ -843,6 +828,7 @@ export default {
               this.$message.success('批量优惠成功');
               this.$parent.getShoppingCartData();
               this.onCancelDrawer(true);
+              this.redirectToCardList();
             } else {
               this.$message.warning(res.msg);
             }
@@ -863,6 +849,13 @@ export default {
           
           break
       }
+    },
+
+    redirectToCardList() {
+      const authStatus = this.$store.state.userInfo.authStatus;
+      const targetRouteName = authStatus == 4 ? 'moneyCard' : 'orderCard';
+      if (this.$route.name === targetRouteName) return;
+      this.$router.replace({ name: targetRouteName }).catch(() => {});
     },
 
     initGroupProductInfo() {

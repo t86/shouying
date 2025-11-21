@@ -738,6 +738,7 @@ export default {
               this.$message.success('批量优惠成功');
               this.$parent.getShoppingCartData();
               this.onCancelDrawer(true);
+              this.redirectToCardList();
             } else {
               window.loopReadCard()
               this.$message.warning(res.msg);
@@ -760,6 +761,13 @@ export default {
           
           break
       }
+    },
+
+    redirectToCardList() {
+      const authStatus = this.$store.state.userInfo.authStatus;
+      const targetRouteName = authStatus == 4 ? 'moneyCard' : 'orderCard';
+      if (this.$route.name === targetRouteName) return;
+      this.$router.replace({ name: targetRouteName }).catch(() => {});
     },
 
     initGroupProductInfo() {
