@@ -117,6 +117,8 @@
             this.optionObj.optionInfo.id != 2 &&
             this.optionObj.optionInfo.id != 6
           "
+          :loading="isSubmitting"
+          :disabled="isSubmitting"
           @click="onSubmit"
           >确定</el-button
         >
@@ -157,6 +159,7 @@ export default {
       deleteVipCardInfoObj: {}, // 注销
       deductionPointInfoObj: {}, // 扣除积分
       rechargePointInfoObj: {}, // 充值积分
+      isSubmitting: false, // 防止重复提交
     };
   },
   methods: {
@@ -172,6 +175,7 @@ export default {
       this.deleteVipCardInfoObj = {};
       this.deductionPointInfoObj = {};
       this.rechargePointInfoObj = {};
+      this.isSubmitting = false; // 重置提交状态
     },
 
     updateInfoHandle(info) {
@@ -410,6 +414,11 @@ export default {
 
         case 8:
           // 扣款
+          // 防止重复提交
+          if (this.isSubmitting) {
+            return;
+          }
+          
           params = {
             id: this.currentItemInfo.id * 1, //   int64   会员卡Id
             val_amt: this.subMoneyVipCardInfoObj.addAmt, //    string  有价金额(最多支持两位小数)
@@ -421,6 +430,8 @@ export default {
 
           if (params.val_amt.length <= 0)
             return this.$message.warning("请输入储值金额");
+          
+          this.isSubmitting = true;
           try {
             const res = await api_vip.reqSubMoneyFromCard(params);
             if (res.code == 1) {
@@ -431,6 +442,8 @@ export default {
             }
           } catch (error) {
             console.log("扣款失败", error);
+          } finally {
+            this.isSubmitting = false;
           }
 
           break;
