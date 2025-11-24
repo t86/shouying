@@ -434,6 +434,16 @@
                   />
                   <span>线上支付汇总</span>
                 </div>
+                <div
+                  class="option-item line"
+                  @click="showOrHideRegionIncomeDrawer"
+                >
+                  <img
+                    :src="require('@/assets/money-img/kpi-report.png')"
+                    alt
+                  />
+                  <span>区域实时营收</span>
+                </div>
 <!--                <div-->
 <!--                  class="option-item line"-->
 <!--                  @click="showOrHideOnlinePayDetailHandle()"-->
@@ -1014,6 +1024,12 @@
       @showOrHideDrawer="showOrHideXSDetailDrawerHandle"
     />
 
+    <!-- 区域实时营收 -->
+    <drawer-region-realtime-income
+      :showDrawer="showRegionIncomeDrawer"
+      @showOrHideRegionIncomeDrawer="showOrHideRegionIncomeDrawer"
+    />
+
     <!-- 套餐统计表 -->
     <div class="day-report" v-if="showSetCountDrawer">
       <drawerSetCount
@@ -1157,6 +1173,9 @@ import drawerCatQDAllInfo from "../../components/money/drawerCatQDAllInfo.vue";
 // 部门销售汇总表
 import drawerXSAllInfo from "../../components/money/drawerXSAllInfo.vue";
 
+// 区域实时营收
+import drawerRegionRealtimeIncome from "../../components/money/drawerRegionRealtimeIncome.vue";
+
 // 套餐统计表
 import drawerSetCount from "../../components/money/drawerSetCount.vue";
 
@@ -1251,6 +1270,7 @@ export default {
       showSetYDJDrawer: false, // 客人预订金流水记录表
       showSetYDJYEDrawer: false, // 客人预订金余额记录表
       showXSAllInfoDrawer: false, // 部门销售汇总表
+      showRegionIncomeDrawer: false, // 区域实时营收
       showMtDyHxDrawer: false, //美团抖音卡券核销
       showHistoryOrderDrawer: false, // 历史点单记录
       showTurnbackDialog: false, // 是否显示复台流水选择对话框
@@ -1744,6 +1764,11 @@ export default {
     // 显示或隐藏部门销售明细表
     showOrHideXSDetailDrawerHandle() {
       this.showDetailDrawer = !this.showDetailDrawer;
+    },
+
+    // 显示或隐藏区域实时营收
+    showOrHideRegionIncomeDrawer() {
+      this.showRegionIncomeDrawer = !this.showRegionIncomeDrawer;
     },
 
     // 显示或隐藏套餐统计表
@@ -2548,6 +2573,7 @@ export default {
     drawerCatQDAllInfo,
     drawerXSDetail,
     drawerXSAllInfo,
+    drawerRegionRealtimeIncome,
     drawerSetCount,
     drawerSetGZHK,
     drawerSetYDJ,

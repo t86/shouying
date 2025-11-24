@@ -172,6 +172,14 @@ export default {
   reqExportExcelOfOnlinePayDetail: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/exp_ol_pay_recs`, params),
 
+  // 读取区域实时营收(不分页)
+  reqGetRegionRealAmts: (params) =>
+    axios.post(`${base.htgl}/sel/rpt/get_region_real_amts`, params),
+
+  // 导出区域实时营收(不分页)
+  reqExportRegionRealAmts: (params) =>
+    axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_region_real_amts`, params),
+
   // 获取业绩日报
   reqGetKpiReportInfo: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_yj_rpt`, params),

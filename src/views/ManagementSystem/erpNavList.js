@@ -124,7 +124,7 @@ export default [
       //   url: "/ERP/supplier"
       // }
     ]
-  }, 
+  },
   {
     name: "空瓶管理",
     sys_priv: [2],
@@ -146,13 +146,17 @@ export default [
         url: "/ERP/emptyOutLibOrder"
       },
     ]
-  }, 
+  },
   {
     name: "报表管理",
     sys_priv: [2],
     system: ["erp", 'erpAdmin'],
     img: "report_manage.png",
     content: [
+      {
+        name: "仓库进销存",
+        url: "/ERP/warehousePSI"
+      },
       {
         name: "物料实时库存表",
         url: "/ERP/matLibNow"
@@ -206,5 +210,5 @@ export default [
         url: "/ERP/emptyOutLib"
       }
     ]
-  }, 
+  },
 ]

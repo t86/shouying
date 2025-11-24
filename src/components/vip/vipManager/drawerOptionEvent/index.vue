@@ -436,7 +436,8 @@ export default {
             const res = await api_vip.reqSubMoneyFromCard(params);
             if (res.code == 1) {
               this.$message.success("扣款成功");
-              this.onCancelDrawer();
+              this.resetHandle(); // 重置所有状态，防止二次操作
+              this.onCancelDrawer(); // 关闭弹窗
             } else {
               this.$message.warning(res.msg);
             }

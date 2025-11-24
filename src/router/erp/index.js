@@ -109,6 +109,11 @@ export default [
     path: '/ERP/inLibAllRep', name: "inLibAllRep", meta: { title: '入库汇总表' },
     component: () => import('@/views/ManagementSystem/ERP/rpt_erp/inLibAllRep.vue')
   },
+  // 仓库进销存
+  {
+    path: '/ERP/warehousePSI', name: "warehousePSI", meta: { title: '仓库进销存' },
+    component: () => import('@/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue')
+  },
   // 出库汇总表
   {
     path: '/ERP/outLibAllRep', name: "outLibAllRep", meta: { title: '出库汇总表' },
