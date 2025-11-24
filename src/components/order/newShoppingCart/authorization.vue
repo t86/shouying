@@ -164,7 +164,11 @@ export default {
             this.$message.success("批量优惠2成功");
             this.onCancelDrawer();
             this.$emit('showOrHideAnotherDrawer')
-            if(this.$route.name == 'shoppingCart') this.$parent.$parent.$parent.$parent.$parent.getShoppingCartData()
+            // 发出批量优惠2成功事件，用于触发自动下单
+            if(this.$route.name == 'shoppingCart') {
+              this.$emit('batchYH2Success')
+              this.$parent.$parent.$parent.$parent.$parent.getShoppingCartData()
+            }
             if(this.$route.name == 'myOrder') this.$parent.$parent.$parent.$parent.$parent.getOrderedData()
           } else {
             window.loopReadCard()

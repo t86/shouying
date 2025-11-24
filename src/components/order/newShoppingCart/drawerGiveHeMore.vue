@@ -212,25 +212,35 @@
               <div class="tbody" :class="{give: status==6}">
                 <div class="tr" layout="row"  layout-align="space-between center" v-for="(item, index) in sealProductList" :key="item.id">
                   <div class="td">
-                    <el-checkbox v-model="item.checked" @change="changeCheckBox('item')">{{index + 1}}</el-checkbox>
+                    <el-checkbox 
+                      v-model="item.checked" 
+                      :disabled="item.isSealed"
+                      @change="changeCheckBox('item')"
+                    >{{index + 1}}</el-checkbox>
                   </div>
-                  <div class="td">{{item.productInfo.name}}</div>
+                  <div class="td">
+                    {{item.productInfo.name}}
+                    <span v-if="item.isSealed" style="color: #67c23a; margin-left: 8px; font-size: 12px;">
+                      {{item.at == 2 ? '(已优惠)' : '(已优惠2)'}}
+                    </span>
+                  </div>
                   <div class="td">{{item.pc}}</div>
                   <div class="td">
                     <img
-                      :src="item.changeCount==1?require('@/assets/order-img/new-sub-disabled.png'):require('@/assets/order-img/new_sub.png')"
-                      @click="changeCountOfSeal('sub',item)"
+                      :src="item.isSealed || item.changeCount==1?require('@/assets/order-img/new-sub-disabled.png'):require('@/assets/order-img/new_sub.png')"
+                      @click="!item.isSealed && changeCountOfSeal('sub',item)"
                       alt
                     />
                     <input
                       type="number"
                       :min="1"
+                      :disabled="item.isSealed"
                       v-model="item.changeCount"
-                      @input="changeCountOfSeal('input',item)"
+                      @input="!item.isSealed && changeCountOfSeal('input',item)"
                     />
                     <img
-                      :src="item.changeCount>=item.pc?require('@/assets/order-img/new-add-disabled.png'):require('@/assets/order-img/new_order_add.png')"
-                      @click="changeCountOfSeal('add',item)"
+                      :src="item.isSealed || item.changeCount>=item.pc?require('@/assets/order-img/new-add-disabled.png'):require('@/assets/order-img/new_order_add.png')"
+                      @click="!item.isSealed && changeCountOfSeal('add',item)"
                       alt
                     />
                   </div>
@@ -315,6 +325,7 @@
           :showSelfBtn="sealMany2Info.authLimits"
           @showOrHideDrawer="showOrHideYH2Drawer"
           @showOrHideAnotherDrawer="onCancelDrawer"
+          @batchYH2Success="onBatchYH2Success"
         />
 
         <!-- 提交按钮 -->
@@ -826,8 +837,14 @@ export default {
             const res = await api_order.reqAuthorizationShopping(params);
             if (res.code == 1) {
               this.$message.success('批量优惠成功');
-              this.$parent.getShoppingCartData();
+              // 刷新购物车数据
+              await this.$parent.getShoppingCartData();
               this.onCancelDrawer(true);
+              
+              // 自动下单所有购物车商品
+              await this.submitAllShoppingCartItems();
+              
+              // 下单成功后跳转回卡台列表
               this.redirectToCardList();
             } else {
               this.$message.warning(res.msg);
@@ -848,6 +865,48 @@ export default {
           this.showOrHideYH2Drawer()
           
           break
+      }
+    },
+
+    // 自动下单所有购物车商品
+    async submitAllShoppingCartItems() {
+      try {
+        // 重新获取购物车数据，确保获取最新的商品列表
+        await this.$parent.getShoppingCartData();
+        const shoppingCartList = this.$parent.shoppingCartList || [];
+        
+        if (shoppingCartList.length === 0) {
+          console.log("购物车为空，无需下单");
+          return;
+        }
+
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+          shopping_cart_ids: shoppingCartList.map((el) => el.id),
+        };
+
+        const res = await api_order.reqPlaceAnOrder(params);
+        if (res.code === 1) {
+          this.$message.success('下单成功');
+          // 刷新购物车数据
+          await this.$parent.getShoppingCartData();
+        } else if (res.code == 2) {
+          // 必点商品提示
+          this.$parent.$children[0] &&
+          this.$parent.$children[0].footNavBarClick &&
+          this.$parent.$children[0].footNavBarClick({
+            id: 2,
+            name: "商品菜单",
+            routeName: "orderMealList",
+            mustOrderPrdId: res.data.must_order_prds.join(','),
+          });
+          this.$message.warning(`需要点必点商品才可下单`);
+        } else {
+          this.$message.warning(res.msg || '下单失败');
+        }
+      } catch (error) {
+        console.log("自动下单失败", error);
+        this.$message.warning('自动下单失败，请手动下单');
       }
     },
 
@@ -934,17 +993,33 @@ export default {
       this.sealMany2Info.showYH2Drawer = !this.sealMany2Info.showYH2Drawer
     },
 
+    // 批量优惠2成功后的处理
+    async onBatchYH2Success() {
+      // 刷新购物车数据
+      await this.$parent.getShoppingCartData();
+      this.onCancelDrawer(true);
+      
+      // 自动下单所有购物车商品
+      await this.submitAllShoppingCartItems();
+      
+      // 下单成功后跳转回卡台列表
+      this.redirectToCardList();
+    },
+
     // 选择需要批量优惠/批量优惠2的商品
     changeCheckBox(type){
       switch(type){
         case 'all':
           this.sealProductList = this.sealProductList.map(item => ({
             ...item,
-            checked: this.checkAll
+            // 全选时，只选中未优惠的商品
+            checked: item.isSealed ? false : this.checkAll
           }))
           break
         case 'item':
-          this.checkAll = this.sealProductList.every(item => item.checked)
+          // 全选状态只考虑未优惠的商品
+          const unsealedItems = this.sealProductList.filter(item => !item.isSealed)
+          this.checkAll = unsealedItems.length > 0 && unsealedItems.every(item => item.checked)
           break
       }
     },
@@ -1017,7 +1092,9 @@ export default {
 
 
     isIndeterminate(){
-      return !this.checkAll && this.sealProductList.some(item => item.checked)
+      // 只考虑未优惠的商品
+      const unsealedItems = this.sealProductList.filter(item => !item.isSealed)
+      return !this.checkAll && unsealedItems.some(item => item.checked)
     }
   },
   components: {
@@ -1103,11 +1180,20 @@ export default {
           case 6:  // 批量优惠
           case 7:  // 批量优惠2
             this.checkAll = true
-            this.sealProductList = this.shoppingCartList.filter(item => item.at !=2 && item.at != 3 && (item.productInfo.prdType*1 === 1 || item.productInfo.prdType*1 === 2 || item.productInfo.prdType*1 === 7 || item.productInfo.prdType*1 === 6)).map(item => ({
-              ...item,
-              changeCount: item.pc,
-              checked: true
-            }))
+            // 显示所有符合条件的商品，包括已优惠的（但已优惠的会被禁用）
+            this.sealProductList = this.shoppingCartList.filter(item => 
+              (item.productInfo.prdType*1 === 1 || item.productInfo.prdType*1 === 2 || item.productInfo.prdType*1 === 7 || item.productInfo.prdType*1 === 6)
+            ).map(item => {
+              const isSealed = item.at == 2 || item.at == 3; // 已优惠或已优惠2
+              return {
+                ...item,
+                changeCount: item.pc,
+                checked: !isSealed, // 已优惠的商品默认不选中
+                isSealed: isSealed // 标记是否已优惠
+              }
+            })
+            // 全选只针对未优惠的商品
+            this.checkAll = this.sealProductList.filter(item => !item.isSealed).every(item => item.checked)
             if (this.status == 6) {
               this.prefillSealPerson()
             }

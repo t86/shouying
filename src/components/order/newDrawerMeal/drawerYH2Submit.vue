@@ -89,6 +89,7 @@
             :showSelfBtn="showSelfBtn"
             @closeDrawerHandle="closeDrawerHandle"
             @showOrHideAnotherDrawer="$emit('showOrHideAnotherDrawer')"
+            @batchYH2Success="$emit('batchYH2Success')"
           />
         </div>
       </div>
