@@ -12,6 +12,20 @@
       <el-button type="primary" size="small" @click="getTableData">查询</el-button>
       <el-button size="small" @click="resetHandle">重置</el-button>
       <el-button type="primary" size="small" @click="exportExcelHandle">导出</el-button>
+      <el-button 
+        type="danger" 
+        size="small" 
+        plain
+        class="export-bottle-btn"
+        @click="exportWholeBottleHandle"
+      >按整瓶导出</el-button>
+      <el-button 
+        type="danger" 
+        size="small" 
+        plain
+        class="export-bottle-btn"
+        @click="exportLooseBottleHandle"
+      >按散瓶导出</el-button>
     </div>
 
     <div class="update-time m-t-2" v-if="updateTime">
@@ -115,8 +129,27 @@ export default {
     },
 
     async exportExcelHandle(){
-      // 导出接口根据文档不需要参数
-      const params = {};
+      // 导出全部，flag=0
+      await this.doExport(0);
+    },
+
+    async exportWholeBottleHandle(){
+      // 导出整瓶，flag=1
+      await this.doExport(1);
+    },
+
+    async exportLooseBottleHandle(){
+      // 导出散瓶，flag=2
+      await this.doExport(2);
+    },
+
+    async doExport(flag){
+      // flag: 0 全部导出, 1 导出整瓶, 2 导出散瓶
+      const params = {
+        key: this.keyword || "", // 搜索关键字
+        flag: flag // 导出标记
+      };
+      
       try {
         const res = await api_wine.reqExportWineNowInvtList(params);
         if (!res.msg) {
@@ -129,7 +162,16 @@ export default {
           const a = document.createElement("a");
           document.body.appendChild(a);
           a.href = url;
-          a.setAttribute("download", decodeURIComponent(res.fileName || "日实时库存报表.xlsx"));
+          
+          // 根据导出类型设置文件名
+          let fileName = "日实时库存报表.xlsx";
+          if (flag === 1) {
+            fileName = "日实时库存报表-整瓶.xlsx";
+          } else if (flag === 2) {
+            fileName = "日实时库存报表-散瓶.xlsx";
+          }
+          
+          a.setAttribute("download", decodeURIComponent(res.fileName || fileName));
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
@@ -138,6 +180,7 @@ export default {
         }
       } catch (error) {
         console.log("导出excel失败", error);
+        this.$message.error("导出失败，请稍后重试");
       }
     },
 
@@ -156,6 +199,27 @@ export default {
 <style scoped lang="less">
 .now-invt-report {
   padding: 20px;
+
+  .top {
+    flex-wrap: wrap;
+    gap: 10px;
+    
+    .export-bottle-btn {
+      border-color: #f56c6c;
+      color: #f56c6c;
+      margin-left: 10px;
+      
+      &:hover {
+        background-color: #fef0f0;
+        border-color: #f56c6c;
+        color: #f56c6c;
+      }
+      
+      &:active {
+        background-color: #fde2e2;
+      }
+    }
+  }
 
   .update-time {
     font-size: 14px;
@@ -284,6 +348,14 @@ export default {
   .now-invt-report {
     padding: 15px;
     
+    .top {
+      .export-bottle-btn {
+        margin-left: 8px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+    }
+    
     .table-content {
       height: calc(100vh - 250px);
       
@@ -301,6 +373,14 @@ export default {
 @media (max-width: 900px) {
   .now-invt-report {
     padding: 15px;
+    
+    .top {
+      .export-bottle-btn {
+        margin-left: 6px;
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+    }
     
     .table-content {
       .table {
