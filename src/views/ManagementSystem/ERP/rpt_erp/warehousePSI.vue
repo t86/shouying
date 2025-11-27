@@ -182,6 +182,7 @@
                     <div class="th" style="height: 40px; line-height: 40px; flex: 1;">其他</div>
                     <div class="th" style="height: 40px; line-height: 40px; flex: 1;">盘亏</div>
                     <div class="th" style="height: 40px; line-height: 40px; flex: 1;">报损</div>
+                    <div class="th" style="height: 40px; line-height: 40px; flex: 2;">供应商回收数量</div>
                     <div class="th" style="height: 40px; line-height: 40px; flex: 1;">合计</div>
                 </div>
             </div>
@@ -214,6 +215,7 @@
             <div class="td" style="flex: 1;">{{item.oqt}}</div>
             <div class="td" style="flex: 1;">{{item.opk}}</div>
             <div class="td" style="flex: 1;">{{item.obs}}</div>
+            <div class="td" style="flex: 1;">{{item.og}}</div>
             <div class="td" style="flex: 1;">{{item.oc}}</div>
             <!-- Closing -->
             <div class="td" style="flex: 1;">{{item.nc}}</div>
@@ -255,6 +257,7 @@ const getDefaultColumnSettings = () => ([
   { key: 'outOther', label: '其他(出)', field: 'oqt', group: 'outbound', align: 'right', defaultValue: 0 },
   { key: 'outLoss', label: '盘亏', field: 'opk', group: 'outbound', align: 'right', defaultValue: 0 },
   { key: 'outDamage', label: '报损', field: 'obs', group: 'outbound', align: 'right', defaultValue: 0 },
+  { key: 'supplyCount', label: '供应商回收数量', field: 'og', group: 'outbound', align: 'right', defaultValue: 0 },
   { key: 'outTotal', label: '出库合计', field: 'oc', group: 'outbound', align: 'right', defaultValue: 0 },
   { key: 'ending', label: '结存数量', field: 'nc', group: 'base', align: 'right', defaultValue: 0 }
 ])

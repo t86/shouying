@@ -43,6 +43,7 @@
           <el-option label="调拨出库" :value="3"></el-option>
           <el-option label="其他出库" :value="17"></el-option>
           <el-option label="报损出库" :value="62"></el-option>
+          <el-option label="供应商回收" :value="72"></el-option>
         </el-select>
       </div>
       <div class="m-t-2" layout="row" layout-align="start center">

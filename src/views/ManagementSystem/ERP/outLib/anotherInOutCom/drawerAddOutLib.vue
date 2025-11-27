@@ -47,6 +47,7 @@
                 <el-option label="其他出库" :value="17"></el-option>
                 <el-option label="盘亏出库" :value="52"></el-option>
                 <el-option label="报损出库" :value="62"></el-option>
+                <el-option label="供应商回收" :value="72"></el-option>
               </el-select>
               </div>
             </div>
