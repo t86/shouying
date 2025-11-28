@@ -11,6 +11,7 @@ import ocate from "./ocate"             // ocate          一级分类
 import tcate from "./tcate"             // tcate          二级分类
 import Prd from "./Prd"                 // Prd            商品
 import emp from "./emp"                 // emp            员工
+import businessEmp from "./emp/businessEmp" // businessEmp 商务组订位人
 import Org from "./Org"                 // Org            门店
 import seat_grp from "./seat_grp"       // seat_grp       门店低消组
 import pgrp from "./pgrp"               // pgrp           商品组
@@ -53,6 +54,7 @@ export default {
   tcate,
   Prd,
   emp,
+  businessEmp,
   Org,
   seat_grp,
   pgrp,

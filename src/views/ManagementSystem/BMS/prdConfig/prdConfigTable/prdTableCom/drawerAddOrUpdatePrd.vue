@@ -78,7 +78,7 @@
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
             <span class="red">*</span>
-            <span>原价：</span>
+            <span>单价：</span>
           </div>
           <div class="value">
             <el-input
@@ -87,105 +87,6 @@
               size="mini"
               placeholder="请输入单价"
             ></el-input>
-          </div>
-        </div>
-
-        <div class="coll price-dual" layout="row" layout-align="start center">
-          <div class="price-item" layout="row" layout-align="start center">
-            <div class="label">
-              <span>会员价：</span>
-            </div>
-            <div class="value">
-              <el-input
-                v-model="memberPrice"
-                size="mini"
-                placeholder="输入格式，最多支持两位小数"
-              ></el-input>
-            </div>
-          </div>
-          <div class="price-item" layout="row" layout-align="start center">
-            <div class="label">
-              <span>商务原价：</span>
-            </div>
-            <div class="value">
-              <el-input
-                v-model="businessPrice"
-                size="mini"
-                placeholder="输入格式，最多支持两位小数"
-              ></el-input>
-            </div>
-          </div>
-        </div>
-
-        <div class="coll price-dual" layout="row" layout-align="start center">
-          <div class="price-item" layout="row" layout-align="start center">
-            <div class="label">
-              <span>商务会员价：</span>
-            </div>
-            <div class="value">
-              <el-input
-                v-model="businessMemberPrice"
-                size="mini"
-                placeholder="输入格式，最多支持两位小数"
-              ></el-input>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-divider">
-          <div class="section-title">包厢售价</div>
-          <div class="section-tips">配置后，选择包厢卡台将优先使用包厢售价</div>
-          <div class="coll price-dual box-grid" layout="row" layout-align="start center">
-            <div class="price-item" layout="row" layout-align="start center">
-              <div class="label">
-                <span>包厢原价：</span>
-              </div>
-              <div class="value">
-                <el-input
-                  v-model="boxPrice"
-                  size="mini"
-                  placeholder="输入格式，最多支持两位小数"
-                ></el-input>
-              </div>
-            </div>
-            <div class="price-item" layout="row" layout-align="start center">
-              <div class="label">
-                <span>包厢会员价：</span>
-              </div>
-              <div class="value">
-                <el-input
-                  v-model="boxMemberPrice"
-                  size="mini"
-                  placeholder="输入格式，最多支持两位小数"
-                ></el-input>
-              </div>
-            </div>
-          </div>
-          <div class="coll price-dual box-grid" layout="row" layout-align="start center">
-            <div class="price-item" layout="row" layout-align="start center">
-              <div class="label">
-                <span>包厢商务原价：</span>
-              </div>
-              <div class="value">
-                <el-input
-                  v-model="boxBusinessPrice"
-                  size="mini"
-                  placeholder="输入格式，最多支持两位小数"
-                ></el-input>
-              </div>
-            </div>
-            <div class="price-item" layout="row" layout-align="start center">
-              <div class="label">
-                <span>包厢商务会员价：</span>
-              </div>
-              <div class="value">
-                <el-input
-                  v-model="boxBusinessMemberPrice"
-                  size="mini"
-                  placeholder="输入格式，最多支持两位小数"
-                ></el-input>
-              </div>
-            </div>
           </div>
         </div>
         <div class="coll" layout="row" layout-align="start center">
@@ -407,13 +308,6 @@ export default {
       englishName: "", // 英文名
       prdType: "", // 类型
       price: "", // 商品价格
-      memberPrice: "", // 会员价
-      businessPrice: "", // 商务原价
-      businessMemberPrice: "", // 商务会员价
-      boxPrice: "", // 包厢原价
-      boxMemberPrice: "", // 包厢会员价
-      boxBusinessPrice: "", // 包厢商务原价
-      boxBusinessMemberPrice: "", // 包厢商务会员价
       businessType: "", // 营业类型
       userYH: false,
       bindPrdList: [], // 绑定商品列表
@@ -478,13 +372,6 @@ export default {
           this.limitPad = res.data.prd.limit_pad === 1;
           this.limitXcxEmp = res.data.prd.limit_xcx_emp === 1;
           this.limitXcxCust = res.data.prd.limit_xcx_cust === 1;
-          this.memberPrice = res.data.prd.mb_price || "";
-          this.businessPrice = res.data.prd.bs_price || "";
-          this.businessMemberPrice = res.data.prd.bs_mb_price || "";
-          this.boxPrice = res.data.prd.bx_price || "";
-          this.boxMemberPrice = res.data.prd.bx_mb_price || "";
-          this.boxBusinessPrice = res.data.prd.bx_bs_price || "";
-          this.boxBusinessMemberPrice = res.data.prd.bx_bs_mb_price || "";
 
           this.getTableData(res.data.region_prds || []);
 
@@ -611,11 +498,6 @@ export default {
       if (!this.prdType) return this.$message.warning("请选择类型");
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
-      const needBoxOrigin =
-        this.boxMemberPrice || this.boxBusinessPrice || this.boxBusinessMemberPrice;
-      if (needBoxOrigin && !this.boxPrice) {
-        return this.$message.warning("如果使用包厢售价，则包厢原价必填");
-      }
       const params = {
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
@@ -624,13 +506,6 @@ export default {
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price == "时价" ? "0" : this.price,
-        mb_price: this.memberPrice || "",
-        bs_price: this.businessPrice || "",
-        bs_mb_price: this.businessMemberPrice || "",
-        bx_price: this.boxPrice || "",
-        bx_mb_price: this.boxMemberPrice || "",
-        bx_bs_price: this.boxBusinessPrice || "",
-        bx_bs_mb_price: this.boxBusinessMemberPrice || "",
         prd_type: this.prdType * 1, // 商品类型  1 存货(需关联erp) 7 普通商品(不需关联erp,默认主营) 2 套餐 3 存货花篮(需关联erp,且分成) 8 普通花篮(不需关联erp,且分成) 4 小费(不需关联erp,且分成) 5 赔偿(不需关联erp,且非主营) 6 联营(不需关联erp,且主营)
         biz_type: this.businessType * 1, // 营业类型  1 主营 2 非主营 3 非主营(分成) (prd_type 1,7 可指定1,2,3 ;   2 填0 ;   3,8,4 填3 ;   5,6 填2)
         // erp_prd_id: this.newmerchandise.inventory.id,  // erp商品Id, 普通商品,花篮商品 需提供
@@ -716,13 +591,6 @@ export default {
       this.englishName = ""; // 英文名
       this.prdType = ""; // 类型
       this.price = ""; // 商品价格
-      this.memberPrice = "";
-      this.businessPrice = "";
-      this.businessMemberPrice = "";
-      this.boxPrice = "";
-      this.boxMemberPrice = "";
-      this.boxBusinessPrice = "";
-      this.boxBusinessMemberPrice = "";
       this.businessType = ""; // 营业类型
       this.userYH = false;
       this.bindPrdList = []; // 绑定商品列表
@@ -867,33 +735,6 @@ export default {
       height: 100%;
       object-fit: contain;
     }
-  }
-}
-
-.price-dual {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  .price-item {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-}
-
-.section-divider {
-  border-top: 1px solid #3a3b48;
-  padding-top: 16px;
-  margin-top: 16px;
-  .section-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #409eff;
-  }
-  .section-tips {
-    font-size: 12px;
-    color: #e6a23c;
-    margin: 6px 0 12px;
   }
 }
 

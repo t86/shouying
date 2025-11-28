@@ -2,6 +2,9 @@
   <div class="business-emp-page">
     <div class="page-header">
       <h2>商务组订位人</h2>
+      <p class="page-desc">
+        说明：已选列表的订位人在卡台消费时优先使用商品商务价（未配置商务价时，自动回落到普通价）。
+      </p>
     </div>
 
     <div class="transfer-wrapper">
@@ -24,7 +27,7 @@
             placeholder="请选择部门"
           />
           <el-input
-            class="filter-item"
+            class="filter-item search-input"
             v-model.trim="filterForm.keyword"
             maxlength="30"
             placeholder="请输入工号/姓名"
@@ -136,21 +139,6 @@
 
       </div>
     </div>
-
-    <div class="footer-actions">
-      <el-button size="medium" @click="resetToServer">
-        还原
-      </el-button>
-      <el-button
-        type="primary"
-        size="medium"
-        :loading="saving"
-        :disabled="!hasChanges"
-        @click="handleSave"
-      >
-        保存
-      </el-button>
-    </div>
   </div>
 </template>
 
@@ -160,7 +148,6 @@ export default {
     return {
       availableLoading: false,
       selectedLoading: false,
-      saving: false,
       deptOptions: [],
       deptProps: {
         value: 'id',
@@ -175,7 +162,6 @@ export default {
       },
       availableEmps: [],
       selectedEmps: [],
-      originalSelectedIds: [],
       availableSelectAll: false,
       availableIndeterminate: false,
     };
@@ -192,27 +178,6 @@ export default {
     currentSelectedIds() {
       return this.selectedEmps.map((item) => item.id);
     },
-    businessEmpStoreList() {
-      const resObj =
-        (this.$store.state.cardPageInfo &&
-          this.$store.state.cardPageInfo.resResultDataObj) ||
-        {};
-      const list = resObj.businessEmpList || [];
-      return list.map((item) => ({
-        id: item.id,
-        name: item.name || item.n || '',
-        deptName: item.deptName || item.dn || '',
-        code: item.code || item.c || '',
-      }));
-    },
-    hasChanges() {
-      if (this.currentSelectedIds.length !== this.originalSelectedIds.length) {
-        return true;
-      }
-      const current = [...this.currentSelectedIds].sort().join(',');
-      const original = [...this.originalSelectedIds].sort().join(',');
-      return current !== original;
-    },
   },
   created() {
     this.initPage();
@@ -220,6 +185,7 @@ export default {
   methods: {
     async initPage() {
       await this.fetchDeptTree();
+      await this.fetchSelectedEmps();
     },
     async fetchDeptTree() {
       try {
@@ -242,11 +208,31 @@ export default {
         };
       });
     },
-    syncSelectedFromStore() {
-      this.selectedEmps = this.businessEmpStoreList.map((item) => ({
-        ...item,
-      }));
-      this.originalSelectedIds = this.selectedEmps.map((item) => item.id);
+    async fetchSelectedEmps() {
+      this.selectedLoading = true;
+      try {
+        const res = await this.$api.BMS.businessEmp.reqGetBsSalesList();
+        if (res.code === 1) {
+          const payload = res.data || {};
+          const list = Array.isArray(payload)
+            ? payload
+            : payload.records || payload.emps || [];
+          this.selectedEmps = list.map((item) => ({
+            id: item.id,
+            name: item.n || '',
+            deptName: item.d || '',
+            code: item.c || '',
+          }));
+          // 更新待选列表的禁用状态
+          this.updateAvailableEmpsDisabledState();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('获取已选员工失败', error);
+      } finally {
+        this.selectedLoading = false;
+      }
     },
     async fetchAvailableEmps() {
       this.availableLoading = true;
@@ -255,14 +241,6 @@ export default {
         this.filterForm.deptPath.length > 0
           ? this.filterForm.deptPath[this.filterForm.deptPath.length - 1]
           : '';
-      if (!deptId) {
-        this.availableLoading = false;
-        this.availableEmps = [];
-        this.availableSelectAll = false;
-        this.availableIndeterminate = false;
-        this.$message.warning('请先选择部门再查询员工');
-        return;
-      }
       params.dept_id = deptId;
       params.key = this.filterForm.keyword || '';
       try {
@@ -296,6 +274,15 @@ export default {
         deptName: item.dn || item.deptName || '',
         code: item.cd || item.c || item.code || '',
       };
+    },
+    updateAvailableEmpsDisabledState() {
+      const selectedSet = new Set(this.currentSelectedIds);
+      this.availableEmps.forEach((row) => {
+        const isSelected = selectedSet.has(row.id);
+        row.disabled = isSelected;
+        row.checked = isSelected;
+      });
+      this.syncAvailableSelectionState();
     },
     handleResetFilters() {
       this.filterForm = {
@@ -333,54 +320,42 @@ export default {
       this.availableIndeterminate =
         selectedCount > 0 && selectedCount < selectable.length;
     },
-    handleAdd() {
+    async handleAdd() {
       const rows = this.availableEmps.filter(
         (row) => row.checked && !row.disabled
       );
       if (!rows.length) {
         return this.$message.warning('请选择需要添加的员工');
       }
-      const selectedSet = new Set(this.currentSelectedIds);
-      rows.forEach((row) => {
-        if (!selectedSet.has(row.id)) {
-          this.selectedEmps.push({
-            id: row.id,
-            name: row.name,
-            deptName: row.deptName,
-            code: row.code,
-          });
+      const ids = rows.map((row) => row.id);
+      try {
+        const res = await this.$api.BMS.businessEmp.reqBatchAddBsSales({ ids });
+        if (res.code === 1) {
+          this.$message.success('添加成功');
+          await this.fetchSelectedEmps();
+          this.updateAvailableEmpsDisabledState();
+        } else {
+          this.$message.warning(res.msg);
         }
-        row.disabled = true;
-        row.checked = true;
-      });
-      this.syncAvailableSelectionState();
-    },
-    handleRemove(row) {
-      const index = this.selectedEmps.findIndex((item) => item.id === row.id);
-      if (index > -1) {
-        this.selectedEmps.splice(index, 1);
+      } catch (error) {
+        console.log('批量添加商务组订位人失败', error);
+        this.$message.warning('添加失败');
       }
-      const target = this.availableEmps.find((item) => item.id === row.id);
-      if (target) {
-        target.disabled = false;
-        target.checked = false;
+    },
+    async handleRemove(row) {
+      try {
+        const res = await this.$api.BMS.businessEmp.reqRemoveBsSales({ id: row.id });
+        if (res.code === 1) {
+          this.$message.success('删除成功');
+          await this.fetchSelectedEmps();
+          this.updateAvailableEmpsDisabledState();
+        } else {
+          this.$message.warning(res.msg);
+        }
+      } catch (error) {
+        console.log('删除商务组订位人失败', error);
+        this.$message.warning('删除失败');
       }
-      this.syncAvailableSelectionState();
-    },
-    async handleSave() {
-      this.$message.warning('后台暂未提供商务组订位人保存接口，请等待后端能力开放');
-    },
-    resetToServer() {
-      this.syncSelectedFromStore();
-    },
-  },
-  watch: {
-    businessEmpStoreList: {
-      handler() {
-        this.syncSelectedFromStore();
-      },
-      immediate: true,
-      deep: true,
     },
   },
 };
@@ -400,7 +375,7 @@ export default {
     .page-desc {
       margin-top: 8px;
       font-size: 14px;
-      color: #f56c6c;
+      color: #606266;
     }
   }
 }
@@ -410,6 +385,10 @@ export default {
   flex-wrap: nowrap;
   gap: 16px;
   align-items: stretch;
+  
+  @media (orientation: portrait) {
+    flex-direction: column;
+  }
 }
 
 .panel-card {
@@ -419,6 +398,11 @@ export default {
   padding: 16px;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  
+  @media (orientation: portrait) {
+    width: 100%;
+  }
 }
 
 .panel-header {
@@ -439,111 +423,167 @@ export default {
 
 .filter-form {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: nowrap;
+  align-items: center;
+
   .filter-item {
-    flex: 1;
-    min-width: 180px;
+    flex: 0 0 auto;
+    width: 190px;
+  }
+
+  .filter-item.search-input {
+    width: 240px;
+  }
+
+  @media (orientation: portrait) {
+    flex-wrap: wrap;
+    .filter-item,
+    .filter-item.search-input {
+      width: 100%;
+    }
   }
 }
 
 .table-wrapper {
   flex: 1;
-  border: 1px solid #ebeef5;
-  border-radius: 6px;
-  padding: 0 0 8px;
-  min-height: 280px;
+  overflow: auto;
+  min-height: 200px;
 }
 
 .table {
-  display: grid;
-  grid-template-columns: 60px 70px 1fr 1.2fr 1fr;
-  padding: 0 16px;
+  width: 100%;
+  border-collapse: collapse;
+  
   &.table-head {
+    display: flex;
+    background: #f5f7fa;
+    border-radius: 4px 4px 0 0;
     font-weight: 600;
-    color: #606266;
-    height: 48px;
-    align-items: center;
-  }
-  &.table-row {
-    padding: 12px 16px;
-    align-items: center;
-    border-top: 1px solid #f2f6fc;
-    &:hover {
-      background: #f5f7fa;
-    }
-  }
-  .th,
-  .td {
     font-size: 14px;
     color: #303133;
-    &.checkbox {
-      display: flex;
-      align-items: center;
-    }
-    &.action .link {
-      color: #409eff;
-      cursor: pointer;
+  }
+  
+  &.table-body {
+    display: block;
+  }
+  
+  &.table-row {
+    display: flex;
+    border-bottom: 1px solid #ebeef5;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #f5f7fa;
     }
   }
-}
-
-.table-body {
-  max-height: 420px;
-  overflow-y: auto;
+  
+  .th,
+  .td {
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+    
+    &.checkbox {
+      width: 60px;
+      flex-shrink: 0;
+    }
+    
+    &.index {
+      width: 60px;
+      flex-shrink: 0;
+    }
+    
+    &.name {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    &.dept {
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    &.code {
+      flex: 1;
+      min-width: 100px;
+    }
+    
+    &.action {
+      width: 80px;
+      flex-shrink: 0;
+    }
+  }
+  
+  .th {
+    color: #303133;
+  }
+  
+  .td {
+    color: #606266;
+  }
 }
 
 .transfer-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  min-width: 120px;
+  align-items: center;
+  padding: 0 16px;
+  
+  @media (orientation: portrait) {
+    flex-direction: row;
+    padding: 16px 0;
+  }
+  
   .el-button {
-    width: 110px;
-    height: 42px;
+    min-width: 100px;
+    height: 38px;
   }
 }
 
 .tip-box {
   margin-top: 16px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  line-height: 22px;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  
+  p {
+    margin: 4px 0;
+  }
+  
   &.tip-warning {
-    background: #fff7e6;
-    color: #ad6800;
+    background: #fdf6ec;
+    border: 1px solid #faecd8;
+    color: #e6a23c;
   }
+  
   &.tip-success {
-    background: #f0f9eb;
-    color: #3a8b3a;
+    background: #f0f9ff;
+    border: 1px solid #b3d8ff;
+    color: #409eff;
   }
 }
 
-.footer-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+.link {
+  color: #409eff;
+  cursor: pointer;
+  font-size: 14px;
+  
+  &:hover {
+    color: #66b1ff;
+  }
 }
 
-@media (orientation: portrait), (max-width: 1024px) {
-  .transfer-wrapper {
-    flex-direction: column;
+@media (max-width: 900px) {
+  .business-emp-page {
+    padding: 15px;
   }
-  .transfer-actions {
-    order: 3;
-    padding: 8px 0;
-    .el-button {
-      width: 100%;
-    }
-  }
+  
   .panel-card {
-    width: 100%;
-  }
-  .table {
-    grid-template-columns: 60px 70px 1.1fr 1.1fr 0.8fr;
+    padding: 12px;
   }
 }
 </style>

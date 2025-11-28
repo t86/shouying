@@ -87,7 +87,6 @@ export const resResultDataArr = [
   'safeMode', // 54-安全模式
   'positionYH', // 55-岗位优惠开关
   'supervisorRegionConfig', // 56-督查可查区域配置
-  'businessEmpList', // 57-商务组订位人列表
 ]
 
 // 图例列表

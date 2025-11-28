@@ -75,9 +75,6 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           limit_pad:el[15], //pad
           limit_xcx_emp:el[16], //小程序员工
           limit_xcx_cust:el[17], //小程序客人
-          mb_price: el[18], // 会员价
-          bs_price: el[19], // 商务原价
-          bs_mb_price: el[20], // 商务会员价
         })
       })
       break
@@ -658,16 +655,6 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           station_id: el[0], // 岗位id
           region_id: el[1], // 区域id (=0代表全场)
           status: el[2], // 状态 1 有效 其他无效
-        })
-      })
-      break
-    case 57: // 商务组订位人列表
-      arr.forEach(el => {
-        resultArr.push({
-          id: el[0], // 员工id
-          name: el[1], // 员工姓名
-          deptName: el[2], // 部门名称
-          code: el[3], // 工号
         })
       })
       break
