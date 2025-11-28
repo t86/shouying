@@ -890,6 +890,31 @@ export default {
           this.$message.success('下单成功');
           // 刷新购物车数据
           await this.$parent.getShoppingCartData();
+        } else if (res.code == 5) {
+          // 买单成功（金额为0时自动买单）
+          this.$message.success('买单成功');
+          // 刷新购物车数据
+          await this.$parent.getShoppingCartData();
+          // 根据authStatus决定跳转
+          if (this.$store.state.userInfo.authStatus == 4) {
+            // 收银系统跳转来的点单
+            const businessData =
+              this.$store.state.cardPageInfo.resResultDataObj.businessData.find(
+                (el) =>
+                  el.seatId ==
+                  this.$store.state.orderInfo.currentCardInfo.seatId
+              );
+            if (businessData && businessData.bizStatus == 7) {
+              // 已结账，跳转到卡台列表
+              this.redirectToCardList();
+            } else {
+              // 未结账，跳转到支付页面
+              this.$router.replace({ name: "payOrder" }).catch(() => {});
+            }
+          } else {
+            // 点单系统点单，跳转到卡台列表
+            this.redirectToCardList();
+          }
         } else if (res.code == 2) {
           // 必点商品提示
           this.$parent.$children[0] &&
