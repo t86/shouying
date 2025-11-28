@@ -43,6 +43,7 @@
           <el-option label="其他出库" :value="17"></el-option>
           <el-option label="盘亏出库" :value="52"></el-option>
           <el-option label="报损出库" :value="62"></el-option>
+          <el-option label="供应商回收" :value="72"></el-option>
         </el-select>
         <span class="label fs14 m-l-4">备注：</span>
         <el-input v-model="keyword" size="small" style="width:200px" placeholder="请输入备注模糊搜索"></el-input>

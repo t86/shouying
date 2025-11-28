@@ -1,10 +1,6 @@
 {
   "name": "managementsystem",
-<<<<<<< Updated upstream
-  "version": "1.0.202511241540",
-=======
-  "version": "1.0.202511271542",
->>>>>>> Stashed changes
+  "version": "1.0.202511270955",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

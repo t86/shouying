@@ -261,7 +261,12 @@ import subDisabled from "@/assets/order-img/new-sub-disabled.png";
 import shoppingCarMore from "@/assets/order-img/newShoppingCarMore.png";
 import sanJiao from "@/assets/order-img/gengduo_sanjiao.png";
 
-import drawerGiveHeMore from "@/components/order/newShoppingCart/drawerGiveHeMore";
+// 根据设备类型动态导入批量优惠组件：收银设备用新版本，点单设备用旧版本
+const isMoneyDevice = sessionStorage.getItem("client") == "money";
+const drawerGiveHeMore = isMoneyDevice 
+  ? require("@/components/order/newShoppingCart/drawerGiveHeMore").default
+  : require("@/components/order/newShoppingCart/drawerGiveHeMoreForOrder").default;
+console.log('[newShoppingCart] 批量优惠组件导入:', { isMoneyDevice, component: isMoneyDevice ? 'drawerGiveHeMore' : 'drawerGiveHeMoreForOrder' });
 import drawerChooseRequireInfo from "@/components/order/newDrawerMeal/drawerChooseRequireInfo";
 import HeaderInfo from '@/components/HeaderInfo.vue';
 import { json } from "body-parser";
