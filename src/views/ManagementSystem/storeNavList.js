@@ -40,6 +40,10 @@ export default [
               url: "/BMS/employeeList"
             },
             {
+              name: "商务组订位人",
+              url: "/BMS/businessEmp"
+            },
+            {
               name: "入职审批",
               url: "/BMS/onboardingApproval"
             },

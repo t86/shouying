@@ -17,6 +17,11 @@ export default [
     path: '/BMS/employeeList', name: "employeeList", meta: { title: '员工管理' },
     component: () => import('@/views/ManagementSystem/BMS/employeeList/employeeList.vue')
   },
+  // 商务组订位人
+  {
+    path: '/BMS/businessEmp', name: "businessEmp", meta: { title: '商务组订位人' },
+    component: () => import('@/views/ManagementSystem/BMS/businessEmp/businessEmp.vue')
+  },
   // 入职审批
   {
     path: '/BMS/onboardingApproval', name: "onboardingApproval", meta: { title: '入职审批' },

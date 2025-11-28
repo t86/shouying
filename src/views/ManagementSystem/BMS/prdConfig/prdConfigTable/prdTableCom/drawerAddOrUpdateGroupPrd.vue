@@ -73,7 +73,7 @@
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
             <span class="red">*</span>
-            <span>单价：</span>
+            <span>原价：</span>
           </div>
           <div class="value">
             <el-input
@@ -81,6 +81,106 @@
               size="mini"
               placeholder="请输入单价"
             ></el-input>
+          </div>
+        </div>
+
+        <div class="coll price-dual" layout="row" layout-align="start center">
+          <div class="price-item" layout="row" layout-align="start center">
+            <div class="label">
+              <span>会员价：</span>
+            </div>
+            <div class="value">
+              <el-input
+                v-model="memberPrice"
+                size="mini"
+                placeholder="输入格式，最多支持两位小数"
+              ></el-input>
+            </div>
+          </div>
+          <div class="price-item" layout="row" layout-align="start center">
+            <div class="label">
+              <span>商务原价：</span>
+            </div>
+            <div class="value">
+              <el-input
+                v-model="businessPrice"
+                size="mini"
+                placeholder="输入格式，最多支持两位小数"
+              ></el-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="coll price-dual" layout="row" layout-align="start center">
+          <div class="price-item" layout="row" layout-align="start center">
+            <div class="label">
+              <span>商务会员价：</span>
+            </div>
+            <div class="value">
+              <el-input
+                v-model="businessMemberPrice"
+                size="mini"
+                placeholder="输入格式，最多支持两位小数"
+              ></el-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="section-title">包厢售价</div>
+          <div class="section-tips">配置包厢售价后，包厢卡台优先使用该价格体系</div>
+          <div class="coll price-dual" layout="row" layout-align="start center">
+            <div class="price-item" layout="row" layout-align="start center">
+              <div class="label">
+                <span>包厢原价：</span>
+              </div>
+              <div class="value">
+                <el-input
+                  v-model="boxPrice"
+                  size="mini"
+                  placeholder="输入格式，最多支持两位小数"
+                ></el-input>
+              </div>
+            </div>
+            <div class="price-item" layout="row" layout-align="start center">
+              <div class="label">
+                <span>包厢会员价：</span>
+              </div>
+              <div class="value">
+                <el-input
+                  v-model="boxMemberPrice"
+                  size="mini"
+                  placeholder="输入格式，最多支持两位小数"
+                ></el-input>
+              </div>
+            </div>
+          </div>
+
+          <div class="coll price-dual" layout="row" layout-align="start center">
+            <div class="price-item" layout="row" layout-align="start center">
+              <div class="label">
+                <span>包厢商务原价：</span>
+              </div>
+              <div class="value">
+                <el-input
+                  v-model="boxBusinessPrice"
+                  size="mini"
+                  placeholder="输入格式，最多支持两位小数"
+                ></el-input>
+              </div>
+            </div>
+            <div class="price-item" layout="row" layout-align="start center">
+              <div class="label">
+                <span>包厢商务会员价：</span>
+              </div>
+              <div class="value">
+                <el-input
+                  v-model="boxBusinessMemberPrice"
+                  size="mini"
+                  placeholder="输入格式，最多支持两位小数"
+                ></el-input>
+              </div>
+            </div>
           </div>
         </div>
         <div class="coll" layout="row" layout-align="start center">
@@ -499,6 +599,13 @@ export default {
       py: "", // 中文拼音
       englishName: "", // 英文名
       price: "", // 商品价格
+      memberPrice: "",
+      businessPrice: "",
+      businessMemberPrice: "",
+      boxPrice: "",
+      boxMemberPrice: "",
+      boxBusinessPrice: "",
+      boxBusinessMemberPrice: "",
       businessType: "", // 营业类型
       userYH: false,
       picUrl: "",
@@ -578,6 +685,13 @@ export default {
           this.englishName = res.data.name_eng || "";
           this.setType = res.data.prd_type * 1;
           this.price = res.data.price || "";
+          this.memberPrice = res.data.mb_price || "";
+          this.businessPrice = res.data.bs_price || "";
+          this.businessMemberPrice = res.data.bs_mb_price || "";
+          this.boxPrice = res.data.bx_price || "";
+          this.boxMemberPrice = res.data.bx_mb_price || "";
+          this.boxBusinessPrice = res.data.bx_bs_price || "";
+          this.boxBusinessMemberPrice = res.data.bx_bs_mb_price || "";
           this.businessType = res.data.biz_type * 1;
           this.userYH = res.data.ut == 2;
           this.picUrl = res.data.pic_name || "";
@@ -829,6 +943,11 @@ export default {
       if (this.name.length <= 0) return this.$message.warning("请输入名称");
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
+      const needBoxOrigin =
+        this.boxMemberPrice || this.boxBusinessPrice || this.boxBusinessMemberPrice;
+      if (needBoxOrigin && !this.boxPrice) {
+        return this.$message.warning("如果使用包厢售价，则包厢原价必填");
+      }
 
       const fixPrdList = [];
       const canChoosePrdList = [];
@@ -871,6 +990,13 @@ export default {
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price,
+        mb_price: this.memberPrice || "",
+        bs_price: this.businessPrice || "",
+        bs_mb_price: this.businessMemberPrice || "",
+        bx_price: this.boxPrice || "",
+        bx_mb_price: this.boxMemberPrice || "",
+        bx_bs_price: this.boxBusinessPrice || "",
+        bx_bs_mb_price: this.boxBusinessMemberPrice || "",
         biz_type: this.businessType * 1,
         use_type: this.userYH ? 2 : 1, // 用途限制 1 不限 2 仅用于优惠
         is_force: force,
@@ -953,6 +1079,13 @@ export default {
       this.py = ""; // 中文拼音
       this.englishName = ""; // 英文名
       this.price = ""; // 商品价格
+      this.memberPrice = "";
+      this.businessPrice = "";
+      this.businessMemberPrice = "";
+      this.boxPrice = "";
+      this.boxMemberPrice = "";
+      this.boxBusinessPrice = "";
+      this.boxBusinessMemberPrice = "";
       this.setType = ""; // 套餐类型
       this.businessType = ""; // 营业类型
       this.userYH = false;
@@ -1174,6 +1307,33 @@ export default {
         width: 30%;
       }
     }
+  }
+}
+
+.price-dual {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  .price-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.section-divider {
+  border-top: 1px solid #3a3b48;
+  padding-top: 16px;
+  margin-top: 16px;
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #409eff;
+  }
+  .section-tips {
+    font-size: 12px;
+    color: #e6a23c;
+    margin: 6px 0 12px;
   }
 }
 </style>

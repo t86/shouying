@@ -82,6 +82,9 @@
             <div class="th">序号</div>
             <div class="th">商品名称</div>
             <div class="th">商品单价</div>
+            <div class="th">会员价</div>
+            <div class="th">商务原价</div>
+            <div class="th">商务会员价</div>
             <div class="th">商品类型</div>
             <div class="th">业务类型</div>
             <div class="th">拼音</div>
@@ -106,6 +109,9 @@
             <div class="td">{{index + 1}}</div>
             <div class="td">{{item.n}}</div>
             <div class="td">{{item.p}}</div>
+            <div class="td">{{item.mbp || '-'}}</div>
+            <div class="td">{{item.bp || '-'}}</div>
+            <div class="td">{{item.bmp || '-'}}</div>
             <div class="td">{{item.pt}}</div>
             <div class="td">{{item.bt}}</div>
             <div class="td">{{item.np}}</div>

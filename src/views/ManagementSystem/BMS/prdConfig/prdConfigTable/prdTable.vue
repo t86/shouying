@@ -32,6 +32,9 @@
             <div class="th">商品类型</div>
             <div class="th">业务类型</div>
             <div class="th">商品单价</div>
+            <div class="th">会员价</div>
+            <div class="th">商务原价</div>
+            <div class="th">商务会员价</div>
             <div class="th">erp商品名称</div>
             <div class="th">是否限制仅用于优惠</div>
             <div class="th">创建时间</div>
@@ -70,6 +73,9 @@
             <div class="td">{{item.pt}}</div>
             <div class="td">{{item.bt}}</div>
             <div class="td">{{item.p}}</div>
+            <div class="td">{{item.mbp || '-'}}</div>
+            <div class="td">{{item.bp || '-'}}</div>
+            <div class="td">{{item.bmp || '-'}}</div>
             <div class="td">{{item.mn}}</div>
             <div class="td">{{item.ut}}</div>
             <div class="td">{{item.c}}</div>
