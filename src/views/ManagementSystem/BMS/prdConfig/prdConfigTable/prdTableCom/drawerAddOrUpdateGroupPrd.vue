@@ -85,6 +85,94 @@
         </div>
         <div class="coll" layout="row" layout-align="start center">
           <div class="label">
+            <span>会员价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="mbPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>商务原价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bsPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>商务会员价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bsMbPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="section-divider m-t-3 m-b-2">
+          <div class="section-title">包厢售价</div>
+          <div class="section-desc">配置后,当卡台类型为"包厢"时,将使用新的一套价格</div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>包厢原价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bxPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>包厢会员价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bxMbPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>包厢商务原价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bxBsPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
+            <span>包厢商务会员价：</span>
+          </div>
+          <div class="value">
+            <el-input
+              v-model="bxBsMbPrice"
+              size="mini"
+              placeholder="输入价格,最多支持两位小数"
+            ></el-input>
+          </div>
+        </div>
+        <div class="coll" layout="row" layout-align="start center">
+          <div class="label">
             <span class="red">*</span>
             <span>营业类型：</span>
           </div>
@@ -498,7 +586,14 @@ export default {
       name: "", // 名称
       py: "", // 中文拼音
       englishName: "", // 英文名
-      price: "", // 商品价格
+      price: "", // 商品价格（原价）
+      mbPrice: "", // 会员价
+      bsPrice: "", // 商务原价
+      bsMbPrice: "", // 商务会员价
+      bxPrice: "", // 包厢原价
+      bxMbPrice: "", // 包厢会员价
+      bxBsPrice: "", // 包厢商务原价
+      bxBsMbPrice: "", // 包厢商务会员价
       businessType: "", // 营业类型
       userYH: false,
       picUrl: "",
@@ -578,6 +673,13 @@ export default {
           this.englishName = res.data.name_eng || "";
           this.setType = res.data.prd_type * 1;
           this.price = res.data.price || "";
+          this.mbPrice = res.data.mb_price || "";
+          this.bsPrice = res.data.bs_price || "";
+          this.bsMbPrice = res.data.bs_mb_price || "";
+          this.bxPrice = res.data.bx_price || "";
+          this.bxMbPrice = res.data.bx_mb_price || "";
+          this.bxBsPrice = res.data.bx_bs_price || "";
+          this.bxBsMbPrice = res.data.bx_bs_mb_price || "";
           this.businessType = res.data.biz_type * 1;
           this.userYH = res.data.ut == 2;
           this.picUrl = res.data.pic_name || "";
@@ -829,6 +931,12 @@ export default {
       if (this.name.length <= 0) return this.$message.warning("请输入名称");
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
+      
+      // 验证包厢售价：如果填写了包厢会员价、包厢商务原价、包厢商务会员价中的任意一个，则包厢原价必填
+      const hasBoxPrice = this.bxMbPrice || this.bxBsPrice || this.bxBsMbPrice;
+      if (hasBoxPrice && !this.bxPrice) {
+        return this.$message.warning("如果使用包厢售价,则包厢原价必填");
+      }
 
       const fixPrdList = [];
       const canChoosePrdList = [];
@@ -871,6 +979,13 @@ export default {
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price,
+        mb_price: this.mbPrice || "",
+        bs_price: this.bsPrice || "",
+        bs_mb_price: this.bsMbPrice || "",
+        bx_price: this.bxPrice || "",
+        bx_mb_price: this.bxMbPrice || "",
+        bx_bs_price: this.bxBsPrice || "",
+        bx_bs_mb_price: this.bxBsMbPrice || "",
         biz_type: this.businessType * 1,
         use_type: this.userYH ? 2 : 1, // 用途限制 1 不限 2 仅用于优惠
         is_force: force,
@@ -952,7 +1067,14 @@ export default {
       this.name = ""; // 名称
       this.py = ""; // 中文拼音
       this.englishName = ""; // 英文名
-      this.price = ""; // 商品价格
+      this.price = ""; // 商品价格（原价）
+      this.mbPrice = ""; // 会员价
+      this.bsPrice = ""; // 商务原价
+      this.bsMbPrice = ""; // 商务会员价
+      this.bxPrice = ""; // 包厢原价
+      this.bxMbPrice = ""; // 包厢会员价
+      this.bxBsPrice = ""; // 包厢商务原价
+      this.bxBsMbPrice = ""; // 包厢商务会员价
       this.setType = ""; // 套餐类型
       this.businessType = ""; // 营业类型
       this.userYH = false;
@@ -1174,6 +1296,26 @@ export default {
         width: 30%;
       }
     }
+  }
+}
+
+.section-divider {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #4d4e5c;
+  
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #40404e;
+    margin-bottom: 8px;
+  }
+  
+  .section-desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
   }
 }
 </style>
