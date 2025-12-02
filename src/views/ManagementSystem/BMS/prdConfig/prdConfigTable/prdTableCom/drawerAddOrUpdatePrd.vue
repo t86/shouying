@@ -75,106 +75,87 @@
             </el-select>
           </div>
         </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
+        <div class="price-group">
+          <div class="price-group__title">
             <span class="red">*</span>
-            <span>单价：</span>
+            <span>酒吧售价：</span>
           </div>
-          <div class="value">
-            <el-input
-              :disabled="prdType == 3 || prdType == 4 || prdType == 5"
-              v-model="price"
-              size="mini"
-              placeholder="请输入单价"
-            ></el-input>
-          </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>会员价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="mbPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
-          </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>商务原价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="bsPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
-          </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>商务会员价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="bsMbPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
+          <div class="price-group__fields">
+            <div class="price-field">
+              <div class="price-field__label">原价：</div>
+              <el-input
+                :disabled="prdType == 3 || prdType == 4 || prdType == 5"
+                v-model="price"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">会员价：</div>
+              <el-input
+                v-model="mbPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">商务原价：</div>
+              <el-input
+                v-model="bsPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">商务会员价：</div>
+              <el-input
+                v-model="bsMbPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
           </div>
         </div>
-        <div class="section-divider m-t-3 m-b-2">
-          <div class="section-title">包厢售价</div>
-          <div class="section-desc">配置后,当卡台类型为"包厢"时,将使用新的一套价格</div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>包厢原价：</span>
+        <div class="price-group">
+          <div class="price-group__title">
+            <span>包厢售价：</span>
           </div>
-          <div class="value">
-            <el-input
-              v-model="bxPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
+          <div class="price-group__desc">
+            配置后,当卡台类型为"包厢"时,将使用新的一套价格
           </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>包厢会员价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="bxMbPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
-          </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>包厢商务原价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="bxBsPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
-          </div>
-        </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
-            <span>包厢商务会员价：</span>
-          </div>
-          <div class="value">
-            <el-input
-              v-model="bxBsMbPrice"
-              size="mini"
-              placeholder="输入价格,最多支持两位小数"
-            ></el-input>
+          <div class="price-group__fields">
+            <div class="price-field">
+              <div class="price-field__label">包厢原价：</div>
+              <el-input
+                v-model="bxPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢会员价：</div>
+              <el-input
+                v-model="bxMbPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢商务原价：</div>
+              <el-input
+                v-model="bxBsPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢商务会员价：</div>
+              <el-input
+                v-model="bxBsMbPrice"
+                size="mini"
+                placeholder="输入价格,最多支持两位小数"
+              ></el-input>
+            </div>
           </div>
         </div>
         <div class="coll" layout="row" layout-align="start center">
@@ -869,23 +850,47 @@ export default {
   }
 }
 
-.section-divider {
-  margin-top: 20px;
-  margin-bottom: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #4d4e5c;
-  
-  .section-title {
+.price-group {
+  margin: 16px 0;
+
+  &__title {
     font-size: 14px;
     font-weight: 500;
     color: #40404e;
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+
+    .red {
+      margin-right: 6px;
+      color: #D9001B;
+    }
   }
-  
-  .section-desc {
+
+  &__desc {
     font-size: 12px;
     color: #666;
-    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  &__fields {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+.price-field {
+  width: 50%;
+  min-width: 280px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+
+  &__label {
+    width: 90px;
+    text-align: right;
+    margin-right: 10px;
+    color: #40404e;
   }
 }
 </style>
