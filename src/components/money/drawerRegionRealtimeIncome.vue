@@ -60,6 +60,16 @@
               min-width="120"
               fixed
             />
+            <el-table-column
+              prop="tableCount"
+              label="开台数汇总"
+              min-width="120"
+              fixed
+            >
+              <template slot-scope="scope">
+                <span class="table-count-text">{{ scope.row.tableCount || 0 }}</span>
+              </template>
+            </el-table-column>
             <el-table-column label="主营" align="center">
               <el-table-column
                 prop="mainPaid"
@@ -156,6 +166,7 @@ export default {
       if (!this.tableData.length) return null;
       const stats = this.tableData.reduce(
         (acc, row) => {
+          acc.tableCount += row.tableCount || 0;
           acc.mainPaid += row.mainPaid;
           acc.mainUnpaid += row.mainUnpaid;
           acc.mainTotal += row.mainTotal;
@@ -165,6 +176,7 @@ export default {
           return acc;
         },
         {
+          tableCount: 0,
           mainPaid: 0,
           mainUnpaid: 0,
           mainTotal: 0,
@@ -175,6 +187,7 @@ export default {
       );
       return {
         regionName: "合计",
+        tableCount: stats.tableCount,
         mainPaid: this.toFixed(stats.mainPaid),
         mainUnpaid: this.toFixed(stats.mainUnpaid),
         mainTotal: this.toFixed(stats.mainTotal),
@@ -257,6 +270,7 @@ export default {
           record.regionID ||
           index + 1,
         regionName: record.r || "未知区域",
+        tableCount: Number(record.c || 0), // 开台数量，翻台也累计
         mainPaid: this.toFixed(mainPaid),
         mainUnpaid: this.toFixed(mainUnpaid),
         mainTotal: this.toFixed(mainTotal),
@@ -401,6 +415,15 @@ export default {
     color: #a4d6ff !important;
     font-weight: 600;
   }
+
+  .table-count-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+  }
+
+  .summary-row .table-count-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
 }
 
 ::v-deep
@@ -416,6 +439,19 @@ export default {
   background: rgba(64, 158, 255, 0.12) !important;
   color: #a4d6ff !important;
   font-weight: 600;
+}
+
+::v-deep
+  .region-income-drawer-panel
+  .el-table__body
+  .summary-row
+  .table-count-text,
+::v-deep
+  .region-income-drawer-panel
+  .el-table__fixed-body-wrapper
+  .summary-row
+  .table-count-text {
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 ::v-deep .region-income-drawer-panel .el-select .el-input__inner {
@@ -594,6 +630,33 @@ export default {
 ::v-deep .region-income-drawer-panel .el-table__footer-wrapper td,
 ::v-deep .region-income-drawer-panel .el-table__footer-wrapper th {
   border-top: none;
+}
+
+// Loading 深色调样式
+::v-deep .region-income-drawer-panel .table-wrapper .el-loading-mask {
+  background-color: rgba(10, 14, 25, 0.9) !important;
+}
+
+::v-deep .region-income-drawer-panel .table-wrapper .el-loading-spinner {
+  .el-loading-text {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 14px;
+  }
+
+  .circular {
+    width: 42px;
+    height: 42px;
+  }
+
+  .path {
+    stroke: #409eff !important;
+  }
+}
+
+::v-deep .region-income-drawer-panel .table-wrapper .el-loading-spinner .el-loading-circular {
+  .path {
+    stroke: #409eff !important;
+  }
 }
 
 @media (orientation: portrait) {
