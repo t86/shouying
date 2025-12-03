@@ -487,6 +487,10 @@ export default class WebSocketClient {
                   return ele.rule_id == el.rule_id;
                 } else if(Number(key) == 55){
                   return ele.station_id == el.station_id;
+                } else if(Number(key) == 56){
+                  return ele.station_id == el.station_id && ele.region_id == el.region_id;
+                } else if(Number(key) == 57){
+                  return ele.emp_id == el.emp_id;
                 } else {
                   return ele.id == el.id;
                 }
