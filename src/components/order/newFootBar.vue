@@ -207,19 +207,31 @@
     <div class="choose-pay-type" v-show="showChoosePayType">
       <div class="contain">
         <div class="top" layout="row" layout-align="space-between center">
-          <div>选择支付方式</div>
+          <div>选择渠道</div>
           <i class="el-icon-close cursor" style="color: #1A1A21;" @click="showChoosePayType = false"></i>
         </div>
-
-        <div class="center" layout="row" layout-align="start center">
-          <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
-            @click="payType = item.id">
-            <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
-            <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
-              class="tuijian">推荐</span>
+        <div class="choose-body">
+          <!-- 待支付金额 -->
+          <div class="pay-amount" v-if="payAmount > 0">
+            <span class="amount-label">待支付金额共:</span>
+            <span class="amount-value">¥{{ payAmount.toFixed(2) }}</span>
           </div>
-        </div>
 
+          <div class="center" layout="row" layout-align="start center">
+            <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
+              @click="payType = item.id">
+              <img :src="item.icon" style="height: 30px; width: 30px; vertical-align: middle" alt="" />
+              <span style="margin-left: 8px;">{{ item.name }}</span><span v-if="[5, 6].includes(item.id)"
+                class="tuijian">推荐</span>
+            </div>
+          </div>
+
+          <!-- 会员绑定区域 -->
+          <memberBinding
+            :seatId="currentSeatId"
+            @member-bound="handleMemberBound"
+          />
+        </div>
         <div class="bottom" layout="row" layout-align="center center">
           <div class="button info cursor" @click="showChoosePayType = false">
             取消
@@ -628,6 +640,7 @@ export default {
       showVipRechargeDrawer: false, // 是否显示会员充值弹窗
       currentSourceRoute: '', // 来源路由
       currentCsmId: 0, // 流水ID
+      payAmount: 0, // 待支付金额
     };
   },
   methods: {
@@ -1389,6 +1402,8 @@ export default {
         const that = this;
         this.payType = "";
         this.showChoosePayType = true;
+        // 加载待支付金额
+        this.loadPayAmount();
         function scan_callback(value) {
           try {
             console.log("scan_callback:", JSON.stringify(value));
@@ -1629,7 +1644,34 @@ export default {
       this.showVipRechargeDrawer = false;
       this.currentSourceRoute = '';
       this.currentCsmId = 0;
-    }
+    },
+
+    // 加载待支付金额
+    async loadPayAmount() {
+      try {
+        const seatId = this.currentSeatId;
+        const res = await api_money.reqGetCardPayInfo({
+          id: seatId,
+        });
+        if (res.code === 1 && res.data) {
+          // 计算待支付金额 = 应收金额 - 已收金额
+          const receivable = parseFloat(res.data.receivable || res.data.all_amt || 0) / 100;
+          const collected = parseFloat(res.data.collected || res.data.choose_amt || 0) / 100;
+          this.payAmount = Math.max(0, receivable - collected);
+        }
+      } catch (error) {
+        console.error("加载待支付金额失败:", error);
+      }
+    },
+
+    // 处理会员绑定成功
+    handleMemberBound(memberInfo) {
+      console.log("会员绑定成功:", memberInfo);
+      // 重新加载待支付金额（因为会员价可能变化）
+      this.loadPayAmount();
+      // 通知需要重新计算价格
+      eventVue.$emit("reloadBusinessData");
+    },
   },
   mounted() {
     this.init();
@@ -1718,6 +1760,10 @@ export default {
     isValidCard() {
       return this.$store.state.orderInfo.currentCardInfo.bizType == 1;
     },
+    // 当前卡台ID
+    currentSeatId() {
+      return this.$store.state.orderInfo.currentCardInfo.seatId * 1;
+    },
     // 营销 + 全场优惠子权限为不可查看当台消费 时，在PC端隐藏底部金额
     // 督查角色没有当前卡台区域权限时，也隐藏底部金额
     shouldHideBottomAmounts() {
@@ -1773,6 +1819,7 @@ export default {
     drawerRedeemCoupon: () => import("./drawerRedeemCoupon2.vue"),
     drawerVipRecharge: () => import("./vipRecharge/drawerVipRecharge.vue"),
     keyBoard: () => import("@/components/common/keyBoard"),
+    memberBinding: () => import("@/components/common/memberBinding.vue"),
     fullPageTable, // 全屏表格数据
     cardDrawer
   },

@@ -1,0 +1,343 @@
+.pay-record {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+::v-deep .pay-record-drawer-panel {
+  background-color: #0b1224;
+
+  .el-drawer__header {
+    margin-bottom: 0;
+    padding: 18px 24px 0;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .el-drawer__body {
+    padding: 0 24px 24px;
+    background: #0e1425;
+  }
+
+  .pay-record-body {
+    padding: 16px 0 0;
+    background: transparent;
+    min-height: calc(100vh - 120px);
+  }
+
+  .el-table,
+  .el-table__header-wrapper,
+  .el-table__body-wrapper {
+    background-color: transparent !important;
+  }
+
+  .el-loading-mask {
+    background-color: rgba(11, 18, 36, 0.96) !important;
+  }
+
+  .table {
+    border: none !important;
+  }
+}
+
+/* 统一按钮样式，确保 query/reset 一致 */
+::v-deep .pay-record-drawer-panel .pay-record-toolbar .el-button--info {
+  color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 修改订单绑定会员弹窗 - 深色主题 */
+::v-deep .pay-record-edit-dialog {
+  max-width: 420px !important;
+  width: 95% !important;
+
+  .el-dialog {
+    background: #151b2d;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(5, 7, 16, 0.55);
+    overflow: hidden;
+    border: none;
+  }
+
+  .el-dialog__header {
+    background: #1f2638;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .el-dialog__title {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .el-dialog__headerbtn {
+    top: 18px;
+    right: 20px;
+  }
+
+  .el-dialog__headerbtn .el-dialog__close {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 20px;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .el-dialog__body {
+    padding: 20px;
+    background: #151b2d;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 0;
+  }
+
+  .el-dialog__footer {
+    background: #151b2d;
+    padding: 15px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    margin: 0;
+  }
+
+  /* 输入框深色主题 */
+  .el-input__inner {
+    height: 40px;
+    line-height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(8, 12, 24, 0.7);
+    color: rgba(255, 255, 255, 0.9);
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  /* 按钮深色主题 */
+  .el-button {
+    height: 38px;
+    line-height: 38px;
+    padding: 0 20px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  .el-button--primary {
+    background: linear-gradient(90deg, #3e73ff 0%, #409eff 100%);
+    border: none;
+    box-shadow: 0 6px 16px rgba(64, 158, 255, 0.35);
+    color: #fff;
+  }
+
+  .el-button--default {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+.pay-record-body {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 20px 0;
+}
+
+.pay-record-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .el-input {
+    width: 220px;
+  }
+
+  .el-input__inner {
+    height: 40px;
+    line-height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(8, 12, 24, 0.7);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  ::v-deep .el-button {
+    height: 38px;
+    line-height: 38px;
+    padding: 0 20px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  ::v-deep .el-button--primary {
+    background: linear-gradient(90deg, #3e73ff 0%, #409eff 100%);
+    border: none;
+    box-shadow: 0 6px 16px rgba(64, 158, 255, 0.35);
+  }
+
+  /* 次按钮（重置）深色背景，强制覆盖 Element 默认灰色 */
+  ::v-deep .el-button--info,
+  ::v-deep .pay-record-drawer-panel .pay-record-toolbar .el-button.el-button--info {
+    color: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  }
+}
+
+.pay-record-alert {
+  margin-top: -4px;
+}
+
+.pay-record-table {
+  margin-top: 15px;
+
+  ::v-deep .el-table {
+    background-color: #151b2d !important;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  ::v-deep .el-table th,
+  ::v-deep .el-table tr,
+  ::v-deep .el-table td {
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  ::v-deep .el-table__body tr:nth-child(2n) td {
+    background-color: #1a2033 !important;
+  }
+
+  ::v-deep .el-table__body tr:nth-child(2n + 1) td {
+    background-color: #171d2d !important;
+  }
+
+  ::v-deep .el-table__header th {
+    background-color: #1f2638 !important;
+    color: rgba(255, 255, 255, 0.68);
+    font-weight: 500;
+  }
+
+  /* 去掉外框和单元格边线，参照区域实时营收 */
+  ::v-deep .el-table,
+  ::v-deep .el-table--border,
+  ::v-deep .el-table--group {
+    border: none !important;
+  }
+
+  ::v-deep .el-table::before,
+  ::v-deep .el-table::after,
+  ::v-deep .el-table--border::before,
+  ::v-deep .el-table--border::after,
+  ::v-deep .el-table--group::before,
+  ::v-deep .el-table--group::after {
+    background: transparent !important;
+  }
+
+  ::v-deep .el-table td,
+  ::v-deep .el-table th,
+  ::v-deep .el-table--border td,
+  ::v-deep .el-table--border th {
+    border-bottom: none !important;
+    border-right: none !important;
+  }
+
+  /* 去掉固定列表格右侧竖线等残留边框 */
+  ::v-deep .el-table__fixed,
+  ::v-deep .el-table__fixed-right {
+    background: #151b2d;
+    box-shadow: none;
+    border: none;
+  }
+
+  ::v-deep .el-table__fixed::before,
+  ::v-deep .el-table__fixed-right::before,
+  ::v-deep .el-table__fixed::after,
+  ::v-deep .el-table__fixed-right::after,
+  ::v-deep .el-table__fixed-right-patch {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+}
+
+.operation-btn {
+  color: #409eff;
+  cursor: pointer;
+  margin-right: 12px;
+  font-size: 13px;
+  transition: color 0.2s;
+
+  &.disabled {
+    color: #c0c4cc;
+    cursor: not-allowed;
+  }
+}
+
+// pay-record-tips / tip-card 已移除，仅保留占位注释，避免误用
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .edit-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    .el-input {
+      flex: 1;
+    }
+  }
+
+  .el-input__inner {
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .el-button {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    border-radius: 20px;
+  }
+}
+
+.edit-error {
+  font-size: 13px;
+  color: #f56c6c;
+  margin-top: 8px;
+}
+
+.member-info {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+
+  .info-row {
+    line-height: 24px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
+
+@media (orientation: portrait) {
+  .pay-record-dialog,
+  .pay-record-edit-dialog {
+    width: 95% !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .pay-record-dialog,
+  .pay-record-edit-dialog {
+    width: 95% !important;
+  }
+}
+

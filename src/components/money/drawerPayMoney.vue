@@ -49,6 +49,12 @@
             </div>
           </div>
 
+          <!-- 会员绑定区域 -->
+          <memberBinding
+            :seatId="currentSeatId"
+            @member-bound="handleMemberBound"
+          />
+
           <!-- 线上收款（买单+滞留金） -->
           <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 1000">
             <onlinePaymentChannel 
@@ -638,6 +644,7 @@ import onlinePaymentChannel from "./onlinePaymentChannel.vue";
 import choosePayTypeDialog from "../order/choosePayTypeDialog.vue";
 import drawerAddBookAmt from "../order/newDrawerAddBookAmt.vue";
 import drawerPayQR from "../order/newDrawerPayQR.vue";
+import memberBinding from "@/components/common/memberBinding.vue";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 export default {
@@ -1697,6 +1704,15 @@ export default {
       this.getChoosePayList();
       this.$emit("paySuccess");
     },
+
+    // 处理会员绑定成功
+    handleMemberBound(memberInfo) {
+      console.log("会员绑定成功:", memberInfo);
+      // 重新加载支付信息（因为会员价可能变化，需要重新计算金额）
+      this.getChoosePayList();
+      // 通知父组件会员已绑定，需要重新计算价格
+      this.$emit("member-bound", memberInfo);
+    },
   },
   mounted() {
     this.init();
@@ -1711,6 +1727,10 @@ export default {
     },
   },
   computed: {
+    // 当前卡台ID
+    currentSeatId() {
+      return this.$store.state.orderInfo.currentCardInfo.seatId * 1;
+    },
     // 未收金额 / 分成金额
     allAmt() {
       let allAmt = 0;
@@ -1750,6 +1770,7 @@ export default {
     choosePayTypeDialog,
     drawerPayQR,
     drawerAddBookAmt,
+    memberBinding,
   },
   watch: {
     showDrawer(newVal) {
