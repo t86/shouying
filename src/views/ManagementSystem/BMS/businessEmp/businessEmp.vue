@@ -25,6 +25,7 @@
             :props="deptProps"
             clearable
             placeholder="请选择部门"
+            popper-class="business-emp-dept-cascader"
           />
           <el-input
             class="filter-item search-input"
@@ -584,6 +585,122 @@ export default {
   
   .panel-card {
     padding: 12px;
+  }
+}
+</style>
+
+<style lang="less">
+// 商务组订位人部门下拉框样式 - 支持显示15个选项
+// 关键：el-popper 容器本身也需要设置高度，否则会限制内部内容
+
+// 直接对 el-popper 容器设置高度
+.el-popper.business-emp-dept-cascader {
+  max-height: 600px !important;
+  height: auto !important;
+  overflow: visible !important;
+  
+  // 内部面板
+  .el-cascader-panel {
+    max-height: 600px !important;
+    height: auto !important;
+  }
+  
+  // 菜单容器 - 这是关键，需要设置固定高度
+  .el-cascader-menu {
+    max-height: 600px !important;
+    height: 600px !important;
+  }
+  
+  // 滚动条容器 - 也需要设置高度
+  .el-cascader-menu .el-scrollbar {
+    max-height: 600px !important;
+    height: 600px !important;
+  }
+  
+  // 滚动包装器 - 这是实际限制高度的容器
+  .el-cascader-menu .el-scrollbar__wrap {
+    max-height: 600px !important;
+    height: 600px !important;
+    overflow-y: auto !important;
+  }
+  
+  // 滚动视图
+  .el-cascader-menu .el-scrollbar__view {
+    max-height: 600px !important;
+  }
+  
+  // 响应式：竖屏时适当减小高度
+  @media (orientation: portrait) {
+    max-height: 500px !important;
+    
+    .el-cascader-panel {
+      max-height: 500px !important;
+    }
+    
+    .el-cascader-menu {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
+    
+    .el-cascader-menu .el-scrollbar {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
+    
+    .el-cascader-menu .el-scrollbar__wrap {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
+  }
+}
+
+// 备用选择器
+.business-emp-dept-cascader {
+  max-height: 600px !important;
+  height: auto !important;
+  
+  .el-cascader-panel {
+    max-height: 600px !important;
+    height: auto !important;
+  }
+  
+  .el-cascader-menu {
+    max-height: 600px !important;
+    height: 600px !important;
+  }
+  
+  .el-cascader-menu .el-scrollbar {
+    max-height: 600px !important;
+    height: 600px !important;
+  }
+  
+  .el-cascader-menu .el-scrollbar__wrap {
+    max-height: 600px !important;
+    height: 600px !important;
+    overflow-y: auto !important;
+  }
+  
+  @media (orientation: portrait) {
+    max-height: 500px !important;
+    
+    .el-cascader-panel {
+      max-height: 500px !important;
+    }
+    
+    .el-cascader-menu {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
+    
+    .el-cascader-menu .el-scrollbar {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
+    
+    .el-cascader-menu .el-scrollbar__wrap {
+      max-height: 500px !important;
+      height: 500px !important;
+    }
   }
 }
 </style>

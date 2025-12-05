@@ -38,6 +38,13 @@
         </div>
         <!-- 输入金额 -->
         <div class="center">
+          <!-- 会员绑定区域 -->
+          <memberBinding
+            :seatId="currentSeatId"
+            @member-bound="handleMemberBound"
+            @keyboard-active="handleMemberKeyboardActive"
+          />
+
           <div class="center-top" layout="row" layout-align="center center" v-if="payActiveInfo.id != 1000">
             <div
               class="center-top-left"
@@ -48,12 +55,6 @@
               <p class="red">￥{{ notPayAmt }}</p>
             </div>
           </div>
-
-          <!-- 会员绑定区域 -->
-          <memberBinding
-            :seatId="currentSeatId"
-            @member-bound="handleMemberBound"
-          />
 
           <!-- 线上收款（买单+滞留金） -->
           <div class="online-payment-channel-wrapper" v-if="payActiveInfo.id == 1000">
@@ -427,7 +428,7 @@
             </p>
           </div>
           <div
-            v-if="![9999, 202, 1000].includes(payActiveInfo.id * 1)"
+            v-if="![9999, 202, 1000].includes(payActiveInfo.id * 1) && !memberKeyboardActive"
             class="center-bottom"
             layout="row"
             layout-align="center center"
@@ -651,6 +652,7 @@ export default {
   data() {
     return {
       isOrderGZ: false, // 是否订位人挂账
+      memberKeyboardActive: false, // memberBinding的键盘是否激活
       flag: false, // 点击付款按钮的节流阀
       show: false,
       showAuthDrawer: false, // 显示授权
@@ -1001,7 +1003,17 @@ export default {
       }
     },
 
+    // 处理memberBinding键盘激活事件
+    handleMemberKeyboardActive(active) {
+      this.memberKeyboardActive = active;
+    },
+
     changeNum(value) {
+      // 如果memberBinding的键盘激活，不处理全局键盘输入
+      if (this.memberKeyboardActive) {
+        return;
+      }
+      
       let count = 0;
       // 会员卡落单
       if (this.payActiveInfo.id == 5) {
