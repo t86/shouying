@@ -87,7 +87,7 @@
                 :disabled="prdType == 3 || prdType == 4 || prdType == 5"
                 v-model="price"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -95,7 +95,7 @@
               <el-input
                 v-model="mbPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -103,7 +103,7 @@
               <el-input
                 v-model="bsPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -111,7 +111,7 @@
               <el-input
                 v-model="bsMbPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
           </div>
@@ -129,7 +129,7 @@
               <el-input
                 v-model="bxPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -137,7 +137,7 @@
               <el-input
                 v-model="bxMbPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -145,7 +145,7 @@
               <el-input
                 v-model="bxBsPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
             <div class="price-field">
@@ -153,7 +153,7 @@
               <el-input
                 v-model="bxBsMbPrice"
                 size="mini"
-                placeholder="输入价格,最多支持两位小数"
+                maxlength="9"
               ></el-input>
             </div>
           </div>
@@ -881,16 +881,34 @@ export default {
 
 .price-field {
   width: 50%;
-  min-width: 280px;
+  min-width: 240px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
 
   &__label {
-    width: 90px;
+    width: 110px;
     text-align: right;
     margin-right: 10px;
     color: #40404e;
+    white-space: nowrap;
+  }
+
+  .el-input {
+    width: 190px;
+    max-width: 65%;
+  }
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .price-field {
+    width: 100%;
+    min-width: 220px;
+
+    .el-input {
+      width: 100%;
+      max-width: none;
+    }
   }
 }
 </style>

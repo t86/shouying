@@ -14,6 +14,7 @@
  * @returns {string} 商品价格
  */
 export function getProductPrice(productInfo, cardInfo, businessData, businessEmpList = []) {
+
   if (!productInfo) {
     return "0";
   }

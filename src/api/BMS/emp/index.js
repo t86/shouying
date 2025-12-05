@@ -15,7 +15,23 @@ const article = {
 
   // 获取员工列表
   requestEmpList(data) {
-    return axios.post(`${base.htgl}/emp/list`, data);
+    // 兼容新接口（多部门查询：ids）与旧参数（dept_id/dept_ids）
+    const payload = { ...(data || {}) };
+    if (!payload.ids) {
+      const deptIds = [];
+      if (payload.dept_id) {
+        deptIds.push(payload.dept_id);
+      }
+      if (Array.isArray(payload.dept_ids)) {
+        deptIds.push(...payload.dept_ids);
+      }
+      if (deptIds.length) {
+        payload.ids = deptIds;
+      }
+      delete payload.dept_id;
+      delete payload.dept_ids;
+    }
+    return axios.post(`${base.htgl}/emp/list`, payload);
   },
   // 新建员工
   requestEmpNew(data) {

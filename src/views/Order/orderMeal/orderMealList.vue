@@ -82,8 +82,8 @@ export default {
       this.allProductsList = [...this.allProductsList.map(item => {
         if(item.bizType  === '1'){
           item.vipPrice = item.price
-          let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
-          p = Math.ceil(p).toString()
+          const p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
+          // 保留两位小数显示，避免小数商品被进位成整数
           item.price = p
         }
         return item

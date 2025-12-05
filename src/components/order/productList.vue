@@ -932,6 +932,7 @@ export default {
     },
 
     doSetMealForProduct(productInfo) {
+      console.log('doSetMealForProduct productInfo:', productInfo)
       if(this.redeem != 0) {
         this.currentProductInfo = {...productInfo, type:2, requireInfo:[]};
         this.showOrHideDrawer(true);
@@ -1343,8 +1344,8 @@ export default {
           this.productsList = [...this.productsList.map(item => {
             if(item.bizType  === '1'){
               item.vipPrice = item.price
-              let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
-              p = Math.ceil(p).toString()
+              const p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
+              // 保留两位小数，避免小数商品被进位成 1 元
               item.price = p
             }
             return item

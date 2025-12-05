@@ -8,7 +8,7 @@
     </div>
 
     <div class="transfer-wrapper">
-      <div class="panel-card">
+      <div class="panel-card left-panel">
         <div class="panel-header">
           <div>
             <span class="panel-title">待选员工列表</span>
@@ -20,12 +20,13 @@
         <div class="filter-form">
           <el-cascader
             class="filter-item"
-            v-model="filterForm.deptPath"
+            v-model="filterForm.deptPaths"
             :options="deptOptions"
             :props="deptProps"
             clearable
-            placeholder="请选择部门"
+            placeholder="请选择部门（可多选）"
             popper-class="business-emp-dept-cascader"
+            collapse-tags
           />
           <el-input
             class="filter-item search-input"
@@ -101,15 +102,53 @@
         </el-button>
       </div>
 
-      <div class="panel-card">
+      <div class="panel-card right-panel">
         <div class="panel-header">
           <div>
             <span class="panel-title">已选员工列表</span>
             <span class="count-text">（{{ selectedEmps.length }} 人）</span>
           </div>
+          <div class="selected-actions">
+            <el-input
+              class="filter-item search-input"
+              v-model.trim="selectedFilter.keyword"
+              maxlength="30"
+              placeholder="请输入工号/姓名"
+              clearable
+              size="medium"
+              @keyup.enter.native="fetchSelectedEmps"
+            />
+            <el-button
+              class="filter-item"
+              type="primary"
+              size="medium"
+              @click="fetchSelectedEmps"
+            >
+              查询
+            </el-button>
+            <el-button class="filter-item" size="medium" @click="handleResetSelectedFilters">
+              重置
+            </el-button>
+            <el-button
+              class="filter-item danger"
+              type="danger"
+              size="medium"
+              :disabled="selectedSelectedCount === 0"
+              @click="handleBatchRemove"
+            >
+              批量删除
+            </el-button>
+          </div>
         </div>
         <div class="table-wrapper" v-loading="selectedLoading">
           <div class="table table-head" v-if="selectedEmps.length">
+            <div class="th checkbox">
+              <el-checkbox
+                :indeterminate="selectedIndeterminate"
+                v-model="selectedSelectAll"
+                @change="handleSelectedToggleAll"
+              ></el-checkbox>
+            </div>
             <div class="th index">序号</div>
             <div class="th name">员工姓名</div>
             <div class="th dept">部门</div>
@@ -122,6 +161,12 @@
               v-for="(row, index) in selectedEmps"
               :key="row.id"
             >
+              <div class="td checkbox">
+                <el-checkbox
+                  v-model="row.checked"
+                  @change="() => handleSelectedRowCheck(row)"
+                ></el-checkbox>
+              </div>
               <div class="td index">{{ index + 1 }}</div>
               <div class="td name">{{ row.name }}</div>
               <div class="td dept">{{ row.deptName || '—' }}</div>
@@ -156,15 +201,21 @@ export default {
         children: 'subs',
         emitPath: true,
         checkStrictly: true,
+        multiple: true,
       },
       filterForm: {
-        deptPath: [],
+        deptPaths: [],
         keyword: '',
       },
       availableEmps: [],
       selectedEmps: [],
       availableSelectAll: false,
       availableIndeterminate: false,
+      selectedFilter: {
+        keyword: '',
+      },
+      selectedSelectAll: false,
+      selectedIndeterminate: false,
     };
   },
   computed: {
@@ -178,6 +229,9 @@ export default {
     },
     currentSelectedIds() {
       return this.selectedEmps.map((item) => item.id);
+    },
+    selectedSelectedCount() {
+      return this.selectedEmps.filter((row) => row.checked).length;
     },
   },
   created() {
@@ -212,7 +266,10 @@ export default {
     async fetchSelectedEmps() {
       this.selectedLoading = true;
       try {
-        const res = await this.$api.BMS.businessEmp.reqGetBsSalesList();
+        const params = {
+          key: this.selectedFilter.keyword || '',
+        };
+        const res = await this.$api.BMS.businessEmp.reqGetBsSalesList(params);
         if (res.code === 1) {
           const payload = res.data || {};
           const list = Array.isArray(payload)
@@ -223,9 +280,11 @@ export default {
             name: item.n || '',
             deptName: item.d || '',
             code: item.c || '',
+            checked: false,
           }));
           // 更新待选列表的禁用状态
           this.updateAvailableEmpsDisabledState();
+          this.syncSelectedSelectionState();
         } else {
           this.$message.warning(res.msg);
         }
@@ -238,11 +297,10 @@ export default {
     async fetchAvailableEmps() {
       this.availableLoading = true;
       const params = {};
-      const deptId =
-        this.filterForm.deptPath.length > 0
-          ? this.filterForm.deptPath[this.filterForm.deptPath.length - 1]
-          : '';
-      params.dept_id = deptId;
+      const deptIds = this.resolveSelectedDeptIds();
+      if (deptIds.length) {
+        params.ids = deptIds;
+      }
       params.key = this.filterForm.keyword || '';
       try {
         const res = await this.$api.BMS.emp.requestEmpList(params);
@@ -268,6 +326,18 @@ export default {
         this.availableLoading = false;
       }
     },
+    resolveSelectedDeptIds() {
+      const paths = this.filterForm.deptPaths;
+      if (!paths || paths.length === 0) {
+        return [];
+      }
+      if (Array.isArray(paths[0])) {
+        return paths
+          .map((path) => (Array.isArray(path) && path.length ? path[path.length - 1] : ''))
+          .filter((id) => id !== '' && id !== undefined && id !== null);
+      }
+      return [paths[paths.length - 1]].filter((id) => id !== '' && id !== undefined && id !== null);
+    },
     normalizeEmp(item = {}) {
       return {
         id: item.id,
@@ -287,12 +357,20 @@ export default {
     },
     handleResetFilters() {
       this.filterForm = {
-        deptPath: [],
+        deptPaths: [],
         keyword: '',
       };
       this.availableEmps = [];
       this.availableSelectAll = false;
       this.availableIndeterminate = false;
+    },
+    handleResetSelectedFilters() {
+      this.selectedFilter = {
+        keyword: '',
+      };
+      this.selectedSelectAll = false;
+      this.selectedIndeterminate = false;
+      this.fetchSelectedEmps();
     },
     handleToggleAll(val) {
       this.availableEmps.forEach((row) => {
@@ -309,6 +387,15 @@ export default {
       }
       this.syncAvailableSelectionState();
     },
+    handleSelectedToggleAll(val) {
+      this.selectedEmps.forEach((row) => {
+        row.checked = val;
+      });
+      this.syncSelectedSelectionState();
+    },
+    handleSelectedRowCheck() {
+      this.syncSelectedSelectionState();
+    },
     syncAvailableSelectionState() {
       const selectable = this.availableEmps.filter((row) => !row.disabled);
       if (!selectable.length) {
@@ -320,6 +407,17 @@ export default {
       this.availableSelectAll = selectedCount === selectable.length;
       this.availableIndeterminate =
         selectedCount > 0 && selectedCount < selectable.length;
+    },
+    syncSelectedSelectionState() {
+      if (!this.selectedEmps.length) {
+        this.selectedSelectAll = false;
+        this.selectedIndeterminate = false;
+        return;
+      }
+      const selectedCount = this.selectedEmps.filter((row) => row.checked).length;
+      this.selectedSelectAll = selectedCount === this.selectedEmps.length;
+      this.selectedIndeterminate =
+        selectedCount > 0 && selectedCount < this.selectedEmps.length;
     },
     async handleAdd() {
       const rows = this.availableEmps.filter(
@@ -358,6 +456,28 @@ export default {
         this.$message.warning('删除失败');
       }
     },
+    async handleBatchRemove() {
+      const rows = this.selectedEmps.filter((row) => row.checked);
+      if (!rows.length) {
+        return this.$message.warning('请选择需要删除的员工');
+      }
+      this.selectedLoading = true;
+      try {
+        await Promise.all(
+          rows.map((row) =>
+            this.$api.BMS.businessEmp.reqRemoveBsSales({ id: row.id })
+          )
+        );
+        this.$message.success('批量删除成功');
+        await this.fetchSelectedEmps();
+        this.updateAvailableEmpsDisabledState();
+      } catch (error) {
+        console.log('批量删除商务组订位人失败', error);
+        this.$message.warning('删除失败');
+      } finally {
+        this.selectedLoading = false;
+      }
+    },
   },
 };
 </script>
@@ -384,7 +504,7 @@ export default {
 .transfer-wrapper {
   display: flex;
   flex-wrap: nowrap;
-  gap: 16px;
+  gap: 12px;
   align-items: stretch;
   
   @media (orientation: portrait) {
@@ -393,16 +513,38 @@ export default {
 }
 
 .panel-card {
-  flex: 1;
+  flex: 1 1 0;
   background: #fff;
   border-radius: 8px;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   max-width: 100%;
   
   @media (orientation: portrait) {
     width: 100%;
+  }
+}
+
+.left-panel {
+  flex: 0 0 54%;
+  min-width: 520px;
+  max-width: 58%;
+  
+  @media (orientation: portrait) {
+    flex: 1 1 100%;
+    min-width: auto;
+    max-width: 100%;
+  }
+}
+
+.right-panel {
+  flex: 1 1 46%;
+  min-width: 520px;
+  
+  @media (orientation: portrait) {
+    flex: 1 1 100%;
+    min-width: auto;
   }
 }
 
@@ -431,17 +573,42 @@ export default {
 
   .filter-item {
     flex: 0 0 auto;
-    width: 190px;
+    width: 170px;
   }
 
   .filter-item.search-input {
-    width: 240px;
+    width: 200px;
   }
 
   @media (orientation: portrait) {
     flex-wrap: wrap;
     .filter-item,
     .filter-item.search-input {
+      width: 100%;
+    }
+  }
+}
+
+.selected-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  .filter-item {
+    width: 160px;
+  }
+
+  .search-input {
+    width: 200px;
+  }
+
+  @media (orientation: portrait) {
+    width: 100%;
+    justify-content: flex-start;
+    .filter-item,
+    .search-input {
       width: 100%;
     }
   }
@@ -531,15 +698,17 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 8px;
+  flex: 0 0 110px;
   
   @media (orientation: portrait) {
     flex-direction: row;
     padding: 16px 0;
+    flex: 1 1 auto;
   }
   
   .el-button {
-    min-width: 100px;
+    min-width: 96px;
     height: 38px;
   }
 }
