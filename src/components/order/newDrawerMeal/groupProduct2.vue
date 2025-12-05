@@ -350,7 +350,8 @@ export default {
         pt_sku_id: this.csmInfo.pt_sku_id,
         title: this.csmInfo.title,     //Title 卡券名称
         prd_id: this.csmInfo.prd_id,      //PrdId 兑换套餐Id,云端返回
-        prd_price:Math.round(this.groupInfo.price * 100),      //PrdPrice 套餐金额,单位分,需前端格式化
+        prd_price:Math.round(this.groupInfo.p2 * 100),      //PrdPrice 套餐金额,单位分,需前端格式化
+
         coupon_pay_amt: this.csmInfo.coupon_pay_amt,      //CouponPayAmt 卡券支付金额,单位分,需前端格式化
         receipt_code: this.csmInfo.receipt_code,     //ReceiptCode 券码(美团对应实际券码,抖音对应订单id,推广对应custKqId)
         prd_type: this.csmInfo.prd_type,        //PrdType 套餐类型
