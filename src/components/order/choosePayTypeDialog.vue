@@ -28,6 +28,7 @@
           <!-- 会员绑定区域 -->
           <memberBinding
             :seatId="currentSeatId"
+            theme="light"
             @member-bound="handleMemberBound"
           />
 

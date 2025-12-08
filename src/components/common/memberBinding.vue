@@ -1,5 +1,5 @@
 <template>
-  <div class="member-binding">
+  <div class="member-binding" :class="`theme-${theme}`">
     <!-- 绑定会员享优惠和积分 -->
     <div class="member-binding-header">
       <div class="divider"></div>
@@ -113,6 +113,11 @@ export default {
     seatId: {
       type: Number,
       required: true,
+    },
+    theme: {
+      type: String,
+      default: 'dark', // 'dark' 或 'light'
+      validator: (value) => ['dark', 'light'].includes(value),
     },
   },
   data() {
@@ -432,57 +437,181 @@ export default {
 
 <style lang="less" scoped>
 .member-binding {
-  padding: 15px;
+  padding: 10px 15px;
   background: transparent;
   border-radius: 6px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
+
+  // 深色主题（默认，收银系统）
+  &.theme-dark {
+    .member-binding-header {
+      .divider {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .header-text {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    .member-selection {
+      .section-title {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .member-list {
+        .member-item {
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+    }
+
+    .custom-input-section {
+      .section-title {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .phone-input {
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.2);
+        color: #1a1a1a;
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.5);
+        }
+
+        &:focus {
+          background: rgba(255, 255, 255, 0.25);
+        }
+      }
+
+      .member-info {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+
+        .info-item {
+          span:first-child {
+            color: rgba(255, 255, 255, 0.7);
+          }
+
+          span:nth-child(2) {
+            color: rgba(255, 255, 255, 0.9);
+          }
+        }
+      }
+    }
+  }
+
+  // 浅色主题（点单系统）
+  &.theme-light {
+    .member-binding-header {
+      .divider {
+        background: rgba(0, 0, 0, 0.15);
+      }
+
+      .header-text {
+        color: rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    .member-selection {
+      .section-title {
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      .member-list {
+        .member-item {
+          background: rgba(0, 0, 0, 0.05);
+          color: rgba(0, 0, 0, 0.85);
+          border: 1px solid rgba(0, 0, 0, 0.15);
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.25);
+          }
+        }
+      }
+    }
+
+    .custom-input-section {
+      .section-title {
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      .phone-input {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        background: #ffffff;
+        color: #1a1a1a;
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.5);
+        }
+
+        &:focus {
+          background: #ffffff;
+          border-color: #409eff;
+        }
+      }
+
+      .member-info {
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+
+        .info-item {
+          span:first-child {
+            color: rgba(0, 0, 0, 0.65);
+          }
+
+          span:nth-child(2) {
+            color: rgba(0, 0, 0, 0.85);
+          }
+        }
+      }
+    }
+  }
 
   .member-binding-header {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 
     .divider {
       flex: 1;
       height: 1px;
-      background: rgba(255, 255, 255, 0.2);
     }
 
     .header-text {
-      padding: 0 15px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
+      padding: 0 12px;
+      font-size: 13px;
     }
   }
 
   .member-selection {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 
     .section-title {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 10px;
+      font-size: 13px;
+      margin-bottom: 8px;
     }
 
     .member-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
 
       .member-item {
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 12px;
         border-radius: 6px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
         cursor: pointer;
         transition: all 0.2s;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.3);
-        }
 
         &.view-more {
           color: #409eff;
@@ -495,70 +624,59 @@ export default {
 
   .custom-input-section {
     .section-title {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 10px;
+      font-size: 13px;
+      margin-bottom: 8px;
     }
 
     .input-wrapper {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
 
       .phone-input {
         flex: 1;
-        height: 38px;
+        height: 40px;
         padding: 0 12px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 6px;
         font-size: 14px;
         margin-right: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
-
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.5);
-        }
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
         &:focus {
-          border-color: #409eff;
           outline: none;
-          background: rgba(255, 255, 255, 0.15);
+          box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
         }
       }
 
       .search-btn {
-        height: 38px;
-        padding: 0 20px;
+        height: 40px;
+        padding: 0 18px;
+        font-size: 14px;
       }
     }
 
     .error-message {
       color: #f56c6c;
       font-size: 12px;
-      margin-top: 5px;
-      padding: 5px 0;
+      margin-top: 4px;
+      padding: 4px 0;
     }
 
     .member-info {
-      margin-top: 15px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.08);
+      margin-top: 10px;
+      padding: 12px;
       border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
 
       .info-item {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
-        font-size: 14px;
+        margin-bottom: 8px;
+        font-size: 13px;
 
         span:first-child {
           width: 80px;
-          color: rgba(255, 255, 255, 0.7);
         }
 
         span:nth-child(2) {
           flex: 1;
-          color: rgba(255, 255, 255, 0.9);
         }
 
         .change-btn {
@@ -574,7 +692,7 @@ export default {
   }
 
   .keyboard-wrapper {
-    margin-top: 15px;
+    margin-top: 10px;
     position: relative;
     z-index: 10;
     
@@ -593,20 +711,71 @@ export default {
 
 @media (orientation: portrait) {
   .member-binding {
-    padding: 12px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
 
-    .member-selection .member-list {
-      gap: 8px;
+    .member-binding-header {
+      margin-bottom: 8px;
 
-      .member-item {
-        padding: 6px 12px;
-        font-size: 13px;
+      .header-text {
+        padding: 0 10px;
+        font-size: 12px;
       }
     }
 
-    .custom-input-section .input-wrapper .phone-input {
-      height: 36px;
-      font-size: 13px;
+    .member-selection {
+      margin-bottom: 8px;
+
+      .section-title {
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
+
+      .member-list {
+        gap: 6px;
+
+        .member-item {
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .custom-input-section {
+      .section-title {
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
+
+      .input-wrapper {
+        margin-bottom: 6px;
+
+        .phone-input {
+          height: 38px;
+          font-size: 13px;
+          padding: 0 10px;
+        }
+
+        .search-btn {
+          height: 38px;
+          padding: 0 15px;
+          font-size: 13px;
+        }
+      }
+
+      .member-info {
+        margin-top: 8px;
+        padding: 10px;
+
+        .info-item {
+          margin-bottom: 6px;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .keyboard-wrapper {
+      margin-top: 8px;
     }
   }
 }

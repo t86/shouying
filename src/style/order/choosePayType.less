@@ -10,14 +10,18 @@
   .contain {
     width: 784px;
     max-width: 95%;
-    height: 356px;
+    height: auto;
+    min-height: 356px;
+    max-height: 90vh;
     background: #DCE1EA;
     border-radius: 20px;
     position: absolute;
     left: 50%;
-    top: 40%;
+    top: 50%;
     transform: translate(-50%, -50%);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     
     .top {
       padding: 0 20px;
@@ -27,13 +31,15 @@
       font-family: PingFangSC, PingFang SC;
       font-weight: 600;
       color: #1A1A21;
+      flex-shrink: 0;
     }
 
     .pay-amount {
-      padding: 15px 20px;
+      padding: 10px 20px;
       text-align: center;
       font-size: 16px;
       color: #333;
+      flex-shrink: 0;
 
       .amount-label {
         margin-right: 10px;
@@ -48,7 +54,9 @@
 
     .center {
       flex-wrap: wrap;
-      margin-top: 20px;
+      margin-top: 10px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
 
       .choose {
         width: 240px;
@@ -87,14 +95,21 @@
         }
       }
     }
+    
+    // 会员绑定区域容器
+    ::v-deep .member-binding {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      max-height: calc(90vh - 300px);
+    }
 
     .bottom {
-      position: absolute;
-      left: 0;
-      bottom: 0;
+      flex-shrink: 0;
       width: 100%;
       height: 64px;
       background: #FAFAFC;
+      margin-top: auto;
 
       .button {
         width: 112px;
@@ -139,33 +154,39 @@
   .contain {
     width: 660px;
     max-width: 95%;
-    height: 550px;
+    height: auto;
+    min-height: 400px;
+    max-height: 90vh;
     border-radius: 8px;
     background: #202c4a;
     box-shadow: 0px 0px 10px 0px rgb(67, 152, 243);
     position: absolute;
     left: 50%;
-    top: 40%;
+    top: 50%;
     transform: translate(-50%, -50%);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
 
     .top {
-      padding: 0 20px;
-      height: 50px;
+      padding: 10px 15px;
+      min-height: 50px;
       background-color: #1e2944;
+      flex-shrink: 0;
 
       .value {
         width: 100%;
-        height: 42px;
+        height: 40px;
         margin: 0 auto;
-        line-height: 42px;
+        line-height: 40px;
         background: rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
+        border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 0 10px;
+        padding: 0 12px;
         box-sizing: border-box;
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
 
         &.text {
           color: rgba(255, 255, 255, 0.3);
@@ -177,9 +198,19 @@
       }
     }
 
+    .m-t-6 {
+      flex: 1;
+      min-height: 0;
+      padding: 10px 15px;
+      overflow-y: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .center {
       flex-wrap: wrap;
-      margin-top: 20px;
+      margin-top: 10px;
 
       .choose {
         width: 160px;
@@ -198,18 +229,28 @@
     }
 
     .bottom {
-      position: absolute;
+      position: relative;
       left: 0;
       bottom: 0;
       width: 100%;
       height: 50px;
       background-color: #202c4a;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 0;
 
       .button {
-        padding: 6px 16px;
+        padding: 8px 20px;
         border-radius: 6px;
         margin: 0 10px;
         font-size: 14px;
+        height: 38px;
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         &.primary {
           background-color: #4b89ff;
@@ -226,6 +267,52 @@
     .contain {
       width: 95% !important;
       max-height: 90vh;
+      height: auto;
+      min-height: 350px;
+      
+      .top {
+        padding: 8px 12px;
+        
+        .value {
+          height: 38px;
+          font-size: 14px;
+        }
+      }
+      
+      .m-t-6 {
+        padding: 8px 12px;
+      }
+      
+      .bottom {
+        height: 48px;
+        padding: 4px 0;
+        
+        .button {
+          height: 38px;
+          padding: 6px 16px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .contain {
+      width: 95% !important;
+      max-height: 90vh;
+      
+      .top {
+        padding: 8px 12px;
+        
+        .value {
+          height: 38px;
+          font-size: 14px;
+        }
+      }
+      
+      .m-t-6 {
+        padding: 8px 12px;
+      }
     }
   }
 }
