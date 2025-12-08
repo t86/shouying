@@ -41,6 +41,7 @@
           <!-- 会员绑定区域 -->
           <memberBinding
             :seatId="currentSeatId"
+            theme="dark"
             @member-bound="handleMemberBound"
             @keyboard-active="handleMemberKeyboardActive"
           />

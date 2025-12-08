@@ -125,13 +125,13 @@
         default: false  // 是否显示小数点
       },
       itemWidth: {
-        default: '88'  // 每个item的宽度
+        default: 60  // 更紧凑的按键宽度
       },
       itemHeight: {
-        default: '88'  // 每个item的宽度
+        default: 40  // 更紧凑的按键高度
       },
       width:{
-        default: 270  // 整个键盘的宽度
+        default: 200  // 整个键盘宽度
       },
       left: {
         default: false

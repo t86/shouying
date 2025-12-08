@@ -114,10 +114,11 @@ export default {
       type: Number,
       required: true,
     },
+    // 主题：浅色/深色，默认浅色以适配白底页面
     theme: {
       type: String,
-      default: 'dark', // 'dark' 或 'light'
-      validator: (value) => ['dark', 'light'].includes(value),
+      default: "light",
+      validator: (value) => ["dark", "light"].includes(value),
     },
   },
   data() {
@@ -437,141 +438,82 @@ export default {
 
 <style lang="less" scoped>
 .member-binding {
-  padding: 10px 15px;
+  padding: 10px 15px 18px;
   background: transparent;
   border-radius: 6px;
   margin-bottom: 8px;
 
-  // 深色主题（默认，收银系统）
+  // 深色主题（收银端）
   &.theme-dark {
     .member-binding-header {
-      .divider {
-        background: rgba(255, 255, 255, 0.2);
-      }
-
-      .header-text {
-        color: rgba(255, 255, 255, 0.8);
-      }
+      .divider { background: rgba(255, 255, 255, 0.2); }
+      .header-text { color: rgba(255, 255, 255, 0.8); }
     }
-
     .member-selection {
-      .section-title {
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      .member-list {
-        .member-item {
-          background: rgba(255, 255, 255, 0.1);
-          color: rgba(255, 255, 255, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-          }
+      .section-title { color: rgba(255, 255, 255, 0.8); }
+      .member-item {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.3);
         }
       }
     }
-
     .custom-input-section {
-      .section-title {
-        color: rgba(255, 255, 255, 0.8);
-      }
-
+      .section-title { color: rgba(255, 255, 255, 0.8); }
       .phone-input {
         border: 1px solid rgba(255, 255, 255, 0.4);
         background: rgba(255, 255, 255, 0.2);
         color: #1a1a1a;
-
-        &::placeholder {
-          color: rgba(0, 0, 0, 0.5);
-        }
-
-        &:focus {
-          background: rgba(255, 255, 255, 0.25);
-        }
+        &::placeholder { color: rgba(0, 0, 0, 0.5); }
+        &:focus { background: rgba(255, 255, 255, 0.25); }
       }
-
       .member-info {
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.1);
-
         .info-item {
-          span:first-child {
-            color: rgba(255, 255, 255, 0.7);
-          }
-
-          span:nth-child(2) {
-            color: rgba(255, 255, 255, 0.9);
-          }
+          span:first-child { color: rgba(255, 255, 255, 0.7); }
+          span:nth-child(2) { color: rgba(255, 255, 255, 0.9); }
         }
       }
     }
   }
 
-  // 浅色主题（点单系统）
+  // 浅色主题（点单端默认）
   &.theme-light {
     .member-binding-header {
-      .divider {
-        background: rgba(0, 0, 0, 0.15);
-      }
-
-      .header-text {
-        color: rgba(0, 0, 0, 0.85);
-      }
+      .divider { background: rgba(0, 0, 0, 0.12); }
+      .header-text { color: rgba(0, 0, 0, 0.85); }
     }
-
     .member-selection {
-      .section-title {
+      .section-title { color: rgba(0, 0, 0, 0.85); }
+      .member-item {
+        background: rgba(0, 0, 0, 0.05);
         color: rgba(0, 0, 0, 0.85);
-      }
-
-      .member-list {
-        .member-item {
-          background: rgba(0, 0, 0, 0.05);
-          color: rgba(0, 0, 0, 0.85);
-          border: 1px solid rgba(0, 0, 0, 0.15);
-
-          &:hover {
-            background: rgba(0, 0, 0, 0.1);
-            border-color: rgba(0, 0, 0, 0.25);
-          }
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        &:hover {
+          background: rgba(0, 0, 0, 0.1);
+          border-color: rgba(0, 0, 0, 0.25);
         }
       }
     }
-
     .custom-input-section {
-      .section-title {
-        color: rgba(0, 0, 0, 0.85);
-      }
-
+      .section-title { color: rgba(0, 0, 0, 0.85); }
       .phone-input {
         border: 1px solid rgba(0, 0, 0, 0.2);
-        background: #ffffff;
+        background: #fff;
         color: #1a1a1a;
-
-        &::placeholder {
-          color: rgba(0, 0, 0, 0.5);
-        }
-
-        &:focus {
-          background: #ffffff;
-          border-color: #409eff;
-        }
+        &::placeholder { color: rgba(0, 0, 0, 0.5); }
+        &:focus { background: #fff; border-color: #409eff; }
       }
-
       .member-info {
         background: rgba(0, 0, 0, 0.03);
         border: 1px solid rgba(0, 0, 0, 0.1);
-
         .info-item {
-          span:first-child {
-            color: rgba(0, 0, 0, 0.65);
-          }
-
-          span:nth-child(2) {
-            color: rgba(0, 0, 0, 0.85);
-          }
+          span:first-child { color: rgba(0, 0, 0, 0.65); }
+          span:nth-child(2) { color: rgba(0, 0, 0, 0.85); }
         }
       }
     }
@@ -581,38 +523,21 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-
-    .divider {
-      flex: 1;
-      height: 1px;
-    }
-
-    .header-text {
-      padding: 0 12px;
-      font-size: 13px;
-    }
+    .divider { flex: 1; height: 1px; }
+    .header-text { padding: 0 12px; font-size: 13px; }
   }
 
   .member-selection {
     margin-bottom: 10px;
-
-    .section-title {
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
+    .section-title { font-size: 13px; margin-bottom: 8px; }
     .member-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-
+      display: flex; flex-wrap: wrap; gap: 8px;
       .member-item {
         padding: 6px 12px;
         border-radius: 6px;
         font-size: 13px;
         cursor: pointer;
         transition: all 0.2s;
-
         &.view-more {
           color: #409eff;
           background: transparent;
@@ -623,14 +548,9 @@ export default {
   }
 
   .custom-input-section {
-    .section-title {
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
+    .section-title { font-size: 13px; margin-bottom: 8px; }
     .input-wrapper {
       margin-bottom: 8px;
-
       .phone-input {
         flex: 1;
         height: 40px;
@@ -639,54 +559,24 @@ export default {
         font-size: 14px;
         margin-right: 10px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-        &:focus {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
-        }
+        &:focus { outline: none; box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
       }
-
-      .search-btn {
-        height: 40px;
-        padding: 0 18px;
-        font-size: 14px;
-      }
+      .search-btn { height: 40px; padding: 0 18px; font-size: 14px; }
     }
-
-    .error-message {
-      color: #f56c6c;
-      font-size: 12px;
-      margin-top: 4px;
-      padding: 4px 0;
-    }
-
+    .error-message { color: #f56c6c; font-size: 12px; margin-top: 4px; padding: 4px 0; }
     .member-info {
       margin-top: 10px;
       padding: 12px;
       border-radius: 6px;
-
       .info-item {
         display: flex;
         align-items: center;
         margin-bottom: 8px;
         font-size: 13px;
-
-        span:first-child {
-          width: 80px;
-        }
-
-        span:nth-child(2) {
-          flex: 1;
-        }
-
-        .change-btn {
-          margin-left: 10px;
-          color: #409eff;
-        }
-
-        &:last-child {
-          margin-bottom: 0;
-        }
+        span:first-child { width: 80px; }
+        span:nth-child(2) { flex: 1; }
+        .change-btn { margin-left: 10px; color: #409eff; }
+        &:last-child { margin-bottom: 0; }
       }
     }
   }
@@ -695,88 +585,41 @@ export default {
     margin-top: 10px;
     position: relative;
     z-index: 10;
-    
-    // 确保键盘容器内的所有点击事件都不会冒泡
-    ::v-deep .keyboard {
-      position: relative;
-      z-index: 10;
-    }
-    
-    ::v-deep .item {
-      position: relative;
-      z-index: 10;
-    }
+    ::v-deep .keyboard { position: relative; z-index: 10; }
+    ::v-deep .item { position: relative; z-index: 10; }
   }
 }
 
 @media (orientation: portrait) {
   .member-binding {
-    padding: 8px 12px;
+    padding: 8px 12px 14px;
     margin-bottom: 6px;
-
     .member-binding-header {
       margin-bottom: 8px;
-
-      .header-text {
-        padding: 0 10px;
-        font-size: 12px;
-      }
+      .header-text { padding: 0 10px; font-size: 12px; }
     }
-
     .member-selection {
       margin-bottom: 8px;
-
-      .section-title {
-        margin-bottom: 6px;
-        font-size: 12px;
-      }
-
+      .section-title { margin-bottom: 6px; font-size: 12px; }
       .member-list {
         gap: 6px;
-
-        .member-item {
-          padding: 5px 10px;
-          font-size: 12px;
-        }
+        .member-item { padding: 5px 10px; font-size: 12px; }
       }
     }
-
     .custom-input-section {
-      .section-title {
-        margin-bottom: 6px;
-        font-size: 12px;
-      }
-
+      .section-title { margin-bottom: 6px; font-size: 12px; }
       .input-wrapper {
         margin-bottom: 6px;
-
-        .phone-input {
-          height: 38px;
-          font-size: 13px;
-          padding: 0 10px;
-        }
-
-        .search-btn {
-          height: 38px;
-          padding: 0 15px;
-          font-size: 13px;
-        }
+        .phone-input { height: 38px; font-size: 13px; padding: 0 10px; }
+        .search-btn { height: 38px; padding: 0 15px; font-size: 13px; }
       }
-
       .member-info {
         margin-top: 8px;
         padding: 10px;
-
-        .info-item {
-          margin-bottom: 6px;
-          font-size: 12px;
-        }
+        .info-item { margin-bottom: 6px; font-size: 12px; }
       }
     }
-
-    .keyboard-wrapper {
-      margin-top: 8px;
-    }
+    .keyboard-wrapper { margin-top: 8px; }
   }
 }
 </style>

@@ -84,39 +84,41 @@
             <div class="price-field">
               <div class="price-field__label">原价：</div>
               <el-input
-                :disabled="prdType == 3 || prdType == 4 || prdType == 5"
+                :disabled="isMarketPriceType"
                 v-model="price"
                 size="mini"
                 maxlength="9"
               ></el-input>
             </div>
-            <div class="price-field">
-              <div class="price-field__label">会员价：</div>
-              <el-input
-                v-model="mbPrice"
-                size="mini"
-                maxlength="9"
-              ></el-input>
-            </div>
-            <div class="price-field">
-              <div class="price-field__label">商务原价：</div>
-              <el-input
-                v-model="bsPrice"
-                size="mini"
-                maxlength="9"
-              ></el-input>
-            </div>
-            <div class="price-field">
-              <div class="price-field__label">商务会员价：</div>
-              <el-input
-                v-model="bsMbPrice"
-                size="mini"
-                maxlength="9"
-              ></el-input>
-            </div>
+            <template v-if="!isMarketPriceType">
+              <div class="price-field">
+                <div class="price-field__label">会员价：</div>
+                <el-input
+                  v-model="mbPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+              <div class="price-field">
+                <div class="price-field__label">商务原价：</div>
+                <el-input
+                  v-model="bsPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+              <div class="price-field">
+                <div class="price-field__label">商务会员价：</div>
+                <el-input
+                  v-model="bsMbPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+            </template>
           </div>
         </div>
-        <div class="price-group">
+        <div class="price-group" v-if="!isMarketPriceType">
           <div class="price-group__title">
             <span>包厢售价：</span>
           </div>
@@ -440,6 +442,15 @@ export default {
           this.bxBsMbPrice = res.data.prd.bx_bs_mb_price || "";
           this.businessType = res.data.prd.biz_type * 1;
           this.userYH = res.data.prd.use_type == 2;
+          if ([3, 4, 5].includes(this.prdType)) {
+            this.mbPrice = "";
+            this.bsPrice = "";
+            this.bsMbPrice = "";
+            this.bxPrice = "";
+            this.bxMbPrice = "";
+            this.bxBsPrice = "";
+            this.bxBsMbPrice = "";
+          }
           this.bindPrdList = res.data.prd.m_id
             ? [
                 {
@@ -576,17 +587,33 @@ export default {
       }
     },
 
+    // 校验会员价依赖与上限
+    validateMemberPrice(originPrice, memberPrice, originLabel, memberLabel) {
+      if (memberPrice && !originPrice) {
+        this.$message.warning(`配置${memberLabel}，请先配置${originLabel}`);
+        return false;
+      }
+      if (memberPrice && Number(memberPrice) > Number(originPrice)) {
+        this.$message.warning(`${memberLabel}不得超过${originLabel}`);
+        return false;
+      }
+      return true;
+    },
+
     async onSubmit() {
       if (this.name.length <= 0) return this.$message.warning("请输入名称");
       if (!this.prdType) return this.$message.warning("请选择类型");
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
-      
-      // 验证包厢售价：如果填写了包厢会员价、包厢商务原价、包厢商务会员价中的任意一个，则包厢原价必填
-      const hasBoxPrice = this.bxMbPrice || this.bxBsPrice || this.bxBsMbPrice;
-      if (hasBoxPrice && !this.bxPrice) {
-        return this.$message.warning("如果使用包厢售价,则包厢原价必填");
-      }
+
+      // 会员价校验：需先有对应原价且会员价<=原价
+      const memberChecks = [
+        this.validateMemberPrice(this.price, this.mbPrice, "酒吧原价", "酒吧会员价"),
+        this.validateMemberPrice(this.bsPrice, this.bsMbPrice, "酒吧商务原价", "酒吧商务会员价"),
+        this.validateMemberPrice(this.bxPrice, this.bxMbPrice, "包厢原价", "包厢会员价"),
+        this.validateMemberPrice(this.bxBsPrice, this.bxBsMbPrice, "包厢商务原价", "包厢商务会员价"),
+      ];
+      if (memberChecks.includes(false)) return false;
       const params = {
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
@@ -740,6 +767,9 @@ export default {
     isIndeterminate() {
       return !this.checkAll && this.tableData.some((item) => item.checked);
     },
+    isMarketPriceType() {
+      return [3, 4, 5].includes(this.prdType * 1);
+    },
   },
   components: {
     drawerBindPrd: () => import("./drawerBindPrd.vue"),
@@ -790,8 +820,15 @@ export default {
         // this.businessType = 1
         this.price = "";
       }
-      if (newVal == 3 || newVal == 4 || newVal == 5) {
+      if (this.isMarketPriceType) {
         this.price = "时价";
+        this.mbPrice = "";
+        this.bsPrice = "";
+        this.bsMbPrice = "";
+        this.bxPrice = "";
+        this.bxMbPrice = "";
+        this.bxBsPrice = "";
+        this.bxBsMbPrice = "";
       }
     },
   },
