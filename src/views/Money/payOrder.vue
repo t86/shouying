@@ -478,6 +478,7 @@ import api_order from "@/api/order";
 import api_money from "@/api/money";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import { getProductPrice } from "@/utils/priceCalculator";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 
@@ -1599,7 +1600,7 @@ export default {
         dest_seat_id: cardInfo.seatId * 1, // int64    目标卡台Id
         wk_order_ids: checkedOrderList.map((item) => item.id * 1),     //WkOrderIds 待转订单Id的列表
         prd_cnts: checkedOrderList.map((item) => item.changeCount),        //PrdCnts 待转订单的商品数量列表
-        total_amt: checkedOrderList.map((item) => item.pp * item.changeCount * 100).reduce((a,b) => a + b,0),      //TotalAmt 待转涉及的总金额,单位分
+        total_amt: checkedOrderList.map((item) => this.calculateOrderItemAmount(item) * 100).reduce((a,b) => a + b,0),      //TotalAmt 待转涉及的总金额,单位分
       };
       try {
         const res = await api_money.reqMoveWkOrder(params);
@@ -1779,6 +1780,37 @@ export default {
       );
     },
 
+    // 计算订单项的金额（根据商务价格等优先级计算）
+    calculateOrderItemAmount(item) {
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return item.pa * 1;
+      }
+
+      // 如果没有商品信息，使用原始价格
+      if (!item.productInfo) {
+        const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+        return count * (item.pp * 1);
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      const finalPrice = price === 0 ? (item.pp * 1) : price;
+
+      // 计算金额：单价 * 数量
+      const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+      return finalPrice * count;
+    },
+
     // 支付金额为0的时候支付
     async payOrder0(wk_order_ids, prd_cnts, allAmt) {
       const params = {
@@ -1838,7 +1870,7 @@ export default {
         }
         el.back || el.at == 2 || el.at == 3
           ? (amt += 0)
-          : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
+          : (amt += this.calculateOrderItemAmount(el));
       });
 
       if (amt == 0) {
@@ -1862,7 +1894,7 @@ export default {
         }
         el.back || el.at == 2 || el.at == 3
           ? (amt += 0)
-          : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
+          : (amt += this.calculateOrderItemAmount(el));
       });
       if (!this.drawer.payDrawer.showDrawer) {
         //  结账之前,清理收银结账渠道购物车,并确认本次待结账订单

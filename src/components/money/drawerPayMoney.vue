@@ -633,6 +633,7 @@
 <script>
 import md5 from "js-md5";
 import api_money from "@/api/money";
+import { getProductPrice } from "@/utils/priceCalculator";
 
 import common_money from "@/utils/common/money";
 
@@ -1725,6 +1726,37 @@ export default {
       // 通知父组件会员已绑定，需要重新计算价格
       this.$emit("member-bound", memberInfo);
     },
+
+    // 计算订单项的金额（根据商务价格等优先级计算）
+    calculateOrderItemAmount(item) {
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return item.pa * 1;
+      }
+
+      // 如果没有商品信息，使用原始价格
+      if (!item.productInfo) {
+        const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+        return count * (item.pp * 1);
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      const finalPrice = price === 0 ? (item.pp * 1) : price;
+
+      // 计算金额：单价 * 数量
+      const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+      return finalPrice * count;
+    },
   },
   mounted() {
     this.init();
@@ -1755,7 +1787,7 @@ export default {
           el.at != 6 &&
           !el.back
         ) {
-          allAmt += el.pp == 0 ? el.pa * 1 : el.changeCount * el.pp;
+          allAmt += this.calculateOrderItemAmount(el);
         }
       });
       return allAmt.toFixed(2);
