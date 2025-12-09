@@ -36,14 +36,11 @@
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
-            <!-- <div v-if="vipPrice && item.bizType*1 === 1" class="vip-price">
-              <p class="ori-price">原价: ￥{{item.price}} </p>
-              <p class="real-price">会员价: ￥{{item.vipPrice}} </p>
+            <div v-if="getProductPriceInfoData(item).hasMemberPrice" class="vip-price">
+              <p class="ori-price">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
+              <p class="real-price">会员价: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
             </div>
-            <p v-else class="price">{{ item.prdType == 3 || item.prdType == 4 || item.prdType == 5 ? '时价' : '￥' + item.price }}
-            </p> -->
-            <p class="price">{{ getProductDisplayPrice(item) }}</p>
-
+            <p v-else class="price">{{ formatPriceDisplay(getProductPriceInfoData(item).displayPrice) }}</p>
           </div>
 
           <img v-if="item.outSomethingCount == 0" class="no-data-count"
@@ -68,7 +65,11 @@
           <div class="item-footer">
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
-            <p class="price">{{ getProductDisplayPrice(item) }}</p>
+            <div v-if="getProductPriceInfoData(item).hasMemberPrice" class="vip-price">
+              <p class="ori-price">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
+              <p class="real-price">会员价: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
+            </div>
+            <p v-else class="price">{{ formatPriceDisplay(getProductPriceInfoData(item).displayPrice) }}</p>
           </div>
 
           <img v-if="item.outSomethingCount == 0" class="no-data-count1"
@@ -260,7 +261,7 @@ import {cardPageMixins} from "@/mixin/cardPage";
 import authStatus from "@/mixin/authStatus";
 import keyBoard from "@/components/common/newKeyBoard";
 import ImageOptimizer from '@/utils/imageOptimizer';
-import { getProductDisplayPrice, getProductPrice } from '@/utils/priceCalculator';
+import { getProductDisplayPrice, getProductPrice, getProductPriceInfo } from '@/utils/priceCalculator';
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -912,23 +913,8 @@ export default {
     },
     // 点击商品/套餐
     setMealForProduct(productInfo) {
-      console.log('setMealForProduct:', productInfo)
-      console.log('vipPrice', this.vipPrice)
-      console.log('productInfo.bizType', productInfo.bizType)
-      console.log('displayCustName', this.displayCustName)
-      if(this.vipPrice){
-        if(this.hasVipPriceDirect || this.hasShouyin) {
-          this.doSetMealForProduct(productInfo)
-        } else if(this.displayCustName === '' && productInfo.bizType * 1 === 1 && this.bindGuestOpen) {
-          this.showConfirmHandle("确认", "当前未绑定会员，商品价格过高! 建议绑定客人后再点单，如要按照非会员价点单，可点击确定", async () => {
-            this.doSetMealForProduct(productInfo)
-          });
-        } else {
-          this.doSetMealForProduct(productInfo)
-        }
-      } else {
-        this.doSetMealForProduct(productInfo)
-      }
+      // 使用商务价后，不再需要会员价弹窗逻辑，直接点单
+      this.doSetMealForProduct(productInfo)
     },
 
     doSetMealForProduct(productInfo) {
@@ -1099,7 +1085,50 @@ export default {
         el.style.fontSize = fontSize + 'px';
       }
     },
-    // 获取商品显示价格
+    // 获取商品价格信息数据
+    getProductPriceInfoData(item) {
+      if (!item) {
+        return {
+          originalPrice: "0",
+          memberPrice: "",
+          hasMemberPrice: false,
+          displayPrice: "0"
+        };
+      }
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      const priceInfo = getProductPriceInfo(item, cardInfo, currentBusiness, businessEmpList);
+      
+      // 调试信息：打印价格信息
+      if (item.name && item.name.includes('扫码枪')) {
+        console.log('商品价格信息:', {
+          name: item.name,
+          price: item.price,
+          mbPrice: item.mbPrice || item.mb_price,
+          bsPrice: item.bsPrice || item.bs_price,
+          bsMbPrice: item.bsMbPrice || item.bs_mb_price,
+          isMemberCard: currentBusiness && currentBusiness.csm_cust_phone && currentBusiness.csm_cust_phone.trim() !== "",
+          isBusinessCard: (() => {
+            const salesId = currentBusiness && (currentBusiness.salesEmpId || currentBusiness.sales_emp_id || currentBusiness.sales_empId);
+            return businessEmpList && salesId && businessEmpList.some(emp => emp.emp_id == salesId && emp.status == 1);
+          })(),
+          isBox: cardInfo && cardInfo.seatType == 4,
+          priceInfo: priceInfo
+        });
+      }
+      
+      return priceInfo;
+    },
+    // 格式化价格显示
+    formatPriceDisplay(displayPrice) {
+      if (displayPrice === "时价" || displayPrice === "0") {
+        return displayPrice === "0" ? "时价" : displayPrice;
+      }
+      return "￥" + displayPrice;
+    },
+    // 获取商品显示价格（保留用于兼容）
     getProductDisplayPrice(item) {
       if (!item) return "0";
       if ([3, 4, 5].includes(item.prdType * 1)) {

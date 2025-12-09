@@ -466,8 +466,8 @@ export default {
       .phone-input {
         border: 1px solid rgba(255, 255, 255, 0.4);
         background: rgba(255, 255, 255, 0.2);
-        color: #1a1a1a;
-        &::placeholder { color: rgba(0, 0, 0, 0.5); }
+        color: #ffffff;
+        &::placeholder { color: rgba(255, 255, 255, 0.6); }
         &:focus { background: rgba(255, 255, 255, 0.25); }
       }
       .member-info {

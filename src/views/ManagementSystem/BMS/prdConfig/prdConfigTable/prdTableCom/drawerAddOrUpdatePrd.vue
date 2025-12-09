@@ -829,6 +829,11 @@ export default {
         this.bxMbPrice = "";
         this.bxBsPrice = "";
         this.bxBsMbPrice = "";
+      } else {
+        // 从时价类型切换到非时价类型时，清除"时价"文本
+        if (this.price == "时价") {
+          this.price = "";
+        }
       }
     },
   },
