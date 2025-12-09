@@ -20,7 +20,8 @@ export function getProductPrice(productInfo, cardInfo, businessData, businessEmp
   }
 
   // 原价（必填）
-  const originalPrice = productInfo.price || "0";
+  // 如果 orderMealList 为了“商务价”场景将 price 提升并把原价放在 vipPrice 上，这里优先使用 vipPrice 作为原始原价
+  const originalPrice = productInfo.vipPrice || productInfo.price || "0";
   
   // 如果商品类型是时价特饮、时价小费、时价赔偿，返回"时价"或0
   if ([3, 4, 5].includes(productInfo.prdType * 1)) {
@@ -117,7 +118,8 @@ export function getProductPriceInfo(productInfo, cardInfo, businessData, busines
   }
 
   // 原价（必填）
-  const originalPrice = productInfo.price || "0";
+  // 如果 orderMealList 为“商务价”场景将 price 提升并把原价放在 vipPrice 上，这里优先使用 vipPrice 作为原始原价
+  const originalPrice = productInfo.vipPrice || productInfo.price || "0";
   
   // 如果商品类型是时价特饮、时价小费、时价赔偿
   if ([3, 4, 5].includes(productInfo.prdType * 1)) {

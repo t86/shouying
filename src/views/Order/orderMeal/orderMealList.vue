@@ -65,18 +65,18 @@ export default {
   mounted() {
     this.isYH2 = this.$route.query.give
     this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
-    const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
-    if(showAmt.length > 0){
-      for(let item of showAmt){
-        if (item.id === '50') {
-          if(item.param1 * 1 > 0){
-            this.vipPrice = true
-            this.vipPricePercent = item.param1 * 1
-            break
-          }
-        }
-      }
-    }
+    // const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+    // if(showAmt.length > 0){
+    //   for(let item of showAmt){
+    //     if (item.id === '50') {
+    //       if(item.param1 * 1 > 0){
+    //         this.vipPrice = true
+    //         this.vipPricePercent = item.param1 * 1
+    //         break
+    //       }
+    //     }
+    //   }
+    // }
 
     if (this.vipPrice){
       this.allProductsList = [...this.allProductsList.map(item => {
