@@ -195,11 +195,22 @@ export default {
           FWYSecondCategoryPrdList.push(...newList);
         });
 
+        // 合并区域商品和二级分类商品
+        // 注意：特饮和小费商品（prdType 3, 4, 13, 14）在二级分类列表中被过滤掉了
+        // 所以只有当商品既在区域列表中，又在二级分类列表中时，才添加到最终列表
+        // 这样可以避免特饮商品通过区域列表被添加，因为特饮商品应该通过其他授权机制（如花篮商品配置）来添加
         FWYAreaPrdList.forEach((el) => {
+          // 对于普通商品，只有当它们既在区域列表中，又在二级分类列表中时，才添加
           const find = FWYSecondCategoryPrdList.find(
             (item) => item.id == el.id
           );
-          if (find) FWYAllProductList.push({...find});
+          if (find) {
+            // 检查是否已存在，避免重复添加
+            const existing = FWYAllProductList.find((item) => item.id == el.id);
+            if (!existing) {
+              FWYAllProductList.push({...find});
+            }
+          }
         });
         
         console.log('🔍 [DEBUG] 服务员商品列表构建完成:');
@@ -556,9 +567,13 @@ export default {
       const hasWaiterOrDrinkRole = this.$store.state.userInfo.roleIds.includes(2) || this.$store.state.userInfo.roleIds.includes(4);
       
       if (true && hasWaiterOrDrinkRole && !isGQ) {
-        resultProductArr = [...stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
+        // 获取花篮商品列表
+        const flowerPrdList = stationAllProduct.filter(item => this.$store.state.cardPageInfo.resResultDataObj[
           "authFlowerPrdList"
-        ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0).map(item => {
+        ].findIndex(i => i.prd_id == item.id && i.station_id == authStationId && i.status == '1') >= 0);
+        
+        // 处理花篮商品，保留已存在商品的权限标记
+        const processedFlowerPrdList = flowerPrdList.map(item => {
           // 重要：保留所有权限标记，包括 canSealYH2 和 canHL
           const original = resultProductArr.find(i => i.id == item.id)
           if(original) {
@@ -571,7 +586,12 @@ export default {
             }
           }
           return {...item, canHL: true}
-        }), ...resultProductArr]
+        });
+        
+        // 合并花篮商品和原有商品，去重处理（以原有商品为准，避免重复）
+        const existingIds = new Set(resultProductArr.map(item => item.id));
+        const newFlowerPrds = processedFlowerPrdList.filter(item => !existingIds.has(item.id));
+        resultProductArr = [...newFlowerPrds, ...resultProductArr];
       }
 
       // if (sessionStorage.getItem("client") == "order" 
