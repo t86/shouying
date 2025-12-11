@@ -75,18 +75,89 @@
             </el-select>
           </div>
         </div>
-        <div class="coll" layout="row" layout-align="start center">
-          <div class="label">
+        <div class="price-group">
+          <div class="price-group__title">
             <span class="red">*</span>
-            <span>单价：</span>
+            <span>酒吧售价：</span>
           </div>
-          <div class="value">
-            <el-input
-              :disabled="prdType == 3 || prdType == 4 || prdType == 5"
-              v-model="price"
-              size="mini"
-              placeholder="请输入单价"
-            ></el-input>
+          <div class="price-group__fields">
+            <div class="price-field">
+              <div class="price-field__label">原价：</div>
+              <el-input
+                :disabled="isMarketPriceType"
+                v-model="price"
+                size="mini"
+                maxlength="9"
+              ></el-input>
+            </div>
+            <template v-if="!isMarketPriceType">
+              <div class="price-field">
+                <div class="price-field__label">会员价：</div>
+                <el-input
+                  v-model="mbPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+              <div class="price-field">
+                <div class="price-field__label">商务原价：</div>
+                <el-input
+                  v-model="bsPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+              <div class="price-field">
+                <div class="price-field__label">商务会员价：</div>
+                <el-input
+                  v-model="bsMbPrice"
+                  size="mini"
+                  maxlength="9"
+                ></el-input>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="price-group" v-if="!isMarketPriceType">
+          <div class="price-group__title">
+            <span>包厢售价：</span>
+          </div>
+          <div class="price-group__desc">
+            配置后,当卡台类型为"包厢"时,将使用新的一套价格
+          </div>
+          <div class="price-group__fields">
+            <div class="price-field">
+              <div class="price-field__label">包厢原价：</div>
+              <el-input
+                v-model="bxPrice"
+                size="mini"
+                maxlength="9"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢会员价：</div>
+              <el-input
+                v-model="bxMbPrice"
+                size="mini"
+                maxlength="9"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢商务原价：</div>
+              <el-input
+                v-model="bxBsPrice"
+                size="mini"
+                maxlength="9"
+              ></el-input>
+            </div>
+            <div class="price-field">
+              <div class="price-field__label">包厢商务会员价：</div>
+              <el-input
+                v-model="bxBsMbPrice"
+                size="mini"
+                maxlength="9"
+              ></el-input>
+            </div>
           </div>
         </div>
         <div class="coll" layout="row" layout-align="start center">
@@ -307,7 +378,14 @@ export default {
       py: "", // 中文拼音
       englishName: "", // 英文名
       prdType: "", // 类型
-      price: "", // 商品价格
+      price: "", // 商品价格（原价）
+      mbPrice: "", // 会员价
+      bsPrice: "", // 商务原价
+      bsMbPrice: "", // 商务会员价
+      bxPrice: "", // 包厢原价
+      bxMbPrice: "", // 包厢会员价
+      bxBsPrice: "", // 包厢商务原价
+      bxBsMbPrice: "", // 包厢商务会员价
       businessType: "", // 营业类型
       userYH: false,
       bindPrdList: [], // 绑定商品列表
@@ -355,8 +433,24 @@ export default {
             this.prdType == 3 || this.prdType == 4 || this.prdType == 5
               ? "时价"
               : res.data.prd.price || "";
+          this.mbPrice = res.data.prd.mb_price || "";
+          this.bsPrice = res.data.prd.bs_price || "";
+          this.bsMbPrice = res.data.prd.bs_mb_price || "";
+          this.bxPrice = res.data.prd.bx_price || "";
+          this.bxMbPrice = res.data.prd.bx_mb_price || "";
+          this.bxBsPrice = res.data.prd.bx_bs_price || "";
+          this.bxBsMbPrice = res.data.prd.bx_bs_mb_price || "";
           this.businessType = res.data.prd.biz_type * 1;
           this.userYH = res.data.prd.use_type == 2;
+          if ([3, 4, 5].includes(this.prdType)) {
+            this.mbPrice = "";
+            this.bsPrice = "";
+            this.bsMbPrice = "";
+            this.bxPrice = "";
+            this.bxMbPrice = "";
+            this.bxBsPrice = "";
+            this.bxBsMbPrice = "";
+          }
           this.bindPrdList = res.data.prd.m_id
             ? [
                 {
@@ -493,11 +587,33 @@ export default {
       }
     },
 
+    // 校验会员价依赖与上限
+    validateMemberPrice(originPrice, memberPrice, originLabel, memberLabel) {
+      if (memberPrice && !originPrice) {
+        this.$message.warning(`配置${memberLabel}，请先配置${originLabel}`);
+        return false;
+      }
+      if (memberPrice && Number(memberPrice) > Number(originPrice)) {
+        this.$message.warning(`${memberLabel}不得超过${originLabel}`);
+        return false;
+      }
+      return true;
+    },
+
     async onSubmit() {
       if (this.name.length <= 0) return this.$message.warning("请输入名称");
       if (!this.prdType) return this.$message.warning("请选择类型");
       if (!this.price) return this.$message.warning("请输入价格");
       if (!this.businessType) return this.$message.warning("请选择营业类型");
+
+      // 会员价校验：需先有对应原价且会员价<=原价
+      const memberChecks = [
+        this.validateMemberPrice(this.price, this.mbPrice, "酒吧原价", "酒吧会员价"),
+        this.validateMemberPrice(this.bsPrice, this.bsMbPrice, "酒吧商务原价", "酒吧商务会员价"),
+        this.validateMemberPrice(this.bxPrice, this.bxMbPrice, "包厢原价", "包厢会员价"),
+        this.validateMemberPrice(this.bxBsPrice, this.bxBsMbPrice, "包厢商务原价", "包厢商务会员价"),
+      ];
+      if (memberChecks.includes(false)) return false;
       const params = {
         name: this.name, // 商品名称
         one_cate_id: this.oneCateInfo.id * 1, // 一级分类id
@@ -506,6 +622,13 @@ export default {
         name_py: this.py || "", // 商品拼音
         pic_name: this.picUrl, // 去掉前缀后的url地址
         price: this.price == "时价" ? "0" : this.price,
+        mb_price: this.mbPrice || "",
+        bs_price: this.bsPrice || "",
+        bs_mb_price: this.bsMbPrice || "",
+        bx_price: this.bxPrice || "",
+        bx_mb_price: this.bxMbPrice || "",
+        bx_bs_price: this.bxBsPrice || "",
+        bx_bs_mb_price: this.bxBsMbPrice || "",
         prd_type: this.prdType * 1, // 商品类型  1 存货(需关联erp) 7 普通商品(不需关联erp,默认主营) 2 套餐 3 存货花篮(需关联erp,且分成) 8 普通花篮(不需关联erp,且分成) 4 小费(不需关联erp,且分成) 5 赔偿(不需关联erp,且非主营) 6 联营(不需关联erp,且主营)
         biz_type: this.businessType * 1, // 营业类型  1 主营 2 非主营 3 非主营(分成) (prd_type 1,7 可指定1,2,3 ;   2 填0 ;   3,8,4 填3 ;   5,6 填2)
         // erp_prd_id: this.newmerchandise.inventory.id,  // erp商品Id, 普通商品,花篮商品 需提供
@@ -590,7 +713,14 @@ export default {
       this.py = ""; // 中文拼音
       this.englishName = ""; // 英文名
       this.prdType = ""; // 类型
-      this.price = ""; // 商品价格
+      this.price = ""; // 商品价格（原价）
+      this.mbPrice = ""; // 会员价
+      this.bsPrice = ""; // 商务原价
+      this.bsMbPrice = ""; // 商务会员价
+      this.bxPrice = ""; // 包厢原价
+      this.bxMbPrice = ""; // 包厢会员价
+      this.bxBsPrice = ""; // 包厢商务原价
+      this.bxBsMbPrice = ""; // 包厢商务会员价
       this.businessType = ""; // 营业类型
       this.userYH = false;
       this.bindPrdList = []; // 绑定商品列表
@@ -636,6 +766,9 @@ export default {
 
     isIndeterminate() {
       return !this.checkAll && this.tableData.some((item) => item.checked);
+    },
+    isMarketPriceType() {
+      return [3, 4, 5].includes(this.prdType * 1);
     },
   },
   components: {
@@ -687,8 +820,20 @@ export default {
         // this.businessType = 1
         this.price = "";
       }
-      if (newVal == 3 || newVal == 4 || newVal == 5) {
+      if (this.isMarketPriceType) {
         this.price = "时价";
+        this.mbPrice = "";
+        this.bsPrice = "";
+        this.bsMbPrice = "";
+        this.bxPrice = "";
+        this.bxMbPrice = "";
+        this.bxBsPrice = "";
+        this.bxBsMbPrice = "";
+      } else {
+        // 从时价类型切换到非时价类型时，清除"时价"文本
+        if (this.price == "时价") {
+          this.price = "";
+        }
       }
     },
   },
@@ -743,6 +888,68 @@ export default {
   .td {
     &:nth-child(3) {
       width: 80%;
+    }
+  }
+}
+
+.price-group {
+  margin: 16px 0;
+
+  &__title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #40404e;
+    display: flex;
+    align-items: center;
+
+    .red {
+      margin-right: 6px;
+      color: #D9001B;
+    }
+  }
+
+  &__desc {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  &__fields {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+.price-field {
+  width: 50%;
+  min-width: 240px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+
+  &__label {
+    width: 110px;
+    text-align: right;
+    margin-right: 10px;
+    color: #40404e;
+    white-space: nowrap;
+  }
+
+  .el-input {
+    width: 190px;
+    max-width: 65%;
+  }
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .price-field {
+    width: 100%;
+    min-width: 220px;
+
+    .el-input {
+      width: 100%;
+      max-width: none;
     }
   }
 }

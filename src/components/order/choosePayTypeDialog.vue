@@ -5,10 +5,17 @@
       <div class="choose-pay-type" v-show="show">
         <div class="contain">
           <div class="top" layout="row" layout-align="space-between center">
-            <div>选择支付方式</div>
+            <div>选择渠道</div>
             <i class="el-icon-close cursor" style="color: #1A1A21;" @click="handleClose"></i>
           </div>
 
+          <!-- 待支付金额 -->
+          <div class="pay-amount" v-if="payAmount > 0">
+            <span class="amount-label">待支付金额共:</span>
+            <span class="amount-value">¥{{ payAmount.toFixed(2) }}</span>
+          </div>
+
+          <!-- 支付渠道选择 -->
           <div class="center" layout="row" layout-align="start center">
             <div class="choose" :class="{ active: payType == item.id }" v-for="item in payTypeList" :key="item.id"
               @click="payType = item.id">
@@ -17,6 +24,13 @@
                 class="tuijian">推荐</span>
             </div>
           </div>
+
+          <!-- 会员绑定区域 -->
+          <memberBinding
+            :seatId="currentSeatId"
+            theme="light"
+            @member-bound="handleMemberBound"
+          />
 
           <div class="bottom" layout="row" layout-align="center center">
             <div class="button info cursor" @click="handleClose">
@@ -60,8 +74,10 @@
 
 <script>
 import api_order from "@/api/order";
+import api_money from "@/api/money";
 import keyBoard from "@/components/common/keyBoard";
 import customerPaymentScanDialog from "./customerPaymentScanDialog.vue";
+import memberBinding from "@/components/common/memberBinding.vue";
 import weixin_kerensaowo from "@/assets/pay-img/weixin_kerensaowo.png";
 import weixin_saokeren from "@/assets/pay-img/weixin_saokeren.png";
 import weixinxiaochengxu from "@/assets/pay-img/weixinxiaochengxu.png";
@@ -122,6 +138,7 @@ export default {
   components: {
     keyBoard,
     customerPaymentScanDialog,
+    memberBinding,
   },
   props: {
     value: {
@@ -141,6 +158,7 @@ export default {
       scanStart: false,
       scanCode: "",
       showCustomerPaymentScan: false, // 显示扫客人付款码弹窗
+      payAmount: 0, // 待支付金额
     };
   },
   computed: {
@@ -149,8 +167,12 @@ export default {
       const isCashierSystem = sessionStorage.getItem('client') === 'money';
       return isCashierSystem ? payTypeListForCashier : payTypeListForNormal;
     },
+    // 当前卡台ID
+    currentSeatId() {
+      return this.$store.state.orderInfo.currentCardInfo.seatId * 1;
+    },
   },
-  watch: {
+    watch: {
     value(newVal) {
       console.log("choosePayTypeDialog value changed:", newVal);
       this.show = newVal;
@@ -160,6 +182,8 @@ export default {
         this.scanStart = false;
         this.scanCode = "";
         console.log("接收到的订单ID列表:", this.orderIds);
+        // 加载待支付金额
+        this.loadPayAmount();
       }
     },
     show(newVal) {
@@ -296,6 +320,33 @@ export default {
       
       // 通知父组件打开支付二维码弹窗或处理支付结果
       this.$emit("success", result);
+    },
+
+    // 加载待支付金额
+    async loadPayAmount() {
+      try {
+        const seatId = this.currentSeatId;
+        const res = await api_money.reqGetCardPayInfo({
+          id: seatId,
+        });
+        if (res.code === 1 && res.data) {
+          // 计算待支付金额 = 应收金额 - 已收金额
+          const receivable = parseFloat(res.data.receivable || res.data.all_amt || 0) / 100;
+          const collected = parseFloat(res.data.collected || res.data.choose_amt || 0) / 100;
+          this.payAmount = Math.max(0, receivable - collected);
+        }
+      } catch (error) {
+        console.error("加载待支付金额失败:", error);
+      }
+    },
+
+    // 处理会员绑定成功
+    handleMemberBound(memberInfo) {
+      console.log("会员绑定成功:", memberInfo);
+      // 重新加载待支付金额（因为会员价可能变化）
+      this.loadPayAmount();
+      // 通知父组件会员已绑定，需要重新计算价格
+      this.$emit("member-bound", memberInfo);
     },
   },
 };

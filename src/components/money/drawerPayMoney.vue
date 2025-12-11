@@ -38,6 +38,14 @@
         </div>
         <!-- 输入金额 -->
         <div class="center">
+          <!-- 会员绑定区域 -->
+          <memberBinding
+            :seatId="currentSeatId"
+            theme="dark"
+            @member-bound="handleMemberBound"
+            @keyboard-active="handleMemberKeyboardActive"
+          />
+
           <div class="center-top" layout="row" layout-align="center center" v-if="payActiveInfo.id != 1000">
             <div
               class="center-top-left"
@@ -421,7 +429,7 @@
             </p>
           </div>
           <div
-            v-if="![9999, 202, 1000].includes(payActiveInfo.id * 1)"
+            v-if="![9999, 202, 1000].includes(payActiveInfo.id * 1) && !memberKeyboardActive"
             class="center-bottom"
             layout="row"
             layout-align="center center"
@@ -626,6 +634,7 @@
 <script>
 import md5 from "js-md5";
 import api_money from "@/api/money";
+import { getProductPrice } from "@/utils/priceCalculator";
 
 import common_money from "@/utils/common/money";
 
@@ -638,12 +647,14 @@ import onlinePaymentChannel from "./onlinePaymentChannel.vue";
 import choosePayTypeDialog from "../order/choosePayTypeDialog.vue";
 import drawerAddBookAmt from "../order/newDrawerAddBookAmt.vue";
 import drawerPayQR from "../order/newDrawerPayQR.vue";
+import memberBinding from "@/components/common/memberBinding.vue";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 export default {
   data() {
     return {
       isOrderGZ: false, // 是否订位人挂账
+      memberKeyboardActive: false, // memberBinding的键盘是否激活
       flag: false, // 点击付款按钮的节流阀
       show: false,
       showAuthDrawer: false, // 显示授权
@@ -994,7 +1005,17 @@ export default {
       }
     },
 
+    // 处理memberBinding键盘激活事件
+    handleMemberKeyboardActive(active) {
+      this.memberKeyboardActive = active;
+    },
+
     changeNum(value) {
+      // 如果memberBinding的键盘激活，不处理全局键盘输入
+      if (this.memberKeyboardActive) {
+        return;
+      }
+      
       let count = 0;
       // 会员卡落单
       if (this.payActiveInfo.id == 5) {
@@ -1697,6 +1718,46 @@ export default {
       this.getChoosePayList();
       this.$emit("paySuccess");
     },
+
+    // 处理会员绑定成功
+    handleMemberBound(memberInfo) {
+      console.log("会员绑定成功:", memberInfo);
+      // 重新加载支付信息（因为会员价可能变化，需要重新计算金额）
+      this.getChoosePayList();
+      // 通知父组件会员已绑定，需要重新计算价格
+      this.$emit("member-bound", memberInfo);
+    },
+
+    // 计算订单项的金额（根据商务价格等优先级计算）
+    calculateOrderItemAmount(item) {
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return item.pa * 1;
+      }
+
+      // 如果没有商品信息，使用原始价格
+      if (!item.productInfo) {
+        const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+        return count * (item.pp * 1);
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      const finalPrice = price === 0 ? (item.pp * 1) : price;
+
+      // 计算金额：单价 * 数量
+      const count = item.changeCount !== undefined ? item.changeCount : item.pc;
+      return finalPrice * count;
+    },
   },
   mounted() {
     this.init();
@@ -1711,6 +1772,10 @@ export default {
     },
   },
   computed: {
+    // 当前卡台ID
+    currentSeatId() {
+      return this.$store.state.orderInfo.currentCardInfo.seatId * 1;
+    },
     // 未收金额 / 分成金额
     allAmt() {
       let allAmt = 0;
@@ -1723,7 +1788,7 @@ export default {
           el.at != 6 &&
           !el.back
         ) {
-          allAmt += el.pp == 0 ? el.pa * 1 : el.changeCount * el.pp;
+          allAmt += this.calculateOrderItemAmount(el);
         }
       });
       return allAmt.toFixed(2);
@@ -1750,6 +1815,7 @@ export default {
     choosePayTypeDialog,
     drawerPayQR,
     drawerAddBookAmt,
+    memberBinding,
   },
   watch: {
     showDrawer(newVal) {

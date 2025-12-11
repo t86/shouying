@@ -192,6 +192,7 @@ import drawerChooseRequireInfo from "@/components/order/drawerMeal/drawerChooseR
 import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
 // 补交
 import drawerBj from "@/components/order/drawerMeal/drawerBj/index.vue";
+import { getProductPrice } from '@/utils/priceCalculator';
 export default {
   data() {
     return {
@@ -434,11 +435,17 @@ export default {
     // 服务员/收银加入购物车
     async orderMealToShoppingCart() {
       console.log('orderMealToShoppingCart222:', this.productInfo)
+      // 使用新的价格计算函数
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      const price = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
         prd_cnt: this.count * 1, //  int   商品数量
-        prd_price: this.productInfo.price, //  string  商品单价,用于做二次验证
+        prd_price: price, //  string  商品单价,用于做二次验证
         prd_amt: this.productInfo.prdType == 5 ? this.amt.toString() : "", //    string  商品金额 普通商品不要传数据, 赔偿类商品 需传赔偿金额
         requirement: this.requestInfoArr.join(";"), // string  要求
       };

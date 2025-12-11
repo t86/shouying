@@ -65,25 +65,25 @@ export default {
   mounted() {
     this.isYH2 = this.$route.query.give
     this.isGQ = this.$route.name == 'moneyCard' || this.$route.name == 'orderCard'
-    const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
-    if(showAmt.length > 0){
-      for(let item of showAmt){
-        if (item.id === '50') {
-          if(item.param1 * 1 > 0){
-            this.vipPrice = true
-            this.vipPricePercent = item.param1 * 1
-            break
-          }
-        }
-      }
-    }
+    // const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
+    // if(showAmt.length > 0){
+    //   for(let item of showAmt){
+    //     if (item.id === '50') {
+    //       if(item.param1 * 1 > 0){
+    //         this.vipPrice = true
+    //         this.vipPricePercent = item.param1 * 1
+    //         break
+    //       }
+    //     }
+    //   }
+    // }
 
     if (this.vipPrice){
       this.allProductsList = [...this.allProductsList.map(item => {
         if(item.bizType  === '1'){
           item.vipPrice = item.price
-          let p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
-          p = Math.ceil(p).toString()
+          const p = (item.price * (1.0 + (this.vipPricePercent/100.0))).toFixed(2)
+          // 保留两位小数显示，避免小数商品被进位成整数
           item.price = p
         }
         return item

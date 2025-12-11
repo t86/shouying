@@ -172,6 +172,18 @@ export default {
   reqExportExcelOfOnlinePayDetail: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/exp_ol_pay_recs`, params),
 
+  // 读取支付记录列表
+  reqGetPayRecordList: (params) =>
+    axios.post(`${base.htgl}/sel/get_pay_list`, params),
+
+  // 通过手机号读取客人信息用于绑定支付订单
+  reqGetCustInfoByPhone: (params) =>
+    axios.post(`${base.htgl}/sel/get_cust_info_by_phonenum`, params),
+
+  // 修改支付客人信息
+  reqChangePayCustomer: (params) =>
+    axios.post(`${base.htgl}/sel/chg_pay_cust`, params),
+
   // 读取区域实时营收(不分页)
   reqGetRegionRealAmts: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_region_real_amts`, params),

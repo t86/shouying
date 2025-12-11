@@ -61,39 +61,8 @@
 <!--                  <div class="td" v-if="item.p2 !== item.pp">{{item.pp}}</div>-->
 <!--                  <div class="td" v-else>{{item.p2}}</div>-->
 <!--                </div>-->
-                <div class="td" v-if="item.pp * 1 === 0">时价</div>
-                <div v-else class="td">
-                  <div v-if="item.p2 * 1 > 0">
-                    <div v-if="item.p2 !== item.pp">
-                      {{item.pp}}
-                    </div>
-                    <div v-else class="">
-                      {{item.p2}}
-                    </div>
-                  </div>
-                  <div v-else class="">
-                    <div class="">
-                      {{item.pp}}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="td" v-if="item.pp * 1 === 0">{{item.pa}}</div>
-                <div v-else class="td">
-                  <div class="td" v-if="item.p2 * 1 > 0">
-                    <div v-if="item.p2 !== item.pp" class="">
-                      {{item.pa}}
-                    </div>
-                    <div v-else class="">
-                      {{item.p2 * item.pc}}
-                    </div>
-                  </div>
-                  <div v-else>
-                    <div class="">
-                      {{item.pa}}
-                    </div>
-                  </div>
-                </div>
+                <div class="td">{{getDisplayPrice(item)}}</div>
+                <div class="td">{{getSubtotal(item)}}</div>
 
 
 <!--                <div class="td" v-if="item.p * 1 === 0">-->
@@ -252,6 +221,7 @@ import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import { getProductPrice } from "@/utils/priceCalculator";
 import keyBoard from "@/components/common/newKeyBoard.vue";
 
 import add from "@/assets/order-img/new_order_add.png";
@@ -800,6 +770,96 @@ export default {
         });
       }
     },
+
+    // 获取订单项的显示价格（根据商务价格等优先级计算）
+    getDisplayPrice(item) {
+      if (!item || !item.productInfo) {
+        return item && item.pp * 1 == 0 ? '时价' : (item ? (item.pp * 1).toFixed(2) : '0.00');
+      }
+
+      // 如果价格是0（时价商品），返回"时价"
+      if (item.pp * 1 == 0) {
+        return '时价';
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      if (price === 0) {
+        return (item.pp * 1).toFixed(2);
+      }
+
+      return price.toFixed(2);
+    },
+
+    // 获取订单项的小计（根据商务价格等优先级计算）
+    getSubtotal(item) {
+      if (!item) {
+        return '0.00';
+      }
+
+      // 如果是优惠商品，返回0.00
+      if (item.at == 2 || item.at == 3) {
+        return '0.00';
+      }
+
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return (item.pa * 1).toFixed(2);
+      }
+
+      // 获取显示价格
+      const displayPrice = this.getDisplayPrice(item);
+      
+      // 如果显示价格是"时价"，使用实际金额
+      if (displayPrice === '时价') {
+        return (item.pa * 1).toFixed(2);
+      }
+
+      // 计算小计：单价 * 数量
+      const price = parseFloat(displayPrice) || 0;
+      const count = item.pc || 1;
+      return (price * count).toFixed(2);
+    },
+
+    // 计算订单项的金额（根据商务价格等优先级计算）
+    calculateOrderItemAmount(item) {
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return item.pa * 1;
+      }
+
+      // 如果没有商品信息，使用原始价格
+      if (!item.productInfo) {
+        const count = item.pc || 1;
+        return count * (item.pp * 1);
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      const finalPrice = price === 0 ? (item.pp * 1) : price;
+
+      // 计算金额：单价 * 数量
+      const count = item.pc || 1;
+      return finalPrice * count;
+    }
   },
 
   created() {
@@ -842,18 +902,6 @@ export default {
     HeaderInfo,
   },
   computed: {
-    vipPrice(){
-      const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
-      if(showAmt.length > 0) {
-        for (let item of showAmt) {
-          if (item.id === '50') {
-            if (item.param1 * 1 > 0) {
-              return true
-            }
-          }
-        }
-      }
-    },
     hasShouyin(){
       let has = this.$store.state.userInfo.roleIds &&this.$store.state.userInfo.roleIds.includes(5)
       console.log('hasShouyin:', has)
@@ -879,11 +927,6 @@ export default {
       console.log('showNewShoppingCar:', has)
       return has
     },
-    hasVipPriceDirect(){
-      let has = this.$store.state.userInfo.sys_modules && this.$store.state.userInfo.sys_modules.includes(85)
-      console.log('hasVipPriceDirect:', has)
-      return has
-    },
     amt() {
       let allAmt = 0;
       let giveAmt = 0;
@@ -896,21 +939,10 @@ export default {
         } else if (el.at == 6) {
           // 自用
         } else {
-          // if(this.vipPrice && this.bindphone === '' && (el && el.p2 !== '0')){
-
-          if(el.p2 * 1 !== 0) {
-            if(el.p2 !== el.pp){
-              allAmt += el.pa * 1
-              oriAmt += el.p2 * el.pc
-            } else {
-              allAmt += el.pp * el.pc
-              oriAmt += el.pp * el.pc
-            }
-
-          } else {
-            allAmt += el.pa * 1
-            oriAmt += el.pa * 1
-          }
+          // 使用新的价格计算逻辑
+          const itemAmount = this.calculateOrderItemAmount(el);
+          allAmt += itemAmount;
+          oriAmt += itemAmount;
         }
       });
       return {

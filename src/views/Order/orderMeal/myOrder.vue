@@ -68,10 +68,10 @@
                   {{ item.pc }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
-                  {{ item.pp }}
+                  {{ getDisplayPrice(item) }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
-                  {{ item.at == 2 || item.at == 3 ? "0.00" : item.pa }}
+                  {{ getSubtotal(item) }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
                   {{ item.personInfo && item.personInfo.name }}
@@ -255,6 +255,7 @@ import eventVue from "@/utils/eventVue";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import { getProductPrice } from "@/utils/priceCalculator";
 
 import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
@@ -626,6 +627,65 @@ export default {
       // 如果没有sys_modules字段或为空，返回默认值
       // 98对应可查看当台消费，99对应不可查看当台消费
       return subPermissionId === 98; // 默认返回可查看当台消费
+    },
+
+    // 获取订单项的显示价格（根据商务价格等优先级计算）
+    getDisplayPrice(item) {
+      if (!item || !item.productInfo) {
+        return item && item.pp * 1 == 0 ? '时价' : (item ? (item.pp * 1).toFixed(2) : '0.00');
+      }
+
+      // 如果价格是0（时价商品），返回"时价"
+      if (item.pp * 1 == 0) {
+        return '时价';
+      }
+
+      // 获取卡台信息、商务数据和商务员工列表
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 使用价格计算工具获取正确的价格
+      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = parseFloat(calculatedPrice) || 0;
+
+      // 如果计算出的价格为0，使用原始价格
+      if (price === 0) {
+        return (item.pp * 1).toFixed(2);
+      }
+
+      return price.toFixed(2);
+    },
+
+    // 获取订单项的小计（根据商务价格等优先级计算）
+    getSubtotal(item) {
+      if (!item) {
+        return '0.00';
+      }
+
+      // 如果是优惠商品，返回0.00
+      if (item.at == 2 || item.at == 3) {
+        return '0.00';
+      }
+
+      // 如果是时价商品，使用实际金额
+      if (item.pp * 1 == 0) {
+        return (item.pa * 1).toFixed(2);
+      }
+
+      // 获取显示价格
+      const displayPrice = this.getDisplayPrice(item);
+      
+      // 如果显示价格是"时价"，使用实际金额
+      if (displayPrice === '时价') {
+        return (item.pa * 1).toFixed(2);
+      }
+
+      // 计算小计：单价 * 数量
+      const price = parseFloat(displayPrice) || 0;
+      const count = item.pc || 1;
+      return (price * count).toFixed(2);
     },
   },
   created() {
