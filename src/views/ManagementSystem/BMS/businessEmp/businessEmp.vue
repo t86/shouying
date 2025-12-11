@@ -109,6 +109,17 @@
             <span class="count-text">（{{ selectedEmps.length }} 人）</span>
           </div>
           <div class="selected-actions">
+            <el-cascader
+              class="filter-item dept-cascader"
+              v-model="selectedFilter.deptPaths"
+              :options="deptOptions"
+              :props="deptProps"
+              clearable
+              placeholder="请选择部门（可多选）"
+              popper-class="business-emp-dept-cascader"
+              collapse-tags
+              size="medium"
+            />
             <el-input
               class="filter-item search-input"
               v-model.trim="selectedFilter.keyword"
@@ -212,6 +223,7 @@ export default {
       availableSelectAll: false,
       availableIndeterminate: false,
       selectedFilter: {
+        deptPaths: [],
         keyword: '',
       },
       selectedSelectAll: false,
@@ -266,8 +278,20 @@ export default {
     async fetchSelectedEmps() {
       this.selectedLoading = true;
       try {
+        // 构建查询关键字：优先使用部门名称，如果有关键字则组合
+        let key = '';
+        const deptNames = this.resolveSelectedDeptNames();
+        if (deptNames.length > 0) {
+          // 如果选择了部门，使用部门名称作为关键字
+          key = deptNames.join(' ');
+        }
+        // 如果同时有关键字搜索，组合它们
+        if (this.selectedFilter.keyword) {
+          key = key ? `${key} ${this.selectedFilter.keyword}` : this.selectedFilter.keyword;
+        }
+        
         const params = {
-          key: this.selectedFilter.keyword || '',
+          key: key || '',
         };
         const res = await this.$api.BMS.businessEmp.reqGetBsSalesList(params);
         if (res.code === 1) {
@@ -293,6 +317,49 @@ export default {
       } finally {
         this.selectedLoading = false;
       }
+    },
+    resolveSelectedDeptNames() {
+      const paths = this.selectedFilter.deptPaths;
+      if (!paths || paths.length === 0) {
+        return [];
+      }
+      // 从部门路径中提取部门名称
+      const names = [];
+      const extractDeptName = (deptId, options) => {
+        for (const option of options) {
+          if (option.id === deptId) {
+            return option.n;
+          }
+          if (option.subs && option.subs.length > 0) {
+            const found = extractDeptName(deptId, option.subs);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      
+      if (Array.isArray(paths[0])) {
+        // 多选模式：paths 是二维数组
+        paths.forEach((path) => {
+          if (Array.isArray(path) && path.length > 0) {
+            const deptId = path[path.length - 1];
+            const deptName = extractDeptName(deptId, this.deptOptions);
+            if (deptName) {
+              names.push(deptName);
+            }
+          }
+        });
+      } else {
+        // 单选模式：paths 是一维数组
+        if (paths.length > 0) {
+          const deptId = paths[paths.length - 1];
+          const deptName = extractDeptName(deptId, this.deptOptions);
+          if (deptName) {
+            names.push(deptName);
+          }
+        }
+      }
+      return names;
     },
     async fetchAvailableEmps() {
       this.availableLoading = true;
@@ -366,6 +433,7 @@ export default {
     },
     handleResetSelectedFilters() {
       this.selectedFilter = {
+        deptPaths: [],
         keyword: '',
       };
       this.selectedSelectAll = false;
@@ -598,6 +666,10 @@ export default {
 
   .filter-item {
     width: 160px;
+    
+    &.dept-cascader {
+      width: 180px;
+    }
   }
 
   .search-input {
@@ -608,6 +680,7 @@ export default {
     width: 100%;
     justify-content: flex-start;
     .filter-item,
+    .filter-item.dept-cascader,
     .search-input {
       width: 100%;
     }
