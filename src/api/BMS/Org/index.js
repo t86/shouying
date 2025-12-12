@@ -28,11 +28,11 @@ const article = {
   },
 
 
-  // 通过百度地图检索相应的详细地址列表
+  // 通过地图服务检索相应的详细地址列表
   reqGetAddressList: params => axios.post(`${base.htgl}/util/suggestion`, params),
 
 
-  // 通过百度地图地址获取经纬度
+  // 通过地图服务地址获取经纬度
   reqGetLatAndLng: params => axios.post(`${base.htgl}/util/geocoding`, params)
 
 }

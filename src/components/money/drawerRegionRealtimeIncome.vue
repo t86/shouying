@@ -200,6 +200,10 @@ export default {
     tableRenderData() {
       if (!this.tableData.length) return [];
       const rows = [...this.tableData];
+      // const summary = this.summaryRow;
+      // if (summary) {
+      //   rows.push(summary);
+      // }
       return rows;
     },
   },
