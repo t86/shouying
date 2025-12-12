@@ -143,13 +143,95 @@ export default {
         cityOptions: [],
         countyValue: "",
         countyOptions: [],
-        addressOptions: [], // 百度地图检索到的详细地址options
+        addressOptions: [], // 地图检索到的详细地址options
         addressPosition: {} // 详细地址经纬度
       },
       map: null,
     };
   },
   methods: {
+    // BD-09坐标转WGS84坐标（百度地图坐标系转国际标准坐标系）
+    // 用于解决在中国大陆地区的坐标偏移问题
+    bd09ToWgs84(bdLng, bdLat) {
+      const x_PI = (3.14159265358979324 * 3000.0) / 180.0;
+      const PI = 3.1415926535897932384626;
+      const a = 6378245.0;
+      const ee = 0.00669342162296594323;
+      
+      let x = bdLng - 0.0065;
+      let y = bdLat - 0.006;
+      let z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_PI);
+      let theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_PI);
+      let wgsLng = z * Math.cos(theta);
+      let wgsLat = z * Math.sin(theta);
+      
+      // GCJ-02转WGS84
+      let dLat = this.transformLat(wgsLng - 105.0, wgsLat - 35.0);
+      let dLng = this.transformLng(wgsLng - 105.0, wgsLat - 35.0);
+      let radLat = (wgsLat / 180.0) * PI;
+      let magic = Math.sin(radLat);
+      magic = 1 - ee * magic * magic;
+      let sqrtMagic = Math.sqrt(magic);
+      dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * PI);
+      dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * PI);
+      
+      return {
+        lng: wgsLng - dLng,
+        lat: wgsLat - dLat
+      };
+    },
+    
+    // WGS84坐标转BD-09坐标（国际标准坐标系转百度地图坐标系）
+    wgs84ToBd09(wgsLng, wgsLat) {
+      const x_PI = (3.14159265358979324 * 3000.0) / 180.0;
+      const PI = 3.1415926535897932384626;
+      const a = 6378245.0;
+      const ee = 0.00669342162296594323;
+      
+      // WGS84转GCJ-02
+      let dLat = this.transformLat(wgsLng - 105.0, wgsLat - 35.0);
+      let dLng = this.transformLng(wgsLng - 105.0, wgsLat - 35.0);
+      let radLat = (wgsLat / 180.0) * PI;
+      let magic = Math.sin(radLat);
+      magic = 1 - ee * magic * magic;
+      let sqrtMagic = Math.sqrt(magic);
+      dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * PI);
+      dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * PI);
+      
+      let gcjLng = wgsLng + dLng;
+      let gcjLat = wgsLat + dLat;
+      
+      // GCJ-02转BD-09
+      let z = Math.sqrt(gcjLng * gcjLng + gcjLat * gcjLat) + 0.00002 * Math.sin(gcjLat * x_PI);
+      let theta = Math.atan2(gcjLat, gcjLng) + 0.000003 * Math.cos(gcjLng * x_PI);
+      let bdLng = z * Math.cos(theta) + 0.0065;
+      let bdLat = z * Math.sin(theta) + 0.006;
+      
+      return {
+        lng: bdLng,
+        lat: bdLat
+      };
+    },
+    
+    // 辅助函数：纬度转换
+    transformLat(lng, lat) {
+      const PI = 3.1415926535897932384626;
+      let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+      ret += ((20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0) / 3.0;
+      ret += ((20.0 * Math.sin(lat * PI) + 40.0 * Math.sin(lat / 3.0 * PI)) * 2.0) / 3.0;
+      ret += ((160.0 * Math.sin(lat / 12.0 * PI) + 320 * Math.sin(lat * PI / 30.0)) * 2.0) / 3.0;
+      return ret;
+    },
+    
+    // 辅助函数：经度转换
+    transformLng(lng, lat) {
+      const PI = 3.1415926535897932384626;
+      let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+      ret += ((20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0) / 3.0;
+      ret += ((20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0) / 3.0;
+      ret += ((150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0) / 3.0;
+      return ret;
+    },
     // 请求页面数据
     async getPageData() {
       try {
@@ -165,12 +247,22 @@ export default {
           this.addressInfo.provinceValue = res.data.addr_province_id || "";
           this.addressInfo.cityValue = res.data.addr_city_id || "";
           this.addressInfo.countyValue = res.data.addr_district_id || "";
+          // 后端可能返回BD-09坐标（百度坐标系），需要转换为WGS84（OpenStreetMap使用）
+          const bdLat = parseFloat(res.data.lat);
+          const bdLng = parseFloat(res.data.lng);
+          const wgs84 = this.bd09ToWgs84(bdLng, bdLat);
+          
+          // 保存原始坐标（后端可能需要BD-09格式）
           this.addressInfo.addressPosition = {
             lat: res.data.lat,
             lng: res.data.lng
           };
-          this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
-          this.map.centerAndZoom(new BMapGL.Point(res.data.lng, res.data.lat), 18);
+          
+          if (this.map && this.marker) {
+            // Leaflet使用WGS84坐标 [lat, lng] 格式
+            this.marker.setLatLng([wgs84.lat, wgs84.lng]);
+            this.map.setView([wgs84.lat, wgs84.lng], 18);
+          }
           if (this.addressInfo.provinceValue) {
             this.addressInfo.cityOptions = this.addressInfo.provinceOptions.find(
               item => item.id == this.addressInfo.provinceValue
@@ -294,7 +386,7 @@ export default {
           this.addressInfo.addressOptions = res.result;
         }
       } catch (error) {
-        console.log("百度地址检索失败", error);
+        console.log("地址检索失败", error);
       }
     },
 
@@ -318,13 +410,22 @@ export default {
       try {
         const res = await this.$api.BMS.Org.reqGetLatAndLng(params)
         if(res.status==0){
+          // 后端可能返回BD-09坐标（百度坐标系），需要转换为WGS84（OpenStreetMap使用）
+          const bdLat = parseFloat(res.result.location.lat.toString());
+          const bdLng = parseFloat(res.result.location.lng.toString());
+          const wgs84 = this.bd09ToWgs84(bdLng, bdLat);
+          
+          // 保存原始坐标（后端可能需要BD-09格式）
           this.addressInfo.addressPosition = {
             lat: res.result.location.lat.toString(),
             lng: res.result.location.lng.toString()
           }
-          console.log('设置经纬度')
-          this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
-          this.map.centerAndZoom(new BMapGL.Point(res.result.location.lng.toString(), res.result.location.lat.toString()), 18);
+          console.log('设置经纬度', { bd09: { lat: bdLat, lng: bdLng }, wgs84 })
+          if (this.map && this.marker) {
+            // Leaflet使用WGS84坐标 [lat, lng] 格式
+            this.marker.setLatLng([wgs84.lat, wgs84.lng]);
+            this.map.setView([wgs84.lat, wgs84.lng], 18);
+          }
           
         }else{
           this.$message.warning('经纬度获取失败')
@@ -333,43 +434,101 @@ export default {
         console.log('经纬度获取失败',error)
       }
     },
-    loadBaiduMapScript() {
+    loadLeafletScript() {
       return new Promise((resolve, reject) => {
+        // 检查是否已经加载
+        if (window.L) {
+          resolve();
+          return;
+        }
+        
+        // 加载 Leaflet CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+        link.crossOrigin = '';
+        document.head.appendChild(link);
+        
+        // 加载 Leaflet JS
         const script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = 'https://api.map.baidu.com/api?type=webgl&v=3.0&ak=BhteLO6flMZteTIkxiSwTB9lvEMAR9YU';
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+        script.crossOrigin = '';
+        
         script.onload = () => {
-          // 百度地图API加载完成
           resolve();
         };
+        
         script.onerror = () => {
-          // 加载百度地图API失败
-          reject(new Error('加载百度地图API失败'));
+          reject(new Error('加载Leaflet地图库失败，请检查网络连接'));
         };
+        
         document.head.appendChild(script);
       });
     },
     initMap() {
-      this.map = new BMapGL.Map('map');
-      this.marker = new BMapGL.Marker(new BMapGL.Point(0, 0));
-      this.map.addOverlay(this.marker);
-      var geoc = new BMapGL.Geocoder();
-      this.map.addEventListener('click', (e) => {
-          var pt = e.latlng;
-          geoc.getLocation(pt, (rs) => {
-            this.addressInfo.addressPosition = {
-              lat: rs.point.lat,
-              lng: rs.point.lng
-            }
-            this.marker.setPosition(new BMapGL.Point(this.addressInfo.addressPosition.lng, this.addressInfo.addressPosition.lat));
-          })
-      })
+      if (!window.L) {
+        console.error('Leaflet地图库未加载');
+        return;
+      }
+      
+      // 初始化地图，使用OpenStreetMap作为底图（完全免费）
+      this.map = L.map('map', {
+        center: [39.90923, 116.397428], // 默认北京中心点 [lat, lng]
+        zoom: 13
+      });
+      
+      // 添加OpenStreetMap图层
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(this.map);
+      
+      // 创建标记（可拖拽）
+      this.marker = L.marker([0, 0], {
+        draggable: true
+      }).addTo(this.map);
+      
+      // 地图点击事件
+      this.map.on('click', (e) => {
+        const wgsLat = e.latlng.lat;
+        const wgsLng = e.latlng.lng;
+        
+        // OpenStreetMap返回的是WGS84坐标，需要转换为BD-09（如果后端需要）
+        const bd09 = this.wgs84ToBd09(wgsLng, wgsLat);
+        
+        // 保存BD-09坐标（后端可能需要BD-09格式）
+        this.addressInfo.addressPosition = {
+          lat: bd09.lat.toString(),
+          lng: bd09.lng.toString()
+        };
+        this.marker.setLatLng([wgsLat, wgsLng]);
+      });
+      
+      // 标记拖拽事件
+      this.marker.on('dragend', (e) => {
+        const wgsLat = e.target.getLatLng().lat;
+        const wgsLng = e.target.getLatLng().lng;
+        
+        // OpenStreetMap返回的是WGS84坐标，需要转换为BD-09（如果后端需要）
+        const bd09 = this.wgs84ToBd09(wgsLng, wgsLat);
+        
+        // 保存BD-09坐标（后端可能需要BD-09格式）
+        this.addressInfo.addressPosition = {
+          lat: bd09.lat.toString(),
+          lng: bd09.lng.toString()
+        };
+      });
     },
   },
   mounted() {
-    this.loadBaiduMapScript().then(() => {
+    this.loadLeafletScript().then(() => {
       this.initMap();
-
+    }).catch((error) => {
+      console.error('地图加载失败:', error);
+      this.$message.error('地图加载失败，请检查网络连接');
     });
     this.getOptions();
     this.reqGetCityList(this.getPageData);
