@@ -70,6 +70,7 @@ export default {
       console.log("二维码弹窗 init 方法被调用");
       console.log("orderInfoDetail.r:", this.orderInfoDetail.r);
       console.log("orderInfoDetail:", this.orderInfoDetail);
+      console.log("payType:", this.payType, "类型:", typeof this.payType);
       
       // 创建数据快照，防止父组件修改影响支付流程
       this.localOrderInfo = {
@@ -80,27 +81,38 @@ export default {
       };
       console.log("创建本地数据快照:", this.localOrderInfo);
       
+      // 判断是否为扫客人码场景（payType 5 或 6）
+      const payTypeNum = this.payType * 1;
+      const isScanCustomerPayment = [5, 6].includes(payTypeNum);
+      console.log("是否为扫客人码场景:", isScanCustomerPayment, "payTypeNum:", payTypeNum);
+      
       if (this.localOrderInfo.r !== 2) {
-        // 扫客人码场景（payType 5 或 6）不需要 pay_url，只需要 ol_pay_id 来轮询支付状态
-        if ([5, 6].includes(this.payType * 1)) {
+        // 扫客人码场景下，r 应该是 0（支付中），需要显示"等待支付结果"页面并开始轮询
+        if (isScanCustomerPayment) {
           console.log("扫客人码场景，开始轮询支付状态");
+          // 确保 r 为 0（支付中），以便显示"等待支付结果"页面
+          if (this.localOrderInfo.r !== 0 && this.localOrderInfo.r !== 1) {
+            this.localOrderInfo.r = 0;
+            this.orderInfoDetail.r = 0;
+          }
           this.startPaymentStatusPolling();
         } else {
-          console.log("开始设置二维码信息");
+          console.log("客人扫我场景，开始设置二维码信息");
           this.setQRCodeInfo();
         }
       } else {
-        console.log("订单状态为失败，不设置二维码");
+        console.log("订单状态为失败（r=2），不设置二维码");
       }
       this.reloadMyOrderTableData();
     },
 
-    // 生成二维码并设置询问状态
+    // 生成二维码并设置询问状态（仅用于"客人扫我"场景，payType 1/2/3）
     setQRCodeInfo() {
       console.log("setQRCodeInfo 被调用");
       console.log("localOrderInfo:", this.localOrderInfo);
       console.log("pay_url:", this.localOrderInfo && this.localOrderInfo.pay_url);
       console.log("ol_pay_id:", this.localOrderInfo && this.localOrderInfo.ol_pay_id);
+      console.log("payType:", this.payType, "类型:", typeof this.payType);
       
       // 校验必要参数
       if (!this.localOrderInfo) {
@@ -109,17 +121,37 @@ export default {
         return;
       }
       
-      // 扫客人码场景不需要 pay_url，跳过检查
-      if (![5, 6].includes(this.payType * 1)) {
-        if (!this.localOrderInfo.pay_url) {
-          console.error("pay_url 为空，无法生成二维码");
-          this.$message.error("支付链接获取失败");
+
+      // 再次确认不是扫客人码场景（防止误入）
+      const payTypeNum = this.payType * 1;
+      if ([5, 6].includes(payTypeNum)) {
+        console.warn("警告：扫客人码场景不应该走到 setQRCodeInfo，应该直接调用 startPaymentStatusPolling");
+        // 扫客人码场景：直接启动轮询，不检查 pay_url
+        if (!this.localOrderInfo.ol_pay_id) {
+          console.error("ol_pay_id 为空，无法查询支付状态");
+          this.$message.error("订单ID获取失败");
           this.onCancelDrawer();
           return;
         }
-        this.textValue = this.localOrderInfo.pay_url;
-        console.log("设置 textValue:", this.textValue);
+        // 确保 r 为 0（支付中）
+        if (this.localOrderInfo.r !== 0 && this.localOrderInfo.r !== 1) {
+          this.localOrderInfo.r = 0;
+          this.orderInfoDetail.r = 0;
+        }
+        this.startPaymentStatusPolling();
+        return;
       }
+      
+      // "客人扫我"场景：必须有 pay_url
+      if (!this.localOrderInfo.pay_url) {
+        console.error("pay_url 为空，无法生成二维码");
+        this.$message.error("支付链接获取失败");
+        this.onCancelDrawer();
+        return;
+      }
+      
+      this.textValue = this.localOrderInfo.pay_url;
+      console.log("设置 textValue:", this.textValue);
       
       if (!this.localOrderInfo.ol_pay_id) {
         console.error("ol_pay_id 为空，无法查询支付状态");
