@@ -1692,10 +1692,12 @@ export default {
     },
 
     // 线上滞留金支付成功回调
-    handleOnlineBookAmtSuccess() {
+    async handleOnlineBookAmtSuccess() {
       this.showOnlineBookAmt = false;
       this.getChoosePayList();
       this.$emit("paySuccess");
+      // 重新初始化支付方式列表，刷新滞留金选项显示
+      await this.init();
     },
   },
   mounted() {
