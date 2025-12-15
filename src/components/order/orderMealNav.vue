@@ -64,6 +64,15 @@ export default {
     };
   },
   methods: {
+    // 判断是否为PC端
+    isPcDevice() {
+      if (window.atool && typeof window.atool.getTermType === 'function') {
+        return window.atool.getTermType() === 'pc';
+      }
+      // 降级方案：通过 userAgent 判断
+      return !/android|iphone|ipad/i.test(navigator.userAgent);
+    },
+    
     fontSize(item) {
       let fontSize = 22;
 
@@ -115,12 +124,19 @@ export default {
         el => el.twoCateId === secondCategoryId
       );
 
-      // if (!hasDianzhang && !hasShouyin) {
-      if (true) {
-        products = products.filter(item => {
-          return item.limit_pc === '2' || item.limit_pad === "2"
-        })
-      }
+      // 设备限制过滤
+      // limit_pc: "1" 表示限制PC端（不可见），"2" 表示不限制（可见）
+      // limit_pad: "1" 表示限制Pad端（不可见），"2" 表示不限制（可见）
+      const isPc = this.isPcDevice();
+      products = products.filter(item => {
+        if (isPc) {
+          // PC端：只显示 limit_pc !== '1' 的商品
+          return item.limit_pc !== '1';
+        } else {
+          // Pad端：只显示 limit_pad !== '1' 的商品
+          return item.limit_pad !== '1';
+        }
+      });
       return products
     },
 
