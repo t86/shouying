@@ -1602,6 +1602,20 @@ export default {
     // 处理显示买单弹窗
     handleShowBuyOrder() {
       console.log("handleShowBuyOrder被调用，打开买单弹窗");
+
+      // 右侧已有其他渠道时，不允许再走线上买单，提示先收取滞留金再组合
+      if (this.hasChoosedListArr && this.hasChoosedListArr.length > 0) {
+        this.$alert(
+          "暂不支持线上渠道与其他渠道组合支付；如需组合，则要先收取滞留金，再将滞留金渠道与其他渠道组合支付",
+          "提示",
+          {
+            confirmButtonText: "我知道了",
+            type: "warning",
+            center: true,
+          }
+        );
+        return;
+      }
       
       // 从 choosePayOrderList 中提取订单ID列表
       const orderIds = [];
