@@ -55,11 +55,51 @@ export default {
     };
   },
   methods: {
+    // 判断是否为PC端
+    isPcDevice() {
+      if (window.atool && typeof window.atool.getTermType === 'function') {
+        return window.atool.getTermType() === 'pc';
+      }
+      // 降级方案：通过 userAgent 判断
+      return !/android|iphone|ipad/i.test(navigator.userAgent);
+    },
+    
+    // 根据设备类型过滤商品列表
+    filterProductsByDeviceLimit(products) {
+      if (!products || !Array.isArray(products)) {
+        return products;
+      }
+      
+      const isPc = this.isPcDevice();
+      
+      return products.filter(item => {
+        // 如果是PC端，检查 limit_pc 字段
+        // limit_pc: "1" 表示限制PC端（不可见），"2" 表示不限制（可见）
+        if (isPc) {
+          // PC端：只显示 limit_pc !== '1' 的商品（即 limit_pc === '2' 或不存在）
+          return item.limit_pc !== '1';
+        } else {
+          // Pad端：只显示 limit_pad !== '1' 的商品（即 limit_pad === '2' 或不存在）
+          return item.limit_pad !== '1';
+        }
+      });
+    },
+    
     updateProductsList({ key, value }) {
       if(this.mustOrderProducts.length > 0) {
         return
       }
-      this[key] = value;
+      
+      // 如果是更新 allProductsList，需要应用设备限制过滤
+      if (key === 'allProductsList') {
+        const filteredValue = this.filterProductsByDeviceLimit(value);
+        this[key] = filteredValue;
+        console.log('设备限制过滤 - 设备类型:', this.isPcDevice() ? 'PC' : 'Pad');
+        console.log('设备限制过滤 - 过滤前数量:', value ? value.length : 0);
+        console.log('设备限制过滤 - 过滤后数量:', filteredValue ? filteredValue.length : 0);
+      } else {
+        this[key] = value;
+      }
     }
   },
   mounted() {
@@ -101,17 +141,13 @@ export default {
     // console.log('order meal emp_id :', emp_id)
     // console.log("hasDianzhang", hasDianzhang)
 
-    // 如果既不是店长也不是收银，需要过滤掉不可见的商品
-    // console.log('before: ', this.allProductsList.length)
-    // if (!hasDianzhang && !hasShouyin) {
-
-    // 设备限制, 在这个设备上就不展示
-    if (true) {
-      this.allProductsList = this.allProductsList.filter(item => {
-        return item.limit_pc === '2' || item.limit_pad === "2"
-      })
+    // 注意：设备限制过滤逻辑已移至 updateProductsList 方法中
+    // 这样可以确保在数据从子组件传递过来时立即应用过滤
+    // 如果 mounted 时 allProductsList 已有数据，也需要过滤一次
+    if (this.allProductsList && this.allProductsList.length > 0) {
+      this.allProductsList = this.filterProductsByDeviceLimit(this.allProductsList);
+      console.log('mounted 时应用设备限制过滤 - 过滤后数量:', this.allProductsList.length);
     }
-    console.log('after: ', this.allProductsList)
 
     this.$store.state.cardPageInfo.resResultDataObj
 

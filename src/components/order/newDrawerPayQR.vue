@@ -81,8 +81,14 @@ export default {
       console.log("创建本地数据快照:", this.localOrderInfo);
       
       if (this.localOrderInfo.r !== 2) {
-        console.log("开始设置二维码信息");
-        this.setQRCodeInfo();
+        // 扫客人码场景（payType 5 或 6）不需要 pay_url，只需要 ol_pay_id 来轮询支付状态
+        if ([5, 6].includes(this.payType * 1)) {
+          console.log("扫客人码场景，开始轮询支付状态");
+          this.startPaymentStatusPolling();
+        } else {
+          console.log("开始设置二维码信息");
+          this.setQRCodeInfo();
+        }
       } else {
         console.log("订单状态为失败，不设置二维码");
       }
@@ -103,11 +109,16 @@ export default {
         return;
       }
       
-      if (!this.localOrderInfo.pay_url) {
-        console.error("pay_url 为空，无法生成二维码");
-        this.$message.error("支付链接获取失败");
-        this.onCancelDrawer();
-        return;
+      // 扫客人码场景不需要 pay_url，跳过检查
+      if (![5, 6].includes(this.payType * 1)) {
+        if (!this.localOrderInfo.pay_url) {
+          console.error("pay_url 为空，无法生成二维码");
+          this.$message.error("支付链接获取失败");
+          this.onCancelDrawer();
+          return;
+        }
+        this.textValue = this.localOrderInfo.pay_url;
+        console.log("设置 textValue:", this.textValue);
       }
       
       if (!this.localOrderInfo.ol_pay_id) {
@@ -117,11 +128,21 @@ export default {
         return;
       }
       
-      this.textValue = this.localOrderInfo.pay_url;
-      console.log("设置 textValue:", this.textValue);
+      // 启动支付状态轮询
+      this.startPaymentStatusPolling();
+    },
+    
+    // 启动支付状态轮询（统一方法，供二维码场景和扫客人码场景使用）
+    startPaymentStatusPolling() {
+      if (!this.localOrderInfo || !this.localOrderInfo.ol_pay_id) {
+        console.error("无法启动支付状态轮询：缺少 ol_pay_id");
+        return;
+      }
+      
+      console.log("启动支付状态轮询, ol_pay_id:", this.localOrderInfo.ol_pay_id);
       
       if (this.timer) clearInterval(this.timer);
-      this.startTimer = 15*60;
+      this.startTimer = 15*60; // 15分钟超时
       this.timer = setInterval(() => {
         if(this.startTimer <= 0) {
           clearInterval(this.timer);
@@ -132,7 +153,7 @@ export default {
         }
         this.startTimer--;
         this.getOrderPayStatus();
-      }, 1000);
+      }, 1000); // 每秒查询一次
     },
 
     // 询问订单支付状态
