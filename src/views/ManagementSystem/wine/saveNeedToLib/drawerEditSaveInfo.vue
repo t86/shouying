@@ -72,6 +72,20 @@
 
 
         </div>
+        <div class="remark-row">
+          <div class="title">备注</div>
+          <el-input
+            ref="remarkInput"
+            v-model="remark"
+            size="small"
+            class="remark-input"
+            placeholder="请输入备注"
+          ></el-input>
+          <div></div>
+          <el-button type="primary" size="small" class="m-l-2" @click="focusRemark"
+            >更改备注</el-button
+          >
+        </div>
         <div class="red fs14 m-t-3 m-b-3">点击散瓶规格可更改</div>
         <!-- 表格 -->
         <div class="table-content">
@@ -291,6 +305,7 @@ export default {
       saveTime: '',
       custPhone: '',
       custName: '',
+      remark: "",
       remarkName: "",
       remarkPhone: "",
       employee: {},
@@ -354,6 +369,11 @@ export default {
     showOrHideChgOrderPersonHandle(){
       this.showChgOrderPersonDrawer = !this.showChgOrderPersonDrawer
     },
+    focusRemark(){
+      if (this.$refs.remarkInput) {
+        this.$refs.remarkInput.focus();
+      }
+    },
     async onSubmit() {
       const { userName, passWord, type } = this.authInfo;
       const params = {
@@ -372,6 +392,7 @@ export default {
         sales_emp_id: this.isCardBillRelated ? 0 : this.employee.id * 1,      //NewSalesEmpId 订位人Id 关联流水=0, 否则=指定定位人,散客=0
         cust_name: this.remarkName || this.custName,     //NewCustName 可修改 客户中心存酒对应备注客人姓名, 客户存酒对应客户手机号
         cust_phone: this.remarkPhone || this.custPhone,     //NewCustPhone 可修改 客户中心存酒对应备注客人手机号, 客户存酒对应客户手机号
+        remark: this.remark || "", // remark 存酒备注
         store_time: this.saveTime   //NewStoreTime 存酒时间 注意这边使用格式 yyyy/mm/dd hh24:mi:ss 如果没有修改,则回传返回的存酒时间
       };
       try {
@@ -505,6 +526,7 @@ export default {
           this.saveTime = this.currentSaveInfo.t
           this.custName = this.currentSaveInfo.c || (this.currentSaveInfo.rn)
           this.custPhone = this.currentSaveInfo.p || (this.currentSaveInfo.rp)
+          this.remark = this.currentSaveInfo.r || ""
           this.cardOrder = this.currentSaveInfo.m
           this.seat = { n: this.currentSaveInfo.s, id: this.currentSaveInfo.si }
           this.businessDate = this.currentSaveInfo.d
@@ -552,6 +574,22 @@ export default {
 }
 
 .edit-save-info {
+.remark-row {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns:150px 200px 150px 1fr;
+  grid-column-gap: 20px;
+  align-items: center;
+  .title {
+    width: 150px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 32px;
+  }
+  .remark-input {
+    width: 260px;
+  }
+}
   .top {
     .title {
       font-size: 20px;

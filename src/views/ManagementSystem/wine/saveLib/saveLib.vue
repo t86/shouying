@@ -63,10 +63,12 @@
             <div class="th">联系方式</div>
             <div class="th">卡台</div>
             <div class="th">订台人</div>
+            <div class="th">订台人部门</div>
             <div class="th">服务员</div>
             <div class="th">存酒时间</div>
             <div class="th">入库时间</div>
             <div class="th">入库人</div>
+            <div class="th">备注</div>
           </div>
         </div>
         <div class="tbody">
@@ -85,10 +87,12 @@
               <div class="td">{{item.p}}</div>
               <div class="td">{{item.s}}</div>
               <div class="td">{{item.e}}</div>
+              <div class="td">{{item.sd || '-'}}</div>
               <div class="td">{{item.w}}</div>
               <div class="td">{{item.t}}</div>
               <div class="td">{{item.it}}</div>
               <div class="td">{{item.we}}</div>
+              <div class="td">{{item.r || '-'}}</div>
             </div>
             <div class="detail-list" v-if="item.show">
               <div class="tr-thead" layout="row" layout-align="space-between center">

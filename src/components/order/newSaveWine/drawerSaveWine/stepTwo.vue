@@ -100,12 +100,12 @@
             </div>
           </div>
         </div>
-        <!-- 备注字段 -->
+        <!-- 备注 -->
         <div class="remark-section">
           <div class="remark-label">备注:</div>
-          <input 
-            class="remark-input" 
-            v-model="remark" 
+          <input
+            class="remark-input"
+            v-model="remark"
             placeholder="请输入备注"
             maxlength="200"
           />
@@ -553,11 +553,12 @@ export default {
     .right {
       width: 64%;
       height: 100%;
-      overflow: visible;
+
+    overflow: hidden;
       padding-left: 10px;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
       .title {
         font-size: 24px;
@@ -566,25 +567,25 @@ export default {
         color: #1A1A21;
       }
 
-      .table-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        min-height: 0;
-      }
+    .table-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
 
       .table {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        min-height: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
 
         .tbody {
-          flex: 1;
+        flex: 1;
           overflow: auto;
-          min-height: 0;
+        min-height: 0;
         }
 
         .th,
@@ -622,6 +623,43 @@ export default {
               cursor: pointer;
             }
           }
+
+    .remark-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+
+      .remark-label {
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+        margin-right: 10px;
+        white-space: nowrap;
+      }
+
+      .remark-input {
+        flex: 1;
+        height: 38px;
+        background: #FAFAFC;
+        border-radius: 6px;
+        border: 1px solid #C4CBD7;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 20px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 400;
+        color: #08080A;
+
+        &::placeholder {
+          color: #7A7A7A;
+        }
+
+        &:focus {
+          outline: none;
+          border: 2px solid #3373E8;
         }
       }
 
@@ -709,6 +747,54 @@ export default {
           }
         }
       }
+    }
+        }
+      }
+
+// 竖屏适配
+@media (orientation: portrait) {
+  .save-list {
+    .right {
+      .remark-section {
+        margin-top: 12px;
+        padding-top: 12px;
+
+        .remark-label {
+          font-size: 18px;
+        }
+
+        .remark-input {
+          height: 36px;
+          font-size: 18px;
+          padding: 0 10px;
+        }
+      }
+    }
+  }
+}
+
+// 小屏幕适配
+@media (max-width: 900px) {
+  .save-list {
+    .right {
+      .remark-section {
+        margin-top: 10px;
+        padding-top: 10px;
+
+        .remark-label {
+          font-size: 16px;
+          margin-right: 8px;
+        }
+
+        .remark-input {
+          height: 36px;
+          font-size: 16px;
+          padding: 0 10px;
+        }
+      }
+    }
+  }
+}
     }
   }
 
