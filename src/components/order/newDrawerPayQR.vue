@@ -17,20 +17,20 @@
           </div>
         </div>
         <div class="wait_content" v-if="[5, 6].includes(payType * 1)">
-          <div v-if="this.orderInfoDetail.r == 0">
+          <div v-if="currentOrderStatus == 0">
             <img
               class="loading"
               :src="require('@/assets/order-img/loading.png')"
             />
             <div class="wait_tip">等待支付结果…</div>
           </div>
-          <div class="fail" v-if="this.orderInfoDetail.r == 2">
+          <div class="fail" v-if="currentOrderStatus == 2">
             <i class="el-icon-warning" />
             <div class="tip">支付失败</div>
           </div>
         </div>
         <div class="footer" layout="row" layout-align="center center">
-          <div v-if="this.orderInfoDetail.r == 2">
+          <div v-if="currentOrderStatus == 2">
             <el-button type="info" @click="onCancelDrawer">关闭</el-button>
             <el-button type="info" @click="reloadQrRequest">重新扫码</el-button>
           </div>
@@ -63,6 +63,8 @@ export default {
       startTimer: 15*60,
       // 创建本地数据快照，避免父组件修改影响支付流程
       localOrderInfo: null,
+      // 当前订单状态，用于响应式更新UI
+      currentOrderStatus: 0, // 0: 等待中, 1: 成功, 2: 失败
     };
   },
   methods: {
@@ -79,7 +81,27 @@ export default {
         pay_amt: this.orderInfoDetail.pay_amt,
         r: this.orderInfoDetail.r
       };
+      // 同步更新当前订单状态，兼容父组件传入 status=5
+      const incomingStatus = this.orderInfoDetail.status;
+      this.currentOrderStatus = incomingStatus === 5 ? 1 : (this.orderInfoDetail.r || 0);
       console.log("创建本地数据快照:", this.localOrderInfo);
+      console.log("当前订单状态:", this.currentOrderStatus, "incomingStatus:", incomingStatus);
+      
+      // 如果父组件已告知支付成功，直接关闭
+      if (incomingStatus === 5 || this.orderInfoDetail.r === 1) {
+        console.log("父组件传入支付成功状态，直接关闭弹窗");
+        this.currentOrderStatus = 1;
+        this.show = false;
+        if (this.timer) {
+          clearInterval(this.timer);
+          this.timer = null;
+        }
+        this.$message.success("支付成功");
+        this.onCancelDrawer();
+        this.reloadMyOrderTableData();
+        this.$emit("subSecondLogoutHandle");
+        return;
+      }
       
       // 判断是否为扫客人码场景（payType 5 或 6）
       const payTypeNum = this.payType * 1;
@@ -94,6 +116,21 @@ export default {
           if (this.localOrderInfo.r !== 0 && this.localOrderInfo.r !== 1) {
             this.localOrderInfo.r = 0;
             this.orderInfoDetail.r = 0;
+          }
+          // 如果缺少 ol_pay_id，且当前状态已成功/失败，则直接结束
+          if (!this.localOrderInfo.ol_pay_id) {
+            console.warn("缺少 ol_pay_id，无法轮询，检查父组件传值");
+            if (incomingStatus === 5 || this.orderInfoDetail.r === 1) {
+              this.currentOrderStatus = 1;
+              this.show = false;
+              this.$message.success("支付成功");
+              this.onCancelDrawer();
+              this.reloadMyOrderTableData();
+              this.$emit("subSecondLogoutHandle");
+            } else if (incomingStatus === 2 || this.orderInfoDetail.r === 2) {
+              this.currentOrderStatus = 2;
+            }
+            return;
           }
           this.startPaymentStatusPolling();
         } else {
@@ -195,6 +232,21 @@ export default {
         console.error("本地订单信息或ol_pay_id不存在，停止查询支付状态");
         console.log("localOrderInfo:", this.localOrderInfo);
         
+        // 如果父组件已传入成功状态，直接关闭
+        if (this.orderInfoDetail && this.orderInfoDetail.status === 5) {
+          this.currentOrderStatus = 1;
+          this.show = false;
+          if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+          this.$message.success("支付成功");
+          this.onCancelDrawer();
+          this.reloadMyOrderTableData();
+          this.$emit("subSecondLogoutHandle");
+          return;
+        }
+        
         // 清除定时器并关闭弹窗
         if (this.timer) {
           clearInterval(this.timer);
@@ -222,11 +274,37 @@ export default {
       try {
         const res = await api_order.reqGetOrderOnlinePayStatus(params);
         if (res.code == 1) {
-          if (res.data.status == 5) {
+          // 更新订单状态
+          const status = res.data.status || 0;
+          console.log("支付状态查询结果:", status);
+          
+          // 根据支付状态更新UI
+          if (status == 5) {
+            // 支付成功
+            this.currentOrderStatus = 1;
+            if (this.localOrderInfo) this.localOrderInfo.r = 1;
+            if (this.orderInfoDetail) this.orderInfoDetail.r = 1;
+            if (this.timer) {
+              clearInterval(this.timer);
+              this.timer = null;
+            }
+            this.show = false; // 双保险：即便父组件事件未及时处理也先关闭
             this.$message.success("支付成功");
             this.onCancelDrawer();
             this.reloadMyOrderTableData();
             this.$emit("subSecondLogoutHandle");
+          } else if (status == 2) {
+            // 支付失败
+            this.currentOrderStatus = 2;
+            if (this.localOrderInfo) this.localOrderInfo.r = 2;
+            if (this.orderInfoDetail) this.orderInfoDetail.r = 2;
+            if (this.timer) {
+              clearInterval(this.timer);
+              this.timer = null;
+            }
+          } else {
+            // 支付中或其他状态，保持等待状态
+            this.currentOrderStatus = 0;
           }
         } else {
           this.$message.warning(res.msg);
@@ -326,6 +404,58 @@ export default {
       this.$emit("showOrHideQRDrawerHandle");
       this.$emit("reloadQrRequest", 1);
     },
+    
+    // 测试方法：模拟支付成功（仅在开发环境使用）
+    testSimulatePaymentSuccess() {
+      console.log("=== 测试：模拟支付成功 ===");
+      if (!this.localOrderInfo || !this.localOrderInfo.ol_pay_id) {
+        console.warn("当前没有支付订单，无法模拟");
+        return;
+      }
+      
+      // 更新状态为成功
+      this.currentOrderStatus = 1;
+      console.log("已设置 currentOrderStatus = 1");
+      
+      // 清除定时器
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+        console.log("已清除轮询定时器");
+      }
+      
+      // 显示成功消息
+      this.$message.success("支付成功（测试模拟）");
+      
+      // 关闭弹窗
+      this.onCancelDrawer();
+      this.reloadMyOrderTableData();
+      this.$emit("subSecondLogoutHandle");
+      
+      console.log("测试完成：弹窗应已关闭");
+    },
+    
+    // 测试方法：模拟支付失败（仅在开发环境使用）
+    testSimulatePaymentFailed() {
+      console.log("=== 测试：模拟支付失败 ===");
+      if (!this.localOrderInfo || !this.localOrderInfo.ol_pay_id) {
+        console.warn("当前没有支付订单，无法模拟");
+        return;
+      }
+      
+      // 更新状态为失败
+      this.currentOrderStatus = 2;
+      console.log("已设置 currentOrderStatus = 2");
+      
+      // 清除定时器
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+        console.log("已清除轮询定时器");
+      }
+      
+      console.log("测试完成：应显示支付失败界面");
+    },
   },
   props: {
     showDrawer: {
@@ -377,6 +507,8 @@ export default {
         if (this.timer) clearInterval(this.timer);
         // 清空本地数据快照
         this.localOrderInfo = null;
+        // 重置订单状态
+        this.currentOrderStatus = 0;
         console.log("已清空本地数据快照");
       }
     },
@@ -387,8 +519,57 @@ export default {
       immediate: true,
     },
     orderInfoDetail: {
-      handler(newVal) {
+      handler(newVal, oldVal) {
         console.log("=== orderInfoDetail 变化 ===", JSON.stringify(newVal));
+        console.log("旧值:", oldVal ? JSON.stringify(oldVal) : "无");
+        
+        // 如果 orderInfoDetail.r 发生变化，同步更新 currentOrderStatus
+        if (newVal && typeof newVal.r !== 'undefined') {
+          const newStatus = newVal.r || 0;
+          if (this.currentOrderStatus !== newStatus) {
+            console.log("检测到订单状态变化:", this.currentOrderStatus, "->", newStatus);
+            this.currentOrderStatus = newStatus;
+            
+            // 如果状态变为失败，停止轮询
+            if (newStatus === 2 && this.timer) {
+              console.log("订单状态变为失败，停止轮询");
+              clearInterval(this.timer);
+              this.timer = null;
+            }
+            
+            // 如果状态变为成功，关闭弹窗
+            if (newStatus === 1) {
+              console.log("订单状态变为成功，关闭弹窗");
+              if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+              }
+              this.show = false; // 双保险
+              this.onCancelDrawer();
+              this.reloadMyOrderTableData();
+              this.$emit("subSecondLogoutHandle");
+            }
+          }
+          
+          // 如果 localOrderInfo 存在，同步更新其 r 值
+          if (this.localOrderInfo) {
+            this.localOrderInfo.r = newStatus;
+          }
+        }
+
+        // 兼容父组件传入 status=5（支付成功），立即关闭
+        if (newVal && newVal.status === 5) {
+          console.log("检测到父组件传入 status=5，立即关闭弹窗");
+          this.currentOrderStatus = 1;
+          if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+          this.show = false;
+          this.onCancelDrawer();
+          this.reloadMyOrderTableData();
+          this.$emit("subSecondLogoutHandle");
+        }
       },
       immediate: true,
       deep: true,

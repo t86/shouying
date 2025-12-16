@@ -162,8 +162,11 @@ export default {
     };
   },
   computed: {
-    // 动态计算支付方式列表：收银系统(money)显示"扫客人"选项，点单系统(order)只显示"客人扫我"
+    // 动态计算支付方式列表：所有系统都显示"扫客人"选项（支持手动输入，不依赖扫码枪）
     payTypeList() {
+      // 由于 customerPaymentScanDialog 支持手动输入，web 版也可以使用扫客人功能
+      // 因此统一返回包含扫客人选项的列表
+      // return payTypeListForCashier;
       const isCashierSystem = sessionStorage.getItem('client') === 'money';
       return isCashierSystem ? payTypeListForCashier : payTypeListForNormal;
     },

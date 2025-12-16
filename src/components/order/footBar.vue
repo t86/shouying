@@ -34,7 +34,7 @@
               <span>滞留金</span>
             </div>
           </div>
-          <!-- 服务员核销卡券 -->
+          <!-- 服务员核销卡券，占位保留：暂不实现具体逻辑，但保持结构一致 -->
           <div v-if="
             isShowPayBtn
           " class="server-pay-btn line">
@@ -46,31 +46,22 @@
           <!-- 收银系统按钮 -->
           <div class="pay-btn line" :style="isNarrowWidth && 'padding: 0px 0px'" v-if="
             $store.state.userInfo.authStatus == 4 &&
-            !this.$route.path.startsWith('/orderMeal') &&
+            !$route.path.startsWith('/orderMeal') &&
             $store.state.orderInfo.currentCardInfo.bizStatus != 1
           " layout="row">
-          <div class="button" layout="row" layout-align="center center"
-            @click="$router.push({ name: 'orderMealList' })">
-            <img :src="imgSrc.shoppingNav" alt />
-            <span>点单</span>
-          </div>
-          <!-- <div
-        class="button"
-        @click="$router.push({name:'orderMealList', query:{give:true}})"
-        layout="row"
-        layout-align="center center"
-      >
-        <img :src="imgSrc.giveNav" alt />
-        <span>优惠2</span>
-      </div> -->
-          <div class="button" @click="goToVipRecharge" layout="row" layout-align="center center">
-            <img :src="require('@/assets/money-img/money_add.png')" alt />
-            <span>充值</span>
-          </div>
-          <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
-            <img :src="imgSrc.clearNav" alt />
-            <span>清台</span>
-          </div>
+            <div class="button" layout="row" layout-align="center center"
+              @click="$router.push({ name: 'orderMealList' })">
+              <img :src="imgSrc.shoppingNav" alt />
+              <span>点单</span>
+            </div>
+            <div class="button" @click="goToVipRecharge" layout="row" layout-align="center center">
+              <img :src="require('@/assets/money-img/money_add.png')" alt />
+              <span>充值</span>
+            </div>
+            <div class="button" @click.stop="clearCardHandle" layout="row" layout-align="center center">
+              <img :src="imgSrc.clearNav" alt />
+              <span>清台</span>
+            </div>
 
             <div class="button" @click.stop="showMerchantConfig = true" style="width: 140px" layout="row"
               layout-align="center center">
@@ -108,29 +99,24 @@
           " layout="row" layout-align="start start">
             <div class="left m-r-2">
               <p class="one-txt-cut">
-                <!-- 折前：当太总消费的应收金额（不含赠送） -->
                 <span>折前金额:</span>
                 <span>￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
               </p>
               <p class="one-txt-cut">
-                <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
                 <span>折后金额:</span>
                 <span>￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
               </p>
               <p class="one-txt-cut">
-                <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
                 <span>主营点单金额:</span>
                 <span>￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
               </p>
             </div>
             <div class="right">
               <p class="one-txt-cut">
-                <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
                 <span>已收金额:</span>
                 <span>￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
               </p>
               <p class="one-txt-cut">
-                <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
                 <span class="txt-right">主营实收:</span>
                 <span>￥{{
                   Number(cardInfo.payed_zy_val_amt || 0).toFixed(2)
@@ -143,7 +129,7 @@
             'p-l-3': !isNarrowWidth,
           }" layout="column" layout-align="center center">
             <p class="time">
-              {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}:{{
+              {{ authInfo.month }}-{{ authInfo.day }} {{ authInfo.hour }}{{
                 authInfo.minute
               }}
             </p>
@@ -160,29 +146,24 @@
           layout-align="start start">
           <div class="left m-r-2" layout="row">
             <p class="one-txt-cut">
-              <!-- 折前：当太总消费的应收金额（不含赠送） -->
               <span>折前金额:</span>
               <span class="m-r-4">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
               <span>折后金额:</span>
               <span class="m-r-4">￥{{ Number(cardInfo.payed_val_amt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
-              <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
               <span>主营点单金额:</span>
               <span class="m-r-4">￥{{ Number(cardInfo.order_zy_amt || 0).toFixed(2) }}</span>
             </p>
           </div>
           <div class="right" layout="row">
             <p class="one-txt-cut">
-              <!-- 已收：已结账的金额（包含主营非主营，折扣金额） -->
               <span>已收金额:</span>
               <span class="m-r-4">￥{{ Number(cardInfo.payedAmt || 0).toFixed(2) }}</span>
             </p>
             <p class="one-txt-cut">
-              <!-- 主营实收：已结账的金额（主营商品已支付的金额，不含折扣） -->
               <span class="txt-right">主营实收:</span>
               <span>￥{{ Number(cardInfo.payed_zy_val_amt || 0).toFixed(2) }}</span>
             </p>
@@ -270,15 +251,10 @@
         @reloadQrRequest="showChoosePayTypeHandle" />
 
       <!-- 服务员让客人扫码添加滞留金 -->
-      <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
       <drawerAddBookAmt v-if="showAddBookDrawer" v-model="showAddBookDrawer"
         @subSecondLogoutHandle="subSecondLogoutHandle" />
 
-      <!-- 服务员核销卡券 -->
-      <!-- <drawer -->
-
       <!-- 收银系统滞留金管理 -->
-      <!-- 此处在打开drawer之前，会影响flex布局，因此需要添加一个v-show -->
       <drawerMerchantConfig v-show="showMerchantConfig" v-model="showMerchantConfig" />
     </div>
 
@@ -345,58 +321,38 @@ const payNavList = [
   },
 ];
 
-const payTypeList =
-  window.atool &&
-    ("startScan" in window.atool || window.atool.getTermType() == "android")
-    ? [
-      {
-        id: 6,
-        icon: weixin_saokeren,
-        name: "扫客人-微信",
-      },
-      {
-        id: 5,
-        icon: zhifubaozhifu_saokeren,
-        name: "扫客人-支付宝",
-      },
-      {
-        id: 2,
-        icon: weixin_kerensaowo,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        icon: zhifubao_kerensaowo,
-        name: "客人扫我-支付宝",
-      },
-      {
-        id: 3,
-        icon: weixinxiaochengxu,
-        name: "微信小程序自助",
-      },
-    ]
-    : [
-      {
-        id: 2,
-        icon: weixin_kerensaowo,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        icon: zhifubao_kerensaowo,
-        name: "客人扫我-支付宝",
-      },
-      {
-        id: 3,
-        icon: weixinxiaochengxu,
-        name: "微信小程序自助",
-      },
-    ];
+// 支付方式列表：始终包含"扫客人"选项（支持手动输入，不依赖扫码枪）
+const payTypeList = [
+  {
+    id: 6,
+    icon: weixin_saokeren,
+    name: "扫客人-微信",
+  },
+  {
+    id: 5,
+    icon: zhifubaozhifu_saokeren,
+    name: "扫客人-支付宝",
+  },
+  {
+    id: 2,
+    icon: weixin_kerensaowo,
+    name: "客人扫我-微信",
+  },
+  {
+    id: 1,
+    icon: zhifubao_kerensaowo,
+    name: "客人扫我-支付宝",
+  },
+  {
+    id: 3,
+    icon: weixinxiaochengxu,
+    name: "微信小程序自助",
+  },
+];
 
 export default {
   data() {
     return {
-      
       canLookOrderAmt: false,
 
       isRect: window.innerWidth > 1024,
@@ -446,7 +402,7 @@ export default {
       },
 
       payTypeList, // 支付方式
-      terminalType: '',
+      terminalType: "",
       // 是否收银系统
       isMoneyClient: false,
       // 是否是点单系统
@@ -455,7 +411,6 @@ export default {
     };
   },
   methods: {
-  
     footNavBarClick(item) {
       if (this.$route.name === item.routeName) return; // 重复点击同一个tab
       item.id === 1
@@ -463,17 +418,20 @@ export default {
           ? this.$router.replace({ name: "moneyCard" })
           : this.$router.replace({ name: "orderCard" })
         : this.$router.replace(
-          {
-            name: item.routeName,
-            query: {
-              give: this.$route.query.give,
-              mustOrderPrdId: item.mustOrderPrdId  + item.mustOrderPrdId2  && (',' + item.mustOrderPrdId2) + item.mustOrderPrdId3 && (',' + item.mustOrderPrdId3),
+            {
+              name: item.routeName,
+              query: {
+                give: this.$route.query.give,
+                mustOrderPrdId:
+                  item.mustOrderPrdId +
+                  (item.mustOrderPrdId2 && "," + item.mustOrderPrdId2) +
+                  (item.mustOrderPrdId3 && "," + item.mustOrderPrdId3),
+              },
             },
-          },
-          () => {
-            this.activeRouteName = this.navList[item.id - 1].routeName;
-          }
-        );
+            () => {
+              this.activeRouteName = this.navList[item.id - 1].routeName;
+            }
+          );
     },
 
     getAuthInfo() {
@@ -489,24 +447,21 @@ export default {
 
     // 跳转到会员充值页面
     goToVipRecharge() {
-      // 判断当前所在页面，确定来源路由
-      let sourceRoute = '';
-      if (this.$route.name === 'payOrder') {
-        sourceRoute = 'payOrder';  // 来自结账页面
-      } else if (this.$route.name === 'orderCard') {
-        sourceRoute = 'orderCard'; // 来自点单页面
-      } else if (this.$route.name === 'moneyCard') {
-        sourceRoute = 'moneyCard'; // 来自收银首页
+      let sourceRoute = "";
+      if (this.$route.name === "payOrder") {
+        sourceRoute = "payOrder";
+      } else if (this.$route.name === "orderCard") {
+        sourceRoute = "orderCard";
+      } else if (this.$route.name === "moneyCard") {
+        sourceRoute = "moneyCard";
       }
-      
-      console.log("🎯 [充值跳转] 从", sourceRoute, "跳转到充值页面");
-      
-      this.$router.push({ 
-        name: 'vipManager',
-        query: { 
-          openRecharge: 'true',
-          sourceRoute: sourceRoute
-        }
+
+      this.$router.push({
+        name: "vipManager",
+        query: {
+          openRecharge: "true",
+          sourceRoute,
+        },
       });
     },
 
@@ -520,7 +475,7 @@ export default {
         .then(async () => {
           try {
             const res = await api_money.reqClearCard({
-              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+              seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
             });
             if (res.code === 1) {
               this.$message.success("清台成功");
@@ -532,7 +487,7 @@ export default {
             console.log("清台失败", error);
           }
         })
-        .catch((e) => "");
+        .catch(() => "");
     },
 
     terminal() {
@@ -544,12 +499,12 @@ export default {
       }
       return termType;
     },
+
     init() {
-      this.isMoneyClient = sessionStorage.getItem("client") == "money"
-      this.terminalType = this.terminal()
+      this.isMoneyClient = sessionStorage.getItem("client") == "money";
+      this.terminalType = this.terminal();
       this.activeRouteName = this.$route.name;
       if (this.$store.state.userInfo.authStatus == 4) {
-        // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
         eventVue.$off("changeTurnOverCountHandle");
         eventVue.$on("changeTurnOverCountHandle", (amtInfoList = []) => {
           let orderAmt = 0;
@@ -559,15 +514,10 @@ export default {
           let payed_zy_val_amt = 0;
 
           amtInfoList.forEach((el) => {
-            // 折前金额
             orderAmt += el.amts.o * 1;
-            // 折后金额
             payed_val_amt += el.amts.pv * 1;
-            // 主营点单金额
             order_zy_amt += el.amts.pzv * 1;
-            // 已收金额
             payedAmt += el.amts.p * 1;
-            // 主营实收
             payed_zy_val_amt += el.amts.pzv * 1;
           });
 
@@ -581,7 +531,6 @@ export default {
           };
         });
 
-        // 查看当台记录，更新页面底部的五个金额
         eventVue.$off("changeTurnOverCountNotPayHandle");
         eventVue.$on("changeTurnOverCountNotPayHandle", () => {
           this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
@@ -593,7 +542,7 @@ export default {
       this.$store.dispatch("getShoppingCount", this);
       this.navList =
         this.$store.state.userInfo.authStatus == 4 &&
-          !this.$route.path.startsWith("/orderMeal")
+        !this.$route.path.startsWith("/orderMeal")
           ? payNavList
           : orderNavList;
       if (
@@ -604,18 +553,18 @@ export default {
         this.navList = this.$route.query.give
           ? [this.navList[0], this.navList[1]]
           : [
-            this.navList[0],
-            this.navList[1],
-            this.navList[2],
-            this.navList[3],
-          ];
+              this.navList[0],
+              this.navList[1],
+              this.navList[2],
+              this.navList[3],
+            ];
       } else {
         this.navList[0]["name"] = "返回首页";
       }
 
-      // 是否为收银系统查看翻台记录
-      if (this.$store.state.orderInfo.currentCardInfo.bizStatus != 1)
-        this.getOrderedData(); // 通过后台获取当前当前账号是否有查单权限
+      if (this.$store.state.orderInfo.currentCardInfo.bizStatus != 1) {
+        this.getOrderedData();
+      }
     },
 
     // 服务员买单
@@ -637,7 +586,6 @@ export default {
         const that = this;
         this.payType = "";
         this.showChoosePayType = true;
-        // 加载待支付金额
         this.loadPayAmount();
         function scan_callback(value) {
           try {
@@ -649,7 +597,6 @@ export default {
               that.qrResult = null;
               that.$message.warning("扫码取消");
               that.orderInfoDetail.r = 2;
-              // that.showOrHideQRDrawerHandle();
             }
           } catch (error) {
             console.log("扫码失败：", error);
@@ -663,31 +610,32 @@ export default {
 
     // 开始扫码
     startScan() {
-      console.log("startScan");
       if (window.atool && "startScan" in window.atool) {
         window.atool.startScan("scan_callback");
-        // scan_callback({ code: 0, data: "284058227514617549" });
       } else {
         this.scanStart = true;
       }
     },
+
     onCancelScan() {
       this.scanStart = false;
       this.qrResult = null;
       this.scanCode = "";
     },
+
     onSubmitScan() {
       this.scanStart = false;
       scan_callback({ code: this.scanCode ? 0 : 1, data: this.scanCode });
       this.scanCode = "";
       this.qrResult = null;
     },
+
     changeCode(value) {
       switch (value) {
-        case 10: // 清空
+        case 10:
           this.scanCode = "";
           break;
-        case 12: // 回退
+        case 12:
           this.scanCode = this.scanCode
             .toString()
             .slice(0, this.scanCode.toString().length - 1);
@@ -697,12 +645,12 @@ export default {
           break;
       }
     },
+
     // 获取去买单数据
     async getPayQRCode(force = 2) {
       if (!this.payType) return this.$message.warning("请选择支付方式");
 
       this.showChoosePayType = false;
-      // 5:扫客人-支付宝 6:扫客人-微信   扫码结果为空 调用客户端扫码
       if ([5, 6].includes(this.payType)) {
         if (
           window.atool.getTermType() == "android" &&
@@ -713,19 +661,20 @@ export default {
         }
         if (force == 2) {
           const params = {
-            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
-            order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
+            seat_id:
+              this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+            order_ids: this.selectedOrderIdList.map((item) => item * 1),
           };
-          // const res = await api_order.reqCheckPayOrder(params);
-          // if (res.code == 2) {
+          const res = await api_order.reqCheckPayOrder(params);
+          if (res.code == 2) {
             const result = await this.showConfirmHandle("买单", res.msg);
-          //   if (result != "confirm") {
-          //     return;
-          //   }
-          // } else if (res.code != 1) {
-          //   this.$message.warning(res.msg);
-          //   return;
-          // }
+            if (result != "confirm") {
+              return;
+            }
+          } else if (res.code != 1) {
+            this.$message.warning(res.msg);
+            return;
+          }
         }
         if (this.qrResult == null) {
           try {
@@ -738,11 +687,10 @@ export default {
         }
       }
       const params = {
-        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64      //SeatId 卡台Id
-        // force: force, //  int   1：强制操作  2：不强制操作, 如果卡台有未结账的线上订单,会返回code=2的特殊错误,用以提示服务员  3:获取未付款订单信息
-        pay_type: this.payType * 1, //   int   买单方式: 1 支付宝扫码 2 微信扫码 3 会员微信自助  5:扫客人-支付宝 6:扫客人-微信
-        order_ids: this.selectedOrderIdList.map((item) => item * 1), //  []int64   要买单的订单Id列表
-        auth_code: this.qrResult ? this.qrResult.toString() : "", //  string   扫码结果
+        seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+        pay_type: this.payType * 1,
+        order_ids: this.selectedOrderIdList.map((item) => item * 1),
+        auth_code: this.qrResult ? this.qrResult.toString() : "",
       };
 
       try {
@@ -758,8 +706,7 @@ export default {
             this.subSecondLogoutHandle();
             return;
           }
-          
-          // 确保支付方式选择弹窗完全关闭后再显示二维码弹窗
+
           this.showChoosePayType = false;
           this.$nextTick(() => {
             setTimeout(() => {
@@ -772,7 +719,6 @@ export default {
             this.getPayQRCode(1);
           }
         } else if (res.code == 3) {
-          // 已经发起过生成二维码，当前订单正在处于付款状态
           this.getPayQRCode(3);
         } else {
           this.$message.warning(res.msg);
@@ -790,7 +736,7 @@ export default {
     subSecondLogoutHandle() {
       this.showNumSubTips = true;
       if (this.$route.name == "shoppingCart") {
-        for (var i = 0; i < this.$parent.$children.length; i++) {
+        for (let i = 0; i < this.$parent.$children.length; i++) {
           if (this.$parent.$children[i].$el.className == "shopping-cart") {
             this.$parent.$children[i].getShoppingCartData();
           }
@@ -815,10 +761,8 @@ export default {
 
     async logOutHandle() {
       try {
-        console.log('log out')
         const res = await api_auth.auth.requestauthlogout();
         if (res.code === 1) {
-          // this.$store.commit("updateResResultDataObj", "");
           this.$store.commit("updateUserInfo", "");
           this.$router.replace({
             name: "Thelogin",
@@ -840,7 +784,7 @@ export default {
     async getOrderedData() {
       try {
         const params = {
-          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
         };
         const res = await api_order.reqCanLookMyOrderData(params);
         if (res.code === 1) {
@@ -862,16 +806,15 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
       })
-        .then((res) => {
-          return res;
-        })
-        .catch((e) => "");
+        .then((res) => res)
+        .catch(() => "");
     },
 
     // 获取员工信息
     empInfoFilter(empId) {
       empId = this.$route.path.startsWith("/payOrder") ? this.empId : empId;
-      const empInfo = common_book.getOrderPersonInfo(empId) || { name: "散客" };
+      const empInfo =
+        common_book.getOrderPersonInfo(empId) || { name: "散客" };
       const groupInfoName = common_book.getDepartmentName(empId) || "";
       return (groupInfoName ? groupInfoName + "/" : "") + empInfo.name;
     },
@@ -884,9 +827,12 @@ export default {
           id: seatId,
         });
         if (res.code === 1 && res.data) {
-          // 计算待支付金额 = 应收金额 - 已收金额
-          const receivable = parseFloat(res.data.receivable || res.data.all_amt || 0) / 100;
-          const collected = parseFloat(res.data.collected || res.data.choose_amt || 0) / 100;
+          const receivable =
+            parseFloat(res.data.receivable || res.data.all_amt || 0) /
+            100;
+          const collected =
+            parseFloat(res.data.collected || res.data.choose_amt || 0) /
+            100;
           this.payAmount = Math.max(0, receivable - collected);
         }
       } catch (error) {
@@ -897,23 +843,20 @@ export default {
     // 处理会员绑定成功
     handleMemberBound(memberInfo) {
       console.log("会员绑定成功:", memberInfo);
-      // 重新加载待支付金额（因为会员价可能变化）
       this.loadPayAmount();
-      // 通知需要重新计算价格
       eventVue.$emit("reloadBusinessData");
     },
   },
   mounted() {
     this.init();
-    // 初始化 safeModeEnabled
-    let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
-    this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
+    const safeMode =
+      this.$store.state.cardPageInfo.resResultDataObj.safeMode || [];
+    this.safeModeEnabled = safeMode.some(
+      (item) => item.id * 1 === 1 && item.param1 * 1 === 1
+    );
 
-    // 添加事件监听
     eventVue.$on("safeModeChanged", (e) => {
-      console.log('safeModeChanged', e)
-      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1
-      console.log('safeModeEnabled coming here', this.safeModeEnabled)
+      this.safeModeEnabled = e[0][0] * 1 === 1 && e[0][1] * 1 === 1;
     });
   },
   props: {
@@ -925,29 +868,29 @@ export default {
     isShowPayBtn() {
       let isHaveAuth = false;
       if (this.$store.state.userInfo.authStatus != 4) {
-        // 服务员 特饮 督查
-        if (this.$store.state.userInfo.roleIds.includes(2) || this.$store.state.userInfo.roleIds.includes(4) || this.$store.state.userInfo.roleIds.includes(11)) {
-          isHaveAuth = true
+        if (
+          this.$store.state.userInfo.roleIds.includes(2) ||
+          this.$store.state.userInfo.roleIds.includes(4) ||
+          this.$store.state.userInfo.roleIds.includes(11)
+        ) {
+          isHaveAuth = true;
         }
       }
-//      if (this.$store.state.userInfo.authStatus == 4 &&
-//        this.terminalType == 'android') {
-//        isHaveAuth = true
-//      }
       return isHaveAuth;
     },
     authTips() {
-      return this.$route.path.startsWith("/orderMeal") ? "点单人" : "收银员";
+      return this.$route.path.startsWith("/orderMeal")
+        ? "点单人"
+        : "收银员";
     },
     openTime() {
-      let time = this.cardInfo.openTime || '';
-      // 20231004223952 转换时间格式
+      let time = this.cardInfo.openTime || "";
       if (time.length == 14) {
-        time = time.slice(8, 10) + ':' + time.slice(10, 12)
+        time = time.slice(8, 10) + ":" + time.slice(10, 12);
       } else {
-        time = ''
+        time = "";
       }
-      return time
+      return time;
     },
     // 当前卡台ID
     currentSeatId() {
@@ -963,7 +906,6 @@ export default {
     memberBinding: () => import("@/components/common/memberBinding.vue"),
   },
   beforeDestroy() {
-    // 移除事件监听
     eventVue.$off("safeModeChanged");
     clearInterval(this.timer);
   },

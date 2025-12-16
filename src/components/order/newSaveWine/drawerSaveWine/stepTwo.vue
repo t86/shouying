@@ -100,6 +100,16 @@
             </div>
           </div>
         </div>
+        <!-- 备注字段 -->
+        <div class="remark-section">
+          <div class="remark-label">备注:</div>
+          <input 
+            class="remark-input" 
+            v-model="remark" 
+            placeholder="请输入备注"
+            maxlength="200"
+          />
+        </div>
       </div>
       <drawerChooseWineInfo v-model="showChooseWineParamsOfNotAuthDrawer" :checkedOrderInfo="checkedOrderInfo"
         :currentWineInfo="currentWineInfo" :maxCount="currentWineCanAddShoppingCartMaxCount"
@@ -144,6 +154,7 @@ export default {
       currentWineInfo: {}, // 当前流水添加购物车酒水信息
 
       showChooseWineParamsOfAuthDrawer: false, // 授权存酒
+      remark: "", // 备注
     };
   },
   methods: {
@@ -166,6 +177,7 @@ export default {
       console.log('取消操作');
     },
     async init() {
+      this.remark = ""; // 重置备注
       await this.getOrderCanSaveWine();
       await this.getShoppingCartWineList();
     },
@@ -374,6 +386,7 @@ export default {
         cust_name: this.tabIndex == 3 ? "-" : this.customName || "", //  string   客人姓名
         remark_cust_phone: this.tabIndex == 3 ? this.customPhoneNum : "", // string   备注客户手机号, 当酒水存到客服中心的时候
         remark_cust_name: this.tabIndex == 3 ? this.customPhoneName : "-", // string   备注客户姓名, 当酒水存到客服中心的时候
+        remark: this.remark || "", // string   备注
       };
       try {
         const res = await api_saveWine.reqCreateSaveWineOrder(params);
@@ -540,9 +553,11 @@ export default {
     .right {
       width: 64%;
       height: 100%;
-      overflow: auto;
+      overflow: visible;
       padding-left: 10px;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
 
       .title {
         font-size: 24px;
@@ -551,10 +566,25 @@ export default {
         color: #1A1A21;
       }
 
+      .table-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
+
       .table {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+
         .tbody {
-          height: calc(100vh - 270px);
+          flex: 1;
           overflow: auto;
+          min-height: 0;
         }
 
         .th,
@@ -591,6 +621,91 @@ export default {
               width: 32px;
               cursor: pointer;
             }
+          }
+        }
+      }
+
+      .remark-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        .remark-label {
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
+          margin-right: 10px;
+          white-space: nowrap;
+        }
+
+        .remark-input {
+          flex: 1;
+          height: 38px;
+          background: #FAFAFC;
+          border-radius: 6px;
+          border: 1px solid #C4CBD7;
+          padding: 0 12px;
+          box-sizing: border-box;
+          font-size: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 400;
+          color: #08080A;
+
+          &::placeholder {
+            color: #7A7A7A;
+          }
+
+          &:focus {
+            outline: none;
+            border: 2px solid #3373E8;
+          }
+        }
+      }
+    }
+  }
+
+  // 竖屏适配
+  @media (orientation: portrait) {
+    .save-list {
+      .right {
+        .remark-section {
+          margin-top: 12px;
+          padding-top: 12px;
+
+          .remark-label {
+            font-size: 18px;
+          }
+
+          .remark-input {
+            height: 36px;
+            font-size: 18px;
+            padding: 0 10px;
+          }
+        }
+      }
+    }
+  }
+
+  // 小屏幕适配
+  @media (max-width: 900px) {
+    .save-list {
+      .right {
+        .remark-section {
+          margin-top: 10px;
+          padding-top: 10px;
+
+          .remark-label {
+            font-size: 16px;
+            margin-right: 8px;
+          }
+
+          .remark-input {
+            height: 36px;
+            font-size: 16px;
+            padding: 0 10px;
           }
         }
       }

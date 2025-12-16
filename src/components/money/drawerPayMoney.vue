@@ -1666,10 +1666,13 @@ export default {
       // 关闭选择支付方式弹窗
       this.showOnlineBuyOrder = false;
       
-      // 检查是否是扫客人支付且已经支付成功
-      if ([5, 6].includes(payType) && orderInfo.r === 1) {
+      // 检查是否是扫客人支付且已经支付成功（兼容 status=5）
+      if (
+        [5, 6].includes(payType) &&
+        (orderInfo.r === 1 || orderInfo.status === 5)
+      ) {
         // 扫客人支付成功，直接处理支付成功逻辑，不显示二维码弹窗
-        console.log("扫客人支付已成功，直接处理支付成功逻辑");
+        console.log("扫客人支付已成功，直接处理支付成功逻辑（含status=5）");
         this.$message.success("支付成功");
         this.handleOnlinePaySuccess();
         return;

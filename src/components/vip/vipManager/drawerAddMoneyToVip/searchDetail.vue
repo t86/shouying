@@ -144,7 +144,7 @@
         <div class="label m-t-2">
           <span>充卡推荐人:</span>
         </div>
-        <div class="value">
+        <div class="value" layout="row" layout-align="start center">
           <el-select
             style="width: 284px"
             v-model="form.personVal"
@@ -163,6 +163,15 @@
               :value="item.id"
             ></el-option>
           </el-select>
+          <el-button
+            class="m-l-2"
+            size="small"
+            type="text"
+            @click="clearRecommender"
+            v-if="form.personVal"
+          >
+            清除
+          </el-button>
         </div>
       </div>
       <div class="row">
@@ -286,6 +295,11 @@ export default {
       } catch (error) {
         console.log("获取充值前会员卡信息失败", error);
       }
+    },
+    
+    // 清除本次充值的推荐人
+    clearRecommender() {
+      this.form.personVal = "";
     },
 
     // 按照五层规则设置推荐人

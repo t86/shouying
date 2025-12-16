@@ -474,53 +474,34 @@ let resResultDataObj = {}; // 元数据（后台接口返回处理后的初始�
 let cardListInfoArr = []; // 卡台总数据
 
 
-const payTypeList =
-  window.atool &&
-    ("startScan" in window.atool || window.atool.getTermType() == "android")
-    ? [
-      {
-        id: 6,
-        icon: weixin_saokeren,
-        name: "扫客人-微信",
-      },
-      {
-        id: 5,
-        icon: zhifubaozhifu_saokeren,
-        name: "扫客人-支付宝",
-      },
-      {
-        id: 2,
-        icon: weixin_kerensaowo,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        icon: zhifubao_kerensaowo,
-        name: "客人扫我-支付宝",
-      },
-      {
-        id: 3,
-        icon: weixinxiaochengxu,
-        name: "微信小程序自助",
-      },
-    ]
-    : [
-      {
-        id: 2,
-        icon: weixin_kerensaowo,
-        name: "客人扫我-微信",
-      },
-      {
-        id: 1,
-        icon: zhifubao_kerensaowo,
-        name: "客人扫我-支付宝",
-      },
-      {
-        id: 3,
-        icon: weixinxiaochengxu,
-        name: "微信小程序自助",
-      },
-    ];
+// 支付方式列表：始终包含"扫客人"选项（支持手动输入，不依赖扫码枪）
+const payTypeList = [
+  {
+    id: 6,
+    icon: weixin_saokeren,
+    name: "扫客人-微信",
+  },
+  {
+    id: 5,
+    icon: zhifubaozhifu_saokeren,
+    name: "扫客人-支付宝",
+  },
+  {
+    id: 2,
+    icon: weixin_kerensaowo,
+    name: "客人扫我-微信",
+  },
+  {
+    id: 1,
+    icon: zhifubao_kerensaowo,
+    name: "客人扫我-支付宝",
+  },
+  {
+    id: 3,
+    icon: weixinxiaochengxu,
+    name: "微信小程序自助",
+  },
+];
 
 export default {
   data() {
