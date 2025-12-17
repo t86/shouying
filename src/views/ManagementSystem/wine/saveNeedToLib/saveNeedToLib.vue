@@ -34,6 +34,7 @@
             <div class="th">订台人</div>
             <div class="th">服务员</div>
             <div class="th">存酒时间</div>
+            <div class="th">备注</div>
             <div class="th">操作</div>
           </div>
         </div>
@@ -53,6 +54,7 @@
               <div class="td">{{item.e}}</div>
               <div class="td">{{item.w}}</div>
               <div class="td">{{item.t}}</div>
+              <div class="td">{{item.r || '-'}}</div>
               <div class="td">
                 <span @click="showEditDrawerHandle(item)">编辑</span>
               </div>
