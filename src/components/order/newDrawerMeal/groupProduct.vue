@@ -3,39 +3,31 @@
     <div class="group-title" layout="row" layout-align="space-between start">
       <div class="group-title-name">{{ groupInfo.name }}</div>
 
-      <div v-if="vipPrice && productInfo.bizType * 1 === 1 && groupInfo.bizType * 1 === 1">
-        <div v-if="hasVipPriceDirect || hasShouyin" class="group-title-price flex">
-          <span>单价:</span>
-          <span class="value">￥{{ groupInfo.vipPrice }}</span>
+      <div v-if="priceInfo && priceInfo.hasMemberPrice" class="group-title-price-vip">
+        <div>
+          <span>原价:</span>
+          <span class="value ori-price">￥{{ priceInfo.originalPrice }}</span>
         </div>
-        <div v-else-if="bindphone !== ''">
-          <div class="group-title-price">
-            <span>会员单价:</span>
-            <span class="value">￥{{ groupInfo.vipPrice }}</span>
-          </div>
-        </div>
-        <div class="group-title-price" v-else>
-          <span>单价:</span>
-          <span class="value">￥{{ singleInfo.auth_type === 2 ? (groupInfo.bizType * 1 === 1 ? groupInfo.vipPrice :
-            groupInfo.price) : groupInfo.price}}</span>
+        <div>
+          <span>会员价:</span>
+          <span class="value vip-price">￥{{ priceInfo.memberPrice }}</span>
         </div>
       </div>
-
-      <div class="group-title-price" v-else>
+      <!-- 当 priceInfo 没有会员价但商品有 mbPrice 时，使用 fallback 显示 -->
+      <div v-else-if="hasMemberPriceFallback" class="group-title-price-vip">
+        <div>
+          <span>原价:</span>
+          <span class="value ori-price">￥{{ productInfo.price }}</span>
+        </div>
+        <div>
+          <span>会员价:</span>
+          <span class="value vip-price">￥{{ productInfo.mbPrice || productInfo.mb_price }}</span>
+        </div>
+      </div>
+      <div v-else class="group-title-price">
         <span>单价:</span>
-        <span class="value">￥{{ singleInfo.auth_type === 2 ? (groupInfo.bizType * 1 === 1 ? groupInfo.vipPrice :
-          groupInfo.price) : groupInfo.price}}</span>
+        <span class="value">￥{{ calculatedPrice }}</span>
       </div>
-
-      <!-- <div class="group-title-price" v-if="vipPrice && bindphone !== '' && productInfo.bizType * 1 === 1 ">
-        <span>会员单价:</span>
-        <span class="value">￥{{groupInfo.vipPrice}}</span>
-      </div>
-
-      <div class="group-title-price" v-else>
-        <span>单价:</span>
-        <span class="value">￥{{singleInfo.auth_type === 2? (groupInfo.bizType * 1 === 1? groupInfo.vipPrice: groupInfo.price): groupInfo.price}}</span>
-      </div> -->
 
       <div class="group-title-count">
         <span>点单数量:</span>
@@ -129,6 +121,7 @@
 <script>
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
+import { getProductPrice, getProductPriceInfo } from '@/utils/priceCalculator';
 
 import add from "@/assets/order-img/new_order_add.png";
 import sub from "@/assets/order-img/new-meal-sub.png";
@@ -145,6 +138,8 @@ export default {
       vipPricePercent: 0,
       bindphone: '',
       isSubmitting: false,
+      calculatedPrice: 0, // 使用 getProductPrice 计算出的实际价格
+      priceInfo: null, // 完整的价格信息 { originalPrice, memberPrice, hasMemberPrice, displayPrice }
       groupInfo: {}, // 当前选择的套餐信息
       groupDetailArr: [], // 当前套餐中的商品明细
       groupCanSelectArr: [], // 可选的商品明细列表
@@ -175,7 +170,7 @@ export default {
     init() {
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || []
       let currentBusiness = businessData.find(ite => ite.seatId * 1 == this.$store.state.orderInfo.currentCardInfo.seatId * 1)
-      this.bindphone = currentBusiness.csm_cust_phone
+      this.bindphone = currentBusiness && currentBusiness.csm_cust_phone || ''
 
       const showAmt = this.$store.state.cardPageInfo.resResultDataObj.showAmt || []
       if (showAmt.length > 0) {
@@ -194,14 +189,50 @@ export default {
       groupInfo.count = this.singleInfo.prd_cnt;
       console.log(this.vipPrice, this.bindphone, this.productInfo.bizType)
 
-      // 计算小计金额
-      let unitPrice = groupInfo.price || 0;
-      if (this.vipPrice && this.productInfo.bizType * 1 === 1) {
-        if (this.hasVipPriceDirect || this.hasShouyin || this.bindphone !== '') {
-          unitPrice = groupInfo.vipPrice || unitPrice;
+      // 使用统一的价格计算函数（与商品列表保持一致）
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      
+      // 获取完整价格信息（包含原价、会员价、是否有会员价、显示价格）
+      this.priceInfo = getProductPriceInfo(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      
+      // 优先使用价格工具返回的显示价格；若包含会员价则直接用会员价；否则再回落到 mbPrice 字段
+      const mbPrice = this.productInfo.mbPrice || this.productInfo.mb_price;
+      const origPrice = this.productInfo.price;
+      const priceFromTool = this.priceInfo && this.priceInfo.displayPrice ? parseFloat(this.priceInfo.displayPrice) : NaN;
+      let unitPrice = isNaN(priceFromTool) ? getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList) : priceFromTool;
+      
+      // 如果 priceInfo 提供了会员价，直接使用
+      if (this.priceInfo && this.priceInfo.hasMemberPrice && parseFloat(this.priceInfo.memberPrice) > 0) {
+        unitPrice = this.priceInfo.memberPrice;
+      } else if (mbPrice && parseFloat(mbPrice) > 0 && parseFloat(mbPrice) < parseFloat(origPrice)) {
+        // Fallback：商品有 mbPrice 且小于原价时，一旦识别为会员卡台就使用 mbPrice
+        if (this.bindphone || (currentBusiness && currentBusiness.csm_cust_phone)) {
+          unitPrice = mbPrice;
         }
       }
-      groupInfo.allAmt = (unitPrice * this.singleInfo.prd_cnt).toFixed(2);
+      
+      this.calculatedPrice = parseFloat(unitPrice) || groupInfo.price || 0;
+      
+      console.log('=== 套餐价格计算详情 ===');
+      console.log('productInfo:', JSON.stringify(this.productInfo, null, 2));
+      console.log('价格字段:', {
+        price: groupInfo.price,
+        mbPrice: groupInfo.mbPrice,
+        mb_price: groupInfo.mb_price,
+        vipPrice: groupInfo.vipPrice
+      });
+      console.log('业务数据:', {
+        businessData_length: businessData.length,
+        currentBusiness: currentBusiness,
+        csm_cust_phone: currentBusiness && currentBusiness.csm_cust_phone,
+        cardInfo_seatId: cardInfo && cardInfo.seatId
+      });
+      console.log('priceInfo 结果:', this.priceInfo);
+      console.log('calculatedPrice:', this.calculatedPrice);
+
+      // 计算小计金额
+      groupInfo.allAmt = (this.calculatedPrice * this.singleInfo.prd_cnt).toFixed(2);
 
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
@@ -380,16 +411,8 @@ export default {
       }
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
-      // 计算套餐价格
-      let prdPrice = this.groupInfo.price || 0;
-      if (this.vipPrice && this.groupInfo.bizType * 1 === 1) {
-        if (this.hasVipPriceDirect || this.bindphone || this.hasShouyin) {
-          prdPrice = this.groupInfo.vipPrice || prdPrice;
-        }
-      }
-      if (this.singleInfo.auth_type === 2 && this.groupInfo.bizType * 1 === 1 && this.vipPrice) {
-        prdPrice = this.groupInfo.vipPrice || prdPrice;
-      }
+      // 使用已计算的价格
+      const prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
       
       let params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
@@ -643,6 +666,14 @@ export default {
       let has = this.$store.state.userInfo.roleIds && this.$store.state.userInfo.roleIds.includes(5)
       console.log('hasShouyin:', has)
       return has
+    },
+    // 当 priceInfo 没有会员价但商品有 mbPrice 字段时，使用 fallback 逻辑
+    hasMemberPriceFallback() {
+      if (this.priceInfo && this.priceInfo.hasMemberPrice) return false;
+      const mbPrice = this.productInfo && (this.productInfo.mbPrice || this.productInfo.mb_price);
+      const price = this.productInfo && this.productInfo.price;
+      // 有会员价且会员价小于原价时显示
+      return mbPrice && price && parseFloat(mbPrice) > 0 && parseFloat(mbPrice) < parseFloat(price);
     },
   },
   components: {

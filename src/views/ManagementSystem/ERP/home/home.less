@@ -58,12 +58,12 @@
           .th,
           .td {
             font-size: 14px;
-            width: 20%;
+            width: 12%;
           }
 
           .th:nth-child(1),
           .td:nth-child(1) {
-            width: 10%;
+            width: 8%;
           }
 
           .th:nth-last-child(1),
@@ -79,6 +79,22 @@
               color:#fff;
             }
           }
+        }
+      }
+    }
+  }
+}
+
+@media (orientation: portrait) {
+  .home {
+    padding: 15px 10px;
+  }
+
+  .home .session {
+    .session-item {
+      &-contain {
+        .table {
+          width: 95% !important;
         }
       }
     }

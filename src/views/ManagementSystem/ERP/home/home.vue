@@ -17,6 +17,7 @@
                     <div class="th">物料二级分类</div>
                     <div class="th">物料分类</div>
                     <div class="th">当前库存</div>
+                    <div class="th">卡住库存数</div>
                   </div>
                 </div>
                 <div class="tbody">
@@ -34,6 +35,7 @@
                     <div class="td">{{items.tn}}</div>
                     <div class="td">{{items.un}}</div>
                     <div class="td">{{items.c}}</div>
+                    <div class="td">{{items.b}}</div>
                   </div>
                 </div>
               </div>  

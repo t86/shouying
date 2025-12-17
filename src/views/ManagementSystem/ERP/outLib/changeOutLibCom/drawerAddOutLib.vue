@@ -314,16 +314,21 @@ export default {
       this.form.inLibVal = this.paramsPrdList.id && this.isFirstLoadAdd ? this.paramsPrdList.id : ''
       this.form.outLibVal = ''
       this.form.remark = ''
-      this.tableData = this.paramsPrdList.id && this.isFirstLoadAdd ? (this.paramsPrdList.ms || []).map(item => ({
-        id: item.id, // id
-        name: item.mn, // 名字
-        oneCate: item.on, // 一级分类
-        twoCate: item.tn, // 二级分类
-        unit: item.un, // 单位名字
-        maxCount: item.c, // 库存数量
-        count: Math.abs(item.c), // 数量
-        isParamsPrd: true // 是否为首页跳转过来新建出库单
-      })) : []
+      this.tableData = this.paramsPrdList.id && this.isFirstLoadAdd ? (this.paramsPrdList.ms || []).map(item => {
+        const realCnt = Math.abs(item.c || 0)
+        const blockCnt = Math.abs(item.b || 0)
+        const defaultCount = Math.max(realCnt, blockCnt)
+        return {
+          id: item.id, // id
+          name: item.mn, // 名字
+          oneCate: item.on, // 一级分类
+          twoCate: item.tn, // 二级分类
+          unit: item.un, // 单位名字
+          maxCount: item.c, // 库存数量
+          count: defaultCount, // 数量
+          isParamsPrd: true // 是否为首页跳转过来新建出库单
+        }
+      }) : []
 
       // 此处用于从首页进入后创建出库单（获取商品明细中的可出库总数量和总金额）
       if(this.isFirstLoadAdd && this.tableData.length > 0) {

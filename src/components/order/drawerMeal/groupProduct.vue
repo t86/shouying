@@ -3,8 +3,8 @@
     <div class="group-title" layout="row" layout-align="space-between start">
       <div class="group-title-name">{{groupInfo.name}}</div>
       <div class="group-title-price">
-        <span>单价:</span>
-        <span class="value">￥{{groupInfo.price}}</span>
+        <span>{{ bindphone !== '' ? '会员单价:' : '单价:' }}</span>
+        <span class="value">￥{{ calculatedPrice }}</span>
       </div>
       <div class="group-title-count">
         <span>点单数量:</span>
@@ -134,6 +134,7 @@
 <script>
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
+import { getProductPrice } from '@/utils/priceCalculator';
 
 import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
@@ -145,6 +146,8 @@ import drawerBj from "@/components/order/drawerMeal/drawerBj/index.vue";
 export default {
   data() {
     return {
+      calculatedPrice: 0, // 使用 getProductPrice 计算出的实际价格
+      bindphone: '', // 会员手机号
       groupInfo: {}, // 当前选择的套餐信息
       groupDetailArr: [], // 当前套餐中的商品明细
       groupCanSelectArr: [], // 可选的商品明细列表
@@ -174,7 +177,28 @@ export default {
     init() {
       const groupInfo = JSON.parse(JSON.stringify(this.productInfo));
       groupInfo.count = this.singleInfo.prd_cnt;
-      groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+      
+      // 使用统一的价格计算函数
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      this.bindphone = currentBusiness && currentBusiness.csm_cust_phone || '';
+      
+      let unitPrice = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      
+      // Fallback: 如果商品有会员价且当前是会员卡台，则使用会员价
+      const mbPrice = this.productInfo.mbPrice || this.productInfo.mb_price;
+      const origPrice = this.productInfo.price;
+      if (mbPrice && parseFloat(mbPrice) > 0 && parseFloat(mbPrice) < parseFloat(origPrice)) {
+        if (this.bindphone || currentBusiness && currentBusiness.csm_cust_phone) {
+          unitPrice = mbPrice;
+        }
+      }
+      
+      this.calculatedPrice = parseFloat(unitPrice) || groupInfo.price || 0;
+      
+      groupInfo.allAmt = (this.calculatedPrice * this.singleInfo.prd_cnt).toFixed(2);
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
       if (this.isUpdate) {
@@ -308,8 +332,8 @@ export default {
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
 
-      // 计算套餐价格，确保价格不为空
-      const prdPrice = this.groupInfo.price || 0;
+      // 使用已计算的价格
+      const prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
 
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id

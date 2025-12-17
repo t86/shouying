@@ -43,6 +43,43 @@
       }
     }
 
+    // 会员价格显示
+    &-price-vip {
+      width: 25%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      > div {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      span {
+        white-space: nowrap;
+        font-size: 16px;
+        font-family: PingFangSC, PingFang SC;
+        color: #08080A;
+
+        &.value {
+          font-weight: 500;
+        }
+
+        &.ori-price {
+          color: #999;
+          text-decoration: line-through;
+          font-size: 18px;
+        }
+
+        &.vip-price {
+          color: #E63122;
+          font-size: 24px;
+          font-weight: 600;
+        }
+      }
+    }
+
     &-count {
       // color: #fff;
     }
