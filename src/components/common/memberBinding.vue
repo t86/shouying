@@ -51,6 +51,15 @@
         >
           搜索
         </el-button>
+        <el-button
+          type="danger"
+          size="small"
+          class="cancel-bind-btn"
+          @click="cancelBinding"
+          :disabled="!selectedMemberInfo"
+        >
+          取消绑定
+        </el-button>
       </div>
       <!-- 错误提示 -->
       <div class="error-message" v-if="errorMessage">
@@ -367,6 +376,58 @@ export default {
       }
     },
 
+    // 取消绑定
+    async cancelBinding() {
+      if (!this.selectedMemberInfo) {
+        return;
+      }
+
+      try {
+        // 调用API取消绑定
+        const res = await api_order.set_csm_cust({
+          cust_phone: "",
+          seat_id: this.seatId * 1,
+        });
+
+        if (res.code === 1) {
+          this.$message.success("取消绑定成功");
+          // 清空选中会员信息
+          this.selectedMemberInfo = null;
+          this.customPhone = "";
+          this.errorMessage = "";
+          this.allowBlur = false;
+          
+          // 触发元数据刷新（通过事件总线）
+          if (this.$store && this.$store.dispatch) {
+            setTimeout(() => {
+              eventVue.$emit("reloadBusinessData");
+            }, 500);
+          }
+
+          // 通知父组件价格需要重新计算
+          this.$emit("member-bound", {
+            phone: "",
+            name: "",
+          });
+
+          // 取消绑定时重新显示键盘
+          if (this.isOrderMachine || this.isTablet) {
+            this.$nextTick(() => {
+              this.showKeyboard = true;
+              if (this.$refs.phoneInput) {
+                this.$refs.phoneInput.focus();
+              }
+            });
+          }
+        } else {
+          this.$message.warning(res.msg || "取消绑定失败");
+        }
+      } catch (error) {
+        console.error("取消绑定失败:", error);
+        this.$message.error("取消绑定失败");
+      }
+    },
+
     // 手机号输入框获得焦点
     handlePhoneFocus() {
       this.allowBlur = false;
@@ -561,7 +622,8 @@ export default {
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         &:focus { outline: none; box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2); }
       }
-      .search-btn { height: 40px; padding: 0 18px; font-size: 14px; }
+      .search-btn { height: 40px; padding: 0 18px; font-size: 14px; margin-right: 10px; }
+      .cancel-bind-btn { height: 40px; padding: 0 18px; font-size: 14px; }
     }
     .error-message { color: #f56c6c; font-size: 12px; margin-top: 4px; padding: 4px 0; }
     .member-info {
@@ -611,7 +673,8 @@ export default {
       .input-wrapper {
         margin-bottom: 6px;
         .phone-input { height: 38px; font-size: 13px; padding: 0 10px; }
-        .search-btn { height: 38px; padding: 0 15px; font-size: 13px; }
+        .search-btn { height: 38px; padding: 0 15px; font-size: 13px; margin-right: 8px; }
+        .cancel-bind-btn { height: 38px; padding: 0 15px; font-size: 13px; }
       }
       .member-info {
         margin-top: 8px;

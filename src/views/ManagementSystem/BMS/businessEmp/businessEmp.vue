@@ -111,12 +111,13 @@
           <div class="selected-actions">
             <el-cascader
               class="filter-item dept-cascader"
-              v-model="selectedFilter.deptPath"
+              v-model="selectedFilter.deptPaths"
               :options="deptOptions"
               :props="rightDeptProps"
               clearable
-              placeholder="请选择部门"
+              placeholder="请选择部门（可多选）"
               popper-class="business-emp-dept-cascader"
+              collapse-tags
               size="medium"
             />
             <el-input
@@ -219,7 +220,7 @@ export default {
         children: 'subs',
         emitPath: true,
         checkStrictly: true,
-        multiple: false,
+        multiple: true,
       },
       filterForm: {
         deptPaths: [],
@@ -230,7 +231,7 @@ export default {
       availableSelectAll: false,
       availableIndeterminate: false,
       selectedFilter: {
-        deptPath: [],
+        deptPaths: [],
         keyword: '',
       },
       selectedSelectAll: false,
@@ -287,8 +288,11 @@ export default {
       try {
         const params = {
           key: this.selectedFilter.keyword || '',
-          id: this.resolveSelectedDeptId(),
         };
+        const deptIds = this.resolveSelectedFilterDeptIds();
+        if (deptIds.length) {
+          params.ids = deptIds;
+        }
         const res = await this.$api.BMS.businessEmp.reqGetBsSalesList(params);
         if (res.code === 1) {
           const payload = res.data || {};
@@ -314,17 +318,22 @@ export default {
         this.selectedLoading = false;
       }
     },
-    resolveSelectedDeptId() {
-      const path = this.selectedFilter.deptPath || [];
-      if (!Array.isArray(path) || path.length === 0) {
-        return 0;
+    resolveSelectedFilterDeptIds() {
+      const paths = this.selectedFilter.deptPaths;
+      if (!paths || paths.length === 0) {
+        return [];
       }
-      return path[path.length - 1] || 0;
+      if (Array.isArray(paths[0])) {
+        return paths
+          .map((path) => (Array.isArray(path) && path.length ? path[path.length - 1] : ''))
+          .filter((id) => id !== '' && id !== undefined && id !== null);
+      }
+      return [paths[paths.length - 1]].filter((id) => id !== '' && id !== undefined && id !== null);
     },
     async fetchAvailableEmps() {
       this.availableLoading = true;
       const params = {};
-      const deptIds = this.resolveSelectedDeptIds();
+      const deptIds = this.resolveAvailableFilterDeptIds();
       if (deptIds.length) {
         params.ids = deptIds;
       }
@@ -353,7 +362,7 @@ export default {
         this.availableLoading = false;
       }
     },
-    resolveSelectedDeptIds() {
+    resolveAvailableFilterDeptIds() {
       const paths = this.filterForm.deptPaths;
       if (!paths || paths.length === 0) {
         return [];
@@ -393,7 +402,7 @@ export default {
     },
     handleResetSelectedFilters() {
       this.selectedFilter = {
-        deptPath: [],
+        deptPaths: [],
         keyword: '',
       };
       this.selectedSelectAll = false;

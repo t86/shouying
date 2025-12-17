@@ -194,20 +194,14 @@ export default {
       groupInfo.count = this.singleInfo.prd_cnt;
       console.log(this.vipPrice, this.bindphone, this.productInfo.bizType)
 
+      // 计算小计金额
+      let unitPrice = groupInfo.price || 0;
       if (this.vipPrice && this.productInfo.bizType * 1 === 1) {
         if (this.hasVipPriceDirect || this.hasShouyin || this.bindphone !== '') {
-          groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
-        } else {
-          groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
+          unitPrice = groupInfo.vipPrice || unitPrice;
         }
       }
-
-      // if(this.vipPrice && this.bindphone !== '' && this.productInfo.bizType * 1 === 1){
-      //   groupInfo.allAmt = (groupInfo.vipPrice * this.singleInfo.prd_cnt).toFixed(2);
-      //   console.log(' groupInfo.allAmt',  groupInfo.allAmt)
-      // } else {
-      //   groupInfo.allAmt = (groupInfo.price * this.singleInfo.prd_cnt).toFixed(2);
-      // }
+      groupInfo.allAmt = (unitPrice * this.singleInfo.prd_cnt).toFixed(2);
 
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
@@ -386,11 +380,22 @@ export default {
       }
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
+      // 计算套餐价格
+      let prdPrice = this.groupInfo.price || 0;
+      if (this.vipPrice && this.groupInfo.bizType * 1 === 1) {
+        if (this.hasVipPriceDirect || this.bindphone || this.hasShouyin) {
+          prdPrice = this.groupInfo.vipPrice || prdPrice;
+        }
+      }
+      if (this.singleInfo.auth_type === 2 && this.groupInfo.bizType * 1 === 1 && this.vipPrice) {
+        prdPrice = this.groupInfo.vipPrice || prdPrice;
+      }
+      
       let params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         prd_id: this.groupInfo.id * 1, //     int64  商品Id
         prd_cnt: this.groupInfo.count * 1, //    int    商品数量 赔偿类商品只能=1
-        prd_price: Math.round(this.groupInfo.p2 * 100), //  string 商品单价,用于做二次验证
+        prd_price: Math.round(prdPrice * 100), //  string 商品单价,用于做二次验证
         grp_ids: [...canNotSelectInfo.grpId, ...canSelectInfo.grpId], //    []int  套餐组Ids
         dtl_prd_ids: [...canNotSelectInfo.dtlPrdId, ...canSelectInfo.dtlPrdId], // []int  套餐组Id对应的选中明细商品
         dtl_prd_cnts: [...canNotSelectInfo.prdCnt, ...canSelectInfo.prdCnt], // []int  选中明细商品项的商品数, 用于二次验证
@@ -508,14 +513,6 @@ export default {
       }
 
 
-      params.prd_price = Math.round(this.groupInfo.price * 100)
-      console.log('params.prd_price==============', params.prd_price)
-      if (this.vipPrice && this.groupInfo.bizType * 1 === 1) {
-        if (this.hasVipPriceDirect || this.bindphone || this.hasShouyin) {
-          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
-        }
-      }
-
       // 判断是否为补交台
       if (this.$store.state.orderInfo.currentCardInfo.bizType == 3) {
         this.groupParams = { ...params }
@@ -527,9 +524,8 @@ export default {
       try {
         console.log('?'.repeat(50), this.singleInfo)
         params.auth_type = this.singleInfo.auth_type
-        if (params.auth_type === 2 && this.groupInfo.bizType * 1 === 1 && this.vipPrice) {
-          params.prd_price = Math.round(this.groupInfo.vipPrice * 100)
-        }
+        // prd_price 已在上面初始化时正确设置，这里确保最终值正确
+        console.log('params.prd_price==============', params.prd_price)
 
         const res = await api_order.reqAddGroupToShopping(params);
         if (res.code === 1) {

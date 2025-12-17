@@ -33,7 +33,7 @@
           title="营业日已结束，当前仅支持查看记录，无法变更订单绑定会员。"
         />
 
-        <div class="pay-record-table">
+        <div class="pay-record-table" ref="tableContainer">
           <el-table
             class="dark-table"
             :data="payList"
@@ -196,11 +196,13 @@ export default {
       this.visible = val;
       if (val) {
         this.handleReset();
+        this.$nextTick(() => {
+          this.setTableHeight();
+        });
       }
     },
   },
   created() {
-    this.setTableHeight();
     window.addEventListener("resize", this.setTableHeight);
   },
   beforeDestroy() {
@@ -208,14 +210,42 @@ export default {
   },
   methods: {
     setTableHeight() {
-      const viewport =
-        window.innerHeight ||
-        document.documentElement.clientHeight ||
-        768;
-      this.tableHeight = Math.max(
-        320,
-        Math.min(450, Math.round(viewport * 0.45))
-      );
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (!this.visible || !this.$refs.tableContainer) {
+            this.tableHeight = 400;
+            return;
+          }
+          
+          const tableContainer = this.$refs.tableContainer;
+          const containerHeight = tableContainer.clientHeight;
+          
+          // 如果容器高度有效，使用容器高度；否则使用默认值
+          if (containerHeight > 0) {
+            this.tableHeight = containerHeight;
+          } else {
+            // 降级方案：使用视口高度计算
+            const viewport = window.innerHeight || document.documentElement.clientHeight || 768;
+            const drawerBody = document.querySelector('.pay-record-drawer-panel .el-drawer__body');
+            if (drawerBody) {
+              const drawerBodyHeight = drawerBody.clientHeight;
+              const toolbar = document.querySelector('.pay-record-toolbar');
+              const alert = document.querySelector('.pay-record-alert');
+              
+              let usedHeight = 0;
+              if (toolbar) usedHeight += toolbar.offsetHeight;
+              if (alert && alert.offsetParent !== null) {
+                usedHeight += alert.offsetHeight + 4;
+              }
+              usedHeight += 16 + 15 + 24 + 64; // padding + margin + form-btn
+              
+              this.tableHeight = Math.max(300, drawerBodyHeight - usedHeight - 10);
+            } else {
+              this.tableHeight = Math.max(300, Math.round(viewport * 0.6));
+            }
+          }
+        }, 150);
+      });
     },
     indexMethod(index) {
       return index + 1;
