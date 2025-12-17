@@ -89,6 +89,18 @@
           </el-table>
         </div>
 
+        <div class="pay-record-pagination" v-if="pageInfo.total > 0">
+          <el-pagination
+            background
+            small
+            layout="prev, pager, next, total"
+            :current-page="pageInfo.page_num"
+            :page-size="pageInfo.page_size"
+            :total="pageInfo.total"
+            @current-change="handlePageChange"
+          />
+        </div>
+
       </div>
 
       <div class="form-btn" layout="row" layout-align="center center">
@@ -171,6 +183,11 @@ export default {
       query: {
         key: "",
       },
+      pageInfo: {
+        page_num: 1,
+        page_size: 20,
+        total: 0,
+      },
       tableHeight: 400,
       editDialog: {
         visible: false,
@@ -231,11 +248,15 @@ export default {
               const drawerBodyHeight = drawerBody.clientHeight;
               const toolbar = document.querySelector('.pay-record-toolbar');
               const alert = document.querySelector('.pay-record-alert');
+              const pagination = document.querySelector('.pay-record-pagination');
               
               let usedHeight = 0;
               if (toolbar) usedHeight += toolbar.offsetHeight;
               if (alert && alert.offsetParent !== null) {
                 usedHeight += alert.offsetHeight + 4;
+              }
+              if (pagination && pagination.offsetParent !== null) {
+                usedHeight += pagination.offsetHeight + 10;
               }
               usedHeight += 16 + 15 + 24 + 64; // padding + margin + form-btn
               
@@ -248,7 +269,10 @@ export default {
       });
     },
     indexMethod(index) {
-      return index + 1;
+      const offset =
+        (Number(this.pageInfo.page_num || 1) - 1) *
+        Number(this.pageInfo.page_size || 20);
+      return offset + index + 1;
     },
     formatPayTime(row, column, cellValue) {
       return cellValue || "--";
@@ -281,31 +305,47 @@ export default {
       try {
         const params = {
           key: this.query.key || "",
+          page_num: this.pageInfo.page_num || 1,
+          page_size: this.pageInfo.page_size || 20,
         };
         const res = await api_money.reqGetPayRecordList(params);
         if (res.code === 1) {
-          const records = (res.data.records || []).sort(
-            (a, b) => this.parseTime(b.p) - this.parseTime(a.p)
+          const data = res.data || {};
+          this.payList = data.records || [];
+          this.pageInfo.total = Number(data.row_cnt || 0);
+          this.pageInfo.page_num = Number(
+            data.page_num || this.pageInfo.page_num || 1
           );
-          this.payList = records;
+          if (data.page_size) {
+            this.pageInfo.page_size = Number(data.page_size);
+          }
         } else {
           this.payList = [];
+          this.pageInfo.total = 0;
           this.$message.warning(res.msg || "获取支付记录失败");
         }
       } catch (error) {
         console.error("获取支付记录失败", error);
         this.payList = [];
+        this.pageInfo.total = 0;
         this.$message.error("获取支付记录失败");
       } finally {
         this.loading = false;
       }
     },
     handleSearch() {
+      this.pageInfo.page_num = 1;
       this.fetchPayList();
     },
     handleReset() {
       this.query.key = "";
+      this.pageInfo.page_num = 1;
       this.fetchPayList();
+    },
+    handlePageChange(page) {
+      this.pageInfo.page_num = page;
+      this.fetchPayList();
+      this.setTableHeight();
     },
     handleClose(done) {
       this.visible = false;
