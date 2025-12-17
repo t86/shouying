@@ -100,12 +100,12 @@
             </div>
           </div>
         </div>
-        <!-- 备注 -->
+        <!-- 备注字段 -->
         <div class="remark-section">
-          <div class="remark-label">备注:</div>
-          <input
-            class="remark-input"
-            v-model="remark"
+          <span class="remark-label">备注:</span>
+          <input 
+            class="remark-input" 
+            v-model="remark" 
             placeholder="请输入备注"
             maxlength="200"
           />
@@ -553,12 +553,11 @@ export default {
     .right {
       width: 64%;
       height: 100%;
-
-    overflow: hidden;
+      overflow: visible;
       padding-left: 10px;
       box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+      display: flex;
+      flex-direction: column;
 
       .title {
         font-size: 24px;
@@ -567,25 +566,25 @@ export default {
         color: #1A1A21;
       }
 
-    .table-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 0;
-    }
+      .table-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
 
       .table {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
 
         .tbody {
-        flex: 1;
+          flex: 1;
           overflow: auto;
-        min-height: 0;
+          min-height: 0;
         }
 
         .th,
@@ -623,77 +622,44 @@ export default {
               cursor: pointer;
             }
           }
-
-    .remark-section {
-      margin-top: 15px;
-      padding-top: 15px;
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-
-      .remark-label {
-        font-size: 20px;
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 400;
-        color: #08080A;
-        margin-right: 10px;
-        white-space: nowrap;
-      }
-
-      .remark-input {
-        flex: 1;
-        height: 38px;
-        background: #FAFAFC;
-        border-radius: 6px;
-        border: 1px solid #C4CBD7;
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 20px;
-        font-family: PingFangSC, PingFang SC;
-        font-weight: 400;
-        color: #08080A;
-
-        &::placeholder {
-          color: #7A7A7A;
-        }
-
-        &:focus {
-          outline: none;
-          border: 2px solid #3373E8;
         }
       }
 
       .remark-section {
-        margin-top: 15px;
-        padding-top: 15px;
+        margin-top: 12px;
+        padding-top: 12px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
+        height: 44px;
+        box-sizing: border-box;
 
         .remark-label {
-          font-size: 20px;
+          font-size: 22px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 400;
           color: #08080A;
-          margin-right: 10px;
+          margin-right: 12px;
           white-space: nowrap;
+          line-height: 44px;
         }
 
         .remark-input {
           flex: 1;
-          height: 38px;
-          background: #FAFAFC;
+          height: 42px;
+          background: #FFFFFF;
           border-radius: 6px;
           border: 1px solid #C4CBD7;
-          padding: 0 12px;
+          padding: 0 15px;
           box-sizing: border-box;
-          font-size: 20px;
+          font-size: 22px;
           font-family: PingFangSC, PingFang SC;
           font-weight: 400;
           color: #08080A;
+          line-height: 42px;
 
           &::placeholder {
-            color: #7A7A7A;
+            color: #999999;
           }
 
           &:focus {
@@ -710,17 +676,21 @@ export default {
     .save-list {
       .right {
         .remark-section {
-          margin-top: 12px;
-          padding-top: 12px;
+          margin-top: 10px;
+          padding-top: 10px;
+          height: 42px;
 
           .remark-label {
-            font-size: 18px;
+            font-size: 20px;
+            margin-right: 10px;
+            line-height: 42px;
           }
 
           .remark-input {
-            height: 36px;
-            font-size: 18px;
-            padding: 0 10px;
+            height: 40px;
+            font-size: 20px;
+            padding: 0 12px;
+            line-height: 40px;
           }
         }
       }
@@ -732,69 +702,24 @@ export default {
     .save-list {
       .right {
         .remark-section {
-          margin-top: 10px;
-          padding-top: 10px;
+          margin-top: 8px;
+          padding-top: 8px;
+          height: 40px;
 
           .remark-label {
-            font-size: 16px;
+            font-size: 18px;
             margin-right: 8px;
+            line-height: 40px;
           }
 
           .remark-input {
-            height: 36px;
-            font-size: 16px;
+            height: 38px;
+            font-size: 18px;
             padding: 0 10px;
+            line-height: 38px;
           }
         }
       }
-    }
-        }
-      }
-
-// 竖屏适配
-@media (orientation: portrait) {
-  .save-list {
-    .right {
-      .remark-section {
-        margin-top: 12px;
-        padding-top: 12px;
-
-        .remark-label {
-          font-size: 18px;
-        }
-
-        .remark-input {
-          height: 36px;
-          font-size: 18px;
-          padding: 0 10px;
-        }
-      }
-    }
-  }
-}
-
-// 小屏幕适配
-@media (max-width: 900px) {
-  .save-list {
-    .right {
-      .remark-section {
-        margin-top: 10px;
-        padding-top: 10px;
-
-        .remark-label {
-          font-size: 16px;
-          margin-right: 8px;
-        }
-
-        .remark-input {
-          height: 36px;
-          font-size: 16px;
-          padding: 0 10px;
-        }
-      }
-    }
-  }
-}
     }
   }
 
