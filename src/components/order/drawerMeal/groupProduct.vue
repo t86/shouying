@@ -175,8 +175,10 @@ export default {
   },
   methods: {
     init() {
+      console.log('🚀🚀🚀 [旧套餐组件] init() 方法开始执行');
       const groupInfo = JSON.parse(JSON.stringify(this.productInfo));
       groupInfo.count = this.singleInfo.prd_cnt;
+      console.log('🚀🚀🚀 [旧套餐组件] groupInfo:', groupInfo);
       
       // 使用统一的价格计算函数
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
@@ -185,20 +187,82 @@ export default {
       const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
       this.bindphone = currentBusiness && currentBusiness.csm_cust_phone || '';
       
-      let unitPrice = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      // 获取原价
+      const originalPrice = this.productInfo.vipPrice || this.productInfo.price || "0";
+      console.log('🚀🚀🚀 [旧套餐组件] 原价:', originalPrice);
+
+      // ========== 严格判断是否为会员 ==========
+      // 必须：csm_cust_phone 是字符串且去除空格后不为空
+      const csmCustPhone = currentBusiness ? (currentBusiness.csm_cust_phone || '') : '';
+      const isMember = !!(csmCustPhone && typeof csmCustPhone === 'string' && csmCustPhone.trim() !== '');
+
+      console.log('=== [旧套餐组件] 套餐价格计算详情 ===');
+      console.log('productInfo:', this.productInfo);
+      console.log('价格字段:', {
+        price: this.productInfo.price,
+        mbPrice: this.productInfo.mbPrice,
+        mb_price: this.productInfo.mb_price,
+        vipPrice: this.productInfo.vipPrice
+      });
+      console.log('业务数据:', {
+        businessData_length: businessData.length,
+        currentBusiness: currentBusiness,
+        csm_cust_phone: csmCustPhone,
+        csm_cust_phone_type: typeof csmCustPhone,
+        csm_cust_phone_trimmed: csmCustPhone ? csmCustPhone.trim() : '',
+        cardInfo_seatId: cardInfo ? cardInfo.seatId : ''
+      });
+      console.log('🔍🔍🔍 [旧套餐组件] isMember 判断结果:', isMember, 'csmCustPhone:', JSON.stringify(csmCustPhone));
+      console.log('🔍🔍🔍 [旧套餐组件] 继续执行到 getProductPrice 之前');
       
-      // Fallback: 如果商品有会员价且当前是会员卡台，则使用会员价
-      const mbPrice = this.productInfo.mbPrice || this.productInfo.mb_price;
-      const origPrice = this.productInfo.price;
-      if (mbPrice && parseFloat(mbPrice) > 0 && parseFloat(mbPrice) < parseFloat(origPrice)) {
-        if (this.bindphone || currentBusiness && currentBusiness.csm_cust_phone) {
-          unitPrice = mbPrice;
+      // 使用 getProductPrice 计算显示价格（会根据会员状态、商务状态等自动选择正确的价格）
+      // 注意：这个价格可能包含会员价，但我们要根据 isMember 来决定是否使用
+      let displayPrice = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      this.calculatedPrice = parseFloat(displayPrice) || parseFloat(originalPrice) || 0;
+      console.log('🔍🔍🔍 [旧套餐组件] getProductPrice 执行完成，displayPrice:', displayPrice, 'calculatedPrice:', this.calculatedPrice);
+
+      const mbPrice = parseFloat(this.productInfo.mbPrice || this.productInfo.mb_price || "0") || 0;
+      console.log('💰💰💰 [旧套餐组件] priceInfo 结果:', {
+        displayPrice,
+        calculatedPrice: this.calculatedPrice,
+        originalPrice,
+        isMember,
+        mbPrice: mbPrice
+      });
+      console.log('🔍🔍🔍 [旧套餐组件] 开始计算小计，isMember:', isMember);
+      
+      // 小计计算逻辑：
+      // - 如果是会员，使用会员价（通过 getProductPrice 计算，已包含会员价）
+      // - 如果是散客，强制使用原价，不管 getProductPrice 返回什么
+      // 关键：判断是否要使用会员价来计算小计
+      let unitPriceForCalc;
+      if (isMember) {
+        // 是会员：使用 getProductPrice 计算出的价格（可能包含会员价、商务会员价等）
+        unitPriceForCalc = this.calculatedPrice;
+        console.log('✅✅✅ [旧套餐组件] 是会员，使用会员价计算小计:', unitPriceForCalc);
+      } else {
+        // 是散客：强制使用原价，不使用任何会员价
+        // 即使 getProductPrice 返回了会员价，散客也必须用原价
+        unitPriceForCalc = parseFloat(originalPrice) || 0;
+        console.log('❌❌❌ [旧套餐组件] 不是会员，强制使用原价计算小计:', unitPriceForCalc, '原价:', originalPrice, 'calculatedPrice:', this.calculatedPrice);
+
+        // 额外检查：如果 calculatedPrice 等于会员价，但 isMember 是 false，说明判断有误，强制使用原价
+        if (mbPrice > 0 && Math.abs(this.calculatedPrice - mbPrice) < 0.01) {
+          console.warn('⚠️⚠️⚠️ [旧套餐组件] 警告：检测到 calculatedPrice 是会员价，但 isMember 是 false，强制使用原价');
+          unitPriceForCalc = parseFloat(originalPrice) || 0;
         }
       }
-      
-      this.calculatedPrice = parseFloat(unitPrice) || groupInfo.price || 0;
-      
-      groupInfo.allAmt = (this.calculatedPrice * this.singleInfo.prd_cnt).toFixed(2);
+
+      // 小计 = 单价 * 数量
+      groupInfo.allAmt = (unitPriceForCalc * this.singleInfo.prd_cnt).toFixed(2);
+      console.log('💰💰💰 [旧套餐组件] 最终小计:', {
+        allAmt: groupInfo.allAmt,
+        unitPrice: unitPriceForCalc,
+        prd_cnt: this.singleInfo.prd_cnt,
+        isMember: isMember,
+        calculatedPrice: this.calculatedPrice,
+        originalPrice: originalPrice
+      });
       this.groupInfo = groupInfo;
       // 更新已选的明细信息
       if (this.isUpdate) {
@@ -332,8 +396,36 @@ export default {
 
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
 
-      // 使用已计算的价格
-      const prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
+      // ========== 提交时的价格计算 ==========
+      // 严格判断是否为会员
+      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
+      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
+      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+
+      // 严格判断是否为会员：csm_cust_phone 必须是字符串且去除空格后不为空
+      const csmCustPhone = currentBusiness ? (currentBusiness.csm_cust_phone || '') : '';
+      const isMember = !!(csmCustPhone && typeof csmCustPhone === 'string' && csmCustPhone.trim() !== '');
+
+      let prdPrice;
+      if (isMember) {
+        // 是会员：使用 getProductPrice 计算出的价格
+        prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
+        console.log('📤📤📤 [套餐提交] 是会员，使用会员价:', prdPrice);
+      } else {
+        // 是散客：强制使用原价
+        const originalPrice = this.productInfo.vipPrice || this.productInfo.price || "0";
+        prdPrice = parseFloat(originalPrice) || this.groupInfo.price || 0;
+        console.log('📤📤📤 [套餐提交] 不是会员，强制使用原价:', prdPrice, '原价:', originalPrice);
+      }
+
+      console.log('📤📤📤 [套餐提交] 最终提交价格:', {
+        prdPrice: prdPrice,
+        isMember: isMember,
+        calculatedPrice: this.calculatedPrice,
+        groupInfo_price: this.groupInfo.price,
+        csmCustPhone: JSON.stringify(csmCustPhone)
+      });
 
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id

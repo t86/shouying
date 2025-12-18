@@ -152,19 +152,18 @@
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{ items.pc }}
                           </div>
+                          <!-- 单价：使用 p2（实际价格）而不是 pp（原价） -->
                           <div class="td-td" :class="{ opacity: items.back }">
-                            {{ (items.pp * 1).toFixed(2) }}
+                            {{ items.pp * 1 == 0 ? '时价' : (items.p2 ? (items.p2 * 1).toFixed(2) : (items.pp * 1).toFixed(2)) }}
                           </div>
+                          <!-- 小计：使用 pa（实际金额）而不是重新计算 -->
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{
                               items.at == 2 || items.at == 3
                                 ? "0.00"
-                                : items.pp == 0
+                                : items.pa !== undefined && items.pa !== null
                                 ? (items.pa * 1).toFixed(2)
-                                : (items.pp * 1 == 0
-                                    ? items.pa * 1
-                                    : items.pp * items.pc
-                                  ).toFixed(2)
+                                : (items.pp * items.pc).toFixed(2)
                             }}
                           </div>
                           <div class="td-td" :class="{ opacity: items.back }">
@@ -260,18 +259,19 @@
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.pc }}
                     </div>
+                    <!-- 单价：使用 p2（实际价格）而不是 pp（原价） -->
                     <div class="td" :class="{ opacity: item.back }">
-                      {{ item.pp * 1 == 0 ? "时价" : (item.pp * 1).toFixed(2) }}
+                      {{ item.pp * 1 == 0 ? "时价" : (item.p2 ? (item.p2 * 1).toFixed(2) : (item.pp * 1).toFixed(2)) }}
                     </div>
+                    <!-- 小计：使用 pa（实际金额）而不是重新计算 -->
                     <div class="td" :class="{ opacity: item.back }">
                       {{
                         item.at == 2 ||
                         (item.at == 3 && !(item.io == 1 || item.oid))
                           ? "0.00"
-                          : (item.pp * 1 == 0
-                              ? item.pa * 1
-                              : item.pp * item.pc
-                            ).toFixed(2)
+                          : item.pa !== undefined && item.pa !== null
+                          ? (item.pa * 1).toFixed(2)
+                          : (item.pp * item.pc).toFixed(2)
                       }}
                     </div>
                     <div class="td" :class="{ opacity: item.back }">

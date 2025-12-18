@@ -184,19 +184,19 @@
                   <h5 v-if="item.back">{{item.b}}</h5></div>
                 <div class="td">
                   <img
-                    :src="item.back||item.changeCount==1||(item.at==2||item.at==3||item.at==5)||item.pp * 1==0?imgSrc.subDisabled:imgSrc.sub"
+                    :src="item.back||item.changeCount==1||(item.at==2||item.at==3||item.at==5)||isTimePrice(item)?imgSrc.subDisabled:imgSrc.sub"
                     @click="changeCount('sub',item)"
                     alt
                   />
                   <input
                     type="number"
                     min="1"
-                    :disabled="(item.at==2||item.at==3||item.at==5||item.back)||item.pp * 1==0"
+                    :disabled="(item.at==2||item.at==3||item.at==5||item.back)||isTimePrice(item)"
                     v-model="item.changeCount"
                     @input="changeCount('input',item)"
                   />
                   <img
-                    :src="item.back||item.changeCount>=item.pc||(item.at==2||item.at==3||item.at==5)||item.pp * 1==0?imgSrc.addDisabled:imgSrc.add"
+                    :src="item.back||item.changeCount>=item.pc||(item.at==2||item.at==3||item.at==5)||isTimePrice(item)?imgSrc.addDisabled:imgSrc.add"
                     @click="changeCount('add',item)"
                     alt
                   />
@@ -320,7 +320,12 @@ import subDisabled from "@/assets/order-img/sub-disabled.png";
 import shoppingCarMore from "@/assets/order-img/shoppingCarMore.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
 import api_order from "@/api/order";
-import { getProductPrice } from "@/utils/priceCalculator";
+import {
+  buildPriceContextFromStore,
+  calcItemAmount,
+  resolveUnitPrice,
+  isTimePriceItem,
+} from "@/utils/orderItemPrice";
 
 import drawerMyOrder from "@/components/order/myOrder/drawerMyOrder";
 export default {
@@ -349,6 +354,10 @@ export default {
     };
   },
   methods: {
+    getPriceContext() {
+      return buildPriceContextFromStore(this.$store);
+    },
+
     chooseOrder(e, orderInfo, type) {
       // 批量操作勾选、反勾选退单套餐商品
       if (type == "all") {
@@ -515,7 +524,7 @@ export default {
         (info.at == 2 || info.at == 3 || info.at == 5)
       )
         return this.$message.warning("此优惠商品非当前用户授权，不可修改数量");
-      if(info.pp * 1 == 0) {
+      if (this.isTimePrice(info)) {
         return this.$message.warning('时价商品不可修改数量')
       }
       let count = info.changeCount;
@@ -573,33 +582,22 @@ export default {
       this.drawer.showDrawer = false;
     },
 
+    // 判断是否时价商品
+    isTimePrice(item) {
+      const priceContext = this.getPriceContext();
+      return isTimePriceItem(item, priceContext);
+    },
+
     // 获取订单项的显示价格（根据商务价格等优先级计算）
     getDisplayPrice(item) {
-      if (!item || !item.productInfo) {
-        return item && item.pp * 1 == 0 ? '时价' : (item ? (item.pp * 1).toFixed(2) : '0.00');
+      const priceContext = this.getPriceContext();
+      const unitPrice = resolveUnitPrice(item, priceContext);
+
+      if (unitPrice === null || Number.isNaN(unitPrice)) {
+        return this.isTimePrice(item) ? '时价' : '0.00';
       }
 
-      // 如果价格是0（时价商品），返回"时价"
-      if (item.pp * 1 == 0) {
-        return '时价';
-      }
-
-      // 获取卡台信息、商务数据和商务员工列表
-      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
-      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
-      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
-      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
-
-      // 使用价格计算工具获取正确的价格
-      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
-      const price = parseFloat(calculatedPrice) || 0;
-
-      // 如果计算出的价格为0，使用原始价格
-      if (price === 0) {
-        return (item.pp * 1).toFixed(2);
-      }
-
-      return price.toFixed(2);
+      return (Number(unitPrice) || 0).toFixed(2);
     },
 
     // 获取订单项的小计（根据商务价格等优先级计算）
@@ -608,30 +606,9 @@ export default {
         return '0.00';
       }
 
-      // 如果是优惠商品，返回0.00
-      if (item.at == 2 || item.at == 3) {
-        return '0.00';
-      }
-
-      // 如果是时价商品，使用实际金额
-      if (item.pp * 1 == 0) {
-        return (item.pa * 1).toFixed(2);
-      }
-
-      // 获取显示价格
-      const displayPrice = this.getDisplayPrice(item);
-      
-      // 如果显示价格是"时价"，使用实际金额
-      if (displayPrice === '时价') {
-        return (item.pa * 1).toFixed(2);
-      }
-
-      // 计算小计：单价 * 数量
-      // 对于线上订单的子项，使用 item.pc（子项数量）
-      // 对于线下订单，使用 item.changeCount（可修改数量）或 item.pc（原始数量）
-      const price = parseFloat(displayPrice) || 0;
-      const count = item.changeCount !== undefined ? item.changeCount : item.pc;
-      return (price * count).toFixed(2);
+      const priceContext = this.getPriceContext();
+      const amount = calcItemAmount(item, priceContext);
+      return (amount || 0).toFixed(2);
     },
   },
   created() {},

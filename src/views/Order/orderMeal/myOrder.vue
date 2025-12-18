@@ -629,36 +629,34 @@ export default {
       return subPermissionId === 98; // 默认返回可查看当台消费
     },
 
-    // 获取订单项的显示价格（根据商务价格等优先级计算）
+    // 获取订单项的显示价格
+    // 注意：对于已下单的订单，应该使用 API 返回的 p2（实际价格），而不是重新计算
+    // 因为订单价格在下单时已经确定，不应该因为当前卡台状态变化而改变显示价格
     getDisplayPrice(item) {
-      if (!item || !item.productInfo) {
-        return item && item.pp * 1 == 0 ? '时价' : (item ? (item.pp * 1).toFixed(2) : '0.00');
-      }
-
-      // 如果价格是0（时价商品），返回"时价"
-      if (item.pp * 1 == 0) {
+      // 如果是时价商品（pp = 0），返回"时价"
+      if (item && item.pp * 1 == 0) {
         return '时价';
       }
 
-      // 获取卡台信息、商务数据和商务员工列表
-      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
-      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
-      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
-      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      // ========== 关键修复：使用 p2（实际价格）而不是重新计算 ==========
+      // p2 是下单时确定的价格，即使卡台状态变化（会员变散客），显示的价格也应该是下单时的价格
+      if (item && item.p2) {
+        return (item.p2 * 1).toFixed(2);
+      }
 
-      // 使用价格计算工具获取正确的价格
-      const calculatedPrice = getProductPrice(item.productInfo, cardInfo, currentBusiness, businessEmpList);
-      const price = parseFloat(calculatedPrice) || 0;
-
-      // 如果计算出的价格为0，使用原始价格
-      if (price === 0) {
+      // 降级方案：如果没有 p2 字段，使用 pp（原价）
+      // 注意：这种情况理论上不应该出现，因为 API 应该总是返回 p2
+      if (item && item.pp) {
+        console.warn('[订单显示] 缺少 p2 字段，使用 pp 作为降级方案:', item);
         return (item.pp * 1).toFixed(2);
       }
 
-      return price.toFixed(2);
+      return '0.00';
     },
 
-    // 获取订单项的小计（根据商务价格等优先级计算）
+    // 获取订单项的小计
+    // 注意：对于已下单的订单，应该使用 API 返回的 pa（商品金额），而不是重新计算
+    // 因为订单金额在下单时已经确定，不应该因为当前卡台状态变化而改变显示金额
     getSubtotal(item) {
       if (!item) {
         return '0.00';
@@ -669,23 +667,20 @@ export default {
         return '0.00';
       }
 
-      // 如果是时价商品，使用实际金额
-      if (item.pp * 1 == 0) {
+      // ========== 关键修复：使用 pa（商品金额）而不是重新计算 ==========
+      // pa 是下单时确定的金额，即使卡台状态变化，显示的金额也应该是下单时的金额
+      if (item.pa !== undefined && item.pa !== null) {
         return (item.pa * 1).toFixed(2);
       }
 
-      // 获取显示价格
-      const displayPrice = this.getDisplayPrice(item);
-      
-      // 如果显示价格是"时价"，使用实际金额
-      if (displayPrice === '时价') {
-        return (item.pa * 1).toFixed(2);
+      // 降级方案：如果没有 pa 字段，使用 pp * pc（原价 × 数量）
+      // 注意：这种情况理论上不应该出现，因为 API 应该总是返回 pa
+      if (item.pp && item.pc) {
+        console.warn('[订单显示] 缺少 pa 字段，使用 pp × pc 作为降级方案:', item);
+        return (item.pp * item.pc).toFixed(2);
       }
 
-      // 计算小计：单价 * 数量
-      const price = parseFloat(displayPrice) || 0;
-      const count = item.pc || 1;
-      return (price * count).toFixed(2);
+      return '0.00';
     },
   },
   created() {
