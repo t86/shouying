@@ -352,7 +352,7 @@
               </el-option>
             </el-select>
             </p>
-            <p class="m-t-3 fs14 color-red" layout="row" layout-align="center center">
+            <p class="m-t-3 fs14" style="color: #FFA726; font-weight: 500;" layout="row" layout-align="center center">
               输入不存在的挂账账户系统将自动创建该挂账账户
             </p>
             <p class="m-t-3" layout="row" layout-align="start center">

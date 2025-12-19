@@ -306,7 +306,12 @@ export default {
       if (!row || !row.c || row.c === "-") return "";
 
       const custInfo = row.c || "";
-      const points = row.pt || 0;
+      // pt 后端改为 string 类型，这里统一转换为 number 处理
+      let points = 0;
+      if (row.pt !== undefined && row.pt !== null && row.pt !== "") {
+        const num = Number(row.pt);
+        points = Number.isNaN(num) ? 0 : num;
+      }
 
       // 如果积分为0或没有积分，只显示会员卡号
       if (!points || points === 0) {

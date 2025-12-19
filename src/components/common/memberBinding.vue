@@ -83,14 +83,6 @@
             更改绑定
           </el-button>
         </div>
-        <div class="info-item" v-if="selectedMemberInfo.totalAmt !== undefined">
-          <span>总余额:</span>
-          <span>{{ (selectedMemberInfo.totalAmt / 100).toFixed(2) }}</span>
-        </div>
-        <div class="info-item" v-if="selectedMemberInfo.totalPoints !== undefined">
-          <span>总积分:</span>
-          <span>{{ selectedMemberInfo.totalPoints || 0 }}</span>
-        </div>
       </div>
     </div>
 
@@ -291,8 +283,6 @@ export default {
           this.selectedMemberInfo = {
             phone: phone,
             name: memberData.n || memberData.name || this.maskPhone(phone),
-            totalAmt: memberData.totalAmt || memberData.total_amt || 0,
-            totalPoints: memberData.totalPoints || memberData.total_points || 0,
           };
 
           // 自动绑定会员
