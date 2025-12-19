@@ -36,6 +36,12 @@ export const buildPriceContextFromStore = (store) => {
 export const resolveUnitPrice = (item, ctx = {}) => {
   if (!item) return null;
 
+  // 时价商品：pp = 0 时，返回 null 表示使用"时价"展示
+  const pp = toNumber(item.pp);
+  if (pp === 0) {
+    return null;
+  }
+
   // 优先使用 p2（实际价格，后端已根据会员状态计算好）
   const hasP2 = Object.prototype.hasOwnProperty.call(item, "p2");
   const p2 = toNumber(item.p2);
@@ -63,7 +69,6 @@ export const resolveUnitPrice = (item, ctx = {}) => {
   }
 
   // 最后使用原价 pp（不使用 pm 会员价，因为会员价仅用于展示）
-  const pp = toNumber(item.pp);
   if (pp === null || pp === 0) {
     return null;
   }
@@ -97,6 +102,13 @@ export const isTimePriceItem = (item, ctx = {}) => {
 export const calcItemAmount = (item, ctx = {}) => {
   if (!item) return 0;
   if (item.at == 2 || item.at == 3) return 0;
+
+  // 时价商品：pp = 0 时，直接使用 pa（实际金额）作为小计
+  const pp = toNumber(item.pp);
+  if (pp === 0) {
+    const pa = toNumber(item.pa);
+    return pa === null ? 0 : pa;
+  }
 
   const unitPrice = resolveUnitPrice(item, ctx);
   if (unitPrice === null || Number.isNaN(unitPrice)) {

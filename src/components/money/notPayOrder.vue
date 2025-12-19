@@ -590,6 +590,15 @@ export default {
 
     // 获取订单项的显示价格（根据商务价格等优先级计算）
     getDisplayPrice(item) {
+      if (!item) {
+        return '0.00';
+      }
+
+      // 时价商品：pp = 0 时，直接显示"时价"
+      if (item.pp * 1 == 0) {
+        return '时价';
+      }
+
       const priceContext = this.getPriceContext();
       const unitPrice = resolveUnitPrice(item, priceContext);
 
@@ -604,6 +613,16 @@ export default {
     getSubtotal(item) {
       if (!item) {
         return '0.00';
+      }
+
+      // 如果是优惠商品，返回0.00
+      if (item.at == 2 || item.at == 3) {
+        return '0.00';
+      }
+
+      // 时价商品：pp = 0 时，使用 pa（实际金额）作为小计
+      if (item.pp * 1 == 0) {
+        return item.pa !== undefined && item.pa !== null ? (item.pa * 1).toFixed(2) : '0.00';
       }
 
       const priceContext = this.getPriceContext();

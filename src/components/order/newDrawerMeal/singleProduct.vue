@@ -359,12 +359,33 @@ export default {
         );
       }
 
+      // ========== 关联台时价商品金额验证 ==========
+      // 在跳转到补交drawer之前，必须先验证时价商品是否填写了金额
+      const isTimePriceProduct =
+        this.productInfo.prdType == 3 ||  // 时价特饮
+        this.productInfo.prdType == 4 ||  // 时价小费
+        this.productInfo.prdType == 8;    // 普通花篮/特饮(不关联erp)
+
+      if (
+        this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
+        this.productInfo.prdType != 2 &&
+        isTimePriceProduct &&
+        !this.amt
+      ) {
+        // 关联台 + 时价商品 + 金额未填写
+        this.isSubmitting = false;
+        return this.$message.warning("请输入金额");
+      }
+
       // 判断是否为补交台
       if (
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
         this.productInfo.prdType != 2
       ) {
-        this.isSubmitting = false;
+        // 注意：这里不需要重置 isSubmitting，因为补交drawer的确认按钮会处理提交
+        // 但是如果用户取消补交drawer，需要在drawer的取消回调中重置状态
+        // 暂时保持原有逻辑，补交drawer会自己处理提交
+        this.isSubmitting = false; // 重置状态，让补交drawer可以正常提交
         return (this.showBJDrawer = true);
       }
 

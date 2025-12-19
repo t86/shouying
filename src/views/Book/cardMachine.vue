@@ -99,7 +99,7 @@
                 <span>{{
                   item.openTime ? "(" + item.openTime + ")" : "" | filterTime
                 }}</span>
-                <span v-if="item.bizStatus == 1">{{ item.capacity }}人</span>
+                <span v-if="item.bizStatus == 1">{{ (item.capacity && item.capacity > 0) ? item.capacity : 1 }}人</span>
               </span>
             </p>
 

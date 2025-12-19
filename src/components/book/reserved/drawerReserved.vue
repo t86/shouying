@@ -546,8 +546,9 @@ export default {
       this.formData.secondSales.second_sales_name = ""; // 联合订位人名称
       this.formData.secondSales.second_sales_phone = ""; // 联合订位人电话
 
-      this.formData.customPay.customer_exp_cnt =
-        this.$store.state.orderInfo.currentCardInfo.capacity; // 预定人数
+      // 预定人数：如果 capacity 为 0 或未定义，默认设置为 1
+      const capacity = this.$store.state.orderInfo.currentCardInfo.capacity;
+      this.formData.customPay.customer_exp_cnt = capacity && capacity > 0 ? capacity : 1; // 预定人数
       this.formData.customPay.exp_min_csm_amt =
         this.$store.state.orderInfo.currentCardInfo.grpMinCsmAmt || ""; // 预期最低消费
       this.formData.customPay.card_min_csm_amt = ""; // 预定开台时卡台固定的最低消费(不可修改状态)

@@ -320,17 +320,32 @@ export default {
     },
 
     async onSubmit() {
+      // 🚨 防止重复提交
+      if (this.isSubmitting) {
+        return this.$message.warning("请勿重复提交，请稍候...");
+      }
+
+      // 设置为正在提交状态
+      this.isSubmitting = true;
+
       // 如果count为空，则默认为1
       if (this.count === "") this.count = 1;
 
       if (
         this.count.toString().indexOf(".") > -1 &&
         this.count.toString().indexOf(".") < this.count.toString().length - 1
-      )
+      ) {
+        this.isSubmitting = false;
         return this.$message.warning("商品数量必须为整数");
-      if (this.$route.name != "moneyCard"&&this.$route.name != "orderCard" && !this.count)
+      }
+      if (this.$route.name != "moneyCard"&&this.$route.name != "orderCard" && !this.count) {
+        this.isSubmitting = false;
         return this.$message.warning("商品数量默认1");
-      if (isNaN(this.count * 1)) return this.$message.warning("请输入数字！");
+      }
+      if (isNaN(this.count * 1)) {
+        this.isSubmitting = false;
+        return this.$message.warning("请输入数字！");
+      }
 
       // 判断是否为估清
       if (this.$route.name == "moneyCard" || this.$route.name == 'orderCard') {
@@ -340,6 +355,7 @@ export default {
         };
         try {
           const res = await api_order.reqSetGQOrder(params);
+          this.isSubmitting = false; // 请求完成后重置状态
           if (res.code == 1) {
             this.$message.success("设置估清商品成功");
             this.$emit("getGQPrdList");
@@ -348,6 +364,7 @@ export default {
             this.$message.warning(res.msg);
           }
         } catch (error) {
+          this.isSubmitting = false; // 请求失败也要重置状态
           console.log("添加估清商品失败", error);
         }
         return false;
@@ -357,10 +374,12 @@ export default {
       if (
         this.productInfo.outSomethingCount != "many" &&
         this.count * 1 > this.productInfo.outSomethingCount
-      )
+      ) {
+        this.isSubmitting = false;
         return this.$message.warning(
           `商品数量超过了可点最大数量${this.productInfo.outSomethingCount}`
         );
+      }
 
       // 判断点单数量是否超过估清数量
       const outOfSomethingPrdList =
@@ -374,9 +393,28 @@ export default {
         isOutOfSomethingPrd.status == 1
       ) {
         // 当前商品是估清商品,且点单数量超过了估清数量
+        this.isSubmitting = false;
         return this.$message.warning(
           "点单数量已超过当前可点估清数量" + isOutOfSomethingPrd.cnt
         );
+      }
+
+      // ========== 关联台时价商品金额验证 ==========
+      // 在跳转到补交drawer之前，必须先验证时价商品是否填写了金额
+      const isTimePriceProduct =
+        this.productInfo.prdType == 3 ||  // 时价特饮
+        this.productInfo.prdType == 4 ||  // 时价小费
+        this.productInfo.prdType == 8;    // 普通花篮/特饮(不关联erp)
+
+      if (
+        this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
+        this.productInfo.prdType != 2 &&
+        isTimePriceProduct &&
+        !this.amt
+      ) {
+        // 关联台 + 时价商品 + 金额未填写
+        this.isSubmitting = false;
+        return this.$message.warning("请输入金额");
       }
 
       // 判断是否为补交台
@@ -384,6 +422,7 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
         this.productInfo.prdType != 2
       ) {
+        this.isSubmitting = false; // 重置状态，让补交drawer可以正常提交
         return (this.showBJDrawer = true);
       }
 
@@ -398,6 +437,7 @@ export default {
           require: this.requestInfoArr.join(";"),
         };
 
+        this.isSubmitting = false; // 重置状态
         this.$emit("getYh2ProInfo", resultProductInfo);
         return;
       }
@@ -429,6 +469,7 @@ export default {
       ) {
         return this.orderMealToShoppingCart();
       }
+      this.isSubmitting = false; // 如果没有匹配到任何逻辑，重置状态
       this.$message.warning('商品状态异常，不能加入购物车, ', this.orderMealStatus)
     },
 
@@ -491,6 +532,9 @@ export default {
           }
         } catch (error) {
           console.log("加入购物车授权失败", error);
+        } finally {
+          // 🛠️ 确保无论成功失败都重置按钮状态
+          this.isSubmitting = false;
         }
       } else {
         // 正常商品添加购物车
@@ -503,21 +547,28 @@ export default {
           } else this.$message.warning(res.msg);
         } catch (error) {
           console.log("加入购物车失败", error);
+        } finally {
+          // 🛠️ 确保无论成功失败都重置按钮状态
+          this.isSubmitting = false;
         }
       }
     },
 
     // 营销/花篮赠送
     async sealToShoppingCart() {
-      if (!this.formData.selectedInfo.name && this.orderMealStatus == 2)
+      if (!this.formData.selectedInfo.name && this.orderMealStatus == 2) {
+        this.isSubmitting = false;
         return this.$message.warning("请选择优惠理由");
+      }
       else if (
         this.orderMealStatus == 3 &&
         this.amt === "" &&
         this.productInfo.prdType != 13 &&
         this.productInfo.prdType != 14
-      )
+      ) {
+        this.isSubmitting = false;
         return this.$message.warning("请输入金额");
+      }
 
 
       try {
@@ -546,6 +597,9 @@ export default {
         }
       } catch (error) {
         console.log("营销账号赠送失败", error);
+      } finally {
+        // 🛠️ 确保无论成功失败都重置按钮状态
+        this.isSubmitting = false;
       }
     },
 
