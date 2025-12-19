@@ -62,6 +62,7 @@
               <div class="th" v-if="selectInfo.selectVal != '按部门分组'" style=" width: 12%">订位人部门</div>
 
               <div class="th" style="width: 8%">开台时间</div>
+              <div class="th" v-if="selectInfo.selectVal === '按订位人排名汇总'" style=" width: 8%">订台数</div>
               <div class="th" style="width: 10%">折前(含未结金额)</div>
               <div class="th" style="width: 10%">折后(含未结金额)</div>
               <div class="th" style="width: 10%">可计业绩</div>
@@ -87,6 +88,7 @@
               <div class="td one-txt-cut"  v-if="selectInfo.selectVal != '按部门分组'" style="width: 12%"> {{item.e || '-'}}</div>
               <div class="td one-txt-cut" v-if="selectInfo.selectVal != '按部门分组'" style="width: 12%">{{item.n || '-'}}</div>
               <div class="td one-txt-cut" style="width: 8%">{{item.o || '-'}}</div>
+              <div class="td one-txt-cut" v-if="selectInfo.selectVal === '按订位人排名汇总'" style="width: 8%">{{item.oc || 0}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.z)}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.v)}}</div>
               <div class="td one-txt-cut" style="width: 10%">{{format2(item.y)}}</div>
@@ -226,7 +228,9 @@ export default {
     // 导出excel
     async exportExcel() {
       const params = {
-        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1 //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组
+        type_id: this.selectInfo.originSelectOption.find(item => item.name == this.selectInfo.selectVal).id * 1, //    int 查询类型:1 不分组 2 按部门分组 3 按区域分组 4 直属部门分组 5 按订位人排名汇总
+        dept_id: this.deptIds.length > 0 ? this.deptIds[this.deptIds.length - 1] * 1 : 0,
+        sales_emp_id: this.sales_emp_id ? this.sales_emp_id * 1 : 0
       }
       try {
         const res = await api_money.reqExportExcelOfKpiReport(params);

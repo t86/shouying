@@ -111,19 +111,23 @@ export default {
         keyword: "",
       },
       tableData: [],
-      typeValue: 0,
+      typeVal: 0,
       typeOptions: [
         {
           id: 0,
           name: "全部",
         },
         {
-          id: 1,
+          id: 36,
           name: "充值",
         },
         {
-          id: 2,
+          id: 35,
           name: "扣除",
+        },
+        {
+          id: 50,
+          name: "消费赠送",
         },
       ],
       pageInfo: {
@@ -153,6 +157,7 @@ export default {
         begin_day: this.form.begin_day, //   string  扣款开始日期 格式  yyyy-mm-dd
         end_day: this.form.end_day, //     string   扣款结束日期 格式 yyyy-mm-dd
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
+        type_id: this.typeVal * 1, //      int      类型 0 全部 35 扣除,36 充值,50 消费赠送
       };
       try {
         const res = await api_vip.reqGetDeductionPointListReport(params);
@@ -182,6 +187,7 @@ export default {
     resetHandle() {
       this.initDate();
       this.form.keyword = "";
+      this.typeVal = 0;
       this.getTableData();
     },
     async exportExcel() {
@@ -189,6 +195,7 @@ export default {
         begin_day: this.form.begin_day, //   string  扣款开始日期 格式  yyyy-mm-dd
         end_day: this.form.end_day, //     string   扣款结束日期 格式 yyyy-mm-dd
         key: this.form.keyword, //         string   模糊查询关键字, 客户姓名,姓名首字母,手机号,会员卡号 , 空, 表示不限制
+        type_id: this.typeVal * 1, //      int      类型 0 全部 35 扣除,36 充值,50 消费赠送
       };
       try {
         const res = await api_vip.reqExportExcelForDeductionPoint(params);
@@ -220,6 +227,12 @@ export default {
   mounted() {
     this.initDate();
     this.getTableData();
+  },
+  watch: {
+    typeVal() {
+      this.pageInfo.page = 1;
+      this.getTableData();
+    },
   },
 };
 </script>

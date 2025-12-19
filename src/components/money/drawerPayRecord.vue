@@ -68,6 +68,11 @@
               min-width="180"
               :formatter="formatCustInfo"
             />
+            <el-table-column
+              label="积分赠送"
+              min-width="160"
+              :formatter="formatPointInfo"
+            />
             <el-table-column label="操作" min-width="220" fixed="right">
               <template slot-scope="{ row }">
                 <span
@@ -294,6 +299,21 @@ export default {
     formatCustInfo(row) {
       if (!row || !row.c || row.c === "-") return "";
       return row.c;
+    },
+    formatPointInfo(row) {
+      // 格式：会员卡号-积分数
+      // 如果没有会员信息或积分为0/空，则显示为空
+      if (!row || !row.c || row.c === "-") return "";
+
+      const custInfo = row.c || "";
+      const points = row.pt || 0;
+
+      // 如果积分为0或没有积分，只显示会员卡号
+      if (!points || points === 0) {
+        return custInfo ? `${custInfo}-0` : "";
+      }
+
+      return `${custInfo}-${points}`;
     },
     parseTime(value) {
       if (!value) return 0;
