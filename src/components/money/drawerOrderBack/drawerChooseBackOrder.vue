@@ -50,7 +50,7 @@
                 alt
               />
             </div>
-            <div class="td">{{['3','4','5'].indexOf(item.productInfo.prdType)>-1 ? '时价' : (item.pp*1).toFixed(2)}}</div>
+            <div class="td">{{ formatUnitPrice(item) }}</div>
             <div class="td">{{(item.pa*1).toFixed(2)}}</div>
             <div v-if="['5','3','8'].indexOf(item.productInfo.prdType)>-1" class="td">
               <input
@@ -104,6 +104,7 @@ import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";
+import { resolveUnitPrice, buildPriceContextFromStore } from "@/utils/orderItemPrice";
 export default {
   data() {
     return {
@@ -120,6 +121,23 @@ export default {
     };
   },
   methods: {
+    formatUnitPrice(item) {
+      // 时价商品按现有逻辑直接显示时价
+      if (['3','4','5'].indexOf(item.productInfo && item.productInfo.prdType) > -1) {
+        return '时价';
+      }
+      try {
+        const ctx = buildPriceContextFromStore(this.$store);
+        const unit = resolveUnitPrice(item, ctx);
+        if (unit === null || unit === undefined || Number.isNaN(Number(unit))) {
+          return '时价';
+        }
+        return (Number(unit) || 0).toFixed(2);
+      } catch (e) {
+        // fallback to original pp if something goes wrong
+        return (item.pp * 1).toFixed(2);
+      }
+    },
     // 初始化退单列表信息
     init(originOrderList){
       originOrderList = originOrderList || JSON.parse(JSON.stringify(this.originOrderList))

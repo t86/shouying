@@ -100,6 +100,7 @@
               <div class="th">服务员</div>
               <div class="th">优惠人</div>
               <div class="th">点单时间</div>
+              <div class="th">关联卡台</div>
               <div class="th">操作</div>
             </div>
           </div>
@@ -177,7 +178,9 @@
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{ items.ot.slice(7) }}
                           </div>
-                          <div class="td-td"></div>
+                          <div class="td-td" :class="{ opacity: items.back }">
+                            {{ items.ri ? items.ri : (items.Yh2SeatInfo ? items.Yh2SeatInfo.name : '') }}
+                          </div>
                         </div>
                         <!-- 线上套餐明细 -->
                         <div v-if="items.is == 1 && !items.back">
@@ -282,6 +285,9 @@
                     </div>
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.ot.slice(7) }}
+                    </div>
+                    <div class="td" :class="{ opacity: item.back }">
+                      {{ item.ri ? item.ri : (item.Yh2SeatInfo ? item.Yh2SeatInfo.name : '') }}
                     </div>
                     <!-- 只显示未退款套餐中的更改套餐明细 或者是优惠变更-->
                     <div class="td">
@@ -548,6 +554,7 @@ export default {
           let prd_cnts = [];
           let amt = 0;
           
+
           this.tableData.forEach((el) => {
             if (el.back) {
               if (wk_order_ids.indexOf(el.parentOrderId * 1) == -1) {
@@ -560,7 +567,7 @@ export default {
             }
             el.back || el.at == 2 || el.at == 3
               ? (amt += 0)
-              : (amt += el.pp * 1 == 0 ? el.pa * 1 : el.changeCount * el.pp);
+              : (amt += el.pa * 1);
           });
 
           const confirmParams = {

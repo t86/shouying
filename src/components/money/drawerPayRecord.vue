@@ -301,24 +301,8 @@ export default {
       return row.c;
     },
     formatPointInfo(row) {
-      // 格式：会员卡号-积分数
-      // 如果没有会员信息或积分为0/空，则显示为空
-      if (!row || !row.c || row.c === "-") return "";
-
-      const custInfo = row.c || "";
-      // pt 后端改为 string 类型，这里统一转换为 number 处理
-      let points = 0;
-      if (row.pt !== undefined && row.pt !== null && row.pt !== "") {
-        const num = Number(row.pt);
-        points = Number.isNaN(num) ? 0 : num;
-      }
-
-      // 如果积分为0或没有积分，只显示会员卡号
-      if (!points || points === 0) {
-        return custInfo ? `${custInfo}-0` : "";
-      }
-
-      return `${custInfo}-${points}`;
+      //显示形如 "会员卡号-积分数" 直接使用后端已格式化的 pt 字段
+      return String(row.pt);
     },
     parseTime(value) {
       if (!value) return 0;
