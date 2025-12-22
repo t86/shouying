@@ -100,7 +100,6 @@
               <div class="th">服务员</div>
               <div class="th">优惠人</div>
               <div class="th">点单时间</div>
-              <div class="th">关联卡台</div>
               <div class="th">操作</div>
             </div>
           </div>
@@ -178,9 +177,7 @@
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{ items.ot.slice(7) }}
                           </div>
-                          <div class="td-td" :class="{ opacity: items.back }">
-                            {{ items.ri ? items.ri : (items.Yh2SeatInfo ? items.Yh2SeatInfo.name : '') }}
-                          </div>
+                          <div class="td-td"></div>
                         </div>
                         <!-- 线上套餐明细 -->
                         <div v-if="items.is == 1 && !items.back">
@@ -285,9 +282,6 @@
                     </div>
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.ot.slice(7) }}
-                    </div>
-                    <div class="td" :class="{ opacity: item.back }">
-                      {{ item.ri ? item.ri : (item.Yh2SeatInfo ? item.Yh2SeatInfo.name : '') }}
                     </div>
                     <!-- 只显示未退款套餐中的更改套餐明细 或者是优惠变更-->
                     <div class="td">

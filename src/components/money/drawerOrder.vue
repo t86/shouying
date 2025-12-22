@@ -113,6 +113,7 @@
             <div class="tr" layout="row" layout-align="start center">
               <div class="th">区域</div>
               <div class="th">卡台</div>
+              <div class="th">关联卡台</div>
               <div class="th">点单时间</div>
               <div class="th">点单部门</div>
               <div class="th">点单人</div>
@@ -140,6 +141,7 @@
             >
               <div class="td">{{ item.r }}</div>
               <div class="td">{{ item.s }}</div>
+              <div class="td">{{ item.ri }}</div>
               <div class="td">{{ item.o }}</div>
               <div class="td">{{ item.od }}</div>
               <div class="td">{{ item.oe }}</div>
