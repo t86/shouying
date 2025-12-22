@@ -66,7 +66,7 @@
             <div
               v-else
               class="td"
-            >{{item.pp==0? (item.pa*1).toFixed(2) : (item.pp * item.changeCount).toFixed(2)}}</div>
+            >{{ formatRefundSubtotal(item) }}</div>
             <div class="td">{{item.personInfo?item.personInfo.name:'自助'}}</div>
             <div class="td">{{item.ot.slice(7)}}</div>
           </div>
@@ -104,7 +104,7 @@ import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
 import subDisabled from "@/assets/order-img/sub-disabled.png";
-import { resolveUnitPrice, buildPriceContextFromStore } from "@/utils/orderItemPrice";
+import { resolveUnitPrice, buildPriceContextFromStore, calcItemAmount } from "@/utils/orderItemPrice";
 export default {
   data() {
     return {
@@ -136,6 +136,16 @@ export default {
       } catch (e) {
         // fallback to original pp if something goes wrong
         return (item.pp * 1).toFixed(2);
+      }
+    },
+    formatRefundSubtotal(item) {
+      try {
+        const ctx = buildPriceContextFromStore(this.$store);
+        const amt = calcItemAmount(item, ctx);
+        return (amt || 0).toFixed(2);
+      } catch (e) {
+        // fallback to previous inline logic
+        return item.pp == 0 ? (item.pa * 1).toFixed(2) : ((item.pp * 1) * (item.changeCount * 1)).toFixed(2);
       }
     },
     // 初始化退单列表信息
