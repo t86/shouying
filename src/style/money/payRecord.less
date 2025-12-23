@@ -366,3 +366,28 @@
   }
 }
 
+/* 兼容覆盖：强制将“修改订单绑定会员”弹窗背景设为纯黑，文字为白色，解决浅色主题导致可读性差的问题 */
+::v-deep .pay-record-edit-dialog .el-dialog,
+::v-deep .pay-record-edit-dialog .el-dialog__header,
+::v-deep .pay-record-edit-dialog .el-dialog__body,
+::v-deep .pay-record-edit-dialog .el-dialog__footer {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+/* 输入框、按钮等也强制为深色主题以保证对比度 */
+::v-deep .pay-record-edit-dialog .el-input__inner {
+  background: rgba(0,0,0,0.6) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+::v-deep .pay-record-edit-dialog .el-button,
+::v-deep .pay-record-edit-dialog .el-button--default,
+::v-deep .pay-record-edit-dialog .el-button--primary {
+  color: #fff !important;
+}
+
+::v-deep .pay-record-edit-dialog .el-dialog__headerbtn .el-dialog__close {
+  color: rgba(255,255,255,0.7) !important;
+}
