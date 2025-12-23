@@ -1,6 +1,6 @@
 {
   "name": "managementsystem",
-  "version": "1.0.202512220923",
+  "version": "1.0.202512230908",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

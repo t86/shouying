@@ -539,7 +539,7 @@ export default {
   }
 
   .tips {
-    color: #d62855;
+    color: #ff2f4b;
     margin-top: 4.5vh;
     margin-bottom: 5vh;
     font-size: 22px;

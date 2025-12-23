@@ -922,6 +922,8 @@ export default {
           this.payTabInfo.showPayTabList = this.payTabInfo.payTabList;
           this.payTabInfo.otherIndex = this.payTabInfo.payTabList.length;
         }
+        // 调整底部按钮，避免换行
+        this.adjustBottomButtons();
       }, 200);
     },
 
@@ -1789,6 +1791,66 @@ export default {
       return calcItemAmount(item, priceContext);
     },
 
+    // 调整底部 action 按钮的字体与宽度，避免换行
+    adjustBottomButtons() {
+      try {
+        this.$nextTick(() => {
+          const bottomRow = this.$el.querySelector('.order-content-bottom');
+          if (!bottomRow) return;
+          const rightArea = bottomRow.querySelector('.order-content-bottom-right');
+          const leftArea = bottomRow.querySelector('.order-content-bottom-left');
+          if (!rightArea) return;
+
+          const containerWidth = rightArea.getBoundingClientRect().width;
+          const leftWidth = leftArea ? leftArea.getBoundingClientRect().width : 0;
+          // available width for buttons (subtract small margin)
+          const availableWidth = containerWidth - 20;
+
+          const buttons = Array.from(rightArea.querySelectorAll('.button')).filter(el => {
+            return el.offsetParent !== null;
+          });
+          if (!buttons.length) return;
+
+          // reset to default font-size before measuring
+          rightArea.style.setProperty('--pay-btn-font-size', this.bottomBtnFontSize + 'px');
+          rightArea.style.setProperty('--pay-btn-min-width', this.bottomBtnMinWidth + 'px');
+
+          // measure total width at default font
+          let totalWidth = buttons.reduce((sum, btn) => {
+            const style = window.getComputedStyle(btn);
+            const marginLeft = parseFloat(style.marginLeft) || 0;
+            const marginRight = parseFloat(style.marginRight) || 0;
+            return sum + btn.scrollWidth + marginLeft + marginRight;
+          }, 0);
+
+          // reduce font size in steps until fits or reach min
+          let fontSize = this.bottomBtnFontSize;
+          while (totalWidth > availableWidth && fontSize > this.bottomBtnMinFontSize) {
+            fontSize -= 1;
+            rightArea.style.setProperty('--pay-btn-font-size', fontSize + 'px');
+            // re-measure
+            totalWidth = buttons.reduce((sum, btn) => {
+              const style = window.getComputedStyle(btn);
+              const marginLeft = parseFloat(style.marginLeft) || 0;
+              const marginRight = parseFloat(style.marginRight) || 0;
+              return sum + btn.scrollWidth + marginLeft + marginRight;
+            }, 0);
+          }
+
+          // if still too wide, shrink button min-width proportionally (not lower than bottomBtnMinWidth)
+          if (totalWidth > availableWidth) {
+            // total extra space needed
+            const overflow = totalWidth - availableWidth;
+            const perBtnReduce = Math.ceil(overflow / buttons.length);
+            let newMinWidth = Math.max(this.bottomBtnMinWidth - perBtnReduce, 60); // don't go below 60px
+            rightArea.style.setProperty('--pay-btn-min-width', newMinWidth + 'px');
+          }
+        });
+      } catch (e) {
+        // ignore measurement errors
+      }
+    },
+
     // 支付金额为0的时候支付
     async payOrder0(wk_order_ids, prd_cnts, allAmt) {
       const params = {
@@ -2380,9 +2442,14 @@ export default {
             this.payTabInfo.otherIndex = this.payTabInfo.payTabList.length;
           }
         }, 100);
+          // 调整底部按钮，避免换行
+          this.adjustBottomButtons();
       }
     };
     window.addEventListener('resize', this.handleResize);
+    this.$nextTick(() => {
+      this.adjustBottomButtons();
+    });
   },
   mixins: [navPrdList],
   components: {
@@ -2482,4 +2549,36 @@ export default {
 
 <style scoped lang="less">
 @import "../../style/money/payOrder.less";
+
+// Responsive adjustments for bottom action buttons to avoid wrapping
+.order-content-bottom-right {
+  // default variables (can be overridden by JS)
+  --pay-btn-font-size: 14px;
+  --pay-btn-min-width: 110px;
+}
+
+.order-content-bottom-right .button {
+  font-size: var(--pay-btn-font-size);
+  min-width: var(--pay-btn-min-width);
+  white-space: nowrap;
+  padding: 8px 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Slightly more compact on small screens
+@media (max-width: 900px) {
+  .order-content-bottom-right .button {
+    padding: 6px 10px;
+  }
+}
+
+// Ensure portrait mobile/tablet reduces font size a bit
+@media (orientation: portrait) {
+  .order-content-bottom-right .button {
+    font-size: calc(var(--pay-btn-font-size) - 1px);
+  }
+}
+
 </style>

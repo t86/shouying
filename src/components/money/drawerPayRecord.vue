@@ -69,7 +69,7 @@
               :formatter="formatCustInfo"
             />
             <el-table-column
-              label="积分赠送"
+              label="积分赠送中"
               min-width="160"
               :formatter="formatPointInfo"
             />
