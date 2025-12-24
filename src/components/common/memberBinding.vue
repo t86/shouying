@@ -104,6 +104,7 @@ import api_order from "@/api/order";
 import api_money from "@/api/money";
 import keyBoard from "@/components/common/keyBoard";
 import eventVue from "@/utils/eventVue";
+import { setCsmCustWithPolling } from "@/utils/csmCustPolling";
 
 export default {
   name: "MemberBinding",
@@ -317,14 +318,28 @@ export default {
 
     // 绑定会员
     async bindMember(phone) {
-      try {
-        const res = await api_order.set_csm_cust({
-          cust_phone: phone,
-          seat_id: this.seatId * 1,
-        });
+      // 创建loading实例
+      const loading = this.$loading({
+        lock: true,
+        text: '正在设置结账客人...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
 
-        if (res.code === 1) {
-          this.$message.success("绑定成功");
+      try {
+        // 使用轮询工具函数
+        const result = await setCsmCustWithPolling(
+          phone,
+          this.seatId * 1,
+          loading,
+          () => {
+            // 用户取消操作的回调
+            this.$message.info('已取消设置');
+          }
+        );
+
+        if (result.success) {
+          this.$message.success(result.message || '绑定成功');
           // 更新会员列表
           if (!this.memberList.find((item) => item.p === phone)) {
             this.memberList.unshift({
@@ -341,11 +356,19 @@ export default {
             }, 500);
           }
         } else {
-          this.$message.warning(res.msg);
+          // 如果是用户取消，不显示错误消息
+          if (!result.canceled) {
+            this.$message.warning(result.message || '绑定失败');
+          }
         }
       } catch (error) {
         console.error("绑定会员失败:", error);
         this.$message.error("绑定会员失败");
+      } finally {
+        // 确保loading被关闭
+        if (loading) {
+          loading.close();
+        }
       }
     },
 
@@ -372,21 +395,34 @@ export default {
         return;
       }
 
-      try {
-        // 调用API取消绑定
-        const res = await api_order.set_csm_cust({
-          cust_phone: "",
-          seat_id: this.seatId * 1,
-        });
+      // 创建loading实例
+      const loading = this.$loading({
+        lock: true,
+        text: '正在取消绑定...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
 
-        if (res.code === 1) {
-          this.$message.success("取消绑定成功");
+      try {
+        // 使用轮询工具函数取消绑定（传空字符串）
+        const result = await setCsmCustWithPolling(
+          "",
+          this.seatId * 1,
+          loading,
+          () => {
+            // 用户取消操作的回调
+            this.$message.info('已取消操作');
+          }
+        );
+
+        if (result.success) {
+          this.$message.success(result.message || '取消绑定成功');
           // 清空选中会员信息
           this.selectedMemberInfo = null;
           this.customPhone = "";
           this.errorMessage = "";
           this.allowBlur = false;
-          
+
           // 触发元数据刷新（通过事件总线）
           if (this.$store && this.$store.dispatch) {
             setTimeout(() => {
@@ -410,11 +446,19 @@ export default {
             });
           }
         } else {
-          this.$message.warning(res.msg || "取消绑定失败");
+          // 如果是用户取消，不显示错误消息
+          if (!result.canceled) {
+            this.$message.warning(result.message || '取消绑定失败');
+          }
         }
       } catch (error) {
         console.error("取消绑定失败:", error);
         this.$message.error("取消绑定失败");
+      } finally {
+        // 确保loading被关闭
+        if (loading) {
+          loading.close();
+        }
       }
     },
 

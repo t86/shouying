@@ -94,6 +94,10 @@ export default {
   set_csm_cust: (params) =>
       axios.post(`${base.htgl}/wo/set_csm_cust`, params),
 
+  // 读取设置结账客人设置结果(轮询接口)
+  get_set_csm_cust_rst: (params) =>
+      axios.post(`${base.htgl}/wo/get_set_csm_cust_rst`, params),
+
   // 读取流水对应的会员手机号
   get_csm_phone_nums: (params) => {
     // 🚨 正式上线前，取消注释下面这行，删除上面的 mock 代码

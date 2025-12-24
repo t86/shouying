@@ -262,6 +262,7 @@ import authStatus from "@/mixin/authStatus";
 import keyBoard from "@/components/common/newKeyBoard";
 import ImageOptimizer from '@/utils/imageOptimizer';
 import { getProductDisplayPrice, getProductPrice, getProductPriceInfo } from '@/utils/priceCalculator';
+import { setCsmCustWithPolling } from "@/utils/csmCustPolling";
 
 // 键盘码 keycode
 let downKeyCode = [0, 0]
@@ -425,19 +426,38 @@ export default {
           this.$message.warning('请选择一个客人');
           return;
         }
-        const res = await api_order.set_csm_cust({
-          cust_phone: checkedGuests[0].p,
-          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, // int64  卡台Id
-        })
-        if (res.code === 1) {
-          this.$message.success('绑定成功');
+
+        // 创建loading实例
+        const loading = this.$loading({
+          lock: true,
+          text: '正在设置结账客人...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+
+        // 使用轮询工具函数
+        const result = await setCsmCustWithPolling(
+          checkedGuests[0].p,
+          this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+          loading,
+          () => {
+            // 用户取消操作的回调
+            this.$message.info('已取消设置');
+          }
+        );
+
+        if (result.success) {
+          this.$message.success(result.message || '绑定成功');
           this.formguest.name = checkedGuests[0].n
           if(!this.formguest.new_guest) {
             this.formguest.phone = checkedGuests[0].p
           }
           this.displayCustName = checkedGuests[0].n || this.maskedPhone || ""
         } else {
-          this.$message.warning(res.msg);
+          // 如果是用户取消，不显示错误消息
+          if (!result.canceled) {
+            this.$message.warning(result.message || '绑定失败');
+          }
         }
       } catch (error) {
         console.log('绑定客人失败', error)
