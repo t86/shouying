@@ -30,6 +30,7 @@
         v-else-if="type==2"
         :productInfo="productInfo"
         :singleInfo="singleInfo"
+        :show="show"
         @closeDrawerHandle="closeDrawerHandle"
       />
 

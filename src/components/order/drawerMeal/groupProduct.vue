@@ -230,28 +230,12 @@ export default {
         mbPrice: mbPrice
       });
       console.log('🔍🔍🔍 [旧套餐组件] 开始计算小计，isMember:', isMember);
-      
-      // 小计计算逻辑：
-      // - 如果是会员，使用会员价（通过 getProductPrice 计算，已包含会员价）
-      // - 如果是散客，强制使用原价，不管 getProductPrice 返回什么
-      // 关键：判断是否要使用会员价来计算小计
-      let unitPriceForCalc;
-      if (isMember) {
-        // 是会员：使用 getProductPrice 计算出的价格（可能包含会员价、商务会员价等）
-        unitPriceForCalc = this.calculatedPrice;
-        console.log('✅✅✅ [旧套餐组件] 是会员，使用会员价计算小计:', unitPriceForCalc);
-      } else {
-        // 是散客：强制使用原价，不使用任何会员价
-        // 即使 getProductPrice 返回了会员价，散客也必须用原价
-        unitPriceForCalc = parseFloat(originalPrice) || 0;
-        console.log('❌❌❌ [旧套餐组件] 不是会员，强制使用原价计算小计:', unitPriceForCalc, '原价:', originalPrice, 'calculatedPrice:', this.calculatedPrice);
 
-        // 额外检查：如果 calculatedPrice 等于会员价，但 isMember 是 false，说明判断有误，强制使用原价
-        if (mbPrice > 0 && Math.abs(this.calculatedPrice - mbPrice) < 0.01) {
-          console.warn('⚠️⚠️⚠️ [旧套餐组件] 警告：检测到 calculatedPrice 是会员价，但 isMember 是 false，强制使用原价');
-          unitPriceForCalc = parseFloat(originalPrice) || 0;
-        }
-      }
+      // 小计计算逻辑：
+      // ✅ 始终使用 getProductPrice 计算单价，它会根据价格优先级自动选择正确的价格
+      // 不要根据 isMember 手动判断，因为即使是散客，也可能需要使用商务原价、包厢原价等
+      const unitPriceForCalc = this.calculatedPrice;
+      console.log('✅✅✅ [旧套餐组件] 使用 getProductPrice 计算单价:', unitPriceForCalc);
 
       // 小计 = 单价 * 数量
       groupInfo.allAmt = (unitPriceForCalc * this.singleInfo.prd_cnt).toFixed(2);
@@ -557,12 +541,21 @@ export default {
     drawerChooseRequireInfo,
     drawerBj
   },
-  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate"],
+  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "show"],
   watch: {
     selectedInfoObj: {
       deep: true,
       handler() {
         this.init();
+      }
+    },
+    // 监听弹窗显示状态，当弹窗打开时重新初始化，确保会员数据是最新的
+    show: {
+      handler(newVal) {
+        if (newVal) {
+          console.log('🔄🔄🔄 [旧套餐组件] 弹窗打开，重新初始化数据');
+          this.init();
+        }
       }
     }
   }

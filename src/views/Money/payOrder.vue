@@ -601,7 +601,7 @@ export default {
       this.empList = [];
     },
     maskedPhone(phone) {
-      if (phone && phone === 11) {
+      if (phone && phone.length === 11) {
       // 只对11位中国手机号掩码
         return (
           phone.slice(0, 3) +
@@ -2317,6 +2317,15 @@ export default {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadPayOrderList", this.init);
 
+    // 监听业务数据刷新（例如绑定会员后），重新加载订单数据
+    eventVue.$on("reloadBusinessData", () => {
+      console.log('🔄 [结账页面] 收到 reloadBusinessData 事件，重新加载订单数据');
+      // 延迟一下，确保后端数据已更新
+      setTimeout(() => {
+        this.init();
+      }, 300);
+    });
+
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
     this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
     eventVue.$on("safeModeChanged", (e) => {
@@ -2468,7 +2477,9 @@ export default {
       this.payTabInfo.payTabShow = false;
       this.turnOverInfo.turnOverTabShow = false;
     });
-    eventVue.$off("reloadPayOrderList")
+    eventVue.$off("reloadPayOrderList");
+    eventVue.$off("reloadBusinessData");
+    eventVue.$off("safeModeChanged");
     document.onkeydown = null;
     document.onkeyup = null;
     downKeyCode = [0, 0];

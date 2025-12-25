@@ -213,17 +213,10 @@ export default {
       const mbPrice = this.productInfo.mbPrice || this.productInfo.mb_price;
       const origPrice = this.productInfo.price || this.productInfo.vipPrice;
 
-      let unitPrice;
-      if (isMember) {
-        // 是会员：使用会员价
-        // 优先使用 getProductPrice 返回的价格，它会自动处理会员价、商务会员价等
-        unitPrice = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
-        console.log('✅✅✅ [套餐] 是会员，使用会员价:', unitPrice);
-      } else {
-        // 是散客：强制使用原价，不使用任何会员价
-        unitPrice = origPrice;
-        console.log('❌❌❌ [套餐] 不是会员，强制使用原价:', unitPrice);
-      }
+      // ✅ 始终使用 getProductPrice 计算单价，它会根据价格优先级自动选择正确的价格
+      // 不要根据 isMember 手动判断，因为即使是散客，也可能需要使用商务原价、包厢原价等
+      const unitPrice = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      console.log('✅✅✅ [套餐] 使用 getProductPrice 计算单价:', unitPrice);
 
       this.calculatedPrice = parseFloat(unitPrice) || parseFloat(origPrice) || 0;
 
@@ -249,17 +242,17 @@ export default {
 
       // ========== 计算小计金额 ==========
       // 小计 = 单价 * 数量
-      // 重要：这里必须使用根据会员状态计算出的正确单价
-      const subtotalUnitPrice = isMember ? this.calculatedPrice : parseFloat(origPrice);
-      groupInfo.allAmt = (subtotalUnitPrice * this.singleInfo.prd_cnt).toFixed(2);
+      // 重要：直接使用 calculatedPrice，它已经根据会员状态和价格优先级正确计算过了
+      // 不再重新判断 isMember，避免因判断不一致导致价格错误
+      groupInfo.allAmt = (this.calculatedPrice * this.singleInfo.prd_cnt).toFixed(2);
 
       console.log('💰💰💰 [套餐] 最终小计:', {
         allAmt: groupInfo.allAmt,
-        unitPrice: subtotalUnitPrice,
+        calculatedPrice: this.calculatedPrice,
         prd_cnt: this.singleInfo.prd_cnt,
         isMember: isMember,
-        calculatedPrice: this.calculatedPrice,
-        origPrice: origPrice
+        origPrice: origPrice,
+        priceInfo: this.priceInfo
       });
 
       this.groupInfo = groupInfo;
@@ -733,12 +726,21 @@ export default {
     drawerChooseRequireInfo,
     drawerBj
   },
-  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo", "mtInfo"],
+  props: ["productInfo", "singleInfo", "selectedInfoObj", "isUpdate", "dyInfo", "mtInfo", "show"],
   watch: {
     selectedInfoObj: {
       deep: true,
       handler() {
         this.init();
+      }
+    },
+    // 监听弹窗显示状态，当弹窗打开时重新初始化，确保会员数据是最新的
+    show: {
+      handler(newVal) {
+        if (newVal) {
+          console.log('🔄🔄🔄 [套餐] 弹窗打开，重新初始化数据');
+          this.init();
+        }
       }
     }
   }

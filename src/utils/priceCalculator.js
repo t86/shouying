@@ -268,16 +268,19 @@ export function getProductPriceInfo(productInfo, cardInfo, businessData, busines
       };
     }
   }
-  
+
   if (isBusinessCard) {
-    // 商务卡台：检查是否同时配置了商务原价和商务会员价
+    // 商务卡台（非会员）：检查是否同时配置了商务原价和商务会员价
+    // 注意：这里只在未绑定会员时才显示"原价+会员价"的形式
+    // 如果已绑定会员，应该在上面的 "isBusinessCard && isMemberCard" 分支处理
     if (bsMbPrice > 0 && bsPrice > 0) {
-      // 同时配置了商务原价和商务会员价，显示两个价格
+      // 同时配置了商务原价和商务会员价
+      // 但这是散客场景，显示两个价格是为了提示用户绑定会员可享受会员价
       return {
         originalPrice: bsPrice.toString(),
         memberPrice: bsMbPrice.toString(),
         hasMemberPrice: true,
-        displayPrice: bsMbPrice.toString()
+        displayPrice: bsPrice.toString()  // ✅ 散客使用商务原价作为实际价格
       };
     } else if (bsPrice > 0) {
       // 只配置了商务原价，只显示一个价格
@@ -289,7 +292,7 @@ export function getProductPriceInfo(productInfo, cardInfo, businessData, busines
       };
     }
   }
-  
+
   if (isBox) {
     // 包厢卡台：检查是否同时配置了包厢原价和包厢会员价
     if (bxMbPrice > 0 && bxPrice > 0) {
