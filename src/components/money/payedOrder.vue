@@ -430,6 +430,11 @@
 import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
 import api_order from "@/api/order";
+import {
+  buildPriceContextFromStore,
+  calcItemAmount,
+} from "@/utils/orderItemPrice";
+import eventVue from "@/utils/eventVue";
 
 import shoppingCarMore from "@/assets/order-img/shoppingCarMore.png";
 import sanJiao from "@/assets/card-imgs/cardOptions/sanjiao.png";
@@ -543,25 +548,53 @@ export default {
       try {
         const res = await api_money.reqPayedBackOrder(params);
         if (res.code === 1) {
-          // 重新确认待结账订单
+          // ✅ 退单成功后，先调用 csm_orders 获取最新的待结账商品信息
+          const cardPayInfoParams = {
+            seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+            turnover_cnt: this.turnOverCount,
+          };
+
+          console.log('📋 [退单] 调用 csm_orders 参数:', cardPayInfoParams);
+          const cardPayInfoRes = await api_money.reqGetCardPayInfo(cardPayInfoParams);
+          console.log('📋 [退单] csm_orders 返回:', cardPayInfoRes);
+
+          if (cardPayInfoRes.code !== 1) {
+            return this.$message.warning('获取待结账商品信息失败: ' + cardPayInfoRes.msg);
+          }
+
+          // ✅ 数据在 unpay_order.os 字段中
+          const unpayOrder = cardPayInfoRes.data.unpay_order;
+          const orderList = (unpayOrder && unpayOrder.os) ? unpayOrder.os : [];
+          console.log('📋 [退单] unpay_order.os 列表:', orderList);
+          console.log('📋 [退单] tableData 完整内容:', this.tableData);
+
+          // ✅ 更改支付渠道：只要 tableData 中的商品和 unpay_order.os 中的商品 ID 匹配，就传递
           let wk_order_ids = [];
           let prd_cnts = [];
           let amt = 0;
-          
 
-          this.tableData.forEach((el) => {
-            if (el.back) {
-              if (wk_order_ids.indexOf(el.parentOrderId * 1) == -1) {
-                wk_order_ids.push(el.parentOrderId * 1);
-                prd_cnts.push(0);
-              }
-            } else {
-              wk_order_ids.push(el.id * 1);
-              prd_cnts.push(el.changeCount * 1);
+          // 构建价格上下文
+          const priceContext = buildPriceContextFromStore(this.$store);
+
+          // 遍历 csm_orders 返回的商品列表
+          orderList.forEach((item) => {
+            console.log('📋 [退单] 检查商品:', item.id, 'pid:', item.pid);
+
+            // 检查该商品是否在 tableData 中（只要 ID 匹配就传递）
+            const matchedItem = this.tableData.find(td => td.id === item.id);
+            console.log('📋 [退单] 匹配结果:', matchedItem ? '找到匹配' : '未找到', matchedItem);
+
+            if (matchedItem) {
+              // 找到匹配的商品，传递给 cart_begin_process
+              wk_order_ids.push(item.id * 1);
+              prd_cnts.push(item.pc || 1);
+
+              // 使用通用的价格公式计算金额
+              const itemAmt = calcItemAmount(item, priceContext);
+              amt += itemAmt;
+
+              console.log('📋 [退单] 添加匹配商品:', item.id, 'pid:', item.pid, '数量:', item.pc, '金额:', itemAmt);
             }
-            el.back || el.at == 2 || el.at == 3
-              ? (amt += 0)
-              : (amt += el.pa * 1);
           });
 
           const confirmParams = {
@@ -571,10 +604,19 @@ export default {
             total_amt: amt.toFixed(2)
           };
 
+          console.log('📋 [退单] cart_begin_process 参数:', confirmParams);
+
           const confirmRes = await api_money.reqConfirmBillInfo(confirmParams);
+          console.log('📋 [退单] cart_begin_process 返回:', confirmRes);
+
           if (confirmRes.code != 1) {
             return this.$message.warning(confirmRes.msg);
           }
+
+          // ✅ 更改支付渠道成功后，通知父组件刷新订单数据
+          // 这样 payOrder.vue 的 notPayData.choosePayOrderList 才会更新为最新数据
+          console.log('📋 [退单] 发出 reloadPayOrderList 事件');
+          eventVue.$emit("reloadPayOrderList");
 
           return true;
         } else {

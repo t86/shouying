@@ -2360,6 +2360,16 @@ export default {
       // 打印 getOrderInfo 之后的默认状态
       const defaultSelected = this.notPayData.notPayOrderList.filter(item => item.checkout).length;
       console.log('📋 [结账页面] getOrderInfo后，默认选中数:', defaultSelected);
+      const firstItem = this.notPayData.notPayOrderList[0];
+      if (firstItem) {
+        console.log('📋 [结账页面] notPayOrderList[0] 的价格字段:', {
+          id: firstItem.id,
+          pp: firstItem.pp,
+          pa: firstItem.pa,
+          p2: firstItem.p2,
+          pm: firstItem.pm,
+        });
+      }
 
       // ✅ 恢复打开支付抽屉时保存的商品选中状态（通过 ID 匹配）
       let restoredCount = 0;
@@ -2371,12 +2381,22 @@ export default {
         }
       });
 
-      // 更新 choosePayOrderList
+      // 更新 choosePayOrderList（创建新数组引用以确保响应式更新）
       this.notPayData.choosePayOrderList = this.notPayData.notPayOrderList.filter(
         (item) => item.checkout
       );
 
       console.log('♻️ [结账页面] 已恢复选中状态，选中数量:', restoredCount);
+      const firstChooseItem = this.notPayData.choosePayOrderList[0];
+      if (firstChooseItem) {
+        console.log('📋 [结账页面] choosePayOrderList[0] 的价格字段:', {
+          id: firstChooseItem.id,
+          pp: firstChooseItem.pp,
+          pa: firstChooseItem.pa,
+          p2: firstChooseItem.p2,
+          pm: firstChooseItem.pm,
+        });
+      }
     });
 
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
