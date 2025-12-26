@@ -381,34 +381,14 @@ export default {
       const { canNotSelectInfo, canSelectInfo } = this.getSubmitData();
 
       // ========== 提交时的价格计算 ==========
-      // 严格判断是否为会员
-      const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
-      const cardInfo = this.$store.state.orderInfo.currentCardInfo;
-      const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
-      const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
+      // ✅ 直接使用 calculatedPrice，它已经根据价格优先级正确计算过了
+      // 不要再次判断 isMember，因为即使是散客，也可能需要使用商务原价、包厢原价等
+      const prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
 
-      // 严格判断是否为会员：csm_cust_phone 必须是字符串且去除空格后不为空
-      const csmCustPhone = currentBusiness ? (currentBusiness.csm_cust_phone || '') : '';
-      const isMember = !!(csmCustPhone && typeof csmCustPhone === 'string' && csmCustPhone.trim() !== '');
-
-      let prdPrice;
-      if (isMember) {
-        // 是会员：使用 getProductPrice 计算出的价格
-        prdPrice = this.calculatedPrice || this.groupInfo.price || 0;
-        console.log('📤📤📤 [套餐提交] 是会员，使用会员价:', prdPrice);
-      } else {
-        // 是散客：强制使用原价
-        const originalPrice = this.productInfo.vipPrice || this.productInfo.price || "0";
-        prdPrice = parseFloat(originalPrice) || this.groupInfo.price || 0;
-        console.log('📤📤📤 [套餐提交] 不是会员，强制使用原价:', prdPrice, '原价:', originalPrice);
-      }
-
-      console.log('📤📤📤 [套餐提交] 最终提交价格:', {
+      console.log('📤📤📤 [旧套餐提交] 使用 calculatedPrice 作为提交价格:', {
         prdPrice: prdPrice,
-        isMember: isMember,
         calculatedPrice: this.calculatedPrice,
-        groupInfo_price: this.groupInfo.price,
-        csmCustPhone: JSON.stringify(csmCustPhone)
+        groupInfo_price: this.groupInfo.price
       });
 
       const params = {
