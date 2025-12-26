@@ -72,7 +72,7 @@ export default {
     },
     seatId: {
       type: [Number, String],
-      required: true,
+      default: null,
     },
   },
   data() {

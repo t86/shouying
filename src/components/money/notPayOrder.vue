@@ -355,7 +355,41 @@ export default {
   },
   methods: {
     getPriceContext() {
-      return buildPriceContextFromStore(this.$store);
+      const ctx = buildPriceContextFromStore(this.$store);
+
+      // 如果 prop 中有会员信息，创建修改后的副本（避免直接修改 store）
+      if (this.memberInfo) {
+        const cardInfo = ctx.cardInfo;
+        const businessData = ctx.businessData || [];
+
+        // 创建 businessData 的副本
+        const newBusinessData = businessData.map(item => ({...item}));
+        const currentBusiness = newBusinessData.find(
+          item => item.seatId === (cardInfo.seatId || cardInfo.id)
+        );
+
+        if (currentBusiness) {
+          // 使用 prop 中的会员信息更新副本
+          if (this.memberInfo.phone) {
+            currentBusiness.csm_cust_phone = this.memberInfo.phone;
+            currentBusiness.csm_cust_id = this.memberInfo.id;
+            currentBusiness.csm_cust_name = this.memberInfo.name;
+          } else {
+            // 取消绑定时清空会员信息
+            currentBusiness.csm_cust_phone = "";
+            currentBusiness.csm_cust_id = null;
+            currentBusiness.csm_cust_name = null;
+          }
+        }
+
+        // 返回修改后的 context
+        return {
+          ...ctx,
+          businessData: newBusinessData,
+        };
+      }
+
+      return ctx;
     },
 
     chooseOrder(e, orderInfo, type) {
@@ -641,7 +675,7 @@ export default {
     }, 500);
     document.body.addEventListener("click", () => this.showOrHideList("all"));
   },
-  props: ["notPayOrderList"],
+  props: ["notPayOrderList", "memberInfo"],
   components: {
     drawerMyOrder
   },

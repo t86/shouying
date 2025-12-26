@@ -72,6 +72,7 @@
           v-if="payTabInfo.activePayId == 0"
           ref="notPayOrder"
           :notPayOrderList="notPayData.notPayOrderList"
+          :memberInfo="currentMemberInfo"
           @updatePayOrderList="updatePayOrderList"
         />
         <!-- 已支付订单表格 -->
@@ -476,6 +477,7 @@ import inputSelect from "@/components/book/inputSelect";
 
 import api_order from "@/api/order";
 import api_money from "@/api/money";
+import api_book from "@/api/Book";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
 import {
@@ -579,6 +581,16 @@ export default {
       // 批量修改下单人和授权人
       showBatchWaiterDrawer: false,
       showBatchAutherDrawer: false,
+
+      // 当前会员信息（用于价格计算）
+      currentMemberInfo: {
+        phone: "",
+        id: null,
+        name: "",
+      },
+
+      // 保存的商品选中状态（用于绑定/取消客人后恢复）
+      savedOrderSelection: null,
     };
   },
   methods: {
@@ -1820,6 +1832,12 @@ export default {
       )
         return this.$message.warning("请选择需要结账的商品");
 
+      // ✅ 保存当前的商品选中状态（在打开支付弹窗时）
+      if (!this.drawer.payDrawer.showDrawer) {
+        this.savedOrderSelection = JSON.parse(JSON.stringify(this.notPayData.notPayOrderList));
+        console.log('💾 [结账页面] 已保存商品选中状态，商品数量:', this.savedOrderSelection.filter(item => item.checkout).length);
+      }
+
       //判断所选择订单是否有线上支付的订单
       const hasOnlinePayOrder = this.notPayData.choosePayOrderList.some(
         (item) =>
@@ -2317,13 +2335,48 @@ export default {
     // 监听是否有其他人更改订单相关数据
     eventVue.$on("reloadPayOrderList", this.init);
 
-    // 监听业务数据刷新（例如绑定会员后），重新加载订单数据
-    eventVue.$on("reloadBusinessData", () => {
-      console.log('🔄 [结账页面] 收到 reloadBusinessData 事件，重新加载订单数据');
-      // 延迟一下，确保后端数据已更新
-      setTimeout(() => {
-        this.init();
-      }, 300);
+    // 监听价格更新事件（绑定/取消客人后），重新获取金额并恢复选中状态
+    eventVue.$on("priceUpdated", async () => {
+      console.log('🔄 [结账页面] 收到 priceUpdated 事件，重新获取金额');
+
+      // ✅ 使用打开支付抽屉时保存的选中状态（savedOrderSelection）
+      if (!this.savedOrderSelection || this.savedOrderSelection.length === 0) {
+        console.warn('⚠️ [结账页面] 没有保存的选中状态，无法恢复');
+        return;
+      }
+
+      // 将 savedOrderSelection 转换为 Map 以便通过 ID 匹配
+      const selectionMap = new Map();
+      this.savedOrderSelection.forEach(item => {
+        const key = `${item.id}_${item.pid}`;
+        selectionMap.set(key, item.checkout);
+      });
+      const savedSelectedCount = Array.from(selectionMap.values()).filter(v => v).length;
+      console.log('💾 [结账页面] 使用保存的选中状态，保存的选中数量:', savedSelectedCount);
+
+      // ✅ 重新调用接口获取新的金额（后端会根据新的会员信息计算价格）
+      await this.getOrderInfo(this.getPayTabList, false);
+
+      // 打印 getOrderInfo 之后的默认状态
+      const defaultSelected = this.notPayData.notPayOrderList.filter(item => item.checkout).length;
+      console.log('📋 [结账页面] getOrderInfo后，默认选中数:', defaultSelected);
+
+      // ✅ 恢复打开支付抽屉时保存的商品选中状态（通过 ID 匹配）
+      let restoredCount = 0;
+      this.notPayData.notPayOrderList.forEach((item) => {
+        const key = `${item.id}_${item.pid}`;
+        if (selectionMap.has(key)) {
+          item.checkout = selectionMap.get(key);
+          if (item.checkout) restoredCount++;
+        }
+      });
+
+      // 更新 choosePayOrderList
+      this.notPayData.choosePayOrderList = this.notPayData.notPayOrderList.filter(
+        (item) => item.checkout
+      );
+
+      console.log('♻️ [结账页面] 已恢复选中状态，选中数量:', restoredCount);
     });
 
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []

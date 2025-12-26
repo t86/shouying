@@ -347,13 +347,26 @@ export default {
               n: this.selectedMemberInfo.name,
             });
           }
-          // 触发元数据刷新（通过事件总线）
-          if (this.$store && this.$store.dispatch) {
-            // 等待一下让后端更新完成
-            setTimeout(() => {
-              // 触发重新加载业务数据
-              eventVue.$emit("reloadBusinessData");
-            }, 500);
+
+          // 直接更新 store 中的会员信息，避免页面刷新
+          if (this.$store && this.$store.state.cardPageInfo) {
+            const resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
+            const businessData = resResultDataObj.businessData || [];
+            const businessDataIndex = businessData.findIndex(
+              item => item.seatId === this.seatId
+            );
+
+            if (businessDataIndex >= 0) {
+              // 直接更新当前卡台的会员信息
+              businessData[businessDataIndex].csm_cust_phone = phone;
+              businessData[businessDataIndex].csm_cust_id = this.selectedMemberInfo ? this.selectedMemberInfo.id : null;
+              businessData[businessDataIndex].csm_cust_name = this.selectedMemberInfo ? this.selectedMemberInfo.name : null;
+
+              console.log('✅ [memberBinding] 已更新 store 中的会员信息，phone:', phone);
+            }
+
+            // 发出价格更新事件，不触发页面刷新
+            eventVue.$emit("priceUpdated");
           }
         } else {
           // 如果是用户取消，不显示错误消息
@@ -423,11 +436,25 @@ export default {
           this.errorMessage = "";
           this.allowBlur = false;
 
-          // 触发元数据刷新（通过事件总线）
-          if (this.$store && this.$store.dispatch) {
-            setTimeout(() => {
-              eventVue.$emit("reloadBusinessData");
-            }, 500);
+          // 直接更新 store 中的会员信息，避免页面刷新
+          if (this.$store && this.$store.state.cardPageInfo) {
+            const resResultDataObj = this.$store.state.cardPageInfo.resResultDataObj;
+            const businessData = resResultDataObj.businessData || [];
+            const businessDataIndex = businessData.findIndex(
+              item => item.seatId === this.seatId
+            );
+
+            if (businessDataIndex >= 0) {
+              // 直接更新当前卡台的会员信息（清空）
+              businessData[businessDataIndex].csm_cust_phone = "";
+              businessData[businessDataIndex].csm_cust_id = null;
+              businessData[businessDataIndex].csm_cust_name = null;
+
+              console.log('✅ [memberBinding] 已清空 store 中的会员信息');
+            }
+
+            // 发出价格更新事件，不触发页面刷新
+            eventVue.$emit("priceUpdated");
           }
 
           // 通知父组件价格需要重新计算
