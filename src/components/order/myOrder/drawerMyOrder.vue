@@ -50,8 +50,7 @@
                     v-if="$store.state.userInfo.authStatus == 4 && (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5)"
                     :disabled="backOrder.backOrderAmt == currentItemInfo.pa && productCount == currentItemInfo.pc"
                     v-model="backOrder.backOrderAmt" placeholder="请输入退款金额" @input="backOrderInputHandle" />
-                  <span v-else>￥{{ currentProductInfo.pp * 1 == 0 ? currentProductInfo.pa :
-                    (currentProductInfo.pp * productCount).toFixed(2) }}</span>
+                  <span v-else>￥{{ refundAmount }}</span>
                 </el-form-item>
                 <!-- 退单、赠送理由 -->
                 <el-form-item :label="'选择' + (status == 1 ? '退单' : (status == 2 ? '优惠' : '自用')) + '理由'"
@@ -409,6 +408,7 @@ import eventVue from '@/utils/eventVue';
 import api_order from "@/api/order";
 import api_money from "@/api/money";
 import common_order from "@/utils/common/order";
+import { buildPriceContextFromStore, calcItemAmount } from "@/utils/orderItemPrice";
 
 import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
@@ -1426,6 +1426,27 @@ export default {
     }
   },
   computed: {
+    // ✅ 计算退单金额（使用通用价格计算逻辑，优先使用 p2 会员价）
+    refundAmount() {
+      if (!this.currentProductInfo) return '0.00';
+
+      try {
+        const ctx = buildPriceContextFromStore(this.$store);
+        // 创建一个临时商品对象，包含退单数量
+        const tempItem = {
+          ...this.currentProductInfo,
+          pc: this.productCount,
+          changeCount: this.productCount
+        };
+        const amt = calcItemAmount(tempItem, ctx);
+        return (amt || 0).toFixed(2);
+      } catch (e) {
+        // fallback to original logic
+        return this.currentProductInfo.pp * 1 == 0
+          ? this.currentProductInfo.pa
+          : (this.currentProductInfo.pp * this.productCount).toFixed(2);
+      }
+    },
     title() {
       let title = "";
       switch (this.status) {
