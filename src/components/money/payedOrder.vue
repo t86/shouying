@@ -566,9 +566,26 @@ export default {
           const unpayOrder = cardPayInfoRes.data.unpay_order;
           const orderList = (unpayOrder && unpayOrder.os) ? unpayOrder.os : [];
           console.log('📋 [退单] unpay_order.os 列表:', orderList);
-          console.log('📋 [退单] tableData 完整内容:', this.tableData);
+          console.log('📋 [退单] tableData 更新前:', this.tableData);
 
-          // ✅ 更改支付渠道：只要 tableData 中的商品和 unpay_order.os 中的商品 ID 匹配，就传递
+          // ✅ 用 csm_orders 返回的新数据更新 tableData
+          // 这样 drawerPayMoney 组件就会使用最新的数据（包含正确的价格）
+          orderList.forEach((newItem) => {
+            const index = this.tableData.findIndex(td => td.id === newItem.id);
+            if (index >= 0) {
+              // 找到匹配的商品，用新数据替换旧数据
+              // 使用 $set 确保触发 Vue 响应式更新
+              Object.keys(newItem).forEach(key => {
+                this.$set(this.tableData[index], key, newItem[key]);
+              });
+            }
+          });
+
+          console.log('📋 [退单] tableData 更新后:', this.tableData);
+          // 强制触发更新
+          this.$forceUpdate();
+
+          // ✅ 更改支付渠道：只传递 tableData 中的商品给 cart_begin_process
           let wk_order_ids = [];
           let prd_cnts = [];
           let amt = 0;
@@ -576,25 +593,18 @@ export default {
           // 构建价格上下文
           const priceContext = buildPriceContextFromStore(this.$store);
 
-          // 遍历 csm_orders 返回的商品列表
-          orderList.forEach((item) => {
-            console.log('📋 [退单] 检查商品:', item.id, 'pid:', item.pid);
+          // 遍历 tableData（现在已经是最新的数据了）
+          this.tableData.forEach((item) => {
+            console.log('📋 [退单] 处理商品:', item.id, 'pid:', item.pid);
 
-            // 检查该商品是否在 tableData 中（只要 ID 匹配就传递）
-            const matchedItem = this.tableData.find(td => td.id === item.id);
-            console.log('📋 [退单] 匹配结果:', matchedItem ? '找到匹配' : '未找到', matchedItem);
+            wk_order_ids.push(item.id * 1);
+            prd_cnts.push(item.pc || 1);
 
-            if (matchedItem) {
-              // 找到匹配的商品，传递给 cart_begin_process
-              wk_order_ids.push(item.id * 1);
-              prd_cnts.push(item.pc || 1);
+            // 使用通用的价格公式计算金额
+            const itemAmt = calcItemAmount(item, priceContext);
+            amt += itemAmt;
 
-              // 使用通用的价格公式计算金额
-              const itemAmt = calcItemAmount(item, priceContext);
-              amt += itemAmt;
-
-              console.log('📋 [退单] 添加匹配商品:', item.id, 'pid:', item.pid, '数量:', item.pc, '金额:', itemAmt);
-            }
+            console.log('📋 [退单] 添加商品:', item.id, 'pid:', item.pid, '数量:', item.pc, '金额:', itemAmt);
           });
 
           const confirmParams = {
@@ -659,6 +669,56 @@ export default {
     this.tableData = JSON.parse(JSON.stringify(this.payedOrderList));
     this.getPayedDetailList(); // 获取支付途径
     document.body.addEventListener("click", () => this.showOrHideList());
+
+    // ✅ 监听价格更新事件（会员绑定/取消绑定）
+    // 添加防抖，避免与 payOrder.vue 同时请求导致被拦截
+    let priceUpdateTimer = null;
+    eventVue.$on("priceUpdated", async () => {
+      console.log('🔄 [payedOrder] 收到 priceUpdated 事件，延迟 300ms 后更新 tableData 价格');
+
+      // 清除之前的定时器
+      if (priceUpdateTimer) {
+        clearTimeout(priceUpdateTimer);
+      }
+
+      // 延迟 300ms 执行，避免与 payOrder.vue 的请求冲突
+      priceUpdateTimer = setTimeout(async () => {
+        // 调用 API 获取最新价格
+        const params = {
+          seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
+          turnover_cnt: this.turnOverCount,
+        };
+
+        try {
+          const res = await api_money.reqGetCardPayInfo(params);
+          if (res.code !== 1) {
+            console.error('获取价格数据失败:', res.msg);
+            return;
+          }
+
+          // 更新 tableData 的价格字段
+          const unpayOrder = res.data.unpay_order;
+          const orderList = (unpayOrder && unpayOrder.os) ? unpayOrder.os : [];
+
+          this.tableData.forEach((item) => {
+            const newItem = orderList.find(n => n.id === item.id);
+            if (newItem) {
+              // 只更新价格字段
+              this.$set(item, 'pp', newItem.pp);
+              this.$set(item, 'pa', newItem.pa);
+              this.$set(item, 'p2', newItem.p2);
+              this.$set(item, 'pm', newItem.pm);
+              console.log('📋 [payedOrder] 更新商品价格:', item.id, 'p2:', item.p2, 'pa:', item.pa);
+            }
+          });
+
+          this.$forceUpdate();
+          console.log('♻️ [payedOrder] tableData 价格更新完成');
+        } catch (error) {
+          console.error('更新价格失败:', error);
+        }
+      }, 300);
+    });
   },
   props: {
     turnOverCount: {
@@ -723,6 +783,8 @@ export default {
   },
   beforeDestroy() {
     document.body.removeEventListener("click", () => this.showOrHideList());
+    // 移除事件监听
+    eventVue.$off("priceUpdated");
   },
 };
 </script>

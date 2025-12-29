@@ -1832,10 +1832,13 @@ export default {
       )
         return this.$message.warning("请选择需要结账的商品");
 
-      // ✅ 保存当前的商品选中状态（在打开支付弹窗时）
+      // ✅ 保存当前的商品选中 ID（在打开支付弹窗时）
       if (!this.drawer.payDrawer.showDrawer) {
-        this.savedOrderSelection = JSON.parse(JSON.stringify(this.notPayData.notPayOrderList));
-        console.log('💾 [结账页面] 已保存商品选中状态，商品数量:', this.savedOrderSelection.filter(item => item.checkout).length);
+        // 只保存选中的商品 ID，不保存完整对象
+        this.savedOrderSelection = this.notPayData.notPayOrderList
+          .filter(item => item.checkout)
+          .map(item => `${item.id}_${item.pid}`);
+        console.log('💾 [结账页面] 已保存商品选中 ID，保存的选中数量:', this.savedOrderSelection.length);
       }
 
       //判断所选择订单是否有线上支付的订单
@@ -2339,64 +2342,39 @@ export default {
     eventVue.$on("priceUpdated", async () => {
       console.log('🔄 [结账页面] 收到 priceUpdated 事件，重新获取金额');
 
-      // ✅ 使用打开支付抽屉时保存的选中状态（savedOrderSelection）
+      // ✅ 使用打开支付抽屉时保存的选中 ID（savedOrderSelection）
       if (!this.savedOrderSelection || this.savedOrderSelection.length === 0) {
         console.warn('⚠️ [结账页面] 没有保存的选中状态，无法恢复');
         return;
       }
 
-      // 将 savedOrderSelection 转换为 Map 以便通过 ID 匹配
-      const selectionMap = new Map();
-      this.savedOrderSelection.forEach(item => {
-        const key = `${item.id}_${item.pid}`;
-        selectionMap.set(key, item.checkout);
-      });
-      const savedSelectedCount = Array.from(selectionMap.values()).filter(v => v).length;
-      console.log('💾 [结账页面] 使用保存的选中状态，保存的选中数量:', savedSelectedCount);
+      console.log('💾 [结账页面] 使用保存的选中 ID，保存的选中数量:', this.savedOrderSelection.length);
 
       // ✅ 重新调用接口获取新的金额（后端会根据新的会员信息计算价格）
       await this.getOrderInfo(this.getPayTabList, false);
 
-      // 打印 getOrderInfo 之后的默认状态
-      const defaultSelected = this.notPayData.notPayOrderList.filter(item => item.checkout).length;
-      console.log('📋 [结账页面] getOrderInfo后，默认选中数:', defaultSelected);
-      const firstItem = this.notPayData.notPayOrderList[0];
-      if (firstItem) {
-        console.log('📋 [结账页面] notPayOrderList[0] 的价格字段:', {
-          id: firstItem.id,
-          pp: firstItem.pp,
-          pa: firstItem.pa,
-          p2: firstItem.p2,
-          pm: firstItem.pm,
+      // ✅ 等待 getOrderDetailInfo 执行完成（它有 500ms 延迟）
+      // 然后恢复打开支付抽屉时保存的商品选中状态
+      setTimeout(() => {
+        let restoredCount = 0;
+        this.notPayData.notPayOrderList.forEach((item) => {
+          const key = `${item.id}_${item.pid}`;
+          // 只设置 checkout 字段，不覆盖其他字段
+          if (this.savedOrderSelection.includes(key)) {
+            item.checkout = true;
+            restoredCount++;
+          } else {
+            item.checkout = false;
+          }
         });
-      }
 
-      // ✅ 恢复打开支付抽屉时保存的商品选中状态（通过 ID 匹配）
-      let restoredCount = 0;
-      this.notPayData.notPayOrderList.forEach((item) => {
-        const key = `${item.id}_${item.pid}`;
-        if (selectionMap.has(key)) {
-          item.checkout = selectionMap.get(key);
-          if (item.checkout) restoredCount++;
-        }
-      });
+        // 更新 choosePayOrderList（创建新数组引用以确保响应式更新）
+        this.notPayData.choosePayOrderList = this.notPayData.notPayOrderList.filter(
+          (item) => item.checkout
+        );
 
-      // 更新 choosePayOrderList（创建新数组引用以确保响应式更新）
-      this.notPayData.choosePayOrderList = this.notPayData.notPayOrderList.filter(
-        (item) => item.checkout
-      );
-
-      console.log('♻️ [结账页面] 已恢复选中状态，选中数量:', restoredCount);
-      const firstChooseItem = this.notPayData.choosePayOrderList[0];
-      if (firstChooseItem) {
-        console.log('📋 [结账页面] choosePayOrderList[0] 的价格字段:', {
-          id: firstChooseItem.id,
-          pp: firstChooseItem.pp,
-          pa: firstChooseItem.pa,
-          p2: firstChooseItem.p2,
-          pm: firstChooseItem.pm,
-        });
-      }
+        console.log('♻️ [结账页面] 已恢复选中状态，选中数量:', restoredCount);
+      }, 600); // 等待 600ms，确保 getOrderDetailInfo 的 500ms 延迟执行完成
     });
 
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []

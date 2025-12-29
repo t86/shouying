@@ -1815,6 +1815,21 @@ export default {
     memberBinding,
   },
   watch: {
+    // ✅ 监听 choosePayOrderList 的深层变化，当价格字段更新时重新计算金额
+    choosePayOrderList: {
+      handler() {
+        if (this.show) {
+          console.log('🔄 [drawerPayMoney] choosePayOrderList 变化，重新计算金额');
+          this.$nextTick(() => {
+            // 强制重新计算 allAmt
+            this.count = (this.allAmt - this.chooseAmt).toFixed(2) * 1;
+            console.log('💰 [drawerPayMoney] 重新计算后的金额:', this.allAmt, '未收:', this.count);
+          });
+        }
+      },
+      deep: true,
+      immediate: false,
+    },
     showDrawer(newVal) {
       this.show = newVal;
       this.showAuth = false;
