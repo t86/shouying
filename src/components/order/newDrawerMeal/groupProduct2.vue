@@ -379,6 +379,7 @@ export default {
       console.log('sel_cnts length:', params.sel_cnts.length, '内容:', params.sel_cnts);
       console.log('requirements length:', params.requirements.length, '内容:', params.requirements);
       console.log('完整参数:', params);
+      console.log('this.groupInfo:', this.groupInfo)
 
       const res = await api_order.csm_coupon_v2(params)
       if(res.code === 1) {
