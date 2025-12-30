@@ -60,10 +60,10 @@ export default {
           return item.allAmt;
         }
         // 使用 calcItemAmount 保证与界面显示一致（优先 p2 -> business price -> pp）
-        const amt = calcItemAmount(item, ctx);
-        return amt;
+        return item.pa.toString();
       });
 
+      console.log('backAmt', backAmt, this.backOrderList)
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64     卡台Id
         pay_id: this.orderId * 1,  //     int64     支付订单Id

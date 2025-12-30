@@ -883,6 +883,7 @@ export default {
           seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
           prd_id: this.productInfo.id * 1, // int64   商品Id
           prd_cnt: this.count * 1, //  int    商品数量 小费商品只能=1
+          prd_price: this.getProductPrice(this.productInfo), //  string  商品单价,用于做二次验证
           prd_amt:
               this.productInfo.prdType == 13 || this.productInfo.prdType == 14
                   ? ""

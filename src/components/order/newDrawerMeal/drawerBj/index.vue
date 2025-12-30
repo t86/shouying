@@ -113,7 +113,8 @@ export default {
             res = await api_order.reqAddAmtToShopping(params);
           } else {
             // params.prd_price = this.productInfo.price, //  string  商品单价,用于做二次验证
-            params.prd_price = this.usingVipPrice ? this.productInfo.vipPrice : this.productInfo.price, //  string  商品单价,用于做二次验证
+            params.prd_price = this.usingVipPrice ? this.productInfo.mbPrice : this.productInfo.price, //  string  商品单价,用于做二次验证
+            console.log('params:', params, this.usingVipPrice, this.productInfo)
             res = await api_order.reqAddProductToShopping(params);
           }
           if (res.code == 1) {
