@@ -201,7 +201,7 @@ export default {
           .filter(el => el.grpId == 1)
           .sort((a, b) => a.seqId - b.seqId);
       
-      console.log('=== 套餐明细初始化调试 ===');
+      console.log('=== 套餐明细初始化调试 22 ===');
       console.log('所有套餐明细 groupDetailArr:', this.groupDetailArr);
       console.log('固定商品 groupCanNotSelectArr:', this.groupCanNotSelectArr);
       console.log('可选商品 groupCanSelectArr (初始):', this.groupCanSelectArr);
@@ -350,7 +350,9 @@ export default {
         pt_sku_id: this.csmInfo.pt_sku_id,
         title: this.csmInfo.title,     //Title 卡券名称
         prd_id: this.csmInfo.prd_id,      //PrdId 兑换套餐Id,云端返回
-        prd_price:Math.round(this.groupInfo.p2 * 100),      //PrdPrice 套餐金额,单位分,需前端格式化
+        // Prefer using backend returned price `p` (in cents) when provided via csmInfo.prd_price.
+        // Fallback to calculated groupInfo.price when not present.
+        prd_price: (this.csmInfo && this.csmInfo.prd_price) ? Number(this.csmInfo.prd_price) : Math.round(this.groupInfo.price * 100),      //PrdPrice 套餐金额,单位分,需前端格式化
 
         coupon_pay_amt: this.csmInfo.coupon_pay_amt,      //CouponPayAmt 卡券支付金额,单位分,需前端格式化
         receipt_code: this.csmInfo.receipt_code,     //ReceiptCode 券码(美团对应实际券码,抖音对应订单id,推广对应custKqId)
@@ -366,7 +368,7 @@ export default {
           ...canSelectInfo.requireText
         ] // []string  要求
       }
-      console.log('=== 兑换券核销调试信息 ===');
+      console.log('=== 兑换券核销调试信息 111===');
       console.log('groupCanNotSelectArr (固定商品):', this.groupCanNotSelectArr);
       console.log('groupCanSelectArr (可选商品):', this.groupCanSelectArr);
       console.log('canNotSelectInfo:', canNotSelectInfo);

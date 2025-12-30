@@ -169,7 +169,17 @@ export default {
       if (this.selectedPrdId > 0) {
         this.step = 2
         this.csmInfo.prd_id = this.selectedPrdId
-        this.productInfo = this.$store.state.orderInfo.allProductsList.find(item => item.id === this.selectedPrdId.toString())
+        // prefer using price returned by csm_coupon_prepare_v2 (p in cents) when available
+        const prod = this.$store.state.orderInfo.allProductsList.find(item => item.id === this.selectedPrdId.toString())
+        const selectedPrd = this.prds && this.prds.find(p => p.id === this.selectedPrdId)
+        if (selectedPrd && selectedPrd.p !== undefined && selectedPrd.p !== null) {
+          // store prd_price in cents on csmInfo for submission
+          this.csmInfo.prd_price = Number(selectedPrd.p)
+          // set productInfo.price to the API price in unit (yuan) so child uses correct display and calculations
+          this.productInfo = Object.assign({}, prod, { price: Number(selectedPrd.p) / 100 })
+        } else {
+          this.productInfo = prod
+        }
         console.log("query product=============:", this.productInfo)
         this.componentKey += 1
         this.singleInfo.prd_cnt = 1
