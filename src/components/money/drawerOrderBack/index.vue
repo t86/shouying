@@ -27,7 +27,7 @@
 
 <script>
 import api_money from "@/api/money";
-import { buildPriceContextFromStore, calcItemAmount } from "@/utils/orderItemPrice";
+import { buildPriceContextFromStore, calcRefundAmount } from "@/utils/orderItemPrice";
 
 // 选择退单商品
 import chooseBackOrder from "@/components/money/drawerOrderBack/drawerChooseBackOrder";
@@ -53,14 +53,14 @@ export default {
 
     // 退单（完成退单操作）
     async orderBack() {
-      // 退单金额优先使用 calcItemAmount（内部会优先使用 p2）
+      // 退单金额优先使用 calcRefundAmount（内部会优先使用 p2）
       const ctx = buildPriceContextFromStore(this.$store);
       const backAmt = this.backOrderList.map(item => {
         if (["5", "3", "8"].indexOf(item.productInfo.prdType) > -1) {
           return item.allAmt;
         }
-        // 使用 calcItemAmount 保证与界面显示一致（优先 p2 -> business price -> pp）
-        return item.pa.toString();
+        // 使用 calcRefundAmount 保证与界面显示一致（优先 p2 -> business price -> pp）
+        return calcRefundAmount(item, ctx).toString();
       });
 
       console.log('backAmt', backAmt, this.backOrderList)

@@ -125,3 +125,32 @@ export const calcItemAmount = (item, ctx = {}) => {
   return (unitPrice || 0) * count;
 };
 
+/**
+ * 计算退单金额（与 calcItemAmount 类似，但不排除 at=2/at=3 的商品）
+ * 用于退单场景，需要计算优惠商品的实际退款金额
+ */
+export const calcRefundAmount = (item, ctx = {}) => {
+  if (!item) return 0;
+
+  // 时价商品：pp = 0 时，直接使用 pa（实际金额）作为小计
+  const pp = toNumber(item.pp);
+  if (pp === 0) {
+    const pa = toNumber(item.pa);
+    return pa === null ? 0 : pa;
+  }
+
+  const unitPrice = resolveUnitPrice(item, ctx);
+  if (unitPrice === null || Number.isNaN(unitPrice)) {
+    const pa = toNumber(item.pa);
+    return pa === null ? 0 : pa;
+  }
+
+  const countVal =
+    item.changeCount !== undefined && item.changeCount !== null
+      ? item.changeCount
+      : item.pc;
+  const count = toNumber(countVal) || 0;
+
+  return (unitPrice || 0) * count;
+};
+
