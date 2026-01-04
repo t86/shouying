@@ -87,11 +87,11 @@
     </div>
 
     <!-- 数字键盘（点单机和平板） -->
-    <div 
-      class="keyboard-wrapper" 
+    <div
+      class="keyboard-wrapper"
       v-if="showKeyboard && (isOrderMachine || isTablet)"
-      @mousedown.prevent.stop
-      @touchstart.prevent.stop
+      @mousedown.stop
+      @touchstart.stop
       @click.stop
     >
       <keyBoard @changeNum="handleKeyboardInput" />
