@@ -857,7 +857,10 @@ export default {
 
             // 如果不存在，添加到 cardListInfoArr
             if (!exists) {
-                cardListInfoArr.push(giftableCardListTmp.find(item => item.id * 1 === giftableCard.seat_id * 1));
+              const find = giftableCardListTmp.find(item => item.id * 1 === giftableCard.seat_id * 1);
+              if(find) {
+                cardListInfoArr.push(find);
+              }
             }
         });
       }
