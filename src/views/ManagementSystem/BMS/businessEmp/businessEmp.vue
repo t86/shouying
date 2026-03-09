@@ -738,12 +738,16 @@ export default {
 .transfer-actions {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0 8px;
+  padding: 64px 8px 0;
   flex: 0 0 110px;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
   
   @media (orientation: portrait) {
+    position: static;
     flex-direction: row;
     padding: 16px 0;
     flex: 1 1 auto;
@@ -915,4 +919,3 @@ export default {
   }
 }
 </style>
-
