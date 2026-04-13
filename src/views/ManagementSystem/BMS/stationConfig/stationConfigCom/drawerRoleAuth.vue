@@ -49,7 +49,7 @@
           <div
             layout="row"
             class="row value m-t-3 m-l-10"
-            v-for="item in items.val.filter((i) => i.row && ![98, 99].includes(i.id))"
+            v-for="item in items.val.filter((i) => i.row && !isHiddenSpecialPermission(items.t, i.id))"
             v-if="!isSupervisorRole(items.t)"
           >
             <div class="m-t-2 m-b-2 m-l-2">
@@ -85,6 +85,35 @@
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          <div
+            v-if="hasTimeLimitPermissions(items)"
+            class="row value m-t-3 m-l-10 time-limit-permission-row"
+          >
+            <div class="m-t-2 m-b-2 m-l-2 time-limit-permission-wrap">
+              <el-checkbox
+                :value="isTimeLimitEnabled(items)"
+                :disabled="!isRoleEditable(items.id)"
+                @input="handleTimeLimitToggle(items, $event)"
+              >
+                手机端查看业绩时间限制
+              </el-checkbox>
+              <el-radio-group
+                class="time-limit-radio-group"
+                :value="getSelectedTimeLimitPermission(items)"
+                :disabled="!isTimeLimitOptionEditable(items)"
+                @input="handleTimeLimitChange(items, $event)"
+              >
+                <el-radio
+                  v-for="subItem in getTimeLimitPermissions(items)"
+                  :key="subItem.id"
+                  :label="subItem.id"
+                >
+                  {{ subItem.n }}
+                </el-radio>
+              </el-radio-group>
             </div>
           </div>
 
@@ -310,6 +339,81 @@ export default {
     onCancelDrawer() {
       this.show = false;
     },
+    isHiddenSpecialPermission(roleTitle, permissionId) {
+      return [98, 99, ...this.getTimeLimitPermissionIds(roleTitle)].includes(permissionId);
+    },
+    getTimeLimitPermissionIds(roleTitle) {
+      if (roleTitle === "营销权限") {
+        return [110, 111, 112, 113, 114, 115];
+      }
+      if (roleTitle === "特饮权限") {
+        return [120, 121, 122, 123, 124, 125];
+      }
+      return [];
+    },
+    hasTimeLimitPermissions(group) {
+      return this.getTimeLimitPermissions(group).length > 0;
+    },
+    getTimeLimitPermissions(group) {
+      const ids = this.getTimeLimitPermissionIds(group.t);
+      return group.val.filter(item => ids.includes(item.id));
+    },
+    isTimeLimitEnabled(group) {
+      return this.getTimeLimitPermissions(group).some(item => item.checked || item.st === 3);
+    },
+    getSelectedTimeLimitPermission(group) {
+      const selected = this.getTimeLimitPermissions(group).find(item => item.checked || item.st === 3);
+      return selected ? selected.id : null;
+    },
+    isRoleEditable(roleId) {
+      const role = this.erpList.find(item => item.id === roleId);
+      return role && role.st !== 2;
+    },
+    isTimeLimitOptionEditable(group) {
+      const role = this.erpList.find(item => item.id === group.id);
+      return role && role.st === 1 && this.isTimeLimitEnabled(group);
+    },
+    handleTimeLimitToggle(group, isChecked) {
+      const role = this.erpList.find(item => item.id === group.id);
+      if (!role || role.st === 2) {
+        return;
+      }
+
+      const timePermissions = this.getTimeLimitPermissions(group);
+      if (!timePermissions.length) {
+        return;
+      }
+
+      if (role.st === 3 && isChecked) {
+        this.$message.warning("该角色权限未全部包含,只能取消权限");
+        return;
+      }
+
+      if (isChecked) {
+        const currentSelected = timePermissions.find(item => item.checked || item.st === 3) || timePermissions[0];
+        timePermissions.forEach(item => {
+          item.checked = item.id === currentSelected.id;
+          item.st = item.id === currentSelected.id ? 1 : 2;
+          item.disabled = false;
+        });
+      } else {
+        timePermissions.forEach(item => {
+          item.checked = false;
+          item.st = 2;
+          item.disabled = true;
+        });
+      }
+    },
+    handleTimeLimitChange(group, selectedId) {
+      if (!this.isTimeLimitOptionEditable(group)) {
+        return;
+      }
+      this.getTimeLimitPermissions(group).forEach(item => {
+        item.checked = item.id === selectedId;
+        item.st = item.id === selectedId ? 1 : 2;
+        item.disabled = false;
+      });
+    },
     checkboxHandle(item) {
       if (item.st == 3) {
         this.erpList = this.erpList.map((e) => {
@@ -459,6 +563,14 @@ export default {
     // 初始化子权限状态
     initializeSubPermissions() {
       for(let s of this.subList) {
+        const timeLimitPermissions = this.getTimeLimitPermissions(s);
+        if (timeLimitPermissions.length > 0) {
+          const hasSelectedTimeLimit = timeLimitPermissions.some(item => item.checked || item.st === 3);
+          timeLimitPermissions.forEach(item => {
+            item.disabled = !hasSelectedTimeLimit;
+          });
+        }
+
         // 处理全场优惠权限
         const fullDiscountPermission = s.val.find(v => v.id === 12);
         const subPermissions = s.val.filter(v => [98, 99].includes(v.id));
@@ -724,6 +836,28 @@ export default {
   .value {
     flex-wrap: wrap;
   }
+}
+
+.time-limit-permission-row {
+  width: 100%;
+}
+
+.time-limit-permission-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.time-limit-radio-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.time-limit-radio-group /deep/ .el-radio {
+  margin-right: 0;
 }
 
 .sub-permission-container {
