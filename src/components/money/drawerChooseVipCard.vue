@@ -102,14 +102,15 @@
                     layout-align="space-between center"
                   >
                     <div class="th">序号</div>
+                    <div class="th">卡类型</div>
                     <div class="th">会员卡号</div>
                     <div class="th">会员姓名</div>
                     <div class="th">会员卡金额</div>
-                    <div class="th">会员卡储值余额</div>
-                    <div class="th">会员卡赠送余额</div>
-                    <div class="th">卡可用余额</div>
-                    <div class="th">卡可用储值余额</div>
-                    <div class="th">卡可用赠送余额</div>
+                    <div class="th">会员卡储值金额</div>
+                    <div class="th">会员卡赠送金额</div>
+                    <div class="th">可扣除金额</div>
+                    <div class="th">可扣除储值金额</div>
+                    <div class="th">可扣除赠送金额</div>
                     <div class="th">本次使用金额</div>
                     <div class="th">操作</div>
                   </div>
@@ -125,6 +126,7 @@
                     <div class="td one-txt-cut">
                       {{ index + 1 }}
                     </div>
+                    <div class="td one-txt-cut">{{ item.ct || item.t || "--" }}</div>
                     <div class="td one-txt-cut">{{ item.c || item.o }}</div>
                     <div class="td one-txt-cut">{{ item.n }}</div>
                     <div class="td one-txt-cut">{{ (((item.vb || 0)* 1  + (item.fb || 0)* 1 ) / 100).toFixed(2)  }}</div>
@@ -520,12 +522,28 @@ export default {
 
     async cardPayInfo(){
       const cardIds = this.tableData.map((item) => item.id * 1);
+      const cardInfoMap = this.tableData.reduce((map, item) => {
+        map[item.id] = {
+          ct: item.ct || item.t || "",
+          cl: item.cl || item.l || "",
+          c: item.c || item.o || "",
+        };
+        return map;
+      }, {});
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1,
         all_mb_card_ids: cardIds,
       };
       const res = await api_money.reqGetVipCardAmountInfo(params);
-      this.tableData = res.data.records
+      this.tableData = (res.data.records || []).map((item) => {
+        const baseInfo = cardInfoMap[item.id] || {};
+        return {
+          ...item,
+          ct: item.t || baseInfo.ct || "",
+          cl: item.l || baseInfo.cl || "",
+          c: item.o || baseInfo.c || "",
+        };
+      });
       // 获取卡信息后，自动填充使用金额
       this.autoFillCardAmounts();
     },
@@ -843,6 +861,9 @@ export default {
         .thead .tr {
           background-color: rgba(255, 255, 255, 0.04);
         }
+        .th {
+          white-space: nowrap;
+        }
         .tr {
           height: 40px;
           &:nth-child(2n) {
@@ -856,54 +877,58 @@ export default {
         }
         .th:nth-child(2),
         .td:nth-child(2) {
-          width: 6%;
+          width: 90px;
         }
         .th:nth-child(3),
         .td:nth-child(3) {
-          width: 10%;
+          width: 90px;
         }
         .th:nth-child(4),
         .td:nth-child(4) {
-          width: 10%;
+          width: 90px;
         }
         .th:nth-child(5),
         .td:nth-child(5) {
-          width: 10%;
+          width: 100px;
         }
         .th:nth-child(6),
         .td:nth-child(6) {
-          width: 10%;
+          width: 130px;
         }
         .th:nth-child(7),
         .td:nth-child(7) {
-          width: 9%;
+          width: 130px;
         }
-      }
-      .th:nth-child(8),
-      .td:nth-child(8) {
-        width: 9%;
-      }
-      .th:nth-child(9),
-      .td:nth-child(9) {
-        width: 9%;
-      }
-      .th:nth-child(10),
-      .td:nth-child(10) {
-        width: 12%;
-        input {
-          width: 100%;
-          padding: 0 10px;
-          box-sizing: border-box;
-          height: 26px;
-          border-radius: 6px;
-          &:focus {
-            border-color: #4b89ff;
+        .th:nth-child(8),
+        .td:nth-child(8) {
+          width: 100px;
+        }
+        .th:nth-child(9),
+        .td:nth-child(9) {
+          width: 120px;
+        }
+        .th:nth-child(10),
+        .td:nth-child(10) {
+          width: 140px;
+        }
+        .th:nth-child(11),
+        .td:nth-child(11) {
+          width: 110px;
+          input {
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+            height: 26px;
+            border-radius: 6px;
+            &:focus {
+              border-color: #4b89ff;
+            }
           }
         }
-      }
-      .th:nth-child(11),
-      .td:nth-child(11) {
-        width: 6%;
+        .th:nth-child(12),
+        .td:nth-child(12) {
+          width: 70px;
+        }
       }
     }
 
