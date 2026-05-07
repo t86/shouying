@@ -14,7 +14,7 @@
             value-format="yyyy-MM-dd" placeholder="结束日期"></el-date-picker>
           <el-input class="m-r-2 m-l-2" v-model="form.keyword" size="small" placeholder="姓名/手机号/会员卡号"
             style="width: 200px"></el-input>
-          <button class="btn primary m-l-4" @click="getTableData">查询</button>
+          <button class="btn primary m-l-4" @click="getTableData(true)">查询</button>
           <button class="btn info m-l-4" @click="resetHandle">重置</button>
           <button class="btn info m-l-4" @click="exportExcel">
             导出
@@ -130,6 +130,10 @@ export default {
     resetHandle() {
       this.initDate();
       this.form.keyword = "";
+      this.getTableData(true);
+    },
+    changePageHandle(page) {
+      this.pageInfo.page = page;
       this.getTableData();
     },
     async exportExcel() {
