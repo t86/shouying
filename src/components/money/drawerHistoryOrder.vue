@@ -41,6 +41,7 @@
                             <div class="th">卡台流水</div>
                             <div class="th">订位人</div>
                             <div class="th">订位部门</div>
+                            <div class="th">订位人岗位</div>
                             <div class="th">总订单金额</div>
                             <div class="th">总实收金额</div>
                             <div class="th">支付信息</div>
@@ -58,6 +59,7 @@
                                 <div class="td">{{ item.s }}</div>
                                 <div class="td">{{ item.se }}</div>
                                 <div class="td">{{ item.sd }}</div>
+                                <div class="td">{{ item.ss }}</div>
                                 <div class="td">{{ formatAmount(item.o) }}</div>
                                 <div class="td">{{ formatAmount(item.p) }}</div>
                                 <div class="td">{{ item.pi }}</div>
@@ -69,6 +71,7 @@
                                         <div class="th">点单时间</div>
                                         <div class="th">点单部门</div>
                                         <div class="th">点单人</div>
+                                        <div class="th">点单人岗位</div>
                                         <div class="th">关联台</div>
                                         <div class="th">自助</div>
                                         <div class="th">商品一级分类</div>
@@ -89,6 +92,7 @@
                                         <div class="td">{{ order.o }}</div>
                                         <div class="td">{{ order.d }}</div>
                                         <div class="td">{{ order.w }}</div>
+                                        <div class="td">{{ order.ws }}</div>
                                         <div class="td">{{ order.ri }}</div>
                                         <div class="td">{{ order.co }}</div>
                                         <div class="td">{{ order.on }}</div>

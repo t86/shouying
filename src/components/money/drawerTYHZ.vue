@@ -41,8 +41,10 @@
               <div class="th">序号</div>
               <div class="th">点单人部门</div>
               <div class="th">点单人</div>
+              <div class="th">点单人岗位</div>
               <div class="th">授权人部门</div>
               <div class="th">授权人</div>
+              <div class="th">授权人岗位</div>
               <div class="th">商品名称</div>
               <div class="th">点单金额</div>
 
@@ -59,8 +61,10 @@
               <div class="td one-txt-cut">{{ index + 1 }}</div>
               <div class="td">{{ item.wd }}</div>
               <div class="td">{{ item.w }}</div>
+              <div class="td">{{ item.ws }}</div>
               <div class="td">{{ item.ad }}</div>
               <div class="td">{{ item.ae }}</div>
+              <div class="td">{{ item.as }}</div>
               <div class="td">{{ item.n }}</div>
               <div class="td">{{ item.a }}</div>
             </div>

@@ -116,6 +116,7 @@
               <div class="th">关联卡台</div>
               <div class="th">点单时间</div>
               <div class="th">点单部门</div>
+              <div class="th">点单人岗位</div>
               <div class="th">点单人</div>
               <div class="th">自助</div>
               <div class="th">商品一级分类</div>
@@ -128,6 +129,7 @@
               <div class="th">实收金额</div>
               <div class="th">订台人</div>
               <div class="th">订位部门</div>
+              <div class="th">订位人岗位</div>
               <div class="th">支付信息</div>
             </div>
           </div>
@@ -144,6 +146,7 @@
               <div class="td">{{ item.ri }}</div>
               <div class="td">{{ item.o }}</div>
               <div class="td">{{ item.od }}</div>
+              <div class="td">{{ item.ws }}</div>
               <div class="td">{{ item.oe }}</div>
               <div class="td">{{ item.ic }}</div>
               <div class="td">{{ item.po }}</div>
@@ -156,6 +159,7 @@
               <div class="td">{{ item.v }}</div>
               <div class="td">{{ item.se }}</div>
               <div class="td">{{ item.sd }}</div>
+              <div class="td">{{ item.ss }}</div>
               <div class="td">{{ item.pi }}</div>
             </div>
             <p

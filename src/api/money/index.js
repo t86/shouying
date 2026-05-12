@@ -228,7 +228,22 @@ export default {
   reqExpKqCsmList: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_kq_csm_list`, params),
 
-  // 收银读取特饮/小费记录
+  /**
+   * 收银读取特饮/小费记录
+   * rn 区域名称
+   * s 卡台名称
+   * o 授权时间/补交时间
+   * pt 结账时间
+   * ae 授权人
+   * ad 授权人部门
+   * as 授权人岗位
+   * w 点单人
+   * wd 点单人部门
+   * ws 点单人岗位
+   * se 订位人
+   * sd 订位部门
+   * ss 订位人岗位
+   */
   reqGetTYList: (params) =>
     axios.post(`${base.htgl}/sel/rpt/get_hl_list`, params),
 
@@ -236,7 +251,15 @@ export default {
   reqExportTYListReport: (params) =>
     axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_hl_list`, params),
 
-  // 收银读取特饮/小费汇总表
+  /**
+   * 收银读取特饮/小费汇总表
+   * wd 点单人部门
+   * w 点单人
+   * ws 点单人岗位
+   * ad 授权人部门
+   * ae 授权人
+   * as 授权人岗位
+   */
   reqGetTYHZList: (params) =>
   axios.post(`${base.htgl}/sel/rpt/get_hl_rpt_sum_list`, params),
 

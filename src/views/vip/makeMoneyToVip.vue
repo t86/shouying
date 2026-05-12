@@ -49,29 +49,9 @@
           <span>¥{{ amtInfo.local_free_amt }}</span>
         </div>
 
-        <div class="m-r-6">
-          <span class="label">微信:</span>
-          <span>¥{{ amtInfo.dep_wechat_amt }}</span>
-        </div>
-        <div class="m-r-6">
-          <span class="label">支付宝:</span>
-          <span>¥{{ amtInfo.dep_zfb_amt }}</span>
-        </div>
-        <div class="m-r-6">
-          <span class="label">现金:</span>
-          <span>¥{{ amtInfo.dep_cashier_amt }}</span>
-        </div>
-        <div class="m-r-6">
-          <span class="label">刷卡:</span>
-          <span>¥{{ amtInfo.dep_sk_amt }}</span>
-        </div>
-        <div class="m-r-6">
-          <span class="label">卡迁移储值金额:</span>
-          <span>¥{{ amtInfo.dep_trans_val_amt }}</span>
-        </div>
-        <div class="m-r-6">
-          <span class="label">卡迁移赠送金额:</span>
-          <span>¥{{ amtInfo.dep_trans_free_amt }}</span>
+        <div class="m-r-6" v-for="(item, index) in amtInfo.cnls" :key="`${item.n}-${index}`">
+          <span class="label">{{ item.n }}:</span>
+          <span>¥{{ item.a }}</span>
         </div>
       </div>
 
@@ -207,7 +187,9 @@ export default {
         ],
         keyword: "",
       },
-      amtInfo: {},
+      amtInfo: {
+        cnls: [],
+      },
       tableData: [],
       pageInfo: {
         page: 1,
@@ -251,12 +233,7 @@ export default {
             local_val_amt: res.data.local_val_amt,
             online_free_amt: res.data.online_free_amt,
             online_val_amt: res.data.online_val_amt,
-            dep_sk_amt : res.data.dep_sk_amt,    //DepSkAmt 刷卡总金额
-            dep_zfb_amt: res.data.dep_zfb_amt,   //DepZfbAmt 支付宝总金额
-            dep_wechat_amt: res.data.dep_wechat_amt,     //DepWechatAmt 微信总金额
-            dep_cashier_amt: res.data.dep_cashier_amt,     //DepCashierAmt 现金总金额
-            dep_trans_val_amt: res.data.dep_trans_val_amt,    //DepTransValAmt 迁移充值总金额
-            dep_trans_free_amt: res.data.dep_trans_free_amt     //DepTransFreeAmt 迁移充值赠送总金额
+            cnls: res.data.cnls || [],
           };
         } else {
           this.$message.warning(res.msg);

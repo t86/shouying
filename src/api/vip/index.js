@@ -316,7 +316,12 @@ export default {
     axios.post(`${base.htgl}/mb/rpt/get_qw_mb_list`, params),
 
     
-  // 读取充值记录
+  /**
+   * 读取充值记录
+   * cnls 渠道汇总列表
+   * cnls[].n 渠道名称
+   * cnls[].a 渠道金额
+   */
   reqGetVipCardMakeMoneyListReport: (params) =>
     axios.post(`${base.htgl}/mb/rpt/get_deposit_log`, params),
 
