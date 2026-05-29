@@ -540,10 +540,9 @@ export default {
       item.savingOpenClose = true;
 
       try {
-        const res = await api_money.save_cnl_cfg_openclose({
-          cnl_cfg_id: Number(item.id),
-          status: enabled ? 1 : 2,
-        });
+        const res = await api_money.save_cnl_cfg_openclose(
+          merchantOnlineCollect.getOnlineCollectSaveParams(item.id, enabled)
+        );
 
         if (res.code !== 1) {
           merchantOnlineCollect.rollbackOnlineCollectMerchant(item, previous);

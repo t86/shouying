@@ -6,6 +6,7 @@ const {
   getClosedMerchantIds,
   applyOnlineCollectSaveSuccess,
   rollbackOnlineCollectMerchant,
+  getOnlineCollectSaveParams,
 } = require('../src/utils/merchantOnlineCollect');
 
 test('builds online collect merchants from group response and marks closed ids disabled', () => {
@@ -57,4 +58,15 @@ test('rolls merchant state back after failed save', () => {
 
   assert.strictEqual(merchant.onlineCollectEnabled, true);
   assert.strictEqual(merchant.savingOpenClose, false);
+});
+
+test('builds save params with close flag expected by backend', () => {
+  assert.deepStrictEqual(getOnlineCollectSaveParams(1, true), {
+    cnl_cfg_id: 1,
+    close: 2,
+  });
+  assert.deepStrictEqual(getOnlineCollectSaveParams('1', false), {
+    cnl_cfg_id: 1,
+    close: 1,
+  });
 });

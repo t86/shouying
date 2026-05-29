@@ -51,9 +51,17 @@ function rollbackOnlineCollectMerchant(merchant, previousEnabled) {
   merchant.savingOpenClose = false;
 }
 
+function getOnlineCollectSaveParams(merchantId, enabled) {
+  return {
+    cnl_cfg_id: Number(merchantId),
+    close: enabled ? 2 : 1,
+  };
+}
+
 module.exports = {
   buildOnlineCollectMerchants,
   getClosedMerchantIds,
   applyOnlineCollectSaveSuccess,
   rollbackOnlineCollectMerchant,
+  getOnlineCollectSaveParams,
 };

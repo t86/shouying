@@ -183,7 +183,7 @@ In `methods`, add:
       try {
         const res = await api_money.save_cnl_cfg_openclose({
           cnl_cfg_id: item.id * 1,
-          status: enabled ? 1 : 2,
+          close: enabled ? 2 : 1,
         });
 
         if (res.code !== 1) {
