@@ -438,6 +438,10 @@ POST请求 http://ip_or_domain:port/sel/get_cnl_cfg
      */
     get_cnl_cfg_grp: () => axios.post(`${base.htgl}/org/get_cnl_cfg_grp`),
 
+    // 保存商户号线上收款开关
+    save_cnl_cfg_openclose: (params) =>
+      axios.post(`${base.htgl}/org/save_cnl_cfg_openclose`, params),
+
 
 
     /*

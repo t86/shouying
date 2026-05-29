@@ -16,6 +16,33 @@
         </el-tabs>
       </div>
 
+      <div class="merchant fs14 merchant-online-collect-section" v-if="onlineCollectMerchants.length > 0">
+        <div class="coll merchant-online-header" layout="row" layout-align="start center">
+          <div class="label">
+            <span>线上收款功能：</span>
+          </div>
+          <div class="value merchant-online-list">
+            <div
+              class="merchant-online-item"
+              v-for="item in onlineCollectMerchants"
+              :key="item.id"
+            >
+              <div class="merchant-online-item-text">{{ formatOnlineMerchantText(item) }}</div>
+              <el-switch
+                :value="item.onlineCollectEnabled"
+                :loading="item.savingOpenClose"
+                active-text="开"
+                inactive-text="关"
+                active-color="#409EFF"
+                inactive-color="#ccc"
+                @change="handleOnlineCollectToggle(item, $event)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="line"></div>
+      </div>
+
       <!-- 全局配置 -->
       <div class="merchant fs14" v-if="activeTab === 'global' && hasMultipleMainEntities">
         <div class="coll" layout="row" layout-align="start center">
@@ -300,6 +327,7 @@
  
 <script>
 import api_money from "@/api/money";
+import merchantOnlineCollect from "@/utils/merchantOnlineCollect";
 let loaded = false // 数据是否加载完成
 let updated = false  // 数据是否被修改
 const leftTableData = [
@@ -474,6 +502,8 @@ export default {
       entityMerchants: {}, // 每个主体对应的商户号 {entityId: {merchantId: true/false}}
       entityRegions: {}, // 每个主体对应的区域 {entityId: {regionId: true/false}}
       currentEntityConfig: {}, // 当前选中主体的配置信息
+      onlineCollectMerchants: [],
+      closedMerchantIds: [],
     };
   },
   computed: {
@@ -495,6 +525,45 @@ export default {
       const entityId = this.activeTab.replace('entity-', '');
       const entity = this.mainEntities.find(item => item.id == entityId);
       return entity ? entity.n : '';
+    },
+
+    formatOnlineMerchantText(item) {
+      const merchantNo = item.n || '';
+      const holderName = item.un || item.u || item.hn || '';
+      const bankNo = item.bn || item.no || item.acct_no || '';
+      return [merchantNo, holderName, bankNo].filter(Boolean).join(' -- ');
+    },
+
+    async handleOnlineCollectToggle(item, enabled) {
+      const previous = item.onlineCollectEnabled;
+      item.onlineCollectEnabled = enabled;
+      item.savingOpenClose = true;
+
+      try {
+        const res = await api_money.save_cnl_cfg_openclose({
+          cnl_cfg_id: Number(item.id),
+          status: enabled ? 1 : 2,
+        });
+
+        if (res.code !== 1) {
+          merchantOnlineCollect.rollbackOnlineCollectMerchant(item, previous);
+          this.$message.warning(res.msg || '保存失败');
+          return;
+        }
+
+        this.closedMerchantIds = merchantOnlineCollect.applyOnlineCollectSaveSuccess(
+          this.closedMerchantIds,
+          item.id,
+          enabled
+        );
+        this.$message.success('设置成功');
+      } catch (error) {
+        merchantOnlineCollect.rollbackOnlineCollectMerchant(item, previous);
+        this.$message.warning('保存失败，请稍后重试');
+        console.log('保存商户号线上收款开关失败', error);
+      } finally {
+        item.savingOpenClose = false;
+      }
     },
 
     async getDetailData(cnlCfgId = 0){
@@ -600,7 +669,9 @@ export default {
       const res = await api_money.get_cnl_cfg_grp()
       if(res.code == 1) {
         this.groupData = res.data
-        this.mainEntities = res.data.cnl_cfg_def.filter(item => item.g == 1)
+        this.closedMerchantIds = merchantOnlineCollect.getClosedMerchantIds(res.data)
+        this.onlineCollectMerchants = merchantOnlineCollect.buildOnlineCollectMerchants(res.data)
+        this.mainEntities = (res.data.cnl_cfg_def || []).filter(item => item.g == 1)
         
         if (this.mainEntities.length > 1) {
           this.activeTab = 'global';
@@ -1400,6 +1471,40 @@ export default {
         }
       }
     }
+  }
+}
+
+.merchant-online-collect-section {
+  padding-bottom: 0;
+
+  .merchant-online-header {
+    align-items: flex-start;
+  }
+
+  .merchant-online-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .merchant-online-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .merchant-online-item-text {
+    flex: 1;
+    line-height: 22px;
+    word-break: break-all;
   }
 }
 

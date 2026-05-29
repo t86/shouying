@@ -69,6 +69,7 @@
                                 <div class="detail-header">
                                     <div class="tr" layout="row" layout-align="start center">
                                         <div class="th">点单时间</div>
+                                        <div class="th">结账时间</div>
                                         <div class="th">点单部门</div>
                                         <div class="th">点单人</div>
                                         <div class="th">点单人岗位</div>
@@ -90,6 +91,7 @@
                                         v-for="(order, orderIndex) in item.os" 
                                         :key="orderIndex">
                                         <div class="td">{{ order.o }}</div>
+                                        <div class="td">{{ order.pm }}</div>
                                         <div class="td">{{ order.d }}</div>
                                         <div class="td">{{ order.w }}</div>
                                         <div class="td">{{ order.ws }}</div>
