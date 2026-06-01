@@ -16,6 +16,7 @@ function getClosedMerchantIds(groupData) {
   return toIdList(
     groupData.closed_cnl_cfg_ids ||
     groupData.close_cnl_cfg_ids ||
+    groupData.close_cnls ||
     groupData.close_cnl_ids ||
     groupData.closed_cnl_ids
   );

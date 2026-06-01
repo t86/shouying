@@ -38,6 +38,7 @@ test('builds online collect merchants from group response and marks closed ids d
 test('reads closed merchant ids from supported response field names', () => {
   assert.deepStrictEqual(getClosedMerchantIds({ closed_cnl_cfg_ids: ['1', 2] }), [1, 2]);
   assert.deepStrictEqual(getClosedMerchantIds({ close_cnl_cfg_ids: ['3', 4] }), [3, 4]);
+  assert.deepStrictEqual(getClosedMerchantIds({ close_cnls: ['5', 6] }), [5, 6]);
   assert.deepStrictEqual(getClosedMerchantIds({}), []);
 });
 

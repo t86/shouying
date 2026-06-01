@@ -40,7 +40,7 @@ In `src/components/money/drawerMerchant.vue` `data()`, add:
 Inside `getMerchantGroup()`, after `this.groupData = res.data`, parse the new close-list field into local state and build line items from `cnl_cfg_def`:
 
 ```js
-        const closedIds = res.data.closed_cnl_cfg_ids || res.data.close_cnl_cfg_ids || [];
+        const closedIds = res.data.close_cnls || res.data.closed_cnl_cfg_ids || res.data.close_cnl_cfg_ids || [];
         this.closedMerchantIds = closedIds.map(id => id * 1);
         this.onlineCollectMerchants = (res.data.cnl_cfg_def || []).map(item => ({
           ...item,
