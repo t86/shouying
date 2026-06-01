@@ -16,7 +16,7 @@
         </el-tabs>
       </div>
 
-      <div class="merchant fs14 merchant-online-collect-section" v-if="onlineCollectMerchants.length > 0">
+      <div class="merchant fs14 merchant-online-collect-section" v-if="visibleOnlineCollectMerchants.length > 0">
         <div class="coll merchant-online-header" layout="row" layout-align="start center">
           <div class="label">
             <span>线上收款功能：</span>
@@ -24,7 +24,7 @@
           <div class="value merchant-online-list">
             <div
               class="merchant-online-item"
-              v-for="item in onlineCollectMerchants"
+              v-for="item in visibleOnlineCollectMerchants"
               :key="item.id"
             >
               <div class="merchant-online-item-text">{{ formatOnlineMerchantText(item) }}</div>
@@ -502,13 +502,27 @@ export default {
       entityMerchants: {}, // 每个主体对应的商户号 {entityId: {merchantId: true/false}}
       entityRegions: {}, // 每个主体对应的区域 {entityId: {regionId: true/false}}
       currentEntityConfig: {}, // 当前选中主体的配置信息
-      onlineCollectMerchants: [],
-      closedMerchantIds: [],
+      onlineCollectMerchantsByTab: {},
+      closedMerchantIdsByTab: {},
     };
   },
   computed: {
     hasMultipleMainEntities() {
       return this.mainEntities.length > 1;
+    },
+    onlineCollectScopeKey() {
+      if (!this.hasMultipleMainEntities) {
+        return 'default';
+      }
+
+      return this.activeTab && this.activeTab.startsWith('entity-') ? this.activeTab : '';
+    },
+    visibleOnlineCollectMerchants() {
+      if (!this.onlineCollectScopeKey) {
+        return [];
+      }
+
+      return this.onlineCollectMerchantsByTab[this.onlineCollectScopeKey] || [];
     }
   },
   methods: {
@@ -525,6 +539,25 @@ export default {
       const entityId = this.activeTab.replace('entity-', '');
       const entity = this.mainEntities.find(item => item.id == entityId);
       return entity ? entity.n : '';
+    },
+
+    initOnlineCollectMerchants(groupData) {
+      const merchantsByTab = {};
+      const closedIdsByTab = {};
+
+      if (this.mainEntities.length > 1) {
+        this.mainEntities.forEach(entity => {
+          const key = `entity-${entity.id}`;
+          merchantsByTab[key] = merchantOnlineCollect.buildOnlineCollectMerchants(groupData, entity.id);
+          closedIdsByTab[key] = merchantOnlineCollect.getClosedMerchantIds(groupData, entity.id);
+        });
+      } else {
+        merchantsByTab.default = merchantOnlineCollect.buildOnlineCollectMerchants(groupData);
+        closedIdsByTab.default = merchantOnlineCollect.getClosedMerchantIds(groupData);
+      }
+
+      this.onlineCollectMerchantsByTab = merchantsByTab;
+      this.closedMerchantIdsByTab = closedIdsByTab;
     },
 
     formatOnlineMerchantText(item) {
@@ -550,11 +583,13 @@ export default {
           return;
         }
 
-        this.closedMerchantIds = merchantOnlineCollect.applyOnlineCollectSaveSuccess(
-          this.closedMerchantIds,
+        const scopeKey = this.onlineCollectScopeKey;
+        const currentClosedIds = this.closedMerchantIdsByTab[scopeKey] || [];
+        this.$set(this.closedMerchantIdsByTab, scopeKey, merchantOnlineCollect.applyOnlineCollectSaveSuccess(
+          currentClosedIds,
           item.id,
           enabled
-        );
+        ));
         this.$message.success('设置成功');
       } catch (error) {
         merchantOnlineCollect.rollbackOnlineCollectMerchant(item, previous);
@@ -668,9 +703,8 @@ export default {
       const res = await api_money.get_cnl_cfg_grp()
       if(res.code == 1) {
         this.groupData = res.data
-        this.closedMerchantIds = merchantOnlineCollect.getClosedMerchantIds(res.data)
-        this.onlineCollectMerchants = merchantOnlineCollect.buildOnlineCollectMerchants(res.data)
         this.mainEntities = (res.data.cnl_cfg_def || []).filter(item => item.g == 1)
+        this.initOnlineCollectMerchants(res.data)
         
         if (this.mainEntities.length > 1) {
           this.activeTab = 'global';

@@ -8,28 +8,64 @@ function toIdList(value) {
     .filter(id => !Number.isNaN(id));
 }
 
-function getClosedMerchantIds(groupData) {
+function findEntityGroup(groupData, entityId) {
+  if (!groupData || !Array.isArray(groupData.cnl_cfg_grps)) {
+    return null;
+  }
+
+  const id = Number(entityId);
+  return groupData.cnl_cfg_grps.find(item => Number(item.id) === id) || null;
+}
+
+function readClosedIdsSource(data) {
+  if (!data) {
+    return undefined;
+  }
+
+  if (data.closed_cnl_cfg_ids !== undefined) return data.closed_cnl_cfg_ids;
+  if (data.close_cnl_cfg_ids !== undefined) return data.close_cnl_cfg_ids;
+  if (data.close_cnls !== undefined) return data.close_cnls;
+  if (data.close_cnl_ids !== undefined) return data.close_cnl_ids;
+  if (data.closed_cnl_ids !== undefined) return data.closed_cnl_ids;
+  return undefined;
+}
+
+function getClosedMerchantIds(groupData, entityId) {
   if (!groupData) {
     return [];
   }
 
-  return toIdList(
-    groupData.closed_cnl_cfg_ids ||
-    groupData.close_cnl_cfg_ids ||
-    groupData.close_cnls ||
-    groupData.close_cnl_ids ||
-    groupData.closed_cnl_ids
-  );
+  const entityGroup = entityId ? findEntityGroup(groupData, entityId) : null;
+  if (entityGroup) {
+    const entityClosedSource = readClosedIdsSource(entityGroup);
+    if (entityClosedSource !== undefined) {
+      return toIdList(entityClosedSource);
+    }
+  }
+
+  return toIdList(readClosedIdsSource(groupData));
 }
 
-function buildOnlineCollectMerchants(groupData) {
-  const closedIds = getClosedMerchantIds(groupData);
+function getEntityMerchantIds(groupData, entityId) {
+  const entityGroup = findEntityGroup(groupData, entityId);
+  if (!entityGroup) {
+    return null;
+  }
 
-  return ((groupData && groupData.cnl_cfg_def) || []).map(item => ({
-    ...item,
-    onlineCollectEnabled: !closedIds.includes(Number(item.id)),
-    savingOpenClose: false,
-  }));
+  return [Number(entityGroup.id)].concat(toIdList(entityGroup.sids));
+}
+
+function buildOnlineCollectMerchants(groupData, entityId) {
+  const closedIds = getClosedMerchantIds(groupData, entityId);
+  const entityMerchantIds = entityId ? getEntityMerchantIds(groupData, entityId) : null;
+
+  return ((groupData && groupData.cnl_cfg_def) || [])
+    .filter(item => !entityMerchantIds || entityMerchantIds.includes(Number(item.id)))
+    .map(item => ({
+      ...item,
+      onlineCollectEnabled: !closedIds.includes(Number(item.id)),
+      savingOpenClose: false,
+    }));
 }
 
 function applyOnlineCollectSaveSuccess(closedMerchantIds, merchantId, enabled) {
@@ -62,6 +98,8 @@ function getOnlineCollectSaveParams(merchantId, enabled) {
 module.exports = {
   buildOnlineCollectMerchants,
   getClosedMerchantIds,
+  findEntityGroup,
+  getEntityMerchantIds,
   applyOnlineCollectSaveSuccess,
   rollbackOnlineCollectMerchant,
   getOnlineCollectSaveParams,

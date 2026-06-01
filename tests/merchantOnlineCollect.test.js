@@ -35,6 +35,34 @@ test('builds online collect merchants from group response and marks closed ids d
   );
 });
 
+test('builds online collect merchants independently for each main entity', () => {
+  const response = {
+    close_cnls: [100, 101],
+    cnl_cfg_grps: [
+      { id: 1, sids: [100], close_cnls: [100] },
+      { id: 2, sids: [101], close_cnls: [] },
+    ],
+    cnl_cfg_def: [
+      { id: 1, n: '主体A', g: 1 },
+      { id: 2, n: '主体B', g: 1 },
+      { id: 100, n: 'A商户', g: 2 },
+      { id: 101, n: 'B商户', g: 2 },
+    ],
+  };
+
+  const entityOneMerchants = buildOnlineCollectMerchants(response, 1);
+  const entityTwoMerchants = buildOnlineCollectMerchants(response, 2);
+
+  assert.deepStrictEqual(
+    entityOneMerchants.map(item => [item.id, item.onlineCollectEnabled]),
+    [[1, true], [100, false]]
+  );
+  assert.deepStrictEqual(
+    entityTwoMerchants.map(item => [item.id, item.onlineCollectEnabled]),
+    [[2, true], [101, true]]
+  );
+});
+
 test('reads closed merchant ids from supported response field names', () => {
   assert.deepStrictEqual(getClosedMerchantIds({ closed_cnl_cfg_ids: ['1', 2] }), [1, 2]);
   assert.deepStrictEqual(getClosedMerchantIds({ close_cnl_cfg_ids: ['3', 4] }), [3, 4]);
