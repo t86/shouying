@@ -388,6 +388,7 @@ import inputSelect from "@/components/book/inputSelect";
 import formSelect from "@/components/book/select";
 import { cardOptions, openTypeList } from "@/utils/config/card";
 import common_book from "@/utils/common/book";
+import personSearch from "@/utils/personSearch";
 import api_card from "@/api/Book";
 import api_order from "@/api/order";
 
@@ -602,21 +603,13 @@ export default {
      */
     // 获取模糊查询订位人的相关信息
     inputSealName(query) {
-      let sealsOption = [];
       this.formData.sales.sales_name = query;
       this.formData.sales.sales_phone = "";
       this.formData.sales.sales_emp_id = "";
       const sealInfoArr =
         this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
-      const results = query
-        ? sealInfoArr.filter(
-            (el) =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.formData.sales.sales_info_option = results;
+      this.formData.sales.sales_info_option =
+        personSearch.getActivePersonOptions(sealInfoArr, query);
     },
     // 选择订位人的信息
     changeSealName(info) {
@@ -690,23 +683,15 @@ export default {
      */
     // 获取模糊查询订位人的相关信息
     inputSecondSealName(query) {
-      let secondSealsOption = [];
       this.formData.secondSales.second_sales_name = query;
       this.formData.secondSales.second_sales_phone = "";
       this.formData.secondSales.second_sales_emp_id = "";
       const secondSealInfoArr =
-        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo.filter(
-          (item) => item.id !== this.formData.sales.sales_emp_id
-        );
-      const results = query
-        ? secondSealInfoArr.filter(
-            (el) =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
-        : secondSealInfoArr;
-      this.formData.secondSales.second_sales_info_option = results;
+        this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
+      this.formData.secondSales.second_sales_info_option =
+        personSearch.getActivePersonOptions(secondSealInfoArr, query, {
+          excludeIds: [this.formData.sales.sales_emp_id],
+        });
     },
     // 选择订位人的信息
     changeSecondSealName(info) {
@@ -724,19 +709,11 @@ export default {
       this.formData.markInfo.option = [];
     },
     inputWaiter(query) {
-      let options = [];
       this.formData.waiter.waiter_name = query;
       this.formData.waiter.waiter_emp_id = "";
       this.formData.secondSales.second_sales_emp_id = "";
       const all = this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo
-      const results = query ? all.filter(
-              (el) =>
-                  el.code.toString().includes(query) ||
-                  el.name.toString().includes(query) ||
-                  el.namePy.toString().includes(query.toLowerCase())
-          )
-          : all;
-      this.formData.waiter.waiters = results;
+      this.formData.waiter.waiters = personSearch.getActivePersonOptions(all, query);
     },
     changeWaiter(info) {
       this.formData.waiter.waiter_name = info.name;

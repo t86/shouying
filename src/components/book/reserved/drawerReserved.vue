@@ -195,6 +195,7 @@ import formSelect from "@/components/book/select";
 import { cardOptions, openTypeList } from "@/utils/config/card";
 import api_book from "@/api/Book";
 import common_book from "@/utils/common/book";
+import personSearch from "@/utils/personSearch";
 import chooseCard from "./chooseCard.vue";
 
 
@@ -296,15 +297,8 @@ export default {
       this.formData.sales.sales_emp_id = "";
       const sealInfoArr =
         this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-      const results = query
-        ? sealInfoArr.filter(
-            (el) =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.formData.sales.sales_info_option = results;
+      this.formData.sales.sales_info_option =
+        personSearch.getActivePersonOptions(sealInfoArr, query);
     },
     // 选择订位人的信息
     changeSealName(info) {
@@ -323,15 +317,8 @@ export default {
       this.formData.secondSales.second_sales_emp_id = "";
       const sealInfoArr =
         this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-      const results = query
-        ? sealInfoArr.filter(
-            (el) =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.formData.secondSales.second_sales_info_option = results;
+      this.formData.secondSales.second_sales_info_option =
+        personSearch.getActivePersonOptions(sealInfoArr, query);
     },
     // 选择联合订位人的信息
     changeSecondSealName(info) {

@@ -480,6 +480,7 @@ import api_money from "@/api/money";
 import api_book from "@/api/Book";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import personSearch from "@/utils/personSearch";
 import {
   buildPriceContextFromStore,
   calcItemAmount,
@@ -630,15 +631,7 @@ export default {
       this.selFwy = "";
       const sealInfoArr =
         this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo;
-      const results = query
-        ? sealInfoArr.filter(
-            (el) =>
-              el.code.toString().includes(query) ||
-              el.name.toString().includes(query) ||
-              el.namePy.toString().includes(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.empList = results;
+      this.empList = personSearch.getActivePersonOptions(sealInfoArr, query);
     },
     // 选择服务员信息
     changeSealName(info) {

@@ -131,6 +131,7 @@
 import api_card from "@/api/Book";
 import common_book from "@/utils/common/book";
 import inputSelect from "@/components/book/inputSelect";
+import personSearch from "@/utils/personSearch";
 export default {
   data() {
     return {
@@ -218,15 +219,9 @@ export default {
       this.formData.saleId = "";
       const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj
         .orderPersonInfo;
-      const results = query
-        ? sealInfoArr.filter(
-            el =>
-              el.code.toString().startsWith(query) ||
-              el.name.toString().startsWith(query) ||
-              el.namePy.toString().startsWith(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.formData.saleOption = results;
+      this.formData.saleOption = personSearch.getActivePersonOptions(sealInfoArr, query, {
+        matchMode: "startsWith"
+      });
     },
     // 选择订位人的信息
     changeSealName(info) {
@@ -242,15 +237,9 @@ export default {
       this.formData.secondSaleId = "";
       const sealInfoArr = this.$store.state.cardPageInfo.resResultDataObj
         .orderPersonInfo;
-      const results = query
-        ? sealInfoArr.filter(
-            el =>
-              el.code.toString().startsWith(query) ||
-              el.name.toString().startsWith(query) ||
-              el.namePy.toString().startsWith(query.toLowerCase())
-          )
-        : sealInfoArr;
-      this.formData.secondSaleOption = results;
+      this.formData.secondSaleOption = personSearch.getActivePersonOptions(sealInfoArr, query, {
+        matchMode: "startsWith"
+      });
     },
     // 选择联合订位人的信息
     changeSecondSealName(info) {

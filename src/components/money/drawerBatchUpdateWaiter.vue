@@ -99,6 +99,7 @@
 <script>
 import api_money from "@/api/money";
 import inputSelect from "@/components/book/inputSelect";
+import personSearch from "@/utils/personSearch";
 
 export default {
   components: {
@@ -169,12 +170,7 @@ export default {
       // 从 store 中获取员工列表并过滤
       const sealInfoArr =
         this.$store.state.cardPageInfo.resResultDataObj.orderPersonInfo || [];
-      const results = sealInfoArr.filter(
-        (el) =>
-          el.code.toString().includes(val) ||
-          el.name.toString().includes(val) ||
-          el.namePy.toString().includes(val.toLowerCase())
-      );
+      const results = personSearch.getActivePersonOptions(sealInfoArr, val);
       this.waiterOptions = results.map((item) => ({
         id: item.id,
         name: item.name,
@@ -485,4 +481,3 @@ export default {
   }
 }
 </style>
-
