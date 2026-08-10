@@ -8,6 +8,7 @@ const {
   isBookingDetailStatusVisible,
   getBookingDetailOptionIds,
   buildTurnoverTabs,
+  getBookingDetailTurnoverCount,
 } = require('../src/utils/bookingDetailAccess');
 
 test('exports the stable booking-detail option IDs', () => {
@@ -112,8 +113,10 @@ test('shows detail entries only in allowed card states', () => {
   assert.equal(isBookingDetailStatusVisible(1, 0), false);
   assert.equal(isBookingDetailStatusVisible(1, 1), true);
   assert.equal(isBookingDetailStatusVisible(2, 3), false);
-  assert.equal(isBookingDetailStatusVisible(3, 3), false);
-  assert.equal(isBookingDetailStatusVisible(8, 3), false);
+  assert.equal(isBookingDetailStatusVisible(3, 0), false);
+  assert.equal(isBookingDetailStatusVisible(3, 3), true);
+  assert.equal(isBookingDetailStatusVisible(8, 0), false);
+  assert.equal(isBookingDetailStatusVisible(8, 3), true);
 
   for (const status of [4, 5, 6, 7]) {
     assert.equal(isBookingDetailStatusVisible(status, 0), true);
@@ -160,8 +163,15 @@ test('returns independent configured options only for visible and unrestricted s
       3,
       2,
     ),
-    [],
+    [26, 27],
   );
+});
+
+test('uses the previous turnover for cleared cards whose current turnover is not open', () => {
+  assert.equal(getBookingDetailTurnoverCount(7, 3), 2);
+  assert.equal(getBookingDetailTurnoverCount(7, 1), 0);
+  assert.equal(getBookingDetailTurnoverCount(4, 3), 3);
+  assert.equal(getBookingDetailTurnoverCount(8, 3), 3);
 });
 
 test('builds newest-first turnover tabs and an empty-table fallback', () => {

@@ -225,6 +225,20 @@ test('opening builds newest-first tabs, selects newest and normalizes bound look
   assert.equal(vm.loading, false);
 });
 
+test('cleared cards load the previous turnover instead of the unopened current turnover', async () => {
+  const { calls, vm } = createDialogHarness(() => Promise.resolve({
+    code: 1,
+    data: { records: [{ id: 'previous-turnover' }] },
+  }));
+  vm.cardInfo.bizStatus = 7;
+
+  await vm.openDialog();
+
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.turnoverCnt), [2, 1]);
+  assert.deepEqual(calls, [{ seat_id: 88, turnover_cnt: 2 }]);
+  assert.equal(vm.consumptionRows[0].id, 'previous-turnover');
+});
+
 test('switching tabs lazy-loads and caches successful responses by seat and turnover', async () => {
   const { calls, vm } = createDialogHarness(params => Promise.resolve({
     code: 1,

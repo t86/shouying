@@ -34,11 +34,17 @@ function getBookingDetailSaveFields(state = {}) {
 }
 
 function isBookingDetailStatusVisible(status, turnoverCnt) {
-  if (status === 1 || status === '1') {
+  if ([1, 3, 8].includes(Number(status))) {
     return Number(turnoverCnt) > 0;
   }
 
   return [4, 5, 6, 7].includes(Number(status));
+}
+
+function getBookingDetailTurnoverCount(status, turnoverCnt) {
+  const count = Number(turnoverCnt);
+  const normalizedCount = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+  return Number(status) === 7 ? Math.max(normalizedCount - 1, 0) : normalizedCount;
 }
 
 function getBookingDetailOptionIds(config = {}, status, turnoverCnt) {
@@ -71,4 +77,5 @@ module.exports = {
   isBookingDetailStatusVisible,
   getBookingDetailOptionIds,
   buildTurnoverTabs,
+  getBookingDetailTurnoverCount,
 };
