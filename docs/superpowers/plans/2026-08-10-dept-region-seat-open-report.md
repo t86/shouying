@@ -342,9 +342,9 @@ export default {
       if (typeof response.text !== 'function') return '导出失败，请稍后重试';
       try {
         const payload = JSON.parse(await response.text());
-        return payload && payload.code !== 1
-          ? (payload.msg || '导出失败，请稍后重试')
-          : '';
+        return payload && payload.msg
+          ? payload.msg
+          : '导出失败，请稍后重试';
       } catch (error) {
         return '导出失败，请稍后重试';
       }
