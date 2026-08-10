@@ -9,7 +9,7 @@ function getLookupValue(lookups, methodName, value) {
 }
 
 function transformPackageItems(items, lookups) {
-  if (!Array.isArray(items)) return items;
+  if (!Array.isArray(items)) return [];
 
   return items.map((item) => {
     const packageItem = item && typeof item === 'object' ? { ...item } : {};
@@ -54,7 +54,7 @@ function transformConsumptionRecords(records, lookups) {
       const returnRow = enrichConsumptionRecord({
         ...source,
         ...returned,
-        si: Array.isArray(returned.si) ? returned.si : source.si,
+        si: Object.prototype.hasOwnProperty.call(returned, 'si') ? returned.si : source.si,
       }, lookups);
 
       rows.push({ ...returnRow, back: true });

@@ -83,6 +83,24 @@ test('uses self-service, lookup fallbacks, and parent package detail for return 
   }]);
 });
 
+test('normalizes malformed parent and return package details to arrays without mutating input', () => {
+  const records = [
+    { id: 'malformed-parent', pc: 1, si: { unexpected: true } },
+    {
+      id: 'parent-with-malformed-return',
+      pc: 0,
+      si: [{ i: 11 }],
+      bs: [{ id: 'malformed-return', si: { unexpected: true } }],
+    },
+  ];
+  const snapshot = structuredClone(records);
+  const rows = transformConsumptionRecords(records, lookups);
+
+  assert.deepEqual(rows.map((row) => row.si), [[], []]);
+  assert.equal(rows[1].back, true);
+  assert.deepEqual(records, snapshot);
+});
+
 test('normalizes missing or malformed response data to safe defaults', () => {
   const safeResponse = {
     consumptionRows: [],
