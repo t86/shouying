@@ -149,7 +149,7 @@ export default {
 
         if (res.code === 1) {
           const data = res.data || {};
-          this.nowTime = data.now_time || '';
+          this.nowTime = res.now_time || data.now_time || '';
           this.deptList = Array.isArray(data.dept_list) ? data.dept_list : [];
           this.regionList = Array.isArray(data.region_list) ? data.region_list : [];
         } else {

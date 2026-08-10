@@ -241,6 +241,27 @@ test('dept-region seat report preserves server-owned rows without synthesizing t
   assert.equal(context.regionList[1].c, '23');
 });
 
+test('dept-region seat report uses the response now_time as the last refresh time', async () => {
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    {
+      reqGetDeptRegionSeatOpenList: async () => ({
+        code: 1,
+        now_time: '2026-08-10 22:00:00',
+        data: {
+          dept_list: [],
+          region_list: []
+        }
+      })
+    },
+    reportUtilsMock
+  );
+  const context = createDrawerContext(drawerOptions);
+
+  await context.getReportData();
+
+  assert.equal(context.nowTime, '2026-08-10 22:00:00');
+});
+
 test('dept-region seat report ignores an older response that finishes last', async () => {
   const firstRequest = createDeferred();
   const secondRequest = createDeferred();
@@ -432,4 +453,17 @@ test('card machine exposes the dept-region seat report from more functions', () 
     /showOrHideDeptRegionSeatOpenDrawer\s*\(showDrawer\)\s*\{[\s\S]*?typeof showDrawer === "boolean"[\s\S]*?this\.showDeptRegionSeatOpenDrawer = showDrawer;[\s\S]*?this\.showDeptRegionSeatOpenDrawer = !this\.showDeptRegionSeatOpenDrawer;/
   );
   assert.match(source, /components:\s*\{[\s\S]*?drawerDeptRegionSeatOpen,/);
+});
+
+test('more-functions menu keeps report labels on one aligned line', () => {
+  const source = readSource('src/style/book/machine/cardMachine.less');
+
+  assert.match(
+    source,
+    /&\.more\s*\{[\s\S]*?width\s*:\s*(?:2\d{2}|[3-9]\d{2})px/
+  );
+  assert.match(
+    source,
+    /&\.more\s*\{[\s\S]*?\.option-item\s*\{[\s\S]*?display\s*:\s*flex[\s\S]*?align-items\s*:\s*center[\s\S]*?white-space\s*:\s*nowrap/
+  );
 });

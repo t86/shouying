@@ -675,9 +675,20 @@
   border-radius: 8px;
 
   &.more {
-    width: 166px;
+    width: 210px;
     right: 50%;
     transform: translateX(50%);
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+
+      img {
+        flex: 0 0 auto;
+        margin-right: 8px;
+      }
+    }
 
     // 小三角
     > img {
