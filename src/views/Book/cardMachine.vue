@@ -388,6 +388,13 @@
                 <img :src="imgSrc.openCard" alt />
                 <span>入客数据实时汇总</span>
               </div>
+              <div
+                class="option-item"
+                @click="showOrHideDeptRegionSeatOpenDrawer"
+              >
+                <img :src="imgSrc.openCard" alt />
+                <span>部门实时订台/区域开台</span>
+              </div>
               <img :src="imgSrc.sanJiao" alt />
               <div
                 class="option-item"
@@ -474,6 +481,11 @@
         @showOrHideDrawer="showOrHideSeatOpeningDrawer"
     />
 
+    <drawer-dept-region-seat-open
+      :showDrawer="showDeptRegionSeatOpenDrawer"
+      @showOrHideDrawer="showOrHideDeptRegionSeatOpenDrawer"
+    />
+
     <!-- 转台记录 -->
     <drawerTurnOver
       :showDrawer="showTurnOverDrawer"
@@ -522,6 +534,7 @@ import cardDrawer from "@/components/book/machine/cardDrawer"; // 抽屉组件
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏表格
 import drawerOpenCard from "@/components/book/machine/drawerOpenCard.vue"; // 开台记录
 import drawerSeatOpening from "@/components/book/machine/drawerSeatOpening"; // 开台记录
+import drawerDeptRegionSeatOpen from "@/components/book/machine/drawerDeptRegionSeatOpen"; // 部门实时订台/区域开台表
 import drawerTurnOver from "@/components/book/machine/drawerTurnOver.vue"; // 转台记录
 import drawerReservedRecord from '@/components/book/machine/drawerReservedRecord.vue'; // 预留记录
 import drawerQueue from "@/components/book/machine/drawerQueue.vue"; // 排队详情
@@ -574,6 +587,7 @@ export default {
       showReservedRecordDrawer: false, // 是否显示预留记录drawer
       showOrHideOnlineBookingDrawer: false, // 是否显示线上预订记录drawer
       showSeatOpeningDrawer: false,
+      showDeptRegionSeatOpenDrawer: false,
       showQueueDrawer: false,
       showTurnbackDialog: false, // 是否显示复台流水选择对话框
       turnbackSeatId: null, // 复台操作的卡台ID
@@ -1625,6 +1639,14 @@ export default {
     showOrHideSeatOpeningDrawer () {
       this.showSeatOpeningDrawer = !this.showSeatOpeningDrawer
     },
+
+    showOrHideDeptRegionSeatOpenDrawer(showDrawer) {
+      if (typeof showDrawer === "boolean") {
+        this.showDeptRegionSeatOpenDrawer = showDrawer;
+        return;
+      }
+      this.showDeptRegionSeatOpenDrawer = !this.showDeptRegionSeatOpenDrawer;
+    },
     /**
      * 显示或隐藏转台记录
      */
@@ -1953,6 +1975,7 @@ export default {
     fullPageTable, // 全屏表格数据
     drawerOpenCard, // 开台记录
     drawerSeatOpening,
+    drawerDeptRegionSeatOpen,
     drawerTurnOver, // 转台记录
     updatePassword, // 修改密码
     drawerReservedRecord, // 预留记录

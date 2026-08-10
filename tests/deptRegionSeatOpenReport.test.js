@@ -1,0 +1,49 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+
+const {
+  formatDepartmentName,
+  isTotalRow,
+} = require('../src/utils/deptRegionSeatOpenReport');
+
+test('formatDepartmentName preserves an unindented department name', () => {
+  assert.deepEqual(formatDepartmentName('订台一部'), {
+    name: '订台一部',
+    indent: 0
+  });
+});
+
+test('formatDepartmentName counts ordinary leading spaces as indentation', () => {
+  assert.deepEqual(formatDepartmentName(' 订台一部'), {
+    name: '订台一部',
+    indent: 1
+  });
+  assert.deepEqual(formatDepartmentName('  订台一部'), {
+    name: '订台一部',
+    indent: 2
+  });
+});
+
+test('formatDepartmentName counts a full-width leading space as two indentation spaces', () => {
+  assert.deepEqual(formatDepartmentName('\u3000订台一部'), {
+    name: '订台一部',
+    indent: 2
+  });
+});
+
+test('formatDepartmentName combines ordinary and full-width indentation widths', () => {
+  assert.deepEqual(formatDepartmentName(' \u3000订台一部'), {
+    name: '订台一部',
+    indent: 3
+  });
+});
+
+test('isTotalRow identifies numeric and string zero identifiers', () => {
+  assert.equal(isTotalRow({ id: 0 }), true);
+  assert.equal(isTotalRow({ id: '0' }), true);
+});
+
+test('isTotalRow rejects non-total and missing rows', () => {
+  assert.equal(isTotalRow({ id: 1 }), false);
+  assert.equal(isTotalRow(null), false);
+});
