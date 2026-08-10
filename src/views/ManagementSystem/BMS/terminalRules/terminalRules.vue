@@ -206,7 +206,7 @@ export default {
       canClearCard: true, // 咨客是否可清台  true禁止  false不禁止
       orderAutoMake: true, // 下单自动出品 true自动 false不自动
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
-      notShowAmt: false,  // 是否不显示金额
+      notShowAmt: true,  // 是否不显示金额
       bookingConsumptionEnabled: false,
       bookingWineEnabled: false,
       csm_waiter_flag: 1,
@@ -255,28 +255,29 @@ export default {
       try {
         const res = await this.$api.BMS.terminalRules.reqGetTime();
         if (res.code == 1) {
-          const bookingDetailConfig = normalizeBookingDetailConfig(res.data);
-          this.time = res.data.local_settle_timeout_mins;
-          this.timeLine = res.data.online_settle_timeout_mins;
-          this.radio = res.data.auto_close_on_off.toString();
-          this.chooseTime.hour = (res.data.auto_close_hour * 1)
-              .toString()
-              .padStart(2, 0);
-          this.chooseTime.minute = (res.data.auto_close_minute * 1)
-              .toString()
-              .padStart(2, 0);
+          const data = res.data || {};
+          const bookingDetailConfig = normalizeBookingDetailConfig(data);
           this.notShowAmt = bookingDetailConfig.amountsRestricted;
           this.bookingConsumptionEnabled = bookingDetailConfig.consumptionEnabled;
           this.bookingWineEnabled = bookingDetailConfig.wineEnabled;
-          this.scanOrderMustDx = res.data.scan_order_must_dx == 1
-          this.canClearCard = res.data.book_no_clean_seat == 1
-          this.csm_waiter_flag = res.data.csm_waiter_flag
-          this.orderAutoMake = res.data.order_auto_mk == 1
-          this.disableChgPass = res.data.disable_chg_pass == 1
-          this.timeoutAutoBack = res.data.cust_scan_order_timeout !== 0
-          this.timeoutAutoBackTime = res.data.cust_scan_order_timeout
-          this.orderedShipNow = res.data.cust_order_auto_mk == 1
-          this.bingGuest = res.data.bind_cust === 1
+          this.time = data.local_settle_timeout_mins;
+          this.timeLine = data.online_settle_timeout_mins;
+          this.radio = data.auto_close_on_off.toString();
+          this.chooseTime.hour = (data.auto_close_hour * 1)
+              .toString()
+              .padStart(2, 0);
+          this.chooseTime.minute = (data.auto_close_minute * 1)
+              .toString()
+              .padStart(2, 0);
+          this.scanOrderMustDx = data.scan_order_must_dx == 1
+          this.canClearCard = data.book_no_clean_seat == 1
+          this.csm_waiter_flag = data.csm_waiter_flag
+          this.orderAutoMake = data.order_auto_mk == 1
+          this.disableChgPass = data.disable_chg_pass == 1
+          this.timeoutAutoBack = data.cust_scan_order_timeout !== 0
+          this.timeoutAutoBackTime = data.cust_scan_order_timeout
+          this.orderedShipNow = data.cust_order_auto_mk == 1
+          this.bingGuest = data.bind_cust === 1
         } else {
           this.$message.warning(res.msg);
         }

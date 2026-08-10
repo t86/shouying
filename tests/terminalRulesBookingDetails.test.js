@@ -29,11 +29,25 @@ test('normalizes booking-detail configuration returned by getTime', () => {
     source,
     /const \{ normalizeBookingDetailConfig, getBookingDetailSaveFields \} = bookingDetailAccess/,
   );
-  assert.match(source, /const bookingDetailConfig = normalizeBookingDetailConfig\(res\.data\)/);
+  assert.match(source, /notShowAmt:\s*true/);
+  assert.match(source, /const data = res\.data \|\| \{\}/);
+  assert.match(source, /const bookingDetailConfig = normalizeBookingDetailConfig\(data\)/);
   assert.match(source, /this\.notShowAmt = bookingDetailConfig\.amountsRestricted/);
   assert.doesNotMatch(source, /this\.notShowAmt = res\.data\.limit_book_csm_amt/);
   assert.match(source, /this\.bookingConsumptionEnabled = bookingDetailConfig\.consumptionEnabled/);
   assert.match(source, /this\.bookingWineEnabled = bookingDetailConfig\.wineEnabled/);
+  assert.doesNotMatch(source, /res\.data\./);
+
+  const accessLoadOrder = [
+    'const data = res.data || {}',
+    'const bookingDetailConfig = normalizeBookingDetailConfig(data)',
+    'this.notShowAmt = bookingDetailConfig.amountsRestricted',
+    'this.bookingConsumptionEnabled = bookingDetailConfig.consumptionEnabled',
+    'this.bookingWineEnabled = bookingDetailConfig.wineEnabled',
+    'this.time = data.local_settle_timeout_mins',
+  ].map((token) => source.indexOf(token));
+  assert.equal(accessLoadOrder.every((index) => index >= 0), true);
+  assert.deepEqual(accessLoadOrder, [...accessLoadOrder].sort((a, b) => a - b));
 });
 
 test('serializes both booking-detail settings through the save helper', () => {
