@@ -133,6 +133,23 @@ test('readonly tables accept rows as their only prop', () => {
   assert.deepEqual(wine.props.rows.default(), []);
 });
 
+test('consumption display helpers match newMyOrder monetary fallback behavior', () => {
+  const { methods } = loadVueOptions('src/components/order/myOrder/readonlyConsumptionTable.vue');
+
+  for (const p2 of [null, '', false, 0]) {
+    assert.equal(methods.displayPrice({ pp: 12.5, p2 }), '12.50');
+  }
+  assert.equal(methods.displayPrice({ pp: 12.5, p2: 8 }), '8.00');
+  assert.equal(methods.displayPrice({ pp: 0, p2: 8 }), '时价');
+
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: null }), '25.00');
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: undefined }), '25.00');
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: 0 }), '0.00');
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: 18 }), '18.00');
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: null, at: 2 }), '0.00');
+  assert.equal(methods.subtotal({ pp: 12.5, pc: 2, pa: null, at: 3 }), '0.00');
+});
+
 test('booking dialog exposes the exact read-only shell and mode contract', () => {
   const source = readSource('src/components/book/machine/bookingDetailDialog.vue');
   const { options } = createDialogHarness(() => Promise.resolve({ code: 1, data: {} }));
@@ -152,6 +169,15 @@ test('booking dialog exposes the exact read-only shell and mode contract', () =>
   assert.match(source, /createDetailRequestState/);
   assert.match(source, /normalizeOrderDetailResponse/);
   assert.doesNotMatch(source, /\$router|\$route|\$store|currentCardInfo|退单|批量优惠|打印消费单/);
+});
+
+test('loading masks only the detail area so turnover tabs remain interactive', () => {
+  const source = readSource('src/components/book/machine/bookingDetailDialog.vue');
+  const template = source.match(/<template>([\s\S]*?)<\/template>/)[1];
+
+  assert.match(template, /<div\s+class="detail-scroll"\s+v-loading="loading"\s*>/);
+  assert.doesNotMatch(template, /class="booking-detail-content"[^>]*v-loading/);
+  assert.match(template, /<div class="turnover-tabs">/);
 });
 
 test('opening builds newest-first tabs, selects newest and normalizes bound lookups', async () => {
@@ -253,6 +279,18 @@ test('closing clears data and cache, invalidates requests and emits input false'
 
   await vm.openDialog();
   assert.equal(calls.length, 3, 'reopening must not reuse the previous dialog session cache');
+});
+
+test('footer close followed by Element dialog close emits input false exactly once', () => {
+  const footer = createDialogHarness(() => Promise.resolve({ code: 1, data: {} }));
+  footer.vm.requestClose();
+  footer.vm.requestClose();
+  footer.vm.closeDialog();
+  assert.deepEqual(footer.emitted, [['input', false]]);
+
+  const dialogChrome = createDialogHarness(() => Promise.resolve({ code: 1, data: {} }));
+  dialogChrome.vm.closeDialog();
+  assert.deepEqual(dialogChrome.emitted, [['input', false]]);
 });
 
 test('ordinary API failures warn, show empty data, stop loading and keep dialog open', async () => {

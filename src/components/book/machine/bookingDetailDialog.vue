@@ -6,7 +6,7 @@
     :close-on-click-modal="false"
     @close="closeDialog"
   >
-    <div class="booking-detail-content" v-loading="loading">
+    <div class="booking-detail-content">
       <div class="turnover-tabs">
         <button
           v-for="tab in turnoverTabs"
@@ -19,7 +19,7 @@
           {{ tab.label }}
         </button>
       </div>
-      <div class="detail-scroll">
+      <div class="detail-scroll" v-loading="loading">
         <readonly-consumption-table
           v-if="mode === 'consumption'"
           :rows="consumptionRows"
@@ -28,7 +28,7 @@
       </div>
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">关闭</el-button>
+      <el-button @click="requestClose">关闭</el-button>
     </span>
   </el-dialog>
 </template>
@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       loading: false,
+      closeRequested: false,
       turnoverTabs: [],
       selectedTurnoverCnt: 0,
       consumptionRows: [],
@@ -101,6 +102,7 @@ export default {
     openDialog() {
       this.detailRequestState.clear();
       this.loading = false;
+      this.closeRequested = false;
       this.resetDetailData();
       const cardInfo = this.cardInfo || {};
       this.turnoverTabs = buildTurnoverTabs(cardInfo.name || '', cardInfo.turnoverCnt);
@@ -113,6 +115,12 @@ export default {
       this.turnoverTabs = [];
       this.selectedTurnoverCnt = 0;
       this.resetDetailData();
+      if (!this.closeRequested) this.$emit('input', false);
+      this.closeRequested = false;
+    },
+    requestClose() {
+      if (this.closeRequested) return;
+      this.closeRequested = true;
       this.$emit('input', false);
     },
     selectTurnover(turnoverCnt) {

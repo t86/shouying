@@ -52,11 +52,14 @@ export default {
   methods: {
     displayPrice(item) {
       if (Number(item.pp) === 0) return '时价';
-      return Number(item.p2 !== undefined ? item.p2 : item.pp || 0).toFixed(2);
+      return Number(item.p2 || item.pp || 0).toFixed(2);
     },
     subtotal(item) {
       if (item.at == 2 || item.at == 3) return '0.00';
-      return Number(item.pa !== undefined ? item.pa : (item.pp || 0) * (item.pc || 0)).toFixed(2);
+      const amount = item.pa === null || item.pa === undefined
+        ? (item.pp || 0) * (item.pc || 0)
+        : item.pa;
+      return Number(amount).toFixed(2);
     },
     packageCount(detail, productCount) {
       return detail.s && detail.c
