@@ -1285,11 +1285,17 @@ export default {
           }
           break;
       }
-      optionsIdArr.push(...getBookingDetailOptionIds(
+      const bookingDetailOptionIds = getBookingDetailOptionIds(
         this.bookingDetailConfig,
         status,
         turnoverCnt
-      ));
+      );
+      const cardDetailIndex = optionsIdArr.indexOf(14);
+      if (cardDetailIndex >= 0) {
+        optionsIdArr.splice(cardDetailIndex + 1, 0, ...bookingDetailOptionIds);
+      } else {
+        optionsIdArr.push(...bookingDetailOptionIds);
+      }
       optionsIdArr.push(18);
       if (topNum > 0) optionsIdArr.push(19);
       optionsIdArr.forEach((el) => {

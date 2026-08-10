@@ -545,7 +545,7 @@ test('destroy invalidates an in-flight booking config request before it can muta
   assert.deepEqual(refreshes, []);
 });
 
-test('detail options preserve status-menu order and precede pin actions', () => {
+test('detail options follow view-card-details and precede later card actions', () => {
   const { getBookingDetailOptionIds } = require('../src/utils/bookingDetailAccess');
   const cardOptions = Array.from({ length: 27 }, (_, index) => ({ id: index + 1 }));
   const getCardOptions = compileCardMachineMethod(
@@ -566,7 +566,7 @@ test('detail options preserve status-menu order and precede pin actions', () => 
 
   assert.deepEqual(
     getCardOptions.call(vm, '4', 0, false, 6, 1).map(option => option.id),
-    [10, 11, 7, 12, 14, 4, 20, 21, 23, 24, 26, 27, 18, 19],
+    [10, 11, 7, 12, 14, 26, 27, 4, 20, 21, 23, 24, 18, 19],
   );
 });
 
