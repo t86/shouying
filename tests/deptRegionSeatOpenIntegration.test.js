@@ -262,6 +262,31 @@ test('dept-region seat report uses the response now_time as the last refresh tim
   assert.equal(context.nowTime, '2026-08-10 22:00:00');
 });
 
+test('dept-region seat report falls back to the query time when the response omits now_time', async () => {
+  const fixedNow = new Date('2026-08-10T22:03:04');
+  function FixedDate () {
+    return fixedNow;
+  }
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    {
+      reqGetDeptRegionSeatOpenList: async () => ({
+        code: 1,
+        data: {
+          dept_list: [{ id: 1, n: '订台部', c: 0 }],
+          region_list: [{ id: 2, n: '大厅', c: 0 }]
+        }
+      })
+    },
+    reportUtilsMock,
+    { Date: FixedDate }
+  );
+  const context = createDrawerContext(drawerOptions);
+
+  await context.getReportData();
+
+  assert.equal(context.nowTime, '2026-08-10 22:03:04');
+});
+
 test('dept-region seat report ignores an older response that finishes last', async () => {
   const firstRequest = createDeferred();
   const secondRequest = createDeferred();
@@ -408,6 +433,23 @@ test('department indentation is added on top of the shared cell padding', () => 
   assert.equal(topLevelStyle.paddingLeft, '16px');
   assert.equal(totalStyle.paddingLeft, '16px');
   assert.ok(Number.parseInt(childStyle.paddingLeft, 10) > 16);
+});
+
+test('dept report only applies hierarchy classes to department rows', () => {
+  const source = readSource('src/components/book/machine/drawerDeptRegionSeatOpen.vue');
+  const styleSource = readSource('src/style/book/machine/drawerDeptRegionSeatOpen.less');
+
+  assert.match(
+    source,
+    /v-for="\(item, index\) in deptList"[\s\S]*?'report-dept-level-one': isTopLevelDepartment\(item\)[\s\S]*?'report-dept-level-three': isNestedDepartment\(item\)/
+  );
+  assert.doesNotMatch(
+    source,
+    /v-for="\(item, index\) in regionList"[\s\S]*?report-dept-level-(?:one|three)/
+  );
+  assert.match(styleSource, /\.report-dept-level-one\s*\{[\s\S]*?background:/);
+  assert.match(styleSource, /\.report-dept-level-one:before\s*\{/);
+  assert.match(styleSource, /\.report-dept-level-three\s*\{/);
 });
 
 test('dept-region seat report rows share one grid column definition', () => {

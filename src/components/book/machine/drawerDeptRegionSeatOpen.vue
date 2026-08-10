@@ -24,7 +24,11 @@
               v-for="(item, index) in deptList"
               :key="`dept-${item.id}-${index}`"
               class="report-row"
-              :class="{ 'report-total': isTotal(item) }"
+              :class="{
+                'report-total': isTotal(item),
+                'report-dept-level-one': isTopLevelDepartment(item),
+                'report-dept-level-three': isNestedDepartment(item)
+              }"
             >
               <div
                 class="report-name"
@@ -104,8 +108,20 @@ export default {
       const { indent } = this.departmentDisplay(item);
       return { paddingLeft: `${16 + indent * 8}px` };
     },
+    isTopLevelDepartment (item) {
+      return !this.isTotal(item) && this.departmentDisplay(item).indent === 0;
+    },
+    isNestedDepartment (item) {
+      return !this.isTotal(item) && this.departmentDisplay(item).indent >= 4;
+    },
     regionDisplayName (item) {
       return this.isTotal(item) ? '合计' : ((item && item.n) || '');
+    },
+    formatQueryTime (date) {
+      const current = date || new Date();
+      const pad = value => (value < 10 ? `0${value}` : `${value}`);
+
+      return `${current.getFullYear()}-${pad(current.getMonth() + 1)}-${pad(current.getDate())} ${pad(current.getHours())}:${pad(current.getMinutes())}:${pad(current.getSeconds())}`;
     },
     async getExportErrorMessage (response) {
       if (response && response.msg) {
@@ -139,6 +155,7 @@ export default {
     },
     async getReportData () {
       const requestSerial = ++this.requestSerial;
+      const queryTime = this.formatQueryTime(new Date());
       this.nowTime = '';
       this.deptList = [];
       this.regionList = [];
@@ -149,7 +166,7 @@ export default {
 
         if (res.code === 1) {
           const data = res.data || {};
-          this.nowTime = res.now_time || data.now_time || '';
+          this.nowTime = res.now_time || data.now_time || queryTime;
           this.deptList = Array.isArray(data.dept_list) ? data.dept_list : [];
           this.regionList = Array.isArray(data.region_list) ? data.region_list : [];
         } else {
