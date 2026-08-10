@@ -249,19 +249,22 @@ export default {
 
     listToTree (newList) {
       const map = {};
-      let node = [];
+      const node = [];
+
       for (let i = 0; i < newList.length; i++) {
-        map[newList[i].id] = i; 
+        const item = newList[i];
+        map[item.id] = {...item, label: item.name, value: item.id};
       }
+
       for (let i = 0; i < newList.length; i++) {
-        const cur = {...newList[i], label: newList[i].name, value: newList[i].id};
-        if (cur.parentId * 1 == 0) {
+        const cur = map[newList[i].id];
+        const parent = map[cur.parentId];
+
+        if (cur.parentId * 1 == 0 || !parent) {
           node.push(cur);
         } else {
-          if (newList[map[cur.parentId]] && !newList[map[cur.parentId]].children) {
-            newList[map[cur.parentId]].children = [];
-          }
-          newList[map[cur.parentId]].children.push(cur);
+          if (!parent.children) parent.children = [];
+          parent.children.push(cur);
         }
       }
 
