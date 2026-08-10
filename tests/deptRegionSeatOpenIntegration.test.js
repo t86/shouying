@@ -79,6 +79,47 @@ const reportUtilsMock = {
   isTotalRow: item => Boolean(item) && Number(item.id) === 0
 };
 
+async function runJsonBlobExport(response) {
+  const warnings = [];
+  let createObjectURLCalls = 0;
+  let appendCalls = 0;
+  let clickCalls = 0;
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    { reqExportDeptRegionSeatOpenList: async () => response },
+    reportUtilsMock,
+    {
+      Blob,
+      window: {
+        URL: {
+          createObjectURL() {
+            createObjectURLCalls += 1;
+            return 'blob:should-not-download';
+          },
+          revokeObjectURL() {}
+        }
+      },
+      document: {
+        body: {
+          appendChild() {
+            appendCalls += 1;
+          }
+        },
+        createElement: () => ({
+          click() {
+            clickCalls += 1;
+          }
+        })
+      }
+    }
+  );
+  const context = createDrawerContext(drawerOptions);
+  context.$message.warning = message => warnings.push(message);
+
+  await context.exportExcelHandle();
+
+  return { warnings, createObjectURLCalls, appendCalls, clickCalls };
+}
+
 test('book API exposes dept-region seat report read and export endpoints', () => {
   const calls = [];
   const mockAxios = {
@@ -309,52 +350,32 @@ test('dept-region seat report always cleans up a failed export', async () => {
 });
 
 test('dept-region seat report warns instead of downloading a JSON Blob error', async () => {
-  const warnings = [];
-  let createObjectURLCalls = 0;
-  let appendCalls = 0;
-  let clickCalls = 0;
   const jsonError = new Blob(
     [JSON.stringify({ code: 0, msg: '暂无可导出数据' })],
     { type: 'application/json' }
   );
-  const drawerOptions = loadDeptRegionSeatOpenDrawer(
-    { reqExportDeptRegionSeatOpenList: async () => jsonError },
-    reportUtilsMock,
-    {
-      Blob,
-      window: {
-        URL: {
-          createObjectURL() {
-            createObjectURLCalls += 1;
-            return 'blob:should-not-download';
-          },
-          revokeObjectURL() {}
-        }
-      },
-      document: {
-        body: {
-          appendChild() {
-            appendCalls += 1;
-          }
-        },
-        createElement: () => ({
-          click() {
-            clickCalls += 1;
-          }
-        })
-      }
-    }
-  );
-  const context = createDrawerContext(drawerOptions);
-  context.$message.warning = message => warnings.push(message);
+  const result = await runJsonBlobExport(jsonError);
 
-  await context.exportExcelHandle();
-
-  assert.deepEqual(warnings, ['暂无可导出数据']);
-  assert.equal(createObjectURLCalls, 0);
-  assert.equal(appendCalls, 0);
-  assert.equal(clickCalls, 0);
+  assert.deepEqual(result.warnings, ['暂无可导出数据']);
+  assert.equal(result.createObjectURLCalls, 0);
+  assert.equal(result.appendCalls, 0);
+  assert.equal(result.clickCalls, 0);
 });
+
+for (const [description, content] of [
+  ['successful object', JSON.stringify({ code: 1 })],
+  ['null payload', 'null']
+]) {
+  test(`dept-region seat report rejects a JSON Blob with a ${description}`, async () => {
+    const response = new Blob([content], { type: 'application/json' });
+    const result = await runJsonBlobExport(response);
+
+    assert.deepEqual(result.warnings, ['导出失败，请稍后重试']);
+    assert.equal(result.createObjectURLCalls, 0);
+    assert.equal(result.appendCalls, 0);
+    assert.equal(result.clickCalls, 0);
+  });
+}
 
 test('department indentation is added on top of the shared cell padding', () => {
   const drawerOptions = loadDeptRegionSeatOpenDrawer({}, reportUtilsMock);

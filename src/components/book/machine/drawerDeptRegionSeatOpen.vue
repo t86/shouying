@@ -124,9 +124,15 @@ export default {
 
       try {
         const payload = JSON.parse(await response.text());
-        return payload && payload.code !== 1
-          ? (payload.msg || '导出失败，请稍后重试')
-          : '';
+        if (
+          payload &&
+          typeof payload === 'object' &&
+          typeof payload.msg === 'string' &&
+          payload.msg.trim()
+        ) {
+          return payload.msg;
+        }
+        return '导出失败，请稍后重试';
       } catch (error) {
         return '导出失败，请稍后重试';
       }
