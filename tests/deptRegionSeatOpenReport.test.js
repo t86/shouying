@@ -15,6 +15,10 @@ test('formatDepartmentName preserves an unindented department name', () => {
 });
 
 test('formatDepartmentName counts ordinary leading spaces as indentation', () => {
+  assert.deepEqual(formatDepartmentName(' 订台一部'), {
+    name: '订台一部',
+    indent: 1
+  });
   assert.deepEqual(formatDepartmentName('  订台一部'), {
     name: '订台一部',
     indent: 2
@@ -25,6 +29,13 @@ test('formatDepartmentName counts a full-width leading space as two indentation 
   assert.deepEqual(formatDepartmentName('\u3000订台一部'), {
     name: '订台一部',
     indent: 2
+  });
+});
+
+test('formatDepartmentName combines ordinary and full-width indentation widths', () => {
+  assert.deepEqual(formatDepartmentName(' \u3000订台一部'), {
+    name: '订台一部',
+    indent: 3
   });
 });
 
