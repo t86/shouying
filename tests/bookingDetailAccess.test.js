@@ -12,6 +12,7 @@ const {
 
 test('exports the stable booking-detail option IDs', () => {
   assert.deepEqual(BOOKING_DETAIL_OPTION_IDS, { consumption: 26, wine: 27 });
+  assert.equal(Object.isFrozen(BOOKING_DETAIL_OPTION_IDS), true);
 });
 
 test('normalizes numeric or string unrestricted configuration and enabled child entries', () => {
@@ -36,6 +37,10 @@ test('normalizes numeric or string unrestricted configuration and enabled child 
 test('fails closed when configuration values are missing or unsupported', () => {
   assert.deepEqual(
     normalizeBookingDetailConfig({}),
+    { amountsRestricted: true, consumptionEnabled: false, wineEnabled: false },
+  );
+  assert.deepEqual(
+    normalizeBookingDetailConfig(null),
     { amountsRestricted: true, consumptionEnabled: false, wineEnabled: false },
   );
   assert.deepEqual(
@@ -73,6 +78,10 @@ test('fails closed for unsupported child values even when amount display is unre
 });
 
 test('serializes detail settings and forces both off when amounts are hidden', () => {
+  assert.deepEqual(
+    getBookingDetailSaveFields(null),
+    { enable_book_csm_dtl: 2, enable_book_wine_dtl: 2 },
+  );
   assert.deepEqual(
     getBookingDetailSaveFields({
       notShowAmt: false,
@@ -112,6 +121,7 @@ test('shows detail entries only in allowed card states', () => {
 });
 
 test('returns independent configured options only for visible and unrestricted states', () => {
+  assert.deepEqual(getBookingDetailOptionIds(null, 4, 0), []);
   assert.deepEqual(
     getBookingDetailOptionIds(
       { amountsRestricted: false, consumptionEnabled: true, wineEnabled: false },

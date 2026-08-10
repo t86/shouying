@@ -1,24 +1,26 @@
-const BOOKING_DETAIL_OPTION_IDS = {
+const BOOKING_DETAIL_OPTION_IDS = Object.freeze({
   consumption: 26,
   wine: 27,
-};
+});
 
 function isExactNumberOrString(value, expected) {
   return value === expected || value === String(expected);
 }
 
 function normalizeBookingDetailConfig(data = {}) {
-  const unrestricted = isExactNumberOrString(data.limit_book_csm_amt, 2);
+  const source = data || {};
+  const unrestricted = isExactNumberOrString(source.limit_book_csm_amt, 2);
 
   return {
     amountsRestricted: !unrestricted,
-    consumptionEnabled: unrestricted && isExactNumberOrString(data.enable_book_csm_dtl, 1),
-    wineEnabled: unrestricted && isExactNumberOrString(data.enable_book_wine_dtl, 1),
+    consumptionEnabled: unrestricted && isExactNumberOrString(source.enable_book_csm_dtl, 1),
+    wineEnabled: unrestricted && isExactNumberOrString(source.enable_book_wine_dtl, 1),
   };
 }
 
 function getBookingDetailSaveFields(state = {}) {
-  if (state.notShowAmt) {
+  const source = state || {};
+  if (source.notShowAmt) {
     return {
       enable_book_csm_dtl: 2,
       enable_book_wine_dtl: 2,
@@ -26,8 +28,8 @@ function getBookingDetailSaveFields(state = {}) {
   }
 
   return {
-    enable_book_csm_dtl: state.consumptionEnabled ? 1 : 2,
-    enable_book_wine_dtl: state.wineEnabled ? 1 : 2,
+    enable_book_csm_dtl: source.consumptionEnabled ? 1 : 2,
+    enable_book_wine_dtl: source.wineEnabled ? 1 : 2,
   };
 }
 
@@ -40,13 +42,14 @@ function isBookingDetailStatusVisible(status, turnoverCnt) {
 }
 
 function getBookingDetailOptionIds(config = {}, status, turnoverCnt) {
-  if (config.amountsRestricted || !isBookingDetailStatusVisible(status, turnoverCnt)) {
+  const source = config || {};
+  if (source.amountsRestricted || !isBookingDetailStatusVisible(status, turnoverCnt)) {
     return [];
   }
 
   const optionIds = [];
-  if (config.consumptionEnabled) optionIds.push(BOOKING_DETAIL_OPTION_IDS.consumption);
-  if (config.wineEnabled) optionIds.push(BOOKING_DETAIL_OPTION_IDS.wine);
+  if (source.consumptionEnabled) optionIds.push(BOOKING_DETAIL_OPTION_IDS.consumption);
+  if (source.wineEnabled) optionIds.push(BOOKING_DETAIL_OPTION_IDS.wine);
   return optionIds;
 }
 
