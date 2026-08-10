@@ -24,7 +24,7 @@ function loadBookApi(mockAxios) {
   return sandbox.module.exports;
 }
 
-function loadDeptRegionSeatOpenDrawer(mockApiBook, mockReportUtils) {
+function loadDeptRegionSeatOpenDrawer(mockApiBook, mockReportUtils, globals = {}) {
   const componentSource = readSource('src/components/book/machine/drawerDeptRegionSeatOpen.vue');
   const scriptMatch = componentSource.match(/<script>([\s\S]*?)<\/script>/);
   assert.ok(scriptMatch, 'drawer should have a script block');
@@ -36,7 +36,9 @@ function loadDeptRegionSeatOpenDrawer(mockApiBook, mockReportUtils) {
   const sandbox = {
     module: { exports: {} },
     sandboxApiBook: mockApiBook,
-    sandboxReportUtils: mockReportUtils
+    sandboxReportUtils: mockReportUtils,
+    console: { log() {} },
+    ...globals
   };
 
   vm.runInNewContext(script, sandbox, {
@@ -56,6 +58,27 @@ function createDrawerContext(drawerOptions) {
 
   return context;
 }
+
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, resolve, reject };
+}
+
+const reportUtilsMock = {
+  formatDepartmentName(value) {
+    const name = value == null ? '' : String(value);
+    const leadingSpaces = name.match(/^\s*/)[0].length;
+    return { name: name.slice(leadingSpaces), indent: leadingSpaces };
+  },
+  isTotalRow: item => Boolean(item) && Number(item.id) === 0,
+  toSafeCount: Number
+};
 
 test('book API exposes dept-region seat report read and export endpoints', () => {
   const calls = [];
@@ -177,6 +200,126 @@ test('dept-region seat report preserves server-owned rows without synthesizing t
   assert.equal(context.regionList[1].c, '23');
 });
 
+test('dept-region seat report ignores an older response that finishes last', async () => {
+  const firstRequest = createDeferred();
+  const secondRequest = createDeferred();
+  const requests = [firstRequest, secondRequest];
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    { reqGetDeptRegionSeatOpenList: () => requests.shift().promise },
+    reportUtilsMock
+  );
+  const context = createDrawerContext(drawerOptions);
+  const firstLoad = context.getReportData();
+  const secondLoad = context.getReportData();
+  const deptRowsB = [{ id: 2, n: '部门 B', c: 2 }];
+  const regionRowsB = [{ id: 20, n: '区域 B', c: 20 }];
+
+  secondRequest.resolve({
+    code: 1,
+    data: { now_time: 'B', dept_list: deptRowsB, region_list: regionRowsB }
+  });
+  await secondLoad;
+  firstRequest.resolve({
+    code: 1,
+    data: {
+      now_time: 'A',
+      dept_list: [{ id: 1, n: '部门 A', c: 1 }],
+      region_list: [{ id: 10, n: '区域 A', c: 10 }]
+    }
+  });
+  await firstLoad;
+
+  assert.equal(context.nowTime, 'B');
+  assert.strictEqual(context.deptList, deptRowsB);
+  assert.strictEqual(context.regionList, regionRowsB);
+});
+
+test('dept-region seat report warns for the latest read failure but not a stale one', async () => {
+  const firstRequest = createDeferred();
+  const secondRequest = createDeferred();
+  const requests = [firstRequest, secondRequest];
+  const warnings = [];
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    { reqGetDeptRegionSeatOpenList: () => requests.shift().promise },
+    reportUtilsMock
+  );
+  const context = createDrawerContext(drawerOptions);
+  context.$message.warning = message => warnings.push(message);
+  const staleLoad = context.getReportData();
+  const currentLoad = context.getReportData();
+
+  secondRequest.reject(new Error('current request failed'));
+  await currentLoad;
+  assert.deepEqual(warnings, ['读取报表失败，请稍后重试']);
+
+  firstRequest.reject(new Error('stale request failed'));
+  await staleLoad;
+  assert.deepEqual(warnings, ['读取报表失败，请稍后重试']);
+});
+
+test('dept-region seat report always cleans up a failed export', async () => {
+  const warnings = [];
+  const revokedUrls = [];
+  const removedLinks = [];
+  const body = {
+    appendChild(link) {
+      link.parentNode = this;
+    },
+    removeChild(link) {
+      removedLinks.push(link);
+      link.parentNode = null;
+    }
+  };
+  const link = {
+    parentNode: null,
+    click() {
+      throw new Error('click failed');
+    }
+  };
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    {
+      reqExportDeptRegionSeatOpenList: async () => ({
+        fileName: 'report.xlsx',
+        bytes: 'content'
+      })
+    },
+    reportUtilsMock,
+    {
+      window: {
+        URL: {
+          createObjectURL: () => 'blob:report',
+          revokeObjectURL: url => revokedUrls.push(url)
+        }
+      },
+      document: {
+        body,
+        createElement: () => link
+      },
+      Blob: function Blob() {}
+    }
+  );
+  const context = createDrawerContext(drawerOptions);
+  context.$message.warning = message => warnings.push(message);
+
+  await context.exportExcelHandle();
+
+  assert.deepEqual(removedLinks, [link]);
+  assert.deepEqual(revokedUrls, ['blob:report']);
+  assert.deepEqual(warnings, ['导出失败，请稍后重试']);
+});
+
+test('department indentation is added on top of the shared cell padding', () => {
+  const drawerOptions = loadDeptRegionSeatOpenDrawer({}, reportUtilsMock);
+  const context = createDrawerContext(drawerOptions);
+  const topLevelStyle = context.departmentNameStyle({ id: 1, n: '订台一部' });
+  const childStyle = context.departmentNameStyle({ id: 2, n: '  订台二部' });
+  const totalStyle = context.departmentNameStyle({ id: 0, n: '任意名称' });
+
+  assert.equal(topLevelStyle.paddingLeft, '16px');
+  assert.equal(totalStyle.paddingLeft, '16px');
+  assert.ok(Number.parseInt(childStyle.paddingLeft, 10) > 16);
+});
+
 test('dept-region seat report rows share one grid column definition', () => {
   const source = readSource('src/style/book/machine/drawerDeptRegionSeatOpen.less');
   const gridTemplates = [...source.matchAll(/grid-template-columns\s*:\s*([^;]+);/g)]
@@ -188,6 +331,7 @@ test('dept-region seat report rows share one grid column definition', () => {
     /\.report-row\s*\{[\s\S]*?grid-template-columns\s*:\s*var\(--report-columns\)/
   );
   assert.deepEqual(gridTemplates, ['var(--report-columns)']);
+  assert.match(source, /\.report-row\s*>\s*\*\s*\{[\s\S]*?padding\s*:\s*0\s+16px/);
   assert.match(
     source,
     /\.report-row\s*>\s*:first-child\s*\{[\s\S]*?justify-content\s*:\s*flex-start/

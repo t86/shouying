@@ -28,7 +28,7 @@
             >
               <div
                 class="report-name"
-                :style="{ paddingLeft: `${departmentDisplay(item).indent * 14}px` }"
+                :style="departmentNameStyle(item)"
               >{{ departmentDisplay(item).name }}</div>
               <div>{{ safeCount(item.c) }}</div>
             </div>
@@ -86,7 +86,8 @@ export default {
       show: Boolean(this.showDrawer),
       nowTime: '',
       deptList: [],
-      regionList: []
+      regionList: [],
+      requestSerial: 0
     };
   },
   methods: {
@@ -102,16 +103,23 @@ export default {
       }
       return formatDepartmentName(item && item.n);
     },
+    departmentNameStyle (item) {
+      const { indent } = this.departmentDisplay(item);
+      return { paddingLeft: `${16 + indent * 8}px` };
+    },
     regionDisplayName (item) {
       return this.isTotal(item) ? '合计' : ((item && item.n) || '');
     },
     async getReportData () {
+      const requestSerial = ++this.requestSerial;
       this.nowTime = '';
       this.deptList = [];
       this.regionList = [];
 
       try {
         const res = await api_book.reqGetDeptRegionSeatOpenList({});
+        if (requestSerial !== this.requestSerial) return;
+
         if (res.code === 1) {
           const data = res.data || {};
           this.nowTime = data.now_time || '';
@@ -122,9 +130,15 @@ export default {
         }
       } catch (error) {
         console.log("获取部门实时订台/区域开台表失败", error);
+        if (requestSerial === this.requestSerial) {
+          this.$message.warning("读取报表失败，请稍后重试");
+        }
       }
     },
     async exportExcelHandle () {
+      let url = '';
+      let link = null;
+
       try {
         const res = await api_book.reqExportDeptRegionSeatOpenList({});
         if (res.msg) {
@@ -132,24 +146,33 @@ export default {
           return;
         }
 
-        const url = window.URL.createObjectURL(
+        url = window.URL.createObjectURL(
           new Blob([res], {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           })
         );
-        const a = document.createElement("a");
+        link = document.createElement("a");
+        document.body.appendChild(link);
         const fileName = res.fileName
           ? decodeURIComponent(res.fileName)
           : "部门实时订台区域开台表.xlsx";
 
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        link.href = url;
+        link.download = fileName;
+        link.click();
       } catch (error) {
         console.log("导出部门实时订台/区域开台表失败", error);
+        this.$message.warning("导出失败，请稍后重试");
+      } finally {
+        try {
+          if (link && link.parentNode) {
+            link.parentNode.removeChild(link);
+          }
+        } finally {
+          if (url) {
+            window.URL.revokeObjectURL(url);
+          }
+        }
       }
     },
     closeDrawerHandle () {
