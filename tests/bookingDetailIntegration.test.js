@@ -34,6 +34,32 @@ function flushPromises() {
   return new Promise(resolve => setImmediate(resolve));
 }
 
+function extractMethodBody(source, signature) {
+  const signatureIndex = source.indexOf(signature);
+  assert.notEqual(signatureIndex, -1, `missing method: ${signature}`);
+
+  const bodyStart = source.indexOf('{', signatureIndex);
+  let depth = 1;
+  for (let index = bodyStart + 1; index < source.length; index += 1) {
+    if (source[index] === '{') depth += 1;
+    if (source[index] === '}') depth -= 1;
+    if (depth === 0) return source.slice(bodyStart + 1, index);
+  }
+
+  assert.fail(`unterminated method: ${signature}`);
+}
+
+function compileCardMachineMethod(signature, args, dependencies = {}) {
+  const source = readSource('src/views/Book/cardMachine.vue');
+  const body = extractMethodBody(source, signature);
+  const dependencyNames = Object.keys(dependencies);
+  const factory = Function(
+    ...dependencyNames,
+    `return ${signature.startsWith('async ') ? 'async ' : ''}function(${args.join(', ')}) {${body}}`,
+  );
+  return factory(...dependencyNames.map(name => dependencies[name]));
+}
+
 function createDialogHarness(responseFactory) {
   const calls = [];
   const warnings = [];
@@ -347,4 +373,149 @@ test('dialog styles are scoped under detail roots and include required layout va
   assert.match(source, /\.set-detail/);
   assert.match(source, /\.detail-empty/);
   assert.doesNotMatch(source, /^(?!\s|\.booking-detail-dialog|\.readonly-detail-table|\/|\*|$)[^{\n]+\{/m);
+});
+
+test('card options define exact booking detail entries at the menu tail', () => {
+  const source = readSource('src/utils/config/card.js');
+
+  assert.match(source, /id:\s*25[\s\S]*?id:\s*26,\s*\n\s*name:\s*'查看消费明细',\s*\n\s*icon:\s*icon3[\s\S]*?id:\s*27,\s*\n\s*name:\s*'查看存取酒明细',\s*\n\s*icon:\s*icon14/);
+});
+
+test('card machine registers the detail dialog and initializes access fail closed', () => {
+  const source = readSource('src/views/Book/cardMachine.vue');
+
+  assert.match(source, /<booking-detail-dialog\s+v-model="bookingDetailDialog\.visible"\s+:mode="bookingDetailDialog\.mode"\s+:card-info="bookingDetailDialog\.cardInfo"\s*\/>/);
+  assert.match(source, /import bookingDetailDialog from ['"]@\/components\/book\/machine\/bookingDetailDialog\.vue['"];?/);
+  assert.match(source, /import bookingDetailAccess from ['"]@\/utils\/bookingDetailAccess['"];?[\s\S]*?const\s*\{\s*getBookingDetailOptionIds,\s*normalizeBookingDetailConfig,?\s*\}\s*=\s*bookingDetailAccess;/);
+  assert.match(source, /bookingDetailConfig:\s*normalizeBookingDetailConfig\(\)/);
+  assert.match(source, /bookingDetailDialog:\s*\{\s*visible:\s*false,\s*mode:\s*['"]consumption['"],\s*cardInfo:\s*\{\},?\s*\}/);
+  assert.match(source, /components:\s*\{[\s\S]*?bookingDetailDialog/);
+  assert.match(source, /mounted\(\)\s*\{\s*this\.loadBookingDetailConfig\(\);/);
+});
+
+test('config loading fails closed and rebuilds cards only after a valid response', async () => {
+  const bookingDetailAccess = require('../src/utils/bookingDetailAccess');
+  const loadBookingDetailConfig = compileCardMachineMethod(
+    'async loadBookingDetailConfig()',
+    [],
+    { normalizeBookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig },
+  );
+  const cardInfo = [{ id: 88 }];
+  const businessData = [{ seatId: 88, bizStatus: '4' }];
+  const pending = deferred();
+  const rebuilds = [];
+  const vm = {
+    bookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig({
+      limit_book_csm_amt: 2,
+      enable_book_csm_dtl: 1,
+      enable_book_wine_dtl: 1,
+    }),
+    $api: { BMS: { terminalRules: { reqGetTime: () => pending.promise } } },
+    $store: { state: { cardPageInfo: { resResultDataObj: { cardInfo, businessData } } } },
+    getCardList: (...args) => rebuilds.push(args),
+  };
+
+  const loading = loadBookingDetailConfig.call(vm);
+  assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
+  assert.deepEqual(rebuilds, []);
+
+  pending.resolve({
+    code: 1,
+    data: { limit_book_csm_amt: 2, enable_book_csm_dtl: 1, enable_book_wine_dtl: 2 },
+  });
+  await loading;
+  assert.deepEqual(vm.bookingDetailConfig, {
+    amountsRestricted: false,
+    consumptionEnabled: true,
+    wineEnabled: false,
+  });
+  assert.deepEqual(rebuilds, [[cardInfo, businessData]]);
+
+  vm.$api.BMS.terminalRules.reqGetTime = async () => ({
+    code: 0,
+    data: { limit_book_csm_amt: 2, enable_book_csm_dtl: 1, enable_book_wine_dtl: 1 },
+  });
+  await loadBookingDetailConfig.call(vm);
+  assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
+  assert.equal(rebuilds.length, 1);
+
+  const originalConsoleLog = console.log;
+  console.log = () => {};
+  try {
+    vm.$api.BMS.terminalRules.reqGetTime = async () => { throw new Error('network'); };
+    await loadBookingDetailConfig.call(vm);
+  } finally {
+    console.log = originalConsoleLog;
+  }
+  assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
+  assert.equal(rebuilds.length, 1);
+});
+
+test('detail options preserve status-menu order and precede pin actions', () => {
+  const { getBookingDetailOptionIds } = require('../src/utils/bookingDetailAccess');
+  const cardOptions = Array.from({ length: 27 }, (_, index) => ({ id: index + 1 }));
+  const getCardOptions = compileCardMachineMethod(
+    'getCardOptions(status, platform_id, showOnlineText, turnoverCnt, topNum)',
+    ['status', 'platform_id', 'showOnlineText', 'turnoverCnt', 'topNum'],
+    { getBookingDetailOptionIds, cardOptions },
+  );
+  const vm = {
+    bookingDetailConfig: {
+      amountsRestricted: false,
+      consumptionEnabled: true,
+      wineEnabled: true,
+    },
+    modelVisible: false,
+    dateTab: { activeIndex: 0 },
+    $store: { state: { cardPageInfo: { resResultDataObj: { showAmt: [] } } } },
+  };
+
+  assert.deepEqual(
+    getCardOptions.call(vm, '4', 0, false, 6, 1).map(option => option.id),
+    [10, 11, 7, 12, 14, 4, 20, 21, 23, 24, 26, 27, 18, 19],
+  );
+});
+
+test('detail option clicks clone card info, select mode and return before the legacy drawer', async () => {
+  const optionsClickHandle = compileCardMachineMethod(
+    'async optionsClickHandle(optionsInfo, cardInfo, index)',
+    ['optionsInfo', 'cardInfo', 'index'],
+  );
+  const sourceCard = { id: 88, name: 'A01', bizStatus: '4', turnoverCnt: 3 };
+  const vm = {
+    bookingDetailDialog: { visible: false, mode: 'consumption', cardInfo: {} },
+    drawer: { showDrawer: false, cardInfo: {}, formStatus: 0 },
+    showOrHideOptionHandle() {},
+  };
+
+  const originalConsoleLog = console.log;
+  console.log = () => {};
+  try {
+    await optionsClickHandle.call(vm, { id: 26 }, sourceCard, 0);
+  } finally {
+    console.log = originalConsoleLog;
+  }
+  assert.deepEqual(vm.bookingDetailDialog, {
+    visible: true,
+    mode: 'consumption',
+    cardInfo: sourceCard,
+  });
+  assert.notEqual(vm.bookingDetailDialog.cardInfo, sourceCard);
+  assert.equal(vm.drawer.showDrawer, false);
+  assert.deepEqual(sourceCard, { id: 88, name: 'A01', bizStatus: '4', turnoverCnt: 3 });
+
+  vm.bookingDetailDialog.visible = false;
+  console.log = () => {};
+  try {
+    await optionsClickHandle.call(vm, { id: 27 }, sourceCard, 0);
+  } finally {
+    console.log = originalConsoleLog;
+  }
+  assert.deepEqual(vm.bookingDetailDialog, {
+    visible: true,
+    mode: 'wine',
+    cardInfo: sourceCard,
+  });
+  assert.notEqual(vm.bookingDetailDialog.cardInfo, sourceCard);
+  assert.equal(vm.drawer.showDrawer, false);
 });

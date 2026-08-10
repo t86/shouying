@@ -244,6 +244,16 @@ export const cardOptions = [
     id: 25,
     name: '复台',
     icon: iconback
+  },
+  {
+    id: 26,
+    name: '查看消费明细',
+    icon: icon3,
+  },
+  {
+    id: 27,
+    name: '查看存取酒明细',
+    icon: icon14,
   }
 
 ]

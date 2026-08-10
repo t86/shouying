@@ -506,6 +506,12 @@
       @close="showTurnbackDialog = false"
     />
 
+    <booking-detail-dialog
+      v-model="bookingDetailDialog.visible"
+      :mode="bookingDetailDialog.mode"
+      :card-info="bookingDetailDialog.cardInfo"
+    />
+
     <!-- 修改密码 -->
     <updatePassword
       ref="updatePassword"
@@ -529,6 +535,7 @@ import drawerQueue from "@/components/book/machine/drawerQueue.vue"; // 排队�
 import drawerOnlineBooking from "../../components/money/drawerOnlineBooking.vue";
 // 复台流水选择
 import drawerChooseTurnback from "../../components/money/drawerChooseTurnback.vue";
+import bookingDetailDialog from '@/components/book/machine/bookingDetailDialog.vue';
 
 import updatePassword from "@/components/common/updatePassword.vue"; // 修改密码
 import api_card from "@/api/Book";
@@ -554,6 +561,12 @@ import store from "../../store";
 
 // 添加 eventVue 引入
 import eventVue from "@/utils/eventVue";
+import bookingDetailAccess from '@/utils/bookingDetailAccess';
+
+const {
+  getBookingDetailOptionIds,
+  normalizeBookingDetailConfig,
+} = bookingDetailAccess;
 
 const TabWidth = 100; // tab固定宽度
 const cardWidth = 168; // 卡台信息固定宽度
@@ -654,9 +667,29 @@ export default {
         cardInfo: {}, // 数据修改等相关操作时当前卡台的信息
       },
       safeModeEnabled: false, // 添加这行
+      bookingDetailConfig: normalizeBookingDetailConfig(),
+      bookingDetailDialog: {
+        visible: false,
+        mode: 'consumption',
+        cardInfo: {},
+      },
     };
   },
   methods: {
+    async loadBookingDetailConfig() {
+      this.bookingDetailConfig = normalizeBookingDetailConfig();
+      try {
+        const res = await this.$api.BMS.terminalRules.reqGetTime();
+        if (res.code !== 1) return;
+        this.bookingDetailConfig = normalizeBookingDetailConfig(res.data);
+        this.getCardList(
+          this.$store.state.cardPageInfo.resResultDataObj.cardInfo,
+          this.$store.state.cardPageInfo.resResultDataObj.businessData
+        );
+      } catch (error) {
+        console.log('预订系统读取明细权限失败', error);
+      }
+    },
     // 获取时间tab
     getTimeTabData(nextDayDataArr = []) {
       this.dateTab.dateTabList = nextDayDataArr.map((item) => ({
@@ -1237,6 +1270,11 @@ export default {
           }
           break;
       }
+      optionsIdArr.push(...getBookingDetailOptionIds(
+        this.bookingDetailConfig,
+        status,
+        turnoverCnt
+      ));
       optionsIdArr.push(18);
       if (topNum > 0) optionsIdArr.push(19);
       optionsIdArr.forEach((el) => {
@@ -1260,6 +1298,20 @@ export default {
         return;
       }
       switch (optionsInfo.id) {
+        case 26:
+          this.bookingDetailDialog = {
+            visible: true,
+            mode: 'consumption',
+            cardInfo: { ...cardInfo },
+          };
+          return;
+        case 27:
+          this.bookingDetailDialog = {
+            visible: true,
+            mode: 'wine',
+            cardInfo: { ...cardInfo },
+          };
+          return;
         case 3: // 查看卡台消费
           console.log("查看卡台消费");
           break;
@@ -1880,6 +1932,7 @@ export default {
   },
 
   mounted() {
+    this.loadBookingDetailConfig();
     // 初始化 safeModeEnabled
     let safeMode = this.$store.state.cardPageInfo.resResultDataObj.safeMode || []
     this.safeModeEnabled = safeMode.some(item => item.id * 1 === 1 && item.param1 * 1 === 1)
@@ -1959,6 +2012,7 @@ export default {
     drawerOnlineBooking, // 线上预订记录
     drawerQueue, // 排队详情
     drawerChooseTurnback, // 复台流水选择
+    bookingDetailDialog,
   },
 
   filters: {
