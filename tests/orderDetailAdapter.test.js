@@ -101,6 +101,21 @@ test('normalizes malformed parent and return package details to arrays without m
   assert.deepEqual(records, snapshot);
 });
 
+test('uses parent package details when a returned row has a falsy si value', () => {
+  const records = [{
+    id: 'parent-with-null-return-si',
+    pc: 0,
+    si: [{ i: 11 }],
+    bs: [{ id: 'return-with-null-si', si: null }],
+  }];
+  const snapshot = structuredClone(records);
+
+  assert.deepEqual(transformConsumptionRecords(records, lookups)[0].si, [
+    { i: 11, groupInfo: { id: 11, name: '套餐菜' } },
+  ]);
+  assert.deepEqual(records, snapshot);
+});
+
 test('normalizes missing or malformed response data to safe defaults', () => {
   const safeResponse = {
     consumptionRows: [],

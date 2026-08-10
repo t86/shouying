@@ -54,7 +54,7 @@ function transformConsumptionRecords(records, lookups) {
       const returnRow = enrichConsumptionRecord({
         ...source,
         ...returned,
-        si: Object.prototype.hasOwnProperty.call(returned, 'si') ? returned.si : source.si,
+        si: returned.si || source.si,
       }, lookups);
 
       rows.push({ ...returnRow, back: true });
