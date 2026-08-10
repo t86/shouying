@@ -10,12 +10,24 @@ const {
   buildTurnoverTabs,
 } = require('../src/utils/bookingDetailAccess');
 
-test('normalizes unrestricted configuration and enabled child entries', () => {
+test('exports the stable booking-detail option IDs', () => {
+  assert.deepEqual(BOOKING_DETAIL_OPTION_IDS, { consumption: 26, wine: 27 });
+});
+
+test('normalizes numeric or string unrestricted configuration and enabled child entries', () => {
   assert.deepEqual(
     normalizeBookingDetailConfig({
       limit_book_csm_amt: '2',
       enable_book_csm_dtl: 1,
       enable_book_wine_dtl: '1',
+    }),
+    { amountsRestricted: false, consumptionEnabled: true, wineEnabled: true },
+  );
+  assert.deepEqual(
+    normalizeBookingDetailConfig({
+      limit_book_csm_amt: 2,
+      enable_book_csm_dtl: 1,
+      enable_book_wine_dtl: 1,
     }),
     { amountsRestricted: false, consumptionEnabled: true, wineEnabled: true },
   );
@@ -47,6 +59,19 @@ test('disables child entries unless amount display is unrestricted', () => {
   );
 });
 
+test('fails closed for unsupported child values even when amount display is unrestricted', () => {
+  for (const childValue of [undefined, 0, 2, 'other']) {
+    assert.deepEqual(
+      normalizeBookingDetailConfig({
+        limit_book_csm_amt: 2,
+        enable_book_csm_dtl: childValue,
+        enable_book_wine_dtl: childValue,
+      }),
+      { amountsRestricted: false, consumptionEnabled: false, wineEnabled: false },
+    );
+  }
+});
+
 test('serializes detail settings and forces both off when amounts are hidden', () => {
   assert.deepEqual(
     getBookingDetailSaveFields({
@@ -55,6 +80,14 @@ test('serializes detail settings and forces both off when amounts are hidden', (
       wineEnabled: false,
     }),
     { enable_book_csm_dtl: 1, enable_book_wine_dtl: 2 },
+  );
+  assert.deepEqual(
+    getBookingDetailSaveFields({
+      notShowAmt: false,
+      consumptionEnabled: false,
+      wineEnabled: true,
+    }),
+    { enable_book_csm_dtl: 2, enable_book_wine_dtl: 1 },
   );
   assert.deepEqual(
     getBookingDetailSaveFields({
@@ -85,7 +118,7 @@ test('returns independent configured options only for visible and unrestricted s
       4,
       0,
     ),
-    [BOOKING_DETAIL_OPTION_IDS.consumption],
+    [26],
   );
   assert.deepEqual(
     getBookingDetailOptionIds(
@@ -93,7 +126,7 @@ test('returns independent configured options only for visible and unrestricted s
       1,
       2,
     ),
-    [BOOKING_DETAIL_OPTION_IDS.wine],
+    [27],
   );
   assert.deepEqual(
     getBookingDetailOptionIds(
@@ -102,6 +135,14 @@ test('returns independent configured options only for visible and unrestricted s
       0,
     ),
     [],
+  );
+  assert.deepEqual(
+    getBookingDetailOptionIds(
+      { amountsRestricted: false, consumptionEnabled: true, wineEnabled: true },
+      4,
+      0,
+    ),
+    [26, 27],
   );
   assert.deepEqual(
     getBookingDetailOptionIds(
