@@ -293,6 +293,15 @@ test('footer close followed by Element dialog close emits input false exactly on
   assert.deepEqual(dialogChrome.emitted, [['input', false]]);
 });
 
+test('footer close button requests closure instead of running dialog cleanup directly', () => {
+  const source = readSource('src/components/book/machine/bookingDetailDialog.vue');
+  const template = source.match(/<template>([\s\S]*?)<\/template>/)[1];
+  const footer = template.match(/<span slot="footer"[\s\S]*?<\/span>/)[0];
+
+  assert.match(footer, /<el-button\s+@click="requestClose"\s*>\s*关闭\s*<\/el-button>/);
+  assert.doesNotMatch(footer, /@click="closeDialog"/);
+});
+
 test('ordinary API failures warn, show empty data, stop loading and keep dialog open', async () => {
   const { emitted, vm, warnings } = createDialogHarness(() => Promise.resolve({ code: 0, msg: '服务失败' }));
   vm.consumptionRows = [{ id: 'old' }];
