@@ -44,7 +44,8 @@ function isBookingDetailStatusVisible(status, turnoverCnt) {
 function getBookingDetailTurnoverCount(status, turnoverCnt) {
   const count = Number(turnoverCnt);
   const normalizedCount = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
-  return Number(status) === 7 ? Math.max(normalizedCount - 1, 0) : normalizedCount;
+  const currentTurnoverIsNotOpen = [1, 3, 7, 8].includes(Number(status));
+  return currentTurnoverIsNotOpen ? Math.max(normalizedCount - 1, 0) : normalizedCount;
 }
 
 function getBookingDetailOptionIds(config = {}, status, turnoverCnt) {

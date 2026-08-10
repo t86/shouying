@@ -239,6 +239,20 @@ test('cleared cards load the previous turnover instead of the unopened current t
   assert.equal(vm.consumptionRows[0].id, 'previous-turnover');
 });
 
+test('empty cards with turnover history also load the previous turnover', async () => {
+  const { calls, vm } = createDialogHarness(() => Promise.resolve({
+    code: 1,
+    data: { records: [{ id: 'previous-empty-turnover' }] },
+  }));
+  vm.cardInfo.bizStatus = 1;
+  vm.cardInfo.turnoverCnt = 2;
+
+  await vm.openDialog();
+
+  assert.deepEqual(calls, [{ seat_id: 88, turnover_cnt: 1 }]);
+  assert.equal(vm.consumptionRows[0].id, 'previous-empty-turnover');
+});
+
 test('switching tabs lazy-loads and caches successful responses by seat and turnover', async () => {
   const { calls, vm } = createDialogHarness(params => Promise.resolve({
     code: 1,
