@@ -26,6 +26,22 @@
           ></el-switch>
           <p class="red-color">开关开启后预定系统卡台列表和报表中不显示金额</p>
         </div>
+        <div class="booking-detail-switches" v-if="!notShowAmt">
+          <div>
+            <span>预订系统查看消费明细</span>
+            <el-switch v-model="bookingConsumptionEnabled"
+                       active-text="开"
+                       inactive-text="关"
+            ></el-switch>
+          </div>
+          <div>
+            <span>预订系统查看存取酒明细</span>
+            <el-switch v-model="bookingWineEnabled"
+                       active-text="开"
+                       inactive-text="关"
+            ></el-switch>
+          </div>
+        </div>
       </div>
 
       <h4 class="m-b-2">扫码点单配置</h4>
@@ -177,6 +193,10 @@
 </template>
 
 <script>
+import bookingDetailAccess from "@/utils/bookingDetailAccess";
+
+const { normalizeBookingDetailConfig, getBookingDetailSaveFields } = bookingDetailAccess;
+
 export default {
   data() {
     return {
@@ -187,6 +207,8 @@ export default {
       orderAutoMake: true, // 下单自动出品 true自动 false不自动
       disableChgPass: false, // 禁止自助修改密码 true禁止 false不禁止
       notShowAmt: false,  // 是否不显示金额
+      bookingConsumptionEnabled: false,
+      bookingWineEnabled: false,
       csm_waiter_flag: 1,
       bingGuest: false,
       scanOrderMustDx: false,
@@ -233,6 +255,7 @@ export default {
       try {
         const res = await this.$api.BMS.terminalRules.reqGetTime();
         if (res.code == 1) {
+          const bookingDetailConfig = normalizeBookingDetailConfig(res.data);
           this.time = res.data.local_settle_timeout_mins;
           this.timeLine = res.data.online_settle_timeout_mins;
           this.radio = res.data.auto_close_on_off.toString();
@@ -243,6 +266,8 @@ export default {
               .toString()
               .padStart(2, 0);
           this.notShowAmt = res.data.limit_book_csm_amt == 1
+          this.bookingConsumptionEnabled = bookingDetailConfig.consumptionEnabled;
+          this.bookingWineEnabled = bookingDetailConfig.wineEnabled;
           this.scanOrderMustDx = res.data.scan_order_must_dx == 1
           this.canClearCard = res.data.book_no_clean_seat == 1
           this.csm_waiter_flag = res.data.csm_waiter_flag
@@ -262,6 +287,11 @@ export default {
 
     async submitHandle() {
       if (this.inputHandle()) return;
+      const bookingDetailSaveFields = getBookingDetailSaveFields({
+        notShowAmt: this.notShowAmt,
+        consumptionEnabled: this.bookingConsumptionEnabled,
+        wineEnabled: this.bookingWineEnabled,
+      });
       const params = {
         online_settle_timeout_mins: this.timeLine * 1, // int  收银台待付超时提醒时间(单位分钟,默认15分钟,=0代表不提醒) 在线扫码点单下单
         local_settle_timeout_mins: this.time * 1, // int  收银台待付超时提醒时间(单位分钟,默认15分钟,=0代表不提醒)
@@ -277,6 +307,7 @@ export default {
         csm_waiter_flag: this.csm_waiter_flag,
         cust_order_auto_mk: this.orderedShipNow? 1: 2,
         bind_cust: this.bingGuest?1:2,
+        ...bookingDetailSaveFields,
       };
 
       try {
@@ -299,6 +330,12 @@ export default {
         this.chooseTime.hour = "10";
         this.chooseTime.minute = "00";
       }
+    },
+    notShowAmt(newVal) {
+      if (newVal) {
+        this.bookingConsumptionEnabled = false;
+        this.bookingWineEnabled = false;
+      }
     }
   }
 };
@@ -315,6 +352,11 @@ export default {
     font-size: 14px;
     line-height: 30px;
     margin-bottom: 20px;
+  }
+
+  .booking-detail-switches {
+    display: flex;
+    gap: 20px;
   }
 }
 
