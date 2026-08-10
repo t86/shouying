@@ -101,6 +101,7 @@ export default {
   reqOpenCardListData: params => axios.post(`${base.htgl}/sel/rpt/get_seat_open_log`, params),
 
   reqGetSeatOpening: params => axios.post(`${base.htgl}/sel/rpt/get_seat_opening_list`, params),
+  reqGetDeptRegionSeatOpenList: params => axios.post(`${base.htgl}/sel/rpt/get_dept_region_seat_open_list`, params),
 
 
   // 下载开台记录 （废弃）
@@ -108,6 +109,7 @@ export default {
   // 下载开台记录
   reqExportOpenCardExcel: params => axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_seat_open_log`, params),
   reqExportSeatOpening: params => axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_seat_opening_list`, params),
+  reqExportDeptRegionSeatOpenList: params => axios.binaryFilePost(`${base.htgl}/sel/rpt/exp_dept_region_seat_open_list`, params),
 
   // 咨客台置顶卡台,将常用卡台置顶便于操作
   reqTopCard: params => axios.post(`${base.htgl}/bk/top_seat_dsp`, params),
