@@ -388,36 +388,38 @@ test('card machine registers the detail dialog and initializes access fail close
   assert.match(source, /import bookingDetailDialog from ['"]@\/components\/book\/machine\/bookingDetailDialog\.vue['"];?/);
   assert.match(source, /import bookingDetailAccess from ['"]@\/utils\/bookingDetailAccess['"];?[\s\S]*?const\s*\{\s*getBookingDetailOptionIds,\s*normalizeBookingDetailConfig,?\s*\}\s*=\s*bookingDetailAccess;/);
   assert.match(source, /bookingDetailConfig:\s*normalizeBookingDetailConfig\(\)/);
+  assert.match(source, /bookingDetailConfigRequestId:\s*0/);
   assert.match(source, /bookingDetailDialog:\s*\{\s*visible:\s*false,\s*mode:\s*['"]consumption['"],\s*cardInfo:\s*\{\},?\s*\}/);
   assert.match(source, /components:\s*\{[\s\S]*?bookingDetailDialog/);
   assert.match(source, /mounted\(\)\s*\{\s*this\.loadBookingDetailConfig\(\);/);
 });
 
-test('config loading fails closed and rebuilds cards only after a valid response', async () => {
+test('config loading fails closed and refreshes through the ordering-preserving pipeline only after success', async () => {
   const bookingDetailAccess = require('../src/utils/bookingDetailAccess');
+  const source = readSource('src/views/Book/cardMachine.vue');
+  const methodBody = extractMethodBody(source, 'async loadBookingDetailConfig()');
   const loadBookingDetailConfig = compileCardMachineMethod(
     'async loadBookingDetailConfig()',
     [],
     { normalizeBookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig },
   );
-  const cardInfo = [{ id: 88 }];
-  const businessData = [{ seatId: 88, bizStatus: '4' }];
   const pending = deferred();
-  const rebuilds = [];
+  const refreshes = [];
   const vm = {
+    bookingDetailConfigRequestId: 0,
     bookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig({
       limit_book_csm_amt: 2,
       enable_book_csm_dtl: 1,
       enable_book_wine_dtl: 1,
     }),
     $api: { BMS: { terminalRules: { reqGetTime: () => pending.promise } } },
-    $store: { state: { cardPageInfo: { resResultDataObj: { cardInfo, businessData } } } },
-    getCardList: (...args) => rebuilds.push(args),
+    getAllData: async () => refreshes.push('getAllData'),
+    getCardList: () => assert.fail('config refresh must not bypass getAllData ordering'),
   };
 
   const loading = loadBookingDetailConfig.call(vm);
   assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
-  assert.deepEqual(rebuilds, []);
+  assert.deepEqual(refreshes, []);
 
   pending.resolve({
     code: 1,
@@ -429,7 +431,9 @@ test('config loading fails closed and rebuilds cards only after a valid response
     consumptionEnabled: true,
     wineEnabled: false,
   });
-  assert.deepEqual(rebuilds, [[cardInfo, businessData]]);
+  assert.deepEqual(refreshes, ['getAllData']);
+  assert.match(methodBody, /await\s+this\.getAllData\(\)/);
+  assert.doesNotMatch(methodBody, /this\.getCardList\(/);
 
   vm.$api.BMS.terminalRules.reqGetTime = async () => ({
     code: 0,
@@ -437,7 +441,7 @@ test('config loading fails closed and rebuilds cards only after a valid response
   });
   await loadBookingDetailConfig.call(vm);
   assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
-  assert.equal(rebuilds.length, 1);
+  assert.equal(refreshes.length, 1);
 
   const originalConsoleLog = console.log;
   console.log = () => {};
@@ -448,7 +452,97 @@ test('config loading fails closed and rebuilds cards only after a valid response
     console.log = originalConsoleLog;
   }
   assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
-  assert.equal(rebuilds.length, 1);
+  assert.equal(refreshes.length, 1);
+});
+
+test('only the latest booking config request can update access or refresh cards', async () => {
+  const bookingDetailAccess = require('../src/utils/bookingDetailAccess');
+  const loadBookingDetailConfig = compileCardMachineMethod(
+    'async loadBookingDetailConfig()',
+    [],
+    { normalizeBookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig },
+  );
+  const firstResponse = deferred();
+  const secondResponse = deferred();
+  const responses = [firstResponse, secondResponse];
+  const refreshes = [];
+  let requestCount = 0;
+  const vm = {
+    bookingDetailConfigRequestId: 0,
+    bookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig(),
+    $api: {
+      BMS: {
+        terminalRules: {
+          reqGetTime: () => responses[requestCount++].promise,
+        },
+      },
+    },
+    getAllData: async () => refreshes.push({ ...vm.bookingDetailConfig }),
+  };
+
+  const firstLoad = loadBookingDetailConfig.call(vm);
+  const secondLoad = loadBookingDetailConfig.call(vm);
+  secondResponse.resolve({
+    code: 1,
+    data: { limit_book_csm_amt: 2, enable_book_csm_dtl: 2, enable_book_wine_dtl: 1 },
+  });
+  await secondLoad;
+
+  firstResponse.resolve({
+    code: 1,
+    data: { limit_book_csm_amt: 2, enable_book_csm_dtl: 1, enable_book_wine_dtl: 2 },
+  });
+  await firstLoad;
+
+  assert.deepEqual(vm.bookingDetailConfig, {
+    amountsRestricted: false,
+    consumptionEnabled: false,
+    wineEnabled: true,
+  });
+  assert.deepEqual(refreshes, [vm.bookingDetailConfig]);
+});
+
+test('destroy invalidates an in-flight booking config request before it can mutate or refresh', async () => {
+  const bookingDetailAccess = require('../src/utils/bookingDetailAccess');
+  const loadBookingDetailConfig = compileCardMachineMethod(
+    'async loadBookingDetailConfig()',
+    [],
+    { normalizeBookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig },
+  );
+  const beforeDestroy = compileCardMachineMethod(
+    'beforeDestroy()',
+    [],
+    {
+      eventVue: { $off() {} },
+      document: { body: { removeEventListener() {} } },
+      window: { removeEventListener() {}, onkeydown: null },
+    },
+  );
+  const pending = deferred();
+  const refreshes = [];
+  const vm = {
+    bookingDetailConfigRequestId: 0,
+    bookingDetailConfig: bookingDetailAccess.normalizeBookingDetailConfig(),
+    bookingDetailDialog: { visible: false, mode: 'consumption', cardInfo: {} },
+    $api: { BMS: { terminalRules: { reqGetTime: () => pending.promise } } },
+    $refs: { containRef: { removeEventListener() {} } },
+    showOrHideOptionHandle() {},
+    windowScrollHideOptionsHandle() {},
+    legendOptionHandle() {},
+    getAllData: async () => refreshes.push('getAllData'),
+  };
+
+  const loading = loadBookingDetailConfig.call(vm);
+  beforeDestroy.call(vm);
+  pending.resolve({
+    code: 1,
+    data: { limit_book_csm_amt: 2, enable_book_csm_dtl: 1, enable_book_wine_dtl: 1 },
+  });
+  await loading;
+
+  assert.equal(vm.bookingDetailConfigRequestId, 2);
+  assert.deepEqual(vm.bookingDetailConfig, bookingDetailAccess.normalizeBookingDetailConfig());
+  assert.deepEqual(refreshes, []);
 });
 
 test('detail options preserve status-menu order and precede pin actions', () => {

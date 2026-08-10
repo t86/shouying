@@ -668,6 +668,7 @@ export default {
       },
       safeModeEnabled: false, // 添加这行
       bookingDetailConfig: normalizeBookingDetailConfig(),
+      bookingDetailConfigRequestId: 0,
       bookingDetailDialog: {
         visible: false,
         mode: 'consumption',
@@ -677,16 +678,16 @@ export default {
   },
   methods: {
     async loadBookingDetailConfig() {
+      const requestId = ++this.bookingDetailConfigRequestId;
       this.bookingDetailConfig = normalizeBookingDetailConfig();
       try {
         const res = await this.$api.BMS.terminalRules.reqGetTime();
+        if (requestId !== this.bookingDetailConfigRequestId) return;
         if (res.code !== 1) return;
         this.bookingDetailConfig = normalizeBookingDetailConfig(res.data);
-        this.getCardList(
-          this.$store.state.cardPageInfo.resResultDataObj.cardInfo,
-          this.$store.state.cardPageInfo.resResultDataObj.businessData
-        );
+        await this.getAllData();
       } catch (error) {
+        if (requestId !== this.bookingDetailConfigRequestId) return;
         console.log('预订系统读取明细权限失败', error);
       }
     },
@@ -1987,6 +1988,7 @@ export default {
   },
 
   beforeDestroy() {
+    this.bookingDetailConfigRequestId += 1;
     // 移除事件监听
     eventVue.$off("safeModeChanged");
 
