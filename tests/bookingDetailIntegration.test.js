@@ -255,6 +255,21 @@ test('empty cards with turnover history also load the previous turnover', async 
   assert.equal(vm.consumptionRows[0].id, 'previous-empty-turnover');
 });
 
+test('opened cards include the current opening and the previous turnover', async () => {
+  const { calls, vm } = createDialogHarness(() => Promise.resolve({
+    code: 1,
+    data: { records: [{ id: 'current-opening' }] },
+  }));
+  vm.cardInfo.bizStatus = 4;
+  vm.cardInfo.turnoverCnt = 1;
+
+  await vm.openDialog();
+
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.turnoverCnt), [1, 0]);
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.label), ['A01-002', 'A01-001']);
+  assert.deepEqual(calls, [{ seat_id: 88, turnover_cnt: 1 }]);
+});
+
 test('switching tabs lazy-loads and caches successful responses by seat and turnover', async () => {
   const { calls, vm } = createDialogHarness(params => Promise.resolve({
     code: 1,
