@@ -341,3 +341,26 @@ test('dept-region seat report rows share one grid column definition', () => {
     /\.report-row\s*>\s*:last-child\s*\{[\s\S]*?justify-content\s*:\s*center/
   );
 });
+
+test('card machine exposes the dept-region seat report from more functions', () => {
+  const source = readSource('src/views/Book/cardMachine.vue');
+
+  assert.match(
+    source,
+    /<span>入客数据实时汇总<\/span>[\s\S]*?<div\s+class="option-item"\s+@click="showOrHideDeptRegionSeatOpenDrawer"\s*>[\s\S]*?<img\s+:src="imgSrc\.openCard"[^>]*>[\s\S]*?<span>部门实时订台\/区域开台<\/span>/
+  );
+  assert.match(
+    source,
+    /<drawer-seat-opening[\s\S]*?\/>[\s\S]*?<drawer-dept-region-seat-open\s+:showDrawer="showDeptRegionSeatOpenDrawer"\s+@showOrHideDrawer="showOrHideDeptRegionSeatOpenDrawer"\s*\/>/
+  );
+  assert.match(
+    source,
+    /import drawerDeptRegionSeatOpen from "@\/components\/book\/machine\/drawerDeptRegionSeatOpen";\s*\/\/ 部门实时订台\/区域开台表/
+  );
+  assert.match(source, /showDeptRegionSeatOpenDrawer:\s*false/);
+  assert.match(
+    source,
+    /showOrHideDeptRegionSeatOpenDrawer\s*\(showDrawer\)\s*\{[\s\S]*?typeof showDrawer === "boolean"[\s\S]*?this\.showDeptRegionSeatOpenDrawer = showDrawer;[\s\S]*?this\.showDeptRegionSeatOpenDrawer = !this\.showDeptRegionSeatOpenDrawer;/
+  );
+  assert.match(source, /components:\s*\{[\s\S]*?drawerDeptRegionSeatOpen,/);
+});
