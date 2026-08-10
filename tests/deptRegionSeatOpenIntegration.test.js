@@ -59,3 +59,37 @@ test('book API exposes dept-region seat report read and export endpoints', () =>
   assert.strictEqual(calls[0].params, params);
   assert.strictEqual(calls[1].params, params);
 });
+
+test('dept-region seat report drawer declares the requested report behavior', () => {
+  const source = readSource('src/components/book/machine/drawerDeptRegionSeatOpen.vue');
+
+  assert.match(source, /部门实时订台\/区域开台表/);
+  assert.match(source, /最后刷新时间/);
+  assert.match(source, /部门实时订台数/);
+  assert.match(source, /区域开台总数/);
+  assert.match(source, /isTotalRow/);
+  assert.match(source, /reqGetDeptRegionSeatOpenList/);
+  assert.match(source, /reqExportDeptRegionSeatOpenList/);
+  assert.doesNotMatch(source, /deptTotal|regionTotal|getCountTotal/);
+});
+
+test('dept-region seat report rows share one grid column definition', () => {
+  const source = readSource('src/style/book/machine/drawerDeptRegionSeatOpen.less');
+  const gridTemplates = [...source.matchAll(/grid-template-columns\s*:\s*([^;]+);/g)]
+    .map(([, value]) => value.trim());
+
+  assert.match(source, /\.report-table\s*\{[\s\S]*?--report-columns\s*:/);
+  assert.match(
+    source,
+    /\.report-row\s*\{[\s\S]*?grid-template-columns\s*:\s*var\(--report-columns\)/
+  );
+  assert.deepEqual(gridTemplates, ['var(--report-columns)']);
+  assert.match(
+    source,
+    /\.report-row\s*>\s*:first-child\s*\{[\s\S]*?justify-content\s*:\s*flex-start/
+  );
+  assert.match(
+    source,
+    /\.report-row\s*>\s*:last-child\s*\{[\s\S]*?justify-content\s*:\s*center/
+  );
+});
