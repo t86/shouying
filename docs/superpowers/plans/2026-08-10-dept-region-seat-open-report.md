@@ -4,7 +4,7 @@
 
 **Goal:** 在咨客系统“更多功能”中增加可查询、汇总并导出部门实时订台和区域当日开台数量的双表报表。
 
-**Architecture:** 新增独立 Vue 抽屉组件承载查询、展示和导出，`cardMachine.vue` 仅管理入口与显隐；`src/api/Book/index.js` 沿用现有请求封装。合计和部门缩进转换放在 CommonJS 纯函数工具中，使用项目现有 Node Test Runner 做测试驱动验证。
+**Architecture:** 新增独立 Vue 抽屉组件承载查询、展示和导出，`cardMachine.vue` 仅管理入口与显隐；`src/api/Book/index.js` 沿用现有请求封装。部门缩进、数量归一化和后端合计行识别放在 CommonJS 纯函数工具中，使用项目现有 Node Test Runner 做测试驱动验证；前端不自行计算合计。
 
 **Tech Stack:** Vue 2.6、Element UI、Less、Axios、Node.js `node:test`。
 
@@ -12,7 +12,7 @@
 
 ## 文件结构
 
-- Create: `src/utils/deptRegionSeatOpenReport.js` — 数量归一化、列表合计和部门层级格式化。
+- Create: `src/utils/deptRegionSeatOpenReport.js` — 数量归一化、后端合计行识别和部门层级格式化。
 - Create: `tests/deptRegionSeatOpenReport.test.js` — 纯函数行为测试。
 - Modify: `src/api/Book/index.js` — 查询、导出接口方法。
 - Create: `src/components/book/machine/drawerDeptRegionSeatOpen.vue` — 报表抽屉、数据加载和导出。
@@ -34,7 +34,7 @@ const test = require('node:test');
 
 const {
   formatDepartmentName,
-  getCountTotal,
+  isTotalRow,
   toSafeCount,
 } = require('../src/utils/deptRegionSeatOpenReport');
 
@@ -61,10 +61,11 @@ test('normalizes invalid counts to zero', () => {
   assert.strictEqual(toSafeCount(Infinity), 0);
 });
 
-test('totals report rows and accepts an empty list', () => {
-  assert.strictEqual(getCountTotal([{ c: 12 }, { c: '6' }, { c: null }]), 18);
-  assert.strictEqual(getCountTotal([]), 0);
-  assert.strictEqual(getCountTotal(undefined), 0);
+test('recognizes backend total rows by zero id', () => {
+  assert.strictEqual(isTotalRow({ id: 0 }), true);
+  assert.strictEqual(isTotalRow({ id: '0' }), true);
+  assert.strictEqual(isTotalRow({ id: 1 }), false);
+  assert.strictEqual(isTotalRow(null), false);
 });
 ```
 
@@ -82,9 +83,8 @@ function toSafeCount(value) {
   return Number.isFinite(count) ? count : 0;
 }
 
-function getCountTotal(items) {
-  const list = Array.isArray(items) ? items : [];
-  return list.reduce((total, item) => total + toSafeCount(item && item.c), 0);
+function isTotalRow(item) {
+  return Boolean(item) && Number(item.id) === 0;
 }
 
 function formatDepartmentName(value) {
@@ -102,7 +102,7 @@ function formatDepartmentName(value) {
 
 module.exports = {
   formatDepartmentName,
-  getCountTotal,
+  isTotalRow,
   toSafeCount,
 };
 ```
@@ -194,10 +194,19 @@ test('dept-region report drawer renders refresh time, both tables, totals, and e
   assert.match(source, /最后刷新时间/);
   assert.match(source, /部门实时订台数/);
   assert.match(source, /区域开台总数/);
-  assert.match(source, /deptTotal/);
-  assert.match(source, /regionTotal/);
+  assert.match(source, /isTotalRow/);
+  assert.doesNotMatch(source, /deptTotal|regionTotal|getCountTotal/);
   assert.match(source, /reqGetDeptRegionSeatOpenList/);
   assert.match(source, /reqExportDeptRegionSeatOpenList/);
+});
+
+test('dept-region report uses one shared column grid for headers, rows, and totals', () => {
+  const source = readSource('src/style/book/machine/drawerDeptRegionSeatOpen.less');
+
+  assert.match(source, /--report-columns:/);
+  assert.match(source, /grid-template-columns:\s*var\(--report-columns\)/);
+  assert.match(source, /\.report-row\s*>\s*div:first-child[\s\S]*justify-content:\s*flex-start/);
+  assert.match(source, /\.report-row\s*>\s*div:last-child[\s\S]*justify-content:\s*center/);
 });
 ```
 
@@ -233,11 +242,15 @@ Expected: FAIL，错误包含 `ENOENT` 和 `drawerDeptRegionSeatOpen.vue`。
             <div>订台部门</div><div>实时订台数量</div>
           </div>
           <div v-if="deptList.length === 0" class="report-empty">暂无数据</div>
-          <div v-for="(item, index) in deptList" :key="`dept-${item.id}-${index}`" class="report-row">
-            <div :style="departmentNameStyle(item.n)">{{ departmentName(item.n) }}</div>
+          <div
+            v-for="(item, index) in deptList"
+            :key="`dept-${item.id}-${index}`"
+            class="report-row"
+            :class="{ 'report-total': isTotal(item) }"
+          >
+            <div :style="departmentNameStyle(item)">{{ departmentName(item) }}</div>
             <div>{{ safeCount(item.c) }}</div>
           </div>
-          <div class="report-row report-total"><div>合计</div><div>{{ deptTotal }}</div></div>
         </div>
       </section>
 
@@ -248,10 +261,14 @@ Expected: FAIL，错误包含 `ENOENT` 和 `drawerDeptRegionSeatOpen.vue`。
         <div class="report-table">
           <div class="report-row report-head"><div>区域</div><div>开台总数</div></div>
           <div v-if="regionList.length === 0" class="report-empty">暂无数据</div>
-          <div v-for="(item, index) in regionList" :key="`region-${item.id}-${index}`" class="report-row">
-            <div>{{ item.n }}</div><div>{{ safeCount(item.c) }}</div>
+          <div
+            v-for="(item, index) in regionList"
+            :key="`region-${item.id}-${index}`"
+            class="report-row"
+            :class="{ 'report-total': isTotal(item) }"
+          >
+            <div>{{ rowName(item) }}</div><div>{{ safeCount(item.c) }}</div>
           </div>
-          <div class="report-row report-total"><div>合计</div><div>{{ regionTotal }}</div></div>
         </div>
       </section>
 
@@ -268,7 +285,7 @@ import reportUtils from '@/utils/deptRegionSeatOpenReport';
 
 const {
   formatDepartmentName,
-  getCountTotal,
+  isTotalRow,
   toSafeCount,
 } = reportUtils;
 
@@ -286,14 +303,6 @@ export default {
       deptList: [],
       regionList: [],
     };
-  },
-  computed: {
-    deptTotal() {
-      return getCountTotal(this.deptList);
-    },
-    regionTotal() {
-      return getCountTotal(this.regionList);
-    },
   },
   watch: {
     showDrawer(newValue) {
@@ -327,11 +336,17 @@ export default {
     safeCount(value) {
       return toSafeCount(value);
     },
-    departmentName(value) {
-      return formatDepartmentName(value).name;
+    isTotal(item) {
+      return isTotalRow(item);
     },
-    departmentNameStyle(value) {
-      const { indent } = formatDepartmentName(value);
+    rowName(item) {
+      return isTotalRow(item) ? '合计' : (item.n || '');
+    },
+    departmentName(item) {
+      return isTotalRow(item) ? '合计' : formatDepartmentName(item.n).name;
+    },
+    departmentNameStyle(item) {
+      const indent = isTotalRow(item) ? 0 : formatDepartmentName(item.n).indent;
       return { paddingLeft: `${20 + indent * 8}px` };
     },
     async exportExcelHandle() {
@@ -397,9 +412,17 @@ export default {
 
   .report-section { margin: 0 24px 24px; }
   .report-section h3 { margin: 0 0 12px; color: #fff; }
-  .report-table { border: 1px solid #3b465b; }
-  .report-row { display: grid; grid-template-columns: 1fr 1fr; min-height: 44px; }
+  .report-table {
+    --report-columns: minmax(0, 1fr) minmax(180px, 1fr);
+    border: 1px solid #3b465b;
+  }
+  .report-row {
+    display: grid;
+    grid-template-columns: var(--report-columns);
+    min-height: 44px;
+  }
   .report-row > div { display: flex; align-items: center; padding: 0 20px; border-right: 1px solid #3b465b; border-bottom: 1px solid #3b465b; }
+  .report-row > div:first-child { justify-content: flex-start; }
   .report-row > div:last-child { justify-content: center; border-right: 0; }
   .report-head { background: #182037; color: rgba(255, 255, 255, .55); }
   .report-total { color: #ffad45; }
@@ -521,7 +544,7 @@ Expected: `git diff --check` 无输出；`package.json`、`.opencode/`、`covera
 
 - [ ] **Step 4: 使用 `superpowers:requesting-code-review` 审查本次实现**
 
-重点检查：接口字段映射、0 值展示、合计安全性、部门缩进、重复打开刷新、下载资源释放、父子组件关闭事件，以及是否意外修改现有报表。
+重点检查：接口字段映射、0 值展示、`id === 0` 后端合计行、无前端求和、表头/数据/合计列对齐、部门缩进不改变列宽、重复打开刷新、下载资源释放、父子组件关闭事件，以及是否意外修改现有报表。
 
 - [ ] **Step 5: 如审查产生修复，重新运行测试和构建并单独提交**
 
