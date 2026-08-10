@@ -201,6 +201,7 @@ import eventVue from "@/utils/eventVue";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 import common_book from "@/utils/common/book";
+import orderDetailAdapter from "@/utils/orderDetailAdapter";
 import { getProductPrice } from "@/utils/priceCalculator";
 
 import add from "@/assets/order-img/order_add.png";
@@ -218,6 +219,12 @@ import authStatus from "@/mixin/authStatus";
 // 键盘码 keycode
 let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
+const { normalizeOrderDetailResponse } = orderDetailAdapter;
+const orderDetailLookups = {
+  getProductInfo: common_order.getProductInfo.bind(common_order),
+  getProductInfoFromGroup: common_order.getProductInfoFromGroup.bind(common_order),
+  getOrderPersonInfo: common_book.getOrderPersonInfo.bind(common_book),
+};
 
 export default {
   mixins: [authStatus],
@@ -276,9 +283,8 @@ export default {
         };
         const res = await api_order.reqGetOrderList(params);
         if (res.code === 1) {
-          this.amt.allAmt = ((res.data.pay_info.order_amt || 0) / 100).toFixed(2);
-          this.amt.giveAmt = ((res.data.pay_info.yh_amt || 0) / 100).toFixed(2);
-          this.amt.notPayAmt = (((res.data.pay_info.order_amt || 0) - (res.data.pay_info.payed_amt || 0)) / 100).toFixed(2);
+          const detailData = normalizeOrderDetailResponse(res.data, orderDetailLookups);
+          this.amt = detailData.payInfo;
           
           // eventVue.$emit("changeTurnOverCountHandle", [{
           //   amts: {
@@ -289,58 +295,15 @@ export default {
           //     pzv: res.data.pay_info.payed_zy_val_amt,
           //   }
           // }]);
-          const data = res.data.records || [];
-          data.forEach((el) => {
-            el.productInfo = common_order.getProductInfo(el.pid);
-            el.personInfo =
-              el.wei == 0
-                ? { name: "自助" }
-                : common_book.getOrderPersonInfo(el.wei);
-            el.authInfo = common_book.getOrderPersonInfo(el.ae);
-            el.showList = false;
-            if ((el.is == 1 || el.is == 2)&& el.si)
-              el.si.forEach((ele) => {
-                ele.groupInfo = common_order.getProductInfoFromGroup(ele.i);
-              });
-          });
-          // return console.log(data);
-          // 处理退单数据
-          const resultData = [];
-          data.forEach((el) => {
-            if (el.bs) {
-              // 有退单
-              el.bs.forEach((ele) => {
-                ele.back = true;
-                for (let key in el) {
-                  if (key != "bs")
-                    // ele[key] = ele[key] && key != "si" ? ele[key] : el[key];
-                    ele[key] = ele[key] ? ele[key] : el[key];
-                  if (key == "si" && ele[key]) {
-                    ele.si.forEach((element) => {
-                      element.groupInfo = common_order.getProductInfoFromGroup(
-                        element.i
-                      );
-                    });
-                  }
-                }
-              });
-
-              if (el.pc != 0) resultData.push(el); // 部分退单
-              resultData.push(...el.bs);
-            } else {
-              resultData.push(el);
-            }
-          });
-          console.log("未权限过滤的信息", resultData)
+          console.log("未权限过滤的信息", detailData.consumptionRows)
           
           // 应用权限过滤
-          const authList = this.applyPermissionFilter(resultData);
-          console.log("权限过滤后的订单列表:", authList);
-          console.log("原始订单数量:", resultData.length, "过滤后订单数量:", authList.length);
-          this.orderList = authList;
+          this.orderList = this.applyPermissionFilter(detailData.consumptionRows);
+          console.log("权限过滤后的订单列表:", this.orderList);
+          console.log("原始订单数量:", detailData.consumptionRows.length, "过滤后订单数量:", this.orderList.length);
 
           // 处理存取酒数据
-          this.wineList = res.data.wine_ops || [];
+          this.wineList = detailData.wineRows;
         } else if (res.code == 2) {
           console.log("当前人员未参与当前卡台点单");
           this.orderList = [];
