@@ -24,6 +24,39 @@ function loadBookApi(mockAxios) {
   return sandbox.module.exports;
 }
 
+function loadDeptRegionSeatOpenDrawer(mockApiBook, mockReportUtils) {
+  const componentSource = readSource('src/components/book/machine/drawerDeptRegionSeatOpen.vue');
+  const scriptMatch = componentSource.match(/<script>([\s\S]*?)<\/script>/);
+  assert.ok(scriptMatch, 'drawer should have a script block');
+
+  const script = scriptMatch[1]
+    .replace(/^import api_book[^\n]*\n/m, 'const api_book = sandboxApiBook;\n')
+    .replace(/^import reportUtils[^\n]*\n/m, 'const reportUtils = sandboxReportUtils;\n')
+    .replace('export default', 'module.exports =');
+  const sandbox = {
+    module: { exports: {} },
+    sandboxApiBook: mockApiBook,
+    sandboxReportUtils: mockReportUtils
+  };
+
+  vm.runInNewContext(script, sandbox, {
+    filename: 'src/components/book/machine/drawerDeptRegionSeatOpen.vue'
+  });
+
+  return sandbox.module.exports;
+}
+
+function createDrawerContext(drawerOptions) {
+  const context = drawerOptions.data.call({ showDrawer: false });
+  context.$message = { warning() {} };
+
+  for (const [name, method] of Object.entries(drawerOptions.methods)) {
+    context[name] = method.bind(context);
+  }
+
+  return context;
+}
+
 test('book API exposes dept-region seat report read and export endpoints', () => {
   const calls = [];
   const mockAxios = {
@@ -83,6 +116,65 @@ test('dept-region seat report drawer declares the requested report behavior', ()
       )
     );
   }
+});
+
+test('dept-region seat report preserves server-owned rows without synthesizing totals', async () => {
+  const deptRows = [{ id: 11, n: '订台一部', c: 3 }];
+  const regionRows = [{ id: 21, n: '大厅', c: 5 }];
+  let response = {
+    code: 1,
+    data: {
+      now_time: '2026-08-10 10:48:00',
+      dept_list: deptRows,
+      region_list: regionRows
+    }
+  };
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    { reqGetDeptRegionSeatOpenList: async () => response },
+    {
+      formatDepartmentName: value => ({ name: value, indent: 0 }),
+      isTotalRow: item => Number(item.id) === 0,
+      toSafeCount: Number
+    }
+  );
+  const context = createDrawerContext(drawerOptions);
+
+  await context.getReportData();
+
+  assert.strictEqual(context.deptList, deptRows);
+  assert.deepEqual(context.deptList, deptRows);
+  assert.strictEqual(context.regionList, regionRows);
+  assert.deepEqual(context.regionList, regionRows);
+  assert.equal(context.deptList.length, 1);
+  assert.equal(context.regionList.length, 1);
+  assert.equal(context.deptList.some(item => Number(item.id) === 0), false);
+  assert.equal(context.regionList.some(item => Number(item.id) === 0), false);
+
+  const deptRowsWithTotal = [
+    { id: 12, n: '订台二部', c: 7 },
+    { id: 0, n: '后端名称不展示', c: '19' }
+  ];
+  const regionRowsWithTotal = [
+    { id: 22, n: '包房区', c: 4 },
+    { id: '0', n: '后端名称不展示', c: '23' }
+  ];
+  response = {
+    code: 1,
+    data: {
+      now_time: '2026-08-10 10:49:00',
+      dept_list: deptRowsWithTotal,
+      region_list: regionRowsWithTotal
+    }
+  };
+
+  await context.getReportData();
+
+  assert.strictEqual(context.deptList, deptRowsWithTotal);
+  assert.deepEqual(context.deptList, deptRowsWithTotal);
+  assert.strictEqual(context.regionList, regionRowsWithTotal);
+  assert.deepEqual(context.regionList, regionRowsWithTotal);
+  assert.equal(context.deptList[1].c, '19');
+  assert.equal(context.regionList[1].c, '23');
 });
 
 test('dept-region seat report rows share one grid column definition', () => {
