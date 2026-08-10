@@ -71,6 +71,18 @@ test('dept-region seat report drawer declares the requested report behavior', ()
   assert.match(source, /reqGetDeptRegionSeatOpenList/);
   assert.match(source, /reqExportDeptRegionSeatOpenList/);
   assert.doesNotMatch(source, /deptTotal|regionTotal|getCountTotal/);
+  assert.doesNotMatch(source, /\bcomputed\s*:/);
+  assert.doesNotMatch(source, /\.reduce\s*\(/);
+  assert.doesNotMatch(source, /class=["']report-row\s+report-total["']/);
+
+  for (const listName of ['deptList', 'regionList']) {
+    assert.match(
+      source,
+      new RegExp(
+        `v-for="\\(item, index\\) in ${listName}"[\\s\\S]*?class="report-row"[\\s\\S]*?:class="\\{ 'report-total': isTotal\\(item\\) \\}"`
+      )
+    );
+  }
 });
 
 test('dept-region seat report rows share one grid column definition', () => {
