@@ -14,6 +14,10 @@ test('renders booking-detail switches only while amounts remain visible', () => 
   assert.match(source, /预订系统查看消费明细[\s\S]*?v-model="bookingConsumptionEnabled"/);
   assert.match(source, /预订系统查看存取酒明细[\s\S]*?v-model="bookingWineEnabled"/);
   assert.match(source, /active-text="开"[\s\S]*?inactive-text="关"/);
+  assert.match(
+    source,
+    /\.booking-detail-switches\s*\{\s*display:\s*inline-block;\s*margin-left:\s*100px;\s*vertical-align:\s*top;[\s\S]*?> div\s*\{\s*min-width:\s*360px;[\s\S]*?span\s*\{\s*display:\s*inline-block;\s*width:\s*220px;/,
+  );
 });
 
 test('normalizes booking-detail configuration returned by getTime', () => {
@@ -26,6 +30,8 @@ test('normalizes booking-detail configuration returned by getTime', () => {
     /const \{ normalizeBookingDetailConfig, getBookingDetailSaveFields \} = bookingDetailAccess/,
   );
   assert.match(source, /const bookingDetailConfig = normalizeBookingDetailConfig\(res\.data\)/);
+  assert.match(source, /this\.notShowAmt = bookingDetailConfig\.amountsRestricted/);
+  assert.doesNotMatch(source, /this\.notShowAmt = res\.data\.limit_book_csm_amt/);
   assert.match(source, /this\.bookingConsumptionEnabled = bookingDetailConfig\.consumptionEnabled/);
   assert.match(source, /this\.bookingWineEnabled = bookingDetailConfig\.wineEnabled/);
 });

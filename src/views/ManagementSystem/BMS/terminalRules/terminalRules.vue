@@ -265,7 +265,7 @@ export default {
           this.chooseTime.minute = (res.data.auto_close_minute * 1)
               .toString()
               .padStart(2, 0);
-          this.notShowAmt = res.data.limit_book_csm_amt == 1
+          this.notShowAmt = bookingDetailConfig.amountsRestricted;
           this.bookingConsumptionEnabled = bookingDetailConfig.consumptionEnabled;
           this.bookingWineEnabled = bookingDetailConfig.wineEnabled;
           this.scanOrderMustDx = res.data.scan_order_must_dx == 1
@@ -355,8 +355,18 @@ export default {
   }
 
   .booking-detail-switches {
-    display: flex;
-    gap: 20px;
+    display: inline-block;
+    margin-left: 100px;
+    vertical-align: top;
+
+    > div {
+      min-width: 360px;
+    }
+
+    span {
+      display: inline-block;
+      width: 220px;
+    }
   }
 }
 
