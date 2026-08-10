@@ -169,6 +169,7 @@ test('returns independent configured options only for visible and unrestricted s
 
 test('uses the previous turnover for cleared cards whose current turnover is not open', () => {
   assert.equal(getBookingDetailTurnoverCount(7, 3), 2);
+  assert.equal(getBookingDetailTurnoverCount(7, 2), 1);
   assert.equal(getBookingDetailTurnoverCount(7, 1), 0);
   assert.equal(getBookingDetailTurnoverCount(4, 3), 3);
   assert.equal(getBookingDetailTurnoverCount(8, 3), 3);
