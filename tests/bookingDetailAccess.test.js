@@ -186,4 +186,8 @@ test('builds newest-first turnover tabs and an empty-table fallback', () => {
   assert.deepEqual(buildTurnoverTabs('A01', 0), [
     { turnoverCnt: 0, label: 'A01-001' },
   ]);
+  assert.deepEqual(buildTurnoverTabs('A01', 2, 1), [
+    { turnoverCnt: 1, label: 'A01-002' },
+    { turnoverCnt: 0, label: 'A01-001' },
+  ]);
 });

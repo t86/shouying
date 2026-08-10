@@ -42,7 +42,7 @@ import orderDetailAdapter from '@/utils/orderDetailAdapter';
 import readonlyConsumptionTable from '@/components/order/myOrder/readonlyConsumptionTable';
 import readonlyWineTable from '@/components/order/myOrder/readonlyWineTable';
 
-const { buildTurnoverTabs, getBookingDetailTurnoverCount } = bookingDetailAccess;
+const { buildTurnoverTabs } = bookingDetailAccess;
 const {
   createDetailRequestState,
   getDetailCacheKey,
@@ -105,8 +105,11 @@ export default {
       this.closeRequested = false;
       this.resetDetailData();
       const cardInfo = this.cardInfo || {};
-      const turnoverCount = getBookingDetailTurnoverCount(cardInfo.bizStatus, cardInfo.turnoverCnt);
-      this.turnoverTabs = buildTurnoverTabs(cardInfo.name || '', turnoverCount);
+      this.turnoverTabs = buildTurnoverTabs(
+        cardInfo.name || '',
+        cardInfo.turnoverCnt,
+        cardInfo.bizStatus,
+      );
       this.selectedTurnoverCnt = this.turnoverTabs[0].turnoverCnt;
       return this.loadSelectedTurnover();
     },

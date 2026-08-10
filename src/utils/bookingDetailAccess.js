@@ -60,14 +60,19 @@ function getBookingDetailOptionIds(config = {}, status, turnoverCnt) {
   return optionIds;
 }
 
-function buildTurnoverTabs(tableNo, turnoverCnt) {
+function buildTurnoverTabs(tableNo, turnoverCnt, status) {
   const count = Number(turnoverCnt);
   const latestCount = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
-  const tabCounts = latestCount > 0 ? Array.from({ length: latestCount }, (_, index) => latestCount - index) : [0];
+  const firstRequestCount = status === undefined
+    ? latestCount
+    : getBookingDetailTurnoverCount(status, latestCount);
+  const tabCounts = latestCount > 0
+    ? Array.from({ length: latestCount }, (_, index) => firstRequestCount - index)
+    : [0];
 
-  return tabCounts.map((currentTurnoverCnt) => ({
+  return tabCounts.map((currentTurnoverCnt, index) => ({
     turnoverCnt: currentTurnoverCnt,
-    label: `${tableNo}-${String(currentTurnoverCnt || 1).padStart(3, '0')}`,
+    label: `${tableNo}-${String(latestCount > 0 ? latestCount - index : 1).padStart(3, '0')}`,
   }));
 }
 

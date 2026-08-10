@@ -234,7 +234,7 @@ test('cleared cards load the previous turnover instead of the unopened current t
 
   await vm.openDialog();
 
-  assert.deepEqual(vm.turnoverTabs.map(tab => tab.turnoverCnt), [2, 1]);
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.turnoverCnt), [2, 1, 0]);
   assert.deepEqual(calls, [{ seat_id: 88, turnover_cnt: 2 }]);
   assert.equal(vm.consumptionRows[0].id, 'previous-turnover');
 });
@@ -249,6 +249,8 @@ test('empty cards with turnover history also load the previous turnover', async 
 
   await vm.openDialog();
 
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.turnoverCnt), [1, 0]);
+  assert.deepEqual(vm.turnoverTabs.map(tab => tab.label), ['A01-002', 'A01-001']);
   assert.deepEqual(calls, [{ seat_id: 88, turnover_cnt: 1 }]);
   assert.equal(vm.consumptionRows[0].id, 'previous-empty-turnover');
 });
