@@ -30,7 +30,7 @@
                 class="report-name"
                 :style="departmentNameStyle(item)"
               >{{ departmentDisplay(item).name }}</div>
-              <div>{{ safeCount(item.c) }}</div>
+              <div>{{ item.c }}</div>
             </div>
           </template>
           <div v-else class="report-empty">暂无数据</div>
@@ -54,7 +54,7 @@
               :class="{ 'report-total': isTotal(item) }"
             >
               <div class="report-name">{{ regionDisplayName(item) }}</div>
-              <div>{{ safeCount(item.c) }}</div>
+              <div>{{ item.c }}</div>
             </div>
           </template>
           <div v-else class="report-empty">暂无数据</div>
@@ -72,7 +72,7 @@
 import api_book from "@/api/Book";
 import reportUtils from "@/utils/deptRegionSeatOpenReport";
 
-const { formatDepartmentName, isTotalRow, toSafeCount } = reportUtils;
+const { formatDepartmentName, isTotalRow } = reportUtils;
 
 export default {
   props: {
@@ -94,9 +94,6 @@ export default {
     isTotal (item) {
       return isTotalRow(item);
     },
-    safeCount (value) {
-      return toSafeCount(value);
-    },
     departmentDisplay (item) {
       if (this.isTotal(item)) {
         return { name: '合计', indent: 0 };
@@ -109,6 +106,30 @@ export default {
     },
     regionDisplayName (item) {
       return this.isTotal(item) ? '合计' : ((item && item.n) || '');
+    },
+    async getExportErrorMessage (response) {
+      if (response && response.msg) {
+        return response.msg;
+      }
+
+      const responseType = response && typeof response.type === 'string'
+        ? response.type.toLowerCase()
+        : '';
+      if (!responseType.includes('json')) {
+        return '';
+      }
+      if (typeof response.text !== 'function') {
+        return '导出失败，请稍后重试';
+      }
+
+      try {
+        const payload = JSON.parse(await response.text());
+        return payload && payload.code !== 1
+          ? (payload.msg || '导出失败，请稍后重试')
+          : '';
+      } catch (error) {
+        return '导出失败，请稍后重试';
+      }
     },
     async getReportData () {
       const requestSerial = ++this.requestSerial;
@@ -141,8 +162,9 @@ export default {
 
       try {
         const res = await api_book.reqExportDeptRegionSeatOpenList({});
-        if (res.msg) {
-          this.$message.warning(res.msg);
+        const exportErrorMessage = await this.getExportErrorMessage(res);
+        if (exportErrorMessage) {
+          this.$message.warning(exportErrorMessage);
           return;
         }
 

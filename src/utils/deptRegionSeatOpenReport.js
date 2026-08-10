@@ -18,13 +18,7 @@ function isTotalRow(item) {
   return Boolean(item) && Number(item.id) === 0;
 }
 
-function toSafeCount(value) {
-  const count = Number(value);
-  return Number.isFinite(count) ? count : 0;
-}
-
 module.exports = {
   formatDepartmentName,
   isTotalRow,
-  toSafeCount,
 };

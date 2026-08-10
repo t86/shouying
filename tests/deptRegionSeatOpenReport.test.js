@@ -4,7 +4,6 @@ const assert = require('node:assert/strict');
 const {
   formatDepartmentName,
   isTotalRow,
-  toSafeCount,
 } = require('../src/utils/deptRegionSeatOpenReport');
 
 test('formatDepartmentName preserves an unindented department name', () => {
@@ -37,17 +36,6 @@ test('formatDepartmentName combines ordinary and full-width indentation widths',
     name: '订台一部',
     indent: 3
   });
-});
-
-test('toSafeCount normalizes valid finite counts', () => {
-  assert.equal(toSafeCount(6), 6);
-  assert.equal(toSafeCount('4'), 4);
-});
-
-test('toSafeCount converts absent, invalid, and infinite counts to zero', () => {
-  assert.equal(toSafeCount(undefined), 0);
-  assert.equal(toSafeCount('invalid'), 0);
-  assert.equal(toSafeCount(Infinity), 0);
 });
 
 test('isTotalRow identifies numeric and string zero identifiers', () => {

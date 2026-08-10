@@ -76,8 +76,7 @@ const reportUtilsMock = {
     const leadingSpaces = name.match(/^\s*/)[0].length;
     return { name: name.slice(leadingSpaces), indent: leadingSpaces };
   },
-  isTotalRow: item => Boolean(item) && Number(item.id) === 0,
-  toSafeCount: Number
+  isTotalRow: item => Boolean(item) && Number(item.id) === 0
 };
 
 test('book API exposes dept-region seat report read and export endpoints', () => {
@@ -126,6 +125,8 @@ test('dept-region seat report drawer declares the requested report behavior', ()
   assert.match(source, /isTotalRow/);
   assert.match(source, /reqGetDeptRegionSeatOpenList/);
   assert.match(source, /reqExportDeptRegionSeatOpenList/);
+  assert.equal((source.match(/\{\{\s*item\.c\s*\}\}/g) || []).length, 2);
+  assert.doesNotMatch(source, /\bsafeCount\b|\btoSafeCount\b/);
   assert.doesNotMatch(source, /deptTotal|regionTotal|getCountTotal/);
   assert.doesNotMatch(source, /\bcomputed\s*:/);
   assert.doesNotMatch(source, /\.reduce\s*\(/);
@@ -156,8 +157,7 @@ test('dept-region seat report preserves server-owned rows without synthesizing t
     { reqGetDeptRegionSeatOpenList: async () => response },
     {
       formatDepartmentName: value => ({ name: value, indent: 0 }),
-      isTotalRow: item => Number(item.id) === 0,
-      toSafeCount: Number
+      isTotalRow: item => Number(item.id) === 0
     }
   );
   const context = createDrawerContext(drawerOptions);
@@ -306,6 +306,54 @@ test('dept-region seat report always cleans up a failed export', async () => {
   assert.deepEqual(removedLinks, [link]);
   assert.deepEqual(revokedUrls, ['blob:report']);
   assert.deepEqual(warnings, ['导出失败，请稍后重试']);
+});
+
+test('dept-region seat report warns instead of downloading a JSON Blob error', async () => {
+  const warnings = [];
+  let createObjectURLCalls = 0;
+  let appendCalls = 0;
+  let clickCalls = 0;
+  const jsonError = new Blob(
+    [JSON.stringify({ code: 0, msg: '暂无可导出数据' })],
+    { type: 'application/json' }
+  );
+  const drawerOptions = loadDeptRegionSeatOpenDrawer(
+    { reqExportDeptRegionSeatOpenList: async () => jsonError },
+    reportUtilsMock,
+    {
+      Blob,
+      window: {
+        URL: {
+          createObjectURL() {
+            createObjectURLCalls += 1;
+            return 'blob:should-not-download';
+          },
+          revokeObjectURL() {}
+        }
+      },
+      document: {
+        body: {
+          appendChild() {
+            appendCalls += 1;
+          }
+        },
+        createElement: () => ({
+          click() {
+            clickCalls += 1;
+          }
+        })
+      }
+    }
+  );
+  const context = createDrawerContext(drawerOptions);
+  context.$message.warning = message => warnings.push(message);
+
+  await context.exportExcelHandle();
+
+  assert.deepEqual(warnings, ['暂无可导出数据']);
+  assert.equal(createObjectURLCalls, 0);
+  assert.equal(appendCalls, 0);
+  assert.equal(clickCalls, 0);
 });
 
 test('department indentation is added on top of the shared cell padding', () => {
