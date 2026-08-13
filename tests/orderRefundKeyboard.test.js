@@ -10,9 +10,10 @@ const source = fs.readFileSync(
 
 test('refund quantity click opens Android keyboard and drawer cleanup hides it', () => {
   assert.match(source, /ref="refundQuantityInput"/);
-  assert.match(source, /@focus="showRefundQuantityKeyboard"/);
+  assert.match(source, /@click="showRefundQuantityKeyboard"/);
   assert.match(source, /@blur="hideRefundQuantityKeyboard"/);
   assert.match(source, /atool\.showSoftInput\(\)/);
+  assert.match(source, /atool\.executeJs\(`this\.\$refs\.refundQuantityInput\.focus\(\)`\)/);
   assert.match(source, /atool\.hideSoftInput\(\)/);
   assert.doesNotMatch(
     source,

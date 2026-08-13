@@ -39,7 +39,7 @@
                     @click="changeCount('sub')" />
                   <input ref="refundQuantityInput" type="number" min="1"
                     :disabled="(currentItemInfo.io == 1 && status == 1) || currentProductInfo.productInfo.prdType == 4 || ((currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4)"
-                    v-model="productCount" @input="changeCount('input')" @focus="showRefundQuantityKeyboard"
+                    v-model="productCount" @input="changeCount('input')" @click="showRefundQuantityKeyboard"
                     @blur="hideRefundQuantityKeyboard" />
                   <img
                     :src="currentProductInfo.productInfo.prdType == 4 || productCount >= currentProductInfo.pc ? imgSrc.addDisabled : imgSrc.add"
@@ -533,9 +533,7 @@ export default {
       ) return;
 
       window.atool.showSoftInput();
-      this.$nextTick(() => {
-        if (this.$refs.refundQuantityInput) this.$refs.refundQuantityInput.focus();
-      });
+      window.atool.executeJs(`this.$refs.refundQuantityInput.focus()`);
     },
     hideRefundQuantityKeyboard() {
       if (
