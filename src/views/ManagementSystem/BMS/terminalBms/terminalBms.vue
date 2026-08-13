@@ -55,7 +55,9 @@
               <span v-if="item.sfpn">{{ item.sfpn}}</span>
               <span v-if="(item.spn || item.sfpn) && item.pn">;</span>
               <span v-if="item.pn">{{ item.pn}}</span>
-              <span v-if="!item.spn && !item.pn && !item.sfpn">---</span>
+              <span v-if="(item.spn || item.sfpn || item.pn) && item.npn">;</span>
+              <span v-if="item.npn">{{ item.npn}}</span>
+              <span v-if="!item.spn && !item.pn && !item.sfpn && !item.npn">---</span>
             </div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.u == 1 ? "已使用" : "未使用" }}</div>
@@ -115,6 +117,15 @@
                   取酒小票打印机
                 </div>
                 <el-select v-model="printVal" class="controlling">
+                  <el-option label="请选择打印机" value="0"></el-option>
+                  <el-option v-for="item in printOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
+                </el-select>
+              </div>
+              <div class="compatibility" layout="row" layout-align="start center" style="margin-top: 16px;">
+                <div class="mandatory m-r-3">
+                  存取酒通知小票打印机
+                </div>
+                <el-select v-model="wineNotifyPrintVal" class="controlling">
                   <el-option label="请选择打印机" value="0"></el-option>
                   <el-option v-for="item in printOption" :key="item.id" :label="item.n" :value="item.id + ''"></el-option>
                 </el-select>
@@ -189,6 +200,7 @@ export default {
       printOption: [], // 普通打印机
       saveWineSinglePrintVal: "0", // 存酒打印机（散瓶）
       saveWineWholePrintVal: "0", // 存酒打印机（整瓶）
+      wineNotifyPrintVal: "0", // 存取酒通知小票打印机
       saveWinePrintOption:[], // 存酒打印机
       currentInfo: {}, // 当前操作的终端单条数据
 
@@ -248,6 +260,7 @@ export default {
         this.printVal = itemInfo.pi.toString();
         this.saveWineSinglePrintVal = itemInfo.spi.toString() || '0';
         this.saveWineWholePrintVal = itemInfo.sfpi.toString() || '0';
+        this.wineNotifyPrintVal = (itemInfo.npi || 0).toString();
         this.currentInfo = { ...itemInfo };
         this.getSelectOption();
       }
@@ -259,6 +272,7 @@ export default {
         prt_id: this.printVal * 1, //  int64   打印机Id, =0表示删除
         wine_store_prt_id: this.saveWineSinglePrintVal * 1, //  int64   存酒打印机(散瓶)Id, =0表示删除
         wine_store_full_prt_id: this.saveWineWholePrintVal * 1, //  int64   存酒打印机(整瓶)Id, =0表示删除
+        wine_notify_prt_id: this.wineNotifyPrintVal * 1, // int64 存取酒通知打印机Id, =0表示删除
       };
       try {
         const res = await this.$api.BMS.terminal.reqSaveTerminalConfig(params);
