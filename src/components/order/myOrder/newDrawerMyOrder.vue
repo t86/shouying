@@ -1575,7 +1575,6 @@ export default {
               }
             }
             this.formData.reason = "";
-            this.$nextTick(() => this.showRefundQuantityKeyboard());
             break;
           case 2: // 赠送
           // this.initRadio();

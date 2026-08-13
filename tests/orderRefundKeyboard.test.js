@@ -8,11 +8,14 @@ const source = fs.readFileSync(
   'utf8',
 );
 
-test('refund drawer opens Android keyboard for an editable quantity and cleanup hides it', () => {
+test('refund quantity click opens Android keyboard and drawer cleanup hides it', () => {
   assert.match(source, /ref="refundQuantityInput"/);
   assert.match(source, /@focus="showRefundQuantityKeyboard"/);
   assert.match(source, /@blur="hideRefundQuantityKeyboard"/);
   assert.match(source, /atool\.showSoftInput\(\)/);
   assert.match(source, /atool\.hideSoftInput\(\)/);
-  assert.match(source, /this\.showRefundQuantityKeyboard\(\)/);
+  assert.doesNotMatch(
+    source,
+    /this\.formData\.reason = "";\s*this\.\$nextTick\(\(\) => this\.showRefundQuantityKeyboard\(\)\);/,
+  );
 });
