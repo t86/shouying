@@ -37,9 +37,10 @@
                   <img
                     :src="((currentItemInfo.io == 1 && status == 1) || (currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4) || currentProductInfo.productInfo.prdType == 4 || productCount == 1 ? imgSrc.subDisabled : imgSrc.sub"
                     @click="changeCount('sub')" />
-                  <input type="number" min="1"
+                  <input ref="refundQuantityInput" type="number" min="1"
                     :disabled="(currentItemInfo.io == 1 && status == 1) || currentProductInfo.productInfo.prdType == 4 || ((currentProductInfo.productInfo.prdType == 3 || currentProductInfo.productInfo.prdType == 8 || currentProductInfo.productInfo.prdType == 5) && $store.state.userInfo.authStatus != 4)"
-                    v-model="productCount" @input="changeCount('input')" />
+                    v-model="productCount" @input="changeCount('input')" @focus="showRefundQuantityKeyboard"
+                    @blur="hideRefundQuantityKeyboard" />
                   <img
                     :src="currentProductInfo.productInfo.prdType == 4 || productCount >= currentProductInfo.pc ? imgSrc.addDisabled : imgSrc.add"
                     @click="changeCount('add')" />
@@ -513,6 +514,38 @@ export default {
         this.selectedWaiter.name = ''
         this.empName = ''
     },
+    isRefundQuantityEditable() {
+      const productInfo = this.currentProductInfo.productInfo || {};
+      const prdType = productInfo.prdType;
+      const isCashier = this.$store.state.userInfo.authStatus == 4;
+
+      return this.status == 1
+        && this.currentItemInfo.io != 1
+        && prdType != 4
+        && (isCashier || (prdType != 3 && prdType != 5 && prdType != 8));
+    },
+    showRefundQuantityKeyboard() {
+      if (
+        !this.isRefundQuantityEditable()
+        || !window.atool
+        || window.atool.getTermType() != "android"
+        || !("showSoftInput" in window.atool)
+      ) return;
+
+      window.atool.showSoftInput();
+      this.$nextTick(() => {
+        if (this.$refs.refundQuantityInput) this.$refs.refundQuantityInput.focus();
+      });
+    },
+    hideRefundQuantityKeyboard() {
+      if (
+        window.atool
+        && window.atool.getTermType() == "android"
+        && ("hideSoftInput" in window.atool)
+      ) {
+        window.atool.hideSoftInput();
+      }
+    },
     keyboardShow(refString){
       // if (
       //   window.atool
@@ -630,6 +663,7 @@ export default {
 
     goAuthorization() {
       if (!this.formData.reason) return this.$message.warning('请输入理由');
+      this.hideRefundQuantityKeyboard();
       this.subStatus = 2;
     },
 
@@ -1361,6 +1395,7 @@ export default {
     },
 
     onCancelDrawer(isClose) {
+      this.hideRefundQuantityKeyboard();
       this.authorizationInfo = {}
       this.authorizationInfo.userName = "";
       this.authorizationInfo.passWord = "";
@@ -1540,6 +1575,7 @@ export default {
               }
             }
             this.formData.reason = "";
+            this.$nextTick(() => this.showRefundQuantityKeyboard());
             break;
           case 2: // 赠送
           // this.initRadio();
@@ -1659,6 +1695,7 @@ export default {
             break;
         }
       } else {
+        this.hideRefundQuantityKeyboard()
         window.stopLoopReadCard()
         this.showKeyboard = false
       }
