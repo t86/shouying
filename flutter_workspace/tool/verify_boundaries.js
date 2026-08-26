@@ -53,10 +53,24 @@ function directives(source) {
       }
       end += 1;
     }
-    if (uris.length) found.push(...uris.map((uri) => ({ uri: uri.raw ? uri.value : uri.value.replace(/\\u\{?([0-9a-fA-F]+)\}?/g, (_, code) => String.fromCodePoint(parseInt(code, 16))), line: tokens[i].line, start: tokens[i].start })));
+    if (uris.length) found.push(...uris.map((uri) => { const decoded = uri.raw ? { value: uri.value, invalid: false } : decodeUri(uri.value); return { uri: decoded.value, invalid: decoded.invalid, line: tokens[i].line, start: tokens[i].start }; }));
     i = end;
   }
   return found;
+}
+
+function decodeUri(value) {
+  let result = ''; let invalid = false;
+  for (let i = 0; i < value.length; i += 1) {
+    if (value[i] !== '\\') { result += value[i]; continue; }
+    if (value[i + 1] === 'x' && /^[0-9a-fA-F]{2}$/.test(value.slice(i + 2, i + 4))) { result += String.fromCodePoint(parseInt(value.slice(i + 2, i + 4), 16)); i += 3; continue; }
+    if (value[i + 1] === 'u') {
+      if (value[i + 2] === '{') { const close = value.indexOf('}', i + 3); const hex = close < 0 ? '' : value.slice(i + 3, close); const code = Number.parseInt(hex, 16); if (hex && /^[0-9a-fA-F]+$/.test(hex) && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)) { result += String.fromCodePoint(code); i = close; continue; } }
+      else if (/^[0-9a-fA-F]{4}$/.test(value.slice(i + 2, i + 6))) { result += String.fromCodePoint(parseInt(value.slice(i + 2, i + 6), 16)); i += 5; continue; }
+    }
+    invalid = true; result += value[i];
+  }
+  return { value: result, invalid };
 }
 
 function lineAt(source, index) { return source.slice(0, index).split('\n').length; }
@@ -110,7 +124,8 @@ function findBoundaryViolations(root) {
       const specifier = match.uri;
       let rule = null;
       const isFileUri = specifier.startsWith('.') || specifier.startsWith('/');
-      if (isDomain && (/^package:(?:flutter(?:_riverpod)?|dio)\//.test(specifier) || (isFileUri && /(?:^|[/\\])(?:data|presentation)(?:[/\\]|$)/.test(specifier)))) {
+      if (match.invalid) rule = 'invalid-import-uri';
+      if (isDomain && (/^package:(?:flutter(?:_riverpod)?|dio)\//.test(specifier) || /(?:^|[/\\])(?:data|presentation)(?:[/\\]|$)/.test(specifier))) {
         rule = 'domain-forbidden-import';
       }
       if (/^package:/.test(specifier)) {
@@ -131,6 +146,7 @@ function findBoundaryViolations(root) {
           if (sourceParts[1] && targetParts[1] && sourceParts[1] !== targetParts[1]) rule = 'package-boundary';
         }
       }
+      if (match.invalid) rule = 'invalid-import-uri';
       if (rule) results.push({ file: rel, line: match.line, rule, import: specifier });
     }
   }

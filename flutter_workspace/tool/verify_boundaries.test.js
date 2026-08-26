@@ -105,6 +105,48 @@ test('rejects public package data and presentation layers from a domain file', (
   assert.deepEqual(found.map((item) => item.import), ['package:other/data/value.dart', 'package:other/presentation/value.dart']);
 });
 
+test('rejects normalized package data and presentation layers but allows public external imports', () => {
+  const found = violations({
+    'packages/foundation/pubspec.yaml': 'name: foundation\n',
+    'packages/foundation/lib/domain/model.dart': [
+      "import 'package:foundation/data/value.dart';",
+      "import 'package:external/presentation/value.dart';",
+      "import 'package:external/public.dart';",
+    ].join('\n'),
+  });
+  assert.deepEqual(found.map((item) => item.import), [
+    'package:foundation/data/value.dart', 'package:external/presentation/value.dart',
+  ]);
+});
+
+test('decodes Dart URI escapes and rejects malformed import URI escapes', () => {
+  const found = violations({
+    'packages/other/pubspec.yaml': 'name: other\n',
+    'packages/foundation/lib/domain/model.dart': [
+      "import 'package:\\x6fther/extra.dart';",
+      "import '\\u0070ackage:other/extra.dart';",
+      "import '\\x66ile:///tmp/a.dart';",
+      "import 'package:other/\\q.dart';",
+      "import r'package:\\x6fther/extra.dart';",
+    ].join('\n'),
+  });
+  assert.deepEqual(found.map((item) => item.rule), [
+    'package-boundary', 'package-boundary', 'package-boundary', 'invalid-import-uri',
+  ]);
+  assert.equal(found.at(-1).import, 'package:other/\\q.dart');
+});
+
+test('handles nested comments inside interpolation and scans active code afterward', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/model.dart': [
+      'final value = "${foo(/* outer /* import \'package:dio/dio.dart\'; */ still */ 1)}";',
+      "import 'package:dio/dio.dart';",
+    ].join('\n'),
+  });
+  assert.equal(found.length, 1);
+  assert.equal(found[0].line, 2);
+});
+
 test('enforces exact public entrypoints and rejects normalized URI bypasses', () => {
   const found = violations({
     'packages/foundation/lib/domain/model.dart': [
