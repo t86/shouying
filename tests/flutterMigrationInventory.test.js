@@ -88,6 +88,52 @@ test('associates multiline calls with the owning declaration and excludes commen
   ]);
 });
 
+test('keeps axios calls owned by the API method across control-flow blocks', () => {
+  const source = [
+    '  requestEmpList(data) {',
+    '    if (data) {',
+    '      return axios.post(`${base.htgl}/emp/list`, data);',
+    '    }',
+    '  },',
+    '  requestNext(data) {',
+    '    try { return axios.binaryFileGet(`${base.htgl}/emp/next`, data); }',
+    '    catch (error) { return error; }',
+    '  },',
+    '  requestArrow: data => axios.post(`${base.htgl}/emp/arrow`, data),',
+  ].join('\n');
+  assert.deepEqual(extractApiCalls('src/api/example.js', source), [
+    { symbol: 'requestEmpList', method: 'POST', baseKey: 'htgl', path: '/emp/list', source: 'src/api/example.js:3' },
+    { symbol: 'requestNext', method: 'GET', baseKey: 'htgl', path: '/emp/next', source: 'src/api/example.js:7' },
+    { symbol: 'requestArrow', method: 'POST', baseKey: 'htgl', path: '/emp/arrow', source: 'src/api/example.js:10' },
+  ]);
+  assert.equal(extractApiCalls('src/api/example.js', source).some((call) => ['if', 'try', 'catch'].includes(call.symbol)), false);
+});
+
+test('masks JavaScript and Vue comments while preserving comment-like strings', () => {
+  const source = [
+    'const url = "// sessionStorage authStatus";',
+    "const html = '<!-- print WebSocket -->';",
+    'const live = true; // sessionStorage authStatus',
+    '/*',
+    '  <!-- authStatus print axios.post(`${base.htgl}/commented`, data) -->',
+    '*/',
+    '<!--',
+    '  authStatus print axios.post(`${base.htgl}/html`, data)',
+    '-->',
+    'const active = getAuthStatus && cardWebsocketPath; reqPrintYH2Order();',
+  ].join('\n');
+  const cues = extractCues('src/views/newFootBar.vue', source);
+  assert.deepEqual(cues, [
+    { kind: 'permission', source: 'src/views/newFootBar.vue:10' },
+    { kind: 'websocket', source: 'src/views/newFootBar.vue:10' },
+    { kind: 'device', source: 'src/views/newFootBar.vue:10' },
+  ]);
+  assert.equal(extractApiCalls('src/views/example.vue', source).length, 0);
+  for (const file of ['src/views/newFootBar.vue:110', 'src/views/authorizationWithNoPwd.vue:14', 'src/views/authorizationWithNoPwd.vue:30', 'src/views/sind.vue:546']) {
+    assert.equal(cues.some((cue) => cue.source === file), false);
+  }
+});
+
 test('ignores routes inside block comments while preserving real source lines', () => {
   const source = [
     '/*',
@@ -127,6 +173,18 @@ test('bounds nested route metadata to each route object', () => {
   ]);
 });
 
+test('extracts compact routes and parent properties after children without child bleed', () => {
+  const source = [
+    "{path:'/compact',name:'compact',component:()=>import('@/views/Compact.vue'),meta:{title:'紧凑'}},",
+    "{path:'/ordered',children:[{path:'/nested',meta:{title:'子'},component:()=>import('@/views/Nested.vue')}],component:()=>import('@/views/Ordered.vue'),meta:{title:'父'}},",
+  ].join('\n');
+  assert.deepEqual(extractRoutes('src/router/example.js', source), [
+    { path: '/compact', name: 'compact', title: '紧凑', component: 'src/views/Compact.vue', source: 'src/router/example.js:1' },
+    { path: '/ordered', title: '父', component: 'src/views/Ordered.vue', source: 'src/router/example.js:2' },
+    { path: '/nested', title: '子', component: 'src/views/Nested.vue', source: 'src/router/example.js:2' },
+  ]);
+});
+
 test('exports only the inventory public API', () => {
   assert.deepEqual(Object.keys(inventoryModule).sort(), [
     'buildInventory', 'extractApiCalls', 'extractCues', 'extractRoutes',
@@ -163,7 +221,7 @@ test('extracts active camel-case cues case-insensitively and ignores comments', 
   ]);
 });
 
-test('traversal excludes generated/vendor files and symlinks', () => {
+test('traversal excludes generated/vendor files and symlinks', (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'inventory-'));
   fs.mkdirSync(path.join(root, 'src', 'api'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src', 'vendor'), { recursive: true });
@@ -175,12 +233,36 @@ test('traversal excludes generated/vendor files and symlinks', () => {
     fs.symlinkSync(path.join(root, 'src', 'api', 'active.js'), path.join(root, 'src', 'link.js'));
   } catch (error) {
     fs.rmSync(root, { recursive: true, force: true });
+    t.skip(`symlink unsupported: ${error.code || error.message}`);
+    return;
+  }
+  try {
+    fs.symlinkSync(path.join(root, 'src', 'api'), path.join(root, 'src', 'nested-link'));
+  } catch (error) {
+    fs.rmSync(root, { recursive: true, force: true });
+    t.skip(`nested symlink unsupported: ${error.code || error.message}`);
     return;
   }
   const inventory = buildInventory(root);
   assert.deepEqual(inventory.apiModules, ['src/api/active.js']);
   assert.deepEqual(inventory.vueFiles, []);
   fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('rejects a symlinked top-level src directory', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'inventory-root-'));
+  const realSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'inventory-src-'));
+  try {
+    fs.symlinkSync(realSrc, path.join(root, 'src'));
+  } catch (error) {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(realSrc, { recursive: true, force: true });
+    t.skip(`symlink unsupported: ${error.code || error.message}`);
+    return;
+  }
+  assert.throws(() => buildInventory(root), /src directory must be real and contained/);
+  fs.rmSync(root, { recursive: true, force: true });
+  fs.rmSync(realSrc, { recursive: true, force: true });
 });
 
 test('builds a stable repository inventory without generated metadata', () => {
@@ -191,8 +273,8 @@ test('builds a stable repository inventory without generated metadata', () => {
   assert.ok(inventory.routes.some((route) => route.path === '/moneyCard'));
   assert.ok(inventory.apiCalls.some((call) => call.path === '/auth/login'));
   assert.equal(Object.hasOwn(inventory, 'generatedAt'), false);
-  const generated = JSON.parse(fs.readFileSync(
+  const generatedText = fs.readFileSync(
     path.join(process.cwd(), 'migration/flutter/generated/source-inventory.json'), 'utf8',
-  ));
-  assert.deepEqual(generated, inventory);
+  );
+  assert.equal(generatedText, `${JSON.stringify(inventory, null, 2)}\n`);
 });

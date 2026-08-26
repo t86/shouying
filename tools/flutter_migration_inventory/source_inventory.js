@@ -13,35 +13,72 @@ function sourceLine(file, line) {
   return `${file}:${line}`;
 }
 
-function withoutBlockComments(source) {
-  return source.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
+function maskComments(source) {
+  const result = source.split('');
+  let state = 'normal';
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index];
+    const next = source[index + 1];
+    if (state === 'normal') {
+      if (source.startsWith('<!--', index)) { state = 'html'; result[index] = result[index + 1] = result[index + 2] = result[index + 3] = ' '; index += 3; }
+      else if (character === '/' && next === '/') { state = 'line'; result[index] = result[index + 1] = ' '; index += 1; }
+      else if (character === '/' && next === '*') { state = 'block'; result[index] = result[index + 1] = ' '; index += 1; }
+      else if (character === "'") state = 'single';
+      else if (character === '"') state = 'double';
+      else if (character === '`') state = 'template';
+    } else if (state === 'line') {
+      if (character === '\n') state = 'normal'; else result[index] = ' ';
+    } else if (state === 'block') {
+      if (character === '*' && next === '/') { result[index] = result[index + 1] = ' '; index += 1; state = 'normal'; }
+      else if (character !== '\n') result[index] = ' ';
+    } else if (state === 'html') {
+      if (source.startsWith('-->', index)) { result[index] = result[index + 1] = result[index + 2] = ' '; index += 2; state = 'normal'; }
+      else if (character !== '\n') result[index] = ' ';
+    } else if ((state === 'single' || state === 'double') && character === '\\') {
+      index += 1;
+    } else if (state === 'single' && character === "'") state = 'normal';
+    else if (state === 'double' && character === '"') state = 'normal';
+    else if (state === 'template' && character === '`') state = 'normal';
+  }
+  return result.join('');
 }
 
-function withoutComments(source) {
-  return withoutBlockComments(source).replace(/(^|\n)[ \t]*\/\/[^\n]*/g, (comment, prefix) => `${prefix}${' '.repeat(comment.length - prefix.length)}`);
+function maskLiterals(source) {
+  return source.replace(/(['"`])(?:\\.|(?!\1)[\s\S])*\1/g, (literal) => literal.replace(/[^\n]/g, ' '));
+}
+
+function maskChildren(source) {
+  const child = source.search(/\bchildren\s*:/);
+  if (child < 0) return source;
+  const start = source.indexOf('[', child);
+  if (start < 0) return source;
+  let depth = 0;
+  for (let index = start; index < source.length; index += 1) {
+    if (source[index] === '[') depth += 1;
+    else if (source[index] === ']') {
+      depth -= 1;
+      if (depth === 0) return `${source.slice(0, start)}${source.slice(start, index + 1).replace(/[^\n]/g, ' ')}${source.slice(index + 1)}`;
+    }
+  }
+  return source;
 }
 
 function extractRoutes(file, source) {
-  const lines = withoutComments(source).split('\n');
+  const masked = maskComments(source);
+  const structure = maskLiterals(masked);
   const routes = [];
-  let depth = 0;
-  for (let index = 0; index < lines.length; index += 1) {
-    const depthBefore = depth;
-    const pathMatch = lines[index].match(/^\s*path:\s*['"`]([^'"`]*)['"`]/);
-    if (!pathMatch) {
-      depth += (lines[index].match(/{/g) || []).length - (lines[index].match(/}/g) || []).length;
-      continue;
-    }
-    const routeDepth = depthBefore;
-    let scanDepth = depthBefore;
-    let end = index;
-    for (; end < lines.length; end += 1) {
-      scanDepth += (lines[end].match(/{/g) || []).length - (lines[end].match(/}/g) || []).length;
-      if (end > index && scanDepth < routeDepth) break;
-    }
-    let window = lines.slice(index, end + 1).join('\n');
-    const childrenStart = window.search(/\bchildren\s*:/);
-    if (childrenStart >= 0) window = window.slice(0, childrenStart);
+  const ranges = [];
+  const stack = [];
+  for (let index = 0; index < structure.length; index += 1) {
+    if (structure[index] === '{') stack.push(index);
+    else if (structure[index] === '}' && stack.length) ranges.push({ start: stack.pop(), end: index });
+  }
+  const pathPattern = /\bpath:\s*['"`]([^'"`]*)['"`]/g;
+  let pathMatch;
+  while ((pathMatch = pathPattern.exec(masked))) {
+    const object = ranges.filter((range) => range.start < pathMatch.index && range.end > pathMatch.index).sort((a, b) => b.start - a.start)[0];
+    if (!object) continue;
+    const window = maskChildren(masked.slice(object.start, object.end + 1));
     const nameMatch = window.match(/\bname:\s*['"`]([^'"`]*)['"`]/);
     const titleMatch = window.match(/\btitle:\s*['"`]([^'"`]*)['"`]/);
     const componentMatch = window.match(/['"`](@\/[^'"`]+\.vue)/);
@@ -51,16 +88,15 @@ function extractRoutes(file, source) {
       ...(nameMatch ? { name: nameMatch[1] } : {}),
       ...(titleMatch ? { title: titleMatch[1] } : {}),
       component: toSourcePath(componentMatch[1]),
-      source: sourceLine(file, index + 1),
+      source: sourceLine(file, lineNumber(source, pathMatch.index)),
     });
-    depth += (lines[index].match(/{/g) || []).length - (lines[index].match(/}/g) || []).length;
   }
   return routes;
 }
 
 function extractApiCalls(file, source) {
   const calls = [];
-  const masked = withoutComments(source);
+  const masked = maskComments(source);
   const declarations = [];
   const declarationPattern = /^\s*([A-Za-z_$][\w$]*)\s*:\s*(?:(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>|\([^)]*\)\s*\{)/gm;
   let declaration;
@@ -68,8 +104,9 @@ function extractApiCalls(file, source) {
     declarations.push({ symbol: declaration[1], offset: declaration.index });
   }
   const methodPattern = /^\s*([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{/gm;
+  const reserved = new Set(['if', 'for', 'while', 'switch', 'catch', 'try', 'finally', 'with']);
   while ((declaration = methodPattern.exec(masked))) {
-    declarations.push({ symbol: declaration[1], offset: declaration.index });
+    if (!reserved.has(declaration[1])) declarations.push({ symbol: declaration[1], offset: declaration.index });
   }
   declarations.sort((left, right) => left.offset - right.offset);
   const expression = /(?:axios\.)?(binaryFilePost|binaryFileGet|post|get)\s*\(\s*`\$\{base\.([A-Za-z0-9_$]+)\}([^`]*)`/g;
@@ -96,7 +133,7 @@ function extractCues(file, source) {
     ['websocket', /websocket/i],
     ['device', /atool|startqrcodescan|card_scan|print/i],
   ];
-  withoutComments(source).split('\n').forEach((line, index) => {
+  maskLiterals(maskComments(source)).split('\n').forEach((line, index) => {
     rules.forEach(([kind, pattern]) => {
       if (pattern.test(line)) cues.push({ kind, source: sourceLine(file, index + 1) });
     });
@@ -117,6 +154,11 @@ function walk(directory, root, files = []) {
 
 function buildInventory(root) {
   const sourceRoot = path.join(root, 'src');
+  const rootReal = fs.realpathSync(root);
+  const sourceStat = fs.lstatSync(sourceRoot);
+  if (sourceStat.isSymbolicLink() || fs.realpathSync(sourceRoot) !== path.join(rootReal, 'src')) {
+    throw new Error('src directory must be real and contained');
+  }
   const files = walk(sourceRoot, root).sort();
   const vueFiles = files.filter((file) => file.endsWith('.vue'));
   const routes = [];
