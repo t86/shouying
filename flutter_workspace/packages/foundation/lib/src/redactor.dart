@@ -63,7 +63,9 @@ abstract final class Redactor {
         return null;
       }
       final digits = value.toString();
-      if (value is int && RegExp(r'^\d{11}$').hasMatch(digits)) return _phone;
+      if (value is int && RegExp(r'^1[3-9]\d{9}$').hasMatch(digits)) {
+        return _phone;
+      }
       if (value is int && RegExp(r'^\d{16,}$').hasMatch(digits)) {
         return _sensitiveDigits;
       }

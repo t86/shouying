@@ -204,6 +204,8 @@ void main() {
       'phone': '+86 138 0013 8000',
       'note': '+8613800138000 and 138-0013-8000',
       'numericPhone': 13800138000,
+      'timestamp11': 20260826123,
+      'amount11': 12000000000,
       'long': 1234567890123456,
       'amount': 120000,
       'timestamp': 2026082612345,
@@ -212,6 +214,8 @@ void main() {
     expect(text, isNot(contains('138-0013-8000')));
     expect(text, isNot(contains('13800138000')));
     expect(text, contains('120000'));
+    expect(text, contains('20260826123'));
+    expect(text, contains('12000000000'));
     expect(text, contains('2026082612345'));
     expect(text, contains('[PHONE]'));
     expect(text, contains('[SENSITIVE_DIGITS]'));
