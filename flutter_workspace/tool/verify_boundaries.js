@@ -2,26 +2,40 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SKIP = new Set(['.dart_tool', 'build', 'generated', 'vendor', 'node_modules']);
+const SKIP = new Set(['.dart_tool', 'build', 'vendor', 'node_modules']);
 
 function tokenize(source) {
-  const tokens = []; let i = 0; let blockDepth = 0;
-  const line = (at) => lineAt(source, at);
+  const tokens = []; let i = 0; let blockDepth = 0; let currentLine = 1;
+  const advance = (start) => { currentLine += (source.slice(start, i).match(/\n/g) || []).length; };
   while (i < source.length) {
-    if (source.startsWith('//', i)) { i = source.indexOf('\n', i + 2); if (i < 0) break; continue; }
-    if (source.startsWith('/*', i)) { blockDepth = 1; i += 2; while (i < source.length && blockDepth) { if (source.startsWith('/*', i)) { blockDepth += 1; i += 2; } else if (source.startsWith('*/', i)) { blockDepth -= 1; i += 2; } else i += 1; } continue; }
+    if (source.startsWith('//', i)) { const start = i; i = source.indexOf('\n', i + 2); if (i < 0) break; advance(start); continue; }
+    if (source.startsWith('/*', i)) { const start = i; blockDepth = 1; i += 2; while (i < source.length && blockDepth) { if (source.startsWith('/*', i)) { blockDepth += 1; i += 2; } else if (source.startsWith('*/', i)) { blockDepth -= 1; i += 2; } else i += 1; } advance(start); continue; }
     const start = i; const raw = source[i] === 'r' && (source[i + 1] === "'" || source[i + 1] === '"');
     const quoteAt = raw ? i + 1 : i;
     if (source[quoteAt] === "'" || source[quoteAt] === '"') {
       const quote = source[quoteAt]; const triple = source.slice(quoteAt, quoteAt + 3) === quote.repeat(3); const endMark = triple ? quote.repeat(3) : quote;
       i = quoteAt + endMark.length; let value = '';
-      while (i < source.length && !source.startsWith(endMark, i)) { if (source[i] === '\\' && !raw) { value += source[i + 1] || ''; i += 2; } else { value += source[i]; i += 1; } }
-      i += endMark.length; tokens.push({ type: 'string', value, start, line: line(start) }); continue;
+      while (i < source.length && !source.startsWith(endMark, i)) {
+        if (!raw && source.startsWith('${', i)) { i = skipInterpolation(source, i + 2); continue; }
+        if (source[i] === '\\' && !raw) { value += source[i]; value += source[i + 1] || ''; i += 2; } else { value += source[i]; i += 1; }
+      }
+      i += endMark.length; tokens.push({ type: 'string', value, raw, start, line: currentLine }); advance(start); continue;
     }
-    if (/[A-Za-z_$]/.test(source[i])) { i += 1; while (i < source.length && /[\w$]/.test(source[i])) i += 1; tokens.push({ type: 'word', value: source.slice(start, i), start, line: line(start) }); continue; }
-    tokens.push({ type: 'punct', value: source[i], start, line: line(start) }); i += 1;
+    if (/[A-Za-z_$]/.test(source[i])) { i += 1; while (i < source.length && /[\w$]/.test(source[i])) i += 1; tokens.push({ type: 'word', value: source.slice(start, i), start, line: currentLine }); advance(start); continue; }
+    tokens.push({ type: 'punct', value: source[i], start, line: currentLine }); i += 1; advance(start);
   }
   return tokens;
+}
+
+function skipInterpolation(source, i) {
+  let depth = 1;
+  while (i < source.length && depth) {
+    if (source.startsWith('//', i)) { i = source.indexOf('\n', i + 2); if (i < 0) return source.length; continue; }
+    if (source.startsWith('/*', i)) { const end = source.indexOf('*/', i + 2); i = end < 0 ? source.length : end + 2; continue; }
+    if (source[i] === "'" || source[i] === '"') { const q = source[i]; i += 1; while (i < source.length && source[i] !== q) { if (source[i] === '\\') i += 2; else i += 1; } i += 1; continue; }
+    if (source[i] === '{') depth += 1; else if (source[i] === '}') depth -= 1; i += 1;
+  }
+  return i;
 }
 
 function directives(source) {
@@ -29,8 +43,17 @@ function directives(source) {
   for (let i = 0; i < tokens.length; i += 1) {
     if (tokens[i].type !== 'word' || !['import', 'export'].includes(tokens[i].value)) continue;
     const uris = []; let end = i + 1;
-    for (; end < tokens.length && tokens[end].value !== ';'; end += 1) if (tokens[end].type === 'string') uris.push(tokens[end]);
-    if (uris.length) found.push(...uris.map((uri) => ({ uri: uri.value, line: tokens[i].line, start: tokens[i].start })));
+    while (end < tokens.length && tokens[end].value !== ';') {
+      if (tokens[end].type === 'string' && !uris.length) uris.push(tokens[end]);
+      if (tokens[end].type === 'word' && tokens[end].value === 'if') {
+        let cursor = end + 1; let depth = 0;
+        while (cursor < tokens.length && tokens[cursor].value !== ';') { if (tokens[cursor].value === '(') depth += 1; else if (tokens[cursor].value === ')') { depth -= 1; if (!depth) { cursor += 1; break; } } cursor += 1; }
+        while (tokens[cursor]?.type === 'punct' && /\s/.test(tokens[cursor].value)) cursor += 1;
+        if (tokens[cursor]?.type === 'string') uris.push(tokens[cursor]);
+      }
+      end += 1;
+    }
+    if (uris.length) found.push(...uris.map((uri) => ({ uri: uri.raw ? uri.value : uri.value.replace(/\\u\{?([0-9a-fA-F]+)\}?/g, (_, code) => String.fromCodePoint(parseInt(code, 16))), line: tokens[i].line, start: tokens[i].start })));
     i = end;
   }
   return found;
@@ -92,13 +115,16 @@ function findBoundaryViolations(root) {
       }
       if (/^package:/.test(specifier)) {
         const parsed = /^package:([^/]+)\/(.*)$/.exec(specifier);
+        const targetPackage = parsed && packageByName.get(parsed[1]);
         if (parsed && member?.kind === 'packages' && appNames.has(parsed[1])) rule = 'package-boundary';
-        if (parsed && parsed[2].startsWith('src/') && (!member || packageByName.get(parsed[1]) !== member)) rule = 'package-boundary';
-      } else if (member && (specifier.startsWith('.') || specifier.startsWith('/'))) {
+        if (parsed && targetPackage && member && targetPackage !== member && parsed[2] !== `${parsed[1]}.dart`) rule = 'package-boundary';
+        if (parsed && parsed[2].startsWith('src/') && (!member || targetPackage !== member)) rule = 'package-boundary';
+      } else if (/^(?:file:|[A-Za-z]:[\\/]|\\\\|\/)/.test(specifier)) {
+        rule = 'package-boundary';
+      } else if (member && specifier.startsWith('.')) {
         const target = path.resolve(path.dirname(file), specifier);
         const targetMember = members.find((m) => target === m.root || target.startsWith(`${m.root}${path.sep}`));
-        if (targetMember?.kind === 'apps' && member.kind === 'packages') rule = 'package-boundary';
-        if (targetMember && targetMember !== member && target.startsWith(`${targetMember.lib}${path.sep}src${path.sep}`)) rule = 'package-boundary';
+        if (!targetMember || targetMember !== member) rule = 'package-boundary';
         if (isPresentation && targetMember === member && target.includes(`${path.sep}presentation${path.sep}`) && target.includes(`${path.sep}src${path.sep}`)) {
           const sourceParts = path.relative(member.lib, file).split(path.sep);
           const targetParts = path.relative(member.lib, target).split(path.sep);
@@ -109,7 +135,7 @@ function findBoundaryViolations(root) {
     }
   }
   const unique = new Map(results.map((item) => [`${item.file}\0${item.line}\0${item.rule}\0${item.import}`, item]));
-  return [...unique.values()].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.rule.localeCompare(b.rule));
+  return [...unique.values()].sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line || (a.rule < b.rule ? -1 : a.rule > b.rule ? 1 : 0)));
 }
 
 if (require.main === module) {

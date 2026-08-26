@@ -21,6 +21,7 @@ function violations(files) { return findBoundaryViolations(workspace(files)); }
 
 test('rejects forbidden domain dependencies and relative layers', () => {
   const found = violations({
+    'packages/other/pubspec.yaml': 'name: other\n',
     'packages/foundation/lib/domain/model.dart': [
       "import 'package:flutter/material.dart';", "import 'package:flutter_riverpod/flutter_riverpod.dart';",
       "import 'package:dio/dio.dart';", "import '../data/repository.dart';", "import '../presentation/view.dart';",
@@ -69,6 +70,7 @@ test('ignores comments and strings, and parses multiline single/double directive
 
 test('ignores raw and triple strings, nested comments, and checks conditional URIs', () => {
   const found = violations({
+    'packages/foundation/pubspec.yaml': 'name: foundation\n',
     'packages/foundation/lib/domain/a.dart': [
       "final a = r'import \'package:dio/dio.dart\';';",
       "final b = ''' export 'package:flutter/material.dart'; ''';",
@@ -79,8 +81,9 @@ test('ignores raw and triple strings, nested comments, and checks conditional UR
   assert.deepEqual(found.map((item) => item.import), ['package:dio/dio.dart']);
 });
 
-test('allows package data paths and same-feature src, rejects cross-package public internals', () => {
+test('rejects package data paths and cross-package internals while allowing same-feature src', () => {
   const found = violations({
+    'packages/other/pubspec.yaml': 'name: other\n',
     'packages/foundation/lib/presentation/feature/src/view.dart': [
       "import './private.dart';",
       "import 'package:other/data/value.dart';",
@@ -88,17 +91,68 @@ test('allows package data paths and same-feature src, rejects cross-package publ
     ].join('\n'),
     'packages/other/lib/other.dart': 'library;\n',
   });
-  assert.deepEqual(found.map((item) => item.import), ['package:other/src/private.dart']);
+  assert.deepEqual(found.map((item) => item.import), ['package:other/data/value.dart', 'package:other/src/private.dart']);
 });
 
-test('allows public package data and presentation paths from a domain file', () => {
+test('rejects public package data and presentation layers from a domain file', () => {
   const found = violations({
+    'packages/other/pubspec.yaml': 'name: other\n',
     'packages/foundation/lib/domain/model.dart': [
       "import 'package:other/data/value.dart';",
       "import 'package:other/presentation/value.dart';",
     ].join('\n'),
   });
+  assert.deepEqual(found.map((item) => item.import), ['package:other/data/value.dart', 'package:other/presentation/value.dart']);
+});
+
+test('enforces exact public entrypoints and rejects normalized URI bypasses', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/model.dart': [
+      "import 'package:other/other.dart';",
+      "import 'package:other/extra.dart';",
+      "import 'package:other/src/private.dart';",
+      "import 'package:other/data/value.dart';",
+      "import 'package:other/presentation/value.dart';",
+      "import 'package:\\u0064io/dio.dart';",
+      "import 'file:///tmp/a.dart';",
+    ].join('\n'),
+    'packages/other/lib/other.dart': 'library;\n',
+  });
+  assert.deepEqual(found.map((item) => item.import), [
+    'package:other/extra.dart', 'package:other/src/private.dart',
+    'package:other/data/value.dart', 'package:other/presentation/value.dart',
+    'package:dio/dio.dart', 'file:///tmp/a.dart',
+  ]);
+});
+
+test('rejects cross-member and outside relative paths and scans generated directories', () => {
+  const found = violations({
+    'packages/a/lib/domain/model.dart': "import '../../../b/lib/extra.dart';\nimport '../../../outside.dart';\n",
+    'packages/b/lib/extra.dart': 'library;\n',
+    'packages/a/lib/generated/domain/generated.dart': "import 'package:dio/dio.dart';\n",
+  });
+  assert.equal(found.length, 3);
+  assert.ok(found.some((item) => item.file.includes('generated/domain')));
+});
+
+test('ignores import-looking text in interpolated Dart strings', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/model.dart': [
+      'final value = "${foo("import \'package:dio/dio.dart\';")}";',
+      'final nested = "${foo("${bar(\'import \\\'package:dio/dio.dart\\\';\')}")}";',
+      'final raw = r"import \'package:dio/dio.dart\';";',
+      'final triple = \'\'\'import \'package:dio/dio.dart\';\'\'\';',
+    ].join('\n'),
+  });
   assert.deepEqual(found, []);
+});
+
+test('handles large source with linear line tracking', () => {
+  const lines = Array.from({ length: 200000 }, () => 'final value = 1;').join('\n');
+  const root = workspace({ 'packages/foundation/lib/domain/model.dart': `${lines}\nimport 'package:dio/dio.dart';\n` });
+  const found = findBoundaryViolations(root);
+  assert.equal(found.length, 1);
+  assert.equal(found[0].line, 200001);
 });
 
 test('sorts violations by file, line, and rule without duplicates', () => {
