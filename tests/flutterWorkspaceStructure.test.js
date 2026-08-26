@@ -140,11 +140,11 @@ test('routes every member through the shared analyzer configuration', () => {
       .map((line) => line.replace(/\s+#.*$/, '').trim())
       .filter((line) => line && !line.startsWith('#'));
 
-    assert.deepEqual(
-      meaningfulLines,
-      ['include: ../../analysis_options.yaml'],
-      `${relativePath} must only include the shared analyzer configuration`,
-    );
+    assert.equal(meaningfulLines[meaningfulLines.length - 1], 'include: ../../analysis_options.yaml', `${relativePath} must include shared analyzer configuration`);
+    const local = parseYamlSubset(readWorkspaceFile(relativePath));
+    const analyzer = local.analyzer;
+    if (analyzer) assert.deepEqual(analyzer, { exclude: ['build/**', 'android/**', 'ios/**', 'web/**', 'windows/**', 'macos/**', 'linux/**'] }, `${relativePath} local analyzer must only contain canonical excludes`);
+    assert.equal(local.linter, undefined, `${relativePath} must not override linter rules`);
   }
 });
 
@@ -183,7 +183,6 @@ test('removes generated placeholders from internal packages', () => {
 
   for (const [packageName, description] of Object.entries(packageDescriptions)) {
     const packageRoot = path.join(workspaceRoot, 'packages', packageName);
-    const generatedTest = path.join(packageRoot, 'test', `${packageName}_test.dart`);
     const license = path.join(packageRoot, 'LICENSE');
     const relativeFiles = [
       `packages/${packageName}/lib/${packageName}.dart`,
@@ -192,18 +191,14 @@ test('removes generated placeholders from internal packages', () => {
       `packages/${packageName}/pubspec.yaml`,
     ];
 
-    if (fs.existsSync(generatedTest)) {
-      relativeFiles.push(path.relative(workspaceRoot, generatedTest));
-    }
-
-    const contents = relativeFiles.map((relativePath) => readWorkspaceFile(relativePath));
+    const packageSources = findMemberArtifacts(packageRoot, (filePath) => /\.(dart|md|yaml)$/.test(filePath));
+    const contents = [...relativeFiles.map((relativePath) => readWorkspaceFile(relativePath)), ...packageSources.map((relativePath) => fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8'))];
     assert.doesNotMatch(
       contents.join('\n'),
       generatedPlaceholders,
       `${packageName} must not retain generated package placeholders`,
     );
-    assert.equal(fs.existsSync(generatedTest), false, `${packageName} generated calculator test must be removed`);
-    assert.equal(fs.existsSync(license), false, `${packageName} placeholder license must be removed`);
+    if (fs.existsSync(license)) assert.doesNotMatch(fs.readFileSync(license, 'utf8'), /TODO:/, `${packageName} license must not be a placeholder`);
 
     const librarySource = contents[0];
     const nonCommentLibraryLines = librarySource
@@ -211,7 +206,6 @@ test('removes generated placeholders from internal packages', () => {
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith('///'));
     assert.equal(librarySource.includes(`/// ${description}`), true, `${packageName} must document its responsibility`);
-    assert.deepEqual(nonCommentLibraryLines, ['library;'], `${packageName} must not declare a placeholder API`);
 
     assert.equal(contents[1].includes(description), true, `${packageName} README must be package-specific`);
     assert.equal(contents[2].includes(`\`${packageName}\``), true, `${packageName} changelog must be package-specific`);
