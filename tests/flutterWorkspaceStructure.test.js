@@ -82,22 +82,15 @@ test('declares a native Pub workspace with the required SDK range', () => {
 });
 
 test('keeps Flutter 3.47 analyzer exclusions stable', () => {
-  assert.equal(
-    readWorkspaceFile('analysis_options.yaml'),
-    [
-      'analyzer:',
-      '  exclude:',
-      '    - build/**',
-      '    - android/**',
-      '    - ios/**',
-      '    - web/**',
-      '    - windows/**',
-      '    - macos/**',
-      '    - linux/**',
-      'include: package:flutter_lints/flutter.yaml',
-      '',
-    ].join('\n'),
-  );
+  const options = readWorkspaceFile('analysis_options.yaml');
+  const optionLines = options.split('\n').map((line) => line.trim());
+  for (const entry of ['build/**', 'android/**', 'ios/**', 'web/**', 'windows/**', 'macos/**', 'linux/**']) {
+    assert.equal(optionLines.includes(`- ${entry}`), true, `${entry} must be excluded`);
+  }
+  assert.match(options, /^include:\s*package:flutter_lints\/flutter\.yaml\s*$/m);
+  for (const rule of ['avoid_print', 'cancel_subscriptions', 'close_sinks', 'discarded_futures', 'unawaited_futures', 'use_build_context_synchronously', 'always_use_package_imports']) {
+    assert.equal(optionLines.includes(`${rule}: true`), true, `${rule} must be enabled`);
+  }
 });
 
 test('routes every member through the shared analyzer configuration', () => {
