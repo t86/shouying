@@ -148,9 +148,9 @@ void main() {
     expect(hostile.calls, 0);
   });
 
-  test('uses identity for cycles and serializes equal distinct iterables', () {
-    final first = _EqualIterable([1]);
-    final second = _EqualIterable([2]);
+  test('uses identity for cycles and serializes shared JSON lists', () {
+    final first = [1];
+    final second = [2];
     final shared = [3];
     final cyclic = <dynamic>[];
     cyclic.add(cyclic);
@@ -166,6 +166,85 @@ void main() {
     expect(text, contains('"a":[3]'));
     expect(text, contains('"b":[3]'));
     expect(text, contains('[CIRCULAR]'));
+  });
+
+  test('covers audited sensitive keys, exact negatives, and safe keys', () {
+    final text = Redactor.redact({
+      for (final key in [
+        'token',
+        'verify_token',
+        'verification_token',
+        'access_token',
+        'refresh_token',
+        'phone_num',
+        'mobile_phone',
+        'cust_phone',
+        'cust_phone_num',
+        'customer_phone',
+        'card_no',
+        'bank_card',
+        'pay_code',
+        'payCode',
+      ])
+        key: 'secret',
+      'tokenCount': 'visible',
+      'phoneModel': 'visible',
+      'cardNote': 'visible',
+      '13800138000': 'visible',
+      '138-0013-8000': 'visible',
+    });
+    expect(RegExp(r'"secret"').hasMatch(text), isFalse);
+    expect(text, contains('visible'));
+    expect(text, isNot(contains('13800138000')));
+    expect(text, isNot(contains('138-0013-8000')));
+  });
+
+  test('masks numeric secrets and international phone formats', () {
+    final text = Redactor.redact({
+      'phone': '+86 138 0013 8000',
+      'note': '+8613800138000 and 138-0013-8000',
+      'numericPhone': 13800138000,
+      'long': 1234567890123456,
+      'amount': 120000,
+      'timestamp': 2026082612345,
+    });
+    expect(text, isNot(contains('13800138000')));
+    expect(text, isNot(contains('138-0013-8000')));
+    expect(text, isNot(contains('13800138000')));
+    expect(text, contains('120000'));
+    expect(text, contains('2026082612345'));
+    expect(text, contains('[PHONE]'));
+    expect(text, contains('[SENSITIVE_DIGITS]'));
+  });
+
+  test('does not traverse general Iterable', () {
+    final hostile = _InfiniteIterable();
+    final text = Redactor.redact(hostile);
+    expect(text, '"[UNSUPPORTED]"');
+    expect(hostile.iteratorCalls, 0);
+  });
+
+  test('enforces depth, collection, string, node, and output budgets', () {
+    dynamic nested = 'end';
+    for (var i = 0; i < 25; i++) {
+      nested = [nested];
+    }
+    expect(Redactor.redact(nested), contains('[MAX_DEPTH]'));
+    expect(
+      Redactor.redact(List<int>.filled(250, 1)),
+      contains('[COLLECTION_TRUNCATED]'),
+    );
+    expect(Redactor.redact('a' * 5000), contains('[STRING_TRUNCATED]'));
+    expect(
+      Redactor.redact(
+        List<List<int>>.generate(200, (_) => List<int>.filled(5, 1)),
+      ),
+      contains('[NODE_LIMIT]'),
+    );
+    expect(
+      Redactor.redact(List<String>.filled(200, 'x' * 200)),
+      contains('[OUTPUT_TRUNCATED]'),
+    );
   });
 
   test('masks free text and produces stable output', () {
@@ -205,16 +284,12 @@ final class _Hostile {
   }
 }
 
-final class _EqualIterable extends Iterable<Object?> {
-  _EqualIterable(this.items);
-  final List<Object?> items;
+final class _InfiniteIterable extends Iterable<Object?> {
+  int iteratorCalls = 0;
 
   @override
-  Iterator<Object?> get iterator => items.iterator;
-
-  @override
-  bool operator ==(Object other) => other is _EqualIterable;
-
-  @override
-  int get hashCode => 1;
+  Iterator<Object?> get iterator {
+    iteratorCalls++;
+    throw StateError('must not iterate');
+  }
 }
