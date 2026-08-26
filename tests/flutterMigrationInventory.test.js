@@ -340,7 +340,7 @@ function writeLedgerFixture(t, mutate) {
     protocols: [{ id: 'PRO-001', kind: 'http', method: 'GET', path: '/test', request: {}, response: {}, sources: ['src/feature.js'], status: 'defined' }],
     permissions: [],
   };
-  mutate?.(ledgers);
+  mutate?.(ledgers, root);
   for (const [name, data] of Object.entries(ledgers)) {
     fs.writeFileSync(path.join(root, 'migration', 'flutter', `${name}.json`), `${JSON.stringify(data, null, 2)}\n`);
   }
@@ -358,7 +358,7 @@ test('reports missing source files', (t) => {
 });
 
 test('reports unknown protocol and permission references', (t) => {
-  const root = writeLedgerFixture(t, (ledgers) => {
+  const root = writeLedgerFixture(t, (ledgers, fixtureRoot) => {
     ledgers.capabilities[0].protocols = ['PRO-MISSING'];
     ledgers.capabilities[0].permissions = ['PERM-MISSING'];
   });
@@ -562,4 +562,42 @@ test('generator refuses symlinked migration ancestors without touching external 
   const result = generateReport(root);
   assert.equal(result.errors.length > 0, true);
   assert.equal(fs.readdirSync(external).length, 0);
+});
+
+test('invalid source records are excluded and references are invalid', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities[0].protocols = ['PRO-001'];
+    ledgers.protocols[0].sources = ['src/missing.js'];
+  });
+  const result = validateLedgers(root);
+  assert.equal(result.protocolCount, 0);
+  assert.match(result.errors.join('\n'), /protocols\.json\[0\]: PRO-001 source does not exist/);
+  assert.match(result.errors.join('\n'), /references invalid protocol PRO-001/);
+});
+
+test('symlink sources invalidate permission records', (t) => {
+  const root = writeLedgerFixture(t, (ledgers, fixtureRoot) => {
+    ledgers.capabilities[0].permissions = ['PERM-001'];
+    ledgers.permissions.push({ id: 'PERM-001', name: 'linked', sources: ['src/link.js'], status: 'defined', rule: 'x' });
+    try { fs.symlinkSync(path.join(fixtureRoot, 'src', 'feature.js'), path.join(fixtureRoot, 'src', 'link.js')); }
+    catch (error) { t.skip(`symlink unsupported: ${error.code || error.message}`); }
+  });
+  const result = validateLedgers(root);
+  assert.equal(result.permissionCount, 0);
+  assert.match(result.errors.join('\n'), /symlink source path/);
+  assert.match(result.errors.join('\n'), /references invalid permission PERM-001/);
+});
+
+test('duplicate protocol and permission IDs invalidate every duplicate', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.protocols.push({ ...ledgers.protocols[0] });
+    ledgers.permissions.push({ id: 'PERM-001', name: 'one', sources: ['src/feature.js'], status: 'defined', rule: 'x' }, { id: 'PERM-001', name: 'two', sources: ['src/feature.js'], status: 'defined', rule: 'x' });
+    ledgers.capabilities[0].protocols = ['PRO-001'];
+    ledgers.capabilities[0].permissions = ['PERM-001'];
+  });
+  const result = validateLedgers(root);
+  assert.equal(result.protocolCount, 0);
+  assert.equal(result.permissionCount, 0);
+  assert.match(result.errors.join('\n'), /references invalid protocol PRO-001/);
+  assert.match(result.errors.join('\n'), /references invalid permission PERM-001/);
 });

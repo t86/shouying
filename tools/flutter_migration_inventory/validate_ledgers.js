@@ -53,14 +53,14 @@ function protocolFields(record, label, errors) {
 function validateRecords(data, name, type, errors, declared) {
   const records = []; const required = type === 'capability' ? ['domain', 'platforms', 'permissions', 'protocols', 'sources', 'status'] : type === 'protocol' ? ['kind', 'path', 'request', 'response', 'sources', 'status'] : ['name', 'rule', 'sources', 'status'];
   if (!Array.isArray(data)) { errors.push(`${name}: top-level value must be an array`); return records; }
-  const ids = new Set();
+  const ids = new Set(); const duplicateIds = new Set();
   data.forEach((record, index) => {
     const label = `${name}[${index}]`;
     if (!record || typeof record !== 'object' || Array.isArray(record)) { errors.push(`${label}: record must be an object`); return; }
     let valid = true;
     if (typeof record.id !== 'string' || !record.id) { errors.push(`${label}: id must be a non-empty string`); valid = false; }
     else if (!ID_RE.test(record.id) || BAD_TEXT.test(record.id)) { errors.push(`${label}: id must match ${ID_RE} and be single-line ASCII`); valid = false; }
-    else { declared.add(record.id); if (ids.has(record.id)) { errors.push(`${label}: duplicate id ${record.id}`); valid = false; } ids.add(record.id); }
+    else { declared.add(record.id); if (ids.has(record.id)) { errors.push(`${label}: duplicate id ${record.id}`); duplicateIds.add(record.id); valid = false; } ids.add(record.id); }
     required.forEach((field) => { if (!Object.hasOwn(record, field)) { errors.push(`${label}: missing required field ${field}`); valid = false; } });
     if (typeof record.status !== 'string' || !STATUSES.has(record.status)) { errors.push(`${label}: invalid status ${record.status}`); valid = false; }
     if (type === 'capability') {
@@ -80,7 +80,8 @@ function validateRecords(data, name, type, errors, declared) {
     }
     if (valid) { Object.defineProperty(record, '_ledgerIndex', { value: index, enumerable: false }); records.push(record); }
   });
-  return records;
+  Object.defineProperty(records, '_duplicateIds', { value: duplicateIds });
+  return records.filter((record) => !duplicateIds.has(record.id));
 }
 
 function sourceError(root, source) {
@@ -98,7 +99,11 @@ function sourceError(root, source) {
   return null;
 }
 
-function validateSources(records, name, root, errors) { records.forEach((record) => record.sources.forEach((source) => { const reason = sourceError(root, source); if (reason) errors.push(`${name}[${record._ledgerIndex}]: ${record.id} ${reason}: ${source}`); })); }
+function validateSources(records, name, root, errors) {
+  const valid = new Set();
+  records.forEach((record) => { let recordValid = true; record.sources.forEach((source) => { const reason = sourceError(root, source); if (reason) { errors.push(`${name}[${record._ledgerIndex}]: ${record.id} ${reason}: ${source}`); recordValid = false; } }); if (recordValid) valid.add(record.id); });
+  return valid;
+}
 
 function trustPath(root, target) {
   const base = path.resolve(root); const absolute = path.resolve(target); const relative = path.relative(base, absolute);
@@ -115,10 +120,10 @@ function validateLedgers(root, options = {}) {
   const capabilities = validateRecords(readJson(path.join(ledgerDir, 'capabilities.json'), errors), 'capabilities.json', 'capability', errors, new Set());
   const protocols = validateRecords(readJson(path.join(ledgerDir, 'protocols.json'), errors), 'protocols.json', 'protocol', errors, declared.protocol);
   const permissions = validateRecords(readJson(path.join(ledgerDir, 'permissions.json'), errors), 'permissions.json', 'permission', errors, declared.permission);
-  validateSources(capabilities, 'capabilities.json', sourceRoot, errors); validateSources(protocols, 'protocols.json', sourceRoot, errors); validateSources(permissions, 'permissions.json', sourceRoot, errors);
-  const validProtocols = new Set(protocols.map((record) => record.id)); const validPermissions = new Set(permissions.map((record) => record.id));
-  capabilities.forEach((record) => { const label = `capabilities.json[${record._ledgerIndex}]`; record.protocols.forEach((id) => { if (!validProtocols.has(id)) errors.push(`${label}: ${record.id} references ${declared.protocol.has(id) ? 'invalid' : 'unknown'} protocol ${id}`); }); record.permissions.forEach((id) => { if (!validPermissions.has(id)) errors.push(`${label}: ${record.id} references ${declared.permission.has(id) ? 'invalid' : 'unknown'} permission ${id}`); }); });
-  return { errors: [...new Set(errors)].sort(), capabilityCount: capabilities.length, protocolCount: protocols.length, permissionCount: permissions.length };
+  const validCapabilityIds = validateSources(capabilities, 'capabilities.json', sourceRoot, errors); const validProtocolIds = validateSources(protocols, 'protocols.json', sourceRoot, errors); const validPermissionIds = validateSources(permissions, 'permissions.json', sourceRoot, errors);
+  const validCapabilities = capabilities.filter((record) => validCapabilityIds.has(record.id)); const validProtocols = protocols.filter((record) => validProtocolIds.has(record.id)); const validPermissions = permissions.filter((record) => validPermissionIds.has(record.id));
+  validCapabilities.forEach((record) => { const label = `capabilities.json[${record._ledgerIndex}]`; record.protocols.forEach((id) => { if (!validProtocolIds.has(id)) errors.push(`${label}: ${record.id} references ${declared.protocol.has(id) ? 'invalid' : 'unknown'} protocol ${id}`); }); record.permissions.forEach((id) => { if (!validPermissionIds.has(id)) errors.push(`${label}: ${record.id} references ${declared.permission.has(id) ? 'invalid' : 'unknown'} permission ${id}`); }); });
+  return { errors: [...new Set(errors)].sort(), capabilityCount: validCapabilities.length, protocolCount: validProtocols.length, permissionCount: validPermissions.length };
 }
 
 if (require.main === module) { const result = validateLedgers(process.cwd()); if (result.errors.length) { process.stderr.write(`${result.errors.join('\n')}\n`); process.exitCode = 1; } else process.stdout.write(`Validated ledgers: capabilities=${result.capabilityCount} protocols=${result.protocolCount} permissions=${result.permissionCount}\n`); }
