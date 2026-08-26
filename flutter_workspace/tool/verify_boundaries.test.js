@@ -91,6 +91,16 @@ test('allows package data paths and same-feature src, rejects cross-package publ
   assert.deepEqual(found.map((item) => item.import), ['package:other/src/private.dart']);
 });
 
+test('allows public package data and presentation paths from a domain file', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/model.dart': [
+      "import 'package:other/data/value.dart';",
+      "import 'package:other/presentation/value.dart';",
+    ].join('\n'),
+  });
+  assert.deepEqual(found, []);
+});
+
 test('sorts violations by file, line, and rule without duplicates', () => {
   const found = violations({
     'packages/z/lib/domain/z.dart': "import 'package:dio/dio.dart';\n",

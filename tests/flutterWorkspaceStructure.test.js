@@ -66,6 +66,45 @@ function findMemberArtifacts(memberRoot, predicate, found = []) {
   return found;
 }
 
+function parseYamlSubset(source) {
+  const root = {};
+  const stack = [{ indent: -1, value: root }];
+  for (const rawLine of source.split('\n')) {
+    const line = rawLine.replace(/\s+#.*$/, '');
+    if (!line.trim()) continue;
+    const indent = line.match(/^\s*/)[0].length;
+    const text = line.trim();
+    while (stack.at(-1).indent >= indent) stack.pop();
+    const parent = stack.at(-1).value;
+    if (text.startsWith('- ')) {
+      assert.equal(Array.isArray(parent), true, `list item must have a list parent: ${text}`);
+      parent.push(text.slice(2));
+      continue;
+    }
+    const separator = text.indexOf(':');
+    assert.notEqual(separator, -1, `unsupported YAML line: ${text}`);
+    const key = text.slice(0, separator).trim();
+    const scalar = text.slice(separator + 1).trim();
+    const value = scalar ? scalar.replace(/^['"]|['"]$/g, '') : (key === 'exclude' ? [] : {});
+    parent[key] = value;
+    stack.push({ indent, value });
+  }
+  return root;
+}
+
+function yamlPath(value, pathParts) {
+  return pathParts.reduce((current, key) => current?.[key], value);
+}
+
+function assertAnalyzerShape(source) {
+  const parsed = parseYamlSubset(source);
+  assert.equal(yamlPath(parsed, ['include']), 'package:flutter_lints/flutter.yaml');
+  assert.deepEqual(yamlPath(parsed, ['analyzer', 'exclude']), ['build/**', 'android/**', 'ios/**', 'web/**', 'windows/**', 'macos/**', 'linux/**']);
+  const rules = yamlPath(parsed, ['linter', 'rules']);
+  assert.equal(typeof rules, 'object');
+  for (const rule of ['avoid_print', 'cancel_subscriptions', 'close_sinks', 'discarded_futures', 'unawaited_futures', 'use_build_context_synchronously', 'always_use_package_imports']) assert.equal(rules[rule], 'true');
+}
+
 test('pins Flutter 3.47.0 for the workspace', () => {
   const fvmConfig = JSON.parse(readWorkspaceFile('.fvmrc'));
   assert.equal(fvmConfig.flutter, '3.47.0');
@@ -83,22 +122,9 @@ test('declares a native Pub workspace with the required SDK range', () => {
 
 test('keeps Flutter 3.47 analyzer exclusions stable', () => {
   const options = readWorkspaceFile('analysis_options.yaml');
-  const optionRows = options.split('\n').map((line) => ({ indent: line.match(/^\s*/)[0].length, text: line.trim() }));
-  const optionLines = optionRows.map((row) => row.text);
-  const rowFor = (text) => optionRows.find((row) => row.text === text);
-  assert.equal(rowFor('include: package:flutter_lints/flutter.yaml').indent, 0);
-  assert.equal(rowFor('analyzer:').indent, 0);
-  assert.equal(rowFor('exclude:').indent, 2);
-  assert.equal(rowFor('linter:').indent, 0);
-  assert.equal(rowFor('rules:').indent, 2);
-  for (const entry of ['build/**', 'android/**', 'ios/**', 'web/**', 'windows/**', 'macos/**', 'linux/**']) {
-    const row = rowFor(`- ${entry}`);
-    assert.equal(row?.indent, 4, `${entry} must be nested under analyzer.exclude`);
-  }
-  assert.match(options, /^include:\s*package:flutter_lints\/flutter\.yaml\s*$/m);
-  for (const rule of ['avoid_print', 'cancel_subscriptions', 'close_sinks', 'discarded_futures', 'unawaited_futures', 'use_build_context_synchronously', 'always_use_package_imports']) {
-    assert.equal(rowFor(`${rule}: true`)?.indent, 4, `${rule} must be nested under linter.rules`);
-  }
+  assertAnalyzerShape(options);
+  assert.throws(() => assertAnalyzerShape('analyzer:\n  errors:\n    - build/**\ninclude: package:flutter_lints/flutter.yaml\nlinter:\n  diagnostics:\n    avoid_print: true\n'), /AssertionError|list item/);
+  assert.throws(() => assertAnalyzerShape('analyzer:\n  exclude:\n    - build/**\ninclude: package:flutter_lints/flutter.yaml\nlinter:\n  rules:\n    avoid_print: true\n'), /AssertionError|strictEqual/);
 });
 
 test('routes every member through the shared analyzer configuration', () => {

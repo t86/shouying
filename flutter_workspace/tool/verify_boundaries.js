@@ -86,7 +86,8 @@ function findBoundaryViolations(root) {
     for (const match of directives(source)) {
       const specifier = match.uri;
       let rule = null;
-      if (isDomain && (/^package:(?:flutter(?:_riverpod)?|dio)\//.test(specifier) || /(?:^|[/\\])(?:data|presentation)(?:[/\\]|$)/.test(specifier))) {
+      const isFileUri = specifier.startsWith('.') || specifier.startsWith('/');
+      if (isDomain && (/^package:(?:flutter(?:_riverpod)?|dio)\//.test(specifier) || (isFileUri && /(?:^|[/\\])(?:data|presentation)(?:[/\\]|$)/.test(specifier)))) {
         rule = 'domain-forbidden-import';
       }
       if (/^package:/.test(specifier)) {
