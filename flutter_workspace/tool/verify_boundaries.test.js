@@ -143,6 +143,18 @@ test('CLI has deterministic success, violation, and invalid-root behavior', () =
     result = childProcess.spawnSync(process.execPath, [script, root], { encoding: 'utf8' });
     assert.equal(result.status, 1); assert.doesNotMatch(result.stderr, / at |stack|Node\.js/); assert.doesNotMatch(result.stdout, / at |stack|Node\.js/);
   }
+  const symlinkRoot = path.join(clean, 'symlink-root');
+  try {
+    fs.symlinkSync(clean, symlinkRoot, 'dir');
+  } catch (error) {
+    if (['EACCES', 'EPERM', 'ENOTSUP'].includes(error.code)) return;
+    throw error;
+  }
+  result = childProcess.spawnSync(process.execPath, [script, symlinkRoot], { encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.equal(result.stderr, 'symlink scan root is not allowed\n');
+  assert.doesNotMatch(result.stderr, /\nat /);
 });
 
 test('skips member directory symlinks and broken symlinks', () => {
