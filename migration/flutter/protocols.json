@@ -1,0 +1,111 @@
+[
+  {
+    "id": "HTTP-TERM-AUTH",
+    "kind": "http",
+    "method": "POST",
+    "path": "/term/auth",
+    "request": {
+      "body": {
+        "code": "string"
+      },
+      "headers": {
+        "tt": "optional string"
+      }
+    },
+    "response": {
+      "when": "code == 1",
+      "data": {
+        "tk": "string",
+        "am": "string",
+        "id": "string",
+        "n": "string"
+      }
+    },
+    "sources": [
+      "src/api/UtilAuth/term/index.js",
+      "src/views/Thelogin/Thelogin.vue"
+    ],
+    "status": "defined"
+  },
+  {
+    "id": "HTTP-AUTH-LOGIN",
+    "kind": "http",
+    "method": "POST",
+    "path": "/auth/login",
+    "request": {
+      "headers": {
+        "tk": "string",
+        "tt": "string"
+      },
+      "body": {
+        "code": "string",
+        "passwd": "uppercase MD5 string",
+        "client_name": "string",
+        "pt": "string"
+      }
+    },
+    "response": "login result",
+    "sources": [
+      "src/api/UtilAuth/auth/index.js",
+      "src/views/Thelogin/Thelogin.vue"
+    ],
+    "status": "defined"
+  },
+  {
+    "id": "HTTP-SYNC-ALL",
+    "kind": "http",
+    "method": "POST",
+    "path": "/sync_base/all",
+    "request": {
+      "headers": {
+        "tk": "string",
+        "tt": "string"
+      }
+    },
+    "response": "full synchronization result",
+    "sources": [
+      "src/api/Book/index.js",
+      "src/websocket/websocket.js"
+    ],
+    "status": "defined"
+  },
+  {
+    "id": "HTTP-SYNC-INCREMENT",
+    "kind": "http",
+    "method": "POST",
+    "path": "/sync_base/increment",
+    "request": {
+      "headers": {
+        "tk": "string",
+        "tt": "string"
+      },
+      "body": {
+        "last_sync_time": "string"
+      }
+    },
+    "response": "incremental synchronization result",
+    "sources": [
+      "src/api/Book/index.js",
+      "src/websocket/websocket.js"
+    ],
+    "status": "defined"
+  },
+  {
+    "id": "WS-SYNC",
+    "kind": "websocket",
+    "path": "{wsBase}/sync",
+    "request": {
+      "firstPayload": "JSON.stringify(tk)",
+      "envelope": {
+        "p": "string",
+        "t": "string",
+        "d": "object"
+      }
+    },
+    "response": "envelope messages",
+    "sources": [
+      "src/websocket/websocket.js"
+    ],
+    "status": "defined"
+  }
+]

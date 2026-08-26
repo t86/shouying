@@ -1,0 +1,95 @@
+[
+  {
+    "id": "AUTH-TERM-001",
+    "name": "终端授权",
+    "domain": "session",
+    "sources": [
+      "src/views/Thelogin/Thelogin.vue",
+      "src/api/UtilAuth/term/index.js"
+    ],
+    "protocols": [
+      "HTTP-TERM-AUTH"
+    ],
+    "permissions": [],
+    "platforms": {
+      "windows": "required",
+      "web": "required",
+      "android": "required"
+    },
+    "status": "defined"
+  },
+  {
+    "id": "AUTH-LOGIN-001",
+    "name": "员工登录",
+    "domain": "session",
+    "sources": [
+      "src/views/Thelogin/Thelogin.vue",
+      "src/api/UtilAuth/auth/index.js"
+    ],
+    "protocols": [
+      "HTTP-AUTH-LOGIN"
+    ],
+    "permissions": [
+      "PERM-ROLE-001"
+    ],
+    "platforms": {
+      "windows": "required",
+      "web": "required",
+      "android": "required"
+    },
+    "status": "defined"
+  },
+  {
+    "id": "SYNC-CONNECT-001",
+    "name": "实时同步连接与恢复",
+    "domain": "realtime_sync",
+    "sources": [
+      "src/websocket/websocket.js",
+      "src/api/Book/index.js"
+    ],
+    "protocols": [
+      "WS-SYNC",
+      "HTTP-SYNC-ALL",
+      "HTTP-SYNC-INCREMENT"
+    ],
+    "permissions": [],
+    "platforms": {
+      "windows": "required",
+      "web": "required",
+      "android": "required"
+    },
+    "status": "defined"
+  },
+  {
+    "id": "DEVICE-SCAN-001",
+    "name": "HID 扫码诊断",
+    "domain": "device",
+    "sources": [
+      "src/mixin/swipingCard.js"
+    ],
+    "protocols": [],
+    "permissions": [],
+    "platforms": {
+      "windows": "required",
+      "web": "degraded",
+      "android": "required"
+    },
+    "status": "defined"
+  },
+  {
+    "id": "DEVICE-PRINT-001",
+    "name": "系统打印测试小票",
+    "domain": "device",
+    "sources": [
+      "src/plugins/print/Print.js"
+    ],
+    "protocols": [],
+    "permissions": [],
+    "platforms": {
+      "windows": "required",
+      "web": "degraded",
+      "android": "required"
+    },
+    "status": "defined"
+  }
+]

@@ -11,6 +11,7 @@ const {
   buildInventory,
 } = require('../tools/flutter_migration_inventory/source_inventory');
 const inventoryModule = require('../tools/flutter_migration_inventory/source_inventory');
+const { validateLedgers } = require('../tools/flutter_migration_inventory/validate_ledgers');
 
 test('extracts a route and its nearby metadata', () => {
   const source = [
@@ -303,4 +304,73 @@ test('builds a stable repository inventory without generated metadata', () => {
     path.join(process.cwd(), 'migration/flutter/generated/source-inventory.json'), 'utf8',
   );
   assert.equal(generatedText, `${JSON.stringify(inventory, null, 2)}\n`);
+});
+
+test('migration ledgers have unique ids, valid source references, and explicit platform scope', () => {
+  const result = validateLedgers(process.cwd());
+  assert.deepEqual(result.errors, []);
+  assert.ok(result.capabilityCount >= 5);
+  assert.ok(result.protocolCount >= 5);
+  assert.ok(result.permissionCount >= 3);
+});
+
+function writeLedgerFixture(t, mutate) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ledgers-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(root, 'migration', 'flutter'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'feature.js'), 'export default {}');
+  const ledgers = {
+    capabilities: [{
+      id: 'CAP-001', domain: 'test', sources: ['src/feature.js'], protocols: ['PRO-001'], permissions: [],
+      platforms: { windows: 'required', web: 'degraded', android: 'required' }, status: 'defined',
+    }],
+    protocols: [{ id: 'PRO-001', kind: 'http', method: 'GET', path: '/test', request: {}, response: {}, sources: ['src/feature.js'], status: 'defined' }],
+    permissions: [],
+  };
+  mutate?.(ledgers);
+  for (const [name, data] of Object.entries(ledgers)) {
+    fs.writeFileSync(path.join(root, 'migration', 'flutter', `${name}.json`), `${JSON.stringify(data, null, 2)}\n`);
+  }
+  return root;
+}
+
+test('reports duplicate IDs with ledger and ID', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => { ledgers.capabilities.push({ ...ledgers.capabilities[0] }); });
+  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json: duplicate id CAP-001/);
+});
+
+test('reports missing source files', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => { ledgers.capabilities[0].sources = ['src/missing.js']; });
+  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json: CAP-001 source does not exist: src\/missing\.js/);
+});
+
+test('reports unknown protocol and permission references', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities[0].protocols = ['PRO-MISSING'];
+    ledgers.capabilities[0].permissions = ['PERM-MISSING'];
+  });
+  const errors = validateLedgers(root).errors.join('\n');
+  assert.match(errors, /CAP-001 references unknown protocol PRO-MISSING/);
+  assert.match(errors, /CAP-001 references unknown permission PERM-MISSING/);
+});
+
+test('reports missing and invalid platform scope', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    delete ledgers.capabilities[0].platforms.web;
+    ledgers.capabilities[0].platforms.windows = 'maybe';
+  });
+  const errors = validateLedgers(root).errors.join('\n');
+  assert.match(errors, /CAP-001 platforms must contain exactly windows, web, android/);
+  assert.match(errors, /CAP-001 platform windows has invalid scope maybe/);
+});
+
+test('reports missing platform key and invalid status', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    delete ledgers.capabilities[0].platforms;
+    ledgers.protocols[0].status = 'unknown';
+  });
+  const errors = validateLedgers(root).errors.join('\n');
+  assert.match(errors, /CAP-001 platforms must be an object/);
+  assert.match(errors, /protocols\.json: PRO-001 has invalid status unknown/);
 });
