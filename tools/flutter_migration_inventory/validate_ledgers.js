@@ -1,132 +1,19 @@
 'use strict';
-
 const fs = require('node:fs');
 const path = require('node:path');
-
-const STATUSES = new Set([
-  'discovered', 'defined', 'implemented', 'protocol-equal', 'permission-equal',
-  'exception-equal', 'platform-verified', 'accepted',
-]);
-const PLATFORM_KEYS = ['windows', 'web', 'android'];
-const PLATFORM_SCOPES = new Set(['required', 'degraded', 'approved', 'out-of-scope']);
-
-function readJson(file, errors) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch (error) {
-    errors.push(`${path.basename(file)}: invalid JSON (${error.message})`);
-    return [];
-  }
-}
-
-function validateRecords(data, name, requiredFields, errors) {
-  if (!Array.isArray(data)) {
-    errors.push(`${name}: top-level value must be an array`);
-    return [];
-  }
-  const ids = new Set();
-  const validRecords = [];
-  data.forEach((record, index) => {
-    const label = `${name}[${index}]`;
-    if (!record || typeof record !== 'object' || Array.isArray(record)) {
-      errors.push(`${label}: record must be an object`);
-      return;
-    }
-    if (typeof record.id !== 'string' || !record.id) {
-      errors.push(`${label}: id must be a non-empty string`);
-    } else if (ids.has(record.id)) {
-      errors.push(`${label}: duplicate id ${record.id}`);
-    } else {
-      ids.add(record.id);
-    }
-    requiredFields.forEach((field) => {
-      if (!Object.hasOwn(record, field)) errors.push(`${label}: missing required field ${field}`);
-    });
-    if (Object.hasOwn(record, 'status') && (typeof record.status !== 'string' || !STATUSES.has(record.status))) {
-      errors.push(`${label}: invalid status ${record.status}`);
-    }
-    if (typeof record.id === 'string' && record.id && requiredFields.every((field) => Object.hasOwn(record, field))) {
-      Object.defineProperty(record, '_ledgerIndex', { value: index, enumerable: false, configurable: true });
-      validRecords.push(record);
-    }
-  });
-  return validRecords;
-}
-
-function sourceIsSafe(sourceRoot, source) {
-  if (typeof source !== 'string' || !source || path.isAbsolute(source)) return false;
-  const normalized = path.posix.normalize(source.replaceAll('\\', '/'));
-  if (normalized === '..' || normalized.startsWith('../')) return false;
-  const absolute = path.resolve(sourceRoot, normalized);
-  const relative = path.relative(path.resolve(sourceRoot), absolute);
-  if (relative.startsWith('..') || path.isAbsolute(relative)) return false;
-  let cursor = path.resolve(sourceRoot);
-  for (const segment of relative.split(path.sep).filter(Boolean)) {
-    cursor = path.join(cursor, segment);
-    try {
-      if (fs.lstatSync(cursor).isSymbolicLink()) return false;
-    } catch { return false; }
-  }
-  try { return fs.statSync(absolute).isFile(); } catch { return false; }
-}
-
-function validateSources(records, name, sourceRoot, errors) {
-  records.forEach((record) => {
-    const label = `${name}[${record._ledgerIndex}]`;
-    if (!Array.isArray(record.sources)) {
-      errors.push(`${label}: ${record.id} sources must be an array`);
-      return;
-    }
-    record.sources.forEach((source) => {
-      if (!sourceIsSafe(sourceRoot, source)) {
-        const reason = typeof source === 'string' && !path.isAbsolute(source) && !source.includes('..')
-          ? 'does not exist' : 'is not a safe repository-relative path';
-        errors.push(`${label}: ${record.id} source ${reason}: ${source}`);
-      }
-    });
-  });
-}
-
-function validateLedgers(root, options = {}) {
-  const ledgerDir = options.ledgerDir ? path.resolve(options.ledgerDir) : path.resolve(root, 'migration/flutter');
-  const sourceRoot = options.sourceRoot ? path.resolve(options.sourceRoot) : path.resolve(root);
-  const errors = [];
-  const capabilities = validateRecords(readJson(path.join(ledgerDir, 'capabilities.json'), errors), 'capabilities.json', ['domain', 'platforms', 'permissions', 'protocols', 'sources', 'status'], errors);
-  const protocols = validateRecords(readJson(path.join(ledgerDir, 'protocols.json'), errors), 'protocols.json', ['kind', 'path', 'request', 'response', 'sources', 'status'], errors);
-  const permissions = validateRecords(readJson(path.join(ledgerDir, 'permissions.json'), errors), 'permissions.json', ['name', 'rule', 'sources', 'status'], errors);
-  validateSources(capabilities, 'capabilities.json', sourceRoot, errors);
-  validateSources(protocols, 'protocols.json', sourceRoot, errors);
-  validateSources(permissions, 'permissions.json', sourceRoot, errors);
-  const protocolIds = new Set(protocols.map((record) => record.id));
-  const permissionIds = new Set(permissions.map((record) => record.id));
-  capabilities.forEach((record) => {
-    const label = `capabilities.json[${record._ledgerIndex}]`;
-    if (!Array.isArray(record.protocols)) errors.push(`${label}: ${record.id} protocols must be an array`);
-    else record.protocols.forEach((id) => { if (!protocolIds.has(id)) errors.push(`${label}: ${record.id} references unknown protocol ${id}`); });
-    if (!Array.isArray(record.permissions)) errors.push(`${label}: ${record.id} permissions must be an array`);
-    else record.permissions.forEach((id) => { if (!permissionIds.has(id)) errors.push(`${label}: ${record.id} references unknown permission ${id}`); });
-    if (!record.platforms || typeof record.platforms !== 'object' || Array.isArray(record.platforms)) {
-      errors.push(`${label}: ${record.id} platforms must be an object`);
-    } else {
-      const keys = Object.keys(record.platforms).sort();
-      if (keys.join(',') !== PLATFORM_KEYS.slice().sort().join(',')) errors.push(`${label}: ${record.id} platforms must contain exactly windows, web, android`);
-      PLATFORM_KEYS.forEach((platform) => {
-        if (record.platforms[platform] !== undefined && !PLATFORM_SCOPES.has(record.platforms[platform])) errors.push(`${label}: ${record.id} platform ${platform} has invalid scope ${record.platforms[platform]}`);
-      });
-    }
-  });
-  return {
-    errors: [...new Set(errors)].sort(),
-    capabilityCount: capabilities.length,
-    protocolCount: protocols.length,
-    permissionCount: permissions.length,
-  };
-}
-
-if (require.main === module) {
-  const result = validateLedgers(process.cwd());
-  if (result.errors.length) { process.stderr.write(`${result.errors.join('\n')}\n`); process.exitCode = 1; }
-  else process.stdout.write(`Validated ledgers: capabilities=${result.capabilityCount} protocols=${result.protocolCount} permissions=${result.permissionCount}\n`);
-}
-
-module.exports = { validateLedgers };
+const STATUSES = new Set(['discovered','defined','implemented','protocol-equal','permission-equal','exception-equal','platform-verified','accepted']);
+const PLATFORM_KEYS = ['windows','web','android'];
+const PLATFORM_SCOPES = new Set(['required','degraded','approved','out-of-scope']);
+const ID_RE = /^[A-Z][A-Z0-9-]*$/;
+const BAD_TEXT = /[\u0000-\u001f\u007f\r\n]/;
+function readJson(file, errors) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (error) { errors.push(`${path.basename(file)}: invalid JSON (${error.message})`); return []; } }
+function textField(record, field, label, errors) { if (typeof record[field] !== 'string' || !record[field] || BAD_TEXT.test(record[field])) errors.push(`${label}: ${field} must be a non-empty string without control characters`); }
+function arrayField(record, field, label, errors) { if (!Array.isArray(record[field])) { errors.push(`${label}: ${field} must be an array`); return; } const values = new Set(); record[field].forEach((value,index)=>{ if(typeof value!=='string') errors.push(`${label}: ${field} must contain only strings (index ${index})`); else if(values.has(value)) errors.push(`${label}: ${field} contains duplicate value ${value}`); else { values.add(value); if(BAD_TEXT.test(value)) errors.push(`${label}: ${field}[${index}] contains control characters`); } }); }
+function validatePlatforms(record,label,errors) { if(!record.platforms || typeof record.platforms!=='object' || Array.isArray(record.platforms)) return; if(Object.keys(record.platforms).sort().join(',')!==PLATFORM_KEYS.slice().sort().join(',')) errors.push(`${label}: ${record.id} platforms must contain exactly windows, web, android`); PLATFORM_KEYS.forEach((key)=>{ if(!PLATFORM_SCOPES.has(record.platforms[key])) errors.push(`${label}: ${record.id} platform ${key} has invalid scope ${record.platforms[key]}`); }); }
+function validateProtocol(record,label,errors) { textField(record,'path',label,errors); if(!['http','websocket'].includes(record.kind)) errors.push(`${label}: kind must be http or websocket`); if(!record.request || typeof record.request!=='object' || Array.isArray(record.request)) errors.push(`${label}: request must be an object`); if(!record.response || typeof record.response!=='object' || Array.isArray(record.response)) errors.push(`${label}: response must be an object`); if(record.kind==='http'&&!['GET','POST'].includes(record.method)) errors.push(`${label}: method must be GET or POST for http`); if(record.kind==='websocket'&&Object.hasOwn(record,'method')) errors.push(`${label}: websocket must not have method`); }
+function validateRecords(data,name,type,errors,declared) { const records=[]; const required=type==='capability'?['domain','platforms','permissions','protocols','sources','status']:type==='protocol'?['kind','path','request','response','sources','status']:['name','rule','sources','status']; if(!Array.isArray(data)){errors.push(`${name}: top-level value must be an array`);return records;} const ids=new Set(); data.forEach((record,index)=>{const label=`${name}[${index}]`; if(!record||typeof record!=='object'||Array.isArray(record)){errors.push(`${label}: record must be an object`);return;} if(typeof record.id!=='string'||!record.id) errors.push(`${label}: id must be a non-empty string`); else if(!ID_RE.test(record.id)||BAD_TEXT.test(record.id)) errors.push(`${label}: id must match ${ID_RE} and be single-line ASCII`); else {declared.add(record.id);if(ids.has(record.id))errors.push(`${label}: duplicate id ${record.id}`);ids.add(record.id);} required.forEach((field)=>{if(!Object.hasOwn(record,field))errors.push(`${label}: missing required field ${field}`);}); const validStatus=typeof record.status==='string'&&STATUSES.has(record.status); if(Object.hasOwn(record,'status')&&!validStatus)errors.push(`${label}: invalid status ${record.status}`); if(type==='capability'){textField(record,'name',label,errors);textField(record,'domain',label,errors);arrayField(record,'sources',label,errors);arrayField(record,'protocols',label,errors);arrayField(record,'permissions',label,errors);validatePlatforms(record,label,errors);} if(type==='protocol'){validateProtocol(record,label,errors);arrayField(record,'sources',label,errors);} if(type==='permission'){textField(record,'name',label,errors);textField(record,'rule',label,errors);arrayField(record,'sources',label,errors);} const complete=typeof record.id==='string'&&ID_RE.test(record.id)&&validStatus&&required.every((field)=>Object.hasOwn(record,field)); const schemaValid=complete&&(type!=='protocol'||(['http','websocket'].includes(record.kind)&&record.request&&typeof record.request==='object'&&!Array.isArray(record.request)&&record.response&&typeof record.response==='object'&&!Array.isArray(record.response)&&(record.kind!=='http'||['GET','POST'].includes(record.method))));if(schemaValid){Object.defineProperty(record,'_ledgerIndex',{value:index,enumerable:false});records.push(record);}}); return records; }
+function sourceError(root,source){if(typeof source!=='string')return'source must be a string';if(/^\\\\/.test(source))return'UNC source path';if(/^[A-Za-z]:[\\/]/.test(source))return'drive-letter source path';if(path.posix.isAbsolute(source))return'absolute source path';const normalized=path.posix.normalize(source.replaceAll('\\','/'));if(normalized==='..'||normalized.startsWith('../'))return'traversal source path';const absolute=path.resolve(root,normalized),relative=path.relative(path.resolve(root),absolute);if(relative.startsWith('..')||path.isAbsolute(relative))return'escape source path';let cursor=path.resolve(root);for(const part of relative.split(path.sep).filter(Boolean)){cursor=path.join(cursor,part);try{if(fs.lstatSync(cursor).isSymbolicLink())return'symlink source path';}catch{return'source does not exist';}}try{if(!fs.statSync(absolute).isFile())return'source is not a regular file';}catch{return'source does not exist';}return null;}
+function validateSources(records,name,root,errors){records.forEach((record)=>{const label=`${name}[${record._ledgerIndex}]`;record.sources.forEach((source)=>{const reason=sourceError(root,source);if(reason)errors.push(`${label}: ${record.id} ${reason}: ${source}`);});});}
+function validateLedgers(root,options={}){const ledgerDir=path.resolve(options.ledgerDir||path.join(root,'migration/flutter'));const sourceRoot=path.resolve(options.sourceRoot||root);const errors=[];const declared={protocol:new Set(),permission:new Set()};const capabilities=validateRecords(readJson(path.join(ledgerDir,'capabilities.json'),errors),'capabilities.json','capability',errors,new Set());const protocols=validateRecords(readJson(path.join(ledgerDir,'protocols.json'),errors),'protocols.json','protocol',errors,declared.protocol);const permissions=validateRecords(readJson(path.join(ledgerDir,'permissions.json'),errors),'permissions.json','permission',errors,declared.permission);validateSources(capabilities,'capabilities.json',sourceRoot,errors);validateSources(protocols,'protocols.json',sourceRoot,errors);validateSources(permissions,'permissions.json',sourceRoot,errors);const validProtocolIds=new Set(protocols.map((r)=>r.id));const validPermissionIds=new Set(permissions.map((r)=>r.id));capabilities.forEach((record)=>{const label=`capabilities.json[${record._ledgerIndex}]`;record.protocols.forEach((id)=>{if(!validProtocolIds.has(id))errors.push(`${label}: ${record.id} references ${declared.protocol.has(id)?'invalid':'unknown'} protocol ${id}`);});record.permissions.forEach((id)=>{if(!validPermissionIds.has(id))errors.push(`${label}: ${record.id} references ${declared.permission.has(id)?'invalid':'unknown'} permission ${id}`);});});return{errors:[...new Set(errors)].sort(),capabilityCount:capabilities.length,protocolCount:protocols.length,permissionCount:permissions.length};}
+if(require.main===module){const result=validateLedgers(process.cwd());if(result.errors.length){process.stderr.write(`${result.errors.join('\n')}\n`);process.exitCode=1;}else process.stdout.write(`Validated ledgers: capabilities=${result.capabilityCount} protocols=${result.protocolCount} permissions=${result.permissionCount}\n`);}
+module.exports={validateLedgers};

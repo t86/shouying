@@ -50,7 +50,9 @@
         }
       }
     },
-    "response": "login result",
+    "response": {
+      "description": "login result"
+    },
     "sources": [
       "src/api/UtilAuth/auth/index.js",
       "src/views/Thelogin/Thelogin.vue"
@@ -68,7 +70,9 @@
         "tt": "string"
       }
     },
-    "response": "full synchronization result",
+    "response": {
+      "description": "full synchronization result"
+    },
     "sources": [
       "src/api/Book/index.js",
       "src/websocket/websocket.js"
@@ -89,7 +93,9 @@
         "last_sync_time": "string"
       }
     },
-    "response": "incremental synchronization result",
+    "response": {
+      "description": "incremental synchronization result"
+    },
     "sources": [
       "src/api/Book/index.js",
       "src/websocket/websocket.js"

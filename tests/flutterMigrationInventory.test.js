@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const childProcess = require('node:child_process');
 
 const {
   extractRoutes,
@@ -12,6 +13,7 @@ const {
 } = require('../tools/flutter_migration_inventory/source_inventory');
 const inventoryModule = require('../tools/flutter_migration_inventory/source_inventory');
 const { validateLedgers } = require('../tools/flutter_migration_inventory/validate_ledgers');
+const { buildReport, generateReport } = require('../tools/flutter_migration_inventory/generate_report');
 
 test('extracts a route and its nearby metadata', () => {
   const source = [
@@ -332,7 +334,7 @@ function writeLedgerFixture(t, mutate) {
   fs.writeFileSync(path.join(root, 'src', 'feature.js'), 'export default {}');
   const ledgers = {
     capabilities: [{
-      id: 'CAP-001', domain: 'test', sources: ['src/feature.js'], protocols: ['PRO-001'], permissions: [],
+      id: 'CAP-001', name: 'Test capability', domain: 'test', sources: ['src/feature.js'], protocols: ['PRO-001'], permissions: [],
       platforms: { windows: 'required', web: 'degraded', android: 'required' }, status: 'defined',
     }],
     protocols: [{ id: 'PRO-001', kind: 'http', method: 'GET', path: '/test', request: {}, response: {}, sources: ['src/feature.js'], status: 'defined' }],
@@ -404,18 +406,115 @@ test('returns exact deterministic errors for a multi-error malformed fixture', (
   });
   assert.deepEqual(validateLedgers(root).errors, [
     'capabilities.json[0]: record must be an object',
+    'capabilities.json[1]: domain must be a non-empty string without control characters',
     'capabilities.json[1]: missing required field domain',
     'capabilities.json[1]: missing required field permissions',
     'capabilities.json[1]: missing required field platforms',
     'capabilities.json[1]: missing required field protocols',
     'capabilities.json[1]: missing required field sources',
     'capabilities.json[1]: missing required field status',
+    'capabilities.json[1]: name must be a non-empty string without control characters',
+    'capabilities.json[1]: permissions must be an array',
+    'capabilities.json[1]: protocols must be an array',
+    'capabilities.json[1]: sources must be an array',
     'permissions.json[0]: record must be an object',
     'protocols.json[0]: invalid status unknown',
+    'protocols.json[0]: kind must be http or websocket',
     'protocols.json[0]: missing required field kind',
     'protocols.json[0]: missing required field path',
     'protocols.json[0]: missing required field request',
     'protocols.json[0]: missing required field response',
     'protocols.json[0]: missing required field sources',
+    'protocols.json[0]: path must be a non-empty string without control characters',
+    'protocols.json[0]: request must be an object',
+    'protocols.json[0]: response must be an object',
+    'protocols.json[0]: sources must be an array',
   ]);
+});
+
+test('rejects schema violations, control characters and duplicate relations', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities[0].id = 'bad id';
+    ledgers.capabilities[0].name = 'bad\nname';
+    ledgers.capabilities[0].sources = ['src/feature.js', 'src/feature.js'];
+    ledgers.capabilities[0].protocols = ['PRO-001', 'PRO-001'];
+    ledgers.capabilities[0].permissions = [1];
+    ledgers.protocols[0].kind = 'tcp';
+    ledgers.protocols.push({ ...ledgers.protocols[0], id: 'PRO-002', kind: 'http', method: 'DELETE' });
+    ledgers.protocols[0].request = 'body';
+  });
+  const errors = validateLedgers(root).errors;
+  assert.ok(errors.some((error) => error.includes('id must match')));
+  assert.ok(errors.some((error) => error.includes('name must be a non-empty string without control characters')));
+  assert.ok(errors.some((error) => error.includes('sources contains duplicate value')));
+  assert.ok(errors.some((error) => error.includes('protocols contains duplicate value')));
+  assert.ok(errors.some((error) => error.includes('permissions must contain only strings')));
+  assert.ok(errors.some((error) => error.includes('kind must be http or websocket')));
+  assert.ok(errors.some((error) => error.includes('method must be GET or POST')));
+  assert.ok(errors.some((error) => error.includes('request must be an object')));
+});
+
+test('distinguishes references to declared-invalid records from unknown records', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.protocols[0].id = 'PRO-001';
+    ledgers.protocols[0].kind = 'bad';
+    ledgers.permissions.push({ id: 'PERM-001', name: 'x', sources: ['src/feature.js'], status: 'bad', rule: 'x' });
+    ledgers.capabilities[0].protocols = ['PRO-001', 'PRO-MISSING'];
+    ledgers.capabilities[0].permissions = ['PERM-001', 'PERM-MISSING'];
+  });
+  const errors = validateLedgers(root).errors.join('\n');
+  assert.match(errors, /references invalid protocol PRO-001/);
+  assert.match(errors, /references unknown protocol PRO-MISSING/);
+  assert.match(errors, /references invalid permission PERM-001/);
+  assert.match(errors, /references unknown permission PERM-MISSING/);
+});
+
+test('rejects POSIX, Windows, UNC, traversal and symlink source paths', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities[0].sources = ['/etc/passwd', 'C:\\secret.js', '\\\\server\\share\\x', '../escape.js'];
+  });
+  const errors = validateLedgers(root).errors.join('\n');
+  assert.match(errors, /absolute source path/);
+  assert.match(errors, /drive-letter source path/);
+  assert.match(errors, /UNC source path/);
+  assert.match(errors, /traversal source path/);
+});
+
+test('buildReport escapes backslashes, pipes and newlines and sorts by code units', () => {
+  const report = buildReport([
+    { id: 'Z', domain: 'a\\b|c\nd', platforms: { windows: 'required', web: 'degraded', android: 'required' }, status: 'defined', protocols: [], permissions: [], sources: [] },
+    { id: 'A', domain: 'safe', platforms: { windows: 'required', web: 'required', android: 'required' }, status: 'defined', protocols: [], permissions: [], sources: [] },
+  ], [], []);
+  assert.ok(report.indexOf('| A |') < report.indexOf('| Z |'));
+  assert.match(report, /a\\\\b\\\|c\\n?d/);
+});
+
+test('CLI success and failures have deterministic exit behavior', (t) => {
+  const root = writeLedgerFixture(t);
+  const validator = path.join(process.cwd(), 'tools/flutter_migration_inventory/validate_ledgers.js');
+  const generator = path.join(process.cwd(), 'tools/flutter_migration_inventory/generate_report.js');
+  const success = childProcess.spawnSync(process.execPath, [validator], { cwd: process.cwd(), encoding: 'utf8' });
+  assert.equal(success.status, 0);
+  assert.equal(success.stderr, '');
+  const bad = path.join(root, 'migration/flutter/capabilities.json');
+  fs.writeFileSync(bad, '{}\n');
+  const failure = childProcess.spawnSync(process.execPath, [validator], { cwd: root, encoding: 'utf8' });
+  assert.equal(failure.status, 1);
+  assert.doesNotMatch(failure.stderr, /TypeError|at /);
+  const genFailure = childProcess.spawnSync(process.execPath, [generator], { cwd: root, encoding: 'utf8' });
+  assert.equal(genFailure.status, 1);
+  assert.doesNotMatch(genFailure.stderr, /TypeError|at /);
+});
+
+test('generator preserves an existing report and refuses a symlink target', (t) => {
+  const root = writeLedgerFixture(t);
+  const output = path.join(root, 'migration/flutter/generated/coverage.md');
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  const target = path.join(root, 'outside.md');
+  fs.writeFileSync(target, 'sentinel\n');
+  fs.symlinkSync(target, output);
+  const result = generateReport(root);
+  assert.equal(result.errors.length, 1);
+  assert.match(result.errors[0], /must not be a symlink/);
+  assert.equal(fs.readFileSync(target, 'utf8'), 'sentinel\n');
 });
