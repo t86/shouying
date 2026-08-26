@@ -37,6 +37,12 @@ abstract final class Redactor {
     'bankcard',
     'paymentcode',
     'paycode',
+    'authcode',
+    'smsauthcode',
+    'phonenumauthcode',
+    'bindphoneauthcode',
+    'superauthcode',
+    'kqauthcode',
   };
 
   /// Redacts a decoded JSON tree. Complex inputs must be `Map`/materialized
@@ -71,6 +77,7 @@ abstract final class Redactor {
       }
       return value;
     }
+    if (value is MapBase && !_isTrustedMap(value)) return _unsupported;
     if (value is Map) {
       if (!budget.active.add(value)) return _circular;
       try {
@@ -102,6 +109,7 @@ abstract final class Redactor {
         budget.active.remove(value);
       }
     }
+    if (value is List && !_isTrustedList(value)) return _unsupported;
     if (value is List) {
       if (!budget.active.add(value)) return _circular;
       try {
@@ -118,18 +126,38 @@ abstract final class Redactor {
     return _unsupported;
   }
 
-  static bool _isSensitive(String key) => _sensitiveKeys.contains(
-    key.toLowerCase().replaceAll(RegExp(r'[_\-\s]'), ''),
-  );
+  static bool _isSensitive(String key) {
+    if (key.length > _maxStringLength) return true;
+    return _sensitiveKeys.contains(
+      key.toLowerCase().replaceAll(RegExp(r'[_\-\s]'), ''),
+    );
+  }
+
+  static bool _isTrustedMap(Map value) {
+    final type = value.runtimeType.toString();
+    return type.startsWith('_Map') ||
+        type.startsWith('_ConstMap') ||
+        type.startsWith('Map<');
+  }
+
+  static bool _isTrustedList(List value) {
+    final type = value.runtimeType.toString();
+    return type.startsWith('_GrowableList') ||
+        type.startsWith('_List') ||
+        type.startsWith('List<');
+  }
 
   static String _mask(String value) {
-    var result = value
+    final bounded = value.length > _maxStringLength
+        ? value.substring(0, _maxStringLength)
+        : value;
+    var result = bounded
         .replaceAllMapped(
           RegExp(r'(?<!\d)(?:\+?86[ -]?)?1[3-9](?:[ -]?\d){9}(?!\d)'),
           (_) => _phone,
         )
         .replaceAllMapped(RegExp(_digitsPattern), (_) => _sensitiveDigits);
-    if (result.length > _maxStringLength) {
+    if (value.length > _maxStringLength) {
       result = '${result.substring(0, _maxStringLength)}[STRING_TRUNCATED]';
     }
     return result;

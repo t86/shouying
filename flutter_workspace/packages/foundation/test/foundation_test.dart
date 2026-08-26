@@ -199,6 +199,49 @@ void main() {
     expect(text, isNot(contains('138-0013-8000')));
   });
 
+  test(
+    'redacts audited authorization code aliases without broad code matching',
+    () {
+      final aliases = [
+        'auth_code',
+        'sms_auth_code',
+        'phone_num_auth_code',
+        'bind_phone_auth_code',
+        'super_auth_code',
+        'kq_auth_code',
+      ];
+      final input = <String, Object?>{
+        for (final alias in aliases) alias: 'A1',
+        'auth_code_status': 'visible',
+        'metadata_code': 'visible',
+      };
+      final text = Redactor.redact(input);
+      expect(RegExp(r'"A1"').hasMatch(text), isFalse);
+      expect(text, contains('visible'));
+      expect(RegExp(r'\[REDACTED\]').allMatches(text).length, aliases.length);
+    },
+  );
+
+  test('rejects custom collection bases without touching their APIs', () {
+    final map = _HostileMap();
+    final list = _HostileList();
+    expect(Redactor.redact(map), '"[UNSUPPORTED]"');
+    expect(Redactor.redact(list), '"[UNSUPPORTED]"');
+    expect(map.calls, 0);
+    expect(list.calls, 0);
+  });
+
+  test('bounds oversized strings and keys before scanning', () {
+    final secretTail = 'x' * 1000000;
+    final text = Redactor.redact({
+      '${'safe'}${'y' * 1000000}password': secretTail,
+      'note': secretTail,
+    });
+    expect(text, contains('[STRING_TRUNCATED]'));
+    expect(text, isNot(contains('password')));
+    expect(text.length, lessThan(20000));
+  });
+
   test('masks numeric secrets and international phone formats', () {
     final text = Redactor.redact({
       'phone': '+86 138 0013 8000',
@@ -295,5 +338,67 @@ final class _InfiniteIterable extends Iterable<Object?> {
   Iterator<Object?> get iterator {
     iteratorCalls++;
     throw StateError('must not iterate');
+  }
+}
+
+final class _HostileMap extends MapBase<Object?, Object?> {
+  int calls = 0;
+
+  @override
+  Object? operator [](Object? key) {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  void operator []=(Object? key, Object? value) {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  void clear() {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  Iterable<Object?> get keys {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  Object? remove(Object? key) {
+    calls++;
+    throw StateError('no');
+  }
+}
+
+final class _HostileList extends ListBase<Object?> {
+  int calls = 0;
+
+  @override
+  int get length {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  set length(int value) {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  Object? operator [](int index) {
+    calls++;
+    throw StateError('no');
+  }
+
+  @override
+  void operator []=(int index, Object? value) {
+    calls++;
+    throw StateError('no');
   }
 }
