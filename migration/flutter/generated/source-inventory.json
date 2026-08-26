@@ -1881,11 +1881,18 @@
       "source": "src/api/BMS/Org/index.js:27"
     },
     {
-      "symbol": "reqSubmitInfo",
+      "symbol": "reqGetAddressList",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/util/suggestion",
       "source": "src/api/BMS/Org/index.js:32"
+    },
+    {
+      "symbol": "reqGetLatAndLng",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/util/geocoding",
+      "source": "src/api/BMS/Org/index.js:36"
     },
     {
       "symbol": "requestprderp_prds",
@@ -2028,11 +2035,151 @@
       "source": "src/api/BMS/Prd/index.js:88"
     },
     {
-      "symbol": "handleUploadFile",
+      "symbol": "reqCheckProImg",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/prd/batch_upload_pic_chk",
       "source": "src/api/BMS/Prd/index.js:99"
+    },
+    {
+      "symbol": "reqUploadProImg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/batch_upload_pic",
+      "source": "src/api/BMS/Prd/index.js:102"
+    },
+    {
+      "symbol": "reqCheckNoProImgList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_no_pic_prds",
+      "source": "src/api/BMS/Prd/index.js:105"
+    },
+    {
+      "symbol": "reqUploadSingleImg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/upload_pic",
+      "source": "src/api/BMS/Prd/index.js:108"
+    },
+    {
+      "symbol": "reqSavePrdDefPic",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/save_prd_def_pic",
+      "source": "src/api/BMS/Prd/index.js:112"
+    },
+    {
+      "symbol": "reqGetPrdDefPic",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_prd_def_pic",
+      "source": "src/api/BMS/Prd/index.js:115"
+    },
+    {
+      "symbol": "reqDownLoadProTpl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/exp_tpl",
+      "source": "src/api/BMS/Prd/index.js:123"
+    },
+    {
+      "symbol": "reqImportProData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/imp",
+      "source": "src/api/BMS/Prd/index.js:126"
+    },
+    {
+      "symbol": "reqGetTwoCateSingleDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_prd_region_cfg",
+      "source": "src/api/BMS/Prd/index.js:133"
+    },
+    {
+      "symbol": "reqGetTwoCateGroupDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_set_region_cfg",
+      "source": "src/api/BMS/Prd/index.js:136"
+    },
+    {
+      "symbol": "reqSaveSinglePrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/save_prd_region_cfg",
+      "source": "src/api/BMS/Prd/index.js:139"
+    },
+    {
+      "symbol": "reqSaveGroupPrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/save_set_region_cfg",
+      "source": "src/api/BMS/Prd/index.js:142"
+    },
+    {
+      "symbol": "reqSetSecondCategory",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/batch_upd_two_cate",
+      "source": "src/api/BMS/Prd/index.js:147"
+    },
+    {
+      "symbol": "reqSetMp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/batch_set_show_limit",
+      "source": "src/api/BMS/Prd/index.js:160"
+    },
+    {
+      "symbol": "get_prd_set_tpl_list",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_prd_set_tpl_list",
+      "source": "src/api/BMS/Prd/index.js:163"
+    },
+    {
+      "symbol": "new_prd_set_tpl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/new_prd_set_tpl",
+      "source": "src/api/BMS/Prd/index.js:164"
+    },
+    {
+      "symbol": "save_prd_set_tpl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/save_prd_set_tpl",
+      "source": "src/api/BMS/Prd/index.js:165"
+    },
+    {
+      "symbol": "batch_del_prd_set_tpl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/batch_del_prd_set_tpl",
+      "source": "src/api/BMS/Prd/index.js:166"
+    },
+    {
+      "symbol": "get_prd_set_tpl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_prd_set_tpl",
+      "source": "src/api/BMS/Prd/index.js:167"
+    },
+    {
+      "symbol": "reqGetSeatConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat/get_seat_calc_rule",
+      "source": "src/api/BMS/arriveRules/index.js:6"
+    },
+    {
+      "symbol": "reqSetSeatConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat/save_seat_calc_rule",
+      "source": "src/api/BMS/arriveRules/index.js:9"
     },
     {
       "symbol": "requestBillGet",
@@ -2047,6 +2194,111 @@
       "baseKey": "htgl",
       "path": "/bill/save",
       "source": "src/api/BMS/bill/index.js:11"
+    },
+    {
+      "symbol": "addCardTips",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat_mark/new",
+      "source": "src/api/BMS/cardTips/index.js:7"
+    },
+    {
+      "symbol": "getCardTips",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat_mark/list",
+      "source": "src/api/BMS/cardTips/index.js:10"
+    },
+    {
+      "symbol": "saveCardTips",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat_mark/save",
+      "source": "src/api/BMS/cardTips/index.js:13"
+    },
+    {
+      "symbol": "delCardTips",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat_mark/del",
+      "source": "src/api/BMS/cardTips/index.js:16"
+    },
+    {
+      "symbol": "reqBatchDelRptJkCnl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/batch_del_rpt_jk_cnl",
+      "source": "src/api/BMS/channel/index.js:7"
+    },
+    {
+      "symbol": "reqGetRptJkCnlList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cnl_list ",
+      "source": "src/api/BMS/channel/index.js:10"
+    },
+    {
+      "symbol": "reqGetRptJkCnlDtl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cnl_dtl",
+      "source": "src/api/BMS/channel/index.js:13"
+    },
+    {
+      "symbol": "reqNewOrSaveRptJkCnl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/new_or_save_rpt_jk_cnl",
+      "source": "src/api/BMS/channel/index.js:16"
+    },
+    {
+      "symbol": "reqGetPrdCateList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/move_rpt_jk_cnl_dsp",
+      "source": "src/api/BMS/channel/index.js:19"
+    },
+    {
+      "symbol": "reqAddPrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/add_xc_prd_cfg",
+      "source": "src/api/BMS/cutPrd/index.js:6"
+    },
+    {
+      "symbol": "reqDelPrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/del_xc_prd_cfg ",
+      "source": "src/api/BMS/cutPrd/index.js:9"
+    },
+    {
+      "symbol": "reqSavePrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/save_xc_prd_cfg",
+      "source": "src/api/BMS/cutPrd/index.js:12"
+    },
+    {
+      "symbol": "reqGetPrdConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_xc_prd_cfg_list",
+      "source": "src/api/BMS/cutPrd/index.js:15"
+    },
+    {
+      "symbol": "reqGetPrdCateList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_xc_prd_items",
+      "source": "src/api/BMS/cutPrd/index.js:18"
+    },
+    {
+      "symbol": "reqGetPrdCatePrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_waiter_sales_prd_items",
+      "source": "src/api/BMS/cutPrd/index.js:21"
     },
     {
       "symbol": "requestDeptTree",
@@ -2336,18 +2588,74 @@
       "source": "src/api/BMS/emp/index.js:103"
     },
     {
-      "symbol": "requestEmpImp",
+      "symbol": "reqGetEmpQrCode",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/emp/bind_qrcode",
       "source": "src/api/BMS/emp/index.js:107"
     },
     {
-      "symbol": "requestEmpImp",
+      "symbol": "reqUnbindEmp",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/emp/unbind_wx",
       "source": "src/api/BMS/emp/index.js:110"
+    },
+    {
+      "symbol": "reqBeginMakeCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/mk_card_begin",
+      "source": "src/api/BMS/emp/index.js:113"
+    },
+    {
+      "symbol": "reqEndMakeCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/mk_card_end",
+      "source": "src/api/BMS/emp/index.js:116"
+    },
+    {
+      "symbol": "reqBeginClearCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/empty_card_begin",
+      "source": "src/api/BMS/emp/index.js:119"
+    },
+    {
+      "symbol": "reqEndClearCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/empty_card_end",
+      "source": "src/api/BMS/emp/index.js:122"
+    },
+    {
+      "symbol": "reqDestoryCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/destory_card",
+      "source": "src/api/BMS/emp/index.js:125"
+    },
+    {
+      "symbol": "reqGetMySubList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/get_emp_sub_list",
+      "source": "src/api/BMS/emp/index.js:129"
+    },
+    {
+      "symbol": "reqGetMyCloneList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/get_emp_clone_list",
+      "source": "src/api/BMS/emp/index.js:133"
+    },
+    {
+      "symbol": "reqGetMyEqList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/get_emp_eq_list",
+      "source": "src/api/BMS/emp/index.js:137"
     },
     {
       "symbol": "requestGetDeptLastUpperEmp",
@@ -2439,6 +2747,69 @@
       "baseKey": "htgl",
       "path": "/emp/save_gen_rule",
       "source": "src/api/BMS/genRule/index.js:11"
+    },
+    {
+      "symbol": "reqGetAccountInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms_mgr/get_acct_info",
+      "source": "src/api/BMS/messageConfig/index.js:6"
+    },
+    {
+      "symbol": "reqMsgSend",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms_mgr/self_check",
+      "source": "src/api/BMS/messageConfig/index.js:9"
+    },
+    {
+      "symbol": "reqGetMsgDayData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms_mgr/get_sms_records",
+      "source": "src/api/BMS/messageConfig/index.js:12"
+    },
+    {
+      "symbol": "get_mobile_send_rst",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms_mgr/get_mobile_send_rst",
+      "source": "src/api/BMS/messageConfig/index.js:14"
+    },
+    {
+      "symbol": "reqGetMsgDayDataDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms_mgr/get_sms_record_dtls",
+      "source": "src/api/BMS/messageConfig/index.js:17"
+    },
+    {
+      "symbol": "reqGetMiniConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_srv_ord_high_prd_cfg",
+      "source": "src/api/BMS/miniProgressConfig/index.js:6"
+    },
+    {
+      "symbol": "reqAddMiniData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/add_srv_ord_high_prd_cfg",
+      "source": "src/api/BMS/miniProgressConfig/index.js:9"
+    },
+    {
+      "symbol": "reqDelMiniData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/del_srv_ord_high_prd_cfg",
+      "source": "src/api/BMS/miniProgressConfig/index.js:12"
+    },
+    {
+      "symbol": "reqGetPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_srv_ord_high_prd_items",
+      "source": "src/api/BMS/miniProgressConfig/index.js:15"
     },
     {
       "symbol": "requestmkliblist",
@@ -2581,11 +2952,81 @@
       "source": "src/api/BMS/ocate/index.js:51"
     },
     {
-      "symbol": "requestocateob",
+      "symbol": "reqGetPrdList",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/prd/get_prd_all_list",
       "source": "src/api/BMS/ocate/index.js:55"
+    },
+    {
+      "symbol": "reqUpdateMap",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat/save_seat_map_pic",
+      "source": "src/api/BMS/online/index.js:10"
+    },
+    {
+      "symbol": "reqSaveSeatData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat/save_seat_map_data",
+      "source": "src/api/BMS/online/index.js:13"
+    },
+    {
+      "symbol": "reqGetSeatData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/seat/get_seat_map_data",
+      "source": "src/api/BMS/online/index.js:16"
+    },
+    {
+      "symbol": "reqGetConfigInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_org_normal",
+      "source": "src/api/BMS/online/index.js:23"
+    },
+    {
+      "symbol": "reqSaveConfigInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/save_org_normal",
+      "source": "src/api/BMS/online/index.js:26"
+    },
+    {
+      "symbol": "reqGetActivityList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_org_activity_list",
+      "source": "src/api/BMS/online/index.js:32"
+    },
+    {
+      "symbol": "reqAddActivity",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/new_org_activity",
+      "source": "src/api/BMS/online/index.js:35"
+    },
+    {
+      "symbol": "reqUpdateActivity",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/save_org_activity",
+      "source": "src/api/BMS/online/index.js:38"
+    },
+    {
+      "symbol": "reqGetActivityDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_org_activity",
+      "source": "src/api/BMS/online/index.js:41"
+    },
+    {
+      "symbol": "reqDeleteActivity",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/del_org_activity",
+      "source": "src/api/BMS/online/index.js:44"
     },
     {
       "symbol": "requestpaycnllist",
@@ -2595,14 +3036,14 @@
       "source": "src/api/BMS/paycnl/index.js:8"
     },
     {
-      "symbol": "requestpaycnllist",
+      "symbol": "reqSelectItem",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/paycnl/add_used",
       "source": "src/api/BMS/paycnl/index.js:12"
     },
     {
-      "symbol": "requestpaycnllist",
+      "symbol": "reqNotSelectItem",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/paycnl/del_used",
@@ -2784,6 +3225,34 @@
       "source": "src/api/BMS/printer/index.js:45"
     },
     {
+      "symbol": "reqGetReasonList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rsn/list",
+      "source": "src/api/BMS/reason/index.js:6"
+    },
+    {
+      "symbol": "reqAddReason",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rsn/new",
+      "source": "src/api/BMS/reason/index.js:9"
+    },
+    {
+      "symbol": "reqSaveReason",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rsn/save",
+      "source": "src/api/BMS/reason/index.js:12"
+    },
+    {
+      "symbol": "reqDelReason",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rsn/del",
+      "source": "src/api/BMS/reason/index.js:15"
+    },
+    {
       "symbol": "requestregionlist",
       "method": "POST",
       "baseKey": "htgl",
@@ -2861,11 +3330,67 @@
       "source": "src/api/BMS/region/index.js:48"
     },
     {
-      "symbol": "requestRegionOb",
+      "symbol": "reqGetPrdCateAndPrdList",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/region/prd_items",
       "source": "src/api/BMS/region/index.js:52"
+    },
+    {
+      "symbol": "reqGetTYTreeData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_dept_tree",
+      "source": "src/api/BMS/reportConfig/index.js:6"
+    },
+    {
+      "symbol": "reqAddTYTreeData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/batch_add_hl_tabs",
+      "source": "src/api/BMS/reportConfig/index.js:9"
+    },
+    {
+      "symbol": "reqDelTYTreeData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/del_hl_tab",
+      "source": "src/api/BMS/reportConfig/index.js:12"
+    },
+    {
+      "symbol": "reqGetConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_hl_tabs",
+      "source": "src/api/BMS/reportConfig/index.js:15"
+    },
+    {
+      "symbol": "reqGetSealPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_waiter_sales_prd_items",
+      "source": "src/api/BMS/reportConfig/index.js:23"
+    },
+    {
+      "symbol": "reqGetFXYSealPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_waiter_sales_prds",
+      "source": "src/api/BMS/reportConfig/index.js:26"
+    },
+    {
+      "symbol": "reqAddFXYSealPrds",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/add_waiter_sales_prds",
+      "source": "src/api/BMS/reportConfig/index.js:29"
+    },
+    {
+      "symbol": "reqDelFXYSealPrd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/del_waiter_sales_prd",
+      "source": "src/api/BMS/reportConfig/index.js:32"
     },
     {
       "symbol": "requestRqmTree",
@@ -2894,6 +3419,104 @@
       "baseKey": "htgl",
       "path": "/cfg/rqm/list",
       "source": "src/api/BMS/require/index.js:19"
+    },
+    {
+      "symbol": "reqGetWineConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/get",
+      "source": "src/api/BMS/saveWine/index.js:6"
+    },
+    {
+      "symbol": "reqUpdateWineConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/save",
+      "source": "src/api/BMS/saveWine/index.js:9"
+    },
+    {
+      "symbol": "reqGetAllWineLine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/prd_items",
+      "source": "src/api/BMS/saveWine/index.js:12"
+    },
+    {
+      "symbol": "reqAddWine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/add_prds",
+      "source": "src/api/BMS/saveWine/index.js:15"
+    },
+    {
+      "symbol": "reqDelWine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/del_prds",
+      "source": "src/api/BMS/saveWine/index.js:18"
+    },
+    {
+      "symbol": "reqGetWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/get_prds",
+      "source": "src/api/BMS/saveWine/index.js:21"
+    },
+    {
+      "symbol": "reqSetPassTime",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/set_prd_expired",
+      "source": "src/api/BMS/saveWine/index.js:24"
+    },
+    {
+      "symbol": "reqReloadCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/refresh_wine_super_code",
+      "source": "src/api/BMS/saveWine/index.js:27"
+    },
+    {
+      "symbol": "reqNewWineCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/new_wine_cate",
+      "source": "src/api/BMS/saveWine/index.js:30"
+    },
+    {
+      "symbol": "reqUpdateWineCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/save_wine_cate",
+      "source": "src/api/BMS/saveWine/index.js:33"
+    },
+    {
+      "symbol": "reqGetWineCateList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/get_wine_cate_list",
+      "source": "src/api/BMS/saveWine/index.js:36"
+    },
+    {
+      "symbol": "reqBatchDelWineCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/batch_del_wine_cate",
+      "source": "src/api/BMS/saveWine/index.js:39"
+    },
+    {
+      "symbol": "reqBatchSetPrdWineCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/batch_set_prd_wine_cate",
+      "source": "src/api/BMS/saveWine/index.js:42"
+    },
+    {
+      "symbol": "reqGetWineCateFmName",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cfg/get_wine_cate_fm_name",
+      "source": "src/api/BMS/saveWine/index.js:45"
     },
     {
       "symbol": "requestseatregion_list",
@@ -3204,6 +3827,237 @@
       "source": "src/api/BMS/station/index.js:73"
     },
     {
+      "symbol": "reqGetGive2SaleCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_yh2_priv",
+      "source": "src/api/BMS/station/index.js:77"
+    },
+    {
+      "symbol": "reqGetGiveHlCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_hl_priv",
+      "source": "src/api/BMS/station/index.js:81"
+    },
+    {
+      "symbol": "reqSetGiveSaleCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_yh_priv",
+      "source": "src/api/BMS/station/index.js:85"
+    },
+    {
+      "symbol": "reqSetGive2SaleCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_yh2_priv",
+      "source": "src/api/BMS/station/index.js:89"
+    },
+    {
+      "symbol": "reqSetGiveHlCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_hl_priv",
+      "source": "src/api/BMS/station/index.js:93"
+    },
+    {
+      "symbol": "reqGetGiveCateConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_yh_fl",
+      "source": "src/api/BMS/station/index.js:97"
+    },
+    {
+      "symbol": "reqGetGive2CateConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_yh2_fl",
+      "source": "src/api/BMS/station/index.js:101"
+    },
+    {
+      "symbol": "reqSetGiveCateConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_yh_fl",
+      "source": "src/api/BMS/station/index.js:105"
+    },
+    {
+      "symbol": "reqSetGive2CateConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_yh2_fl",
+      "source": "src/api/BMS/station/index.js:109"
+    },
+    {
+      "symbol": "reqGetChoosePrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_fl_act_prds",
+      "source": "src/api/BMS/station/index.js:113"
+    },
+    {
+      "symbol": "reqGetAuthLimitConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_auth_priv",
+      "source": "src/api/BMS/station/index.js:120"
+    },
+    {
+      "symbol": "reqSetAuthLimitConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_auth_priv",
+      "source": "src/api/BMS/station/index.js:124"
+    },
+    {
+      "symbol": "reqGetLookOrderConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_check_priv",
+      "source": "src/api/BMS/station/index.js:131"
+    },
+    {
+      "symbol": "reqSetLookOrderConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_check_priv",
+      "source": "src/api/BMS/station/index.js:135"
+    },
+    {
+      "symbol": "reqCreateNewFrom",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/new_from",
+      "source": "src/api/BMS/station/index.js:139"
+    },
+    {
+      "symbol": "reGetSysRolesAndAuthModule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_sys_roles",
+      "source": "src/api/BMS/station/index.js:143"
+    },
+    {
+      "symbol": "reSetSysRolesAuthModule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/set_sys_roles",
+      "source": "src/api/BMS/station/index.js:147"
+    },
+    {
+      "symbol": "reqGetOrdExclPrdItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_ord_excl_prd_items",
+      "source": "src/api/BMS/station/index.js:151"
+    },
+    {
+      "symbol": "reqGetOrdExclList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/get_ord_excl_list",
+      "source": "src/api/BMS/station/index.js:155"
+    },
+    {
+      "symbol": "reqAddOrdExclPrd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/add_ord_excl_prd",
+      "source": "src/api/BMS/station/index.js:159"
+    },
+    {
+      "symbol": "reqDelOrdExclPrd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/station/del_ord_excl_prd",
+      "source": "src/api/BMS/station/index.js:163"
+    },
+    {
+      "symbol": "reqGetRptJkCatList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cate_list",
+      "source": "src/api/BMS/statistical/index.js:7"
+    },
+    {
+      "symbol": "reqGerRptJkCatePrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cate_prd_list ",
+      "source": "src/api/BMS/statistical/index.js:10"
+    },
+    {
+      "symbol": "reqMoveRptJkCateDsp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/move_rpt_jk_cate_dsp",
+      "source": "src/api/BMS/statistical/index.js:13"
+    },
+    {
+      "symbol": "reqSaveRptJkCateCates",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/save_rpt_jk_cate_cates",
+      "source": "src/api/BMS/statistical/index.js:16"
+    },
+    {
+      "symbol": "reqBatchDelRptJkCatePitems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/batch_del_rpt_jk_cate_pitems",
+      "source": "src/api/BMS/statistical/index.js:19"
+    },
+    {
+      "symbol": "reqBatchAddRptJkCatePitems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/batch_add_rpt_jk_cate_pitems",
+      "source": "src/api/BMS/statistical/index.js:22"
+    },
+    {
+      "symbol": "reqSaveRptJkCateName",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/save_rpt_jk_cate_name",
+      "source": "src/api/BMS/statistical/index.js:25"
+    },
+    {
+      "symbol": "reqSaveRptJkCateBizType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/save_rpt_jk_cate_biztype",
+      "source": "src/api/BMS/statistical/index.js:28"
+    },
+    {
+      "symbol": "reqGetRptJkCatePrdItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cate_prd_items",
+      "source": "src/api/BMS/statistical/index.js:32"
+    },
+    {
+      "symbol": "reqGetRptJkCateCatesItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/get_rpt_jk_cate_cate_items",
+      "source": "src/api/BMS/statistical/index.js:35"
+    },
+    {
+      "symbol": "reqNewRptJkCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/new_rpt_jk_cate",
+      "source": "src/api/BMS/statistical/index.js:38"
+    },
+    {
+      "symbol": "reqBatchDelRptJkCate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt/cfg/batch_del_rpt_jk_cate",
+      "source": "src/api/BMS/statistical/index.js:41"
+    },
+    {
       "symbol": "requesttcateocate_list",
       "method": "POST",
       "baseKey": "htgl",
@@ -3272,6 +4126,545 @@
       "baseKey": "htgl",
       "path": "/tcate/move_dsp",
       "source": "src/api/BMS/tcate/index.js:46"
+    },
+    {
+      "symbol": "reqGetTerminalList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/list",
+      "source": "src/api/BMS/terminal/index.js:6"
+    },
+    {
+      "symbol": "reqGetTerminalPrintList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/get_prts",
+      "source": "src/api/BMS/terminal/index.js:9"
+    },
+    {
+      "symbol": "reqGetTerminalSaveWinePrintList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/get_wine_store_prts",
+      "source": "src/api/BMS/terminal/index.js:11"
+    },
+    {
+      "symbol": "reqSaveTerminalConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/save_prt",
+      "source": "src/api/BMS/terminal/index.js:14"
+    },
+    {
+      "symbol": "reqClearTerminal",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/clear_term",
+      "source": "src/api/BMS/terminal/index.js:17"
+    },
+    {
+      "symbol": "reqGetTerminalCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/gen_quick_code",
+      "source": "src/api/BMS/terminal/index.js:20"
+    },
+    {
+      "symbol": "reqGetTerminalAreaAndSeat",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/get_region_seat_priv",
+      "source": "src/api/BMS/terminal/index.js:23"
+    },
+    {
+      "symbol": "reqSaveTerminalAreaAndSeat",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/lic/save_region_seat_priv",
+      "source": "src/api/BMS/terminal/index.js:26"
+    },
+    {
+      "symbol": "reqGetTime",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/org/get_org_biz_cfg",
+      "source": "src/api/BMS/terminalRules/index.js:6"
+    },
+    {
+      "symbol": "reqSubmitTime",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/org/save_org_biz_cfg",
+      "source": "src/api/BMS/terminalRules/index.js:9"
+    },
+    {
+      "symbol": "reqSubmitVipRules",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/save_stl_rules",
+      "source": "src/api/BMS/terminalRules/index.js:18"
+    },
+    {
+      "symbol": "reqGetVipRules",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_stl_rules",
+      "source": "src/api/BMS/terminalRules/index.js:27"
+    },
+    {
+      "symbol": "reqGetOpenStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/get",
+      "source": "src/api/Book/index.js:8"
+    },
+    {
+      "symbol": "reqWorkStart",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/start",
+      "source": "src/api/Book/index.js:11"
+    },
+    {
+      "symbol": "reqWorkClose",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/close",
+      "source": "src/api/Book/index.js:14"
+    },
+    {
+      "symbol": "reqGetAutoStopInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/auto_close_cfg",
+      "source": "src/api/Book/index.js:17"
+    },
+    {
+      "symbol": "reqWorkCloseAuto",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/save_auto_close",
+      "source": "src/api/Book/index.js:20"
+    },
+    {
+      "symbol": "reqWorkRestore",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/restore",
+      "source": "src/api/Book/index.js:23"
+    },
+    {
+      "symbol": "reqGetAllData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sync_base/all",
+      "source": "src/api/Book/index.js:29"
+    },
+    {
+      "symbol": "reqGetUpdateData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sync_base/increment",
+      "source": "src/api/Book/index.js:32"
+    },
+    {
+      "symbol": "reqGetCustomPhone",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/customers",
+      "source": "src/api/Book/index.js:35"
+    },
+    {
+      "symbol": "reqNullToOpenCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/direct_open",
+      "source": "src/api/Book/index.js:38"
+    },
+    {
+      "symbol": "reqReserveToOpenCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/open",
+      "source": "src/api/Book/index.js:41"
+    },
+    {
+      "symbol": "reqAddReservedInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/new",
+      "source": "src/api/Book/index.js:44"
+    },
+    {
+      "symbol": "reqAddBatchReservedInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/batch_new",
+      "source": "src/api/Book/index.js:47"
+    },
+    {
+      "symbol": "reqUpdateReservedInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/save",
+      "source": "src/api/Book/index.js:50"
+    },
+    {
+      "symbol": "reqCancelReservedInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/cancel",
+      "source": "src/api/Book/index.js:53"
+    },
+    {
+      "symbol": "reqGetBookDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get",
+      "source": "src/api/Book/index.js:56"
+    },
+    {
+      "symbol": "reqReserveToChangeCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_seat",
+      "source": "src/api/Book/index.js:59"
+    },
+    {
+      "symbol": "reqClockCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/lock",
+      "source": "src/api/Book/index.js:62"
+    },
+    {
+      "symbol": "reqCancelClockCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/unlock",
+      "source": "src/api/Book/index.js:65"
+    },
+    {
+      "symbol": "reqUpdateLowConsume",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_csm_mca",
+      "source": "src/api/Book/index.js:68"
+    },
+    {
+      "symbol": "reqUpdateOpenSales",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_sales",
+      "source": "src/api/Book/index.js:71"
+    },
+    {
+      "symbol": "reqCancelOpenCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/cancel_open",
+      "source": "src/api/Book/index.js:74"
+    },
+    {
+      "symbol": "reqUpdateOpenType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_open_type",
+      "source": "src/api/Book/index.js:77"
+    },
+    {
+      "symbol": "reqOpenToChange",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_csm_seat",
+      "source": "src/api/Book/index.js:80"
+    },
+    {
+      "symbol": "reqGetTurnOverList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_his_sales",
+      "source": "src/api/Book/index.js:83"
+    },
+    {
+      "symbol": "reqUpdateTurnOverDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_his_sales",
+      "source": "src/api/Book/index.js:86"
+    },
+    {
+      "symbol": "reqTurnLineBottomCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/conv_ol_seat_local",
+      "source": "src/api/Book/index.js:89"
+    },
+    {
+      "symbol": "reqTurnOverList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_chg_seat_log",
+      "source": "src/api/Book/index.js:92"
+    },
+    {
+      "symbol": "reqOpenCardListParams",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/get_seat_open_log_params",
+      "source": "src/api/Book/index.js:95"
+    },
+    {
+      "symbol": "reqOpenCardListData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_seat_open_log",
+      "source": "src/api/Book/index.js:101"
+    },
+    {
+      "symbol": "reqGetSeatOpening",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_seat_opening_list",
+      "source": "src/api/Book/index.js:103"
+    },
+    {
+      "symbol": "reqGetDeptRegionSeatOpenList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_dept_region_seat_open_list",
+      "source": "src/api/Book/index.js:104"
+    },
+    {
+      "symbol": "reqExportOpenCardExcel",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_seat_open_log",
+      "source": "src/api/Book/index.js:110"
+    },
+    {
+      "symbol": "reqExportSeatOpening",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_seat_opening_list",
+      "source": "src/api/Book/index.js:111"
+    },
+    {
+      "symbol": "reqExportDeptRegionSeatOpenList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_dept_region_seat_open_list",
+      "source": "src/api/Book/index.js:112"
+    },
+    {
+      "symbol": "reqTopCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/top_seat_dsp",
+      "source": "src/api/Book/index.js:115"
+    },
+    {
+      "symbol": "reqCancelTopCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/cancel_top_seat_dsp",
+      "source": "src/api/Book/index.js:118"
+    },
+    {
+      "symbol": "disable_csm_must_ord",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/disable_csm_must_ord",
+      "source": "src/api/Book/index.js:119"
+    },
+    {
+      "symbol": "reqUpdateCardTips",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/set_seat_mark",
+      "source": "src/api/Book/index.js:125"
+    },
+    {
+      "symbol": "reqUpdateCardRemark",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/bk/chg_open_seat_remark",
+      "source": "src/api/Book/index.js:127"
+    },
+    {
+      "symbol": "reqGetBookList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_book_list",
+      "source": "src/api/Book/index.js:130"
+    },
+    {
+      "symbol": "reqExportBookList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_book_list",
+      "source": "src/api/Book/index.js:132"
+    },
+    {
+      "symbol": "reqArrive",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/arrive",
+      "source": "src/api/Book/index.js:135"
+    },
+    {
+      "symbol": "reqExpired",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/expired",
+      "source": "src/api/Book/index.js:138"
+    },
+    {
+      "symbol": "reqExportQueueList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/exp_cust_queue_list",
+      "source": "src/api/Book/index.js:141"
+    },
+    {
+      "symbol": "reqGetNotBindPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_tobind_prds",
+      "source": "src/api/ERP/comparePrd/index.js:9"
+    },
+    {
+      "symbol": "reqGetBindedPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_binded_prds",
+      "source": "src/api/ERP/comparePrd/index.js:12"
+    },
+    {
+      "symbol": "reqGetCantBindPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/get_un_bind_prds",
+      "source": "src/api/ERP/comparePrd/index.js:15"
+    },
+    {
+      "symbol": "reqCloseBindPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/batch_close_bind",
+      "source": "src/api/ERP/comparePrd/index.js:18"
+    },
+    {
+      "symbol": "reqBindPrdList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/prd/bind_mat",
+      "source": "src/api/ERP/comparePrd/index.js:21"
+    },
+    {
+      "symbol": "getEmptyInLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_in_list",
+      "source": "src/api/ERP/emptyLib/index.js:9"
+    },
+    {
+      "symbol": "getNeedInLibOrderDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_in_list_dtl",
+      "source": "src/api/ERP/emptyLib/index.js:12"
+    },
+    {
+      "symbol": "submitEmptyInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/confirm_rtn_bt_in",
+      "source": "src/api/ERP/emptyLib/index.js:15"
+    },
+    {
+      "symbol": "getHCOrderInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_in_f_hc",
+      "source": "src/api/ERP/emptyLib/index.js:18"
+    },
+    {
+      "symbol": "submitHCInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/hc_rtn_bt_in",
+      "source": "src/api/ERP/emptyLib/index.js:21"
+    },
+    {
+      "symbol": "getEmptyInOrderDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_in",
+      "source": "src/api/ERP/emptyLib/index.js:24"
+    },
+    {
+      "symbol": "getEmptyLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_invt",
+      "source": "src/api/ERP/emptyLib/index.js:30"
+    },
+    {
+      "symbol": "emptyLibOut",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/invt_rtn_bt_out",
+      "source": "src/api/ERP/emptyLib/index.js:33"
+    },
+    {
+      "symbol": "getEmptyOutLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_out_list",
+      "source": "src/api/ERP/emptyLib/index.js:39"
+    },
+    {
+      "symbol": "getHCOrderOutLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_out_f_hc",
+      "source": "src/api/ERP/emptyLib/index.js:42"
+    },
+    {
+      "symbol": "submitHCOutLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/hc_rtn_bt_out",
+      "source": "src/api/ERP/emptyLib/index.js:45"
+    },
+    {
+      "symbol": "getEmptyOutOrderDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_out",
+      "source": "src/api/ERP/emptyLib/index.js:48"
+    },
+    {
+      "symbol": "getLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt_erp/get_now_mat_invt",
+      "source": "src/api/ERP/erpLib/index.js:6"
+    },
+    {
+      "symbol": "exportExcelLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt_erp/exp_now_mat_invt ",
+      "source": "src/api/ERP/erpLib/index.js:9"
+    },
+    {
+      "symbol": "getTableList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rpt_erp/get_neg_stores",
+      "source": "src/api/ERP/home/index.js:5"
     },
     {
       "symbol": "requestmatcate_list",
@@ -3379,7 +4772,7 @@
       "source": "src/api/ERP/mat/index.js:89"
     },
     {
-      "symbol": "requestmatAndMoneyimp",
+      "symbol": "reqSetSecondCategory",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/mat/batch_upd_two_cate",
@@ -3624,6 +5017,34 @@
       "source": "src/api/ERP/mtcate/index.js:36"
     },
     {
+      "symbol": "reqGetEmptyInLibDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_in_opers",
+      "source": "src/api/ERP/reportEmpty/index.js:9"
+    },
+    {
+      "symbol": "reqExportEmptyInLibDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/exp_rtn_bt_in_opers",
+      "source": "src/api/ERP/reportEmpty/index.js:12"
+    },
+    {
+      "symbol": "reqGetEmptyOutLibDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/get_rtn_bt_out_opers",
+      "source": "src/api/ERP/reportEmpty/index.js:19"
+    },
+    {
+      "symbol": "reqExportEmptyOutLibDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/rtn_bt/exp_rtn_bt_out_opers",
+      "source": "src/api/ERP/reportEmpty/index.js:22"
+    },
+    {
       "symbol": "requestrpt_erpparam_items",
       "method": "POST",
       "baseKey": "htgl",
@@ -3638,7 +5059,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:12"
     },
     {
-      "symbol": "requestrpt_erpmonth_invs",
+      "symbol": "reqExportOutMatLib",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_mat_invt",
@@ -3652,7 +5073,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:20"
     },
     {
-      "symbol": "requestrpt_erpin_recs",
+      "symbol": "reqExportInLibRpt",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_in_recs",
@@ -3666,7 +5087,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:28"
     },
     {
-      "symbol": "requestrpt_erpout_recs",
+      "symbol": "reqExportOutLibRpt",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_out_recs",
@@ -3680,7 +5101,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:36"
     },
     {
-      "symbol": "requestrpt_erpin_sum",
+      "symbol": "reqExportInLibAllRpt",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_in_sum",
@@ -3694,7 +5115,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:44"
     },
     {
-      "symbol": "requestrpt_erpout_sum",
+      "symbol": "reqExportOutLibAllRpt",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_out_sum",
@@ -3708,7 +5129,7 @@
       "source": "src/api/ERP/rpt_erp/index.js:52"
     },
     {
-      "symbol": "requestrpt_get_store_invt_reps",
+      "symbol": "reqExportStoreInvtReps",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/exp_store_invt_reps",
@@ -3911,7 +5332,7 @@
       "source": "src/api/ERP/soutd/index.js:12"
     },
     {
-      "symbol": "requestsoutdmat_items",
+      "symbol": "reqGetMatLibCount",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/rpt_erp/get_mat_store_invts",
@@ -4170,7 +5591,7 @@
       "source": "src/api/UtilAuth/appinfo/index.js:20"
     },
     {
-      "symbol": "requestsmgremps",
+      "symbol": "reqSetStationEffect",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/smgr/station_enable",
@@ -4198,14 +5619,14 @@
       "source": "src/api/UtilAuth/appinfo/index.js:36"
     },
     {
-      "symbol": "requestsmgrrevoke",
+      "symbol": "reqSetAuthEnable",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/smgr/emp_enable",
       "source": "src/api/UtilAuth/appinfo/index.js:39"
     },
     {
-      "symbol": "requestsmgrrevoke",
+      "symbol": "reqSetAuthDisabled",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/smgr/emp_disable",
@@ -4233,14 +5654,14 @@
       "source": "src/api/UtilAuth/auth/index.js:17"
     },
     {
-      "symbol": "requestauthchg_pw",
+      "symbol": "reqGetCardPassword",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/auth/get_card_p",
       "source": "src/api/UtilAuth/auth/index.js:21"
     },
     {
-      "symbol": "requestauthchg_pw",
+      "symbol": "reqRegisterTerminal",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/register/machine",
@@ -4259,6 +5680,2967 @@
       "baseKey": "htgl",
       "path": "/util/py",
       "source": "src/api/UtilAuth/util/index.js:8"
+    },
+    {
+      "symbol": "reqGetCardPayList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_items",
+      "source": "src/api/money/index.js:9"
+    },
+    {
+      "symbol": "reqUpdateGroupProductDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_prd_set_dtl",
+      "source": "src/api/money/index.js:13"
+    },
+    {
+      "symbol": "reqAddPayListToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_cnl",
+      "source": "src/api/money/index.js:17"
+    },
+    {
+      "symbol": "reqAddBookAmtToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_late_cnl",
+      "source": "src/api/money/index.js:21"
+    },
+    {
+      "symbol": "reqDelPayListFromShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_del_cnl",
+      "source": "src/api/money/index.js:25"
+    },
+    {
+      "symbol": "reqAddShoppingFromZero",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_auth_cnl",
+      "source": "src/api/money/index.js:29"
+    },
+    {
+      "symbol": "reqTogglePayType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_settle_mode",
+      "source": "src/api/money/index.js:33"
+    },
+    {
+      "symbol": "reqMergeYh2Order",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/move_order",
+      "source": "src/api/money/index.js:37"
+    },
+    {
+      "symbol": "reqMoveWkOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/move_wk_order",
+      "source": "src/api/money/index.js:41"
+    },
+    {
+      "symbol": "move_payed_wk_order",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/move_payed_wk_order",
+      "source": "src/api/money/index.js:53"
+    },
+    {
+      "symbol": "reqOnlineOrderToOrgOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/conv_ol_order_local",
+      "source": "src/api/money/index.js:57"
+    },
+    {
+      "symbol": "reqOnlineOrderForceToOrgOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/conv_ol_pay_local_late",
+      "source": "src/api/money/index.js:61"
+    },
+    {
+      "symbol": "reqOnlineOrderToOffIsSuccess",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_conv_ol_to_org_status",
+      "source": "src/api/money/index.js:65"
+    },
+    {
+      "symbol": "reqCancelClockOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/force_cancel_waiter_olpay",
+      "source": "src/api/money/index.js:69"
+    },
+    {
+      "symbol": "reqOnlineOrderToFirst",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/ol_order_do_cp",
+      "source": "src/api/money/index.js:73"
+    },
+    {
+      "symbol": "reqPayOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/pay_order",
+      "source": "src/api/money/index.js:76"
+    },
+    {
+      "symbol": "reqCustomerPaymentCodePay",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/customer_payment_code_pay",
+      "source": "src/api/money/index.js:80"
+    },
+    {
+      "symbol": "reqGetCardPayInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/csm_orders",
+      "source": "src/api/money/index.js:84"
+    },
+    {
+      "symbol": "reqPayedBackOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/pay_order_back",
+      "source": "src/api/money/index.js:88"
+    },
+    {
+      "symbol": "reqPrintResultOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/prt_sel_bill",
+      "source": "src/api/money/index.js:92"
+    },
+    {
+      "symbol": "reqPrintYH2Order",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/prt_csm_yh2_bill",
+      "source": "src/api/money/index.js:96"
+    },
+    {
+      "symbol": "reqClearCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/seat_clean",
+      "source": "src/api/money/index.js:99"
+    },
+    {
+      "symbol": "reqGetSeatTurnbackList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_seat_turnback_list",
+      "source": "src/api/money/index.js:103"
+    },
+    {
+      "symbol": "reqReserveCardStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/seat_turn_back",
+      "source": "src/api/money/index.js:107"
+    },
+    {
+      "symbol": "reqGetOrderPayListOfBack",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_chg_pay_cnls",
+      "source": "src/api/money/index.js:111"
+    },
+    {
+      "symbol": "reqGetBackOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/yy/list",
+      "source": "src/api/money/index.js:114"
+    },
+    {
+      "symbol": "reqTryBackSecond",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/yy/retry",
+      "source": "src/api/money/index.js:117"
+    },
+    {
+      "symbol": "reqBackOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/yy/process",
+      "source": "src/api/money/index.js:120"
+    },
+    {
+      "symbol": "reqPrintAllData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/prt_bj",
+      "source": "src/api/money/index.js:123"
+    },
+    {
+      "symbol": "reqGetAllData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wkd/get_bj",
+      "source": "src/api/money/index.js:126"
+    },
+    {
+      "symbol": "reqGetDayReportPayedParams",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_sold_prd_rpt_params",
+      "source": "src/api/money/index.js:130"
+    },
+    {
+      "symbol": "reqGetSoldOutRptItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_sold_out_rpt_items",
+      "source": "src/api/money/index.js:134"
+    },
+    {
+      "symbol": "reqGetSoldOutRpt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_sold_out_rpt",
+      "source": "src/api/money/index.js:138"
+    },
+    {
+      "symbol": "reqPrtSoldOutRpt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/prt_sold_out_rpt",
+      "source": "src/api/money/index.js:141"
+    },
+    {
+      "symbol": "reqGetDayReportPayedList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_sold_prd_rpt",
+      "source": "src/api/money/index.js:145"
+    },
+    {
+      "symbol": "reqPrintDayReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/prt_sold_prd_rpt",
+      "source": "src/api/money/index.js:149"
+    },
+    {
+      "symbol": "reqGetProfitData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_prd_profit_loss",
+      "source": "src/api/money/index.js:153"
+    },
+    {
+      "symbol": "reqAddProfitData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/do_prd_profit_loss",
+      "source": "src/api/money/index.js:157"
+    },
+    {
+      "symbol": "reqGetOnlinePayTotalInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_ol_pay_bill",
+      "source": "src/api/money/index.js:161"
+    },
+    {
+      "symbol": "reqPrintOnlinePayTotal",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/prt_ol_pay_bill",
+      "source": "src/api/money/index.js:165"
+    },
+    {
+      "symbol": "reqGetOnlinePayDetailInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_ol_pay_recs",
+      "source": "src/api/money/index.js:169"
+    },
+    {
+      "symbol": "reqExportExcelOfOnlinePayDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/exp_ol_pay_recs",
+      "source": "src/api/money/index.js:173"
+    },
+    {
+      "symbol": "reqGetPayRecordList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_pay_list",
+      "source": "src/api/money/index.js:177"
+    },
+    {
+      "symbol": "reqGetCustInfoByPhone",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_cust_info_by_phonenum",
+      "source": "src/api/money/index.js:181"
+    },
+    {
+      "symbol": "reqChangePayCustomer",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_pay_cust",
+      "source": "src/api/money/index.js:185"
+    },
+    {
+      "symbol": "reqGetRegionRealAmts",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_region_real_amts",
+      "source": "src/api/money/index.js:189"
+    },
+    {
+      "symbol": "reqExportRegionRealAmts",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_region_real_amts",
+      "source": "src/api/money/index.js:193"
+    },
+    {
+      "symbol": "reqGetKpiReportInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_yj_rpt",
+      "source": "src/api/money/index.js:197"
+    },
+    {
+      "symbol": "reqExportExcelOfKpiReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_yj_rpt",
+      "source": "src/api/money/index.js:201"
+    },
+    {
+      "symbol": "reqGetBookingList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_ol_book_list",
+      "source": "src/api/money/index.js:205"
+    },
+    {
+      "symbol": "reqExportBookingListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_ol_book_list",
+      "source": "src/api/money/index.js:209"
+    },
+    {
+      "symbol": "reqGetYHList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_yh_list",
+      "source": "src/api/money/index.js:213"
+    },
+    {
+      "symbol": "reqExportYHListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_yh_list",
+      "source": "src/api/money/index.js:217"
+    },
+    {
+      "symbol": "reqGetKqCsmList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_kq_csm_list",
+      "source": "src/api/money/index.js:221"
+    },
+    {
+      "symbol": "get_kq_csm_list_for_back",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_kq_csm_list_for_back",
+      "source": "src/api/money/index.js:223"
+    },
+    {
+      "symbol": "cancel_kq_csm",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cancel_kq_csm",
+      "source": "src/api/money/index.js:224"
+    },
+    {
+      "symbol": "exp_kq_csm_list_for_back",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_kq_csm_list_for_back",
+      "source": "src/api/money/index.js:225"
+    },
+    {
+      "symbol": "reqExpKqCsmList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_kq_csm_list",
+      "source": "src/api/money/index.js:229"
+    },
+    {
+      "symbol": "reqGetTYList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_hl_list",
+      "source": "src/api/money/index.js:248"
+    },
+    {
+      "symbol": "reqExportTYListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_hl_list",
+      "source": "src/api/money/index.js:252"
+    },
+    {
+      "symbol": "reqGetTYHZList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_hl_rpt_sum_list",
+      "source": "src/api/money/index.js:264"
+    },
+    {
+      "symbol": "reqExportTYHZListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_hl_rpt_sum_list",
+      "source": "src/api/money/index.js:268"
+    },
+    {
+      "symbol": "reqGetTurnOverList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_turnover_csm_list",
+      "source": "src/api/money/index.js:273"
+    },
+    {
+      "symbol": "reqExportTurnOverListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_turnover_cms_list",
+      "source": "src/api/money/index.js:277"
+    },
+    {
+      "symbol": "reqGetOrderDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_order_prd_list",
+      "source": "src/api/money/index.js:281"
+    },
+    {
+      "symbol": "reRptPrdOutList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_rpt_prd_out_list",
+      "source": "src/api/money/index.js:284"
+    },
+    {
+      "symbol": "reqExportOrderDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_order_prd_list",
+      "source": "src/api/money/index.js:288"
+    },
+    {
+      "symbol": "reqExportRptPrdOutList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_rpt_prd_out_list",
+      "source": "src/api/money/index.js:292"
+    },
+    {
+      "symbol": "reqGetUpdateEmpList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_csm_sales_chg_list",
+      "source": "src/api/money/index.js:296"
+    },
+    {
+      "symbol": "reqExportUpdateEmpListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_csm_sales_chg_list",
+      "source": "src/api/money/index.js:300"
+    },
+    {
+      "symbol": "reqGetMinDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_seat_zy_csm_list",
+      "source": "src/api/money/index.js:304"
+    },
+    {
+      "symbol": "reqExportMinDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/exp_seat_zy_csm_list",
+      "source": "src/api/money/index.js:308"
+    },
+    {
+      "symbol": "reqGetXCDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_xian_chou_list",
+      "source": "src/api/money/index.js:312"
+    },
+    {
+      "symbol": "reqExportXCDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_xian_chou_list",
+      "source": "src/api/money/index.js:316"
+    },
+    {
+      "symbol": "reqGetXCAllInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_xian_chou_sum_list",
+      "source": "src/api/money/index.js:320"
+    },
+    {
+      "symbol": "reqExportXCAllInfoReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_xian_chou_sum_list",
+      "source": "src/api/money/index.js:324"
+    },
+    {
+      "symbol": "reqGetQDInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_not_zy_cate_cnls",
+      "source": "src/api/money/index.js:328"
+    },
+    {
+      "symbol": "reqExportQDAllInfoReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_not_zy_cate_cnls",
+      "source": "src/api/money/index.js:332"
+    },
+    {
+      "symbol": "reqGetXSDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_waiter_sales_prd_amt_list",
+      "source": "src/api/money/index.js:336"
+    },
+    {
+      "symbol": "reqGePrdSetSoldCnt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_prd_set_sold_cnt",
+      "source": "src/api/money/index.js:347"
+    },
+    {
+      "symbol": "reqGetXSAllInfoReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_waiter_sales_prd_amt_sums",
+      "source": "src/api/money/index.js:359"
+    },
+    {
+      "symbol": "reqGetNotTYOrXFReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_relate_prd_list",
+      "source": "src/api/money/index.js:370"
+    },
+    {
+      "symbol": "reqExportNotTYOrXFReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_relate_prd_list",
+      "source": "src/api/money/index.js:374"
+    },
+    {
+      "symbol": "reqGetMerchantConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_cnl_cfg",
+      "source": "src/api/money/index.js:413"
+    },
+    {
+      "symbol": "get_cnl_cfg_grp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/org/get_cnl_cfg_grp",
+      "source": "src/api/money/index.js:439"
+    },
+    {
+      "symbol": "save_cnl_cfg_openclose",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/org/save_cnl_cfg_openclose",
+      "source": "src/api/money/index.js:443"
+    },
+    {
+      "symbol": "save_cnl_cfg_grp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/org/save_cnl_cfg_grp",
+      "source": "src/api/money/index.js:470"
+    },
+    {
+      "symbol": "reqSaveMerchantConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/save_cnl_cfg",
+      "source": "src/api/money/index.js:494"
+    },
+    {
+      "symbol": "reqOpenMerchantConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/enable_wkday_cnl_switch",
+      "source": "src/api/money/index.js:498"
+    },
+    {
+      "symbol": "reqCancelMerchantConfig",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cancel_wkday_cnl_switch",
+      "source": "src/api/money/index.js:502"
+    },
+    {
+      "symbol": "reqGetMerchantList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_wkday_cnl_switch",
+      "source": "src/api/money/index.js:506"
+    },
+    {
+      "symbol": "reqGetMerchantTimeAmtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_cnl_hour_amt",
+      "source": "src/api/money/index.js:510"
+    },
+    {
+      "symbol": "reqAddGZInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/new",
+      "source": "src/api/money/index.js:517"
+    },
+    {
+      "symbol": "reqUpdateGZInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/save",
+      "source": "src/api/money/index.js:520"
+    },
+    {
+      "symbol": "reqDeleteGZInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/del",
+      "source": "src/api/money/index.js:523"
+    },
+    {
+      "symbol": "reqGetGZList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/list",
+      "source": "src/api/money/index.js:526"
+    },
+    {
+      "symbol": "reqGetGZLogs",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/get_op_logs",
+      "source": "src/api/money/index.js:530"
+    },
+    {
+      "symbol": "reqReturnMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/return",
+      "source": "src/api/money/index.js:543"
+    },
+    {
+      "symbol": "reqGetGZOrders",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/cnlacct/get_orders",
+      "source": "src/api/money/index.js:563"
+    },
+    {
+      "symbol": "reqGetVipCardPwd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_mb_card_pass_f_csm",
+      "source": "src/api/money/index.js:572"
+    },
+    {
+      "symbol": "reqGetVipCardInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_mb_card_f_csm",
+      "source": "src/api/money/index.js:576"
+    },
+    {
+      "symbol": "reqGetVipCardFormValidate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/valid_cust_srv_code",
+      "source": "src/api/money/index.js:580"
+    },
+    {
+      "symbol": "reqGetPhonePrepaysFCsm",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_phone_prepays_f_csm",
+      "source": "src/api/money/index.js:584"
+    },
+    {
+      "symbol": "reqCartAddPrepayCnl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_prepay_cnl",
+      "source": "src/api/money/index.js:588"
+    },
+    {
+      "symbol": "reqGetVipCardFormValidateOld",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/valid_pay_code",
+      "source": "src/api/money/index.js:592"
+    },
+    {
+      "symbol": "reqGetVipCardFormPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_phone_mb_cards",
+      "source": "src/api/money/index.js:596"
+    },
+    {
+      "symbol": "reqAddVipCardFormPhoneNumInPayBefore",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_mb_card_cnl",
+      "source": "src/api/money/index.js:601"
+    },
+    {
+      "symbol": "reqAddVipCardFormPhoneNumInPayAfter",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_pay_add_mb_card_cnl",
+      "source": "src/api/money/index.js:605"
+    },
+    {
+      "symbol": "reqGetMerchantListData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_seat_late_cnls_for_mgr",
+      "source": "src/api/money/index.js:613"
+    },
+    {
+      "symbol": "reqAddMerchantMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/new_late_cnl",
+      "source": "src/api/money/index.js:617"
+    },
+    {
+      "symbol": "reqDelMerchantMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/del_late_cnl",
+      "source": "src/api/money/index.js:621"
+    },
+    {
+      "symbol": "reqBackMerchantMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/refund_late_cnl",
+      "source": "src/api/money/index.js:625"
+    },
+    {
+      "symbol": "reqConfirmBillInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_begin_process",
+      "source": "src/api/money/index.js:639"
+    },
+    {
+      "symbol": "reqGetVipCardAmountInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_usable_mb_card_cnl",
+      "source": "src/api/money/index.js:643"
+    },
+    {
+      "symbol": "reqUpdateVipCardIntoBillChannel",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cart_add_mb_card_cnl",
+      "source": "src/api/money/index.js:647"
+    },
+    {
+      "symbol": "reqChangeMerchantMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_late_cnl_seat",
+      "source": "src/api/money/index.js:651"
+    },
+    {
+      "symbol": "reqGetJkList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_jk_list",
+      "source": "src/api/money/index.js:660"
+    },
+    {
+      "symbol": "reqExportJkList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_jk_list",
+      "source": "src/api/money/index.js:664"
+    },
+    {
+      "symbol": "reqGetSpSeatRptList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_sp_seat_rpt_list",
+      "source": "src/api/money/index.js:668"
+    },
+    {
+      "symbol": "reqExpSpSeatRptList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_sp_seat_rpt_list",
+      "source": "src/api/money/index.js:672"
+    },
+    {
+      "symbol": "reqGetSetCntItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_set_cnt_items",
+      "source": "src/api/money/index.js:680"
+    },
+    {
+      "symbol": "reqGetSetCntRpt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_set_cnt_rpt",
+      "source": "src/api/money/index.js:684"
+    },
+    {
+      "symbol": "reqPrtSetCntRpt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/prt_set_cnt_rpt",
+      "source": "src/api/money/index.js:688"
+    },
+    {
+      "symbol": "reqGetBookAmt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_seat_prepay_bal",
+      "source": "src/api/money/index.js:697"
+    },
+    {
+      "symbol": "reqGetBookAmtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_seat_late_cnls",
+      "source": "src/api/money/index.js:701"
+    },
+    {
+      "symbol": "reqAuthYHCount",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_auth_emp_free_limit",
+      "source": "src/api/money/index.js:705"
+    },
+    {
+      "symbol": "reqGetSpSeatList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_sp_seat_list",
+      "source": "src/api/money/index.js:710"
+    },
+    {
+      "symbol": "reqGetCnlAccountRtnList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_cnl_account_rtn_list",
+      "source": "src/api/money/index.js:715"
+    },
+    {
+      "symbol": "reqExpCnlAccountRtnList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_cnl_account_rtn_list",
+      "source": "src/api/money/index.js:722"
+    },
+    {
+      "symbol": "reqChgWkorderWaiter",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_wkorder_waiter",
+      "source": "src/api/money/index.js:726"
+    },
+    {
+      "symbol": "chg_wkorder_auther",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_wkorder_auther",
+      "source": "src/api/money/index.js:729"
+    },
+    {
+      "symbol": "reqGetCustPrePayLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_cust_prepay_log",
+      "source": "src/api/money/index.js:733"
+    },
+    {
+      "symbol": "reqExpCustPrePayLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_cust_prepay_log",
+      "source": "src/api/money/index.js:740"
+    },
+    {
+      "symbol": "reqGetCustPrePayBal",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_cust_prepay_bal",
+      "source": "src/api/money/index.js:744"
+    },
+    {
+      "symbol": "reqExpCustPrePayBal",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_cust_prepay_bal",
+      "source": "src/api/money/index.js:751"
+    },
+    {
+      "symbol": "reqGetOneCustPrePayLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_one_cust_prepay_log",
+      "source": "src/api/money/index.js:755"
+    },
+    {
+      "symbol": "reqExpOneCustPrePayLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_one_cust_prepay_log",
+      "source": "src/api/money/index.js:762"
+    },
+    {
+      "symbol": "reqQueueCall",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/call",
+      "source": "src/api/money/index.js:765"
+    },
+    {
+      "symbol": "reqQueueEnter",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/arrive",
+      "source": "src/api/money/index.js:766"
+    },
+    {
+      "symbol": "reqQueueOverdue",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/custq/expired",
+      "source": "src/api/money/index.js:767"
+    },
+    {
+      "symbol": "get_ol_oper_rst",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_ol_oper_rst",
+      "source": "src/api/money/index.js:777"
+    },
+    {
+      "symbol": "conv_ol_pay_to_late",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/conv_ol_pay_to_late",
+      "source": "src/api/money/index.js:785"
+    },
+    {
+      "symbol": "get_csm_his_wkday_items",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_csm_his_wkday_items",
+      "source": "src/api/money/index.js:799"
+    },
+    {
+      "symbol": "get_csm_his",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_csm_his",
+      "source": "src/api/money/index.js:835"
+    },
+    {
+      "symbol": "get_csm_hiexp_csm_hiss_wkday_items",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_csm_his",
+      "source": "src/api/money/index.js:846"
+    },
+    {
+      "symbol": "reqGetOwnPayAmt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_self_order_amts",
+      "source": "src/api/order/index.js:6"
+    },
+    {
+      "symbol": "reqGetShoppingCount",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/get_item_cnt",
+      "source": "src/api/order/index.js:12"
+    },
+    {
+      "symbol": "reqAddProductToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_prd",
+      "source": "src/api/order/index.js:16"
+    },
+    {
+      "symbol": "reqAddGroupToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_set",
+      "source": "src/api/order/index.js:20"
+    },
+    {
+      "symbol": "reqAddYhToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_yh",
+      "source": "src/api/order/index.js:23"
+    },
+    {
+      "symbol": "reqAddAmtToShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_hl",
+      "source": "src/api/order/index.js:27"
+    },
+    {
+      "symbol": "reqGetShoppingList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/get_items",
+      "source": "src/api/order/index.js:31"
+    },
+    {
+      "symbol": "reqUpdateShoppingCount",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/set_cnt",
+      "source": "src/api/order/index.js:35"
+    },
+    {
+      "symbol": "reqUpdateSingleProductRequire",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_requirement",
+      "source": "src/api/order/index.js:39"
+    },
+    {
+      "symbol": "reqUpdateGroupProductRequire",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_set_requirement",
+      "source": "src/api/order/index.js:43"
+    },
+    {
+      "symbol": "reqUpdateGroupDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/chg_set_dtl",
+      "source": "src/api/order/index.js:47"
+    },
+    {
+      "symbol": "reqAuthorizationShopping",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/to_yh",
+      "source": "src/api/order/index.js:51"
+    },
+    {
+      "symbol": "reqPlaceAnOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/order",
+      "source": "src/api/order/index.js:54"
+    },
+    {
+      "symbol": "reqCanLookMyOrderData",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chk_order_can_see",
+      "source": "src/api/order/index.js:58"
+    },
+    {
+      "symbol": "reqGetOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/list",
+      "source": "src/api/order/index.js:66"
+    },
+    {
+      "symbol": "reqBackOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/back",
+      "source": "src/api/order/index.js:69"
+    },
+    {
+      "symbol": "reqBackOnlineOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/ol_unpay_back",
+      "source": "src/api/order/index.js:73"
+    },
+    {
+      "symbol": "reqGiveSomeWhenHadOrdered",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/yh_prd",
+      "source": "src/api/order/index.js:77"
+    },
+    {
+      "symbol": "reqChangeOrderDetailWhenNotOrdered",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/set_chg",
+      "source": "src/api/order/index.js:81"
+    },
+    {
+      "symbol": "reqReprtCp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/reprt_cp",
+      "source": "src/api/order/index.js:85"
+    },
+    {
+      "symbol": "reqSetCsmWaiter",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/set_csm_waiter",
+      "source": "src/api/order/index.js:89"
+    },
+    {
+      "symbol": "get_cust_items_for_csm",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_cust_items_for_csm",
+      "source": "src/api/order/index.js:92"
+    },
+    {
+      "symbol": "set_csm_cust",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/set_csm_cust",
+      "source": "src/api/order/index.js:95"
+    },
+    {
+      "symbol": "get_set_csm_cust_rst",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_set_csm_cust_rst",
+      "source": "src/api/order/index.js:99"
+    },
+    {
+      "symbol": "get_csm_phone_nums",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_csm_phone_nums",
+      "source": "src/api/order/index.js:104"
+    },
+    {
+      "symbol": "reqChgCsmWaiter",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_csm_waiter",
+      "source": "src/api/order/index.js:109"
+    },
+    {
+      "symbol": "reqPrintOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/prt_csm_bill",
+      "source": "src/api/order/index.js:112"
+    },
+    {
+      "symbol": "reqAnewPrintOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/sy_prt_csm_bill",
+      "source": "src/api/order/index.js:115"
+    },
+    {
+      "symbol": "reqGetPayOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_waiter_olpay_todo_orders",
+      "source": "src/api/order/index.js:121"
+    },
+    {
+      "symbol": "reqGetPayQRcode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/do_waiter_olpay_with_orders",
+      "source": "src/api/order/index.js:125"
+    },
+    {
+      "symbol": "do_continue_waiter_olpay_with_orders",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/do_continue_waiter_olpay_with_orders",
+      "source": "src/api/order/index.js:137"
+    },
+    {
+      "symbol": "reqCheckPayOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chk_waiter_olpay_with_orders",
+      "source": "src/api/order/index.js:142"
+    },
+    {
+      "symbol": "reqCancelPayOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/cancel_waiter_olpay",
+      "source": "src/api/order/index.js:146"
+    },
+    {
+      "symbol": "reqGetOrderOnlinePayStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_waiter_olpay_status",
+      "source": "src/api/order/index.js:150"
+    },
+    {
+      "symbol": "reqGetMerchantPayQRcode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/do_waiter_late_olpay",
+      "source": "src/api/order/index.js:154"
+    },
+    {
+      "symbol": "reqGetMerchantPayQRcodeStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_waiter_late_olpay_status",
+      "source": "src/api/order/index.js:158"
+    },
+    {
+      "symbol": "reqSetYhMany2Order",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/to_yh2",
+      "source": "src/api/order/index.js:164"
+    },
+    {
+      "symbol": "reqSetYhMany2OrderAtOrdered",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/yh2_prd",
+      "source": "src/api/order/index.js:168"
+    },
+    {
+      "symbol": "reqAddYh2ToShoppingCart",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wsc/add_yh2",
+      "source": "src/api/order/index.js:172"
+    },
+    {
+      "symbol": "reqAddGQOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/add_prd_sold_out",
+      "source": "src/api/order/index.js:179"
+    },
+    {
+      "symbol": "reqSetGQOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/set_prd_sold_out",
+      "source": "src/api/order/index.js:183"
+    },
+    {
+      "symbol": "reqDelGQOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/del_prd_sold_out",
+      "source": "src/api/order/index.js:187"
+    },
+    {
+      "symbol": "reqGetGQOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_prd_sold_outs",
+      "source": "src/api/order/index.js:191"
+    },
+    {
+      "symbol": "reqGetAuthStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/get_auth_pwd_enabled",
+      "source": "src/api/order/index.js:198"
+    },
+    {
+      "symbol": "reqUpdateAuthPwd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/emp/chg_auth_pwd",
+      "source": "src/api/order/index.js:202"
+    },
+    {
+      "symbol": "reqGetCanBJSeatList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_relate_seat_items",
+      "source": "src/api/order/index.js:207"
+    },
+    {
+      "symbol": "reqGetCanBJSeatOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_relate_seat_csm_items",
+      "source": "src/api/order/index.js:211"
+    },
+    {
+      "symbol": "reqChangeYhRen",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chg_yh_yu2_auth_emp",
+      "source": "src/api/order/index.js:216"
+    },
+    {
+      "symbol": "chg_yh_auth_emp",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chg_yh_auth_emp",
+      "source": "src/api/order/index.js:219"
+    },
+    {
+      "symbol": "reqGetYHListByord",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/get_hl_list_byord",
+      "source": "src/api/order/index.js:224"
+    },
+    {
+      "symbol": "reqCancelDiscount",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cancel_yh",
+      "source": "src/api/order/index.js:228"
+    },
+    {
+      "symbol": "reqGetSalesmanSeatList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_sales_seats",
+      "source": "src/api/order/index.js:232"
+    },
+    {
+      "symbol": "reqLocalManualKqCsm",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/local_manual_kq_csm",
+      "source": "src/api/order/index.js:236"
+    },
+    {
+      "symbol": "reqValidCustKqCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/valid_cust_kq_code",
+      "source": "src/api/order/index.js:240"
+    },
+    {
+      "symbol": "csm_dy_coupon_prepare",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_dy_coupon_prepare",
+      "source": "src/api/order/index.js:243"
+    },
+    {
+      "symbol": "csm_mt_coupon_prepare",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_mt_coupon_prepare",
+      "source": "src/api/order/index.js:245"
+    },
+    {
+      "symbol": "csm_coupon_preparev2",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_coupon_prepare_v2",
+      "source": "src/api/order/index.js:248"
+    },
+    {
+      "symbol": "csm_coupon_v2",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_coupon_v2",
+      "source": "src/api/order/index.js:251"
+    },
+    {
+      "symbol": "reqUseKqCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/kq_csm_by_code",
+      "source": "src/api/order/index.js:255"
+    },
+    {
+      "symbol": "reqUseDyCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_dy_coupon",
+      "source": "src/api/order/index.js:257"
+    },
+    {
+      "symbol": "reqUseMtCode",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/csm_mt_coupon",
+      "source": "src/api/order/index.js:259"
+    },
+    {
+      "symbol": "chg_wk_order_waiter_inord",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chg_wk_order_waiter_inord",
+      "source": "src/api/order/index.js:262"
+    },
+    {
+      "symbol": "chg_csm_waiter_inord",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/chg_csm_waiter_inord",
+      "source": "src/api/order/index.js:266"
+    },
+    {
+      "symbol": "reqSendErrMsg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/yw/pce",
+      "source": "src/api/reportErr.js:4"
+    },
+    {
+      "symbol": "reqGetCustomOrderList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_csms_f_cj",
+      "source": "src/api/saveWine/index.js:9"
+    },
+    {
+      "symbol": "reqGetCanSaveWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_csm_cj_invt",
+      "source": "src/api/saveWine/index.js:13"
+    },
+    {
+      "symbol": "reqGetShoppingCartWine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_sc_csm_cj",
+      "source": "src/api/saveWine/index.js:17"
+    },
+    {
+      "symbol": "reqAddNotAuthWine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/add_sc_csm_cj_prd",
+      "source": "src/api/saveWine/index.js:21"
+    },
+    {
+      "symbol": "reqAddAuthWine",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/add_sc_csm_auth_cj_prd",
+      "source": "src/api/saveWine/index.js:25"
+    },
+    {
+      "symbol": "reqGetCanAuthSaveWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_can_wine_prd_items",
+      "source": "src/api/saveWine/index.js:29"
+    },
+    {
+      "symbol": "reqUpdateWineCount",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/mod_sc_csm_cj_prd",
+      "source": "src/api/saveWine/index.js:33"
+    },
+    {
+      "symbol": "reqCheckBlackPhone",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/valid_phone_not_blacklist",
+      "source": "src/api/saveWine/index.js:37"
+    },
+    {
+      "symbol": "reqCreateSaveWineOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_cj_bef_in",
+      "source": "src/api/saveWine/index.js:41"
+    },
+    {
+      "symbol": "reqGetCanGetFromLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_qj_invt",
+      "source": "src/api/saveWine/index.js:45"
+    },
+    {
+      "symbol": "reqGetWineToNextLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_qj_bef_out",
+      "source": "src/api/saveWine/index.js:49"
+    },
+    {
+      "symbol": "reqCreateOrderOfPayToStore",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_csm_cg_bef_in",
+      "source": "src/api/saveWine/index.js:53"
+    },
+    {
+      "symbol": "reqGetWineCustByPhone4",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_cust_by_phone4",
+      "source": "src/api/saveWine/index.js:57"
+    },
+    {
+      "symbol": "reqGetVipTypeList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/list",
+      "source": "src/api/vip/index.js:9"
+    },
+    {
+      "symbol": "reqGetVipTypeDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/get",
+      "source": "src/api/vip/index.js:13"
+    },
+    {
+      "symbol": "reqAddVipType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/new",
+      "source": "src/api/vip/index.js:16"
+    },
+    {
+      "symbol": "reqGetLevelList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/get_level_list",
+      "source": "src/api/vip/index.js:19"
+    },
+    {
+      "symbol": "chg_level_kq",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_level_kq",
+      "source": "src/api/vip/index.js:20"
+    },
+    {
+      "symbol": "reqEnableAutopd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/enable_autoupd",
+      "source": "src/api/vip/index.js:24"
+    },
+    {
+      "symbol": "reqDisableAutoupd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/disable_autoupd",
+      "source": "src/api/vip/index.js:28"
+    },
+    {
+      "symbol": "get_mb_card_level_kqs",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/get_mb_card_level_kqs",
+      "source": "src/api/vip/index.js:31"
+    },
+    {
+      "symbol": "reqChgMbCardLevelExpTd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_mb_card_level_exp_td",
+      "source": "src/api/vip/index.js:35"
+    },
+    {
+      "symbol": "reqUpdateVipType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_name",
+      "source": "src/api/vip/index.js:39"
+    },
+    {
+      "symbol": "reqUpdateDefaultVipType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_def",
+      "source": "src/api/vip/index.js:43"
+    },
+    {
+      "symbol": "reqAddVipTypeDeep",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/new_level",
+      "source": "src/api/vip/index.js:47"
+    },
+    {
+      "symbol": "reqUpdateVipDeepName",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_level_name",
+      "source": "src/api/vip/index.js:51"
+    },
+    {
+      "symbol": "reqUpdateVipDeepPic",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/chg_level_pic",
+      "source": "src/api/vip/index.js:55"
+    },
+    {
+      "symbol": "reqDelVipDeep",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/del_level",
+      "source": "src/api/vip/index.js:59"
+    },
+    {
+      "symbol": "reqDelVipType",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/del",
+      "source": "src/api/vip/index.js:62"
+    },
+    {
+      "symbol": "reqAddUploadBgiImg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/new_cust_cover",
+      "source": "src/api/vip/index.js:66"
+    },
+    {
+      "symbol": "reqDelUploadBgiImg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/del_cust_cover",
+      "source": "src/api/vip/index.js:70"
+    },
+    {
+      "symbol": "reqGetUploadBgiImg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/type/get_cust_cover_list",
+      "source": "src/api/vip/index.js:74"
+    },
+    {
+      "symbol": "reqOssImgBaseUrl",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/oss/get_pic_prefix",
+      "source": "src/api/vip/index.js:78"
+    },
+    {
+      "symbol": "reqGetKqItems",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/get_kq_items",
+      "source": "src/api/vip/index.js:82"
+    },
+    {
+      "symbol": "reqGetKqDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/get",
+      "source": "src/api/vip/index.js:86"
+    },
+    {
+      "symbol": "reqSendPhoneMsg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms/valid_send",
+      "source": "src/api/vip/index.js:94"
+    },
+    {
+      "symbol": "reqValidatePhoneMsg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sms/valid_chk",
+      "source": "src/api/vip/index.js:98"
+    },
+    {
+      "symbol": "reqGetAddVipCardParams",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_params_f_new",
+      "source": "src/api/vip/index.js:102"
+    },
+    {
+      "symbol": "reqAddVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/new",
+      "source": "src/api/vip/index.js:105"
+    },
+    {
+      "symbol": "reqGetVipCardList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/list",
+      "source": "src/api/vip/index.js:109"
+    },
+    {
+      "symbol": "reqGetVipOfBindThisPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/phone_mb_list",
+      "source": "src/api/vip/index.js:113"
+    },
+    {
+      "symbol": "reqMakeVipCardBegin",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/mk_card_begin",
+      "source": "src/api/vip/index.js:117"
+    },
+    {
+      "symbol": "reqMakeVipCardEnd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/mk_card_end",
+      "source": "src/api/vip/index.js:121"
+    },
+    {
+      "symbol": "reqGetVipCardMakeMoneyListRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/list",
+      "source": "src/api/vip/index.js:128"
+    },
+    {
+      "symbol": "reqAddVipCardMakeMoneyRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/new",
+      "source": "src/api/vip/index.js:132"
+    },
+    {
+      "symbol": "reqUpdateVipCardMakeMoneyRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/save",
+      "source": "src/api/vip/index.js:136"
+    },
+    {
+      "symbol": "reqDelVipCardMakeMoneyRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/deposit_rule/del",
+      "source": "src/api/vip/index.js:140"
+    },
+    {
+      "symbol": "reqGetVipBillRuleList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_grp_mb_csm_rule_list",
+      "source": "src/api/vip/index.js:148"
+    },
+    {
+      "symbol": "reqGetVipBillRuleProductsList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_grp_mb_csm_rule_items",
+      "source": "src/api/vip/index.js:152"
+    },
+    {
+      "symbol": "reqAddVipBillRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/add_grp_mb_csm_rule",
+      "source": "src/api/vip/index.js:156"
+    },
+    {
+      "symbol": "reqUpdateVipBillRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/chg_grp_mb_csm_rule",
+      "source": "src/api/vip/index.js:160"
+    },
+    {
+      "symbol": "reqDelVipBillRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/del_grp_mb_csm_rule",
+      "source": "src/api/vip/index.js:164"
+    },
+    {
+      "symbol": "reqCopyVipBillRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/clone_grp_mb_csm_rule",
+      "source": "src/api/vip/index.js:169"
+    },
+    {
+      "symbol": "reqGetMakeMoneyListOfPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_f_deposits",
+      "source": "src/api/vip/index.js:178"
+    },
+    {
+      "symbol": "reqGetCustCardListForDept",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_cust_card_list_for_dept",
+      "source": "src/api/vip/index.js:182"
+    },
+    {
+      "symbol": "reqGetVipCardPwdMsg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_card_p",
+      "source": "src/api/vip/index.js:186"
+    },
+    {
+      "symbol": "reqGetVipCardId",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_f_real",
+      "source": "src/api/vip/index.js:190"
+    },
+    {
+      "symbol": "reqGetVipCardDetailForMakeMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_f_deposit",
+      "source": "src/api/vip/index.js:194"
+    },
+    {
+      "symbol": "reqGetDepositRulesForDept",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_deposit_rules_for_dept",
+      "source": "src/api/vip/index.js:198"
+    },
+    {
+      "symbol": "reqMakeMoneyToCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/deposit",
+      "source": "src/api/vip/index.js:202"
+    },
+    {
+      "symbol": "reqAddMemberPoint",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/deposit_pt",
+      "source": "src/api/vip/index.js:206"
+    },
+    {
+      "symbol": "reqUpdateVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/save",
+      "source": "src/api/vip/index.js:213"
+    },
+    {
+      "symbol": "reqGetVipInfoFormEditVipInfo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_f_edit",
+      "source": "src/api/vip/index.js:217"
+    },
+    {
+      "symbol": "reqGetVipCardDeep",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_f_chg_level",
+      "source": "src/api/vip/index.js:221"
+    },
+    {
+      "symbol": "reqUpdateVipCardDeep",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/chg_level",
+      "source": "src/api/vip/index.js:225"
+    },
+    {
+      "symbol": "reqGetMbCardFLevelupdown",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_f_levelupdown",
+      "source": "src/api/vip/index.js:229"
+    },
+    {
+      "symbol": "reqUpdownMbCardLevel",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/updown_mb_card_level",
+      "source": "src/api/vip/index.js:233"
+    },
+    {
+      "symbol": "reqUGetVipCardInfoFromBindPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_f_bind_phone",
+      "source": "src/api/vip/index.js:237"
+    },
+    {
+      "symbol": "reqUpdateVipCardBindPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/chg_bind_phone",
+      "source": "src/api/vip/index.js:241"
+    },
+    {
+      "symbol": "reqBindVipCardPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/bind_bind_phone",
+      "source": "src/api/vip/index.js:245"
+    },
+    {
+      "symbol": "reqSubMoneyFromCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/subtract",
+      "source": "src/api/vip/index.js:249"
+    },
+    {
+      "symbol": "reqSubPointFromCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/subtract_pt",
+      "source": "src/api/vip/index.js:253"
+    },
+    {
+      "symbol": "reqVipCardGetVNodeCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_f_oper",
+      "source": "src/api/vip/index.js:257"
+    },
+    {
+      "symbol": "reqAbleVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/loss_card",
+      "source": "src/api/vip/index.js:261"
+    },
+    {
+      "symbol": "reqEnableVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/enable_card",
+      "source": "src/api/vip/index.js:265"
+    },
+    {
+      "symbol": "reqChangeVipCardBegin",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/mk_card_f_chg_begin",
+      "source": "src/api/vip/index.js:269"
+    },
+    {
+      "symbol": "reqChangeVipCardEnd",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/mk_card_f_chg_end",
+      "source": "src/api/vip/index.js:273"
+    },
+    {
+      "symbol": "reqBackVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/return",
+      "source": "src/api/vip/index.js:276"
+    },
+    {
+      "symbol": "reqMyKQList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_mb_my_kq_list",
+      "source": "src/api/vip/index.js:279"
+    },
+    {
+      "symbol": "reqMyWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_mb_my_wine_list",
+      "source": "src/api/vip/index.js:282"
+    },
+    {
+      "symbol": "reqMbNameList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_mb_name_items",
+      "source": "src/api/vip/index.js:285"
+    },
+    {
+      "symbol": "reqDestroyVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/close",
+      "source": "src/api/vip/index.js:291"
+    },
+    {
+      "symbol": "reqGetVipCardDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get",
+      "source": "src/api/vip/index.js:298"
+    },
+    {
+      "symbol": "reqGetVipCardListOfOnePhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_cards",
+      "source": "src/api/vip/index.js:302"
+    },
+    {
+      "symbol": "reqGetVipCarPayMoneyListDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_bal_logs",
+      "source": "src/api/vip/index.js:306"
+    },
+    {
+      "symbol": "get_mb_csm_top_prds",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/info/get_mb_csm_top_prds",
+      "source": "src/api/vip/index.js:309"
+    },
+    {
+      "symbol": "reqGetQwMbList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_qw_mb_list",
+      "source": "src/api/vip/index.js:316"
+    },
+    {
+      "symbol": "reqGetVipCardMakeMoneyListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_deposit_log",
+      "source": "src/api/vip/index.js:326"
+    },
+    {
+      "symbol": "reqExportExcelForMakeMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_deposit_log",
+      "source": "src/api/vip/index.js:330"
+    },
+    {
+      "symbol": "reqGetVipCarSubMoneyListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_subtract_log",
+      "source": "src/api/vip/index.js:334"
+    },
+    {
+      "symbol": "reqExportExcelForSubMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_subtract_log",
+      "source": "src/api/vip/index.js:338"
+    },
+    {
+      "symbol": "reqExportExcelForPayMoney",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_consume_log",
+      "source": "src/api/vip/index.js:342"
+    },
+    {
+      "symbol": "reqPrintTicket",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/re_print_dep_sub_bill",
+      "source": "src/api/vip/index.js:346"
+    },
+    {
+      "symbol": "reqPrintTicketNew",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/re_print_mb_bill",
+      "source": "src/api/vip/index.js:350"
+    },
+    {
+      "symbol": "reqGetMbCardUpdownLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_mb_card_updown_log",
+      "source": "src/api/vip/index.js:354"
+    },
+    {
+      "symbol": "reqExportMbCardUpdownLog",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_mb_card_updown_log",
+      "source": "src/api/vip/index.js:358"
+    },
+    {
+      "symbol": "reqGetVipCardNoRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_no_rule",
+      "source": "src/api/vip/index.js:365"
+    },
+    {
+      "symbol": "reqSetVipCardNoRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/save_mb_card_no_rule",
+      "source": "src/api/vip/index.js:369"
+    },
+    {
+      "symbol": "reqCreateVipCardNo",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_next_no",
+      "source": "src/api/vip/index.js:373"
+    },
+    {
+      "symbol": "reqGetRecommnedList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/list",
+      "source": "src/api/vip/index.js:377"
+    },
+    {
+      "symbol": "reqSavePointRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/save_pt_rule",
+      "source": "src/api/vip/index.js:381"
+    },
+    {
+      "symbol": "reqGetMbCardCsmPtRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_mb_card_csm_pt_rule",
+      "source": "src/api/vip/index.js:385"
+    },
+    {
+      "symbol": "reqGetPointRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_pt_rule",
+      "source": "src/api/vip/index.js:389"
+    },
+    {
+      "symbol": "reqGetPointRules",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_pt_rules",
+      "source": "src/api/vip/index.js:393"
+    },
+    {
+      "symbol": "reqGetPtRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_pt_rule",
+      "source": "src/api/vip/index.js:397"
+    },
+    {
+      "symbol": "reqNewPtRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/new_pt_rule",
+      "source": "src/api/vip/index.js:401"
+    },
+    {
+      "symbol": "reqSavePtRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/save_pt_rule",
+      "source": "src/api/vip/index.js:405"
+    },
+    {
+      "symbol": "reqDelPtRule",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/del_pt_rule",
+      "source": "src/api/vip/index.js:409"
+    },
+    {
+      "symbol": "reqExportExcelForVipManager",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/exp_mb_card_list",
+      "source": "src/api/vip/index.js:413"
+    },
+    {
+      "symbol": "reqGetVipCarXFListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_consume_log",
+      "source": "src/api/vip/index.js:417"
+    },
+    {
+      "symbol": "reqGetDeductionPointListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_pt_log",
+      "source": "src/api/vip/index.js:421"
+    },
+    {
+      "symbol": "reqExportExcelForDeductionPoint",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_pt_log",
+      "source": "src/api/vip/index.js:424"
+    },
+    {
+      "symbol": "reqGetVipBalanceListReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_mb_card_bal_list",
+      "source": "src/api/vip/index.js:427"
+    },
+    {
+      "symbol": "reqExportExcelForVipBalance",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_mb_card_bal_list",
+      "source": "src/api/vip/index.js:430"
+    },
+    {
+      "symbol": "reqGetMbCardTopConsume",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_mb_card_top_consume",
+      "source": "src/api/vip/index.js:434"
+    },
+    {
+      "symbol": "reqExportMbCardTopConsume",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_mb_card_top_consume",
+      "source": "src/api/vip/index.js:437"
+    },
+    {
+      "symbol": "reqGetMbCardConsumeList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_mb_card_consume_list",
+      "source": "src/api/vip/index.js:441"
+    },
+    {
+      "symbol": "reqExportMbCardConsumeList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_mb_card_consume_list",
+      "source": "src/api/vip/index.js:444"
+    },
+    {
+      "symbol": "reqGetMbCardZxList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/get_mb_card_zx_list",
+      "source": "src/api/vip/index.js:448"
+    },
+    {
+      "symbol": "reqExportMbCardZxList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/rpt/exp_mb_card_zx_list",
+      "source": "src/api/vip/index.js:451"
+    },
+    {
+      "symbol": "reqLockVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/lock",
+      "source": "src/api/vip/index.js:458"
+    },
+    {
+      "symbol": "reqUnlockVipCard",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/unlock",
+      "source": "src/api/vip/index.js:465"
+    },
+    {
+      "symbol": "reqNewCustCardForDept",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/new_cust_card_for_dept",
+      "source": "src/api/vip/index.js:472"
+    },
+    {
+      "symbol": "reqNewCustDeptOrder",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/new_cust_dept_order",
+      "source": "src/api/vip/index.js:476"
+    },
+    {
+      "symbol": "reqNewCustDeptOrderPay",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/new_cust_dept_order_pay",
+      "source": "src/api/vip/index.js:480"
+    },
+    {
+      "symbol": "reqGetCustDeptOrderStatus",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_cust_dept_order_status",
+      "source": "src/api/vip/index.js:484"
+    },
+    {
+      "symbol": "reqGetCustCardLastSales",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wo/get_cust_card_last_sales",
+      "source": "src/api/vip/index.js:488"
+    },
+    {
+      "symbol": "reqChangeDepositSales",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/chg_deposit_sales",
+      "source": "src/api/vip/index.js:492"
+    },
+    {
+      "symbol": "reqCancelDeposit",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/cancel_deposit",
+      "source": "src/api/vip/index.js:496"
+    },
+    {
+      "symbol": "reqGetDepositLateList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/get_deposit_late_list",
+      "source": "src/api/vip/index.js:503"
+    },
+    {
+      "symbol": "reqGetDepositLateListForDeposit",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/mb/card/get_deposit_late_list_f_dep",
+      "source": "src/api/vip/index.js:507"
+    },
+    {
+      "symbol": "reqBackDepositLate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/back_deposit_late",
+      "source": "src/api/vip/index.js:511"
+    },
+    {
+      "symbol": "reqManyBackToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/back_cj_bef_in",
+      "source": "src/api/wine/index.js:12"
+    },
+    {
+      "symbol": "reqManySureToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_cj_bef_in",
+      "source": "src/api/wine/index.js:16"
+    },
+    {
+      "symbol": "reqAuthSureToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_auth_cj_bef_in",
+      "source": "src/api/wine/index.js:20"
+    },
+    {
+      "symbol": "reqAuthSureToLibNew",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_auth_cj_bef_in2",
+      "source": "src/api/wine/index.js:24"
+    },
+    {
+      "symbol": "reqChgCjBefIn",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/chg_cj_bef_in",
+      "source": "src/api/wine/index.js:28"
+    },
+    {
+      "symbol": "reqGetChgSalesEmpList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_chg_sales_emp_list  ",
+      "source": "src/api/wine/index.js:32"
+    },
+    {
+      "symbol": "reqGetSaveNeedToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_cj_bef_in",
+      "source": "src/api/wine/index.js:37"
+    },
+    {
+      "symbol": "reqGetSaveLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_invt",
+      "source": "src/api/wine/index.js:45"
+    },
+    {
+      "symbol": "reqExportWineDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt",
+      "source": "src/api/wine/index.js:48"
+    },
+    {
+      "symbol": "reqAddLongTime",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/delay_wine_invt2",
+      "source": "src/api/wine/index.js:51"
+    },
+    {
+      "symbol": "reqCgWineInvt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cg_wine_invt",
+      "source": "src/api/wine/index.js:54"
+    },
+    {
+      "symbol": "reqGetSaveLibChildList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_invt_sub_order",
+      "source": "src/api/wine/index.js:60"
+    },
+    {
+      "symbol": "reqGetPassTimeNeedToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_invt_expired",
+      "source": "src/api/wine/index.js:66"
+    },
+    {
+      "symbol": "reqExportWineInvtExpired",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt_expired",
+      "source": "src/api/wine/index.js:70"
+    },
+    {
+      "symbol": "reqPassPrdToStore",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cg_expired_wine_invt",
+      "source": "src/api/wine/index.js:74"
+    },
+    {
+      "symbol": "reqGetSaveLibGrid",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_invt_grid",
+      "source": "src/api/wine/index.js:81"
+    },
+    {
+      "symbol": "reqGetSaveLibGridDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_invt_grid_dtl",
+      "source": "src/api/wine/index.js:85"
+    },
+    {
+      "symbol": "reqExportExcelOfGridReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/exp_wine_invt_grid",
+      "source": "src/api/wine/index.js:89"
+    },
+    {
+      "symbol": "reqBackFromGetInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/back_qj_bef_out",
+      "source": "src/api/wine/index.js:97"
+    },
+    {
+      "symbol": "reqSureFromGetInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_qj_bef_out",
+      "source": "src/api/wine/index.js:101"
+    },
+    {
+      "symbol": "reqAuthFromGetInLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_auth_qj_bef_out",
+      "source": "src/api/wine/index.js:105"
+    },
+    {
+      "symbol": "reqGetGetFromLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_qj_bef_out",
+      "source": "src/api/wine/index.js:109"
+    },
+    {
+      "symbol": "reqPassTimeToLong",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/delay_wine_invt",
+      "source": "src/api/wine/index.js:113"
+    },
+    {
+      "symbol": "reqPassTimeToStore",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/cg_expired_wine_invt",
+      "source": "src/api/wine/index.js:117"
+    },
+    {
+      "symbol": "reqGetCustomList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_cust_list",
+      "source": "src/api/wine/index.js:125"
+    },
+    {
+      "symbol": "reqOpenOrCloseMsg",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/batch_set_enable_sms",
+      "source": "src/api/wine/index.js:129"
+    },
+    {
+      "symbol": "reqUpdateCustomName",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/save_wine_cust_name",
+      "source": "src/api/wine/index.js:133"
+    },
+    {
+      "symbol": "reqValidatePhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/wine_chk_phone_usable",
+      "source": "src/api/wine/index.js:137"
+    },
+    {
+      "symbol": "reqUpdateCustomPhoneNum",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/chg_wine_cust_phone",
+      "source": "src/api/wine/index.js:141"
+    },
+    {
+      "symbol": "reqAddBlackList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/batch_add_wine_blacklist",
+      "source": "src/api/wine/index.js:145"
+    },
+    {
+      "symbol": "reqDeleteBlackList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/batch_del_wine_blacklist",
+      "source": "src/api/wine/index.js:149"
+    },
+    {
+      "symbol": "reqDownloadBlackListTemplate",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/exp_wine_blacklist_tpl",
+      "source": "src/api/wine/index.js:153"
+    },
+    {
+      "symbol": "reqCheckBlackListImport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/imp_wine_blacklist_chk",
+      "source": "src/api/wine/index.js:157"
+    },
+    {
+      "symbol": "reqImportBlackList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/imp_wine_blacklist",
+      "source": "src/api/wine/index.js:161"
+    },
+    {
+      "symbol": "reqGetBlackList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_blacklist",
+      "source": "src/api/wine/index.js:165"
+    },
+    {
+      "symbol": "reqGetCustomCenterSaveWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_kf_cj_bef_in",
+      "source": "src/api/wine/index.js:173"
+    },
+    {
+      "symbol": "reqGetCustomCenterGetWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_kf_wine_invt",
+      "source": "src/api/wine/index.js:181"
+    },
+    {
+      "symbol": "reqGetCustomCenterSeatList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_kf_seat_items",
+      "source": "src/api/wine/index.js:185"
+    },
+    {
+      "symbol": "reqGetCustomCenterGetWineSubmit",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_kf_qj_out",
+      "source": "src/api/wine/index.js:189"
+    },
+    {
+      "symbol": "reqGetNeedToStoreList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_csm_cg_bef_in",
+      "source": "src/api/wine/index.js:197"
+    },
+    {
+      "symbol": "reqBackToStoreList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/back_csm_cg_bef_in",
+      "source": "src/api/wine/index.js:201"
+    },
+    {
+      "symbol": "reqPassToStoreListOfNotAuth",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_csm_cg_bef_in",
+      "source": "src/api/wine/index.js:205"
+    },
+    {
+      "symbol": "reqPassToStoreListOfAuth",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/confirm_auth_csm_cg_bef_in",
+      "source": "src/api/wine/index.js:209"
+    },
+    {
+      "symbol": "reqChgCsmCgBefIn",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/chg_csm_cg_bef_in",
+      "source": "src/api/wine/index.js:213"
+    },
+    {
+      "symbol": "reqGetStoreLibList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_cg_wine_invt",
+      "source": "src/api/wine/index.js:222"
+    },
+    {
+      "symbol": "reqToStorePrdListToLib",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_cg_out",
+      "source": "src/api/wine/index.js:226"
+    },
+    {
+      "symbol": "reqGetToStoreDetailList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_cg_out_list",
+      "source": "src/api/wine/index.js:234"
+    },
+    {
+      "symbol": "reqGetToStoreOrderDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_cg_out_order",
+      "source": "src/api/wine/index.js:238"
+    },
+    {
+      "symbol": "reqGetToStoreOfHc",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_cg_out_order_hc",
+      "source": "src/api/wine/index.js:242"
+    },
+    {
+      "symbol": "reqToStoreToHc",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/hc_cg_out",
+      "source": "src/api/wine/index.js:245"
+    },
+    {
+      "symbol": "reqGetSaveAndGetWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_in_out_list",
+      "source": "src/api/wine/index.js:253"
+    },
+    {
+      "symbol": "reqPrintSaveAndGetWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/reprt_wine_in_out_bill",
+      "source": "src/api/wine/index.js:257"
+    },
+    {
+      "symbol": "reqExportExcelOfSaveAndGetReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_in_out_list",
+      "source": "src/api/wine/index.js:261"
+    },
+    {
+      "symbol": "reqGetPassTimeLongReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_expired_op_list",
+      "source": "src/api/wine/index.js:269"
+    },
+    {
+      "symbol": "reqGetToStoreOutReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_cg_out_list",
+      "source": "src/api/wine/index.js:284"
+    },
+    {
+      "symbol": "reqExportExcelOfToStoreOutReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_cg_out_list",
+      "source": "src/api/wine/index.js:288"
+    },
+    {
+      "symbol": "reqSaveDetailReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_invt_in_list",
+      "source": "src/api/wine/index.js:296"
+    },
+    {
+      "symbol": "reqExportExcelOfSaveDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt_in_list",
+      "source": "src/api/wine/index.js:300"
+    },
+    {
+      "symbol": "reqGridDetailOfSaveReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_invt_in_grid",
+      "source": "src/api/wine/index.js:304"
+    },
+    {
+      "symbol": "reqExportExcelOfSaveGridDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt_in_grid",
+      "source": "src/api/wine/index.js:308"
+    },
+    {
+      "symbol": "reqGetDetailReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_invt_out_list",
+      "source": "src/api/wine/index.js:316"
+    },
+    {
+      "symbol": "reqGridDetailOfGetReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_invt_out_grid",
+      "source": "src/api/wine/index.js:327"
+    },
+    {
+      "symbol": "reqToStoreDetailReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_cg_in_list",
+      "source": "src/api/wine/index.js:342"
+    },
+    {
+      "symbol": "reqExportExcelOfToStoreDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_cg_in_list",
+      "source": "src/api/wine/index.js:346"
+    },
+    {
+      "symbol": "reqGridDetailOfToStoreReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_cg_in_grid",
+      "source": "src/api/wine/index.js:350"
+    },
+    {
+      "symbol": "reqExportExcelOfToStoreGridDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_cg_in_grid",
+      "source": "src/api/wine/index.js:354"
+    },
+    {
+      "symbol": "reqGetEmpList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_sales_emp_items",
+      "source": "src/api/wine/index.js:362"
+    },
+    {
+      "symbol": "reqSaveSearchReportList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/get_wine_op_log",
+      "source": "src/api/wine/index.js:366"
+    },
+    {
+      "symbol": "reqExportExcelOfSaveSearchReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_op_log",
+      "source": "src/api/wine/index.js:370"
+    },
+    {
+      "symbol": "reqGetWineBorrowReturnList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_borrow_return_list",
+      "source": "src/api/wine/index.js:378"
+    },
+    {
+      "symbol": "reqGetWineCanBorrowList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_can_borrow_list",
+      "source": "src/api/wine/index.js:382"
+    },
+    {
+      "symbol": "reqNewWineBorrow",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_wine_borrow",
+      "source": "src/api/wine/index.js:386"
+    },
+    {
+      "symbol": "reqNewWineReturn",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/new_wine_return",
+      "source": "src/api/wine/index.js:390"
+    },
+    {
+      "symbol": "reqGetWineBorrowInvtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_borrow_invt_list",
+      "source": "src/api/wine/index.js:394"
+    },
+    {
+      "symbol": "reqGetBorrowWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_borrow_wine_list",
+      "source": "src/api/wine/index.js:398"
+    },
+    {
+      "symbol": "reqGetReturnWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_return_wine_list",
+      "source": "src/api/wine/index.js:402"
+    },
+    {
+      "symbol": "reqGetUnreturnedWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_unreturned_wine_list",
+      "source": "src/api/wine/index.js:406"
+    },
+    {
+      "symbol": "reqGetBorrowReturnDetail",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_borrow_return_detail",
+      "source": "src/api/wine/index.js:410"
+    },
+    {
+      "symbol": "reqExportUnreturnedWineList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_unreturned_wine_list",
+      "source": "src/api/wine/index.js:414"
+    },
+    {
+      "symbol": "reqExportWineBorrowInvtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/exp_wine_borrow_invt_list",
+      "source": "src/api/wine/index.js:418"
+    },
+    {
+      "symbol": "reqGetWineNowInvtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/get_wine_now_invt_list",
+      "source": "src/api/wine/index.js:426"
+    },
+    {
+      "symbol": "reqExportWineNowInvtList",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/exp_wine_now_invt_list",
+      "source": "src/api/wine/index.js:430"
     }
   ],
   "cues": [

@@ -13,8 +13,12 @@ function sourceLine(file, line) {
   return `${file}:${line}`;
 }
 
+function withoutBlockComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
+}
+
 function extractRoutes(file, source) {
-  const lines = source.split('\n');
+  const lines = withoutBlockComments(source).split('\n');
   const routes = [];
   for (let index = 0; index < lines.length; index += 1) {
     const pathMatch = lines[index].match(/^\s*path:\s*['"`]([^'"`]+)['"`]/);
@@ -43,19 +47,26 @@ function extractApiCalls(file, source) {
     const normalizedMethod = method === 'get' || method === 'binaryFileGet' ? 'GET' : 'POST';
     calls.push({ symbol, method: normalizedMethod, baseKey, path: apiPath, source: sourceLine(file, line) });
   };
+  let pendingArrowSymbol;
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
     const line = lines[lineIndex];
+    const arrowDeclaration = line.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*[^=]*=>/);
+    if (arrowDeclaration) pendingArrowSymbol = arrowDeclaration[1];
     let match;
     expression.lastIndex = 0;
     while ((match = expression.exec(line))) {
       const before = line.slice(0, match.index);
-      let symbolMatch = before.match(/(?:^|[,{]\s*)([A-Za-z_$][\w$]*)\s*(?::|\([^)]*\)\s*\{)/);
+      let symbolMatch = before.match(/(?:^|[,{])\s*([A-Za-z_$][\w$]*)\s*(?::|\([^)]*\)\s*\{)/);
       if (!symbolMatch) {
         for (let previous = lineIndex; previous >= Math.max(0, lineIndex - 8) && !symbolMatch; previous -= 1) {
           symbolMatch = lines[previous].match(/^\s*([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{/);
         }
       }
-      if (symbolMatch) add(symbolMatch[1], match[1], match[2], match[3], lineIndex + 1);
+      const symbol = symbolMatch ? symbolMatch[1] : pendingArrowSymbol;
+      if (symbol) {
+        add(symbol, match[1], match[2], match[3], lineIndex + 1);
+        pendingArrowSymbol = undefined;
+      }
     }
   }
   return calls;
@@ -119,4 +130,4 @@ if (require.main === module) {
   fs.writeFileSync(output, `${JSON.stringify(buildInventory(root), null, 2)}\n`);
 }
 
-module.exports = { lineNumber, toSourcePath, extractRoutes, extractApiCalls, extractCues, buildInventory };
+module.exports = { extractRoutes, extractApiCalls, extractCues, buildInventory };
