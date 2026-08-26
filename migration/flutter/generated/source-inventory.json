@@ -9154,6 +9154,14 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/drawerMeal/singleProduct.vue:11"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerMeal/singleProduct.vue:40"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/drawerMeal/singleProduct.vue:446"
     },
     {
@@ -9218,6 +9226,18 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/footBar.vue:48"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/footBar.vue:98"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/footBar.vue:145"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/footBar.vue:417"
     },
     {
@@ -9274,6 +9294,10 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/myOrder/drawerMyOrder.vue:50"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/myOrder/drawerMyOrder.vue:603"
     },
     {
@@ -9295,6 +9319,10 @@
     {
       "kind": "device",
       "source": "src/components/order/myOrder/drawerPrintOrder.vue:68"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:51"
     },
     {
       "kind": "permission",
@@ -9438,6 +9466,10 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/newDrawerMeal/singleProduct.vue:21"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/newDrawerMeal/singleProduct.vue:421"
     },
     {
@@ -9471,6 +9503,18 @@
     {
       "kind": "permission",
       "source": "src/components/order/newDrawerShowOrderList.vue:385"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:77"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:114"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:149"
     },
     {
       "kind": "permission",
@@ -9750,6 +9794,14 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/newShoppingCart/authorization.vue:14"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newShoppingCart/authorization.vue:20"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/newShoppingCart/drawerGiveHeMore.vue:899"
     },
     {
@@ -9847,6 +9899,22 @@
     {
       "kind": "device",
       "source": "src/components/order/saveWine/drawerSaveWine/stepOne.vue:349"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/shoppingCart/authorization.vue:14"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/shoppingCart/authorization.vue:20"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/shoppingCart/authorizationNoPwd.vue:14"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/shoppingCart/authorizationNoPwd.vue:20"
     },
     {
       "kind": "permission",
@@ -11286,6 +11354,18 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:86"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:103"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:122"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/bills/bills.vue:199"
     },
     {
@@ -11702,6 +11782,26 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:124"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:180"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:236"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:266"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:272"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:522"
     },
     {
@@ -12043,6 +12143,14 @@
     {
       "kind": "storage",
       "source": "src/views/ManagementSystem/BMS/prdConfig/prdConfigTable/prdTableCom/drawerImportAll.vue:131"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/printer/printer.vue:79"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/printer/printer.vue:80"
     },
     {
       "kind": "device",
@@ -12554,6 +12662,22 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:52"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:92"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:110"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:121"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:242"
     },
     {
@@ -12867,6 +12991,26 @@
     {
       "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:938"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:93"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:103"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:112"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:121"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:130"
     },
     {
       "kind": "device",
@@ -13631,6 +13775,18 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/ERP/outLib/changeOutLibCom/drawerDetail.vue:345"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:91"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:130"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:139"
     },
     {
       "kind": "device",
@@ -15302,6 +15458,18 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:113"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:146"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:147"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:320"
     },
     {
@@ -15503,6 +15671,18 @@
     {
       "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:2107"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:135"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:183"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:184"
     },
     {
       "kind": "permission",

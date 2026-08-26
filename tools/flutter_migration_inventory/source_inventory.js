@@ -34,7 +34,7 @@ function maskComments(source) {
     } else if (state === 'html') {
       if (source.startsWith('-->', index)) { result[index] = result[index + 1] = result[index + 2] = ' '; index += 2; state = 'normal'; }
       else if (character !== '\n') result[index] = ' ';
-    } else if ((state === 'single' || state === 'double') && character === '\\') {
+    } else if ((state === 'single' || state === 'double' || state === 'template') && character === '\\') {
       index += 1;
     } else if (state === 'single' && character === "'") state = 'normal';
     else if (state === 'double' && character === '"') state = 'normal';
@@ -45,6 +45,19 @@ function maskComments(source) {
 
 function maskLiterals(source) {
   return source.replace(/(['"`])(?:\\.|(?!\1)[\s\S])*\1/g, (literal) => literal.replace(/[^\n]/g, ' '));
+}
+
+function maskCueLiterals(source, file) {
+  const masked = maskLiterals(source).split('');
+  if (!file.endsWith('.vue')) return masked.join('');
+  const directive = /\bv-(?:if|else-if|show|for|bind|on)\s*=\s*(['"])(?:\\.|(?!\1)[\s\S])*\1/g;
+  let match;
+  while ((match = directive.exec(source))) {
+    const quote = source.indexOf(match[1], match.index);
+    const end = match.index + match[0].length;
+    for (let index = quote + 1; index < end - 1; index += 1) masked[index] = source[index];
+  }
+  return masked.join('');
 }
 
 function maskChildren(source) {
@@ -133,7 +146,7 @@ function extractCues(file, source) {
     ['websocket', /websocket/i],
     ['device', /atool|startqrcodescan|card_scan|print/i],
   ];
-  maskLiterals(maskComments(source)).split('\n').forEach((line, index) => {
+  maskCueLiterals(maskComments(source), file).split('\n').forEach((line, index) => {
     rules.forEach(([kind, pattern]) => {
       if (pattern.test(line)) cues.push({ kind, source: sourceLine(file, index + 1) });
     });

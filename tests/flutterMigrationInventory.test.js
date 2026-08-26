@@ -134,6 +134,32 @@ test('masks JavaScript and Vue comments while preserving comment-like strings', 
   }
 });
 
+test('keeps active Vue directive expressions visible to cue extraction', () => {
+  assert.deepEqual(extractCues('x.vue', '<div v-if="$store.state.userInfo.authStatus === 4">'), [
+    { kind: 'permission', source: 'x.vue:1' },
+  ]);
+  assert.deepEqual(extractCues('x.vue', '<!-- <div v-if="$store.state.userInfo.authStatus === 4"> -->'), []);
+});
+
+test('handles escaped template backticks without masking following active cues', () => {
+  const source = [
+    'const text = `escaped \\` // not a comment ${value}`;',
+    'const live = localStorage.getItem("x"); new WebSocket(url);',
+  ].join('\n');
+  assert.deepEqual(extractCues('x.vue', source), [
+    { kind: 'storage', source: 'x.vue:2' },
+    { kind: 'websocket', source: 'x.vue:2' },
+  ]);
+});
+
+test('keeps the active newFootBar directive while excluding known HTML comments', () => {
+  const inventory = buildInventory(process.cwd());
+  assert.equal(inventory.cues.some((cue) => cue.source === 'src/components/order/newFootBar.vue:114' && cue.kind === 'permission'), true);
+  for (const source of ['src/views/newFootBar.vue:110', 'src/views/authorizationWithNoPwd.vue:14', 'src/views/authorizationWithNoPwd.vue:30', 'src/views/sind.vue:546']) {
+    assert.equal(inventory.cues.some((cue) => cue.source === source), false);
+  }
+});
+
 test('ignores routes inside block comments while preserving real source lines', () => {
   const source = [
     '/*',
