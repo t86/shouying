@@ -41,7 +41,13 @@
         "code": "string",
         "passwd": "uppercase MD5 string",
         "client_name": "string",
-        "pt": "string"
+        "pt": {
+          "type": "number",
+          "allowed": [
+            1,
+            2
+          ]
+        }
       }
     },
     "response": "login result",
@@ -95,14 +101,15 @@
     "kind": "websocket",
     "path": "{wsBase}/sync",
     "request": {
-      "firstPayload": "JSON.stringify(tk)",
+      "payload": "JSON.stringify(tk)"
+    },
+    "response": {
       "envelope": {
         "p": "string",
         "t": "string",
         "d": "object"
       }
     },
-    "response": "envelope messages",
     "sources": [
       "src/websocket/websocket.js"
     ],

@@ -314,6 +314,16 @@ test('migration ledgers have unique ids, valid source references, and explicit p
   assert.ok(result.permissionCount >= 3);
 });
 
+test('protocol ledgers preserve typed login mode and websocket message direction', () => {
+  const protocols = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'migration/flutter/protocols.json'), 'utf8'));
+  const login = protocols.find((protocol) => protocol.id === 'HTTP-AUTH-LOGIN');
+  assert.deepEqual(login.request.body.pt, { type: 'number', allowed: [1, 2] });
+  const sync = protocols.find((protocol) => protocol.id === 'WS-SYNC');
+  assert.equal(sync.request.payload, 'JSON.stringify(tk)');
+  assert.deepEqual(sync.response.envelope, { p: 'string', t: 'string', d: 'object' });
+  assert.equal(Object.hasOwn(sync.request, 'envelope'), false);
+});
+
 function writeLedgerFixture(t, mutate) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ledgers-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -337,12 +347,12 @@ function writeLedgerFixture(t, mutate) {
 
 test('reports duplicate IDs with ledger and ID', (t) => {
   const root = writeLedgerFixture(t, (ledgers) => { ledgers.capabilities.push({ ...ledgers.capabilities[0] }); });
-  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json: duplicate id CAP-001/);
+  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json\[1\]: duplicate id CAP-001/);
 });
 
 test('reports missing source files', (t) => {
   const root = writeLedgerFixture(t, (ledgers) => { ledgers.capabilities[0].sources = ['src/missing.js']; });
-  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json: CAP-001 source does not exist: src\/missing\.js/);
+  assert.match(validateLedgers(root).errors.join('\n'), /capabilities\.json\[0\]: CAP-001 source does not exist: src\/missing\.js/);
 });
 
 test('reports unknown protocol and permission references', (t) => {
@@ -371,6 +381,41 @@ test('reports missing platform key and invalid status', (t) => {
     ledgers.protocols[0].status = 'unknown';
   });
   const errors = validateLedgers(root).errors.join('\n');
-  assert.match(errors, /CAP-001 platforms must be an object/);
-  assert.match(errors, /protocols\.json: PRO-001 has invalid status unknown/);
+  assert.match(errors, /capabilities\.json\[0\]: missing required field platforms/);
+  assert.match(errors, /protocols\.json\[0\]: invalid status unknown/);
+});
+
+test('rejects malformed records in every ledger without throwing', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities = [null, [], 'scalar', { id: 'CAP-MISSING' }];
+    ledgers.protocols = [null, [], 'scalar', { id: 'PRO-MISSING' }];
+    ledgers.permissions = [null, [], 'scalar', { id: 'PERM-MISSING' }];
+  });
+  const result = validateLedgers(root);
+  assert.ok(result.errors.length > 0);
+  assert.equal(result.errors.every((error) => /(?:capabilities|protocols|permissions)\.json\[\d+\]/.test(error)), true);
+});
+
+test('returns exact deterministic errors for a multi-error malformed fixture', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities = [null, { id: 'CAP-BAD' }];
+    ledgers.protocols = [{ id: 'PRO-BAD', status: 'unknown' }];
+    ledgers.permissions = ['bad'];
+  });
+  assert.deepEqual(validateLedgers(root).errors, [
+    'capabilities.json[0]: record must be an object',
+    'capabilities.json[1]: missing required field domain',
+    'capabilities.json[1]: missing required field permissions',
+    'capabilities.json[1]: missing required field platforms',
+    'capabilities.json[1]: missing required field protocols',
+    'capabilities.json[1]: missing required field sources',
+    'capabilities.json[1]: missing required field status',
+    'permissions.json[0]: record must be an object',
+    'protocols.json[0]: invalid status unknown',
+    'protocols.json[0]: missing required field kind',
+    'protocols.json[0]: missing required field path',
+    'protocols.json[0]: missing required field request',
+    'protocols.json[0]: missing required field response',
+    'protocols.json[0]: missing required field sources',
+  ]);
 });

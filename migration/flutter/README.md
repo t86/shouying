@@ -8,7 +8,7 @@ Capability status advances only with evidence:
 
 `discovered` -> `defined` -> `implemented` -> `protocol-equal` -> `permission-equal` -> `exception-equal` -> `platform-verified` -> `accepted`
 
-Each advancement records the old source reference, Flutter implementation path, relevant automated tests, platform evidence, and (for acceptance) business-owner acceptance. Platform scopes are `required`, `degraded`, `approved`, or `out-of-scope`.
+Each advancement records the old source reference, Flutter implementation path, relevant automated tests, platform evidence, and (for acceptance) business-owner acceptance. Platform scopes mean: `required` is supported and release-blocking; `degraded` is supported with documented limitations; `approved` is explicitly accepted as sufficient for that platform; `out-of-scope` is intentionally not delivered on that platform.
 
 Static inventory records observable routes, APIs, and cues. It does not replace manual business review of workflows, edge cases, device behavior, or acceptance evidence.
 

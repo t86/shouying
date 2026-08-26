@@ -19,29 +19,38 @@ function readJson(file, errors) {
   }
 }
 
-function validateRecords(data, name, errors) {
+function validateRecords(data, name, requiredFields, errors) {
   if (!Array.isArray(data)) {
     errors.push(`${name}: top-level value must be an array`);
     return [];
   }
   const ids = new Set();
+  const validRecords = [];
   data.forEach((record, index) => {
+    const label = `${name}[${index}]`;
     if (!record || typeof record !== 'object' || Array.isArray(record)) {
-      errors.push(`${name}[${index}]: record must be an object`);
+      errors.push(`${label}: record must be an object`);
       return;
     }
     if (typeof record.id !== 'string' || !record.id) {
-      errors.push(`${name}[${index}]: id must be a non-empty string`);
+      errors.push(`${label}: id must be a non-empty string`);
     } else if (ids.has(record.id)) {
-      errors.push(`${name}: duplicate id ${record.id}`);
+      errors.push(`${label}: duplicate id ${record.id}`);
     } else {
       ids.add(record.id);
     }
-    if (typeof record.status !== 'string' || !STATUSES.has(record.status)) {
-      errors.push(`${name}: ${record.id || `[${index}]`} has invalid status ${record.status}`);
+    requiredFields.forEach((field) => {
+      if (!Object.hasOwn(record, field)) errors.push(`${label}: missing required field ${field}`);
+    });
+    if (Object.hasOwn(record, 'status') && (typeof record.status !== 'string' || !STATUSES.has(record.status))) {
+      errors.push(`${label}: invalid status ${record.status}`);
+    }
+    if (typeof record.id === 'string' && record.id && requiredFields.every((field) => Object.hasOwn(record, field))) {
+      Object.defineProperty(record, '_ledgerIndex', { value: index, enumerable: false, configurable: true });
+      validRecords.push(record);
     }
   });
-  return data;
+  return validRecords;
 }
 
 function sourceIsSafe(sourceRoot, source) {
@@ -63,15 +72,16 @@ function sourceIsSafe(sourceRoot, source) {
 
 function validateSources(records, name, sourceRoot, errors) {
   records.forEach((record) => {
+    const label = `${name}[${record._ledgerIndex}]`;
     if (!Array.isArray(record.sources)) {
-      errors.push(`${name}: ${record.id} sources must be an array`);
+      errors.push(`${label}: ${record.id} sources must be an array`);
       return;
     }
     record.sources.forEach((source) => {
       if (!sourceIsSafe(sourceRoot, source)) {
         const reason = typeof source === 'string' && !path.isAbsolute(source) && !source.includes('..')
           ? 'does not exist' : 'is not a safe repository-relative path';
-        errors.push(`${name}: ${record.id} source ${reason}: ${source}`);
+        errors.push(`${label}: ${record.id} source ${reason}: ${source}`);
       }
     });
   });
@@ -81,26 +91,27 @@ function validateLedgers(root, options = {}) {
   const ledgerDir = options.ledgerDir ? path.resolve(options.ledgerDir) : path.resolve(root, 'migration/flutter');
   const sourceRoot = options.sourceRoot ? path.resolve(options.sourceRoot) : path.resolve(root);
   const errors = [];
-  const capabilities = validateRecords(readJson(path.join(ledgerDir, 'capabilities.json'), errors), 'capabilities.json', errors);
-  const protocols = validateRecords(readJson(path.join(ledgerDir, 'protocols.json'), errors), 'protocols.json', errors);
-  const permissions = validateRecords(readJson(path.join(ledgerDir, 'permissions.json'), errors), 'permissions.json', errors);
+  const capabilities = validateRecords(readJson(path.join(ledgerDir, 'capabilities.json'), errors), 'capabilities.json', ['domain', 'platforms', 'permissions', 'protocols', 'sources', 'status'], errors);
+  const protocols = validateRecords(readJson(path.join(ledgerDir, 'protocols.json'), errors), 'protocols.json', ['kind', 'path', 'request', 'response', 'sources', 'status'], errors);
+  const permissions = validateRecords(readJson(path.join(ledgerDir, 'permissions.json'), errors), 'permissions.json', ['name', 'rule', 'sources', 'status'], errors);
   validateSources(capabilities, 'capabilities.json', sourceRoot, errors);
   validateSources(protocols, 'protocols.json', sourceRoot, errors);
   validateSources(permissions, 'permissions.json', sourceRoot, errors);
   const protocolIds = new Set(protocols.map((record) => record.id));
   const permissionIds = new Set(permissions.map((record) => record.id));
   capabilities.forEach((record) => {
-    if (!Array.isArray(record.protocols)) errors.push(`capabilities.json: ${record.id} protocols must be an array`);
-    else record.protocols.forEach((id) => { if (!protocolIds.has(id)) errors.push(`capabilities.json: ${record.id} references unknown protocol ${id}`); });
-    if (!Array.isArray(record.permissions)) errors.push(`capabilities.json: ${record.id} permissions must be an array`);
-    else record.permissions.forEach((id) => { if (!permissionIds.has(id)) errors.push(`capabilities.json: ${record.id} references unknown permission ${id}`); });
+    const label = `capabilities.json[${record._ledgerIndex}]`;
+    if (!Array.isArray(record.protocols)) errors.push(`${label}: ${record.id} protocols must be an array`);
+    else record.protocols.forEach((id) => { if (!protocolIds.has(id)) errors.push(`${label}: ${record.id} references unknown protocol ${id}`); });
+    if (!Array.isArray(record.permissions)) errors.push(`${label}: ${record.id} permissions must be an array`);
+    else record.permissions.forEach((id) => { if (!permissionIds.has(id)) errors.push(`${label}: ${record.id} references unknown permission ${id}`); });
     if (!record.platforms || typeof record.platforms !== 'object' || Array.isArray(record.platforms)) {
-      errors.push(`capabilities.json: ${record.id} platforms must be an object`);
+      errors.push(`${label}: ${record.id} platforms must be an object`);
     } else {
       const keys = Object.keys(record.platforms).sort();
-      if (keys.join(',') !== PLATFORM_KEYS.slice().sort().join(',')) errors.push(`capabilities.json: ${record.id} platforms must contain exactly windows, web, android`);
+      if (keys.join(',') !== PLATFORM_KEYS.slice().sort().join(',')) errors.push(`${label}: ${record.id} platforms must contain exactly windows, web, android`);
       PLATFORM_KEYS.forEach((platform) => {
-        if (record.platforms[platform] !== undefined && !PLATFORM_SCOPES.has(record.platforms[platform])) errors.push(`capabilities.json: ${record.id} platform ${platform} has invalid scope ${record.platforms[platform]}`);
+        if (record.platforms[platform] !== undefined && !PLATFORM_SCOPES.has(record.platforms[platform])) errors.push(`${label}: ${record.id} platform ${platform} has invalid scope ${record.platforms[platform]}`);
       });
     }
   });
