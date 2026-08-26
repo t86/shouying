@@ -83,13 +83,21 @@ test('declares a native Pub workspace with the required SDK range', () => {
 
 test('keeps Flutter 3.47 analyzer exclusions stable', () => {
   const options = readWorkspaceFile('analysis_options.yaml');
-  const optionLines = options.split('\n').map((line) => line.trim());
+  const optionRows = options.split('\n').map((line) => ({ indent: line.match(/^\s*/)[0].length, text: line.trim() }));
+  const optionLines = optionRows.map((row) => row.text);
+  const rowFor = (text) => optionRows.find((row) => row.text === text);
+  assert.equal(rowFor('include: package:flutter_lints/flutter.yaml').indent, 0);
+  assert.equal(rowFor('analyzer:').indent, 0);
+  assert.equal(rowFor('exclude:').indent, 2);
+  assert.equal(rowFor('linter:').indent, 0);
+  assert.equal(rowFor('rules:').indent, 2);
   for (const entry of ['build/**', 'android/**', 'ios/**', 'web/**', 'windows/**', 'macos/**', 'linux/**']) {
-    assert.equal(optionLines.includes(`- ${entry}`), true, `${entry} must be excluded`);
+    const row = rowFor(`- ${entry}`);
+    assert.equal(row?.indent, 4, `${entry} must be nested under analyzer.exclude`);
   }
   assert.match(options, /^include:\s*package:flutter_lints\/flutter\.yaml\s*$/m);
   for (const rule of ['avoid_print', 'cancel_subscriptions', 'close_sinks', 'discarded_futures', 'unawaited_futures', 'use_build_context_synchronously', 'always_use_package_imports']) {
-    assert.equal(optionLines.includes(`${rule}: true`), true, `${rule} must be enabled`);
+    assert.equal(rowFor(`${rule}: true`)?.indent, 4, `${rule} must be nested under linter.rules`);
   }
 });
 

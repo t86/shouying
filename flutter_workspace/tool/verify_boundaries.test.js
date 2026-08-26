@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const childProcess = require('node:child_process');
 
 const { findBoundaryViolations } = require('./verify_boundaries');
 
@@ -66,6 +67,30 @@ test('ignores comments and strings, and parses multiline single/double directive
   assert.equal(found[0].line, 7);
 });
 
+test('ignores raw and triple strings, nested comments, and checks conditional URIs', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/a.dart': [
+      "final a = r'import \'package:dio/dio.dart\';';",
+      "final b = ''' export 'package:flutter/material.dart'; ''';",
+      '/* outer /* nested import \'package:dio/dio.dart\'; */ still comment */',
+      "import 'stub.dart' if (dart.library.io) 'package:dio/dio.dart' if (dart.library.html) 'package:foundation/foundation.dart';",
+    ].join('\n'),
+  });
+  assert.deepEqual(found.map((item) => item.import), ['package:dio/dio.dart']);
+});
+
+test('allows package data paths and same-feature src, rejects cross-package public internals', () => {
+  const found = violations({
+    'packages/foundation/lib/presentation/feature/src/view.dart': [
+      "import './private.dart';",
+      "import 'package:other/data/value.dart';",
+      "import 'package:other/src/private.dart';",
+    ].join('\n'),
+    'packages/other/lib/other.dart': 'library;\n',
+  });
+  assert.deepEqual(found.map((item) => item.import), ['package:other/src/private.dart']);
+});
+
 test('sorts violations by file, line, and rule without duplicates', () => {
   const found = violations({
     'packages/z/lib/domain/z.dart': "import 'package:dio/dio.dart';\n",
@@ -87,4 +112,32 @@ test('walks only regular dart files and handles symlink roots deterministically'
   fs.symlinkSync(path.join(root, 'packages/foundation/lib/domain/a.dart'), path.join(root, 'link.dart'));
   assert.equal(findBoundaryViolations(root).length, 1);
   assert.throws(() => findBoundaryViolations(path.join(root, 'link.dart')), /real directory|symlink/i);
+});
+
+test('deduplicates identical violations on the same source line', () => {
+  const root = workspace({ 'packages/foundation/lib/domain/a.dart': "import 'package:dio/dio.dart'; import 'package:dio/dio.dart';\n" });
+  const found = findBoundaryViolations(root);
+  assert.equal(found.length, 1);
+});
+
+test('CLI has deterministic success, violation, and invalid-root behavior', () => {
+  const clean = workspace({});
+  const script = path.join(__dirname, 'verify_boundaries.js');
+  let result = childProcess.spawnSync(process.execPath, [script, clean], { encoding: 'utf8' });
+  assert.equal(result.status, 0); assert.equal(result.stdout, '0 boundary violations\n'); assert.equal(result.stderr, '');
+  const bad = workspace({ 'packages/foundation/lib/domain/a.dart': "import 'package:dio/dio.dart';\n" });
+  result = childProcess.spawnSync(process.execPath, [script, bad], { encoding: 'utf8' });
+  assert.equal(result.status, 1); assert.match(result.stdout, /packages\/foundation\/lib\/domain\/a\.dart:1 \[domain-forbidden-import\] package:dio\/dio\.dart\n/); assert.equal(result.stderr, '');
+  for (const root of [path.join(clean, 'missing'), path.join(clean, 'file.txt')]) {
+    if (root.endsWith('file.txt')) fs.writeFileSync(root, 'x');
+    result = childProcess.spawnSync(process.execPath, [script, root], { encoding: 'utf8' });
+    assert.equal(result.status, 1); assert.doesNotMatch(result.stderr, / at |stack|Node\.js/); assert.doesNotMatch(result.stdout, / at |stack|Node\.js/);
+  }
+});
+
+test('skips member directory symlinks and broken symlinks', () => {
+  const root = workspace({ 'packages/real/lib/domain/a.dart': "import 'package:dio/dio.dart';\n" });
+  fs.symlinkSync(path.join(root, 'packages', 'real'), path.join(root, 'packages', 'linked'));
+  fs.symlinkSync(path.join(root, 'missing'), path.join(root, 'packages', 'broken'));
+  assert.equal(findBoundaryViolations(root).length, 1);
 });

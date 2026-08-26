@@ -4,21 +4,36 @@ const path = require('node:path');
 
 const SKIP = new Set(['.dart_tool', 'build', 'generated', 'vendor', 'node_modules']);
 
-function stripComments(source) {
-  let out = '';
-  let state = 'code';
-  let quote = '';
-  for (let i = 0; i < source.length; i += 1) {
-    const c = source[i]; const n = source[i + 1];
-    if (state === 'line') { if (c === '\n') { state = 'code'; out += c; } else out += ' '; continue; }
-    if (state === 'block') { if (c === '*' && n === '/') { out += '  '; i += 1; state = 'code'; } else out += c === '\n' ? '\n' : ' '; continue; }
-    if (state === 'string') { out += c; if (c === '\\') { out += n || ''; i += 1; } else if (c === quote) state = 'code'; continue; }
-    if (c === '/' && n === '/') { out += '  '; i += 1; state = 'line'; continue; }
-    if (c === '/' && n === '*') { out += '  '; i += 1; state = 'block'; continue; }
-    if (c === "'" || c === '"') { state = 'string'; quote = c; out += c; continue; }
-    out += c;
+function tokenize(source) {
+  const tokens = []; let i = 0; let blockDepth = 0;
+  const line = (at) => lineAt(source, at);
+  while (i < source.length) {
+    if (source.startsWith('//', i)) { i = source.indexOf('\n', i + 2); if (i < 0) break; continue; }
+    if (source.startsWith('/*', i)) { blockDepth = 1; i += 2; while (i < source.length && blockDepth) { if (source.startsWith('/*', i)) { blockDepth += 1; i += 2; } else if (source.startsWith('*/', i)) { blockDepth -= 1; i += 2; } else i += 1; } continue; }
+    const start = i; const raw = source[i] === 'r' && (source[i + 1] === "'" || source[i + 1] === '"');
+    const quoteAt = raw ? i + 1 : i;
+    if (source[quoteAt] === "'" || source[quoteAt] === '"') {
+      const quote = source[quoteAt]; const triple = source.slice(quoteAt, quoteAt + 3) === quote.repeat(3); const endMark = triple ? quote.repeat(3) : quote;
+      i = quoteAt + endMark.length; let value = '';
+      while (i < source.length && !source.startsWith(endMark, i)) { if (source[i] === '\\' && !raw) { value += source[i + 1] || ''; i += 2; } else { value += source[i]; i += 1; } }
+      i += endMark.length; tokens.push({ type: 'string', value, start, line: line(start) }); continue;
+    }
+    if (/[A-Za-z_$]/.test(source[i])) { i += 1; while (i < source.length && /[\w$]/.test(source[i])) i += 1; tokens.push({ type: 'word', value: source.slice(start, i), start, line: line(start) }); continue; }
+    tokens.push({ type: 'punct', value: source[i], start, line: line(start) }); i += 1;
   }
-  return out;
+  return tokens;
+}
+
+function directives(source) {
+  const tokens = tokenize(source); const found = [];
+  for (let i = 0; i < tokens.length; i += 1) {
+    if (tokens[i].type !== 'word' || !['import', 'export'].includes(tokens[i].value)) continue;
+    const uris = []; let end = i + 1;
+    for (; end < tokens.length && tokens[end].value !== ';'; end += 1) if (tokens[end].type === 'string') uris.push(tokens[end]);
+    if (uris.length) found.push(...uris.map((uri) => ({ uri: uri.value, line: tokens[i].line, start: tokens[i].start })));
+    i = end;
+  }
+  return found;
 }
 
 function lineAt(source, index) { return source.slice(0, index).split('\n').length; }
@@ -38,10 +53,11 @@ function memberInfo(root) {
   const members = [];
   for (const kind of ['apps', 'packages']) {
     const dir = path.join(root, kind);
-    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) continue;
-    for (const name of fs.readdirSync(dir)) {
+    let dirEntries; try { dirEntries = fs.readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of dirEntries) {
+      if (entry.isSymbolicLink() || !entry.isDirectory()) continue;
+      const name = entry.name;
       const memberRoot = path.join(dir, name);
-      if (!fs.statSync(memberRoot).isDirectory()) continue;
       let packageName = name;
       try { const pub = fs.readFileSync(path.join(memberRoot, 'pubspec.yaml'), 'utf8'); packageName = /^name:\s*([\w-]+)/m.exec(pub)?.[1] || name; } catch {}
       members.push({ kind, name, packageName, root: memberRoot, lib: path.join(memberRoot, 'lib') });
@@ -64,16 +80,11 @@ function findBoundaryViolations(root) {
   for (const file of walk(absoluteRoot).sort()) {
     const rel = path.relative(absoluteRoot, file).split(path.sep).join('/');
     const source = fs.readFileSync(file, 'utf8');
-    const clean = stripComments(source);
     const member = members.find((m) => file === m.root || file.startsWith(`${m.root}${path.sep}`));
     const isDomain = rel.split('/').includes('domain');
     const isPresentation = rel.split('/').includes('presentation');
-    const directive = /\b(import|export)\s*(['"])([\s\S]*?)\2/g;
-    let match;
-    while ((match = directive.exec(clean))) {
-      const before = clean.slice(0, match.index).replace(/\s+$/, '');
-      if (before && !/[;{}:]$/.test(before)) continue;
-      const specifier = match[3];
+    for (const match of directives(source)) {
+      const specifier = match.uri;
       let rule = null;
       if (isDomain && (/^package:(?:flutter(?:_riverpod)?|dio)\//.test(specifier) || /(?:^|[/\\])(?:data|presentation)(?:[/\\]|$)/.test(specifier))) {
         rule = 'domain-forbidden-import';
@@ -87,9 +98,13 @@ function findBoundaryViolations(root) {
         const targetMember = members.find((m) => target === m.root || target.startsWith(`${m.root}${path.sep}`));
         if (targetMember?.kind === 'apps' && member.kind === 'packages') rule = 'package-boundary';
         if (targetMember && targetMember !== member && target.startsWith(`${targetMember.lib}${path.sep}src${path.sep}`)) rule = 'package-boundary';
-        if (isPresentation && targetMember === member && target.includes(`${path.sep}presentation${path.sep}`) && target.includes(`${path.sep}src${path.sep}`)) rule = 'package-boundary';
+        if (isPresentation && targetMember === member && target.includes(`${path.sep}presentation${path.sep}`) && target.includes(`${path.sep}src${path.sep}`)) {
+          const sourceParts = path.relative(member.lib, file).split(path.sep);
+          const targetParts = path.relative(member.lib, target).split(path.sep);
+          if (sourceParts[1] && targetParts[1] && sourceParts[1] !== targetParts[1]) rule = 'package-boundary';
+        }
       }
-      if (rule) results.push({ file: rel, line: lineAt(source, match.index), rule, import: specifier });
+      if (rule) results.push({ file: rel, line: match.line, rule, import: specifier });
     }
   }
   const unique = new Map(results.map((item) => [`${item.file}\0${item.line}\0${item.rule}\0${item.import}`, item]));
