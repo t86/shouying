@@ -407,6 +407,7 @@ test('returns exact deterministic errors for a multi-error malformed fixture', (
   assert.deepEqual(validateLedgers(root).errors, [
     'capabilities.json[0]: record must be an object',
     'capabilities.json[1]: domain must be a non-empty string without control characters',
+    'capabilities.json[1]: invalid status undefined',
     'capabilities.json[1]: missing required field domain',
     'capabilities.json[1]: missing required field permissions',
     'capabilities.json[1]: missing required field platforms',
@@ -415,6 +416,7 @@ test('returns exact deterministic errors for a multi-error malformed fixture', (
     'capabilities.json[1]: missing required field status',
     'capabilities.json[1]: name must be a non-empty string without control characters',
     'capabilities.json[1]: permissions must be an array',
+    'capabilities.json[1]: platforms must be an object',
     'capabilities.json[1]: protocols must be an array',
     'capabilities.json[1]: sources must be an array',
     'permissions.json[0]: record must be an object',
@@ -517,4 +519,47 @@ test('generator preserves an existing report and refuses a symlink target', (t) 
   assert.equal(result.errors.length, 1);
   assert.match(result.errors[0], /must not be a symlink/);
   assert.equal(fs.readFileSync(target, 'utf8'), 'sentinel\n');
+});
+
+test('malformed field types never throw and invalid records are excluded from counts', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.capabilities[0].sources = 'src/feature.js';
+    ledgers.capabilities[0].protocols = 'PRO-001';
+    ledgers.capabilities[0].permissions = null;
+    ledgers.capabilities[0].platforms = null;
+    ledgers.protocols[0].sources = 'src/feature.js';
+    ledgers.protocols[0].request = null;
+    ledgers.permissions.push({ id: 'PERM-002', name: 'bad', sources: null, status: 'defined', rule: 'x' });
+  });
+  const result = validateLedgers(root);
+  assert.ok(result.errors.length > 0);
+  assert.equal(result.capabilityCount, 0);
+  assert.equal(result.protocolCount, 0);
+  assert.equal(result.permissionCount, 0);
+});
+
+test('invalid declared protocol and permission references are distinguished', (t) => {
+  const root = writeLedgerFixture(t, (ledgers) => {
+    ledgers.protocols[0].path = 'bad\npath';
+    ledgers.permissions.push({ id: 'PERM-002', name: 'bad', sources: ['src/feature.js', 'src/feature.js'], status: 'defined', rule: 'x' });
+    ledgers.capabilities[0].protocols = ['PRO-001'];
+    ledgers.capabilities[0].permissions = ['PERM-002'];
+  });
+  const result = validateLedgers(root);
+  assert.equal(result.protocolCount, 0);
+  assert.equal(result.permissionCount, 0);
+  assert.match(result.errors.join('\n'), /references invalid protocol PRO-001/);
+  assert.match(result.errors.join('\n'), /references invalid permission PERM-002/);
+});
+
+test('generator refuses symlinked migration ancestors without touching external files', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ledger-link-'));
+  const external = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ledger-external-'));
+  t.after(() => { fs.rmSync(root, { recursive: true, force: true }); fs.rmSync(external, { recursive: true, force: true }); });
+  fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'feature.js'), 'x');
+  fs.symlinkSync(external, path.join(root, 'migration'));
+  const result = generateReport(root);
+  assert.equal(result.errors.length > 0, true);
+  assert.equal(fs.readdirSync(external).length, 0);
 });
