@@ -1381,6 +1381,7 @@
     {
       "path": "/front",
       "name": "front",
+      "title": "",
       "component": "src/views/front.vue",
       "source": "src/router/index.js:83"
     },
@@ -1399,7 +1400,6 @@
     {
       "path": "/ManagementSystem/appinfo",
       "name": "appinfo",
-      "title": "用户管理",
       "component": "src/views/ManagementSystem/appinfo/appinfo.vue",
       "source": "src/router/index.js:135"
     },
@@ -1441,7 +1441,7 @@
     {
       "path": "/orderMeal",
       "name": "orderMeal",
-      "title": "点单",
+      "title": "",
       "component": "src/views/Order/orderMeal/index.vue",
       "source": "src/router/order/index.js:11"
     },
@@ -3166,13 +3166,6 @@
       "method": "POST",
       "baseKey": "htgl",
       "path": "/printer/get",
-      "source": "src/api/BMS/printer/index.js:16"
-    },
-    {
-      "symbol": "requestprinterget",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/printer/get",
       "source": "src/api/BMS/printer/index.js:17"
     },
     {
@@ -3820,7 +3813,7 @@
       "source": "src/api/BMS/station/index.js:68"
     },
     {
-      "symbol": "requestStationSaveWaitCates",
+      "symbol": "reqGetGiveSaleCate",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/station/get_yh_priv",
@@ -4695,25 +4688,11 @@
       "source": "src/api/ERP/mat/index.js:20"
     },
     {
-      "symbol": "requestmatchg",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/mat/chg_unit",
-      "source": "src/api/ERP/mat/index.js:24"
-    },
-    {
       "symbol": "requestmatget",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/mat/get",
       "source": "src/api/ERP/mat/index.js:48"
-    },
-    {
-      "symbol": "requestmatget",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/mat/get_only_unit",
-      "source": "src/api/ERP/mat/index.js:52"
     },
     {
       "symbol": "requestmatdisable",
@@ -4847,13 +4826,6 @@
       "baseKey": "htgl",
       "path": "/unit/new",
       "source": "src/api/ERP/mat_unit/index.js:12"
-    },
-    {
-      "symbol": "requestmat_unitnew",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/unit/get",
-      "source": "src/api/ERP/mat_unit/index.js:16"
     },
     {
       "symbol": "requestmat_unitsave",
@@ -5148,13 +5120,6 @@
       "baseKey": "htgl",
       "path": "/sin/mat_items",
       "source": "src/api/ERP/sin/index.js:12"
-    },
-    {
-      "symbol": "requestsinmat_items",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/sin/mat_attrs",
-      "source": "src/api/ERP/sin/index.js:16"
     },
     {
       "symbol": "requestsinnew",
@@ -5505,13 +5470,6 @@
       "baseKey": "htgl",
       "path": "/store/del",
       "source": "src/api/ERP/store/index.js:32"
-    },
-    {
-      "symbol": "requeststoredel",
-      "method": "POST",
-      "baseKey": "htgl",
-      "path": "/store/admin_items",
-      "source": "src/api/ERP/store/index.js:36"
     },
     {
       "symbol": "requestsupplierlist",
@@ -6235,6 +6193,13 @@
       "source": "src/api/money/index.js:336"
     },
     {
+      "symbol": "reqExportXSDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_waiter_sales_prd_amt_list",
+      "source": "src/api/money/index.js:340"
+    },
+    {
       "symbol": "reqGePrdSetSoldCnt",
       "method": "POST",
       "baseKey": "htgl",
@@ -6242,11 +6207,25 @@
       "source": "src/api/money/index.js:347"
     },
     {
+      "symbol": "reqExportPrdSetSoldCnt",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_prd_set_sold_cnt",
+      "source": "src/api/money/index.js:351"
+    },
+    {
       "symbol": "reqGetXSAllInfoReport",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/sel/rpt/get_waiter_sales_prd_amt_sums",
       "source": "src/api/money/index.js:359"
+    },
+    {
+      "symbol": "reqExportXSAllInfoReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/sel/rpt/exp_waiter_sales_prd_amt_sums",
+      "source": "src/api/money/index.js:363"
     },
     {
       "symbol": "reqGetNotTYOrXFReport",
@@ -8447,6 +8426,13 @@
       "source": "src/api/wine/index.js:269"
     },
     {
+      "symbol": "reqExportExcelOfPassTimeLongReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_expired_op_list",
+      "source": "src/api/wine/index.js:273"
+    },
+    {
       "symbol": "reqGetToStoreOutReportList",
       "method": "POST",
       "baseKey": "htgl",
@@ -8496,11 +8482,25 @@
       "source": "src/api/wine/index.js:316"
     },
     {
+      "symbol": "reqExportExcelOfGetDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt_out_list",
+      "source": "src/api/wine/index.js:320"
+    },
+    {
       "symbol": "reqGridDetailOfGetReportList",
       "method": "POST",
       "baseKey": "htgl",
       "path": "/wine/rpt/get_wine_invt_out_grid",
       "source": "src/api/wine/index.js:327"
+    },
+    {
+      "symbol": "reqExportExcelOfGetGridDetailReport",
+      "method": "POST",
+      "baseKey": "htgl",
+      "path": "/wine/rpt/exp_wine_invt_out_grid",
+      "source": "src/api/wine/index.js:331"
     },
     {
       "symbol": "reqToStoreDetailReportList",
@@ -8670,10 +8670,6 @@
     },
     {
       "kind": "device",
-      "source": "src/api/BMS/printer/index.js:5"
-    },
-    {
-      "kind": "device",
       "source": "src/api/BMS/printer/index.js:7"
     },
     {
@@ -8691,10 +8687,6 @@
     {
       "kind": "device",
       "source": "src/api/BMS/printer/index.js:15"
-    },
-    {
-      "kind": "device",
-      "source": "src/api/BMS/printer/index.js:16"
     },
     {
       "kind": "device",
@@ -8757,12 +8749,60 @@
       "source": "src/api/BMS/printer/index.js:45"
     },
     {
-      "kind": "websocket",
-      "source": "src/api/Book/index.js:31"
+      "kind": "permission",
+      "source": "src/api/BMS/station/index.js:142"
+    },
+    {
+      "kind": "permission",
+      "source": "src/api/BMS/station/index.js:146"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/BMS/terminal/index.js:9"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/BMS/terminal/index.js:11"
     },
     {
       "kind": "websocket",
-      "source": "src/api/base.js:13"
+      "source": "src/api/base.js:15"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/money/index.js:91"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/money/index.js:95"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/money/index.js:123"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/money/index.js:148"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/money/index.js:164"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/order/index.js:112"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/order/index.js:114"
+    },
+    {
+      "kind": "permission",
+      "source": "src/api/order/index.js:197"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/vip/index.js:345"
     },
     {
       "kind": "device",
@@ -8770,7 +8810,15 @@
     },
     {
       "kind": "device",
+      "source": "src/api/vip/index.js:349"
+    },
+    {
+      "kind": "device",
       "source": "src/api/vip/index.js:350"
+    },
+    {
+      "kind": "device",
+      "source": "src/api/wine/index.js:256"
     },
     {
       "kind": "device",
@@ -8877,6 +8925,30 @@
       "source": "src/components/common/memberBinding.vue:167"
     },
     {
+      "kind": "permission",
+      "source": "src/components/common/newUpdateAuthPassword.vue:78"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/common/newUpdateAuthPassword.vue:80"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/common/newUpdateAuthPassword.vue:118"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/common/updateAuthPassword.vue:92"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/common/updateAuthPassword.vue:94"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/common/updateAuthPassword.vue:132"
+    },
+    {
       "kind": "device",
       "source": "src/components/money/dayReport.vue:85"
     },
@@ -8919,6 +8991,10 @@
     {
       "kind": "device",
       "source": "src/components/money/drawerOnlineTotal.vue:96"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/money/drawerOnlineTotal.vue:98"
     },
     {
       "kind": "device",
@@ -8966,6 +9042,10 @@
     },
     {
       "kind": "device",
+      "source": "src/components/money/drawerStopClass.vue:271"
+    },
+    {
+      "kind": "device",
       "source": "src/components/money/drawerStopClass.vue:315"
     },
     {
@@ -8982,7 +9062,7 @@
     },
     {
       "kind": "device",
-      "source": "src/components/money/drawerStopStore.vue:342"
+      "source": "src/components/money/drawerStopStore.vue:265"
     },
     {
       "kind": "device",
@@ -9206,6 +9286,30 @@
     },
     {
       "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:348"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:360"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:364"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:368"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:374"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/drawerShowOrderList.vue:376"
+    },
+    {
+      "kind": "permission",
       "source": "src/components/order/footBar.vue:48"
     },
     {
@@ -9313,6 +9417,18 @@
       "source": "src/components/order/myOrder/drawerMyOrder.vue:1559"
     },
     {
+      "kind": "device",
+      "source": "src/components/order/myOrder/drawerPrintOrder.vue:56"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/order/myOrder/drawerPrintOrder.vue:68"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/order/myOrder/drawerPrintOrder.vue:83"
+    },
+    {
       "kind": "permission",
       "source": "src/components/order/myOrder/newDrawerMyOrder.vue:38"
     },
@@ -9323,18 +9439,6 @@
     {
       "kind": "permission",
       "source": "src/components/order/myOrder/newDrawerMyOrder.vue:51"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:495"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:496"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:497"
     },
     {
       "kind": "permission",
@@ -9377,50 +9481,6 @@
       "source": "src/components/order/myOrder/newDrawerMyOrder.vue:544"
     },
     {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:549"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:550"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:551"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:553"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:554"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:560"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:561"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:562"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:564"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:565"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/myOrder/newDrawerMyOrder.vue:566"
-    },
-    {
       "kind": "permission",
       "source": "src/components/order/myOrder/newDrawerMyOrder.vue:640"
     },
@@ -9439,6 +9499,18 @@
     {
       "kind": "device",
       "source": "src/components/order/myOrder/newDrawerPrintOrder.vue:6"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/order/myOrder/newDrawerPrintOrder.vue:50"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/order/myOrder/newDrawerPrintOrder.vue:62"
+    },
+    {
+      "kind": "device",
+      "source": "src/components/order/myOrder/newDrawerPrintOrder.vue:77"
     },
     {
       "kind": "device",
@@ -9531,6 +9603,30 @@
     {
       "kind": "permission",
       "source": "src/components/order/newDrawerMeal/singleProduct.vue:808"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:357"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:369"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:373"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:377"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:383"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newDrawerShowOrderList.vue:385"
     },
     {
       "kind": "permission",
@@ -9689,12 +9785,32 @@
       "source": "src/components/order/newFootBar.vue:1756"
     },
     {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:1757"
+    },
+    {
       "kind": "device",
       "source": "src/components/order/newFootBar.vue:1759"
     },
     {
       "kind": "device",
       "source": "src/components/order/newFootBar.vue:1760"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:1764"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:1779"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:1780"
+    },
+    {
+      "kind": "permission",
+      "source": "src/components/order/newFootBar.vue:1784"
     },
     {
       "kind": "permission",
@@ -9814,10 +9930,6 @@
     },
     {
       "kind": "permission",
-      "source": "src/components/order/newShoppingCart/drawerGiveHeMore.vue:898"
-    },
-    {
-      "kind": "permission",
       "source": "src/components/order/newShoppingCart/drawerGiveHeMore.vue:899"
     },
     {
@@ -9838,63 +9950,7 @@
     },
     {
       "kind": "permission",
-      "source": "src/components/order/orderMealNav.vue:118"
-    },
-    {
-      "kind": "permission",
       "source": "src/components/order/productList.vue:261"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:514"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:515"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:516"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:531"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:532"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:533"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:535"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:549"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:550"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:551"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:553"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:554"
-    },
-    {
-      "kind": "device",
-      "source": "src/components/order/productList.vue:555"
     },
     {
       "kind": "permission",
@@ -10162,11 +10218,11 @@
     },
     {
       "kind": "device",
-      "source": "src/main.js:155"
+      "source": "src/main.js:157"
     },
     {
       "kind": "device",
-      "source": "src/main.js:157"
+      "source": "src/main.js:158"
     },
     {
       "kind": "storage",
@@ -10190,7 +10246,7 @@
     },
     {
       "kind": "permission",
-      "source": "src/mixin/authStatus.js:7"
+      "source": "src/mixin/authStatus.js:11"
     },
     {
       "kind": "permission",
@@ -10206,15 +10262,7 @@
     },
     {
       "kind": "permission",
-      "source": "src/mixin/authStatus.js:52"
-    },
-    {
-      "kind": "permission",
       "source": "src/mixin/authStatus.js:56"
-    },
-    {
-      "kind": "permission",
-      "source": "src/mixin/authStatus.js:58"
     },
     {
       "kind": "permission",
@@ -10234,7 +10282,15 @@
     },
     {
       "kind": "permission",
+      "source": "src/mixin/authStatus.js:112"
+    },
+    {
+      "kind": "permission",
       "source": "src/mixin/authStatus.js:116"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:135"
     },
     {
       "kind": "permission",
@@ -10242,23 +10298,47 @@
     },
     {
       "kind": "permission",
+      "source": "src/mixin/authStatus.js:147"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:157"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:161"
+    },
+    {
+      "kind": "permission",
       "source": "src/mixin/authStatus.js:165"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:173"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:180"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:184"
     },
     {
       "kind": "permission",
       "source": "src/mixin/authStatus.js:188"
     },
     {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:3"
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:193"
+    },
+    {
+      "kind": "permission",
+      "source": "src/mixin/authStatus.js:198"
     },
     {
       "kind": "storage",
       "source": "src/mixin/cardInfo copy.js:46"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:63"
     },
     {
       "kind": "websocket",
@@ -10274,11 +10354,15 @@
     },
     {
       "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:84"
+      "source": "src/mixin/cardInfo copy.js:85"
     },
     {
       "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:86"
+    },
+    {
+      "kind": "websocket",
+      "source": "src/mixin/cardInfo copy.js:89"
     },
     {
       "kind": "websocket",
@@ -10287,10 +10371,6 @@
     {
       "kind": "storage",
       "source": "src/mixin/cardInfo copy.js:101"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:104"
     },
     {
       "kind": "websocket",
@@ -10310,6 +10390,10 @@
     },
     {
       "kind": "websocket",
+      "source": "src/mixin/cardInfo copy.js:115"
+    },
+    {
+      "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:117"
     },
     {
@@ -10318,15 +10402,7 @@
     },
     {
       "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:131"
-    },
-    {
-      "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:134"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:135"
     },
     {
       "kind": "websocket",
@@ -10338,19 +10414,11 @@
     },
     {
       "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:142"
-    },
-    {
-      "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:143"
     },
     {
       "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:145"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:151"
     },
     {
       "kind": "websocket",
@@ -10366,15 +10434,11 @@
     },
     {
       "kind": "websocket",
+      "source": "src/mixin/cardInfo copy.js:156"
+    },
+    {
+      "kind": "websocket",
       "source": "src/mixin/cardInfo copy.js:158"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:172"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo copy.js:192"
     },
     {
       "kind": "storage",
@@ -10386,175 +10450,7 @@
     },
     {
       "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:3"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:27"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:27"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:45"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:113"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:129"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:131"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:131"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:132"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:134"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:141"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:145"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:148"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:152"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:154"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:159"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:169"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:172"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:173"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:178"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:181"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:182"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:185"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:194"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:203"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:204"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:205"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:208"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:208"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:211"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:212"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:214"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:219"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:220"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:222"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:223"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:226"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:240"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:261"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:331"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:337"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/mixin/cardInfo.js:337"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/cardInfo.js:401"
+      "source": "src/mixin/cardInfo copy.js:335"
     },
     {
       "kind": "storage",
@@ -10581,46 +10477,6 @@
       "source": "src/mixin/cardPage.js:298"
     },
     {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:9"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:10"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:11"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:13"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:14"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:21"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:22"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:23"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:25"
-    },
-    {
-      "kind": "device",
-      "source": "src/mixin/keyboard.js:26"
-    },
-    {
       "kind": "permission",
       "source": "src/mixin/navPrdList.js:36"
     },
@@ -10635,10 +10491,6 @@
     {
       "kind": "permission",
       "source": "src/mixin/navPrdList.js:80"
-    },
-    {
-      "kind": "permission",
-      "source": "src/mixin/navPrdList.js:86"
     },
     {
       "kind": "permission",
@@ -10670,10 +10522,6 @@
     },
     {
       "kind": "permission",
-      "source": "src/mixin/navPrdList.js:329"
-    },
-    {
-      "kind": "permission",
       "source": "src/mixin/navPrdList.js:380"
     },
     {
@@ -10681,20 +10529,8 @@
       "source": "src/mixin/navPrdList.js:519"
     },
     {
-      "kind": "storage",
-      "source": "src/mixin/navPrdList.js:565"
-    },
-    {
       "kind": "permission",
       "source": "src/mixin/navPrdList.js:567"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/navPrdList.js:597"
-    },
-    {
-      "kind": "storage",
-      "source": "src/mixin/navPrdList.js:640"
     },
     {
       "kind": "device",
@@ -10746,11 +10582,31 @@
     },
     {
       "kind": "device",
+      "source": "src/plugins/print/Print.js:3"
+    },
+    {
+      "kind": "device",
+      "source": "src/plugins/print/Print.js:4"
+    },
+    {
+      "kind": "device",
       "source": "src/plugins/print/Print.js:7"
     },
     {
       "kind": "device",
+      "source": "src/plugins/print/Print.js:19"
+    },
+    {
+      "kind": "device",
       "source": "src/plugins/print/Print.js:37"
+    },
+    {
+      "kind": "device",
+      "source": "src/plugins/print/Print.js:99"
+    },
+    {
+      "kind": "device",
+      "source": "src/plugins/print/Print.js:106"
     },
     {
       "kind": "device",
@@ -10966,6 +10822,14 @@
     },
     {
       "kind": "permission",
+      "source": "src/store/index.js:104"
+    },
+    {
+      "kind": "permission",
+      "source": "src/store/index.js:105"
+    },
+    {
+      "kind": "permission",
       "source": "src/store/index.js:108"
     },
     {
@@ -11005,10 +10869,6 @@
       "source": "src/utils/common/storage.js:1"
     },
     {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:4"
-    },
-    {
       "kind": "storage",
       "source": "src/utils/common/storage.js:7"
     },
@@ -11021,16 +10881,8 @@
       "source": "src/utils/common/storage.js:10"
     },
     {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:17"
-    },
-    {
       "kind": "storage",
       "source": "src/utils/common/storage.js:19"
-    },
-    {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:25"
     },
     {
       "kind": "storage",
@@ -11041,20 +10893,12 @@
       "source": "src/utils/common/storage.js:28"
     },
     {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:34"
-    },
-    {
       "kind": "storage",
       "source": "src/utils/common/storage.js:36"
     },
     {
       "kind": "storage",
       "source": "src/utils/common/storage.js:41"
-    },
-    {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:44"
     },
     {
       "kind": "storage",
@@ -11065,24 +10909,12 @@
       "source": "src/utils/common/storage.js:49"
     },
     {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:56"
-    },
-    {
       "kind": "storage",
       "source": "src/utils/common/storage.js:58"
     },
     {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:64"
-    },
-    {
       "kind": "storage",
       "source": "src/utils/common/storage.js:66"
-    },
-    {
-      "kind": "device",
-      "source": "src/utils/common/storage.js:72"
     },
     {
       "kind": "storage",
@@ -11145,20 +10977,40 @@
       "source": "src/views/Book/cardMachine.vue:739"
     },
     {
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:741"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:743"
+    },
+    {
       "kind": "storage",
       "source": "src/views/Book/cardMachine.vue:810"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:1228"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:1234"
     },
     {
       "kind": "permission",
       "source": "src/views/Book/cardMachine.vue:1536"
     },
     {
-      "kind": "websocket",
-      "source": "src/views/Book/cardMachine.vue:1749"
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:1538"
     },
     {
-      "kind": "websocket",
-      "source": "src/views/Book/cardMachine.vue:1767"
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:1547"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Book/cardMachine.vue:1551"
     },
     {
       "kind": "storage",
@@ -11182,6 +11034,86 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Ocate/Ocate.vue:1087"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:118"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2273"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2278"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2629"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2634"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2638"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2643"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2650"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2654"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2658"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2664"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2677"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2685"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2694"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2699"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2707"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2711"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2715"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prd/Prd.vue:2719"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/Prds/Ocate/Ocate.vue:207"
     },
     {
@@ -11191,6 +11123,14 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/Prds/Ocate/Ocate.vue:578"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Ocate/Ocate.vue:1279"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:157"
     },
     {
       "kind": "storage",
@@ -11207,6 +11147,98 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:2682"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3420"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3425"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3777"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3782"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3786"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3791"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3798"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3802"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3806"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3812"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3827"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3834"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3843"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3848"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3855"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3856"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3860"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3861"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3865"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3866"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3870"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/Prd/Prd.vue:3871"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:118"
     },
     {
       "kind": "storage",
@@ -11254,6 +11286,306 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3040"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3074"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3081"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3085"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3091"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3098"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3102"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3106"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3113"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3129"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3133"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3139"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3143"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3147"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3148"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3152"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3153"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3157"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3158"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3162"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3163"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3167"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3168"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3174"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3234"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3245"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3253"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3254"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3258"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3259"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3263"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3264"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3268"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3269"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3273"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3274"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3278"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3279"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3283"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3298"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3303"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3307"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3312"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3319"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3323"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3327"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3333"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3347"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3355"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3364"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3369"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3377"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3378"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3382"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3383"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3387"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3388"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3392"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3393"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3600"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:3605"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4074"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4082"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4308"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4316"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4325"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4330"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4338"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4339"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4343"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4344"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4348"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4349"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4353"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/Prds/prds.vue:4354"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/Prds/tcate/tcate.vue:5"
     },
     {
@@ -11282,7 +11614,71 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bill/bill.vue:627"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/bill/bill.vue:642"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:83"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:86"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:100"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:103"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:119"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:122"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:199"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:200"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:201"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:202"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:203"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:204"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:227"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:228"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:236"
     },
     {
       "kind": "device",
@@ -11295,6 +11691,22 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/bills/bills.vue:243"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:246"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:266"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:267"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/bills/bills.vue:277"
     },
     {
       "kind": "device",
@@ -11327,6 +11739,174 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/dept/dept.vue:587"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1057"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1089"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1096"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1100"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1106"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1113"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1117"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1121"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1128"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1143"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1151"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1156"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1165"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1170"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1179"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1185"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1190"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1195"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1203"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1207"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1213"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1217"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1221"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1225"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1229"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1233"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1237"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1243"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1248"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1255"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1259"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1263"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1267"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1326"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1337"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1345"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1349"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1353"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1357"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1361"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1365"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/dept/dept.vue:1369"
     },
     {
       "kind": "device",
@@ -11506,6 +12086,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/genRule/genRule.vue:168"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/genRule/genRule.vue:182"
     },
     {
@@ -11526,7 +12110,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:124"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:126"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:127"
     },
     {
       "kind": "device",
@@ -11535,6 +12127,22 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:180"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:197"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:212"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:215"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:231"
     },
     {
       "kind": "device",
@@ -11554,6 +12162,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:285"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:294"
     },
     {
@@ -11562,11 +12174,31 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:315"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:522"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:524"
     },
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:534"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:535"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:536"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:537"
     },
     {
       "kind": "device",
@@ -11614,6 +12246,14 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:696"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:709"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:712"
     },
     {
@@ -11634,11 +12274,47 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:751"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:752"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:753"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:754"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:776"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:786"
     },
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:795"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:796"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:797"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:799"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:806"
     },
     {
       "kind": "device",
@@ -11666,6 +12342,26 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:858"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:859"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:860"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:861"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:875"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:890"
     },
     {
@@ -11674,7 +12370,19 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1038"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1041"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1043"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1048"
     },
     {
       "kind": "device",
@@ -11682,7 +12390,39 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1055"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1056"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1057"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1084"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1085"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1087"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1088"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1098"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1106"
     },
     {
       "kind": "device",
@@ -11698,11 +12438,27 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1120"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1121"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1125"
     },
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1126"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1368"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/mklib/mklib.vue:1425"
     },
     {
       "kind": "device",
@@ -11714,7 +12470,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:130"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:160"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:164"
     },
     {
       "kind": "device",
@@ -11722,11 +12486,23 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:196"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:230"
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:235"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:242"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/outLibConfig/drawerAddOrUpdateOutLibConfig.vue:245"
     },
     {
       "kind": "device",
@@ -12210,6 +12986,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/printers/printers.vue:60"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/printers/printers.vue:96"
     },
     {
@@ -12231,6 +13011,10 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/printers/printers.vue:204"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/printers/printers.vue:217"
     },
     {
       "kind": "device",
@@ -12366,7 +13150,23 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:52"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:70"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:72"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:73"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:92"
     },
     {
       "kind": "permission",
@@ -12378,7 +13178,39 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:105"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:110"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:121"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:122"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:128"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:143"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:242"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:275"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:326"
     },
     {
       "kind": "permission",
@@ -12390,6 +13222,66 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:345"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:354"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:355"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:357"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:358"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:362"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:364"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:365"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:382"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:383"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:393"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:394"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:400"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:411"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:486"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:543"
     },
     {
@@ -12398,11 +13290,91 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:545"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:549"
     },
     {
       "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:550"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:564"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:566"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:567"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:568"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:569"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:575"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:576"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:578"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:580"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:581"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:588"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:593"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:595"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:605"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:610"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:613"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:614"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:618"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:620"
     },
     {
       "kind": "permission",
@@ -12458,6 +13430,22 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:670"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:676"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:683"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:691"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:699"
     },
     {
@@ -12467,6 +13455,34 @@
     {
       "kind": "permission",
       "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:701"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:703"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:704"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:705"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:710"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:720"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:725"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/ManagementSystem/BMS/stationConfig/stationConfigCom/drawerRoleAuth.vue:789"
     },
     {
       "kind": "permission",
@@ -12502,11 +13518,35 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:67"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:83"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:91"
     },
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:93"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:101"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:103"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:110"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:112"
     },
     {
       "kind": "device",
@@ -12518,7 +13558,19 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:128"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:130"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:151"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:158"
     },
     {
       "kind": "device",
@@ -12530,7 +13582,39 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:201"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:202"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:203"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:204"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:243"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:245"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:248"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:250"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:257"
     },
     {
       "kind": "device",
@@ -12538,7 +13622,39 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:261"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:262"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:263"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:272"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:273"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:274"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:275"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:281"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/BMS/terminalBms/terminalBms.vue:497"
     },
     {
       "kind": "storage",
@@ -12633,16 +13749,12 @@
       "source": "src/views/ManagementSystem/ERP/inLib/changeInLibCom/drawerDetail.vue:305"
     },
     {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:111"
+    },
+    {
       "kind": "storage",
       "source": "src/views/ManagementSystem/ERP/mat/mat.vue:519"
-    },
-    {
-      "kind": "storage",
-      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:602"
-    },
-    {
-      "kind": "storage",
-      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:603"
     },
     {
       "kind": "storage",
@@ -12686,7 +13798,235 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1692"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1723"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1729"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1732"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1737"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1743"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1746"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1749"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1755"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1768"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1775"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1779"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1787"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1795"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1800"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1804"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1808"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1815"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1818"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1823"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1826"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1829"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1830"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1833"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1834"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1837"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1838"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1841"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1842"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1845"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1846"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1852"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1856"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1862"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1865"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1866"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1869"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1870"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1873"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1874"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1924"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1934"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1941"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1942"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1945"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1946"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1949"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1950"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1953"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1954"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1957"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1958"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1961"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1962"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat.vue:1965"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:9"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:126"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:391"
     },
     {
       "kind": "storage",
@@ -12719,6 +14059,226 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:2260"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:2922"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3276"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3283"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3287"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3293"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3300"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3304"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3308"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3315"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3331"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3339"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3344"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3354"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3363"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3369"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3374"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3380"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3388"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3392"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3398"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3402"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3406"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3407"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3411"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3412"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3416"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3417"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3421"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3422"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3426"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3427"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3433"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3438"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3445"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3449"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3450"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3454"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3455"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3459"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3460"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3523"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3534"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3543"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3544"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3548"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3549"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3553"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3554"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3558"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3559"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3563"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3564"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3568"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3569"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/mat/mat/mats.vue:3573"
     },
     {
       "kind": "device",
@@ -12914,11 +14474,19 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:24"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:30"
     },
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:33"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:34"
     },
     {
       "kind": "device",
@@ -12966,6 +14534,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:148"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:293"
     },
     {
@@ -12990,6 +14562,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:464"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:476"
     },
     {
@@ -13002,7 +14578,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:499"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:500"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/rpt_erp/warehousePSI.vue:503"
     },
     {
       "kind": "device",
@@ -13234,11 +14818,7 @@
     },
     {
       "kind": "device",
-      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:921"
-    },
-    {
-      "kind": "device",
-      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:922"
+      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:920"
     },
     {
       "kind": "device",
@@ -13246,11 +14826,11 @@
     },
     {
       "kind": "device",
-      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:924"
+      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:925"
     },
     {
       "kind": "device",
-      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:925"
+      "source": "src/views/ManagementSystem/ERP/sin/sin.vue:926"
     },
     {
       "kind": "device",
@@ -13514,7 +15094,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sind/sind.vue:922"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/sind/sind.vue:924"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sind/sind.vue:925"
     },
     {
       "kind": "device",
@@ -13738,7 +15326,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sindd_yy/sindd_yy.vue:549"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/sindd_yy/sindd_yy.vue:550"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sindd_yy/sindd_yy.vue:551"
     },
     {
       "kind": "device",
@@ -13938,7 +15534,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sout/sout.vue:842"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/sout/sout.vue:843"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/sout/sout.vue:844"
     },
     {
       "kind": "device",
@@ -14138,7 +15742,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/soutd/soutd.vue:878"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/soutd/soutd.vue:879"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/soutd/soutd.vue:880"
     },
     {
       "kind": "device",
@@ -14322,7 +15934,15 @@
     },
     {
       "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/soutdd_yy/soutdd_yy.vue:470"
+    },
+    {
+      "kind": "device",
       "source": "src/views/ManagementSystem/ERP/soutdd_yy/soutdd_yy.vue:472"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/ERP/soutdd_yy/soutdd_yy.vue:473"
     },
     {
       "kind": "device",
@@ -14670,15 +16290,7 @@
     },
     {
       "kind": "device",
-      "source": "src/views/ManagementSystem/storeNavList.js:11"
-    },
-    {
-      "kind": "device",
       "source": "src/views/ManagementSystem/storeNavList.js:190"
-    },
-    {
-      "kind": "device",
-      "source": "src/views/ManagementSystem/storeNavList.js:194"
     },
     {
       "kind": "device",
@@ -14687,6 +16299,10 @@
     {
       "kind": "device",
       "source": "src/views/ManagementSystem/wine/saveAndGetReport/saveAndGetReport.vue:184"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/ManagementSystem/wine/saveAndGetReport/saveAndGetReport.vue:192"
     },
     {
       "kind": "storage",
@@ -14729,12 +16345,40 @@
       "source": "src/views/Money/moneyCard.vue:1388"
     },
     {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1391"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1392"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1394"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1396"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1401"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1402"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:1403"
+    },
+    {
       "kind": "storage",
       "source": "src/views/Money/moneyCard.vue:1442"
     },
     {
-      "kind": "websocket",
-      "source": "src/views/Money/moneyCard.vue:2155"
+      "kind": "permission",
+      "source": "src/views/Money/moneyCard.vue:2002"
     },
     {
       "kind": "device",
@@ -14754,7 +16398,19 @@
     },
     {
       "kind": "device",
+      "source": "src/views/Money/payOrder.vue:279"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:308"
+    },
+    {
+      "kind": "device",
       "source": "src/views/Money/payOrder.vue:316"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:361"
     },
     {
       "kind": "device",
@@ -14762,47 +16418,35 @@
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:645"
+      "source": "src/views/Money/payOrder.vue:429"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:646"
+      "source": "src/views/Money/payOrder.vue:430"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:647"
+      "source": "src/views/Money/payOrder.vue:431"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:649"
+      "source": "src/views/Money/payOrder.vue:432"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:650"
+      "source": "src/views/Money/payOrder.vue:436"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:656"
+      "source": "src/views/Money/payOrder.vue:497"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:657"
+      "source": "src/views/Money/payOrder.vue:532"
     },
     {
       "kind": "device",
-      "source": "src/views/Money/payOrder.vue:658"
-    },
-    {
-      "kind": "device",
-      "source": "src/views/Money/payOrder.vue:660"
-    },
-    {
-      "kind": "device",
-      "source": "src/views/Money/payOrder.vue:661"
-    },
-    {
-      "kind": "device",
-      "source": "src/views/Money/payOrder.vue:662"
+      "source": "src/views/Money/payOrder.vue:572"
     },
     {
       "kind": "device",
@@ -14810,11 +16454,47 @@
     },
     {
       "kind": "device",
+      "source": "src/views/Money/payOrder.vue:1347"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:1357"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:1358"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:1359"
+    },
+    {
+      "kind": "device",
       "source": "src/views/Money/payOrder.vue:1363"
     },
     {
       "kind": "device",
+      "source": "src/views/Money/payOrder.vue:1373"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:2102"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:2105"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:2173"
+    },
+    {
+      "kind": "device",
       "source": "src/views/Money/payOrder.vue:2179"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Money/payOrder.vue:2448"
     },
     {
       "kind": "permission",
@@ -14851,6 +16531,18 @@
     {
       "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:518"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:519"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:521"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:526"
     },
     {
       "kind": "permission",
@@ -14898,10 +16590,6 @@
     },
     {
       "kind": "permission",
-      "source": "src/views/Order/newOrderCard.vue:824"
-    },
-    {
-      "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:829"
     },
     {
@@ -14918,10 +16606,6 @@
     },
     {
       "kind": "websocket",
-      "source": "src/views/Order/newOrderCard.vue:869"
-    },
-    {
-      "kind": "websocket",
       "source": "src/views/Order/newOrderCard.vue:875"
     },
     {
@@ -14934,6 +16618,22 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1072"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1081"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1085"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1180"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:1205"
     },
     {
@@ -14942,7 +16642,27 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1280"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1282"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/newOrderCard.vue:1294"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1296"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1297"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/newOrderCard.vue:1307"
     },
     {
       "kind": "permission",
@@ -15034,6 +16754,14 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:620"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:625"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/orderCard.vue:636"
     },
     {
@@ -15086,15 +16814,27 @@
     },
     {
       "kind": "websocket",
-      "source": "src/views/Order/orderCard.vue:901"
-    },
-    {
-      "kind": "websocket",
       "source": "src/views/Order/orderCard.vue:907"
     },
     {
       "kind": "permission",
       "source": "src/views/Order/orderCard.vue:1057"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1059"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1068"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1072"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1137"
     },
     {
       "kind": "permission",
@@ -15106,7 +16846,23 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1234"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1236"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/orderCard.vue:1248"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1250"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderCard.vue:1260"
     },
     {
       "kind": "permission",
@@ -15165,6 +16921,30 @@
       "source": "src/views/Order/orderCard.vue:1830"
     },
     {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:194"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:243"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:244"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:246"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:247"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:268"
+    },
+    {
       "kind": "permission",
       "source": "src/views/Order/orderMeal/myOrder.vue:269"
     },
@@ -15174,7 +16954,55 @@
     },
     {
       "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:292"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:380"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:396"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:397"
+    },
+    {
+      "kind": "device",
       "source": "src/views/Order/orderMeal/myOrder.vue:464"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:487"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:489"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:501"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:506"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:510"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:513"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:520"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:526"
     },
     {
       "kind": "permission",
@@ -15182,7 +17010,39 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:539"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:554"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:558"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:565"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:621"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:624"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:629"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/orderMeal/myOrder.vue:688"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/myOrder.vue:706"
     },
     {
       "kind": "permission",
@@ -15193,8 +17053,32 @@
       "source": "src/views/Order/orderMeal/myOrder.vue:721"
     },
     {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:722"
+    },
+    {
       "kind": "device",
       "source": "src/views/Order/orderMeal/myOrder.vue:724"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/myOrder.vue:725"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:149"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:192"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:193"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:215"
     },
     {
       "kind": "permission",
@@ -15206,7 +17090,55 @@
     },
     {
       "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:246"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:301"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:318"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:319"
+    },
+    {
+      "kind": "device",
       "source": "src/views/Order/orderMeal/newMyOrder.vue:389"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:412"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:414"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:426"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:431"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:435"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:438"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:445"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:451"
     },
     {
       "kind": "permission",
@@ -15214,7 +17146,43 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:464"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:479"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:483"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:491"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:543"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:548"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:551"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:556"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/Order/orderMeal/newMyOrder.vue:615"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:633"
     },
     {
       "kind": "permission",
@@ -15225,8 +17193,16 @@
       "source": "src/views/Order/orderMeal/newMyOrder.vue:649"
     },
     {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:650"
+    },
+    {
       "kind": "device",
       "source": "src/views/Order/orderMeal/newMyOrder.vue:654"
+    },
+    {
+      "kind": "permission",
+      "source": "src/views/Order/orderMeal/newMyOrder.vue:655"
     },
     {
       "kind": "storage",
@@ -15263,10 +17239,6 @@
     {
       "kind": "device",
       "source": "src/views/Order/orderMeal/orderMealList.vue:61"
-    },
-    {
-      "kind": "permission",
-      "source": "src/views/Order/orderMeal/orderMealList.vue:135"
     },
     {
       "kind": "permission",
@@ -15466,6 +17438,10 @@
     },
     {
       "kind": "permission",
+      "source": "src/views/front.vue:12"
+    },
+    {
+      "kind": "permission",
       "source": "src/views/front.vue:14"
     },
     {
@@ -15478,6 +17454,10 @@
     },
     {
       "kind": "device",
+      "source": "src/views/vip/makeMoneyToVip.vue:250"
+    },
+    {
+      "kind": "device",
       "source": "src/views/vip/payMoneyAll.vue:89"
     },
     {
@@ -15486,11 +17466,19 @@
     },
     {
       "kind": "device",
+      "source": "src/views/vip/payMoneyAll.vue:170"
+    },
+    {
+      "kind": "device",
       "source": "src/views/vip/pointRecords.vue:84"
     },
     {
       "kind": "device",
       "source": "src/views/vip/pointRecords.vue:174"
+    },
+    {
+      "kind": "device",
+      "source": "src/views/vip/pointRecords.vue:179"
     },
     {
       "kind": "storage",
@@ -15553,6 +17541,10 @@
       "source": "src/views/vip/vipPay.vue:182"
     },
     {
+      "kind": "device",
+      "source": "src/views/vip/vipPay.vue:187"
+    },
+    {
       "kind": "storage",
       "source": "src/websocket/websocket.js:5"
     },
@@ -15562,11 +17554,15 @@
     },
     {
       "kind": "websocket",
-      "source": "src/websocket/websocket.js:38"
+      "source": "src/websocket/websocket.js:47"
     },
     {
       "kind": "websocket",
-      "source": "src/websocket/websocket.js:47"
+      "source": "src/websocket/websocket.js:49"
+    },
+    {
+      "kind": "websocket",
+      "source": "src/websocket/websocket.js:52"
     },
     {
       "kind": "websocket",
@@ -15582,15 +17578,7 @@
     },
     {
       "kind": "websocket",
-      "source": "src/websocket/websocket.js:78"
-    },
-    {
-      "kind": "websocket",
       "source": "src/websocket/websocket.js:79"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:83"
     },
     {
       "kind": "websocket",
@@ -15599,14 +17587,6 @@
     {
       "kind": "websocket",
       "source": "src/websocket/websocket.js:88"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:94"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:105"
     },
     {
       "kind": "websocket",
@@ -15634,19 +17614,11 @@
     },
     {
       "kind": "websocket",
-      "source": "src/websocket/websocket.js:146"
-    },
-    {
-      "kind": "websocket",
       "source": "src/websocket/websocket.js:147"
     },
     {
       "kind": "websocket",
       "source": "src/websocket/websocket.js:149"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:155"
     },
     {
       "kind": "websocket",
@@ -15659,10 +17631,6 @@
     {
       "kind": "websocket",
       "source": "src/websocket/websocket.js:160"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:165"
     },
     {
       "kind": "storage",
@@ -15713,14 +17681,6 @@
       "source": "src/websocket/websocket.js:238"
     },
     {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:257"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:310"
-    },
-    {
       "kind": "websocket",
       "source": "src/websocket/websocket.js:312"
     },
@@ -15765,10 +17725,6 @@
       "source": "src/websocket/websocket.js:341"
     },
     {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:345"
-    },
-    {
       "kind": "storage",
       "source": "src/websocket/websocket.js:375"
     },
@@ -15785,16 +17741,8 @@
       "source": "src/websocket/websocket.js:384"
     },
     {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:394"
-    },
-    {
       "kind": "storage",
       "source": "src/websocket/websocket.js:508"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:612"
     },
     {
       "kind": "storage",
@@ -15807,34 +17755,6 @@
     {
       "kind": "storage",
       "source": "src/websocket/websocket.js:680"
-    },
-    {
-      "kind": "websocket",
-      "source": "src/websocket/websocket.js:682"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:684"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:685"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:686"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:687"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:688"
-    },
-    {
-      "kind": "storage",
-      "source": "src/websocket/websocket.js:689"
     }
   ]
 }
