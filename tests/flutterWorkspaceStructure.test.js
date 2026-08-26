@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -78,6 +79,25 @@ test('declares a native Pub workspace with the required SDK range', () => {
   );
 });
 
+test('keeps Flutter 3.47 analyzer exclusions stable', () => {
+  assert.equal(
+    readWorkspaceFile('analysis_options.yaml'),
+    [
+      'analyzer:',
+      '  exclude:',
+      '    - build/**',
+      '    - android/**',
+      '    - ios/**',
+      '    - web/**',
+      '    - windows/**',
+      '    - macos/**',
+      '    - linux/**',
+      'include: package:flutter_lints/flutter.yaml',
+      '',
+    ].join('\n'),
+  );
+});
+
 test('contains exactly the expected app and package members', () => {
   assert.deepEqual(listDirectories('apps'), Object.keys(apps).sort());
   assert.deepEqual(listDirectories('packages'), [...packages].sort());
@@ -134,4 +154,35 @@ test('uses focused smoke apps instead of the generated counter demo', () => {
     assert.match(mainSource, new RegExp(label), `${app} must display its platform label`);
     assert.match(testSource, new RegExp(label), `${app} smoke test must verify its platform label`);
   }
+});
+
+test('tracks the generated Android Gradle wrapper', () => {
+  const wrapperFiles = [
+    'apps/android_app/android/gradlew',
+    'apps/android_app/android/gradlew.bat',
+    'apps/android_app/android/gradle/wrapper/gradle-wrapper.jar',
+    'apps/android_app/android/gradle/wrapper/gradle-wrapper.properties',
+  ];
+
+  for (const wrapperFile of wrapperFiles) {
+    assertFile(wrapperFile);
+    const ignoreCheck = childProcess.spawnSync(
+      'git',
+      ['check-ignore', '--no-index', '--quiet', `flutter_workspace/${wrapperFile}`],
+      { cwd: repositoryRoot },
+    );
+    assert.equal(ignoreCheck.status, 1, `${wrapperFile} must not be ignored`);
+  }
+
+  const androidGitignore = readWorkspaceFile('apps/android_app/android/.gitignore');
+  const ignoreEntries = androidGitignore
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'));
+  assert.equal(ignoreEntries.includes('gradle-wrapper.jar'), false);
+  assert.equal(ignoreEntries.includes('/gradlew'), false);
+  assert.equal(ignoreEntries.includes('/gradlew.bat'), false);
+
+  const gradlewMode = fs.statSync(path.join(workspaceRoot, wrapperFiles[0])).mode;
+  assert.notEqual(gradlewMode & 0o111, 0, 'android/gradlew must be executable');
 });
