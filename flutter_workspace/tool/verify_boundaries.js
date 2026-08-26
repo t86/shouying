@@ -31,7 +31,15 @@ function skipInterpolation(source, i) {
   let depth = 1;
   while (i < source.length && depth) {
     if (source.startsWith('//', i)) { i = source.indexOf('\n', i + 2); if (i < 0) return source.length; continue; }
-    if (source.startsWith('/*', i)) { const end = source.indexOf('*/', i + 2); i = end < 0 ? source.length : end + 2; continue; }
+    if (source.startsWith('/*', i)) {
+      let commentDepth = 1; i += 2;
+      while (i < source.length && commentDepth > 0) {
+        if (source.startsWith('/*', i)) { commentDepth += 1; i += 2; }
+        else if (source.startsWith('*/', i)) { commentDepth -= 1; i += 2; }
+        else i += 1;
+      }
+      continue;
+    }
     if (source[i] === "'" || source[i] === '"') { const q = source[i]; i += 1; while (i < source.length && source[i] !== q) { if (source[i] === '\\') i += 2; else i += 1; } i += 1; continue; }
     if (source[i] === '{') depth += 1; else if (source[i] === '}') depth -= 1; i += 1;
   }

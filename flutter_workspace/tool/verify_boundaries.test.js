@@ -165,12 +165,13 @@ test('handles nested comments inside interpolation and scans active code afterwa
 test('keeps outer interpolation comments intact through nested terminators', () => {
   const found = violations({
     'packages/foundation/lib/domain/model.dart': [
-      'final value = "${foo(/* outer /* import \'package:dio/dio.dart\'; */ } } \'package:dio/dio.dart\'; /* close outer */ 1)}";',
+      'final value = "${foo(/* outer /* nested */ }" import \'package:dio/dio.dart\'; still outer */ 1)}";',
       "import 'package:dio/dio.dart';",
     ].join('\n'),
   });
-  assert.equal(found.length, 1);
-  assert.equal(found[0].line, 2);
+  assert.deepEqual(found.map(({ line, rule, import: specifier }) => ({ line, rule, import: specifier })), [
+    { line: 2, rule: 'domain-forbidden-import', import: 'package:dio/dio.dart' },
+  ]);
 });
 
 test('enforces exact public entrypoints and rejects normalized URI bypasses', () => {
