@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 abstract final class Redactor {
@@ -5,6 +6,7 @@ abstract final class Redactor {
   static const _circular = '[CIRCULAR]';
   static const _sensitiveDigits = '[SENSITIVE_DIGITS]';
   static const _phone = '[PHONE]';
+  static const _unsupported = '[UNSUPPORTED]';
 
   static final _phonePattern = RegExp(r'(?<!\d)1[3-9]\d{9}(?!\d)');
   static final _digitsPattern = RegExp(r'(?<!\d)\d{16,}(?!\d)');
@@ -23,7 +25,7 @@ abstract final class Redactor {
   };
 
   static String redact(Object? value) {
-    final active = <Object>{};
+    final active = HashSet<Object>.identity();
     try {
       return jsonEncode(_sanitize(value, active));
     } catch (_) {
@@ -40,8 +42,11 @@ abstract final class Redactor {
       if (!active.add(value)) return _circular;
       try {
         final entries = <String, Object?>{};
+        var nonStringKey = 0;
         for (final entry in value.entries) {
-          final key = _safeKey(entry.key);
+          final key = entry.key is String
+              ? entry.key as String
+              : '[NON_STRING_KEY_${nonStringKey++}]';
           entries[key] = _isSensitive(key)
               ? _redacted
               : _sanitize(entry.value, active);
@@ -62,17 +67,7 @@ abstract final class Redactor {
         active.remove(value);
       }
     }
-    return _mask(_safeToString(value));
-  }
-
-  static String _safeKey(Object? key) => _safeToString(key);
-
-  static String _safeToString(Object? value) {
-    try {
-      return value.toString();
-    } catch (_) {
-      return _redacted;
-    }
+    return _unsupported;
   }
 
   static bool _isSensitive(String key) {

@@ -1,7 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 
+import 'dart:collection';
+
 void main() {
+  test('failure kinds have the fixed public order', () {
+    expect(FailureKind.values, [
+      FailureKind.network,
+      FailureKind.authentication,
+      FailureKind.business,
+      FailureKind.protocol,
+      FailureKind.realtime,
+      FailureKind.device,
+      FailureKind.unknown,
+    ]);
+  });
   test('result exposes either value or typed failure', () {
     const ok = Success<int>(3);
     const failed = FailureResult<int>(
@@ -120,7 +133,88 @@ void main() {
         'value': Object(),
       });
       expect(text, contains('[CIRCULAR]'));
-      expect(text, contains('Instance of'));
+      expect(text, contains('[UNSUPPORTED]'));
     },
   );
+
+  test('does not invoke user-defined methods on unsupported objects', () {
+    final hostile = _Hostile();
+    final input = HashMap<Object?, Object?>.identity()
+      ..[hostile] = hostile
+      ..['value'] = hostile;
+    final text = Redactor.redact(input);
+    expect(text, contains('[UNSUPPORTED]'));
+    expect(text, isNot(contains('secret-from-tostring')));
+    expect(hostile.calls, 0);
+  });
+
+  test('uses identity for cycles and serializes equal distinct iterables', () {
+    final first = _EqualIterable([1]);
+    final second = _EqualIterable([2]);
+    final shared = [3];
+    final cyclic = <dynamic>[];
+    cyclic.add(cyclic);
+    final text = Redactor.redact({
+      'first': first,
+      'second': second,
+      'a': shared,
+      'b': shared,
+      'cycle': cyclic,
+    });
+    expect(text, contains('"first":[1]'));
+    expect(text, contains('"second":[2]'));
+    expect(text, contains('"a":[3]'));
+    expect(text, contains('"b":[3]'));
+    expect(text, contains('[CIRCULAR]'));
+  });
+
+  test('masks free text and produces stable output', () {
+    final value = {
+      'note': 'call 13800138000 and ref 1234567890123456',
+      'route': '/v1/items',
+      'amount': 1200,
+    };
+    final first = Redactor.redact(value);
+    expect(first, contains('[PHONE]'));
+    expect(first, contains('[SENSITIVE_DIGITS]'));
+    expect(first, isNot(contains('13800138000')));
+    expect(first, isNot(contains('1234567890123456')));
+    expect(Redactor.redact(value), first);
+  });
+}
+
+final class _Hostile {
+  int calls = 0;
+
+  @override
+  String toString() {
+    calls++;
+    return 'secret-from-tostring';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    calls++;
+    return identical(this, other);
+  }
+
+  @override
+  int get hashCode {
+    calls++;
+    return 1;
+  }
+}
+
+final class _EqualIterable extends Iterable<Object?> {
+  _EqualIterable(this.items);
+  final List<Object?> items;
+
+  @override
+  Iterator<Object?> get iterator => items.iterator;
+
+  @override
+  bool operator ==(Object other) => other is _EqualIterable;
+
+  @override
+  int get hashCode => 1;
 }
