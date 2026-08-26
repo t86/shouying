@@ -231,6 +231,42 @@ void main() {
     expect(list.calls, 0);
   });
 
+  test(
+    'rejects hostile direct Map/List implementations before any API call',
+    () {
+      final map = _HostileMapInterface();
+      final list = _HostileListInterface();
+      expect(Redactor.redact(map), '"[UNSUPPORTED]"');
+      expect(Redactor.redact(list), '"[UNSUPPORTED]"');
+      expect(map.calls, 0);
+      expect(list.calls, 0);
+    },
+  );
+
+  test('accepts decoded, typed, const, and unmodifiable JSON containers', () {
+    expect(
+      Redactor.redact(<String, Object?>{
+        'ok': <Object?>[1],
+      }),
+      contains('"ok":[1]'),
+    );
+    expect(
+      Redactor.redact(const <String, Object?>{
+        'ok': <Object?>[1],
+      }),
+      contains('"ok":[1]'),
+    );
+    expect(
+      Redactor.redact(
+        Map<String, Object?>.unmodifiable({
+          'ok': [1],
+        }),
+      ),
+      contains('"ok":[1]'),
+    );
+    expect(Redactor.redact(List<Object?>.unmodifiable([1])), '[1]');
+  });
+
   test('bounds oversized strings and keys before scanning', () {
     final secretTail = 'x' * 1000000;
     final text = Redactor.redact({
@@ -398,6 +434,26 @@ final class _HostileList extends ListBase<Object?> {
 
   @override
   void operator []=(int index, Object? value) {
+    calls++;
+    throw StateError('no');
+  }
+}
+
+final class _HostileMapInterface implements Map<Object?, Object?> {
+  int calls = 0;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    calls++;
+    throw StateError('no');
+  }
+}
+
+final class _HostileListInterface implements List<Object?> {
+  int calls = 0;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
     calls++;
     throw StateError('no');
   }

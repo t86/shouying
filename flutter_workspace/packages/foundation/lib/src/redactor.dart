@@ -44,6 +44,32 @@ abstract final class Redactor {
     'superauthcode',
     'kqauthcode',
   };
+  static final _trustedMapTypes = <Type>{
+    jsonDecode('{}').runtimeType,
+    <String, Object?>{}.runtimeType,
+    <String, Object>{}.runtimeType,
+    <String, String>{}.runtimeType,
+    <String, dynamic>{}.runtimeType,
+    <dynamic, dynamic>{}.runtimeType,
+    <Object?, Object?>{}.runtimeType,
+    <String, List<Object?>>{}.runtimeType,
+    <String, List<int>>{}.runtimeType,
+    <String, List<dynamic>>{}.runtimeType,
+    <Object, Object>{}.runtimeType,
+    const <String, Object?>{}.runtimeType,
+    Map<String, Object?>.unmodifiable(<String, Object?>{}).runtimeType,
+  };
+  static final _trustedListTypes = <Type>{
+    jsonDecode('[]').runtimeType,
+    <Object?>[].runtimeType,
+    <dynamic>[].runtimeType,
+    <int>[].runtimeType,
+    <List<int>>[].runtimeType,
+    <String>[].runtimeType,
+    <Object>[].runtimeType,
+    const <Object?>[].runtimeType,
+    List<Object?>.unmodifiable(<Object?>[]).runtimeType,
+  };
 
   /// Redacts a decoded JSON tree. Complex inputs must be `Map`/materialized
   /// `List`; custom collections and general `Iterable`s are unsupported.
@@ -77,7 +103,7 @@ abstract final class Redactor {
       }
       return value;
     }
-    if (value is MapBase && !_isTrustedMap(value)) return _unsupported;
+    if (value is Map && !_isTrustedMap(value)) return _unsupported;
     if (value is Map) {
       if (!budget.active.add(value)) return _circular;
       try {
@@ -134,17 +160,11 @@ abstract final class Redactor {
   }
 
   static bool _isTrustedMap(Map value) {
-    final type = value.runtimeType.toString();
-    return type.startsWith('_Map') ||
-        type.startsWith('_ConstMap') ||
-        type.startsWith('Map<');
+    return _trustedMapTypes.contains(value.runtimeType);
   }
 
   static bool _isTrustedList(List value) {
-    final type = value.runtimeType.toString();
-    return type.startsWith('_GrowableList') ||
-        type.startsWith('_List') ||
-        type.startsWith('List<');
+    return _trustedListTypes.contains(value.runtimeType);
   }
 
   static String _mask(String value) {
