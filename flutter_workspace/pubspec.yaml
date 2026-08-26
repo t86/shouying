@@ -1,0 +1,9 @@
+name: shouyin_flutter_workspace
+publish_to: none
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+workspace:
+  - apps/*
+  - packages/*
+dev_dependencies:
+  flutter_lints: any

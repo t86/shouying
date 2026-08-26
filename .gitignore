@@ -7,3 +7,11 @@ node_modules
 .DS_Store
 dist.zip
 .windsurfrules
+flutter_workspace/.fvm/
+flutter_workspace/.dart_tool/
+flutter_workspace/build/
+flutter_workspace/**/.dart_tool/
+flutter_workspace/**/build/
+flutter_workspace/**/coverage/
+flutter_workspace/**/.flutter-plugins
+flutter_workspace/**/.flutter-plugins-dependencies
