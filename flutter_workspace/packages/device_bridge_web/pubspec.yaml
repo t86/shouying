@@ -1,5 +1,6 @@
 name: device_bridge_web
-description: "A new Flutter package project."
+description: "Internal Web boundary for Shouyin device integrations."
+publish_to: none
 version: 0.0.1
 resolution: workspace
 homepage:

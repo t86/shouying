@@ -1,5 +1,6 @@
 name: device_bridge_platform_interface
-description: "A new Flutter package project."
+description: "Internal platform contracts for Shouyin device integrations."
+publish_to: none
 version: 0.0.1
 resolution: workspace
 homepage:

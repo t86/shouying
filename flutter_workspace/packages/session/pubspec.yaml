@@ -1,5 +1,6 @@
 name: session
-description: "A new Flutter package project."
+description: "Internal session lifecycle coordination for Shouyin Flutter applications."
+publish_to: none
 version: 0.0.1
 resolution: workspace
 homepage:

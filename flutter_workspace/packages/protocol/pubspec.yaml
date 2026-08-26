@@ -1,5 +1,6 @@
 name: protocol
-description: "A new Flutter package project."
+description: "Internal protocol contracts for Shouyin service communication."
+publish_to: none
 version: 0.0.1
 resolution: workspace
 homepage:

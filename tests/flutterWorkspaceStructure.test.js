@@ -13,18 +13,20 @@ const apps = {
   android_app: '收银 Android 客户端',
 };
 
-const packages = [
-  'foundation',
-  'protocol',
-  'session',
-  'realtime_sync',
-  'permissions',
-  'design_system',
-  'device_bridge_platform_interface',
-  'device_bridge_windows',
-  'device_bridge_android',
-  'device_bridge_web',
-];
+const packageDescriptions = {
+  foundation: 'Internal shared foundations for Shouyin Flutter applications.',
+  protocol: 'Internal protocol contracts for Shouyin service communication.',
+  session: 'Internal session lifecycle coordination for Shouyin Flutter applications.',
+  realtime_sync: 'Internal real-time state synchronization for Shouyin Flutter applications.',
+  permissions: 'Internal permission policy coordination for Shouyin Flutter applications.',
+  design_system: 'Internal design foundations shared by Shouyin Flutter applications.',
+  device_bridge_platform_interface: 'Internal platform contracts for Shouyin device integrations.',
+  device_bridge_windows: 'Internal Windows boundary for Shouyin device integrations.',
+  device_bridge_android: 'Internal Android boundary for Shouyin device integrations.',
+  device_bridge_web: 'Internal Web boundary for Shouyin device integrations.',
+};
+
+const packages = Object.keys(packageDescriptions);
 
 function assertFile(relativePath) {
   const absolutePath = path.join(workspaceRoot, relativePath);
@@ -98,6 +100,27 @@ test('keeps Flutter 3.47 analyzer exclusions stable', () => {
   );
 });
 
+test('routes every member through the shared analyzer configuration', () => {
+  const members = [
+    ...Object.keys(apps).map((name) => `apps/${name}`),
+    ...packages.map((name) => `packages/${name}`),
+  ];
+
+  for (const member of members) {
+    const relativePath = `${member}/analysis_options.yaml`;
+    const meaningfulLines = readWorkspaceFile(relativePath)
+      .split('\n')
+      .map((line) => line.replace(/\s+#.*$/, '').trim())
+      .filter((line) => line && !line.startsWith('#'));
+
+    assert.deepEqual(
+      meaningfulLines,
+      ['include: ../../analysis_options.yaml'],
+      `${relativePath} must only include the shared analyzer configuration`,
+    );
+  }
+});
+
 test('contains exactly the expected app and package members', () => {
   assert.deepEqual(listDirectories('apps'), Object.keys(apps).sort());
   assert.deepEqual(listDirectories('packages'), [...packages].sort());
@@ -114,6 +137,62 @@ test('uses workspace resolution and the required SDK range in every member', () 
     const pubspec = readWorkspaceFile(relativePath);
     assert.match(pubspec, /^resolution:\s+workspace\s*$/m, `${relativePath} must use workspace resolution`);
     assertWorkspaceSdkConstraint(pubspec, relativePath);
+  }
+});
+
+test('marks every internal package as non-publishable', () => {
+  for (const packageName of packages) {
+    const relativePath = `packages/${packageName}/pubspec.yaml`;
+    assert.match(
+      readWorkspaceFile(relativePath),
+      /^publish_to:\s*["']?none["']?\s*$/m,
+      `${relativePath} must set publish_to: none`,
+    );
+  }
+});
+
+test('removes generated placeholders from internal packages', () => {
+  const generatedPlaceholders = /class Calculator|\baddOne\b|TODO:|A new Flutter package project/;
+
+  for (const [packageName, description] of Object.entries(packageDescriptions)) {
+    const packageRoot = path.join(workspaceRoot, 'packages', packageName);
+    const generatedTest = path.join(packageRoot, 'test', `${packageName}_test.dart`);
+    const license = path.join(packageRoot, 'LICENSE');
+    const relativeFiles = [
+      `packages/${packageName}/lib/${packageName}.dart`,
+      `packages/${packageName}/README.md`,
+      `packages/${packageName}/CHANGELOG.md`,
+      `packages/${packageName}/pubspec.yaml`,
+    ];
+
+    if (fs.existsSync(generatedTest)) {
+      relativeFiles.push(path.relative(workspaceRoot, generatedTest));
+    }
+
+    const contents = relativeFiles.map((relativePath) => readWorkspaceFile(relativePath));
+    assert.doesNotMatch(
+      contents.join('\n'),
+      generatedPlaceholders,
+      `${packageName} must not retain generated package placeholders`,
+    );
+    assert.equal(fs.existsSync(generatedTest), false, `${packageName} generated calculator test must be removed`);
+    assert.equal(fs.existsSync(license), false, `${packageName} placeholder license must be removed`);
+
+    const librarySource = contents[0];
+    const nonCommentLibraryLines = librarySource
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('///'));
+    assert.equal(librarySource.includes(`/// ${description}`), true, `${packageName} must document its responsibility`);
+    assert.deepEqual(nonCommentLibraryLines, ['library;'], `${packageName} must not declare a placeholder API`);
+
+    assert.equal(contents[1].includes(description), true, `${packageName} README must be package-specific`);
+    assert.equal(contents[2].includes(`\`${packageName}\``), true, `${packageName} changelog must be package-specific`);
+    assert.equal(
+      contents[3].includes(`description: "${description}"`),
+      true,
+      `${packageName} pubspec description must be package-specific`,
+    );
   }
 });
 
