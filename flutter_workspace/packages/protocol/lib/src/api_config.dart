@@ -1,3 +1,5 @@
+import 'package:protocol/src/canonical_uri.dart';
+
 final class ApiConfig {
   factory ApiConfig({
     required Uri apiBase,
@@ -61,6 +63,15 @@ final class ApiConfig {
     while (path.endsWith('/')) {
       path = path.substring(0, path.length - 1);
     }
-    return normalized.replace(path: path);
+    final trimmed = normalized.replace(path: path);
+    final segments = CanonicalUri.safePathSegments(trimmed);
+    if (segments == null) {
+      throw ArgumentError.value(
+        endpoint,
+        name,
+        '$name contains an ambiguous or unsafe path',
+      );
+    }
+    return trimmed.replace(pathSegments: segments);
   }
 }

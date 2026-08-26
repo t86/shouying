@@ -1,12 +1,37 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:foundation/foundation.dart';
 import 'package:protocol/src/api_config.dart';
+import 'package:protocol/src/canonical_uri.dart';
 import 'package:protocol/src/client_kind.dart';
 import 'package:protocol/src/credential_store.dart';
 import 'package:protocol/src/header_policy.dart';
 import 'package:protocol/src/request_gate.dart';
+
+/// Application-level response budgets.
+///
+/// Dio may allocate transport bytes before these checks run. The raw-byte
+/// budget caps JSON decoding and subsequent application traversal, while a
+/// trustworthy Content-Length header can reject a response before parsing.
+final class ProtocolResponseLimits {
+  const ProtocolResponseLimits({
+    this.maxRawResponseBytes = defaultMaxRawResponseBytes,
+    this.maxDepth = defaultMaxDepth,
+    this.maxNodes = defaultMaxNodes,
+  }) : assert(maxRawResponseBytes > 0),
+       assert(maxDepth > 0),
+       assert(maxNodes > 0);
+
+  static const int defaultMaxRawResponseBytes = 2 * 1024 * 1024;
+  static const int defaultMaxDepth = 32;
+  static const int defaultMaxNodes = 10000;
+
+  final int maxRawResponseBytes;
+  final int maxDepth;
+  final int maxNodes;
+}
 
 class ProtocolClient {
   factory ProtocolClient({
@@ -14,13 +39,21 @@ class ProtocolClient {
     required ApiConfig config,
     required CredentialStore credentialStore,
     required RequestGate requestGate,
-  }) => ProtocolClient._(
-    dio,
-    config,
-    credentialStore,
-    requestGate,
-    HeaderPolicy(config: config, credentialStore: credentialStore),
-  );
+    ProtocolResponseLimits responseLimits = const ProtocolResponseLimits(),
+  }) {
+    dio.options
+      ..connectTimeout = _requestTimeout
+      ..sendTimeout = _requestTimeout
+      ..receiveTimeout = _requestTimeout;
+    return ProtocolClient._(
+      dio,
+      config,
+      credentialStore,
+      requestGate,
+      HeaderPolicy(config: config, credentialStore: credentialStore),
+      responseLimits,
+    );
+  }
 
   ProtocolClient._(
     this._dio,
@@ -28,6 +61,7 @@ class ProtocolClient {
     this._credentialStore,
     this._requestGate,
     this._headerPolicy,
+    this._responseLimits,
   );
 
   static const Duration _requestTimeout = Duration(seconds: 12);
@@ -37,6 +71,7 @@ class ProtocolClient {
   final CredentialStore _credentialStore;
   final RequestGate _requestGate;
   final HeaderPolicy _headerPolicy;
+  final ProtocolResponseLimits _responseLimits;
 
   Future<Result<Map<String, Object?>>> get(
     String path, {
@@ -63,9 +98,12 @@ class ProtocolClient {
       return const FailureResult(_requestThrottledFailure);
     }
 
-    final Map<String, String> headers;
+    final HeaderSelection headerSelection;
     try {
-      headers = await _headerPolicy.headersFor(target: target, client: client);
+      headerSelection = await _headerPolicy.selectionFor(
+        target: target,
+        client: client,
+      );
     } on Object {
       return const FailureResult(_credentialsUnavailableFailure);
     }
@@ -73,18 +111,23 @@ class ProtocolClient {
     final options = Options(
       method: method,
       connectTimeout: _requestTimeout,
-      sendTimeout: _requestTimeout,
+      sendTimeout: body == null ? Duration.zero : _requestTimeout,
       receiveTimeout: _requestTimeout,
-      headers: headers,
+      responseType: ResponseType.plain,
+      headers: headerSelection.headers,
     );
 
     try {
-      final response = await _dio.requestUri<Object?>(
+      final response = await _dio.requestUri<dynamic>(
         target,
         data: body,
         options: options,
       );
-      return await _handleResponse(response.data);
+      return await _handleResponse(
+        response.data,
+        response.headers,
+        headerSelection.snapshot,
+      );
     } on DioException catch (error) {
       return FailureResult(_mapDioFailure(error.type));
     } on Object {
@@ -93,53 +136,30 @@ class ProtocolClient {
   }
 
   Uri? _targetFor(String path, Map<String, Object?> query) {
-    if (!_isSafeRequestPath(path)) return null;
-
-    final relativePath = path.startsWith('/') ? path.substring(1) : path;
-    final basePath = _config.apiBase.path;
-    final joinedPath = basePath.isEmpty
-        ? '/$relativePath'
-        : '$basePath/$relativePath';
+    final requestSegments = CanonicalUri.decodeRequestPath(path);
+    final baseSegments = CanonicalUri.safePathSegments(_config.apiBase);
+    if (requestSegments == null || baseSegments == null) return null;
     return _config.apiBase.replace(
-      path: joinedPath,
+      pathSegments: <String>[...baseSegments, ...requestSegments],
       queryParameters: query.isEmpty ? null : query,
     );
   }
 
-  bool _isSafeRequestPath(String path) {
-    if (path.isEmpty ||
-        path.trim() != path ||
-        path.startsWith('//') ||
-        path.contains(r'\') ||
-        path.contains('?') ||
-        path.contains('#')) {
-      return false;
+  Future<Result<Map<String, Object?>>> _handleResponse(
+    Object? data,
+    Headers responseHeaders,
+    CredentialSnapshot? credentialSnapshot,
+  ) async {
+    if (_contentLengthExceedsLimit(responseHeaders)) {
+      return const FailureResult(_responseTooLargeFailure);
     }
 
-    final parsed = Uri.tryParse(path);
-    if (parsed == null ||
-        parsed.isAbsolute ||
-        parsed.hasAuthority ||
-        parsed.hasQuery ||
-        parsed.hasFragment) {
-      return false;
-    }
-    final rawPath = path.startsWith('/') ? path.substring(1) : path;
-    final rawSegments = rawPath.split('/');
-    if (rawSegments.isEmpty) return false;
-    try {
-      return rawSegments.every((rawSegment) {
-        final segment = Uri.decodeComponent(rawSegment);
-        return segment.isNotEmpty && segment != '.' && segment != '..';
-      });
-    } on FormatException {
-      return false;
-    }
-  }
-
-  Future<Result<Map<String, Object?>>> _handleResponse(Object? data) async {
     Object? decoded = data;
     if (decoded is String) {
+      if (decoded.length > _responseLimits.maxRawResponseBytes ||
+          utf8.encode(decoded).length > _responseLimits.maxRawResponseBytes) {
+        return const FailureResult(_responseTooLargeFailure);
+      }
       try {
         decoded = jsonDecode(decoded);
       } on FormatException {
@@ -150,6 +170,17 @@ class ProtocolClient {
       return const FailureResult(_invalidTopLevelFailure);
     }
 
+    switch (_validateJsonShape(decoded)) {
+      case _JsonShapeResult.valid:
+        break;
+      case _JsonShapeResult.tooLarge:
+        return const FailureResult(_responseTooLargeFailure);
+      case _JsonShapeResult.tooDeep:
+        return const FailureResult(_responseTooDeepFailure);
+      case _JsonShapeResult.invalid:
+        return const FailureResult(_invalidTopLevelFailure);
+    }
+
     final result = <String, Object?>{
       for (final entry in decoded.entries)
         entry.key as String: entry.value as Object?,
@@ -157,15 +188,77 @@ class ProtocolClient {
     final code = result['code'];
     if ((code is int && (code == 11 || code == 12)) ||
         (code is String && (code == '11' || code == '12'))) {
-      await _ignoreClearFailure(_credentialStore.clearTk);
+      if (credentialSnapshot case final snapshot?) {
+        await _ignoreClearFailure(
+          () => _credentialStore.clearTkIfMatches(snapshot.tk),
+        );
+      }
       return const FailureResult(_tkExpiredFailure);
     }
     if ((code is int && (code == 14 || code == 15)) ||
         (code is String && (code == '14' || code == '15'))) {
-      await _ignoreClearFailure(_credentialStore.clearStk);
+      if (credentialSnapshot case final snapshot?) {
+        await _ignoreClearFailure(
+          () => _credentialStore.clearStkIfMatches(snapshot.stk),
+        );
+      }
       return const FailureResult(_stkExpiredFailure);
     }
     return Success(result);
+  }
+
+  bool _contentLengthExceedsLimit(Headers headers) {
+    final values = headers[Headers.contentLengthHeader];
+    if (values == null || values.length != 1) return false;
+    final contentLength = int.tryParse(values.single);
+    return contentLength != null &&
+        contentLength > _responseLimits.maxRawResponseBytes;
+  }
+
+  _JsonShapeResult _validateJsonShape(Map<Object?, Object?> root) {
+    final pending = <(Object?, int)>[(root, 1)];
+    final visitedContainers = HashSet<Object>.identity();
+    var nodeCount = 0;
+
+    while (pending.isNotEmpty) {
+      final (value, depth) = pending.removeLast();
+      nodeCount += 1;
+      if (nodeCount > _responseLimits.maxNodes) {
+        return _JsonShapeResult.tooLarge;
+      }
+      if (depth > _responseLimits.maxDepth) {
+        return _JsonShapeResult.tooDeep;
+      }
+
+      switch (value) {
+        case null || String() || bool():
+          break;
+        case num():
+          if (!value.isFinite) return _JsonShapeResult.invalid;
+        case Map():
+          if (!visitedContainers.add(value)) return _JsonShapeResult.invalid;
+          if (nodeCount + pending.length + value.length >
+              _responseLimits.maxNodes) {
+            return _JsonShapeResult.tooLarge;
+          }
+          for (final entry in value.entries) {
+            if (entry.key is! String) return _JsonShapeResult.invalid;
+            pending.add((entry.value, depth + 1));
+          }
+        case List():
+          if (!visitedContainers.add(value)) return _JsonShapeResult.invalid;
+          if (nodeCount + pending.length + value.length >
+              _responseLimits.maxNodes) {
+            return _JsonShapeResult.tooLarge;
+          }
+          for (final item in value) {
+            pending.add((item, depth + 1));
+          }
+        default:
+          return _JsonShapeResult.invalid;
+      }
+    }
+    return _JsonShapeResult.valid;
   }
 
   Future<void> _ignoreClearFailure(Future<void> Function() clear) async {
@@ -202,6 +295,16 @@ class ProtocolClient {
     kind: FailureKind.protocol,
     code: 'protocol.invalid_top_level',
     safeMessage: '服务返回了无法识别的数据',
+  );
+  static const AppFailure _responseTooLargeFailure = AppFailure(
+    kind: FailureKind.protocol,
+    code: 'protocol.response_too_large',
+    safeMessage: '服务返回的数据过大',
+  );
+  static const AppFailure _responseTooDeepFailure = AppFailure(
+    kind: FailureKind.protocol,
+    code: 'protocol.response_too_deep',
+    safeMessage: '服务返回的数据层级过深',
   );
   static const AppFailure _credentialsUnavailableFailure = AppFailure(
     kind: FailureKind.authentication,
@@ -244,3 +347,5 @@ class ProtocolClient {
     safeMessage: '请求失败，请稍后重试',
   );
 }
+
+enum _JsonShapeResult { valid, tooLarge, tooDeep, invalid }

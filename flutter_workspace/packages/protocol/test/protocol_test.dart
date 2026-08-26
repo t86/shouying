@@ -115,6 +115,9 @@ void main() {
         Uri.parse('https://user:synthetic@example.com/server'),
         Uri.parse('https://api.example/server#fragment'),
         Uri.parse('https://api.example/server?mode=test'),
+        Uri.parse('https://api.example/server%2Fadmin'),
+        Uri.parse('https://api.example/server/%252e%252e/admin'),
+        Uri.parse('https://api.example/server/a%3Fadmin'),
       ];
 
       for (final apiBase in invalidApiBases) {
@@ -145,6 +148,29 @@ void main() {
       expect(await store.readTk(), isNull);
       expect(await store.readStk(), isNull);
     });
+
+    test('supports atomic snapshots and matching invalidation', () async {
+      final store = _MemoryCredentialStore(
+        tk: 'synthetic-snapshot-tk',
+        stk: 'synthetic-snapshot-stk',
+      );
+
+      final snapshot = await store.readSnapshot();
+      expect(snapshot.tk, 'synthetic-snapshot-tk');
+      expect(snapshot.stk, 'synthetic-snapshot-stk');
+
+      await store.writeTk('synthetic-new-tk');
+      await store.writeStk('synthetic-new-stk');
+      await store.clearTkIfMatches(snapshot.tk);
+      await store.clearStkIfMatches(snapshot.stk);
+      expect(await store.readTk(), 'synthetic-new-tk');
+      expect(await store.readStk(), 'synthetic-new-stk');
+
+      await store.clearTkIfMatches('synthetic-new-tk');
+      await store.clearStkIfMatches('synthetic-new-stk');
+      expect(await store.readTk(), isNull);
+      expect(await store.readStk(), isNull);
+    });
   });
 
   group('HeaderPolicy', () {
@@ -171,6 +197,25 @@ void main() {
       expect(policy.toString(), isNot(contains('synthetic-header-stk')));
     });
 
+    test('reads tk and stk from one consistent credential snapshot', () async {
+      final store = _MemoryCredentialStore(
+        tk: 'synthetic-snapshot-header-tk',
+        stk: 'synthetic-snapshot-header-stk',
+      );
+      final policy = HeaderPolicy(config: _config(), credentialStore: store);
+
+      final headers = await policy.headersFor(
+        target: Uri.parse('https://api.example/server/orders'),
+        client: ClientKind.order,
+      );
+
+      expect(headers['tk'], 'synthetic-snapshot-header-tk');
+      expect(headers['stk'], 'synthetic-snapshot-header-stk');
+      expect(store.readSnapshotCalls, 1);
+      expect(store.readTkCalls, 0);
+      expect(store.readStkCalls, 0);
+    });
+
     test('omits empty credentials and a null terminal value', () async {
       final policy = HeaderPolicy(
         config: _config(),
@@ -191,11 +236,15 @@ void main() {
     test(
       'omits tt only for the exact online origin and path subtree',
       () async {
+        final store = _MemoryCredentialStore(
+          tk: 'synthetic-online-tk',
+          stk: 'synthetic-online-stk',
+        );
         final policy = HeaderPolicy(
           config: _config(
             onlineBase: Uri.parse('https://online.example:443/server'),
           ),
-          credentialStore: _MemoryCredentialStore(),
+          credentialStore: store,
         );
 
         final onlineTargets = <Uri>[
@@ -208,24 +257,53 @@ void main() {
             target: target,
             client: ClientKind.order,
           );
+          expect(headers['tk'], 'synthetic-online-tk');
+          expect(headers['stk'], 'synthetic-online-stk');
           expect(headers, isNot(contains('tt')), reason: target.toString());
         }
 
-        final lookalikeTargets = <Uri>[
+        final untrustedTargets = <Uri>[
           Uri.parse('https://online.example.evil/server/orders'),
           Uri.parse('https://online.example/serverevil/orders'),
           Uri.parse('https://online.example:444/server/orders'),
           Uri.parse('http://online.example/server/orders'),
+          Uri.parse('https://api.example/outside/orders'),
+          Uri.parse('https://[::1]/server/orders'),
+          Uri.parse('https://online.example/server%2Forders'),
+          Uri.parse('https://online.example/server/%252e%252e/orders'),
+          Uri.parse('https://online.example/server/a%5Cb'),
+          Uri.parse('https://online.example/server/a%3Foutside'),
+          Uri.parse('https://online.example/server/a%23outside'),
         ];
-        for (final target in lookalikeTargets) {
+        for (final target in untrustedTargets) {
           final headers = await policy.headersFor(
             target: target,
             client: ClientKind.order,
           );
-          expect(headers['tt'], '4', reason: target.toString());
+          expect(headers, <String, String>{
+            Headers.acceptHeader: Headers.jsonContentType,
+            Headers.contentTypeHeader: Headers.jsonContentType,
+          }, reason: target.toString());
         }
       },
     );
+
+    test('online classification wins when trusted subtrees overlap', () async {
+      final policy = HeaderPolicy(
+        config: _config(
+          onlineBase: Uri.parse('https://api.example/server/online'),
+        ),
+        credentialStore: _MemoryCredentialStore(tk: 'synthetic-overlap-tk'),
+      );
+
+      final headers = await policy.headersFor(
+        target: Uri.parse('https://api.example/server/online/orders'),
+        client: ClientKind.order,
+      );
+
+      expect(headers['tk'], 'synthetic-overlap-tk');
+      expect(headers, isNot(contains('tt')));
+    });
   });
 
   group('RequestGate', () {
@@ -279,7 +357,7 @@ void main() {
       expect(gate.allow(target), isTrue);
     });
 
-    test('uses the full normalized URI and query as the key', () {
+    test('uses the canonical route without query as the key', () {
       final gate = RequestGate(
         clock: () => DateTime.fromMillisecondsSinceEpoch(1000),
       );
@@ -294,8 +372,50 @@ void main() {
       );
       expect(
         gate.allow(Uri.parse('https://api.example/server/orders?q=2')),
-        isTrue,
+        isFalse,
       );
+      expect(gate.toString(), isNot(contains('q=1')));
+      expect(gate.toString(), isNot(contains('q=2')));
+    });
+
+    test('bounds retained hashes and evicts the oldest route', () {
+      final gate = RequestGate(
+        clock: () => DateTime.fromMillisecondsSinceEpoch(1000),
+        maxEntries: 3,
+      );
+
+      expect(gate.allow(Uri.parse('https://api.example/server/a')), isTrue);
+      expect(gate.allow(Uri.parse('https://api.example/server/b')), isTrue);
+      expect(gate.allow(Uri.parse('https://api.example/server/c')), isTrue);
+      expect(gate.trackedRequestCount, 3);
+      expect(gate.allow(Uri.parse('https://api.example/server/d')), isTrue);
+      expect(gate.trackedRequestCount, 3);
+      expect(
+        gate.allow(
+          Uri.parse('https://api.example/server/a?token=synthetic-secret'),
+        ),
+        isTrue,
+        reason: 'the oldest route hash was evicted',
+      );
+      expect(gate.trackedRequestCount, 3);
+      expect(gate.toString(), isNot(contains('synthetic-secret')));
+    });
+
+    test('evicts expired route hashes using the injected clock', () {
+      var now = DateTime.fromMillisecondsSinceEpoch(1000);
+      final gate = RequestGate(
+        clock: () => now,
+        maxEntries: 3,
+        retention: const Duration(milliseconds: 100),
+      );
+
+      expect(gate.allow(Uri.parse('https://api.example/server/a')), isTrue);
+      expect(gate.trackedRequestCount, 1);
+      now = DateTime.fromMillisecondsSinceEpoch(1101);
+      expect(gate.allow(Uri.parse('https://api.example/server/b')), isTrue);
+      expect(gate.trackedRequestCount, 1);
+      expect(gate.allow(Uri.parse('https://api.example/server/a')), isTrue);
+      expect(gate.trackedRequestCount, 2);
     });
 
     test('blocks deterministically when the clock moves backwards', () {
@@ -370,6 +490,26 @@ void main() {
     });
 
     test(
+      'GET disables bodyless Web send timeout but keeps base limits',
+      () async {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+        final client = _client(dio: dio);
+
+        await client.get('/orders', client: ClientKind.booking);
+
+        expect(dio.options.connectTimeout, const Duration(seconds: 12));
+        expect(dio.options.sendTimeout, const Duration(seconds: 12));
+        expect(dio.options.receiveTimeout, const Duration(seconds: 12));
+        final request = adapter.requests.single;
+        expect(request.connectTimeout, const Duration(seconds: 12));
+        expect(request.sendTimeout, Duration.zero);
+        expect(request.receiveTimeout, const Duration(seconds: 12));
+        expect(request.responseType, ResponseType.plain);
+      },
+    );
+
+    test(
       'rejects external, ambiguous, traversal, and embedded query paths',
       () async {
         final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
@@ -404,6 +544,65 @@ void main() {
           );
         }
         expect(adapter.calls, 0);
+      },
+    );
+
+    test(
+      'rejects encoded separators, controls, and nested encodings',
+      () async {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+        final client = _client(dio: dio);
+        final invalidPaths = <String>[
+          '/auth/a%2Fb',
+          '/auth/a%2fb',
+          '/auth/a%5Cb',
+          '/auth/a%5cb',
+          '/auth/%2E%2E/admin',
+          '/auth/%2e%2E/admin',
+          '/auth/%252F/admin',
+          '/auth/%255c/admin',
+          '/auth/%252e%252E/admin',
+          '/auth/a%3Fadmin',
+          '/auth/a%23admin',
+          '/auth/a%253fadmin',
+          '/auth/a%2523admin',
+          '/auth/%00/admin',
+          '/auth/%1f/admin',
+          '/auth/%7F/admin',
+        ];
+
+        for (final path in invalidPaths) {
+          final result = await client.get(path, client: ClientKind.booking);
+          expect(
+            result.failureOrNull?.code,
+            'protocol.invalid_path',
+            reason: path,
+          );
+        }
+        expect(adapter.calls, 0);
+      },
+    );
+
+    test(
+      'canonicalizes safe decoded segments while preserving api base',
+      () async {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+        final client = _client(dio: dio);
+
+        final result = await client.get(
+          '/orders/a%20b/%7Eready',
+          client: ClientKind.booking,
+        );
+
+        expect(result, isA<Success<Map<String, Object?>>>());
+        expect(adapter.requests.single.uri.pathSegments, <String>[
+          'server',
+          'orders',
+          'a b',
+          '~ready',
+        ]);
       },
     );
 
@@ -537,6 +736,130 @@ void main() {
       }
     });
 
+    test('rejects raw responses over the UTF-8 byte budget', () async {
+      final secret = List<String>.filled(20, '界').join();
+      final adapter = _StubAdapter(
+        (_) => _textBody(jsonEncode(<String, Object?>{'payload': secret})),
+      );
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 50,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      ).get('/orders', client: ClientKind.order);
+
+      expect(result.failureOrNull?.code, 'protocol.response_too_large');
+      expect(_failureText(result), isNot(contains(secret)));
+    });
+
+    test('rejects an oversized content-length before JSON parsing', () async {
+      final adapter = _StubAdapter(
+        (_) => ResponseBody.fromString(
+          '{malformed',
+          200,
+          headers: <String, List<String>>{
+            Headers.contentLengthHeader: <String>['999'],
+            Headers.contentTypeHeader: <String>['text/plain'],
+          },
+        ),
+      );
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 64,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      ).get('/orders', client: ClientKind.order);
+
+      expect(result.failureOrNull?.code, 'protocol.response_too_large');
+      expect(_failureText(result), isNot(contains('{malformed')));
+    });
+
+    test('rejects decoded responses beyond depth and node budgets', () async {
+      Object? deep = <String, Object?>{'leaf': true};
+      for (var index = 0; index < 5; index += 1) {
+        deep = <String, Object?>{'level$index': deep};
+      }
+      final wide = <String, Object?>{
+        for (var index = 0; index < 20; index += 1) 'item$index': index,
+      };
+      final cases = <(Object?, ProtocolResponseLimits, String)>[
+        (
+          deep,
+          const ProtocolResponseLimits(
+            maxRawResponseBytes: 1024,
+            maxDepth: 3,
+            maxNodes: 100,
+          ),
+          'protocol.response_too_deep',
+        ),
+        (
+          wide,
+          const ProtocolResponseLimits(
+            maxRawResponseBytes: 1024,
+            maxDepth: 32,
+            maxNodes: 10,
+          ),
+          'protocol.response_too_large',
+        ),
+      ];
+
+      for (final (data, limits, expectedCode) in cases) {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+        dio.interceptors.add(
+          InterceptorsWrapper(
+            onResponse: (response, handler) {
+              response.data = data;
+              handler.next(response);
+            },
+          ),
+        );
+
+        final result = await _client(
+          dio: dio,
+          responseLimits: limits,
+        ).get('/orders', client: ClientKind.order);
+
+        expect(result.failureOrNull?.code, expectedCode);
+      }
+    });
+
+    test('rejects non-finite and unsupported decoded values', () async {
+      final invalidValues = <Object>[double.nan, double.infinity, DateTime(0)];
+
+      for (final invalidValue in invalidValues) {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+        dio.interceptors.add(
+          InterceptorsWrapper(
+            onResponse: (response, handler) {
+              response.data = <String, Object?>{'value': invalidValue};
+              handler.next(response);
+            },
+          ),
+        );
+
+        final result = await _client(
+          dio: dio,
+          responseLimits: const ProtocolResponseLimits(
+            maxRawResponseBytes: 1024,
+            maxDepth: 32,
+            maxNodes: 100,
+          ),
+        ).get('/orders', client: ClientKind.order);
+
+        expect(result.failureOrNull?.code, 'protocol.invalid_top_level');
+      }
+    });
+
     test(
       'auth codes 11 and 12 clear only tk and return a safe failure',
       () async {
@@ -601,6 +924,42 @@ void main() {
         }
       },
     );
+
+    test('an old tk-expired response cannot clear a newer tk', () async {
+      final store = _MemoryCredentialStore(tk: 'synthetic-old-tk');
+      final adapter = _StubAdapter((_) async {
+        await store.writeTk('synthetic-newer-tk');
+        return _jsonBody(<String, Object?>{'code': 11});
+      });
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        credentialStore: store,
+      ).get('/orders', client: ClientKind.order);
+
+      expect(result.failureOrNull?.code, 'authentication.tk_expired');
+      expect(store.tk, 'synthetic-newer-tk');
+      expect(store.clearTkCalls, 1);
+    });
+
+    test('an old stk-expired response cannot clear a newer stk', () async {
+      final store = _MemoryCredentialStore(stk: 'synthetic-old-stk');
+      final adapter = _StubAdapter((_) async {
+        await store.writeStk('synthetic-newer-stk');
+        return _jsonBody(<String, Object?>{'code': 14});
+      });
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        credentialStore: store,
+      ).get('/orders', client: ClientKind.order);
+
+      expect(result.failureOrNull?.code, 'authentication.stk_expired');
+      expect(store.stk, 'synthetic-newer-stk');
+      expect(store.clearStkCalls, 1);
+    });
 
     test(
       'does not treat doubles, booleans, or padded strings as auth codes',
@@ -787,6 +1146,7 @@ ProtocolClient _client({
   required Dio dio,
   CredentialStore? credentialStore,
   RequestGate? gate,
+  ProtocolResponseLimits? responseLimits,
 }) => ProtocolClient(
   dio: dio,
   config: _config(),
@@ -794,6 +1154,7 @@ ProtocolClient _client({
   requestGate:
       gate ??
       RequestGate(clock: () => DateTime.fromMillisecondsSinceEpoch(1000)),
+  responseLimits: responseLimits ?? const ProtocolResponseLimits(),
 );
 
 String _failureText(Result<Map<String, Object?>> result) {
@@ -865,6 +1226,9 @@ final class _MemoryCredentialStore implements CredentialStore {
   String? stk;
   final _CredentialFailure failure;
   final Duration? readDelay;
+  int readSnapshotCalls = 0;
+  int readTkCalls = 0;
+  int readStkCalls = 0;
   int clearTkCalls = 0;
   int clearStkCalls = 0;
 
@@ -878,6 +1242,15 @@ final class _MemoryCredentialStore implements CredentialStore {
   }
 
   @override
+  Future<void> clearStkIfMatches(String? expected) async {
+    clearStkCalls += 1;
+    if (failure == _CredentialFailure.clearStk) {
+      throw StateError('synthetic-clear-secret');
+    }
+    if (stk == expected) stk = null;
+  }
+
+  @override
   Future<void> clearTk() async {
     clearTkCalls += 1;
     if (failure == _CredentialFailure.clearTk) {
@@ -887,7 +1260,17 @@ final class _MemoryCredentialStore implements CredentialStore {
   }
 
   @override
+  Future<void> clearTkIfMatches(String? expected) async {
+    clearTkCalls += 1;
+    if (failure == _CredentialFailure.clearTk) {
+      throw StateError('synthetic-clear-secret');
+    }
+    if (tk == expected) tk = null;
+  }
+
+  @override
   Future<String?> readStk() async {
+    readStkCalls += 1;
     if (readDelay case final delay?) await Future<void>.delayed(delay);
     if (failure == _CredentialFailure.readStk) {
       throw StateError('synthetic-read-secret');
@@ -897,11 +1280,23 @@ final class _MemoryCredentialStore implements CredentialStore {
 
   @override
   Future<String?> readTk() async {
+    readTkCalls += 1;
     if (readDelay case final delay?) await Future<void>.delayed(delay);
     if (failure == _CredentialFailure.readTk) {
       throw StateError('synthetic-read-secret');
     }
     return tk;
+  }
+
+  @override
+  Future<CredentialSnapshot> readSnapshot() async {
+    readSnapshotCalls += 1;
+    if (readDelay case final delay?) await Future<void>.delayed(delay);
+    if (failure == _CredentialFailure.readTk ||
+        failure == _CredentialFailure.readStk) {
+      throw StateError('synthetic-read-secret');
+    }
+    return CredentialSnapshot(tk: tk, stk: stk);
   }
 
   @override
