@@ -65,7 +65,7 @@ function decodeUri(value) {
     if (value[i] !== '\\') { result += value[i]; continue; }
     if (value[i + 1] === 'x' && /^[0-9a-fA-F]{2}$/.test(value.slice(i + 2, i + 4))) { result += String.fromCodePoint(parseInt(value.slice(i + 2, i + 4), 16)); i += 3; continue; }
     if (value[i + 1] === 'u') {
-      if (value[i + 2] === '{') { const close = value.indexOf('}', i + 3); const hex = close < 0 ? '' : value.slice(i + 3, close); const code = Number.parseInt(hex, 16); if (hex && /^[0-9a-fA-F]+$/.test(hex) && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)) { result += String.fromCodePoint(code); i = close; continue; } }
+      if (value[i + 2] === '{') { const close = value.indexOf('}', i + 3); const hex = close < 0 ? '' : value.slice(i + 3, close); const code = Number.parseInt(hex, 16); if (hex && hex.length <= 6 && /^[0-9a-fA-F]+$/.test(hex) && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)) { result += String.fromCodePoint(code); i = close; continue; } }
       else if (/^[0-9a-fA-F]{4}$/.test(value.slice(i + 2, i + 6))) { result += String.fromCodePoint(parseInt(value.slice(i + 2, i + 6), 16)); i += 5; continue; }
     }
     invalid = true; result += value[i];

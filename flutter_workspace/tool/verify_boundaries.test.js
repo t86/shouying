@@ -136,10 +136,36 @@ test('decodes Dart URI escapes and rejects malformed import URI escapes', () => 
   assert.equal(found.at(-1).import, 'package:other/\\q.dart');
 });
 
+test('rejects invalid braced Unicode escapes while allowing six-digit public entrypoint escapes', () => {
+  const found = violations({
+    'packages/other/pubspec.yaml': 'name: other\n',
+    'packages/foundation/lib/model.dart': [
+      "import '\\u{000070}';",
+      "import 'package:\\u{00000070}ackage:external/public.dart';",
+      "import 'package:\\u{0000000}other/extra.dart';",
+      "import 'package:\\u{110000}/extra.dart';",
+      "import 'package:\\u{d800}/extra.dart';",
+    ].join('\n'),
+  });
+  assert.equal(found.length, 4);
+  assert.ok(found.every((item) => item.rule === 'invalid-import-uri'));
+});
+
 test('handles nested comments inside interpolation and scans active code afterward', () => {
   const found = violations({
     'packages/foundation/lib/domain/model.dart': [
       'final value = "${foo(/* outer /* import \'package:dio/dio.dart\'; */ still */ 1)}";',
+      "import 'package:dio/dio.dart';",
+    ].join('\n'),
+  });
+  assert.equal(found.length, 1);
+  assert.equal(found[0].line, 2);
+});
+
+test('keeps outer interpolation comments intact through nested terminators', () => {
+  const found = violations({
+    'packages/foundation/lib/domain/model.dart': [
+      'final value = "${foo(/* outer /* import \'package:dio/dio.dart\'; */ } } \'package:dio/dio.dart\'; /* close outer */ 1)}";',
       "import 'package:dio/dio.dart';",
     ].join('\n'),
   });
