@@ -173,7 +173,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failureEvents =
       StreamController<AppFailure>.broadcast(sync: true);
+  // ignore: cancel_subscriptions
   StreamSubscription<ConnectionPhase>? _phaseSubscription;
+  // ignore: cancel_subscriptions
   StreamSubscription<AppFailure>? _failureSubscription;
   ConnectionPhase _currentPhase = ConnectionPhase.blocked;
   AppFailure? _lastFailure;
@@ -199,10 +201,14 @@ final class _DefaultShellDependencies implements ShellDependencies {
       socketTransport: const WebSocketChannelTransport(),
     );
     _realtimeController = controller;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
     _phaseSubscription = controller.phases.listen((phase) {
       _currentPhase = phase;
       if (!_phaseEvents.isClosed) _phaseEvents.add(phase);
     });
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
     _failureSubscription = controller.failures.listen((failure) {
       _lastFailure = failure;
       if (!_failureEvents.isClosed) _failureEvents.add(failure);
@@ -221,16 +227,29 @@ final class _DefaultShellDependencies implements ShellDependencies {
 
   @override
   Future<void> stopRealtime() async {
-    await _realtimeController?.stop();
+    final controller = _realtimeController;
+    if (controller == null) return;
+    _realtimeController = null;
+    final phaseSubscription = _phaseSubscription;
+    final failureSubscription = _failureSubscription;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _phaseSubscription = null;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _failureSubscription = null;
+    await controller.dispose();
+    await phaseSubscription?.cancel();
+    await failureSubscription?.cancel();
+    _currentPhase = ConnectionPhase.blocked;
+    if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
   }
 
   @override
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
-    await _realtimeController?.dispose();
-    await _phaseSubscription?.cancel();
-    await _failureSubscription?.cancel();
+    await stopRealtime();
     await sessionRepository.close();
     await _phaseEvents.close();
     await _failureEvents.close();

@@ -23,3 +23,5 @@ export 'src/session_api.dart' show SessionApi;
 export 'src/session_models.dart'
     show EmployeeLoginType, MachineAccessMode, MachineSession, UserSession;
 export 'src/session_repository.dart' show SessionRepository;
+export 'src/web_storage_credential_backend.dart'
+    show createWebStorageCredentialBackend;

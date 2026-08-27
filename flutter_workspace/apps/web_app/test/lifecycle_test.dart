@@ -13,6 +13,64 @@ import 'package:session/session.dart';
 import 'package:shouyin_web/main.dart';
 
 void main() {
+  test('web security accepts secure same-origin endpoint subtrees', () {
+    final environment = AppRuntimeConfiguration.fromValues(
+      apiBase: 'https://pos.example.test/app/server',
+      onlineBase: 'https://pos.example.test/app/online',
+      websocketBase: 'wss://pos.example.test/app/ws',
+      servingOrigin: Uri.parse('https://pos.example.test/app/'),
+    );
+    expect(environment.config, isNotNull);
+    expect(environment.securityWarning, isNull);
+  });
+
+  test('web security rejects insecure default and cross origin or port', () {
+    for (final environment in <AppRuntimeConfiguration>[
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://pos.example.test/server',
+        onlineBase: 'http://pos.example.test/server',
+        websocketBase: 'ws://pos.example.test/server',
+        servingOrigin: Uri.parse('http://pos.example.test/'),
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'https://other.example.test/server',
+        onlineBase: 'https://pos.example.test/server',
+        websocketBase: 'wss://pos.example.test/server',
+        servingOrigin: Uri.parse('https://pos.example.test/'),
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'https://pos.example.test:444/server',
+        onlineBase: 'https://pos.example.test/server',
+        websocketBase: 'wss://pos.example.test/server',
+        servingOrigin: Uri.parse('https://pos.example.test/'),
+      ),
+    ]) {
+      expect(environment.config, isNull);
+      expect(environment.invalidKeys, contains('SHOUYIN_WEB_SECURITY'));
+    }
+  });
+
+  testWidgets('explicit insecure legacy mode is visible and composes', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    final environment = AppRuntimeConfiguration.fromValues(
+      apiBase: 'http://pos.example.test/server',
+      onlineBase: 'http://pos.example.test/server',
+      websocketBase: 'ws://pos.example.test/server',
+      servingOrigin: Uri.parse('http://pos.example.test/'),
+      allowInsecureWeb: true,
+    );
+    await tester.pumpWidget(
+      ShouyinWebApp(environment: environment, dependenciesFactory: factory),
+    );
+    await tester.pumpAndSettle();
+    expect(factory.createCalls, 1);
+    expect(find.textContaining('不安全的 Web 兼容模式'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
+
   testWidgets('invalid config creates no shell or secure/network dependency', (
     tester,
   ) async {

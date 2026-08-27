@@ -22,6 +22,8 @@ final class AppRuntimeConfiguration {
   const AppRuntimeConfiguration._({
     required this.config,
     required this.invalidKeys,
+    required this.allowInsecureWeb,
+    required this.securityWarning,
   });
 
   factory AppRuntimeConfiguration.fromEnvironment() =>
@@ -29,12 +31,18 @@ final class AppRuntimeConfiguration {
         apiBase: const String.fromEnvironment('SHOUYIN_API_BASE'),
         onlineBase: const String.fromEnvironment('SHOUYIN_ONLINE_BASE'),
         websocketBase: const String.fromEnvironment('SHOUYIN_WS_BASE'),
+        servingOrigin: Uri.base,
+        allowInsecureWeb: const bool.fromEnvironment(
+          'SHOUYIN_ALLOW_INSECURE_WEB',
+        ),
       );
 
   factory AppRuntimeConfiguration.fromValues({
     required String apiBase,
     required String onlineBase,
     required String websocketBase,
+    Uri? servingOrigin,
+    bool allowInsecureWeb = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -46,6 +54,16 @@ final class AppRuntimeConfiguration {
     if (api == null) invalidKeys.add('SHOUYIN_API_BASE');
     if (online == null) invalidKeys.add('SHOUYIN_ONLINE_BASE');
     if (websocket == null) invalidKeys.add('SHOUYIN_WS_BASE');
+    if (servingOrigin != null &&
+        !_validWebSecurity(
+          servingOrigin,
+          api,
+          online,
+          websocket,
+          allowInsecureWeb,
+        )) {
+      invalidKeys.add('SHOUYIN_WEB_SECURITY');
+    }
     ApiConfig? config;
     if (invalidKeys.isEmpty) {
       config = ApiConfig(
@@ -57,11 +75,65 @@ final class AppRuntimeConfiguration {
     return AppRuntimeConfiguration._(
       config: config,
       invalidKeys: List<String>.unmodifiable(invalidKeys),
+      allowInsecureWeb: allowInsecureWeb,
+      securityWarning: allowInsecureWeb
+          ? '不安全的 Web 兼容模式：凭据仅存储于浏览器 Web Storage'
+          : null,
     );
   }
 
   final ApiConfig? config;
   final List<String> invalidKeys;
+  final bool allowInsecureWeb;
+  final String? securityWarning;
+
+  static bool _validWebSecurity(
+    Uri origin,
+    Uri? api,
+    Uri? online,
+    Uri? websocket,
+    bool allowInsecure,
+  ) {
+    if (api == null || online == null || websocket == null) return false;
+    final localhost = origin.host == 'localhost' || origin.host == '127.0.0.1';
+    if (!allowInsecure && origin.scheme != 'https' && !localhost) return false;
+    if (!allowInsecure &&
+        !localhost &&
+        (api.scheme != 'https' ||
+            online.scheme != 'https' ||
+            websocket.scheme != 'wss')) {
+      return false;
+    }
+    int port(Uri uri, String effectiveScheme) => uri.hasPort
+        ? uri.port
+        : effectiveScheme == 'https'
+        ? 443
+        : 80;
+    bool matches(Uri endpoint) {
+      final effective = endpoint.scheme == 'wss'
+          ? 'https'
+          : endpoint.scheme == 'ws'
+          ? 'http'
+          : endpoint.scheme;
+      if (effective != origin.scheme || endpoint.host != origin.host) {
+        return false;
+      }
+      if (port(endpoint, effective) != port(origin, origin.scheme)) {
+        return false;
+      }
+      final base = origin.pathSegments
+          .where((segment) => segment.isNotEmpty)
+          .toList();
+      final target = endpoint.pathSegments;
+      if (target.length < base.length) return false;
+      for (var index = 0; index < base.length; index += 1) {
+        if (target[index] != base[index]) return false;
+      }
+      return true;
+    }
+
+    return matches(api) && matches(online) && matches(websocket);
+  }
 
   static Uri? _validatedEndpoint(String raw, _EndpointKind kind) {
     if (raw.trim().isEmpty) return null;
@@ -125,11 +197,13 @@ abstract interface class ShellDependencies {
 
 final class DefaultShellDependenciesFactory
     implements ShellDependenciesFactory {
-  const DefaultShellDependenciesFactory();
+  const DefaultShellDependenciesFactory({this.useLegacyWebStorage = false});
+
+  final bool useLegacyWebStorage;
 
   @override
   ShellDependencies create(ApiConfig config) =>
-      _DefaultShellDependencies(config);
+      _DefaultShellDependencies(config, useLegacyWebStorage);
 
   @override
   void onRouterCreated() {}
@@ -139,8 +213,12 @@ final class DefaultShellDependenciesFactory
 }
 
 final class _DefaultShellDependencies implements ShellDependencies {
-  _DefaultShellDependencies(this._config)
-    : _credentialStore = FlutterSecureCredentialStore(),
+  _DefaultShellDependencies(this._config, bool useLegacyWebStorage)
+    : _credentialStore = FlutterSecureCredentialStore(
+        backend: useLegacyWebStorage
+            ? createWebStorageCredentialBackend()
+            : null,
+      ),
       _dio = Dio() {
     _protocolClient = ProtocolClient(
       dio: _dio,
@@ -171,7 +249,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failureEvents =
       StreamController<AppFailure>.broadcast(sync: true);
+  // ignore: cancel_subscriptions
   StreamSubscription<ConnectionPhase>? _phaseSubscription;
+  // ignore: cancel_subscriptions
   StreamSubscription<AppFailure>? _failureSubscription;
   ConnectionPhase _currentPhase = ConnectionPhase.blocked;
   AppFailure? _lastFailure;
@@ -197,10 +277,14 @@ final class _DefaultShellDependencies implements ShellDependencies {
       socketTransport: const WebSocketChannelTransport(),
     );
     _realtimeController = controller;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
     _phaseSubscription = controller.phases.listen((phase) {
       _currentPhase = phase;
       if (!_phaseEvents.isClosed) _phaseEvents.add(phase);
     });
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
     _failureSubscription = controller.failures.listen((failure) {
       _lastFailure = failure;
       if (!_failureEvents.isClosed) _failureEvents.add(failure);
@@ -219,16 +303,29 @@ final class _DefaultShellDependencies implements ShellDependencies {
 
   @override
   Future<void> stopRealtime() async {
-    await _realtimeController?.stop();
+    final controller = _realtimeController;
+    if (controller == null) return;
+    _realtimeController = null;
+    final phaseSubscription = _phaseSubscription;
+    final failureSubscription = _failureSubscription;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _phaseSubscription = null;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _failureSubscription = null;
+    await controller.dispose();
+    await phaseSubscription?.cancel();
+    await failureSubscription?.cancel();
+    _currentPhase = ConnectionPhase.blocked;
+    if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
   }
 
   @override
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
-    await _realtimeController?.dispose();
-    await _phaseSubscription?.cancel();
-    await _failureSubscription?.cancel();
+    await stopRealtime();
     await sessionRepository.close();
     await _phaseEvents.close();
     await _failureEvents.close();
@@ -280,6 +377,7 @@ final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
   return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
+final _securityWarningProvider = Provider<String?>((ref) => null);
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
   final factory = ref.watch(_dependenciesFactoryProvider);
@@ -342,8 +440,13 @@ final class ShouyinWebApp extends StatelessWidget {
     return ProviderScope(
       overrides: [
         _apiConfigProvider.overrideWithValue(config),
-        if (dependenciesFactory case final value?)
-          _dependenciesFactoryProvider.overrideWithValue(value),
+        _dependenciesFactoryProvider.overrideWithValue(
+          dependenciesFactory ??
+              DefaultShellDependenciesFactory(
+                useLegacyWebStorage: resolved.allowInsecureWeb,
+              ),
+        ),
+        _securityWarningProvider.overrideWithValue(resolved.securityWarning),
         _initialLocationProvider.overrideWithValue(initialLocation),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
@@ -365,6 +468,26 @@ final class _AppView extends ConsumerWidget {
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
+      builder: (context, child) => Column(
+        children: <Widget>[
+          if (ref.watch(_securityWarningProvider) case final warning?)
+            Material(
+              color: const Color(0xFFB3261E),
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    warning,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          Expanded(child: child ?? const SizedBox.shrink()),
+        ],
+      ),
     );
   }
 }

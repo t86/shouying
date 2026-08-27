@@ -80,6 +80,7 @@ final class IoCredentialTransactionCoordinator
   ) async {
     File? processGuard;
     RandomAccessFile? lockFile;
+    var ownsPidGuard = false;
     var locked = false;
     try {
       final directory = await lockDirectoryProvider.getLockDirectory();
@@ -89,6 +90,7 @@ final class IoCredentialTransactionCoordinator
         '${directory.path}${Platform.pathSeparator}$namespaceHash.$pid.guard',
       );
       await _acquireProcessGuard(processGuard);
+      ownsPidGuard = true;
       final file = File(
         '${directory.path}${Platform.pathSeparator}$namespaceHash.lock',
       );
@@ -103,7 +105,7 @@ final class IoCredentialTransactionCoordinator
           // The stable unavailable failure below remains authoritative.
         }
       }
-      if (processGuard != null && await processGuard.exists()) {
+      if (ownsPidGuard && processGuard != null) {
         try {
           await processGuard.delete();
         } on Object {
@@ -116,11 +118,23 @@ final class IoCredentialTransactionCoordinator
     try {
       return await operation();
     } finally {
+      var cleanupFailed = false;
       try {
         if (locked) await lockFile.unlock();
+      } on Object {
+        cleanupFailed = true;
+      }
+      try {
         await lockFile.close();
+      } on Object {
+        cleanupFailed = true;
+      }
+      try {
         await processGuard.delete();
       } on Object {
+        cleanupFailed = true;
+      }
+      if (cleanupFailed) {
         throw const CredentialTransactionUnavailableException();
       }
     }
