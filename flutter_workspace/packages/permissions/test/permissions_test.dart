@@ -142,14 +142,37 @@ void main() {
   });
 
   test('engine precedence and any/all semantics', () {
-    final unavailable = PermissionEngine(PermissionNormalizer.normalize(
-        stationId: 7, sysRole: null, sysRoleDetail: []));
-    expect(unavailable.decide(const PermissionRequirement()).reason,
-        'permission.data_unavailable');
-    final engine = PermissionEngine(make(employee: 42, s: [
+    final unavailableSnapshot = PermissionNormalizer.normalize(
+        stationId: 7, sysRole: null, sysRoleDetail: []);
+    final unavailableDecision = PermissionEngine(unavailableSnapshot)
+        .decide(const PermissionRequirement());
+    expect(unavailableDecision.allowed, isFalse);
+    expect(unavailableDecision.reason, 'permission.data_unavailable');
+    expect(unavailableDecision.requiredAuthorization, isFalse);
+    expect(unavailableDecision.effectiveScope, unavailableSnapshot);
+    expect(unavailableDecision.effectiveScope.available, isFalse);
+    expect(unavailableDecision.effectiveScope.stationId, 7);
+    expect(unavailableDecision.effectiveScope.roleIds, isEmpty);
+    expect(unavailableDecision.effectiveScope.moduleIds, isEmpty);
+    expect(unavailableDecision.effectiveScope.subPermissionIds, isEmpty);
+
+    final availableSnapshot = make(employee: 42, s: [
       {'emp_id': 42, 'sub_permission_id': 8, 'parent_id': 101, 'status': 1}
-    ]));
-    expect(engine.decide(const PermissionRequirement()).allowed, isTrue);
+    ]);
+    final availableDecision = PermissionEngine(availableSnapshot)
+        .decide(const PermissionRequirement());
+    expect(availableDecision.allowed, isTrue);
+    expect(availableDecision.reason, 'permission.allowed');
+    expect(availableDecision.requiredAuthorization, isFalse);
+    expect(availableDecision.effectiveScope, availableSnapshot);
+    expect(availableDecision.effectiveScope.available, isTrue);
+    expect(availableDecision.effectiveScope.stationId, 7);
+    expect(availableDecision.effectiveScope.roleIds, [5]);
+    expect(availableDecision.effectiveScope.moduleIds, [101]);
+    expect(availableDecision.effectiveScope.subPermissionIds, [8]);
+    expect(() => availableDecision.effectiveScope.roleIds.add(99),
+        throwsUnsupportedError);
+    final engine = PermissionEngine(availableSnapshot);
     expect(
         engine
             .decide(const PermissionRequirement(
