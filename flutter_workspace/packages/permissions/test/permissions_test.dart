@@ -116,6 +116,66 @@ void main() {
     expect(result.moduleIds, [101]);
   });
 
+  test('List.unmodifiable accepts Map<String, int>.unmodifiable rows', () {
+    final roleRows = List<Map<String, int>>.unmodifiable([
+      Map<String, int>.unmodifiable(
+          {'station_id': 7, 'sys_role_id': 5, 'status': 1})
+    ]);
+    final moduleRows = List<Map<String, int>>.unmodifiable([
+      Map<String, int>.unmodifiable(
+          {'station_id': 7, 'sys_module_id': 101, 'status': 1})
+    ]);
+    final result = make(r: roleRows, m: moduleRows);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('List.unmodifiable accepts Map<String, num>.unmodifiable rows', () {
+    final roleRows = List<Map<String, num>>.unmodifiable([
+      Map<String, num>.unmodifiable(
+          {'station_id': 7, 'sys_role_id': 5.0, 'status': 1})
+    ]);
+    final moduleRows = List<Map<String, num>>.unmodifiable([
+      Map<String, num>.unmodifiable(
+          {'station_id': 7.0, 'sys_module_id': 101, 'status': 1.0})
+    ]);
+    final result = make(r: roleRows, m: moduleRows);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('UnmodifiableListView accepts int UnmodifiableMapView rows', () {
+    final roleRows = UnmodifiableListView<Map<String, int>>([
+      UnmodifiableMapView<String, int>(
+          {'station_id': 7, 'sys_role_id': 5, 'status': 1})
+    ]);
+    final moduleRows = UnmodifiableListView<Map<String, int>>([
+      UnmodifiableMapView<String, int>(
+          {'station_id': 7, 'sys_module_id': 101, 'status': 1})
+    ]);
+    final result = make(r: roleRows, m: moduleRows);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('UnmodifiableListView accepts num UnmodifiableMapView rows', () {
+    final roleRows = UnmodifiableListView<Map<String, num>>([
+      UnmodifiableMapView<String, num>(
+          {'station_id': 7, 'sys_role_id': 5.0, 'status': 1})
+    ]);
+    final moduleRows = UnmodifiableListView<Map<String, num>>([
+      UnmodifiableMapView<String, num>(
+          {'station_id': 7.0, 'sys_module_id': 101, 'status': 1.0})
+    ]);
+    final result = make(r: roleRows, m: moduleRows);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
   test('invalid values and malformed rows are ignored', () {
     final result = make(r: [
       {'station_id': 7, 'sys_role_id': true, 'status': 1},

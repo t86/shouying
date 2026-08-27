@@ -169,10 +169,14 @@ final _mapTypes = <Type>{
   const <String, dynamic>{}.runtimeType,
   Map<String, Object?>.unmodifiable(const <String, Object?>{}).runtimeType,
   Map<String, String>.unmodifiable(const <String, String>{}).runtimeType,
+  Map<String, int>.unmodifiable(const <String, int>{}).runtimeType,
   Map<String, double>.unmodifiable(const <String, double>{}).runtimeType,
+  Map<String, num>.unmodifiable(const <String, num>{}).runtimeType,
   UnmodifiableMapView<String, Object?>(const <String, Object?>{}).runtimeType,
   UnmodifiableMapView<String, String>(const <String, String>{}).runtimeType,
+  UnmodifiableMapView<String, int>(const <String, int>{}).runtimeType,
   UnmodifiableMapView<String, double>(const <String, double>{}).runtimeType,
+  UnmodifiableMapView<String, num>(const <String, num>{}).runtimeType,
   (jsonDecode('{}') as Object).runtimeType,
 };
 bool _materializedList(Object? value) =>
