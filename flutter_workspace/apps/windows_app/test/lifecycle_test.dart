@@ -175,6 +175,42 @@ void main() {
       expect(dependencies.hasOpenStreams, isFalse);
     },
   );
+
+  testWidgets('old stop completion cannot block a newer auth generation', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    await tester.pumpWidget(
+      ShouyinWindowsApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final dependencies = factory.dependencies;
+    await tester.runAsync(dependencies.authenticate);
+    await tester.pumpAndSettle();
+    dependencies.gateNextStop();
+    await tester.runAsync(dependencies.logout);
+    await tester.pump();
+    await tester.runAsync(() => dependencies.stopStarted.future);
+    await tester.runAsync(dependencies.authenticate);
+    await tester.pumpAndSettle();
+    expect(dependencies.startCalls, 2);
+    expect(dependencies.connectionPhase, ConnectionPhase.online);
+    expect(dependencies.currentGeneration, 2);
+
+    dependencies.releaseStoppedGeneration();
+    await tester.runAsync(() => dependencies.stopFinished.future);
+    await tester.pumpAndSettle();
+    expect(dependencies.connectionPhase, ConnectionPhase.online);
+    expect(dependencies.currentGeneration, 2);
+    expect(dependencies.disposedGenerations, <int>[1]);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => dependencies.disposed.future);
+    expect(dependencies.disposedGenerations, <int>[1, 2]);
+  });
 }
 
 final AppRuntimeConfiguration _validEnvironment =
@@ -249,6 +285,11 @@ final class _LifecycleDependencies implements ShellDependencies {
   int stopCalls = 0;
   int disposeCalls = 0;
   int dioCloseCalls = 0;
+  int currentGeneration = 0;
+  final List<int> disposedGenerations = <int>[];
+  Completer<void> stopStarted = Completer<void>();
+  Completer<void> stopFinished = Completer<void>();
+  Completer<void>? _stopRelease;
 
   bool get hasOpenStreams => !_phases.isClosed || !_failures.isClosed;
 
@@ -279,9 +320,18 @@ final class _LifecycleDependencies implements ShellDependencies {
     await sessionRepository.logout();
   }
 
+  void gateNextStop() {
+    stopStarted = Completer<void>();
+    stopFinished = Completer<void>();
+    _stopRelease = Completer<void>();
+  }
+
+  void releaseStoppedGeneration() => _stopRelease?.complete();
+
   @override
   Future<void> startRealtime() async {
     startCalls += 1;
+    currentGeneration += 1;
     realtimeCreated = true;
     _active = true;
     _phase = ConnectionPhase.online;
@@ -291,10 +341,18 @@ final class _LifecycleDependencies implements ShellDependencies {
   @override
   Future<void> stopRealtime() async {
     if (!_active) return;
+    final stoppedGeneration = currentGeneration;
     stopCalls += 1;
     _active = false;
-    _phase = ConnectionPhase.blocked;
-    _phases.add(_phase);
+    if (!stopStarted.isCompleted) stopStarted.complete();
+    await _stopRelease?.future;
+    disposedGenerations.add(stoppedGeneration);
+    if (currentGeneration == stoppedGeneration && !_active) {
+      _phase = ConnectionPhase.blocked;
+      _phases.add(_phase);
+    }
+    if (!stopFinished.isCompleted) stopFinished.complete();
+    _stopRelease = null;
   }
 
   @override

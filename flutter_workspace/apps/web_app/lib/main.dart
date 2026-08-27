@@ -219,6 +219,8 @@ final class _DefaultShellDependencies implements ShellDependencies {
   StreamSubscription<AppFailure>? _failureSubscription;
   ConnectionPhase _currentPhase = ConnectionPhase.blocked;
   AppFailure? _lastFailure;
+  int _realtimeGeneration = 0;
+  int? _activeRealtimeGeneration;
   bool _disposed = false;
 
   @override
@@ -240,16 +242,26 @@ final class _DefaultShellDependencies implements ShellDependencies {
       syncApi: ProtocolSyncApi(client: _protocolClient),
       socketTransport: const WebSocketChannelTransport(),
     );
+    final generation = ++_realtimeGeneration;
+    _activeRealtimeGeneration = generation;
     _realtimeController = controller;
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _phaseSubscription = controller.phases.listen((phase) {
+      if (!identical(_realtimeController, controller) ||
+          _activeRealtimeGeneration != generation) {
+        return;
+      }
       _currentPhase = phase;
       if (!_phaseEvents.isClosed) _phaseEvents.add(phase);
     });
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _failureSubscription = controller.failures.listen((failure) {
+      if (!identical(_realtimeController, controller) ||
+          _activeRealtimeGeneration != generation) {
+        return;
+      }
       _lastFailure = failure;
       if (!_failureEvents.isClosed) _failureEvents.add(failure);
     });
@@ -269,7 +281,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
   Future<void> stopRealtime() async {
     final controller = _realtimeController;
     if (controller == null) return;
+    final generation = _activeRealtimeGeneration;
     _realtimeController = null;
+    _activeRealtimeGeneration = null;
     final phaseSubscription = _phaseSubscription;
     final failureSubscription = _failureSubscription;
     // Stored and cancelled by stopRealtime/dispose.
@@ -281,8 +295,10 @@ final class _DefaultShellDependencies implements ShellDependencies {
     await controller.dispose();
     await phaseSubscription?.cancel();
     await failureSubscription?.cancel();
-    _currentPhase = ConnectionPhase.blocked;
-    if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
+    if (_realtimeController == null && _realtimeGeneration == generation) {
+      _currentPhase = ConnectionPhase.blocked;
+      if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
+    }
   }
 
   @override
