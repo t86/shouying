@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:permissions/permissions.dart';
 import 'package:test/test.dart';
@@ -286,6 +287,41 @@ void main() {
       expect(entry.value.moduleIds, [101], reason: entry.key);
     }
   });
+
+  final rawImmutableContainers =
+      <String, Object Function(Map<dynamic, dynamic>)>{
+    'List<dynamic>.unmodifiable + Map<dynamic, dynamic>.unmodifiable':
+        (row) => List<dynamic>.unmodifiable(
+            [Map<dynamic, dynamic>.unmodifiable(row)]),
+    'List<Object>.unmodifiable + Map<dynamic, dynamic>.unmodifiable':
+        (row) => List<Object>.unmodifiable(
+            [Map<dynamic, dynamic>.unmodifiable(row)]),
+    'List<Object?>.unmodifiable + Map<dynamic, dynamic>.unmodifiable':
+        (row) => List<Object?>.unmodifiable(
+            [Map<dynamic, dynamic>.unmodifiable(row)]),
+    'UnmodifiableListView<dynamic> + UnmodifiableMapView<dynamic, dynamic>':
+        (row) => UnmodifiableListView<dynamic>(
+            [UnmodifiableMapView<dynamic, dynamic>(row)]),
+    'UnmodifiableListView<Object> + UnmodifiableMapView<dynamic, dynamic>':
+        (row) => UnmodifiableListView<Object>(
+            [UnmodifiableMapView<dynamic, dynamic>(row)]),
+    'UnmodifiableListView<Object?> + UnmodifiableMapView<dynamic, dynamic>':
+        (row) => UnmodifiableListView<Object?>(
+            [UnmodifiableMapView<dynamic, dynamic>(row)]),
+  };
+  for (final entry in rawImmutableContainers.entries) {
+    test('${entry.key} normalizes decoded untyped rows', () {
+      final roleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_role_id":5,"status":1}') as Map);
+      final moduleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_module_id":101,"status":1}') as Map);
+      final result = make(r: entry.value(roleRow), m: entry.value(moduleRow));
+
+      expect(result.available, isTrue);
+      expect(result.roleIds, [5]);
+      expect(result.moduleIds, [101]);
+    });
+  }
 
   test('invalid values and malformed rows are ignored', () {
     final result = make(r: [

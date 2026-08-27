@@ -124,6 +124,9 @@ final _listTypes = <Type>{
   const <Map<String, Object>>[].runtimeType,
   const <Map<String, Object?>>[].runtimeType,
   const <Map<String, dynamic>>[].runtimeType,
+  List<dynamic>.unmodifiable(const <dynamic>[]).runtimeType,
+  List<Object>.unmodifiable(const <Object>[]).runtimeType,
+  List<Object?>.unmodifiable(const <Object?>[]).runtimeType,
   List<Map<String, String>>.unmodifiable(const <Map<String, String>>[])
       .runtimeType,
   List<Map<String, int>>.unmodifiable(const <Map<String, int>>[]).runtimeType,
@@ -136,6 +139,9 @@ final _listTypes = <Type>{
       .runtimeType,
   List<Map<String, dynamic>>.unmodifiable(const <Map<String, dynamic>>[])
       .runtimeType,
+  UnmodifiableListView<dynamic>(const <dynamic>[]).runtimeType,
+  UnmodifiableListView<Object>(const <Object>[]).runtimeType,
+  UnmodifiableListView<Object?>(const <Object?>[]).runtimeType,
   UnmodifiableListView<Map<String, String>>(const <Map<String, String>>[])
       .runtimeType,
   UnmodifiableListView<Map<String, int>>(const <Map<String, int>>[]).runtimeType,
@@ -167,6 +173,7 @@ final _mapTypes = <Type>{
   const <String, Object>{}.runtimeType,
   const <String, Object?>{}.runtimeType,
   const <String, dynamic>{}.runtimeType,
+  Map<dynamic, dynamic>.unmodifiable(const <dynamic, dynamic>{}).runtimeType,
   Map<String, Object?>.unmodifiable(const <String, Object?>{}).runtimeType,
   Map<String, String>.unmodifiable(const <String, String>{}).runtimeType,
   Map<String, int>.unmodifiable(const <String, int>{}).runtimeType,
@@ -174,6 +181,7 @@ final _mapTypes = <Type>{
   Map<String, num>.unmodifiable(const <String, num>{}).runtimeType,
   Map<String, Object>.unmodifiable(const <String, Object>{}).runtimeType,
   Map<String, dynamic>.unmodifiable(const <String, dynamic>{}).runtimeType,
+  UnmodifiableMapView<dynamic, dynamic>(const <dynamic, dynamic>{}).runtimeType,
   UnmodifiableMapView<String, Object?>(const <String, Object?>{}).runtimeType,
   UnmodifiableMapView<String, String>(const <String, String>{}).runtimeType,
   UnmodifiableMapView<String, int>(const <String, int>{}).runtimeType,
