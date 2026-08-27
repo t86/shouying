@@ -30,28 +30,76 @@ const allowedResults = new Set(['pass', 'fail', 'blocked-by-environment']);
 const evidenceSchemas = new Map([
   ['WEB-RELEASE-BUILD-001', {
     command: 'cd flutter_workspace/apps/web_app && fvm flutter build web --release',
-    resultKind: 'prose',
+    expectedExitCode: 0,
+    artifactRequired: true,
+    expectedArtifact: 'flutter_workspace/apps/web_app/build/web/main.dart.js',
+    expectedShaRequired: true,
+    resultKind: 'build-prose',
   }],
   ['WEB-RUNTIME-001', {
     command: 'serve the Web release bundle on a fresh localhost origin and inspect it with Chrome',
+    expectedExitCode: 0,
+    artifactRequired: true,
+    expectedArtifact: 'flutter_workspace/apps/web_app/build/web/index.html',
+    expectedShaRequired: true,
     resultKind: 'web-runtime',
   }],
   ['ANDROID-DEBUG-BUILD-001', {
     command: 'cd flutter_workspace/apps/android_app && fvm flutter build apk --debug',
-    resultKind: 'prose',
+    expectedExitCode: 0,
+    artifactRequired: true,
+    expectedArtifact: 'flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk',
+    expectedShaRequired: true,
+    resultKind: 'build-prose',
   }],
   ['ANDROID-RELEASE-BUILD-001', {
     command: 'cd flutter_workspace/apps/android_app && fvm flutter build apk --release',
-    resultKind: 'prose',
+    expectedExitCode: 0,
+    artifactRequired: true,
+    expectedArtifact: 'flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-release.apk',
+    expectedShaRequired: true,
+    resultKind: 'build-prose',
   }],
   ['ANDROID-RUNTIME-001', {
     command: 'adb install -r <debug-apk>; adb shell am start <package/.MainActivity>; inspect resumed and focused activities',
+    expectedExitCode: 0,
+    artifactRequired: true,
+    expectedArtifact: 'flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk',
+    expectedShaRequired: true,
     resultKind: 'android-runtime',
   }],
-  ['WINDOWS-ENV-001', { command: 'fvm flutter devices', resultKind: 'prose' }],
-  ['AUTH-ENV-001', { command: 'controlled prerequisite review for Gate A', resultKind: 'prose' }],
-  ['DEVICE-ENV-001', { command: 'controlled prerequisite review for Gate B', resultKind: 'prose' }],
-  ['WEB-DEPLOY-ENV-001', { command: 'controlled prerequisite review for Gate C', resultKind: 'prose' }],
+  ['WINDOWS-ENV-001', {
+    command: 'fvm flutter devices',
+    expectedExitCode: 0,
+    artifactRequired: false,
+    expectedArtifact: null,
+    expectedShaRequired: false,
+    resultKind: 'environment-prose',
+  }],
+  ['AUTH-ENV-001', {
+    command: 'controlled prerequisite review for Gate A',
+    expectedExitCode: null,
+    artifactRequired: false,
+    expectedArtifact: null,
+    expectedShaRequired: false,
+    resultKind: 'environment-prose',
+  }],
+  ['DEVICE-ENV-001', {
+    command: 'controlled prerequisite review for Gate B',
+    expectedExitCode: null,
+    artifactRequired: false,
+    expectedArtifact: null,
+    expectedShaRequired: false,
+    resultKind: 'environment-prose',
+  }],
+  ['WEB-DEPLOY-ENV-001', {
+    command: 'controlled prerequisite review for Gate C',
+    expectedExitCode: null,
+    artifactRequired: false,
+    expectedArtifact: null,
+    expectedShaRequired: false,
+    resultKind: 'environment-prose',
+  }],
 ]);
 
 function readRequired(relativePath) {
@@ -100,12 +148,12 @@ function assertSanitizedString(text, label) {
   );
   assert.doesNotMatch(
     text,
-    /\b(?:Proxy-Authorization|Authorization|Cookie|Set-Cookie)\s*:/i,
+    /\b(?:Proxy-Authorization|Authorization|Cookie|Set-Cookie|X-API-Key)\s*:/i,
     `${label} must not contain an authentication or cookie header`,
   );
   assert.doesNotMatch(
     text,
-    /(?:^|[\s{[,;])["']?(?:(?:session[\s_-]?)?secret|access[\s_-]?token|refresh[\s_-]?token|session[\s_-]?token|token|api[\s_-]?key|password|credentials?|machine[\s_-]?code|tk|stk|tt|https?[\s_-]?proxy|all[\s_-]?proxy|proxy[\s_-]?(?:host|port))["']?\s*[:=]/i,
+    /(?:^|[\s{[,;])["']?(?:(?:session[\s_-]?)?secret|client[\s_-]?secret|access[\s_-]?token|refresh[\s_-]?token|session[\s_-]?token|token|api[\s_-]?key|x[\s_-]?api[\s_-]?key|password|credentials?|machine[\s_-]?code|tk|stk|tt|https?[\s_-]?proxy|all[\s_-]?proxy|proxy[\s_-]?(?:host|port))["']?\s*[:=]/i,
     `${label} must not contain a sensitive assignment`,
   );
   assert.doesNotMatch(
@@ -170,7 +218,25 @@ function assertEvidencePositiveFormat(record) {
   assertSanitizedStrings(record, label);
   const schema = evidenceSchemas.get(record.id);
   assert.notEqual(schema, undefined, `${record.id} needs an explicit evidence schema`);
+  assert.deepEqual(
+    Object.keys(schema).sort(),
+    ['artifactRequired', 'command', 'expectedArtifact', 'expectedExitCode', 'expectedShaRequired', 'resultKind'],
+    `${record.id} evidence schema fields must be explicit`,
+  );
   assert.equal(record.sanitizedCommand, schema.command, `${record.id} command is not allowlisted`);
+  assert.equal(record.exitCode, schema.expectedExitCode, `${record.id} exit code must match its evidence schema`);
+  assert.equal(record.relativeArtifact, schema.expectedArtifact, `${record.id} artifact path must match its evidence schema`);
+  if (schema.artifactRequired) {
+    assert.equal(typeof record.relativeArtifact, 'string', `${record.id} requires an artifact`);
+  } else {
+    assert.equal(record.relativeArtifact, null, `${record.id} must not claim an artifact`);
+  }
+  if (schema.expectedShaRequired) {
+    assert.equal(typeof record.sha256, 'string', `${record.id} requires a SHA-256 digest`);
+    assert.match(record.sha256, /^[0-9a-f]{64}$/, `${record.id} requires a SHA-256 digest`);
+  } else {
+    assert.equal(record.sha256, null, `${record.id} must not claim an artifact digest`);
+  }
   assertSafeProse(record.platformSummary, `${label}.platformSummary`);
 
   if (schema.resultKind === 'web-runtime') {
@@ -181,7 +247,7 @@ function assertEvidencePositiveFormat(record) {
     );
     assert.match(values.get('title'), /^[\p{L}\p{N} ._-]{1,80}$/u);
     assert.match(values.get('blocker'), /^[\p{L}\p{N} ._-]{1,80}$/u);
-    assert.match(values.get('consoleErrorCount'), /^\d{1,4}$/);
+    assert.equal(values.get('consoleErrorCount'), '0', `${record.id} requires a zero-error console observation`);
   } else if (schema.resultKind === 'android-runtime') {
     const values = parseRuntimeSummary(
       record.resultSummary,
@@ -190,10 +256,17 @@ function assertEvidencePositiveFormat(record) {
     );
     assert.match(values.get('package'), /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/);
     assert.match(values.get('activity'), /^\.[A-Za-z][A-Za-z0-9_]*$/);
-    assert.match(values.get('resumed'), /^(?:true|false)$/);
-    assert.match(values.get('focused'), /^(?:true|false)$/);
+    assert.equal(values.get('resumed'), 'true', `${record.id} must observe a resumed activity`);
+    assert.equal(values.get('focused'), 'true', `${record.id} must observe a focused activity`);
+  } else if (schema.resultKind === 'environment-prose') {
+    assertSafeProse(record.resultSummary, `${label}.resultSummary`);
+    assert.match(
+      record.resultSummary,
+      /\b(?:blocked|unavailable)\b/i,
+      `${record.id} environment evidence must state blocked or unavailable semantics`,
+    );
   } else {
-    assert.equal(schema.resultKind, 'prose');
+    assert.equal(schema.resultKind, 'build-prose');
     assertSafeProse(record.resultSummary, `${label}.resultSummary`);
   }
 }
@@ -262,6 +335,10 @@ test('rejects sensitive mutation corpus without rejecting safe migration prose',
     'HTTPS_PROXY=corp-proxy.internal:8443',
     'ALL_PROXY=corp-proxy.internal:1080',
     'Set-Cookie: sid=x',
+    'client_secret=x',
+    'client-secret: x',
+    'X-API-Key: x',
+    'x_api_key=x',
   ];
 
   attacks.forEach((value) => {
@@ -282,6 +359,12 @@ test('fails closed for uncontrolled evidence commands and summary shapes', () =>
 
   const mutations = [
     { ...byId.get('WEB-RELEASE-BUILD-001'), sanitizedCommand: 'curl target' },
+    { ...byId.get('WEB-RELEASE-BUILD-001'), exitCode: 1 },
+    {
+      ...byId.get('WEB-RELEASE-BUILD-001'),
+      relativeArtifact: null,
+      sha256: null,
+    },
     {
       ...byId.get('WEB-RUNTIME-001'),
       resultSummary: 'title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=0; unexpected=x',
@@ -291,11 +374,24 @@ test('fails closed for uncontrolled evidence commands and summary shapes', () =>
       resultSummary: 'title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=zero',
     },
     {
+      ...byId.get('WEB-RUNTIME-001'),
+      resultSummary: 'title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=1',
+    },
+    {
       ...byId.get('ANDROID-RUNTIME-001'),
       resultSummary: 'package=invalid; activity=.MainActivity; resumed=true; focused=true',
     },
+    {
+      ...byId.get('ANDROID-RUNTIME-001'),
+      resultSummary: 'package=com.xmsj.shouyin.shouyin_android; activity=.MainActivity; resumed=false; focused=true',
+    },
+    {
+      ...byId.get('ANDROID-RUNTIME-001'),
+      resultSummary: 'package=com.xmsj.shouyin.shouyin_android; activity=.MainActivity; resumed=true; focused=false',
+    },
     { ...byId.get('ANDROID-DEBUG-BUILD-001'), resultSummary: 'status=ok' },
     { ...byId.get('WINDOWS-ENV-001'), resultSummary: '{"employee":"alice"}' },
+    { ...byId.get('WINDOWS-ENV-001'), resultSummary: 'Environment review completed.' },
   ];
   mutations.forEach((record) => {
     assert.throws(
