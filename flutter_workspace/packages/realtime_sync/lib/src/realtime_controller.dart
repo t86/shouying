@@ -79,6 +79,8 @@ final class RealtimeController {
   static const Duration heartbeatTimeout = Duration(seconds: 65);
   static const Duration reconnectDelay = Duration(seconds: 3);
   static const int maxCredentialLength = 4096;
+  static const int maxBufferedEnvelopeCount = 128;
+  static const int maxBufferedEnvelopeBytes = 4 * 1024 * 1024;
   static const Duration _watchdogEpsilon = Duration(microseconds: 1);
   static const Set<String> _authorizationErrors = <String>{
     '第一个消息必须为授权信息',
@@ -113,6 +115,7 @@ final class RealtimeController {
   StreamSubscription<Object?>? _incomingSubscription;
   ScheduledHandle? _watchdogHandle;
   ScheduledHandle? _reconnectHandle;
+  _ReconciliationBuffer? _reconciliationBuffer;
   int _generation = 0;
   bool _running = false;
   bool _disposed = false;
@@ -136,6 +139,8 @@ final class RealtimeController {
 
   Future<void> _attemptConnection(int generation) async {
     if (!_isCurrent(generation)) return;
+    final requestedCursor = _cursor;
+    _reconciliationBuffer = _ReconciliationBuffer(generation);
 
     final CredentialSnapshot snapshot;
     try {
@@ -191,7 +196,6 @@ final class RealtimeController {
     if (!_isCurrent(generation)) return;
     _lastMessageAt = _clock();
 
-    final requestedCursor = _cursor;
     final Result<SyncBatch> syncResult;
     try {
       syncResult = requestedCursor == null
@@ -216,6 +220,11 @@ final class RealtimeController {
       _recover(generation, _syncShapeFailure);
       return;
     }
+    if (requestedCursor != null &&
+        batch.cursor.compareTo(requestedCursor) < 0) {
+      _recover(generation, _syncShapeFailure);
+      return;
+    }
     if (batch.hasChanges) {
       final batchEnvelope = SyncEnvelope.parse(<String, Object?>{
         'p': SyncEventType.data.code,
@@ -230,8 +239,10 @@ final class RealtimeController {
       if (!_eventController.isClosed) {
         _eventController.add(batchEnvelope.valueOrNull!);
       }
+      if (!_isCurrent(generation)) return;
     }
-    if (_cursor == requestedCursor) _cursor = batch.cursor;
+    _cursor = batch.cursor;
+    if (!_replayBufferedEnvelopes(generation)) return;
     _setPhase(ConnectionPhase.online);
     _scheduleWatchdog(generation);
   }
@@ -253,9 +264,20 @@ final class RealtimeController {
       case SyncEventType.data:
       case SyncEventType.heartbeat:
         _lastMessageAt = _clock();
-        _cursor = envelope.cursor;
-        if (!_eventController.isClosed) _eventController.add(envelope);
-        if (_phase == ConnectionPhase.online) _scheduleWatchdog(generation);
+        final buffer = _reconciliationBuffer;
+        if (buffer != null && buffer.generation == generation) {
+          final messageBytes = _encodedMessageBytes(message, envelope);
+          if (!buffer.add(
+            envelope,
+            messageBytes,
+            maxCount: maxBufferedEnvelopeCount,
+            maxBytes: maxBufferedEnvelopeBytes,
+          )) {
+            _recover(generation, _bufferOverflowFailure);
+          }
+          return;
+        }
+        _applyLiveEnvelope(generation, envelope);
       case SyncEventType.serverError:
         if (_authorizationErrors.contains(envelope.data)) {
           if (!_eventController.isClosed) {
@@ -289,6 +311,7 @@ final class RealtimeController {
     if (!_isCurrent(generation)) return Future<void>.value();
     _running = false;
     _generation += 1;
+    _reconciliationBuffer = null;
     _cancelScheduledWork();
     final subscription = _incomingSubscription;
     _incomingSubscription = null;
@@ -304,6 +327,7 @@ final class RealtimeController {
   void _recover(int generation, AppFailure failure) {
     if (!_isCurrent(generation) || _reconnectHandle != null) return;
     final recoveryGeneration = ++_generation;
+    _reconciliationBuffer = null;
     _cancelWatchdog();
     final subscription = _incomingSubscription;
     _incomingSubscription = null;
@@ -356,6 +380,7 @@ final class RealtimeController {
     }
     _running = false;
     _generation += 1;
+    _reconciliationBuffer = null;
     _cancelScheduledWork();
     final subscription = _incomingSubscription;
     _incomingSubscription = null;
@@ -381,6 +406,45 @@ final class RealtimeController {
 
   bool _isCurrent(int generation) =>
       _running && !_disposed && generation == _generation;
+
+  int _encodedMessageBytes(Object? message, SyncEnvelope envelope) {
+    if (message is String) return utf8.encode(message).length;
+    return utf8
+        .encode(
+          jsonEncode(<String, Object?>{
+            'p': envelope.type.code,
+            't': envelope.cursor,
+            'd': envelope.data,
+          }),
+        )
+        .length;
+  }
+
+  void _applyLiveEnvelope(int generation, SyncEnvelope envelope) {
+    _cursor = envelope.cursor;
+    if (!_eventController.isClosed) _eventController.add(envelope);
+    if (_phase == ConnectionPhase.online && _isCurrent(generation)) {
+      _scheduleWatchdog(generation);
+    }
+  }
+
+  bool _replayBufferedEnvelopes(int generation) {
+    final buffer = _reconciliationBuffer;
+    if (buffer == null || buffer.generation != generation) return false;
+    var index = 0;
+    while (index < buffer.envelopes.length) {
+      if (!_isCurrent(generation)) return false;
+      final envelope = buffer.envelopes[index++];
+      final envelopeCursor = envelope.cursor!;
+      final currentCursor = _cursor!;
+      if (envelopeCursor.compareTo(currentCursor) <= 0) continue;
+      _cursor = envelopeCursor;
+      if (!_eventController.isClosed) _eventController.add(envelope);
+    }
+    if (!_isCurrent(generation)) return false;
+    _reconciliationBuffer = null;
+    return true;
+  }
 
   void _cancelWatchdog() {
     _watchdogHandle?.cancel();
@@ -465,6 +529,33 @@ final class RealtimeController {
     code: 'protocol.sync_cursor',
     safeMessage: '同步服务返回了无效游标',
   );
+  static const AppFailure _bufferOverflowFailure = AppFailure(
+    kind: FailureKind.realtime,
+    code: 'realtime.reconciliation_buffer_overflow',
+    safeMessage: '实时同步积压过多，正在重新恢复服务端状态',
+  );
+}
+
+final class _ReconciliationBuffer {
+  _ReconciliationBuffer(this.generation);
+
+  final int generation;
+  final List<SyncEnvelope> envelopes = <SyncEnvelope>[];
+  int bytes = 0;
+
+  bool add(
+    SyncEnvelope envelope,
+    int envelopeBytes, {
+    required int maxCount,
+    required int maxBytes,
+  }) {
+    if (envelopes.length >= maxCount || bytes + envelopeBytes > maxBytes) {
+      return false;
+    }
+    envelopes.add(envelope);
+    bytes += envelopeBytes;
+    return true;
+  }
 }
 
 final class _CurrentValueStream<T> extends Stream<T> {

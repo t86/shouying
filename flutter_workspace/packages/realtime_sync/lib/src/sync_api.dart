@@ -73,7 +73,7 @@ final class ProtocolSyncApi implements SyncApi {
     if (data == null || !SyncEnvelope.isCanonicalCursor(cursor)) {
       return const FailureResult(_responseShapeFailure);
     }
-    if (!data.containsKey('ds')) {
+    if (code == 1 && !data.containsKey('ds')) {
       return const FailureResult(_responseShapeFailure);
     }
 

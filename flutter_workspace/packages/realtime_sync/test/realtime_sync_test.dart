@@ -124,7 +124,7 @@ void main() {
         }),
         _jsonBody(<String, Object?>{
           'code': 2,
-          'data': <String, Object?>{'ts': '20260826010102', 'ds': <Object?>[]},
+          'data': <String, Object?>{'ts': '20260826010102'},
         }),
       ];
       final adapter = _StubAdapter((_) => responses.removeAt(0));
@@ -168,6 +168,21 @@ void main() {
         );
       },
     );
+
+    test('rejects code 1 when ds is missing', () async {
+      final adapter = _StubAdapter(
+        (_) => _jsonBody(<String, Object?>{
+          'code': 1,
+          'data': <String, Object?>{'ts': '20260826010101'},
+        }),
+      );
+      final api = ProtocolSyncApi(client: _protocolClient(adapter));
+
+      final result = await api.fetchAll(ClientKind.cashier);
+
+      expect(result.failureOrNull?.kind, FailureKind.protocol);
+      expect(result.failureOrNull?.code, 'protocol.sync_response_shape');
+    });
   });
 
   group('RealtimeController', () {
@@ -242,6 +257,257 @@ void main() {
         ]);
         await phaseSubscription.cancel();
         await eventSubscription.cancel();
+      },
+    );
+
+    test(
+      'buffers live messages until full sync and replays only newer cursors',
+      () async {
+        final pendingAll = Completer<Result<SyncBatch>>();
+        api.allCompleter = pendingAll;
+        transport.nextOnSend = (socket) => socket.addJson(<String, Object?>{
+          'p': 1,
+          't': '20260826010104',
+          'd': <String, Object?>{'source': 'first-live'},
+        });
+        final events = <SyncEnvelope>[];
+        final order = <String>[];
+        final eventSubscription = controller.events.listen((event) {
+          events.add(event);
+          order.add('event:${event.cursor}');
+        });
+        final phaseSubscription = controller.phases.listen(
+          (phase) => order.add('phase:${phase.name}'),
+        );
+
+        final starting = controller.start();
+        await _flush();
+        final socket = transport.connections.single;
+        socket
+          ..addJson(<String, Object?>{'p': 2, 't': '20260826010102', 'd': null})
+          ..addJson(<String, Object?>{
+            'p': 1,
+            't': '20260826010103',
+            'd': <String, Object?>{'source': 'overlap'},
+          })
+          ..addJson(<String, Object?>{
+            'p': 1,
+            't': '20260826010105',
+            'd': <String, Object?>{'source': 'second-live'},
+          });
+        await _flush();
+
+        expect(api.allCalls, 1);
+        expect(api.incrementCursors, isEmpty);
+        expect(events, isEmpty);
+        expect(controller.cursor, isNull);
+        expect(controller.phase, ConnectionPhase.reconciling);
+
+        pendingAll.complete(
+          const Success(
+            SyncBatch(
+              cursor: '20260826010103',
+              data: <String, Object?>{'source': 'full'},
+              hasChanges: true,
+            ),
+          ),
+        );
+        await starting;
+
+        expect(events.map((event) => event.cursor), <String?>[
+          '20260826010103',
+          '20260826010104',
+          '20260826010105',
+        ]);
+        expect(controller.cursor, '20260826010105');
+        expect(order.last, 'phase:online');
+        await eventSubscription.cancel();
+        await phaseSubscription.cancel();
+      },
+    );
+
+    test(
+      'reconnect snapshots disconnected cursor before immediate socket data',
+      () async {
+        final events = <SyncEnvelope>[];
+        final subscription = controller.events.listen(events.add);
+        await controller.start();
+        transport.connections.single.disconnect();
+        await _flush();
+
+        final pendingIncrement = Completer<Result<SyncBatch>>();
+        api.incrementCompleter = pendingIncrement;
+        transport.nextOnSend = (socket) => socket.addJson(<String, Object?>{
+          'p': 1,
+          't': '20260826010104',
+          'd': <String, Object?>{'source': 'live'},
+        });
+        scheduler.elapse(const Duration(seconds: 3));
+        await _flush();
+
+        expect(api.incrementCursors, <String>['20260826010101']);
+        expect(events.map((event) => event.cursor), <String?>[
+          '20260826010101',
+        ]);
+
+        pendingIncrement.complete(
+          const Success(
+            SyncBatch(
+              cursor: '20260826010103',
+              data: <String, Object?>{'source': 'increment'},
+              hasChanges: true,
+            ),
+          ),
+        );
+        await _flush();
+
+        expect(events.map((event) => event.cursor), <String?>[
+          '20260826010101',
+          '20260826010103',
+          '20260826010104',
+        ]);
+        expect(controller.cursor, '20260826010104');
+        expect(controller.phase, ConnectionPhase.online);
+        await subscription.cancel();
+      },
+    );
+
+    test('drops buffered messages from a stale generation', () async {
+      final pendingAll = Completer<Result<SyncBatch>>();
+      api.allCompleter = pendingAll;
+      transport.nextOnSend = (socket) => socket.addJson(<String, Object?>{
+        'p': 1,
+        't': '20260826010109',
+        'd': <String, Object?>{'source': 'stale'},
+      });
+      final events = <SyncEnvelope>[];
+      final subscription = controller.events.listen(events.add);
+
+      final firstStart = controller.start();
+      await _flush();
+      transport.connections.single.fail();
+      await _flush();
+      pendingAll.complete(
+        const Success(
+          SyncBatch(
+            cursor: '20260826010101',
+            data: <String, Object?>{'source': 'old-batch'},
+            hasChanges: true,
+          ),
+        ),
+      );
+      await firstStart;
+
+      expect(events, isEmpty);
+      expect(controller.cursor, isNull);
+      api.allCompleter = null;
+      scheduler.elapse(const Duration(seconds: 3));
+      await _flush();
+
+      expect(events.map((event) => event.cursor), <String?>['20260826010101']);
+      expect(controller.cursor, '20260826010101');
+      expect(controller.phase, ConnectionPhase.online);
+      await subscription.cancel();
+    });
+
+    test(
+      'bounded reconciliation buffer overflows into one safe reconnect',
+      () async {
+        final pendingAll = Completer<Result<SyncBatch>>();
+        api.allCompleter = pendingAll;
+        final failures = <AppFailure>[];
+        final subscription = controller.failures.listen(failures.add);
+        final starting = controller.start();
+        await _flush();
+        final socket = transport.connections.single;
+
+        for (
+          var index = 0;
+          index <= RealtimeController.maxBufferedEnvelopeCount;
+          index += 1
+        ) {
+          socket.addJson(<String, Object?>{
+            'p': 2,
+            't': '2026082601${index.toString().padLeft(4, '0')}',
+            'd': null,
+          });
+        }
+        await _flush();
+
+        expect(controller.phase, ConnectionPhase.reconciling);
+        expect(controller.cursor, isNull);
+        expect(failures.last.code, 'realtime.reconciliation_buffer_overflow');
+        expect(scheduler.activeDelays, <Duration>[const Duration(seconds: 3)]);
+        pendingAll.complete(
+          const Success(
+            SyncBatch(
+              cursor: '20260826010101',
+              data: <String, Object?>{},
+              hasChanges: true,
+            ),
+          ),
+        );
+        await starting;
+        api.allCompleter = null;
+        scheduler.elapse(const Duration(seconds: 3));
+        await _flush();
+        expect(api.allCalls, 2);
+        expect(api.incrementCursors, isEmpty);
+        expect(controller.phase, ConnectionPhase.online);
+        await subscription.cancel();
+      },
+    );
+
+    test('reconciliation buffer also enforces its byte budget', () async {
+      final pendingAll = Completer<Result<SyncBatch>>();
+      api.allCompleter = pendingAll;
+      final failures = <AppFailure>[];
+      final subscription = controller.failures.listen(failures.add);
+      final starting = controller.start();
+      await _flush();
+      final socket = transport.connections.single;
+      final payload =
+          'x' * (RealtimeController.maxBufferedEnvelopeBytes ~/ 3 + 1024);
+
+      for (var index = 1; index <= 3; index += 1) {
+        socket.addRaw(<String, Object?>{
+          'p': 1,
+          't': '2026082601010$index',
+          'd': payload,
+        });
+      }
+      await _flush();
+
+      expect(failures.last.code, 'realtime.reconciliation_buffer_overflow');
+      expect(scheduler.activeDelays, <Duration>[const Duration(seconds: 3)]);
+      pendingAll.complete(
+        const Success(
+          SyncBatch(
+            cursor: '20260826010101',
+            data: <String, Object?>{},
+            hasChanges: true,
+          ),
+        ),
+      );
+      await starting;
+      await subscription.cancel();
+    });
+
+    test(
+      'no-change batch updates cursor without emitting a data event',
+      () async {
+        api.allResult = const Success(
+          SyncBatch(cursor: '20260826010102', data: null, hasChanges: false),
+        );
+        final events = <SyncEnvelope>[];
+        final subscription = controller.events.listen(events.add);
+
+        await controller.start();
+
+        expect(events, isEmpty);
+        expect(controller.cursor, '20260826010102');
+        expect(controller.phase, ConnectionPhase.online);
+        await subscription.cancel();
       },
     );
 
@@ -454,6 +720,13 @@ void main() {
         await _flush();
         socket.disconnect();
         await _flush();
+        api.incrementResult = const Success(
+          SyncBatch(
+            cursor: '20260826010108',
+            data: <String, Object?>{},
+            hasChanges: false,
+          ),
+        );
 
         expect(controller.phase, ConnectionPhase.reconciling);
         expect(scheduler.activeDelays, <Duration>[const Duration(seconds: 3)]);
@@ -678,6 +951,8 @@ final class _FakeCredentialStore implements CredentialStore {
 final class _FakeSyncApi implements SyncApi {
   int allCalls = 0;
   final List<String> incrementCursors = <String>[];
+  Completer<Result<SyncBatch>>? allCompleter;
+  Completer<Result<SyncBatch>>? incrementCompleter;
   Result<SyncBatch> allResult = const Success(
     SyncBatch(
       cursor: '20260826010101',
@@ -696,7 +971,7 @@ final class _FakeSyncApi implements SyncApi {
   @override
   Future<Result<SyncBatch>> fetchAll(ClientKind client) async {
     allCalls += 1;
-    return allResult;
+    return allCompleter?.future ?? allResult;
   }
 
   @override
@@ -705,7 +980,7 @@ final class _FakeSyncApi implements SyncApi {
     String lastSyncTime,
   ) async {
     incrementCursors.add(lastSyncTime);
-    return incrementResult;
+    return incrementCompleter?.future ?? incrementResult;
   }
 }
 
@@ -716,29 +991,40 @@ final class _FakeSocketTransport implements SocketTransport {
   Object? readyError;
   Object? sendError;
   Completer<void>? nextCloseCompleter;
+  void Function(_FakeSocketConnection socket)? nextOnSend;
 
   @override
   Future<SocketConnection> connect(Uri uri) async {
     final error = connectError;
     if (error != null) throw error;
     uris.add(uri);
-    final connection = _FakeSocketConnection(
+    final sendCallback = nextOnSend;
+    late final _FakeSocketConnection connection;
+    connection = _FakeSocketConnection(
       readyError: readyError,
       sendError: sendError,
       closeCompleter: nextCloseCompleter,
+      onSend: () => sendCallback?.call(connection),
     );
     nextCloseCompleter = null;
+    nextOnSend = null;
     connections.add(connection);
     return connection;
   }
 }
 
 final class _FakeSocketConnection implements SocketConnection {
-  _FakeSocketConnection({this.readyError, this.sendError, this.closeCompleter});
+  _FakeSocketConnection({
+    this.readyError,
+    this.sendError,
+    this.closeCompleter,
+    this.onSend,
+  });
 
   final Object? readyError;
   final Object? sendError;
   final Completer<void>? closeCompleter;
+  final void Function()? onSend;
   final StreamController<Object?> _incoming =
       StreamController<Object?>.broadcast(sync: true);
   final List<String> sent = <String>[];
@@ -758,6 +1044,7 @@ final class _FakeSocketConnection implements SocketConnection {
     final error = sendError;
     if (error != null) throw error;
     sent.add(value);
+    onSend?.call();
   }
 
   @override
