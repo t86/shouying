@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:design_system/design_system.dart';
@@ -15,13 +16,12 @@ import 'package:shouyin_web/main.dart';
 void main() {
   test('web security accepts secure same-origin endpoint subtrees', () {
     final environment = AppRuntimeConfiguration.fromValues(
-      apiBase: 'https://pos.example.test/app/server',
-      onlineBase: 'https://pos.example.test/app/online',
-      websocketBase: 'wss://pos.example.test/app/ws',
-      servingOrigin: Uri.parse('https://pos.example.test/app/'),
+      apiBase: 'https://pos.example.test/api',
+      onlineBase: 'https://pos.example.test/online',
+      websocketBase: 'wss://pos.example.test/sync',
+      servingOrigin: Uri.parse('https://pos.example.test/shouyin-v2/'),
     );
     expect(environment.config, isNotNull);
-    expect(environment.securityWarning, isNull);
   });
 
   test('web security rejects insecure default and cross origin or port', () {
@@ -50,25 +50,31 @@ void main() {
     }
   });
 
-  testWidgets('explicit insecure legacy mode is visible and composes', (
+  test('old insecure Web flag is absent and cannot downgrade startup', () {
+    final prefix = File('lib/main.dart').existsSync() ? '' : 'apps/web_app/';
+    final source = File('${prefix}lib/main.dart').readAsStringSync();
+    expect(source, isNot(contains('SHOUYIN_ALLOW_INSECURE_WEB')));
+    expect(source, isNot(contains('WebStorageCredentialBackend')));
+  });
+
+  testWidgets('insecure Web deployment shows Gate C error before deps', (
     tester,
   ) async {
     final factory = _LifecycleFactory();
-    final environment = AppRuntimeConfiguration.fromValues(
-      apiBase: 'http://pos.example.test/server',
-      onlineBase: 'http://pos.example.test/server',
-      websocketBase: 'ws://pos.example.test/server',
-      servingOrigin: Uri.parse('http://pos.example.test/'),
-      allowInsecureWeb: true,
-    );
     await tester.pumpWidget(
-      ShouyinWebApp(environment: environment, dependenciesFactory: factory),
+      ShouyinWebApp(
+        environment: AppRuntimeConfiguration.fromValues(
+          apiBase: 'http://pos.example.test/server',
+          onlineBase: 'http://pos.example.test/server',
+          websocketBase: 'ws://pos.example.test/server',
+          servingOrigin: Uri.parse('http://pos.example.test/'),
+        ),
+        dependenciesFactory: factory,
+      ),
     );
-    await tester.pumpAndSettle();
-    expect(factory.createCalls, 1);
-    expect(find.textContaining('不安全的 Web 兼容模式'), findsOneWidget);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.runAsync(() => factory.dependencies.disposed.future);
+    expect(find.textContaining('HTTPS/WSS 同源部署'), findsOneWidget);
+    expect(find.textContaining('Gate C'), findsOneWidget);
+    expect(factory.createCalls, 0);
   });
 
   testWidgets('invalid config creates no shell or secure/network dependency', (

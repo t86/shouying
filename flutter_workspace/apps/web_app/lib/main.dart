@@ -22,8 +22,6 @@ final class AppRuntimeConfiguration {
   const AppRuntimeConfiguration._({
     required this.config,
     required this.invalidKeys,
-    required this.allowInsecureWeb,
-    required this.securityWarning,
   });
 
   factory AppRuntimeConfiguration.fromEnvironment() =>
@@ -32,9 +30,6 @@ final class AppRuntimeConfiguration {
         onlineBase: const String.fromEnvironment('SHOUYIN_ONLINE_BASE'),
         websocketBase: const String.fromEnvironment('SHOUYIN_WS_BASE'),
         servingOrigin: Uri.base,
-        allowInsecureWeb: const bool.fromEnvironment(
-          'SHOUYIN_ALLOW_INSECURE_WEB',
-        ),
       );
 
   factory AppRuntimeConfiguration.fromValues({
@@ -42,7 +37,6 @@ final class AppRuntimeConfiguration {
     required String onlineBase,
     required String websocketBase,
     Uri? servingOrigin,
-    bool allowInsecureWeb = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -55,13 +49,7 @@ final class AppRuntimeConfiguration {
     if (online == null) invalidKeys.add('SHOUYIN_ONLINE_BASE');
     if (websocket == null) invalidKeys.add('SHOUYIN_WS_BASE');
     if (servingOrigin != null &&
-        !_validWebSecurity(
-          servingOrigin,
-          api,
-          online,
-          websocket,
-          allowInsecureWeb,
-        )) {
+        !_validWebSecurity(servingOrigin, api, online, websocket)) {
       invalidKeys.add('SHOUYIN_WEB_SECURITY');
     }
     ApiConfig? config;
@@ -75,33 +63,23 @@ final class AppRuntimeConfiguration {
     return AppRuntimeConfiguration._(
       config: config,
       invalidKeys: List<String>.unmodifiable(invalidKeys),
-      allowInsecureWeb: allowInsecureWeb,
-      securityWarning: allowInsecureWeb
-          ? '不安全的 Web 兼容模式：凭据仅存储于浏览器 Web Storage'
-          : null,
     );
   }
 
   final ApiConfig? config;
   final List<String> invalidKeys;
-  final bool allowInsecureWeb;
-  final String? securityWarning;
 
   static bool _validWebSecurity(
     Uri origin,
     Uri? api,
     Uri? online,
     Uri? websocket,
-    bool allowInsecure,
   ) {
     if (api == null || online == null || websocket == null) return false;
-    final localhost = origin.host == 'localhost' || origin.host == '127.0.0.1';
-    if (!allowInsecure && origin.scheme != 'https' && !localhost) return false;
-    if (!allowInsecure &&
-        !localhost &&
-        (api.scheme != 'https' ||
-            online.scheme != 'https' ||
-            websocket.scheme != 'wss')) {
+    if (origin.scheme != 'https' ||
+        api.scheme != 'https' ||
+        online.scheme != 'https' ||
+        websocket.scheme != 'wss') {
       return false;
     }
     int port(Uri uri, String effectiveScheme) => uri.hasPort
@@ -120,14 +98,6 @@ final class AppRuntimeConfiguration {
       }
       if (port(endpoint, effective) != port(origin, origin.scheme)) {
         return false;
-      }
-      final base = origin.pathSegments
-          .where((segment) => segment.isNotEmpty)
-          .toList();
-      final target = endpoint.pathSegments;
-      if (target.length < base.length) return false;
-      for (var index = 0; index < base.length; index += 1) {
-        if (target[index] != base[index]) return false;
       }
       return true;
     }
@@ -197,13 +167,11 @@ abstract interface class ShellDependencies {
 
 final class DefaultShellDependenciesFactory
     implements ShellDependenciesFactory {
-  const DefaultShellDependenciesFactory({this.useLegacyWebStorage = false});
-
-  final bool useLegacyWebStorage;
+  const DefaultShellDependenciesFactory();
 
   @override
   ShellDependencies create(ApiConfig config) =>
-      _DefaultShellDependencies(config, useLegacyWebStorage);
+      _DefaultShellDependencies(config);
 
   @override
   void onRouterCreated() {}
@@ -213,12 +181,8 @@ final class DefaultShellDependenciesFactory
 }
 
 final class _DefaultShellDependencies implements ShellDependencies {
-  _DefaultShellDependencies(this._config, bool useLegacyWebStorage)
-    : _credentialStore = FlutterSecureCredentialStore(
-        backend: useLegacyWebStorage
-            ? createWebStorageCredentialBackend()
-            : null,
-      ),
+  _DefaultShellDependencies(this._config)
+    : _credentialStore = FlutterSecureCredentialStore(),
       _dio = Dio() {
     _protocolClient = ProtocolClient(
       dio: _dio,
@@ -377,7 +341,6 @@ final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
   return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
-final _securityWarningProvider = Provider<String?>((ref) => null);
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
   final factory = ref.watch(_dependenciesFactoryProvider);
@@ -434,19 +397,20 @@ final class ShouyinWebApp extends StatelessWidget {
     if (config == null) {
       return MaterialApp(
         title: _appLabel,
-        home: ConfigurationErrorScreen(missingKeys: resolved.invalidKeys),
+        home: ConfigurationErrorScreen(
+          missingKeys: <String>[
+            ...resolved.invalidKeys,
+            if (resolved.invalidKeys.contains('SHOUYIN_WEB_SECURITY'))
+              'Web 要求 HTTPS/WSS 同源部署；这是 Gate C 前置条件',
+          ],
+        ),
       );
     }
     return ProviderScope(
       overrides: [
         _apiConfigProvider.overrideWithValue(config),
-        _dependenciesFactoryProvider.overrideWithValue(
-          dependenciesFactory ??
-              DefaultShellDependenciesFactory(
-                useLegacyWebStorage: resolved.allowInsecureWeb,
-              ),
-        ),
-        _securityWarningProvider.overrideWithValue(resolved.securityWarning),
+        if (dependenciesFactory case final value?)
+          _dependenciesFactoryProvider.overrideWithValue(value),
         _initialLocationProvider.overrideWithValue(initialLocation),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
@@ -468,26 +432,6 @@ final class _AppView extends ConsumerWidget {
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
-      builder: (context, child) => Column(
-        children: <Widget>[
-          if (ref.watch(_securityWarningProvider) case final warning?)
-            Material(
-              color: const Color(0xFFB3261E),
-              child: SizedBox(
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    warning,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          Expanded(child: child ?? const SizedBox.shrink()),
-        ],
-      ),
     );
   }
 }
