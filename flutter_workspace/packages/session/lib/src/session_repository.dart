@@ -92,10 +92,12 @@ final class SessionRepository {
       _setMachine(null);
 
       CredentialSnapshot? snapshot;
+      var snapshotUnavailable = false;
       AppFailure? credentialFailure;
       try {
         snapshot = await _credentialStore.readSnapshot();
       } on Object {
+        snapshotUnavailable = true;
         credentialFailure = _credentialsUnavailableFailure;
       }
 
@@ -111,6 +113,17 @@ final class SessionRepository {
         }
         try {
           await _credentialStore.clearStkIfMatches(snapshot.stk);
+        } on Object {
+          credentialFailure = _credentialsUnavailableFailure;
+        }
+      } else if (snapshotUnavailable) {
+        try {
+          await _credentialStore.clearTk();
+        } on Object {
+          credentialFailure = _credentialsUnavailableFailure;
+        }
+        try {
+          await _credentialStore.clearStk();
         } on Object {
           credentialFailure = _credentialsUnavailableFailure;
         }

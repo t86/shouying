@@ -16,6 +16,13 @@ enum MachineAccessMode {
   final int wireValue;
   final ClientKind client;
 
+  /// Maps exact integer and canonical integer-string wire values.
+  ///
+  /// On JavaScript/DDC, JSON decoding represents an integral `1.0` as an
+  /// `int`, so its original numeric lexeme cannot be distinguished from `1`
+  /// here. Enforcing that lexical distinction on Web requires raw-token type
+  /// metadata from the protocol layer. Native runtimes reject doubles; Web
+  /// rejects all malformed forms whose representation remains distinguishable.
   static MachineAccessMode? fromWire(Object? value) {
     final intValue = switch (value) {
       int() when value.runtimeType == int => value,

@@ -41,7 +41,6 @@ void main() {
         null,
         true,
         false,
-        if (!kIsWeb) 1.0,
         0,
         128,
         1024,
@@ -55,6 +54,25 @@ void main() {
         expect(MachineAccessMode.fromWire(invalid), isNull, reason: '$invalid');
       }
     });
+
+    test(
+      'rejects native doubles while documenting the DDC integral-number limit',
+      () {
+        if (kIsWeb) {
+          expect(1.0 is int, isTrue);
+          expect(
+            MachineAccessMode.fromWire(1.0),
+            MachineAccessMode.orgManager,
+            reason: 'DDC no longer exposes the original JSON numeric lexeme',
+          );
+        } else {
+          expect(1.0 is int, isFalse);
+          expect(MachineAccessMode.fromWire(1.0), isNull);
+        }
+
+        expect(MachineAccessMode.fromWire('1.0'), isNull);
+      },
+    );
 
     test('sessions expose identity without credential fields', () {
       const machine = MachineSession(
@@ -141,6 +159,7 @@ void main() {
       () async {
         final invalidData = <Map<String, Object?>>[
           <String, Object?>{'tk': '', 'am': 8, 'id': 1, 'n': 'Counter'},
+          // DDC erases integral-double lexemes; the named model test documents it.
           if (!kIsWeb)
             <String, Object?>{
               'tk': 'synthetic-tk',
@@ -160,6 +179,7 @@ void main() {
             'id': 1,
             'n': 'Counter',
           },
+          // DDC erases integral-double lexemes; the named model test documents it.
           if (!kIsWeb)
             <String, Object?>{
               'tk': 'synthetic-tk',
@@ -388,9 +408,11 @@ void main() {
 
     test('rejects doubles and malformed user response fields', () async {
       final invalidData = <Map<String, Object?>>[
+        // DDC erases integral-double lexemes; the named model test documents it.
         if (!kIsWeb)
           <String, Object?>{'emp_id': 1.0, 'name': 'Employee', 'station_id': 2},
         <String, Object?>{'emp_id': 1, 'name': '', 'station_id': 2},
+        // DDC erases integral-double lexemes; the named model test documents it.
         if (!kIsWeb)
           <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': 2.0},
         <String, Object?>{'emp_id': true, 'name': 'Employee', 'station_id': 2},
@@ -661,6 +683,79 @@ void main() {
         expect(api.logoutCalls, 1);
       },
     );
+
+    test(
+      'snapshot failure falls back to both clears and preserves remote failure',
+      () async {
+        final api = _FakeSessionApi();
+        final store = _AtomicCredentialStore(
+          tk: 'synthetic-fallback-tk',
+          stk: 'synthetic-fallback-stk',
+          failure: _StoreFailure.readSnapshot,
+        );
+        final repository = SessionRepository(api: api, credentialStore: store);
+        addTearDown(repository.close);
+        api.authorizeResult = const Success(
+          MachineSession(
+            machineId: 'machine-1',
+            machineName: 'Counter',
+            client: ClientKind.cashier,
+          ),
+        );
+        api.logoutResult = const FailureResult(
+          AppFailure(
+            kind: FailureKind.network,
+            code: 'network.timeout',
+            safeMessage: 'Request timed out',
+          ),
+        );
+        await repository.authorizeMachine('TERM-1');
+
+        final result = await repository.logout();
+
+        expect(result.failureOrNull?.code, 'network.timeout');
+        expect(repository.currentMachine, isNull);
+        expect(repository.currentUser, isNull);
+        expect(store.clearTkCalls, 1);
+        expect(store.clearStkCalls, 1);
+        expect(await store.readTk(), isNull);
+        expect(await store.readStk(), isNull);
+        expect(_failureText(result), isNot(contains('synthetic-fallback-tk')));
+        expect(_failureText(result), isNot(contains('synthetic-fallback-stk')));
+      },
+    );
+
+    test('snapshot fallback attempts stk clear after tk clear fails', () async {
+      final api = _FakeSessionApi();
+      final store = _AtomicCredentialStore(
+        tk: 'synthetic-fallback-tk',
+        stk: 'synthetic-fallback-stk',
+        failure: _StoreFailure.readSnapshotAndClearTk,
+      );
+      final repository = SessionRepository(api: api, credentialStore: store);
+      addTearDown(repository.close);
+      api.authorizeResult = const Success(
+        MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        ),
+      );
+      await repository.authorizeMachine('TERM-1');
+
+      final result = await repository.logout();
+
+      expect(
+        result.failureOrNull?.code,
+        'authentication.credentials_unavailable',
+      );
+      expect(repository.currentMachine, isNull);
+      expect(repository.currentUser, isNull);
+      expect(store.clearTkCalls, 1);
+      expect(store.clearStkCalls, 1);
+      expect(await store.readStk(), isNull);
+      expect(_failureText(result), isNot(contains('synthetic-fallback-tk')));
+    });
 
     test('logout exposes credential clearing failure only when remote logout succeeds', () async {
       final api = _FakeSessionApi();
@@ -1003,7 +1098,13 @@ final class _FakeSessionApi implements SessionRemoteApi {
   }
 }
 
-enum _StoreFailure { none, writeTk, readSnapshot, clearTk }
+enum _StoreFailure {
+  none,
+  writeTk,
+  readSnapshot,
+  clearTk,
+  readSnapshotAndClearTk,
+}
 
 final class _AtomicCredentialStore implements CredentialStore {
   factory _AtomicCredentialStore({
@@ -1019,6 +1120,8 @@ final class _AtomicCredentialStore implements CredentialStore {
   final _StoreFailure failure;
   Future<void> _tail = Future<void>.value();
   int writeTkCalls = 0;
+  int clearTkCalls = 0;
+  int clearStkCalls = 0;
   int clearTkIfMatchesCalls = 0;
   int clearStkIfMatchesCalls = 0;
 
@@ -1035,7 +1138,10 @@ final class _AtomicCredentialStore implements CredentialStore {
   }
 
   @override
-  Future<void> clearStk() => _atomic(() => _stk = null);
+  Future<void> clearStk() => _atomic(() {
+    clearStkCalls += 1;
+    _stk = null;
+  });
 
   @override
   Future<void> clearStkIfMatches(String? expected) => _atomic(() {
@@ -1045,7 +1151,9 @@ final class _AtomicCredentialStore implements CredentialStore {
 
   @override
   Future<void> clearTk() => _atomic(() {
-    if (failure == _StoreFailure.clearTk) {
+    clearTkCalls += 1;
+    if (failure == _StoreFailure.clearTk ||
+        failure == _StoreFailure.readSnapshotAndClearTk) {
       throw StateError('synthetic-store-clear-failure');
     }
     _tk = null;
@@ -1065,7 +1173,8 @@ final class _AtomicCredentialStore implements CredentialStore {
 
   @override
   Future<CredentialSnapshot> readSnapshot() => _atomic(() {
-    if (failure == _StoreFailure.readSnapshot) {
+    if (failure == _StoreFailure.readSnapshot ||
+        failure == _StoreFailure.readSnapshotAndClearTk) {
       throw StateError('synthetic-store-read-failure');
     }
     return CredentialSnapshot(tk: _tk, stk: _stk);
