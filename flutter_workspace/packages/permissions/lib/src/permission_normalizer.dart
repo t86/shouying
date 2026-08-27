@@ -21,15 +21,18 @@ abstract final class PermissionNormalizer {
       }
       final roleRows = sysRole as List;
       final moduleRows = sysRoleDetail as List;
-      if (roleRows.length > _maxRows || moduleRows.length > _maxRows)
+      if (roleRows.length > _maxRows || moduleRows.length > _maxRows) {
         return _unavailable(station);
+      }
       final roles = <int>{};
       for (final row in roleRows) {
         if (!_materializedMap(row)) continue;
         final map = row as Map;
         if (map.length > 64 ||
             _integer(map['station_id'], positive: true) != station ||
-            _status(map['status']) != 1) continue;
+            _status(map['status']) != 1) {
+          continue;
+        }
         final id = _integer(map['sys_role_id'], positive: true);
         if (id != null) roles.add(id);
       }
@@ -39,7 +42,9 @@ abstract final class PermissionNormalizer {
         final map = row as Map;
         if (map.length > 64 ||
             _integer(map['station_id'], positive: true) != station ||
-            _status(map['status']) != 1) continue;
+            _status(map['status']) != 1) {
+          continue;
+        }
         final id = _integer(map['sys_module_id'], positive: true);
         if (id != null) modules.add(id);
       }
@@ -53,11 +58,14 @@ abstract final class PermissionNormalizer {
           final map = row as Map;
           if (map.length > 64 ||
               _integer(map['emp_id'], positive: true) != employee ||
-              _status(map['status']) != 1) continue;
+              _status(map['status']) != 1) {
+            continue;
+          }
           final parent = _integer(map['parent_id'], positive: true);
           final id = _integer(map['sub_permission_id'], positive: true);
-          if (parent != null && id != null && modules.contains(parent))
+          if (parent != null && id != null && modules.contains(parent)) {
             subs.add(SubPermissionKey(parent, id));
+          }
         }
       }
       return PermissionSnapshot(
@@ -113,24 +121,31 @@ bool _materializedMap(Object? value) =>
     value is Map && _mapTypes.contains(value.runtimeType);
 
 int? _integer(Object? value, {required bool positive}) {
-  if (value is bool || value == null) return null;
+  if (value is bool || value == null) {
+    return null;
+  }
   int? result;
-  if (value is int)
+  if (value is int) {
     result = value;
-  else if (value is num && value.isFinite && value == value.truncate())
+  } else if (value is num && value.isFinite && value == value.truncate()) {
     result = value.toInt();
-  else if (value is String &&
+  } else if (value is String &&
       value.length <= _maxStringLength &&
-      _canonicalInteger(value)) result = int.tryParse(value);
+      _canonicalInteger(value)) {
+    result = int.tryParse(value);
+  }
   if (result == null ||
       result.abs() > _safeInteger ||
-      (positive ? result <= 0 : result < 0)) return null;
+      (positive ? result <= 0 : result < 0)) {
+    return null;
+  }
   return result;
 }
 
 bool _canonicalInteger(String value) {
-  if (value.isEmpty || (value.length > 1 && value.codeUnitAt(0) == 48))
+  if (value.isEmpty || (value.length > 1 && value.codeUnitAt(0) == 48)) {
     return false;
+  }
   for (final unit in value.codeUnits) {
     if (unit < 48 || unit > 57) return false;
   }

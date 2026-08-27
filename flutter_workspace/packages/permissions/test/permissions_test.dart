@@ -230,4 +230,69 @@ void main() {
           AuthorizationRequirement.unknown);
     }
   });
+
+  test('composite subpermission keys prevent cross-module leakage', () {
+    final result = make(
+        m: [
+          {'station_id': 7, 'sys_module_id': 101, 'status': 1},
+          {'station_id': 7, 'sys_module_id': 202, 'status': 1},
+        ],
+        employee: 42,
+        s: [
+          {'emp_id': 42, 'sub_permission_id': 8, 'parent_id': 101, 'status': 1},
+          {'emp_id': 42, 'sub_permission_id': 8, 'parent_id': 202, 'status': 1},
+          {'emp_id': 42, 'sub_permission_id': 9, 'parent_id': 999, 'status': 1},
+        ]);
+    expect(result.subPermissions,
+        [SubPermissionKey(101, 8), SubPermissionKey(202, 8)]);
+    final engine = PermissionEngine(result);
+    expect(
+        engine
+            .decide(PermissionRequirement(
+                allSubPermissions: {SubPermissionKey(101, 8)}))
+            .allowed,
+        isTrue);
+    expect(
+        engine
+            .decide(PermissionRequirement(
+                allSubPermissions: {SubPermissionKey(303, 8)}))
+            .allowed,
+        isFalse);
+  });
+
+  test('requirements defensively copy inputs and have value semantics', () {
+    final roles = <int>{5};
+    final modules = <int>{101};
+    final subs = <SubPermissionKey>{SubPermissionKey(101, 8)};
+    final requirement = PermissionRequirement(
+        anyRoleIds: roles, allModuleIds: modules, allSubPermissions: subs);
+    roles.add(999);
+    modules.add(999);
+    subs.add(const SubPermissionKey(202, 8));
+    expect(requirement.anyRoleIds, [5]);
+    expect(requirement.allModuleIds, [101]);
+    expect(requirement.allSubPermissions, [const SubPermissionKey(101, 8)]);
+    expect(() => requirement.anyRoleIds.add(99), throwsUnsupportedError);
+    final same = PermissionRequirement(
+        anyRoleIds: {5},
+        allModuleIds: {101},
+        allSubPermissions: {const SubPermissionKey(101, 8)});
+    expect(requirement, same);
+    expect(requirement.hashCode, same.hashCode);
+    expect(requirement.toString(), contains('5'));
+  });
+
+  test('row budget accepts exactly the boundary and rejects overflow', () {
+    final rows = List<Map<String, Object?>>.generate(
+        10000, (_) => {'station_id': 7, 'sys_role_id': 5, 'status': 1});
+    expect(
+        PermissionNormalizer.normalize(
+            stationId: 7, sysRole: rows, sysRoleDetail: []).available,
+        isTrue);
+    rows.add({'station_id': 7, 'sys_role_id': 5, 'status': 1});
+    expect(
+        PermissionNormalizer.normalize(
+            stationId: 7, sysRole: rows, sysRoleDetail: []).available,
+        isFalse);
+  });
 }
