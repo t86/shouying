@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:foundation/foundation.dart';
 import 'package:session/src/session_models.dart';
@@ -13,24 +15,34 @@ enum LoginPhase {
 }
 
 final class LoginState {
-  const LoginState({required this.phase, this.failure});
+  const LoginState({
+    required this.phase,
+    required this.stablePhase,
+    this.failure,
+  });
 
-  const LoginState.idle() : this(phase: LoginPhase.idle);
+  const LoginState.idle()
+    : this(phase: LoginPhase.idle, stablePhase: LoginPhase.idle);
 
   final LoginPhase phase;
+  final LoginPhase stablePhase;
   final AppFailure? failure;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LoginState && phase == other.phase && failure == other.failure;
+      other is LoginState &&
+          phase == other.phase &&
+          stablePhase == other.stablePhase &&
+          failure == other.failure;
 
   @override
-  int get hashCode => Object.hash(phase, failure);
+  int get hashCode => Object.hash(phase, stablePhase, failure);
 
   @override
   String toString() =>
-      'LoginState(phase: ${phase.name}, failureCode: ${failure?.code})';
+      'LoginState(phase: ${phase.name}, stablePhase: ${stablePhase.name}, '
+      'failureCode: ${failure?.code})';
 }
 
 Duration? _disableRetry(int retryCount, Object error) => null;
@@ -49,17 +61,35 @@ final loginViewModelProvider = NotifierProvider<LoginViewModel, LoginState>(
 
 final class LoginViewModel extends Notifier<LoginState> {
   bool _operationInProgress = false;
+  bool _syncScheduled = false;
+  StreamSubscription<MachineSession?>? _machineSubscription;
+  StreamSubscription<UserSession?>? _userSubscription;
 
   @override
   LoginState build() {
     final repository = ref.watch(sessionRepositoryProvider);
-    if (repository.currentUser != null) {
-      return const LoginState(phase: LoginPhase.authenticated);
+    final oldMachineSubscription = _machineSubscription;
+    final oldUserSubscription = _userSubscription;
+    if (oldMachineSubscription != null) {
+      unawaited(oldMachineSubscription.cancel());
     }
-    if (repository.currentMachine != null) {
-      return const LoginState(phase: LoginPhase.readyForLogin);
+    if (oldUserSubscription != null) {
+      unawaited(oldUserSubscription.cancel());
     }
-    return const LoginState.idle();
+    final machineSubscription = repository.machineSessions.listen(
+      (_) => _scheduleRepositorySync(repository),
+    );
+    final userSubscription = repository.userSessions.listen(
+      (_) => _scheduleRepositorySync(repository),
+    );
+    _machineSubscription = machineSubscription;
+    _userSubscription = userSubscription;
+    ref.onDispose(() {
+      unawaited(machineSubscription.cancel());
+      unawaited(userSubscription.cancel());
+    });
+    final stablePhase = _stablePhase(repository);
+    return LoginState(phase: stablePhase, stablePhase: stablePhase);
   }
 
   Future<Result<MachineSession>> authorizeMachine(String code) async {
@@ -67,17 +97,14 @@ final class LoginViewModel extends Notifier<LoginState> {
       return const FailureResult(_operationInProgressFailure);
     }
     _operationInProgress = true;
-    state = const LoginState(phase: LoginPhase.authorizingMachine);
+    final repository = ref.read(sessionRepositoryProvider);
+    state = LoginState(
+      phase: LoginPhase.authorizingMachine,
+      stablePhase: _stablePhase(repository),
+    );
     try {
-      final result = await ref
-          .read(sessionRepositoryProvider)
-          .authorizeMachine(code);
-      if (ref.mounted) {
-        final failure = result.failureOrNull;
-        state = failure == null
-            ? const LoginState(phase: LoginPhase.readyForLogin)
-            : LoginState(phase: LoginPhase.failure, failure: failure);
-      }
+      final result = await repository.authorizeMachine(code);
+      if (ref.mounted) _applyResult(result.failureOrNull, repository);
       return result;
     } finally {
       _operationInProgress = false;
@@ -93,17 +120,18 @@ final class LoginViewModel extends Notifier<LoginState> {
       return const FailureResult(_operationInProgressFailure);
     }
     _operationInProgress = true;
-    state = const LoginState(phase: LoginPhase.loggingIn);
+    final repository = ref.read(sessionRepositoryProvider);
+    state = LoginState(
+      phase: LoginPhase.loggingIn,
+      stablePhase: _stablePhase(repository),
+    );
     try {
-      final result = await ref
-          .read(sessionRepositoryProvider)
-          .login(account: account, password: password, type: type);
-      if (ref.mounted) {
-        final failure = result.failureOrNull;
-        state = failure == null
-            ? const LoginState(phase: LoginPhase.authenticated)
-            : LoginState(phase: LoginPhase.failure, failure: failure);
-      }
+      final result = await repository.login(
+        account: account,
+        password: password,
+        type: type,
+      );
+      if (ref.mounted) _applyResult(result.failureOrNull, repository);
       return result;
     } finally {
       _operationInProgress = false;
@@ -115,13 +143,44 @@ final class LoginViewModel extends Notifier<LoginState> {
       return const FailureResult(_operationInProgressFailure);
     }
     _operationInProgress = true;
+    final repository = ref.read(sessionRepositoryProvider);
     try {
-      final result = await ref.read(sessionRepositoryProvider).logout();
-      if (ref.mounted) state = const LoginState.idle();
+      final result = await repository.logout();
+      if (ref.mounted) _applyResult(result.failureOrNull, repository);
       return result;
     } finally {
       _operationInProgress = false;
     }
+  }
+
+  void _applyResult(AppFailure? failure, SessionRepository repository) {
+    final stablePhase = _stablePhase(repository);
+    state = failure == null
+        ? LoginState(phase: stablePhase, stablePhase: stablePhase)
+        : LoginState(
+            phase: LoginPhase.failure,
+            stablePhase: stablePhase,
+            failure: failure,
+          );
+  }
+
+  void _scheduleRepositorySync(SessionRepository repository) {
+    if (_syncScheduled) return;
+    _syncScheduled = true;
+    unawaited(
+      Future<void>.microtask(() {
+        _syncScheduled = false;
+        if (!ref.mounted || _operationInProgress) return;
+        final stablePhase = _stablePhase(repository);
+        state = LoginState(phase: stablePhase, stablePhase: stablePhase);
+      }),
+    );
+  }
+
+  LoginPhase _stablePhase(SessionRepository repository) {
+    if (repository.currentUser != null) return LoginPhase.authenticated;
+    if (repository.currentMachine != null) return LoginPhase.readyForLogin;
+    return LoginPhase.idle;
   }
 
   static const AppFailure _operationInProgressFailure = AppFailure(

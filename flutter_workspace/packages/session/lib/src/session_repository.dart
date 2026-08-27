@@ -34,6 +34,7 @@ final class SessionRepository {
 
   MachineSession? _machine;
   UserSession? _user;
+  String? _lastWrittenTk;
   bool _operationInProgress = false;
   bool _closed = false;
 
@@ -47,12 +48,26 @@ final class SessionRepository {
     try {
       final result = await _api.authorizeMachine(code);
       if (_closed) return const FailureResult(_repositoryClosedFailure);
-      final machine = result.valueOrNull;
-      if (machine != null && machine != _machine) {
-        _setUser(null);
-        _setMachine(machine);
+      final failure = result.failureOrNull;
+      if (failure != null) return FailureResult(failure);
+      final authorization = result.valueOrNull!;
+      try {
+        await _credentialStore.writeTk(authorization.tk);
+      } on Object {
+        return const FailureResult(_credentialsUnavailableFailure);
       }
-      return result;
+      if (_closed) {
+        try {
+          await _credentialStore.clearTkIfMatches(authorization.tk);
+        } on Object {
+          // The repository is already closed; never expose store details.
+        }
+        return const FailureResult(_repositoryClosedFailure);
+      }
+      _lastWrittenTk = authorization.tk;
+      _setUser(null);
+      _setMachine(authorization.session);
+      return Success(authorization.session);
     } finally {
       _operationInProgress = false;
     }
@@ -93,12 +108,12 @@ final class SessionRepository {
 
       CredentialSnapshot? snapshot;
       var snapshotUnavailable = false;
-      AppFailure? credentialFailure;
+      var credentialsNotCleared = false;
       try {
         snapshot = await _credentialStore.readSnapshot();
       } on Object {
         snapshotUnavailable = true;
-        credentialFailure = _credentialsUnavailableFailure;
+        credentialsNotCleared = true;
       }
 
       final remoteResult = machine == null
@@ -108,30 +123,32 @@ final class SessionRepository {
       if (snapshot != null) {
         try {
           await _credentialStore.clearTkIfMatches(snapshot.tk);
+          if (snapshot.tk == _lastWrittenTk) _lastWrittenTk = null;
         } on Object {
-          credentialFailure = _credentialsUnavailableFailure;
+          credentialsNotCleared = true;
         }
         try {
           await _credentialStore.clearStkIfMatches(snapshot.stk);
         } on Object {
-          credentialFailure = _credentialsUnavailableFailure;
+          credentialsNotCleared = true;
         }
       } else if (snapshotUnavailable) {
-        try {
-          await _credentialStore.clearTk();
-        } on Object {
-          credentialFailure = _credentialsUnavailableFailure;
-        }
-        try {
-          await _credentialStore.clearStk();
-        } on Object {
-          credentialFailure = _credentialsUnavailableFailure;
+        final expectedTk = _lastWrittenTk;
+        if (expectedTk != null) {
+          try {
+            await _credentialStore.clearTkIfMatches(expectedTk);
+            if (_lastWrittenTk == expectedTk) _lastWrittenTk = null;
+          } on Object {
+            credentialsNotCleared = true;
+          }
         }
       }
 
       final remoteFailure = remoteResult.failureOrNull;
+      if (credentialsNotCleared) {
+        return const FailureResult(_credentialsNotClearedFailure);
+      }
       if (remoteFailure != null) return FailureResult(remoteFailure);
-      if (credentialFailure != null) return FailureResult(credentialFailure);
       if (_closed) return const FailureResult(_repositoryClosedFailure);
       return const Success<void>(null);
     } finally {
@@ -190,6 +207,11 @@ final class SessionRepository {
     kind: FailureKind.authentication,
     code: 'authentication.credentials_unavailable',
     safeMessage: '登录信息不可用，请重新登录',
+  );
+  static const AppFailure _credentialsNotClearedFailure = AppFailure(
+    kind: FailureKind.authentication,
+    code: 'session.credentials_not_cleared',
+    safeMessage: '登录信息未能完全清除，请重试或关闭应用',
   );
 }
 

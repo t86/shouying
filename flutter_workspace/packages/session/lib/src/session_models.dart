@@ -16,16 +16,14 @@ enum MachineAccessMode {
   final int wireValue;
   final ClientKind client;
 
-  /// Maps exact integer and canonical integer-string wire values.
+  /// Maps legacy integral numbers and canonical integer-string wire values.
   ///
-  /// On JavaScript/DDC, JSON decoding represents an integral `1.0` as an
-  /// `int`, so its original numeric lexeme cannot be distinguished from `1`
-  /// here. Enforcing that lexical distinction on Web requires raw-token type
-  /// metadata from the protocol layer. Native runtimes reject doubles; Web
-  /// rejects all malformed forms whose representation remains distinguishable.
+  /// Integral numeric values such as `1` and `1.0` normalize identically on
+  /// native and JavaScript runtimes. Non-finite, nonintegral, boolean, unsafe
+  /// integer, padded-string, and decimal-string values are rejected.
   static MachineAccessMode? fromWire(Object? value) {
     final intValue = switch (value) {
-      int() when value.runtimeType == int => value,
+      num() => _safeWireInteger(value),
       String()
           when value.length <= 3 && RegExp(r'^[1-9]\d*$').hasMatch(value) =>
         int.tryParse(value),
@@ -37,6 +35,18 @@ enum MachineAccessMode {
     }
     return null;
   }
+}
+
+const int _maxSafeWireInteger = 9007199254740991;
+
+int? _safeWireInteger(num value) {
+  if (!value.isFinite ||
+      value < -_maxSafeWireInteger ||
+      value > _maxSafeWireInteger ||
+      value % 1 != 0) {
+    return null;
+  }
+  return value.toInt();
 }
 
 enum EmployeeLoginType {

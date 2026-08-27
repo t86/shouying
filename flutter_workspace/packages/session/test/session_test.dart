@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:protocol/protocol.dart';
 import 'package:session/session.dart';
+import 'package:session/src/session_api.dart' show MachineAuthorization;
 
 void main() {
   group('session models', () {
@@ -56,21 +57,23 @@ void main() {
     });
 
     test(
-      'rejects native doubles while documenting the DDC integral-number limit',
+      'normalizes integral numbers consistently and rejects unsafe numerics',
       () {
-        if (kIsWeb) {
-          expect(1.0 is int, isTrue);
+        for (final value in <num>[1, 1.0]) {
           expect(
-            MachineAccessMode.fromWire(1.0),
+            MachineAccessMode.fromWire(value),
             MachineAccessMode.orgManager,
-            reason: 'DDC no longer exposes the original JSON numeric lexeme',
           );
-        } else {
-          expect(1.0 is int, isFalse);
-          expect(MachineAccessMode.fromWire(1.0), isNull);
         }
-
-        expect(MachineAccessMode.fromWire('1.0'), isNull);
+        for (final value in <num>[
+          1.5,
+          double.nan,
+          double.infinity,
+          -double.infinity,
+          9007199254740992,
+        ]) {
+          expect(MachineAccessMode.fromWire(value), isNull, reason: '$value');
+        }
       },
     );
 
@@ -99,7 +102,7 @@ void main() {
 
   group('SessionApi machine authorization', () {
     test(
-      'posts the trimmed code and atomically stores tk after validation',
+      'posts the trimmed code without persisting tk in the remote API',
       () async {
         final store = _AtomicCredentialStore();
         final adapter = _StubAdapter(
@@ -118,15 +121,17 @@ void main() {
         final result = await api.authorizeMachine('  TERM-001  ');
 
         expect(
-          result.valueOrNull,
+          result.valueOrNull?.session,
           const MachineSession(
             machineId: '42',
             machineName: 'Front Counter',
             client: ClientKind.cashier,
           ),
         );
-        expect(await store.readTk(), 'synthetic-issued-tk');
-        expect(store.writeTkCalls, 1);
+        expect(await store.readTk(), isNull);
+        expect(store.writeTkCalls, 0);
+        expect(result.valueOrNull?.tk, 'synthetic-issued-tk');
+        expect('${result.valueOrNull}', isNot(contains('synthetic-issued-tk')));
         final request = adapter.requests.single;
         expect(request.uri.path, '/server/term/auth');
         expect(request.data, <String, Object?>{'code': 'TERM-001'});
@@ -159,14 +164,12 @@ void main() {
       () async {
         final invalidData = <Map<String, Object?>>[
           <String, Object?>{'tk': '', 'am': 8, 'id': 1, 'n': 'Counter'},
-          // DDC erases integral-double lexemes; the named model test documents it.
-          if (!kIsWeb)
-            <String, Object?>{
-              'tk': 'synthetic-tk',
-              'am': 8.0,
-              'id': 1,
-              'n': 'Counter',
-            },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8.5,
+            'id': 1,
+            'n': 'Counter',
+          },
           <String, Object?>{
             'tk': 'synthetic-tk',
             'am': ' 8',
@@ -179,18 +182,40 @@ void main() {
             'id': 1,
             'n': 'Counter',
           },
-          // DDC erases integral-double lexemes; the named model test documents it.
-          if (!kIsWeb)
-            <String, Object?>{
-              'tk': 'synthetic-tk',
-              'am': 8,
-              'id': 1.0,
-              'n': 'Counter',
-            },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': 1.5,
+            'n': 'Counter',
+          },
           <String, Object?>{
             'tk': 'synthetic-tk',
             'am': 8,
             'id': '',
+            'n': 'Counter',
+          },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': '01',
+            'n': 'Counter',
+          },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': '1.0',
+            'n': 'Counter',
+          },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': 9007199254740992,
+            'n': 'Counter',
+          },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': '9007199254740992',
             'n': 'Counter',
           },
           <String, Object?>{'tk': 'synthetic-tk', 'am': 8, 'id': 1, 'n': ''},
@@ -214,6 +239,25 @@ void main() {
       },
     );
 
+    test('normalizes integral numeric am and machine ids', () async {
+      final adapter = _StubAdapter(
+        (_) => _jsonBody(<String, Object?>{
+          'code': 1,
+          'data': <String, Object?>{
+            'tk': 'synthetic-integral-tk',
+            'am': 8.0,
+            'id': 42.0,
+            'n': 'Counter',
+          },
+        }),
+      );
+
+      final result = await _api(adapter: adapter).authorizeMachine('TERM-1');
+
+      expect(result.valueOrNull?.session.machineId, '42');
+      expect(result.valueOrNull?.session.client, ClientKind.cashier);
+    });
+
     test(
       'maps missing or wrongly typed data to a stable shape failure',
       () async {
@@ -225,37 +269,6 @@ void main() {
               .authorizeMachine('TERM-001');
           expect(result.failureOrNull?.code, 'protocol.term_auth_shape');
         }
-      },
-    );
-
-    test(
-      'returns credentials unavailable when the validated tk cannot be written',
-      () async {
-        final store = _AtomicCredentialStore(failure: _StoreFailure.writeTk);
-        final adapter = _StubAdapter(
-          (_) => _jsonBody(<String, Object?>{
-            'code': 1,
-            'data': <String, Object?>{
-              'tk': 'synthetic-unwritten-tk',
-              'am': 8,
-              'id': 1,
-              'n': 'Counter',
-            },
-          }),
-        );
-
-        final result = await _api(
-          adapter: adapter,
-          credentialStore: store,
-        ).authorizeMachine('TERM-001');
-
-        expect(result.valueOrNull, isNull);
-        expect(result.failureOrNull?.kind, FailureKind.authentication);
-        expect(
-          result.failureOrNull?.code,
-          'authentication.credentials_unavailable',
-        );
-        expect(_failureText(result), isNot(contains('synthetic-unwritten-tk')));
       },
     );
 
@@ -283,6 +296,49 @@ void main() {
         expect(failure.safeMessage, isNot(contains(unsafe)));
       }
       expect(adapter.calls, 1, reason: 'business failures are not retried');
+    });
+
+    test(
+      'rejects sensitive business-message patterns with a generic fallback',
+      () async {
+        final unsafeMessages = <String>[
+          '请联系 13812345678',
+          '请联系 +86 138 1234 5678',
+          'Call +1 (415) 555-2671',
+          '银行卡 6222021234567890',
+          'payment code 123456',
+          'auth code 654321',
+          '支付码 123456',
+          '<b>终端授权失败</b>',
+          '终端授权失败\nstack',
+        ];
+
+        for (final message in unsafeMessages) {
+          final adapter = _StubAdapter(
+            (_) => _jsonBody(<String, Object?>{'code': 27, 'msg': message}),
+          );
+
+          final result = await _api(adapter: adapter)
+              .authorizeMachine('TERM-1');
+
+          expect(
+            result.failureOrNull?.safeMessage,
+            '终端授权失败，请检查授权码',
+            reason: message,
+          );
+        }
+      },
+    );
+
+    test('preserves an ordinary bounded Chinese business message', () async {
+      const message = '该终端已停用，请联系管理员';
+      final adapter = _StubAdapter(
+        (_) => _jsonBody(<String, Object?>{'code': 27, 'msg': message}),
+      );
+
+      final result = await _api(adapter: adapter).authorizeMachine('TERM-1');
+
+      expect(result.failureOrNull?.safeMessage, message);
     });
 
     test(
@@ -319,7 +375,7 @@ void main() {
           'data': <String, Object?>{
             'emp_id': 88,
             'name': ' Synthetic Employee ',
-            'station_id': 'station-9',
+            'station_id': '9',
           },
         }),
       );
@@ -337,7 +393,7 @@ void main() {
         const UserSession(
           employeeId: '88',
           name: 'Synthetic Employee',
-          stationId: 'station-9',
+          stationId: '9',
         ),
       );
       final request = adapter.requests.single;
@@ -362,7 +418,7 @@ void main() {
         (_) => _jsonBody(<String, Object?>{
           'code': 1,
           'data': <String, Object?>{
-            'emp_id': 'employee-8',
+            'emp_id': '8',
             'name': 'Synthetic Employee',
             'station_id': 9,
           },
@@ -406,16 +462,24 @@ void main() {
       expect(adapter.calls, 0);
     });
 
-    test('rejects doubles and malformed user response fields', () async {
+    test('rejects nonintegral and malformed user response fields', () async {
       final invalidData = <Map<String, Object?>>[
-        // DDC erases integral-double lexemes; the named model test documents it.
-        if (!kIsWeb)
-          <String, Object?>{'emp_id': 1.0, 'name': 'Employee', 'station_id': 2},
+        <String, Object?>{'emp_id': 1.5, 'name': 'Employee', 'station_id': 2},
         <String, Object?>{'emp_id': 1, 'name': '', 'station_id': 2},
-        // DDC erases integral-double lexemes; the named model test documents it.
-        if (!kIsWeb)
-          <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': 2.0},
+        <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': 2.5},
         <String, Object?>{'emp_id': true, 'name': 'Employee', 'station_id': 2},
+        <String, Object?>{'emp_id': '01', 'name': 'Employee', 'station_id': 2},
+        <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': '2.0'},
+        <String, Object?>{
+          'emp_id': 9007199254740992,
+          'name': 'Employee',
+          'station_id': 2,
+        },
+        <String, Object?>{
+          'emp_id': 1,
+          'name': 'Employee',
+          'station_id': '9007199254740992',
+        },
       ];
 
       for (final data in invalidData) {
@@ -430,6 +494,29 @@ void main() {
         );
         expect(result.failureOrNull?.code, 'protocol.login_shape');
       }
+    });
+
+    test('normalizes integral numeric employee and station ids', () async {
+      final adapter = _StubAdapter(
+        (_) => _jsonBody(<String, Object?>{
+          'code': 1,
+          'data': <String, Object?>{
+            'emp_id': 88.0,
+            'name': 'Employee',
+            'station_id': 9.0,
+          },
+        }),
+      );
+
+      final result = await _api(adapter: adapter).login(
+        machine: machine,
+        account: 'employee',
+        password: 'synthetic-password',
+        type: EmployeeLoginType.account,
+      );
+
+      expect(result.valueOrNull?.employeeId, '88');
+      expect(result.valueOrNull?.stationId, '9');
     });
 
     test('never exposes password, hash, tk, HTML, or stack text in business failures', () async {
@@ -486,6 +573,38 @@ void main() {
 
   group('SessionRepository', () {
     test(
+      'uses only the repository credential store for authorization',
+      () async {
+        final protocolStore = _AtomicCredentialStore();
+        final repositoryStore = _AtomicCredentialStore();
+        final adapter = _StubAdapter(
+          (_) => _jsonBody(<String, Object?>{
+            'code': 1,
+            'data': <String, Object?>{
+              'tk': 'synthetic-repository-tk',
+              'am': 8,
+              'id': 1,
+              'n': 'Counter',
+            },
+          }),
+        );
+        final repository = SessionRepository(
+          api: _api(adapter: adapter, credentialStore: protocolStore),
+          credentialStore: repositoryStore,
+        );
+        addTearDown(repository.close);
+
+        final result = await repository.authorizeMachine('TERM-1');
+
+        expect(result, isA<Success<MachineSession>>());
+        expect(await protocolStore.readTk(), isNull);
+        expect(await repositoryStore.readTk(), 'synthetic-repository-tk');
+        expect(protocolStore.writeTkCalls, 0);
+        expect(repositoryStore.writeTkCalls, 1);
+      },
+    );
+
+    test(
       'replays current state and applies transactional session updates',
       () async {
         final api = _FakeSessionApi();
@@ -514,7 +633,10 @@ void main() {
         addTearDown(machineSub.cancel);
         addTearDown(userSub.cancel);
 
-        api.authorizeResult = const Success(machine1);
+        api.authorizeResult = _authorized(
+          machine1,
+          tk: 'synthetic-machine-1-tk',
+        );
         expect(
           await repository.authorizeMachine('TERM-1'),
           isA<Success<MachineSession>>(),
@@ -539,8 +661,13 @@ void main() {
         await repository.authorizeMachine('TERM-FAILED');
         expect(repository.currentMachine, machine1);
         expect(repository.currentUser, user);
+        expect(await store.readTk(), 'synthetic-machine-1-tk');
+        expect(store.writeTkCalls, 1);
 
-        api.authorizeResult = const Success(machine2);
+        api.authorizeResult = _authorized(
+          machine2,
+          tk: 'synthetic-machine-2-tk',
+        );
         await repository.authorizeMachine('TERM-2');
         await Future<void>.delayed(Duration.zero);
 
@@ -551,6 +678,36 @@ void main() {
 
         final replayed = await repository.machineSessions.first;
         expect(replayed, machine2);
+      },
+    );
+
+    test(
+      'credential write failure does not commit a machine session',
+      () async {
+        final store = _AtomicCredentialStore(failure: _StoreFailure.writeTk);
+        final repository = SessionRepository(
+          api: _FakeSessionApi()
+            ..authorizeResult = _authorized(
+              const MachineSession(
+                machineId: 'machine-1',
+                machineName: 'Counter',
+                client: ClientKind.cashier,
+              ),
+              tk: 'synthetic-unwritten-tk',
+            ),
+          credentialStore: store,
+        );
+        addTearDown(repository.close);
+
+        final result = await repository.authorizeMachine('TERM-1');
+
+        expect(
+          result.failureOrNull?.code,
+          'authentication.credentials_unavailable',
+        );
+        expect(repository.currentMachine, isNull);
+        expect(repository.currentUser, isNull);
+        expect(_failureText(result), isNot(contains('synthetic-unwritten-tk')));
       },
     );
 
@@ -579,7 +736,7 @@ void main() {
     test(
       'suppresses concurrent repository submissions without duplicate calls',
       () async {
-        final pending = Completer<Result<MachineSession>>();
+        final pending = Completer<Result<MachineAuthorization>>();
         final api = _FakeSessionApi(onAuthorize: (_) => pending.future);
         final repository = SessionRepository(
           api: api,
@@ -593,8 +750,8 @@ void main() {
         expect(duplicate.failureOrNull?.code, 'session.operation_in_progress');
         expect(api.authorizeCalls, 1);
         pending.complete(
-          const Success(
-            MachineSession(
+          _authorized(
+            const MachineSession(
               machineId: 'machine-1',
               machineName: 'Counter',
               client: ClientKind.cashier,
@@ -608,7 +765,7 @@ void main() {
     test(
       'reports operation_in_progress across different repository commands',
       () async {
-        final pending = Completer<Result<MachineSession>>();
+        final pending = Completer<Result<MachineAuthorization>>();
         final api = _FakeSessionApi(onAuthorize: (_) => pending.future);
         final repository = SessionRepository(
           api: api,
@@ -626,8 +783,8 @@ void main() {
         expect(login.failureOrNull?.code, 'session.operation_in_progress');
         expect(api.loginCalls, 0);
         pending.complete(
-          const Success(
-            MachineSession(
+          _authorized(
+            const MachineSession(
               machineId: 'machine-1',
               machineName: 'Counter',
               client: ClientKind.cashier,
@@ -638,6 +795,72 @@ void main() {
       },
     );
 
+    test('close during credential write removes the orphan token', () async {
+      final writeGate = Completer<void>();
+      final store = _AtomicCredentialStore(writeTkGate: writeGate);
+      final repository = SessionRepository(
+        api: _FakeSessionApi()
+          ..authorizeResult = _authorized(
+            const MachineSession(
+              machineId: 'machine-1',
+              machineName: 'Counter',
+              client: ClientKind.cashier,
+            ),
+            tk: 'synthetic-close-race-tk',
+          ),
+        credentialStore: store,
+      );
+
+      final authorization = repository.authorizeMachine('TERM-1');
+      await store.writeTkStarted.future;
+      await repository.close();
+      writeGate.complete();
+      final result = await authorization;
+
+      expect(result.failureOrNull?.code, 'session.repository_closed');
+      expect(repository.currentMachine, isNull);
+      expect(repository.currentUser, isNull);
+      expect(await store.readTk(), isNull);
+      expect(store.clearTkIfMatchesCalls, 1);
+      expect(_failureText(result), isNot(contains('synthetic-close-race-tk')));
+    });
+
+    test(
+      'successful reauthorization clears a user even for the same machine',
+      () async {
+        const machine = MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        );
+        final api = _FakeSessionApi()..authorizeResult = _authorized(machine);
+        final repository = SessionRepository(
+          api: api,
+          credentialStore: _AtomicCredentialStore(),
+        );
+        addTearDown(repository.close);
+        await repository.authorizeMachine('TERM-1');
+        api.loginResult = const Success(
+          UserSession(
+            employeeId: 'employee-1',
+            name: 'Employee',
+            stationId: 'station-1',
+          ),
+        );
+        await repository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+        api.authorizeResult = _authorized(machine, tk: 'synthetic-new-tk');
+
+        await repository.authorizeMachine('TERM-1');
+
+        expect(repository.currentMachine, machine);
+        expect(repository.currentUser, isNull);
+      },
+    );
+
     test(
       'logout returns remote failure but clears local state and matching tk',
       () async {
@@ -645,8 +868,8 @@ void main() {
         final store = _AtomicCredentialStore(tk: 'synthetic-machine-tk');
         final repository = SessionRepository(api: api, credentialStore: store);
         addTearDown(repository.close);
-        api.authorizeResult = const Success(
-          MachineSession(
+        api.authorizeResult = _authorized(
+          const MachineSession(
             machineId: 'machine-1',
             machineName: 'Counter',
             client: ClientKind.cashier,
@@ -684,19 +907,57 @@ void main() {
       },
     );
 
+    test('snapshot failure clears only the repository tk and reports unconfirmed cleanup', () async {
+      final api = _FakeSessionApi();
+      final store = _AtomicCredentialStore(
+        tk: 'synthetic-fallback-tk',
+        stk: 'synthetic-fallback-stk',
+        failure: _StoreFailure.readSnapshot,
+      );
+      final repository = SessionRepository(api: api, credentialStore: store);
+      addTearDown(repository.close);
+      api.authorizeResult = _authorized(
+        const MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        ),
+      );
+      api.logoutResult = const FailureResult(
+        AppFailure(
+          kind: FailureKind.network,
+          code: 'network.timeout',
+          safeMessage: 'Request timed out',
+        ),
+      );
+      await repository.authorizeMachine('TERM-1');
+
+      final result = await repository.logout();
+
+      expect(result.failureOrNull?.code, 'session.credentials_not_cleared');
+      expect(repository.currentMachine, isNull);
+      expect(repository.currentUser, isNull);
+      expect(store.clearTkCalls, 0);
+      expect(store.clearStkCalls, 0);
+      expect(store.clearTkIfMatchesCalls, 1);
+      expect(await store.readTk(), isNull);
+      expect(await store.readStk(), 'synthetic-fallback-stk');
+      expect(_failureText(result), isNot(contains('synthetic-fallback-tk')));
+      expect(_failureText(result), isNot(contains('synthetic-fallback-stk')));
+    });
+
     test(
-      'snapshot failure falls back to both clears and preserves remote failure',
+      'credential cleanup failure wins over simultaneous remote failure',
       () async {
         final api = _FakeSessionApi();
         final store = _AtomicCredentialStore(
-          tk: 'synthetic-fallback-tk',
-          stk: 'synthetic-fallback-stk',
-          failure: _StoreFailure.readSnapshot,
+          stk: 'synthetic-old-stk',
+          failure: _StoreFailure.clearTk,
         );
         final repository = SessionRepository(api: api, credentialStore: store);
         addTearDown(repository.close);
-        api.authorizeResult = const Success(
-          MachineSession(
+        api.authorizeResult = _authorized(
+          const MachineSession(
             machineId: 'machine-1',
             machineName: 'Counter',
             client: ClientKind.cashier,
@@ -713,49 +974,52 @@ void main() {
 
         final result = await repository.logout();
 
-        expect(result.failureOrNull?.code, 'network.timeout');
+        expect(result.failureOrNull?.code, 'session.credentials_not_cleared');
         expect(repository.currentMachine, isNull);
         expect(repository.currentUser, isNull);
-        expect(store.clearTkCalls, 1);
-        expect(store.clearStkCalls, 1);
-        expect(await store.readTk(), isNull);
+        expect(store.clearTkIfMatchesCalls, 1);
+        expect(store.clearStkIfMatchesCalls, 1);
         expect(await store.readStk(), isNull);
-        expect(_failureText(result), isNot(contains('synthetic-fallback-tk')));
-        expect(_failureText(result), isNot(contains('synthetic-fallback-stk')));
+        expect(await store.readTk(), 'synthetic-authorized-tk');
+        expect(
+          _failureText(result),
+          isNot(contains('synthetic-authorized-tk')),
+        );
       },
     );
 
-    test('snapshot fallback attempts stk clear after tk clear fails', () async {
-      final api = _FakeSessionApi();
-      final store = _AtomicCredentialStore(
-        tk: 'synthetic-fallback-tk',
-        stk: 'synthetic-fallback-stk',
-        failure: _StoreFailure.readSnapshotAndClearTk,
-      );
-      final repository = SessionRepository(api: api, credentialStore: store);
-      addTearDown(repository.close);
-      api.authorizeResult = const Success(
-        MachineSession(
-          machineId: 'machine-1',
-          machineName: 'Counter',
-          client: ClientKind.cashier,
-        ),
-      );
-      await repository.authorizeMachine('TERM-1');
+    test(
+      'new credentials written during remote logout survive matching clears',
+      () async {
+        final store = _AtomicCredentialStore(stk: 'synthetic-old-stk');
+        final api = _FakeSessionApi(
+          onLogout: (_) async {
+            await store.writeTk('synthetic-new-tk');
+            await store.writeStk('synthetic-new-stk');
+            return const Success<void>(null);
+          },
+        );
+        final repository = SessionRepository(api: api, credentialStore: store);
+        addTearDown(repository.close);
+        api.authorizeResult = _authorized(
+          const MachineSession(
+            machineId: 'machine-1',
+            machineName: 'Counter',
+            client: ClientKind.cashier,
+          ),
+          tk: 'synthetic-old-tk',
+        );
+        await repository.authorizeMachine('TERM-1');
 
-      final result = await repository.logout();
+        final result = await repository.logout();
 
-      expect(
-        result.failureOrNull?.code,
-        'authentication.credentials_unavailable',
-      );
-      expect(repository.currentMachine, isNull);
-      expect(repository.currentUser, isNull);
-      expect(store.clearTkCalls, 1);
-      expect(store.clearStkCalls, 1);
-      expect(await store.readStk(), isNull);
-      expect(_failureText(result), isNot(contains('synthetic-fallback-tk')));
-    });
+        expect(result, isA<Success<void>>());
+        expect(await store.readTk(), 'synthetic-new-tk');
+        expect(await store.readStk(), 'synthetic-new-stk');
+        expect(store.clearTkIfMatchesCalls, 1);
+        expect(store.clearStkIfMatchesCalls, 1);
+      },
+    );
 
     test('logout exposes credential clearing failure only when remote logout succeeds', () async {
       final api = _FakeSessionApi();
@@ -765,8 +1029,8 @@ void main() {
       );
       final repository = SessionRepository(api: api, credentialStore: store);
       addTearDown(repository.close);
-      api.authorizeResult = const Success(
-        MachineSession(
+      api.authorizeResult = _authorized(
+        const MachineSession(
           machineId: 'machine-1',
           machineName: 'Counter',
           client: ClientKind.cashier,
@@ -776,10 +1040,7 @@ void main() {
 
       final result = await repository.logout();
 
-      expect(
-        result.failureOrNull?.code,
-        'authentication.credentials_unavailable',
-      );
+      expect(result.failureOrNull?.code, 'session.credentials_not_cleared');
       expect(repository.currentMachine, isNull);
       expect(repository.currentUser, isNull);
       expect(_failureText(result), isNot(contains('synthetic-machine-tk')));
@@ -821,8 +1082,8 @@ void main() {
           credentialStore: _AtomicCredentialStore(),
         );
         addTearDown(repository.close);
-        api.authorizeResult = const Success(
-          MachineSession(
+        api.authorizeResult = _authorized(
+          const MachineSession(
             machineId: 'machine-1',
             machineName: 'Counter',
             client: ClientKind.cashier,
@@ -894,8 +1155,8 @@ void main() {
         'network.unavailable',
       );
 
-      api.authorizeResult = const Success(
-        MachineSession(
+      api.authorizeResult = _authorized(
+        const MachineSession(
           machineId: 'machine-1',
           machineName: 'Counter',
           client: ClientKind.cashier,
@@ -910,7 +1171,7 @@ void main() {
     });
 
     test('duplicate taps return operation_in_progress and do not duplicate transport', () async {
-      final pending = Completer<Result<MachineSession>>();
+      final pending = Completer<Result<MachineAuthorization>>();
       final api = _FakeSessionApi(onAuthorize: (_) => pending.future);
       final repository = SessionRepository(
         api: api,
@@ -932,8 +1193,8 @@ void main() {
       );
       expect(api.authorizeCalls, 1);
       pending.complete(
-        const Success(
-          MachineSession(
+        _authorized(
+          const MachineSession(
             machineId: 'machine-1',
             machineName: 'Counter',
             client: ClientKind.cashier,
@@ -956,8 +1217,8 @@ void main() {
           credentialStore: _AtomicCredentialStore(),
         );
         addTearDown(repository.close);
-        api.authorizeResult = const Success(
-          MachineSession(
+        api.authorizeResult = _authorized(
+          const MachineSession(
             machineId: 'machine-1',
             machineName: 'Counter',
             client: ClientKind.cashier,
@@ -986,6 +1247,192 @@ void main() {
         );
       },
     );
+
+    test(
+      'reauthorization failure retains authenticated authoritative phase',
+      () async {
+        const machine = MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        );
+        final api = _FakeSessionApi()..authorizeResult = _authorized(machine);
+        final repository = SessionRepository(
+          api: api,
+          credentialStore: _AtomicCredentialStore(),
+        );
+        addTearDown(repository.close);
+        await repository.authorizeMachine('TERM-1');
+        api.loginResult = const Success(
+          UserSession(
+            employeeId: 'employee-1',
+            name: 'Employee',
+            stationId: 'station-1',
+          ),
+        );
+        await repository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+        api.authorizeResult = const FailureResult(
+          AppFailure(
+            kind: FailureKind.network,
+            code: 'network.unavailable',
+            safeMessage: 'Network unavailable',
+          ),
+        );
+        final container = ProviderContainer.test(
+          overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
+        );
+
+        await container
+            .read(loginViewModelProvider.notifier)
+            .authorizeMachine('TERM-failed');
+
+        final state = container.read(loginViewModelProvider);
+        expect(state.phase, LoginPhase.failure);
+        expect(state.stablePhase, LoginPhase.authenticated);
+        expect(state.failure?.code, 'network.unavailable');
+      },
+    );
+
+    test(
+      'logout failure presents failure over authoritative idle phase',
+      () async {
+        const machine = MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        );
+        final api = _FakeSessionApi()..authorizeResult = _authorized(machine);
+        final repository = SessionRepository(
+          api: api,
+          credentialStore: _AtomicCredentialStore(),
+        );
+        addTearDown(repository.close);
+        await repository.authorizeMachine('TERM-1');
+        api.logoutResult = const FailureResult(
+          AppFailure(
+            kind: FailureKind.network,
+            code: 'network.timeout',
+            safeMessage: 'Request timed out',
+          ),
+        );
+        final container = ProviderContainer.test(
+          overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
+        );
+
+        await container.read(loginViewModelProvider.notifier).logout();
+
+        final state = container.read(loginViewModelProvider);
+        expect(state.phase, LoginPhase.failure);
+        expect(state.stablePhase, LoginPhase.idle);
+        expect(state.failure?.code, 'network.timeout');
+        expect(repository.currentMachine, isNull);
+      },
+    );
+
+    test(
+      'external repository login and logout update authoritative state',
+      () async {
+        const machine = MachineSession(
+          machineId: 'machine-1',
+          machineName: 'Counter',
+          client: ClientKind.cashier,
+        );
+        final api = _FakeSessionApi()..authorizeResult = _authorized(machine);
+        final repository = SessionRepository(
+          api: api,
+          credentialStore: _AtomicCredentialStore(),
+        );
+        addTearDown(repository.close);
+        final container = ProviderContainer.test(
+          overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
+        );
+        container.read(loginViewModelProvider);
+
+        await repository.authorizeMachine('TERM-1');
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          container.read(loginViewModelProvider).stablePhase,
+          LoginPhase.readyForLogin,
+        );
+
+        api.loginResult = const Success(
+          UserSession(
+            employeeId: 'employee-1',
+            name: 'Employee',
+            stationId: 'station-1',
+          ),
+        );
+        await repository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          container.read(loginViewModelProvider).stablePhase,
+          LoginPhase.authenticated,
+        );
+
+        await repository.logout();
+        await Future<void>.delayed(Duration.zero);
+        final state = container.read(loginViewModelProvider);
+        expect(state.phase, LoginPhase.idle);
+        expect(state.stablePhase, LoginPhase.idle);
+      },
+    );
+
+    test(
+      'external operation failure recovers when repository later changes',
+      () async {
+        final pending = Completer<Result<MachineAuthorization>>();
+        final api = _FakeSessionApi(onAuthorize: (_) => pending.future);
+        final repository = SessionRepository(
+          api: api,
+          credentialStore: _AtomicCredentialStore(),
+        );
+        addTearDown(repository.close);
+        final container = ProviderContainer.test(
+          overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
+        );
+        final viewModel = container.read(loginViewModelProvider.notifier);
+        final externalAuthorization = repository.authorizeMachine('TERM-1');
+
+        final result = await viewModel.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+
+        expect(result.failureOrNull?.code, 'session.operation_in_progress');
+        expect(
+          container.read(loginViewModelProvider).phase,
+          LoginPhase.failure,
+        );
+        expect(
+          container.read(loginViewModelProvider).stablePhase,
+          LoginPhase.idle,
+        );
+        pending.complete(
+          _authorized(
+            const MachineSession(
+              machineId: 'machine-1',
+              machineName: 'Counter',
+              client: ClientKind.cashier,
+            ),
+          ),
+        );
+        await externalAuthorization;
+        await Future<void>.delayed(Duration.zero);
+
+        final recovered = container.read(loginViewModelProvider);
+        expect(recovered.phase, LoginPhase.readyForLogin);
+        expect(recovered.stablePhase, LoginPhase.readyForLogin);
+      },
+    );
   });
 }
 
@@ -1008,8 +1455,13 @@ SessionApi _api({
       clock: () => DateTime.fromMillisecondsSinceEpoch(now++),
     ),
   );
-  return SessionApi(client: protocolClient, credentialStore: store);
+  return SessionApi(client: protocolClient);
 }
+
+Result<MachineAuthorization> _authorized(
+  MachineSession session, {
+  String tk = 'synthetic-authorized-tk',
+}) => Success(MachineAuthorization(session: session, tk: tk));
 
 String _failureText<T>(Result<T> result) {
   final failure = result.failureOrNull;
@@ -1052,10 +1504,11 @@ final class _StubAdapter implements HttpClientAdapter {
 }
 
 final class _FakeSessionApi implements SessionRemoteApi {
-  _FakeSessionApi({this.onAuthorize});
+  _FakeSessionApi({this.onAuthorize, this.onLogout});
 
-  final Future<Result<MachineSession>> Function(String code)? onAuthorize;
-  Result<MachineSession> authorizeResult = const FailureResult(
+  final Future<Result<MachineAuthorization>> Function(String code)? onAuthorize;
+  final Future<Result<void>> Function(MachineSession machine)? onLogout;
+  Result<MachineAuthorization> authorizeResult = const FailureResult(
     AppFailure(
       kind: FailureKind.unknown,
       code: 'test.authorize_unconfigured',
@@ -1075,7 +1528,7 @@ final class _FakeSessionApi implements SessionRemoteApi {
   int logoutCalls = 0;
 
   @override
-  Future<Result<MachineSession>> authorizeMachine(String code) async {
+  Future<Result<MachineAuthorization>> authorizeMachine(String code) async {
     authorizeCalls += 1;
     return onAuthorize?.call(code) ?? authorizeResult;
   }
@@ -1094,30 +1547,27 @@ final class _FakeSessionApi implements SessionRemoteApi {
   @override
   Future<Result<void>> logout(MachineSession machine) async {
     logoutCalls += 1;
-    return logoutResult;
+    return onLogout?.call(machine) ?? logoutResult;
   }
 }
 
-enum _StoreFailure {
-  none,
-  writeTk,
-  readSnapshot,
-  clearTk,
-  readSnapshotAndClearTk,
-}
+enum _StoreFailure { none, writeTk, readSnapshot, clearTk }
 
 final class _AtomicCredentialStore implements CredentialStore {
   factory _AtomicCredentialStore({
     String? tk,
     String? stk,
     _StoreFailure failure = _StoreFailure.none,
-  }) => _AtomicCredentialStore._(tk, stk, failure);
+    Completer<void>? writeTkGate,
+  }) => _AtomicCredentialStore._(tk, stk, failure, writeTkGate);
 
-  _AtomicCredentialStore._(this._tk, this._stk, this.failure);
+  _AtomicCredentialStore._(this._tk, this._stk, this.failure, this.writeTkGate);
 
   String? _tk;
   String? _stk;
   final _StoreFailure failure;
+  final Completer<void>? writeTkGate;
+  final Completer<void> writeTkStarted = Completer<void>();
   Future<void> _tail = Future<void>.value();
   int writeTkCalls = 0;
   int clearTkCalls = 0;
@@ -1152,8 +1602,7 @@ final class _AtomicCredentialStore implements CredentialStore {
   @override
   Future<void> clearTk() => _atomic(() {
     clearTkCalls += 1;
-    if (failure == _StoreFailure.clearTk ||
-        failure == _StoreFailure.readSnapshotAndClearTk) {
+    if (failure == _StoreFailure.clearTk) {
       throw StateError('synthetic-store-clear-failure');
     }
     _tk = null;
@@ -1173,8 +1622,7 @@ final class _AtomicCredentialStore implements CredentialStore {
 
   @override
   Future<CredentialSnapshot> readSnapshot() => _atomic(() {
-    if (failure == _StoreFailure.readSnapshot ||
-        failure == _StoreFailure.readSnapshotAndClearTk) {
+    if (failure == _StoreFailure.readSnapshot) {
       throw StateError('synthetic-store-read-failure');
     }
     return CredentialSnapshot(tk: _tk, stk: _stk);
@@ -1187,8 +1635,10 @@ final class _AtomicCredentialStore implements CredentialStore {
   Future<void> writeStk(String value) => _atomic(() => _stk = value);
 
   @override
-  Future<void> writeTk(String value) => _atomic(() {
+  Future<void> writeTk(String value) => _atomic(() async {
     writeTkCalls += 1;
+    if (!writeTkStarted.isCompleted) writeTkStarted.complete();
+    if (writeTkGate case final gate?) await gate.future;
     if (failure == _StoreFailure.writeTk) {
       throw StateError('synthetic-store-write-failure');
     }

@@ -2,11 +2,23 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:foundation/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:protocol/protocol.dart';
 import 'package:session/src/session_models.dart';
 
+@internal
+final class MachineAuthorization {
+  const MachineAuthorization({required this.session, required this.tk});
+
+  final MachineSession session;
+  final String tk;
+
+  @override
+  String toString() => 'MachineAuthorization(session: $session)';
+}
+
 abstract interface class SessionRemoteApi {
-  Future<Result<MachineSession>> authorizeMachine(String code);
+  Future<Result<MachineAuthorization>> authorizeMachine(String code);
 
   Future<Result<UserSession>> login({
     required MachineSession machine,
@@ -19,12 +31,9 @@ abstract interface class SessionRemoteApi {
 }
 
 final class SessionApi implements SessionRemoteApi {
-  factory SessionApi({
-    required ProtocolClient client,
-    required CredentialStore credentialStore,
-  }) => SessionApi._(client, credentialStore);
+  factory SessionApi({required ProtocolClient client}) => SessionApi._(client);
 
-  const SessionApi._(this._client, this._credentialStore);
+  const SessionApi._(this._client);
 
   static const int _maxMachineCodeLength = 128;
   static const int _maxAccountLength = 128;
@@ -33,12 +42,12 @@ final class SessionApi implements SessionRemoteApi {
   static const int _maxNameLength = 256;
   static const int _maxCredentialLength = 4096;
   static const int _maxBusinessMessageLength = 160;
+  static const int _maxSafeWireInteger = 9007199254740991;
 
   final ProtocolClient _client;
-  final CredentialStore _credentialStore;
 
   @override
-  Future<Result<MachineSession>> authorizeMachine(String code) async {
+  Future<Result<MachineAuthorization>> authorizeMachine(String code) async {
     final normalizedCode = code.trim();
     if (normalizedCode.isEmpty ||
         normalizedCode.length > _maxMachineCodeLength) {
@@ -81,16 +90,14 @@ final class SessionApi implements SessionRemoteApi {
       return const FailureResult(_termAuthShapeFailure);
     }
 
-    try {
-      await _credentialStore.writeTk(credential);
-    } on Object {
-      return const FailureResult(_credentialsUnavailableFailure);
-    }
     return Success(
-      MachineSession(
-        machineId: machineId,
-        machineName: machineName,
-        client: mode.client,
+      MachineAuthorization(
+        session: MachineSession(
+          machineId: machineId,
+          machineName: machineName,
+          client: mode.client,
+        ),
+        tk: credential,
       ),
     );
   }
@@ -186,8 +193,30 @@ final class SessionApi implements SessionRemoteApi {
   }
 
   static String? _boundedIdentifier(Object? value) {
-    if (value is int && value.runtimeType == int) return value.toString();
-    return _boundedString(value, maxLength: _maxIdentifierLength);
+    if (value is num) return _safeWireInteger(value)?.toString();
+    if (value is! String ||
+        value.isEmpty ||
+        value.length > _maxIdentifierLength ||
+        !RegExp(r'^(?:0|-?[1-9]\d*)$').hasMatch(value)) {
+      return null;
+    }
+    final parsed = BigInt.tryParse(value);
+    if (parsed == null ||
+        parsed < BigInt.from(-_maxSafeWireInteger) ||
+        parsed > BigInt.from(_maxSafeWireInteger)) {
+      return null;
+    }
+    return parsed.toString();
+  }
+
+  static int? _safeWireInteger(num value) {
+    if (!value.isFinite ||
+        value < -_maxSafeWireInteger ||
+        value > _maxSafeWireInteger ||
+        value % 1 != 0) {
+      return null;
+    }
+    return value.toInt();
   }
 
   static String? _boundedString(Object? value, {required int maxLength}) {
@@ -205,11 +234,19 @@ final class SessionApi implements SessionRemoteApi {
     if (value is! String || value.isEmpty || value.length > 4096) {
       return fallback;
     }
+    final redacted = Redactor.redact(value);
+    try {
+      if (jsonDecode(redacted) != value) return fallback;
+    } on FormatException {
+      return fallback;
+    }
     final unsafePattern = RegExp(
-      r'[\x00-\x1f\x7f<>]|(?:^|\s)#\d+|\b(?:password|passwd|token|tk|stack)\b|\b[0-9a-fA-F]{32,}\b',
+      r'[\x00-\x1f\x7f<>]|&(?:#\d+|#x[0-9a-f]+|[a-z]+);|(?:^|\s)#\d+|\b(?:password|passwd|token|tk|stack|payment|pay\s*code|auth(?:entication)?\s*code|bank|card\s*number|phone|mobile)\b|(?:支付|付款|收款|授权|验证|银行卡)(?:码|号)?|\b[0-9a-fA-F]{32,}\b',
       caseSensitive: false,
     );
+    final internationalPhonePattern = RegExp(r'\+\d[\d ()-]{7,}\d');
     if (unsafePattern.hasMatch(value) ||
+        internationalPhonePattern.hasMatch(value) ||
         disallowed.any(
           (secret) => secret.isNotEmpty && value.contains(secret),
         )) {
@@ -248,10 +285,5 @@ final class SessionApi implements SessionRemoteApi {
     kind: FailureKind.protocol,
     code: 'protocol.login_shape',
     safeMessage: '员工登录服务返回了无法识别的数据',
-  );
-  static const AppFailure _credentialsUnavailableFailure = AppFailure(
-    kind: FailureKind.authentication,
-    code: 'authentication.credentials_unavailable',
-    safeMessage: '登录信息不可用，请重新登录',
   );
 }
