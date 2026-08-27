@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:permissions/src/permission_models.dart';
 
 const _maxRows = 10000;
@@ -102,18 +105,75 @@ PermissionSnapshot _unavailable(int? station) => PermissionSnapshot(
 
 final _listTypes = <Type>{
   <dynamic>[].runtimeType,
+  <Object>[].runtimeType,
   <Object?>[].runtimeType,
-  <Map<String, Object?>>[].runtimeType,
-  <Map<String, Object>>[].runtimeType,
-  <Map<String, dynamic>>[].runtimeType,
+  <Map<String, String>>[].runtimeType,
   <Map<String, int>>[].runtimeType,
+  <Map<String, double>>[].runtimeType,
+  <Map<String, num>>[].runtimeType,
+  <Map<String, Object>>[].runtimeType,
+  <Map<String, Object?>>[].runtimeType,
+  <Map<String, dynamic>>[].runtimeType,
+  const <dynamic>[].runtimeType,
+  const <Object>[].runtimeType,
+  const <Object?>[].runtimeType,
+  const <Map<String, String>>[].runtimeType,
+  const <Map<String, int>>[].runtimeType,
+  const <Map<String, double>>[].runtimeType,
+  const <Map<String, num>>[].runtimeType,
+  const <Map<String, Object>>[].runtimeType,
+  const <Map<String, Object?>>[].runtimeType,
+  const <Map<String, dynamic>>[].runtimeType,
+  List<Map<String, String>>.unmodifiable(const <Map<String, String>>[])
+      .runtimeType,
+  List<Map<String, int>>.unmodifiable(const <Map<String, int>>[]).runtimeType,
+  List<Map<String, double>>.unmodifiable(const <Map<String, double>>[])
+      .runtimeType,
+  List<Map<String, num>>.unmodifiable(const <Map<String, num>>[]).runtimeType,
+  List<Map<String, Object>>.unmodifiable(const <Map<String, Object>>[])
+      .runtimeType,
+  List<Map<String, Object?>>.unmodifiable(const <Map<String, Object?>>[])
+      .runtimeType,
+  List<Map<String, dynamic>>.unmodifiable(const <Map<String, dynamic>>[])
+      .runtimeType,
+  UnmodifiableListView<Map<String, String>>(const <Map<String, String>>[])
+      .runtimeType,
+  UnmodifiableListView<Map<String, int>>(const <Map<String, int>>[]).runtimeType,
+  UnmodifiableListView<Map<String, double>>(const <Map<String, double>>[])
+      .runtimeType,
+  UnmodifiableListView<Map<String, num>>(const <Map<String, num>>[]).runtimeType,
+  UnmodifiableListView<Map<String, Object>>(const <Map<String, Object>>[])
+      .runtimeType,
+  UnmodifiableListView<Map<String, Object?>>(const <Map<String, Object?>>[])
+      .runtimeType,
+  UnmodifiableListView<Map<String, dynamic>>(const <Map<String, dynamic>>[])
+      .runtimeType,
+  (jsonDecode('[]') as Object).runtimeType,
 };
 final _mapTypes = <Type>{
   <dynamic, dynamic>{}.runtimeType,
-  <String, Object?>{}.runtimeType,
-  <String, Object>{}.runtimeType,
-  <String, dynamic>{}.runtimeType,
+  <String, String>{}.runtimeType,
   <String, int>{}.runtimeType,
+  <String, double>{}.runtimeType,
+  <String, num>{}.runtimeType,
+  <String, Object>{}.runtimeType,
+  <String, Object?>{}.runtimeType,
+  <String, dynamic>{}.runtimeType,
+  const <dynamic, dynamic>{}.runtimeType,
+  const <String, String>{}.runtimeType,
+  const <String, int>{}.runtimeType,
+  const <String, double>{}.runtimeType,
+  const <String, num>{}.runtimeType,
+  const <String, Object>{}.runtimeType,
+  const <String, Object?>{}.runtimeType,
+  const <String, dynamic>{}.runtimeType,
+  Map<String, Object?>.unmodifiable(const <String, Object?>{}).runtimeType,
+  Map<String, String>.unmodifiable(const <String, String>{}).runtimeType,
+  Map<String, double>.unmodifiable(const <String, double>{}).runtimeType,
+  UnmodifiableMapView<String, Object?>(const <String, Object?>{}).runtimeType,
+  UnmodifiableMapView<String, String>(const <String, String>{}).runtimeType,
+  UnmodifiableMapView<String, double>(const <String, double>{}).runtimeType,
+  (jsonDecode('{}') as Object).runtimeType,
 };
 bool _materializedList(Object? value) =>
     value is List && _listTypes.contains(value.runtimeType);
