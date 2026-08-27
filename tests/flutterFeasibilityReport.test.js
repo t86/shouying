@@ -27,6 +27,32 @@ const evidenceFields = [
   'resultSummary',
 ];
 const allowedResults = new Set(['pass', 'fail', 'blocked-by-environment']);
+const evidenceSchemas = new Map([
+  ['WEB-RELEASE-BUILD-001', {
+    command: 'cd flutter_workspace/apps/web_app && fvm flutter build web --release',
+    resultKind: 'prose',
+  }],
+  ['WEB-RUNTIME-001', {
+    command: 'serve the Web release bundle on a fresh localhost origin and inspect it with Chrome',
+    resultKind: 'web-runtime',
+  }],
+  ['ANDROID-DEBUG-BUILD-001', {
+    command: 'cd flutter_workspace/apps/android_app && fvm flutter build apk --debug',
+    resultKind: 'prose',
+  }],
+  ['ANDROID-RELEASE-BUILD-001', {
+    command: 'cd flutter_workspace/apps/android_app && fvm flutter build apk --release',
+    resultKind: 'prose',
+  }],
+  ['ANDROID-RUNTIME-001', {
+    command: 'adb install -r <debug-apk>; adb shell am start <package/.MainActivity>; inspect resumed and focused activities',
+    resultKind: 'android-runtime',
+  }],
+  ['WINDOWS-ENV-001', { command: 'fvm flutter devices', resultKind: 'prose' }],
+  ['AUTH-ENV-001', { command: 'controlled prerequisite review for Gate A', resultKind: 'prose' }],
+  ['DEVICE-ENV-001', { command: 'controlled prerequisite review for Gate B', resultKind: 'prose' }],
+  ['WEB-DEPLOY-ENV-001', { command: 'controlled prerequisite review for Gate C', resultKind: 'prose' }],
+]);
 
 function readRequired(relativePath) {
   const absolutePath = path.join(root, relativePath);
@@ -69,17 +95,30 @@ function assertSanitizedString(text, label) {
   assert.doesNotMatch(text, /\b(?:https?|wss?):\/\/[^\s)'"`]+/i, `${label} must not contain a URL or full endpoint`);
   assert.doesNotMatch(
     text,
-    /(?:\/Users\/|\/Volumes\/|\/tmp\/|\/home\/|\/private\/|\/var\/|\b[A-Za-z]:[\\/]|\\\\[^\\\s]+\\[^\\\s]+)/,
+    /(?:\/Users\/|\/Volumes\/|\/tmp\/|\/home\/|\/root\/|\/opt\/|\/etc\/|\/mnt\/|\/srv\/|\/private\/|\/var\/|\b[A-Za-z]:[\\/]|\\\\[^\\\s]+\\[^\\\s]+)/,
     `${label} must not contain a machine path`,
   );
-  assert.doesNotMatch(text, /\bAuthorization\s*:\s*Bearer\s+\S+/i, `${label} must not contain a bearer authorization header`);
-  assert.doesNotMatch(text, /\bCookie\s*:\s*\S+/i, `${label} must not contain a cookie header`);
   assert.doesNotMatch(
     text,
-    /(?:^|[\s{[,;])(?:tk|stk|tt|token|password|credential|machineCode|sessionSecret|apiKey|proxyHost|requestBody|responseBody|rawPayload|payload|endpoint|url)\s*(?:=|:)/i,
+    /\b(?:Proxy-Authorization|Authorization|Cookie|Set-Cookie)\s*:/i,
+    `${label} must not contain an authentication or cookie header`,
+  );
+  assert.doesNotMatch(
+    text,
+    /(?:^|[\s{[,;])["']?(?:(?:session[\s_-]?)?secret|access[\s_-]?token|refresh[\s_-]?token|session[\s_-]?token|token|api[\s_-]?key|password|credentials?|machine[\s_-]?code|tk|stk|tt|https?[\s_-]?proxy|all[\s_-]?proxy|proxy[\s_-]?(?:host|port))["']?\s*[:=]/i,
     `${label} must not contain a sensitive assignment`,
   );
-  assert.doesNotMatch(text, /\braw\s+(?:request|response)\s*=/i, `${label} must not contain a raw transport assignment`);
+  assert.doesNotMatch(
+    text,
+    /\b(?:raw[\s_-]*(?:request|response|body|payload)|(?:request|response)[\s_-]?body)\s*[:=]/i,
+    `${label} must not contain a raw transport assignment`,
+  );
+  assert.doesNotMatch(
+    text,
+    /\b[A-Za-z_][A-Za-z0-9_.-]*\s*[:=]\s*[\[{]/,
+    `${label} must not contain an object or array assignment`,
+  );
+  assert.doesNotMatch(text, /\{[^{}\r\n]*:[^{}\r\n]*\}|\[[^\[\]\r\n]*\]/, `${label} must not contain a JSON fragment`);
   assert.doesNotMatch(text, /"(?:payload|rawPayload|endpoint|url)"\s*:/i, `${label} must not contain a sensitive JSON key`);
   assert.doesNotMatch(text, /^\|\s*(?:payload|rawPayload|endpoint|url)\s*\|/im, `${label} must not contain a sensitive table key`);
   assert.doesNotMatch(text, /\b1[3-9]\d{9}\b/, `${label} must not contain a mainland China mobile number`);
@@ -97,6 +136,65 @@ function assertSanitizedStrings(value, label) {
   }
   if (value && typeof value === 'object') {
     Object.entries(value).forEach(([key, item]) => assertSanitizedStrings(item, `${label}.${key}`));
+  }
+}
+
+function assertSafeProse(value, label) {
+  assertSanitizedString(value, label);
+  assert.ok(value.length > 0, `${label} must not be empty`);
+  assert.doesNotMatch(value, /[\r\n]/, `${label} must be one line`);
+  assert.doesNotMatch(
+    value,
+    /\b[A-Za-z_][A-Za-z0-9_.-]*\s*[:=]/,
+    `${label} must be prose without assignments`,
+  );
+  assert.doesNotMatch(value, /[\[\]{}]/, `${label} must be prose without object or array syntax`);
+}
+
+function parseRuntimeSummary(value, expectedKeys, label) {
+  assert.doesNotMatch(value, /[\r\n]/, `${label} must be one line`);
+  const values = new Map();
+  value.split('; ').forEach((part) => {
+    const match = part.match(/^([A-Za-z][A-Za-z0-9]*)=([^;]+)$/);
+    assert.notEqual(match, null, `${label} must contain only scalar key=value pairs`);
+    assert.equal(values.has(match[1]), false, `${label} must not repeat ${match[1]}`);
+    assertSanitizedString(match[2], `${label}.${match[1]}`);
+    values.set(match[1], match[2]);
+  });
+  assert.deepEqual([...values.keys()].sort(), [...expectedKeys].sort(), `${label} keys must match the allowlist`);
+  return values;
+}
+
+function assertEvidencePositiveFormat(record) {
+  const label = `evidence ${record.id}`;
+  assertSanitizedStrings(record, label);
+  const schema = evidenceSchemas.get(record.id);
+  assert.notEqual(schema, undefined, `${record.id} needs an explicit evidence schema`);
+  assert.equal(record.sanitizedCommand, schema.command, `${record.id} command is not allowlisted`);
+  assertSafeProse(record.platformSummary, `${label}.platformSummary`);
+
+  if (schema.resultKind === 'web-runtime') {
+    const values = parseRuntimeSummary(
+      record.resultSummary,
+      ['title', 'blocker', 'consoleErrorCount'],
+      `${label}.resultSummary`,
+    );
+    assert.match(values.get('title'), /^[\p{L}\p{N} ._-]{1,80}$/u);
+    assert.match(values.get('blocker'), /^[\p{L}\p{N} ._-]{1,80}$/u);
+    assert.match(values.get('consoleErrorCount'), /^\d{1,4}$/);
+  } else if (schema.resultKind === 'android-runtime') {
+    const values = parseRuntimeSummary(
+      record.resultSummary,
+      ['package', 'activity', 'resumed', 'focused'],
+      `${label}.resultSummary`,
+    );
+    assert.match(values.get('package'), /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/);
+    assert.match(values.get('activity'), /^\.[A-Za-z][A-Za-z0-9_]*$/);
+    assert.match(values.get('resumed'), /^(?:true|false)$/);
+    assert.match(values.get('focused'), /^(?:true|false)$/);
+  } else {
+    assert.equal(schema.resultKind, 'prose');
+    assertSafeProse(record.resultSummary, `${label}.resultSummary`);
   }
 }
 
@@ -152,6 +250,18 @@ test('rejects sensitive mutation corpus without rejecting safe migration prose',
     '\\\\server\\share\\file',
     'raw response={...}',
     'requestBody=[...]',
+    'secret=x',
+    'Authorization: Basic YWJj',
+    'Proxy-Authorization: Basic YWJj',
+    'HTTP_PROXY=corp-proxy.internal:8080',
+    'raw response: {"employee":"alice"}',
+    'result={"employee":"alice"}',
+    'access_token=x',
+    'refreshToken=x',
+    'session_token=x',
+    'HTTPS_PROXY=corp-proxy.internal:8443',
+    'ALL_PROXY=corp-proxy.internal:1080',
+    'Set-Cookie: sid=x',
   ];
 
   attacks.forEach((value) => {
@@ -163,6 +273,37 @@ test('rejects sensitive mutation corpus without rejecting safe migration prose',
   });
   assert.doesNotThrow(() => assertSanitizedString('no raw backend payload', 'safe prose'));
   assert.doesNotThrow(() => assertSanitizedString('/shouyin-v2/', 'safe application path'));
+});
+
+test('fails closed for uncontrolled evidence commands and summary shapes', () => {
+  const records = JSON.parse(readRequired(evidenceRelativePath)).evidence;
+  const byId = new Map(records.map((record) => [record.id, record]));
+  records.forEach((record) => assert.doesNotThrow(() => assertEvidencePositiveFormat(record)));
+
+  const mutations = [
+    { ...byId.get('WEB-RELEASE-BUILD-001'), sanitizedCommand: 'curl target' },
+    {
+      ...byId.get('WEB-RUNTIME-001'),
+      resultSummary: 'title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=0; unexpected=x',
+    },
+    {
+      ...byId.get('WEB-RUNTIME-001'),
+      resultSummary: 'title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=zero',
+    },
+    {
+      ...byId.get('ANDROID-RUNTIME-001'),
+      resultSummary: 'package=invalid; activity=.MainActivity; resumed=true; focused=true',
+    },
+    { ...byId.get('ANDROID-DEBUG-BUILD-001'), resultSummary: 'status=ok' },
+    { ...byId.get('WINDOWS-ENV-001'), resultSummary: '{"employee":"alice"}' },
+  ];
+  mutations.forEach((record) => {
+    assert.throws(
+      () => assertEvidencePositiveFormat(record),
+      assert.AssertionError,
+      `${record.id} mutation must be rejected`,
+    );
+  });
 });
 
 test('validates dynamic gate tables and resolves every evidence reference', () => {
@@ -177,6 +318,7 @@ test('validates dynamic gate tables and resolves every evidence reference', () =
   const evidenceById = new Map();
   for (const record of evidenceDocument.evidence) {
     assert.deepEqual(Object.keys(record).sort(), [...evidenceFields].sort(), `${record.id ?? 'unknown evidence'} fields must match the allowlist`);
+    assertEvidencePositiveFormat(record);
     assert.match(record.id, /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d{3}$/);
     assert.equal(evidenceById.has(record.id), false, `duplicate evidence id ${record.id}`);
     assert.match(record.appCommit, /^[0-9a-f]{40}$/);
@@ -199,6 +341,11 @@ test('validates dynamic gate tables and resolves every evidence reference', () =
     }
     evidenceById.set(record.id, record);
   }
+  assert.deepEqual(
+    [...evidenceById.keys()].sort(),
+    [...evidenceSchemas.keys()].sort(),
+    'evidence additions require an explicit positive schema',
+  );
 
   const gates = {
     A: parseGate(report, 'A', '## Gate B'),
