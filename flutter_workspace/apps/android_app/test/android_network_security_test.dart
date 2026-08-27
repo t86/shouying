@@ -14,6 +14,9 @@ void main() {
     ).readAsStringSync();
 
     expect(manifest, contains('android.permission.INTERNET'));
+    expect(manifest, contains('android.permission.CAMERA'));
+    expect(manifest, isNot(contains('android.permission.BLUETOOTH')));
+    expect(manifest, isNot(contains('android.hardware.usb')));
     expect(
       manifest,
       contains('android:networkSecurityConfig="@xml/network_security_config"'),

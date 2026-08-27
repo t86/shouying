@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:design_system/design_system.dart';
+import 'package:device_bridge_windows/device_bridge_windows.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -340,7 +341,10 @@ final _routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/diagnostics/devices',
-        builder: (context, state) => const _DevicePlaceholderScreen(),
+        builder: (context, state) => const DeviceDiagnosticsScreen(
+          appVersion: '1.0.0+1',
+          platformLabel: _platformLabel,
+        ),
       ),
     ],
     errorBuilder: (context, state) =>
@@ -385,6 +389,12 @@ final class ShouyinWindowsApp extends StatelessWidget {
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
         ),
+        scannerServiceProvider.overrideWith((ref) {
+          final scanner = WindowsScannerService();
+          ref.onDispose(scanner.dispose);
+          return scanner;
+        }),
+        printerServiceProvider.overrideWith((ref) => WindowsPrinterService()),
       ],
       child: const _AppView(),
     );
@@ -446,16 +456,6 @@ final class _DiagnosticsScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-final class _DevicePlaceholderScreen extends StatelessWidget {
-  const _DevicePlaceholderScreen();
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text(_appLabel)),
-    body: const Center(child: Text('设备检查将在 Task 11 中实现')),
-  );
 }
 
 final class _SessionRefresh extends ChangeNotifier {

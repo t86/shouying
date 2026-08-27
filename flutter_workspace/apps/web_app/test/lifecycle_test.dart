@@ -4,8 +4,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:design_system/design_system.dart';
+import 'package:device_bridge_web/device_bridge_web.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -132,8 +134,18 @@ void main() {
     GoRouter.of(tester.element(find.text('收银 Web 客户端')))
         .go('/diagnostics/devices');
     await tester.pumpAndSettle();
-    expect(find.text('设备检查将在 Task 11 中实现'), findsOneWidget);
-    GoRouter.of(tester.element(find.text('收银 Web 客户端'))).go('/diagnostics');
+    expect(find.byType(DeviceDiagnosticsScreen), findsOneWidget);
+    final deviceContext = tester.element(find.byType(DeviceDiagnosticsScreen));
+    final deviceContainer = ProviderScope.containerOf(deviceContext);
+    expect(
+      deviceContainer.read(scannerServiceProvider),
+      isA<WebScannerService>(),
+    );
+    expect(
+      deviceContainer.read(printerServiceProvider),
+      isA<WebPrinterService>(),
+    );
+    GoRouter.of(deviceContext).go('/diagnostics');
     await tester.pumpAndSettle();
 
     await tester.pump();

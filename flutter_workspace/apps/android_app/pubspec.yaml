@@ -47,6 +47,8 @@ dependencies:
     path: ../../packages/permissions
   design_system:
     path: ../../packages/design_system
+  device_bridge_android:
+    path: ../../packages/device_bridge_android
 
 dev_dependencies:
   flutter_test:

@@ -12,6 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  device_bridge_platform_interface:
+    path: ../device_bridge_platform_interface
+  foundation:
+    path: ../foundation
+  pdf: ^3.13.0
+  printing: ^5.15.0
 
 dev_dependencies:
   flutter_test:
