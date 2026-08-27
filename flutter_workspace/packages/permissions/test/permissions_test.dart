@@ -28,18 +28,18 @@ void main() {
   });
 
   test('deduplicates, sorts, and preserves inputs and scopes', () {
-    final r = [
+    final r = <Map<String, Object?>>[
       {'station_id': 7, 'sys_role_id': 9, 'status': 1},
       {'station_id': 7, 'sys_role_id': 2, 'status': 1},
       {'station_id': 7, 'sys_role_id': 9, 'status': 1},
     ];
-    final m = [
+    final m = <Map<String, Object?>>[
       {'station_id': 7, 'sys_module_id': 30, 'status': 1},
       {'station_id': 7, 'sys_module_id': 4, 'status': 1},
       {'station_id': 7, 'sys_module_id': 30, 'status': 1},
     ];
-    final beforeR = List<Map<String, Object?>>.from(r.map(Map.from));
-    final beforeM = List<Map<String, Object?>>.from(m.map(Map.from));
+    final beforeR = r.map((row) => Map<String, Object?>.from(row)).toList();
+    final beforeM = m.map((row) => Map<String, Object?>.from(row)).toList();
     final result = make(r: r, m: m);
     expect(result.roleIds, [2, 9]);
     expect(result.moduleIds, [4, 30]);
