@@ -826,6 +826,47 @@ void main() {
     });
 
     test(
+      'close race reports credentials_not_cleared when compensation fails',
+      () async {
+        final writeGate = Completer<void>();
+        final store = _AtomicCredentialStore(
+          failure: _StoreFailure.clearTk,
+          writeTkGate: writeGate,
+        );
+        final repository = SessionRepository(
+          api: _FakeSessionApi()
+            ..authorizeResult = _authorized(
+              const MachineSession(
+                machineId: 'machine-1',
+                machineName: 'Counter',
+                client: ClientKind.cashier,
+              ),
+              tk: 'synthetic-residual-race-tk',
+            ),
+          credentialStore: store,
+        );
+
+        final authorization = repository.authorizeMachine('TERM-1');
+        await store.writeTkStarted.future;
+        await repository.close();
+        writeGate.complete();
+        final result = await authorization;
+
+        expect(result.failureOrNull?.kind, FailureKind.authentication);
+        expect(result.failureOrNull?.code, 'session.credentials_not_cleared');
+        expect(repository.isClosed, isTrue);
+        expect(repository.currentMachine, isNull);
+        expect(repository.currentUser, isNull);
+        expect(store.clearTkIfMatchesCalls, 1);
+        expect(await store.readTk(), 'synthetic-residual-race-tk');
+        expect(
+          _failureText(result),
+          isNot(contains('synthetic-residual-race-tk')),
+        );
+      },
+    );
+
+    test(
       'successful reauthorization clears a user even for the same machine',
       () async {
         const machine = MachineSession(

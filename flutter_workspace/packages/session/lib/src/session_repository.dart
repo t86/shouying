@@ -60,7 +60,7 @@ final class SessionRepository {
         try {
           await _credentialStore.clearTkIfMatches(authorization.tk);
         } on Object {
-          // The repository is already closed; never expose store details.
+          return const FailureResult(_credentialsNotClearedFailure);
         }
         return const FailureResult(_repositoryClosedFailure);
       }
