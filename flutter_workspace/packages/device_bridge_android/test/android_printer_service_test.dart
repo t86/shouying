@@ -45,6 +45,7 @@ void main() {
   test('LAN adapter sends ESC/POS bytes to loopback and closes', () async {
     final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
     final received = Completer<List<int>>();
+    final peerClosed = Completer<void>();
     server.listen((socket) {
       final bytes = <int>[];
       socket.listen((chunk) {
@@ -52,7 +53,7 @@ void main() {
         if (!received.isCompleted && _contains(bytes, <int>[0x1d, 0x56])) {
           received.complete(List<int>.unmodifiable(bytes));
         }
-      });
+      }, onDone: peerClosed.complete);
     });
     final printer = AndroidPrinterService();
 
@@ -65,6 +66,7 @@ void main() {
       ),
     );
     final bytes = await received.future.timeout(const Duration(seconds: 2));
+    await peerClosed.future.timeout(const Duration(seconds: 2));
     await server.close();
 
     expect(result, isA<Success<void>>());

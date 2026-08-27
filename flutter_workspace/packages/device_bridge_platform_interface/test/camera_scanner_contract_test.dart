@@ -30,9 +30,6 @@ final class _FakeCameraScanner implements CameraScannerService {
   bool get isCameraOpen => _open;
 
   @override
-  Stream<AppFailure> get failures => const Stream<AppFailure>.empty();
-
-  @override
   Stream<String> get scans => const Stream<String>.empty();
 
   @override

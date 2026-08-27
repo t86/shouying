@@ -48,35 +48,117 @@ void main() {
     expect(scanner.isCameraOpen, isFalse);
   });
 
-  test('asynchronous controller denial maps to typed failure stream', () async {
-    await scanner.openCamera();
-    final failure = scanner.failures.first;
-
-    camera.fail(CameraControllerFailure.permissionDenied);
-
-    expect((await failure).code, 'device.camera_permission');
-    expect(scanner.isCameraOpen, isFalse);
-  });
-
-  testWidgets('real adapter forwards MobileScanner permission errors', (
+  testWidgets('real adapter is manual-start and error builder is pure', (
     tester,
   ) async {
     final adapter = MobileScannerCameraControllerAdapter();
-    final permissionFailure = adapter.failures.first;
     await tester.pumpWidget(
       const Directionality(textDirection: TextDirection.ltr, child: SizedBox()),
     );
     final preview = adapter.buildPreview() as MobileScanner;
+    expect(preview.controller?.autoStart, isFalse);
 
-    preview.errorBuilder!(
+    final placeholder = preview.errorBuilder!(
       tester.element(find.byType(SizedBox)),
       const MobileScannerException(
         errorCode: MobileScannerErrorCode.permissionDenied,
       ),
     );
+    await tester.pumpWidget(
+      Directionality(textDirection: TextDirection.ltr, child: placeholder),
+    );
 
-    expect(await permissionFailure, CameraControllerFailure.permissionDenied);
+    expect(find.text('device.camera_permission'), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await adapter.dispose();
+  });
+
+  test('real adapter translates start permission denial', () async {
+    final adapter = MobileScannerCameraControllerAdapter(
+      startController: (_) => throw const MobileScannerException(
+        errorCode: MobileScannerErrorCode.permissionDenied,
+      ),
+    );
+
+    expect(adapter.start(), throwsA(isA<CameraPermissionDenied>()));
+    await adapter.dispose();
+  });
+
+  test('real adapter translates other start errors as unavailable', () async {
+    final adapter = MobileScannerCameraControllerAdapter(
+      startController: (_) => throw const MobileScannerException(
+        errorCode: MobileScannerErrorCode.genericError,
+      ),
+    );
+
+    expect(adapter.start(), throwsA(isA<CameraUnavailable>()));
+    await adapter.dispose();
+  });
+
+  test('camera becomes open only after controller start completes', () async {
+    camera.startGate = Completer<void>();
+
+    final opening = scanner.openCamera();
+    expect(scanner.isCameraOpen, isFalse);
+    camera.startGate!.complete();
+
+    expect((await opening).failureOrNull, isNull);
+    expect(scanner.isCameraOpen, isTrue);
+  });
+
+  test('closing during pending start prevents stale open state', () async {
+    camera.startGate = Completer<void>();
+    final opening = scanner.openCamera();
+
+    await scanner.closeCamera();
+    camera.startGate!.complete();
+    final result = await opening;
+
+    expect(result.failureOrNull?.code, 'device.camera_unavailable');
+    expect(scanner.isCameraOpen, isFalse);
+    expect(camera.stopped, isTrue);
+  });
+
+  test('duplicate open while pending starts controller only once', () async {
+    camera.startGate = Completer<void>();
+
+    final first = scanner.openCamera();
+    final second = scanner.openCamera();
+    camera.startGate!.complete();
+
+    expect((await first).failureOrNull, isNull);
+    expect((await second).failureOrNull, isNull);
+    expect(camera.startCalls, 1);
+  });
+
+  test('dispose during pending start prevents stale open state', () async {
+    camera.startGate = Completer<void>();
+    final opening = scanner.openCamera();
+
+    await scanner.dispose();
+    camera.startGate!.complete();
+    final result = await opening;
+
+    expect(result.failureOrNull?.code, 'device.camera_unavailable');
+    expect(scanner.isCameraOpen, isFalse);
+    expect(camera.disposed, isTrue);
+  });
+
+  test('reopen waits for controller close to finish', () async {
+    expect((await scanner.openCamera()).failureOrNull, isNull);
+    camera.stopGate = Completer<void>();
+
+    final closing = scanner.closeCamera();
+    final reopening = scanner.openCamera();
+    await Future<void>.delayed(Duration.zero);
+    final startsBeforeStopCompleted = camera.startCalls;
+
+    camera.stopGate!.complete();
+    await closing;
+    expect((await reopening).failureOrNull, isNull);
+    expect(startsBeforeStopCompleted, 1);
+    expect(camera.startCalls, 2);
+    expect(scanner.isCameraOpen, isTrue);
   });
 
   testWidgets('preview widget is isolated behind injected controller seam', (
@@ -131,38 +213,37 @@ final class _FakeCameraController implements AndroidCameraControllerAdapter {
   static const previewKey = Key('fake-camera-preview');
 
   final _barcodes = StreamController<String?>.broadcast(sync: true);
-  final _failures = StreamController<CameraControllerFailure>.broadcast(
-    sync: true,
-  );
+  Completer<void>? startGate;
+  Completer<void>? stopGate;
   bool permissionDenied = false;
   bool stopped = false;
   bool disposed = false;
+  int startCalls = 0;
 
   @override
   Stream<String?> get barcodes => _barcodes.stream;
 
-  @override
-  Stream<CameraControllerFailure> get failures => _failures.stream;
-
   void emit(String? value) => _barcodes.add(value);
-
-  void fail(CameraControllerFailure failure) => _failures.add(failure);
 
   @override
   Widget buildPreview() => const SizedBox(key: previewKey);
 
   @override
   Future<void> start() async {
+    startCalls += 1;
     if (permissionDenied) throw const CameraPermissionDenied();
+    await startGate?.future;
   }
 
   @override
-  Future<void> stop() async => stopped = true;
+  Future<void> stop() async {
+    stopped = true;
+    await stopGate?.future;
+  }
 
   @override
   Future<void> dispose() async {
     disposed = true;
     await _barcodes.close();
-    await _failures.close();
   }
 }

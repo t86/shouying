@@ -14,8 +14,6 @@ abstract interface class ScannerService {
 abstract interface class CameraScannerService implements ScannerService {
   bool get isCameraOpen;
 
-  Stream<AppFailure> get failures;
-
   Future<Result<void>> openCamera();
 
   Future<void> closeCamera();

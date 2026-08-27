@@ -62,14 +62,18 @@ void main() {
     expect(find.byKey(DeviceDiagnosticsScreen.openCameraKey), findsOneWidget);
     await tester.tap(find.byKey(DeviceDiagnosticsScreen.openCameraKey));
     await tester.pump();
+    await tester.pump();
 
+    expect(scanner.openCalledAfterPreviewMount, isTrue);
     expect(find.text('device.camera_permission'), findsOneWidget);
     expect(find.text('未获得相机权限'), findsOneWidget);
+    expect(find.text('相机已打开'), findsNothing);
     expect(find.byKey(_FakeCameraScanner.previewKey), findsNothing);
 
     scanner.permissionDenied = false;
     await tester.tap(find.byKey(DeviceDiagnosticsScreen.openCameraKey));
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(scanner.openCalledAfterPreviewMount, isTrue);
     expect(find.byKey(_FakeCameraScanner.previewKey), findsOneWidget);
     expect(find.byKey(DeviceDiagnosticsScreen.closeCameraKey), findsOneWidget);
   });
@@ -224,6 +228,8 @@ final class _FakeCameraScanner implements CameraScannerService {
   bool started = false;
   bool permissionDenied = false;
   bool _open = false;
+  bool previewMounted = false;
+  bool openCalledAfterPreviewMount = false;
 
   void emit(String value) => _scans.add(value);
 
@@ -235,19 +241,20 @@ final class _FakeCameraScanner implements CameraScannerService {
   bool get isCameraOpen => _open;
 
   @override
-  Stream<AppFailure> get failures => const Stream<AppFailure>.empty();
-
-  @override
   Stream<String> get scans => _scans.stream;
 
   @override
-  Widget buildCameraPreview() => const SizedBox(key: previewKey, height: 100);
+  Widget buildCameraPreview() => _PreviewMountProbe(
+    key: previewKey,
+    onMounted: () => previewMounted = true,
+  );
 
   @override
   Future<void> closeCamera() async => _open = false;
 
   @override
   Future<Result<void>> openCamera() async {
+    openCalledAfterPreviewMount = previewMounted;
     if (permissionDenied) {
       return const FailureResult<void>(
         AppFailure(
@@ -266,4 +273,24 @@ final class _FakeCameraScanner implements CameraScannerService {
 
   @override
   void stop() => started = false;
+}
+
+final class _PreviewMountProbe extends StatefulWidget {
+  const _PreviewMountProbe({required this.onMounted, super.key});
+
+  final VoidCallback onMounted;
+
+  @override
+  State<_PreviewMountProbe> createState() => _PreviewMountProbeState();
+}
+
+final class _PreviewMountProbeState extends State<_PreviewMountProbe> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onMounted();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(height: 100);
 }

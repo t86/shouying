@@ -8,8 +8,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 abstract interface class AndroidCameraControllerAdapter {
   Stream<String?> get barcodes;
 
-  Stream<CameraControllerFailure> get failures;
-
   Future<void> start();
 
   Future<void> stop();
@@ -19,10 +17,12 @@ abstract interface class AndroidCameraControllerAdapter {
   Widget buildPreview();
 }
 
-enum CameraControllerFailure { permissionDenied, unavailable }
-
 final class CameraPermissionDenied implements Exception {
   const CameraPermissionDenied();
+}
+
+final class CameraUnavailable implements Exception {
+  const CameraUnavailable();
 }
 
 final class AndroidScannerService implements CameraScannerService {
@@ -36,9 +36,6 @@ final class AndroidScannerService implements CameraScannerService {
        _clock = clock ?? _stopwatchClock() {
     _hidSubscription = _hidScanner.scans.listen(_emit);
     _cameraSubscription = _cameraController.barcodes.listen(_handleCameraValue);
-    _controllerFailureSubscription = _cameraController.failures.listen(
-      _handleControllerFailure,
-    );
   }
 
   final ScannerService _hidScanner;
@@ -47,14 +44,14 @@ final class AndroidScannerService implements CameraScannerService {
   final StreamController<String> _scans = StreamController<String>.broadcast(
     sync: true,
   );
-  final StreamController<AppFailure> _failures =
-      StreamController<AppFailure>.broadcast(sync: true);
   late final StreamSubscription<String> _hidSubscription;
   late final StreamSubscription<String?> _cameraSubscription;
-  late final StreamSubscription<CameraControllerFailure>
-  _controllerFailureSubscription;
   bool _cameraOpen = false;
   bool _disposed = false;
+  int _cameraGeneration = 0;
+  int? _pendingGeneration;
+  Future<Result<void>>? _pendingStart;
+  Future<void>? _pendingStop;
   String? _lastCameraValue;
   Duration? _lastCameraValueAt;
 
@@ -67,9 +64,6 @@ final class AndroidScannerService implements CameraScannerService {
 
   @override
   Stream<String> get scans => _scans.stream;
-
-  @override
-  Stream<AppFailure> get failures => _failures.stream;
 
   @override
   void start() {
@@ -86,17 +80,41 @@ final class AndroidScannerService implements CameraScannerService {
   @override
   Future<Result<void>> openCamera() async {
     if (_disposed) {
-      return const FailureResult<void>(
-        AppFailure(
-          kind: FailureKind.device,
-          code: 'device.camera_unavailable',
-          safeMessage: '相机扫码不可用',
-        ),
-      );
+      return _cameraUnavailable();
+    }
+    final stopping = _pendingStop;
+    if (stopping != null) {
+      await stopping;
+      if (_disposed) return _cameraUnavailable();
     }
     if (_cameraOpen) return const Success<void>(null);
+    final pending = _pendingStart;
+    if (pending != null) {
+      if (_pendingGeneration == _cameraGeneration) return pending;
+      await pending;
+      if (_disposed) return _cameraUnavailable();
+      if (_cameraOpen) return const Success<void>(null);
+    }
+    final generation = ++_cameraGeneration;
+    _pendingGeneration = generation;
+    late final Future<Result<void>> operation;
+    operation = _startCamera(generation).whenComplete(() {
+      if (identical(_pendingStart, operation)) {
+        _pendingStart = null;
+        _pendingGeneration = null;
+      }
+    });
+    _pendingStart = operation;
+    return operation;
+  }
+
+  Future<Result<void>> _startCamera(int generation) async {
     try {
       await _cameraController.start();
+      if (_disposed || generation != _cameraGeneration) {
+        await _stopCameraController();
+        return _cameraUnavailable();
+      }
       _cameraOpen = true;
       return const Success<void>(null);
     } on CameraPermissionDenied {
@@ -110,22 +128,31 @@ final class AndroidScannerService implements CameraScannerService {
       );
     } on Object {
       _cameraOpen = false;
-      return const FailureResult<void>(
-        AppFailure(
-          kind: FailureKind.device,
-          code: 'device.camera_unavailable',
-          safeMessage: '相机扫码不可用',
-        ),
-      );
+      return _cameraUnavailable();
     }
   }
 
   @override
   Future<void> closeCamera() async {
-    if (!_cameraOpen) return;
+    _cameraGeneration += 1;
     _cameraOpen = false;
     _lastCameraValue = null;
     _lastCameraValueAt = null;
+    await _stopCameraController();
+  }
+
+  Future<void> _stopCameraController() {
+    final pending = _pendingStop;
+    if (pending != null) return pending;
+    late final Future<void> operation;
+    operation = _stopControllerSafely().whenComplete(() {
+      if (identical(_pendingStop, operation)) _pendingStop = null;
+    });
+    _pendingStop = operation;
+    return operation;
+  }
+
+  Future<void> _stopControllerSafely() async {
     try {
       await _cameraController.stop();
     } on Object {
@@ -139,19 +166,14 @@ final class AndroidScannerService implements CameraScannerService {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    _cameraGeneration += 1;
     _cameraOpen = false;
     _hidScanner.stop();
     await _hidSubscription.cancel();
     await _cameraSubscription.cancel();
-    await _controllerFailureSubscription.cancel();
-    try {
-      await _cameraController.stop();
-    } on Object {
-      // Continue disposal when the platform controller was never started.
-    }
+    await _stopCameraController();
     await _cameraController.dispose();
     await _scans.close();
-    await _failures.close();
     if (_hidScanner case final HardwareKeyboardScannerService hid) {
       hid.dispose();
     }
@@ -178,37 +200,38 @@ final class AndroidScannerService implements CameraScannerService {
     if (!_disposed && !_scans.isClosed) _scans.add(value);
   }
 
-  void _handleControllerFailure(CameraControllerFailure failure) {
-    _cameraOpen = false;
-    if (_disposed || _failures.isClosed) return;
-    _failures.add(switch (failure) {
-      CameraControllerFailure.permissionDenied => const AppFailure(
-        kind: FailureKind.device,
-        code: 'device.camera_permission',
-        safeMessage: '未获得相机权限',
-      ),
-      CameraControllerFailure.unavailable => const AppFailure(
-        kind: FailureKind.device,
-        code: 'device.camera_unavailable',
-        safeMessage: '相机扫码不可用',
-      ),
-    });
-  }
-
   static MonotonicClock _stopwatchClock() {
     final stopwatch = Stopwatch()..start();
     return () => stopwatch.elapsed;
   }
+
+  static FailureResult<void> _cameraUnavailable() => const FailureResult<void>(
+    AppFailure(
+      kind: FailureKind.device,
+      code: 'device.camera_unavailable',
+      safeMessage: '相机扫码不可用',
+    ),
+  );
 }
+
+typedef MobileScannerStartController = Future<void> Function(
+  MobileScannerController controller,
+);
 
 final class MobileScannerCameraControllerAdapter
     implements AndroidCameraControllerAdapter {
-  MobileScannerCameraControllerAdapter({MobileScannerController? controller})
-    : _controller = controller ?? MobileScannerController(autoStart: true);
+  MobileScannerCameraControllerAdapter({
+    MobileScannerController? controller,
+    MobileScannerStartController? startController,
+  }) : _controller = controller ?? MobileScannerController(autoStart: false),
+       _startController = startController ?? _startMobileScanner {
+    if (_controller.autoStart) {
+      throw ArgumentError('MobileScanner controller must use autoStart:false');
+    }
+  }
 
   final MobileScannerController _controller;
-  final StreamController<CameraControllerFailure> _failures =
-      StreamController<CameraControllerFailure>.broadcast(sync: true);
+  final MobileScannerStartController _startController;
 
   @override
   Stream<String?> get barcodes => _controller.barcodes.map(
@@ -219,11 +242,15 @@ final class MobileScannerCameraControllerAdapter
   );
 
   @override
-  Stream<CameraControllerFailure> get failures => _failures.stream;
-
-  @override
   Future<void> start() async {
-    // MobileScanner attaches and starts this controller when the preview mounts.
+    try {
+      await _startController(_controller);
+    } on MobileScannerException catch (error) {
+      if (error.errorCode == MobileScannerErrorCode.permissionDenied) {
+        throw const CameraPermissionDenied();
+      }
+      throw const CameraUnavailable();
+    }
   }
 
   @override
@@ -232,33 +259,29 @@ final class MobileScannerCameraControllerAdapter
   @override
   Future<void> dispose() async {
     await _controller.dispose();
-    await _failures.close();
   }
 
   @override
   Widget buildPreview() => MobileScanner(
     controller: _controller,
-    errorBuilder: (context, error) {
-      final permissionDenied =
-          error.errorCode == MobileScannerErrorCode.permissionDenied;
-      if (!_failures.isClosed) {
-        _failures.add(
-          permissionDenied
-              ? CameraControllerFailure.permissionDenied
-              : CameraControllerFailure.unavailable,
-        );
-      }
-      return ColoredBox(
-        color: Colors.black,
-        child: Center(
-          child: Text(
-            permissionDenied
-                ? 'device.camera_permission'
-                : 'device.camera_unavailable',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    },
+    errorBuilder: _buildSafeCameraError,
+  );
+
+  static Future<void> _startMobileScanner(MobileScannerController controller) =>
+      controller.start();
+
+  static Widget _buildSafeCameraError(
+    BuildContext context,
+    MobileScannerException error,
+  ) => ColoredBox(
+    color: Colors.black,
+    child: Center(
+      child: Text(
+        error.errorCode == MobileScannerErrorCode.permissionDenied
+            ? 'device.camera_permission'
+            : 'device.camera_unavailable',
+        style: const TextStyle(color: Colors.white),
+      ),
+    ),
   );
 }

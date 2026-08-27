@@ -54,7 +54,6 @@ final class _DeviceDiagnosticsScreenState
     text: '9100',
   );
   StreamSubscription<String>? _scanSubscription;
-  StreamSubscription<AppFailure>? _scannerFailureSubscription;
   late ScannerService _scanner;
   String _scannerStatus = '已就绪';
   String _maskedLastScan = '无';
@@ -64,6 +63,9 @@ final class _DeviceDiagnosticsScreenState
   String _printStatus = '未测试';
   AppFailure? _scannerFailure;
   AppFailure? _printerFailure;
+  bool _cameraPreviewRequested = false;
+  bool _cameraStartPending = false;
+  int _cameraRequestGeneration = 0;
 
   @override
   void initState() {
@@ -87,22 +89,13 @@ final class _DeviceDiagnosticsScreenState
       },
     );
     _scanner.start();
-    if (_scanner case final CameraScannerService camera) {
-      _scannerFailureSubscription = camera.failures.listen((failure) {
-        if (!mounted) return;
-        setState(() {
-          _scannerStatus = '不可用';
-          _scannerFailure = failure;
-        });
-      });
-    }
   }
 
   @override
   void dispose() {
     _scanner.stop();
+    _cameraRequestGeneration += 1;
     unawaited(_scanSubscription?.cancel());
-    unawaited(_scannerFailureSubscription?.cancel());
     _hostController.dispose();
     _portController.dispose();
     super.dispose();
@@ -168,10 +161,10 @@ final class _DeviceDiagnosticsScreenState
             _statusRow('最近扫码', _maskedLastScan),
             if (camera != null && capabilities.camera) ...<Widget>[
               const SizedBox(height: 12),
-              if (!camera.isCameraOpen)
+              if (!_cameraPreviewRequested)
                 FilledButton.icon(
                   key: DeviceDiagnosticsScreen.openCameraKey,
-                  onPressed: _openCamera,
+                  onPressed: _cameraStartPending ? null : _requestCamera,
                   icon: const Icon(Icons.qr_code_scanner),
                   label: const Text('打开相机扫码'),
                 )
@@ -311,22 +304,63 @@ final class _DeviceDiagnosticsScreenState
     ),
   );
 
-  Future<void> _openCamera() async {
+  void _requestCamera() {
     final camera = _scanner;
     if (camera is! CameraScannerService) return;
-    final result = await camera.openCamera();
-    if (!mounted) return;
+    final generation = ++_cameraRequestGeneration;
     setState(() {
+      _cameraPreviewRequested = true;
+      _cameraStartPending = true;
+      _scannerFailure = null;
+      _scannerStatus = '相机启动中';
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          generation != _cameraRequestGeneration ||
+          !_cameraPreviewRequested) {
+        return;
+      }
+      unawaited(_startMountedCamera(camera, generation));
+    });
+  }
+
+  Future<void> _startMountedCamera(
+    CameraScannerService camera,
+    int generation,
+  ) async {
+    final result = await camera.openCamera();
+    if (!mounted || generation != _cameraRequestGeneration) {
+      if (result.failureOrNull == null) await camera.closeCamera();
+      return;
+    }
+    setState(() {
+      _cameraStartPending = false;
       _scannerFailure = result.failureOrNull;
-      _scannerStatus = result.failureOrNull == null ? '相机已打开' : '不可用';
+      if (result.failureOrNull == null) {
+        _scannerStatus = '相机已打开';
+      } else {
+        _cameraPreviewRequested = false;
+        _scannerStatus = '不可用';
+      }
     });
   }
 
   Future<void> _closeCamera() async {
     final camera = _scanner;
     if (camera is! CameraScannerService) return;
+    final generation = ++_cameraRequestGeneration;
+    setState(() {
+      _cameraPreviewRequested = false;
+      _cameraStartPending = true;
+      _scannerFailure = null;
+      _scannerStatus = '相机关闭中';
+    });
     await camera.closeCamera();
-    if (mounted) setState(() => _scannerStatus = '已就绪');
+    if (!mounted || generation != _cameraRequestGeneration) return;
+    setState(() {
+      _cameraStartPending = false;
+      _scannerStatus = '已就绪';
+    });
   }
 
   Future<void> _printTestReceipt() async {
