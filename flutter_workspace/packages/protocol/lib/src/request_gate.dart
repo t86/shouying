@@ -43,8 +43,16 @@ final class RequestGate {
       return true;
     }
 
+    final elapsedMilliseconds = now.difference(lastAllowedAt).inMilliseconds;
+    if (elapsedMilliseconds < 0) {
+      // A wall-clock rollback must not throttle this route indefinitely.
+      _lastAllowedAt.remove(key);
+      _lastAllowedAt[key] = now;
+      return true;
+    }
+
     final threshold = _isCustomerOrderSelection(normalized) ? 100 : 0;
-    if (now.difference(lastAllowedAt).inMilliseconds <= threshold) {
+    if (elapsedMilliseconds <= threshold) {
       return false;
     }
     _lastAllowedAt.remove(key);

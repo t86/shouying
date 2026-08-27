@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:foundation/foundation.dart';
@@ -15,7 +16,7 @@ import 'package:protocol/src/request_gate.dart';
 /// Dio may allocate transport bytes before these checks run. The raw-byte
 /// budget caps JSON decoding and subsequent application traversal, while a
 /// trustworthy Content-Length header can reject a response before parsing.
-final class ProtocolResponseLimits {
+interface class ProtocolResponseLimits {
   const ProtocolResponseLimits({
     this.maxRawResponseBytes = defaultMaxRawResponseBytes,
     this.maxDepth = defaultMaxDepth,
@@ -33,6 +34,12 @@ final class ProtocolResponseLimits {
   final int maxNodes;
 }
 
+/// A protocol-scoped owner of the injected [Dio] instance.
+///
+/// Construction configures Dio's base timeouts and wraps its transport
+/// adapter, so the instance must not be shared with unrelated consumers.
+/// Multiple ProtocolClients may share it; the strictest response byte limit
+/// wins without nesting transport wrappers.
 class ProtocolClient {
   factory ProtocolClient({
     required Dio dio,
@@ -41,10 +48,12 @@ class ProtocolClient {
     required RequestGate requestGate,
     ProtocolResponseLimits responseLimits = const ProtocolResponseLimits(),
   }) {
+    _validateResponseLimits(responseLimits);
     dio.options
       ..connectTimeout = _requestTimeout
       ..sendTimeout = _requestTimeout
       ..receiveTimeout = _requestTimeout;
+    _installResponseLimit(dio, responseLimits.maxRawResponseBytes);
     return ProtocolClient._(
       dio,
       config,
@@ -65,6 +74,42 @@ class ProtocolClient {
   );
 
   static const Duration _requestTimeout = Duration(seconds: 12);
+
+  static void _validateResponseLimits(ProtocolResponseLimits limits) {
+    if (limits.maxRawResponseBytes <= 0) {
+      throw ArgumentError.value(
+        limits.maxRawResponseBytes,
+        'responseLimits.maxRawResponseBytes',
+        'must be positive',
+      );
+    }
+    if (limits.maxDepth <= 0) {
+      throw ArgumentError.value(
+        limits.maxDepth,
+        'responseLimits.maxDepth',
+        'must be positive',
+      );
+    }
+    if (limits.maxNodes <= 0) {
+      throw ArgumentError.value(
+        limits.maxNodes,
+        'responseLimits.maxNodes',
+        'must be positive',
+      );
+    }
+  }
+
+  static void _installResponseLimit(Dio dio, int maxRawResponseBytes) {
+    final adapter = dio.httpClientAdapter;
+    if (adapter is _LimitedResponseAdapter) {
+      adapter.tightenLimit(maxRawResponseBytes);
+    } else {
+      dio.httpClientAdapter = _LimitedResponseAdapter(
+        adapter,
+        maxRawResponseBytes,
+      );
+    }
+  }
 
   final Dio _dio;
   final ApiConfig _config;
@@ -128,7 +173,12 @@ class ProtocolClient {
         response.headers,
         headerSelection.snapshot,
       );
+    } on _ResponseTooLargeException {
+      return const FailureResult(_responseTooLargeFailure);
     } on DioException catch (error) {
+      if (error.error is _ResponseTooLargeException) {
+        return const FailureResult(_responseTooLargeFailure);
+      }
       return FailureResult(_mapDioFailure(error.type));
     } on Object {
       return const FailureResult(_unknownFailure);
@@ -349,3 +399,85 @@ class ProtocolClient {
 }
 
 enum _JsonShapeResult { valid, tooLarge, tooDeep, invalid }
+
+final class _LimitedResponseAdapter implements HttpClientAdapter {
+  _LimitedResponseAdapter(this._delegate, this._maxRawResponseBytes);
+
+  final HttpClientAdapter _delegate;
+  int _maxRawResponseBytes;
+
+  void tightenLimit(int candidate) {
+    if (candidate < _maxRawResponseBytes) _maxRawResponseBytes = candidate;
+  }
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final response = await _delegate.fetch(
+      options,
+      requestStream,
+      cancelFuture,
+    );
+    final contentLength = _trustedContentLength(response.headers);
+    if (contentLength != null && contentLength > _maxRawResponseBytes) {
+      _closeResponse(response);
+      throw const _ResponseTooLargeException();
+    }
+
+    response.stream = _limitStream(
+      response.stream,
+      response,
+      _maxRawResponseBytes,
+    );
+    return response;
+  }
+
+  int? _trustedContentLength(Map<String, List<String>> headers) {
+    List<String>? values;
+    for (final entry in headers.entries) {
+      if (entry.key.toLowerCase() != Headers.contentLengthHeader) continue;
+      if (values != null) return null;
+      values = entry.value;
+    }
+    if (values == null || values.length != 1) return null;
+    final value = int.tryParse(values.single.trim());
+    return value != null && value >= 0 ? value : null;
+  }
+
+  Stream<Uint8List> _limitStream(
+    Stream<Uint8List> source,
+    ResponseBody response,
+    int maxRawResponseBytes,
+  ) async* {
+    var receivedBytes = 0;
+    var exceeded = false;
+    try {
+      await for (final chunk in source) {
+        receivedBytes += chunk.length;
+        if (receivedBytes > maxRawResponseBytes) {
+          exceeded = true;
+          throw const _ResponseTooLargeException();
+        }
+        yield chunk;
+      }
+    } finally {
+      if (exceeded) _closeResponse(response);
+    }
+  }
+
+  void _closeResponse(ResponseBody response) {
+    // Dio exposes this internal close hook specifically for adapter cleanup.
+    // ignore: invalid_use_of_internal_member
+    response.close();
+  }
+
+  @override
+  void close({bool force = false}) => _delegate.close(force: force);
+}
+
+final class _ResponseTooLargeException implements Exception {
+  const _ResponseTooLargeException();
+}

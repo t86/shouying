@@ -418,18 +418,64 @@ void main() {
       expect(gate.trackedRequestCount, 2);
     });
 
-    test('blocks deterministically when the clock moves backwards', () {
-      var now = DateTime.fromMillisecondsSinceEpoch(1000);
+    test('resets the route baseline when the clock moves backwards', () {
+      var now = DateTime.fromMillisecondsSinceEpoch(10000);
       final gate = RequestGate(clock: () => now);
-      final target = Uri.parse('https://api.example/server/orders');
+      final target = Uri.parse('https://api.example/server/sel/csm_orders');
 
       expect(gate.allow(target), isTrue);
-      now = DateTime.fromMillisecondsSinceEpoch(999);
+      now = DateTime.fromMillisecondsSinceEpoch(1000);
+      expect(gate.allow(target), isTrue);
       expect(gate.allow(target), isFalse);
+      now = DateTime.fromMillisecondsSinceEpoch(1100);
+      expect(gate.allow(target), isFalse);
+      now = DateTime.fromMillisecondsSinceEpoch(1101);
+      expect(gate.allow(target), isTrue);
     });
   });
 
   group('ProtocolClient requests', () {
+    test('rejects invalid response limits before configuring Dio', () {
+      final invalidLimits = <ProtocolResponseLimits>[
+        const _InvalidResponseLimits(
+          maxRawResponseBytes: 0,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+        const _InvalidResponseLimits(
+          maxRawResponseBytes: 1024,
+          maxDepth: -1,
+          maxNodes: 100,
+        ),
+        const _InvalidResponseLimits(
+          maxRawResponseBytes: 1024,
+          maxDepth: 32,
+          maxNodes: 0,
+        ),
+      ];
+
+      for (final limits in invalidLimits) {
+        final adapter = _StubAdapter((_) => _jsonBody(<String, Object?>{}));
+        final dio = Dio()..httpClientAdapter = adapter;
+
+        expect(
+          () => ProtocolClient(
+            dio: dio,
+            config: _config(),
+            credentialStore: _MemoryCredentialStore(),
+            requestGate: RequestGate(clock: DateTime.now),
+            responseLimits: limits,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
+        expect(identical(dio.httpClientAdapter, adapter), isTrue);
+        expect(dio.options.connectTimeout, isNull);
+        expect(dio.options.sendTimeout, isNull);
+        expect(dio.options.receiveTimeout, isNull);
+        expect(adapter.calls, 0);
+      }
+    });
+
     test(
       'POST joins paths, uses JSON, exact headers, and 12s timeouts',
       () async {
@@ -508,6 +554,37 @@ void main() {
         expect(request.responseType, ResponseType.plain);
       },
     );
+
+    test('shared ProtocolClients reuse one strict response wrapper', () async {
+      final adapter = _StubAdapter((_) => _textBody('{"sharedValue":1}'));
+      final dio = Dio()..httpClientAdapter = adapter;
+      final firstClient = _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 64,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      );
+      final installedAdapter = dio.httpClientAdapter;
+
+      _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 8,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      );
+
+      expect(identical(dio.httpClientAdapter, installedAdapter), isTrue);
+      final result = await firstClient.get(
+        '/shared-wrapper',
+        client: ClientKind.booking,
+      );
+      expect(result.failureOrNull?.code, 'protocol.response_too_large');
+      expect(adapter.calls, 1);
+    });
 
     test(
       'rejects external, ambiguous, traversal, and embedded query paths',
@@ -755,6 +832,77 @@ void main() {
       expect(result.failureOrNull?.code, 'protocol.response_too_large');
       expect(_failureText(result), isNot(contains(secret)));
     });
+
+    test('cancels an unbounded stream before buffering every chunk', () async {
+      final probe = _StreamingResponseProbe();
+      final adapter = _StubAdapter((_) => probe.responseBody());
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 12,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      ).get('/stream', client: ClientKind.order);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(result.failureOrNull?.code, 'protocol.response_too_large');
+      expect(probe.chunksProduced, 2);
+      expect(probe.chunksProduced, lessThan(probe.totalChunks));
+      expect(probe.finalized, isTrue);
+      expect(probe.closeCalls, greaterThanOrEqualTo(1));
+      expect(adapter.calls, 1, reason: 'oversized responses are not retried');
+    });
+
+    test('stream limit overrides a dishonest small Content-Length', () async {
+      final probe = _StreamingResponseProbe(contentLength: 4);
+      final adapter = _StubAdapter((_) => probe.responseBody());
+      final dio = Dio()..httpClientAdapter = adapter;
+
+      final result = await _client(
+        dio: dio,
+        responseLimits: const ProtocolResponseLimits(
+          maxRawResponseBytes: 12,
+          maxDepth: 32,
+          maxNodes: 100,
+        ),
+      ).get('/lying-length', client: ClientKind.order);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(result.failureOrNull?.code, 'protocol.response_too_large');
+      expect(probe.chunksProduced, 2);
+      expect(probe.finalized, isTrue);
+      expect(probe.closeCalls, greaterThanOrEqualTo(1));
+      expect(adapter.calls, 1);
+    });
+
+    test(
+      'rejects Content-Length case-insensitively before streaming',
+      () async {
+        final probe = _StreamingResponseProbe(
+          contentLength: 999,
+          contentLengthHeader: 'Content-Length',
+        );
+        final adapter = _StubAdapter((_) => probe.responseBody());
+        final dio = Dio()..httpClientAdapter = adapter;
+
+        final result = await _client(
+          dio: dio,
+          responseLimits: const ProtocolResponseLimits(
+            maxRawResponseBytes: 12,
+            maxDepth: 32,
+            maxNodes: 100,
+          ),
+        ).get('/declared-large', client: ClientKind.order);
+
+        expect(result.failureOrNull?.code, 'protocol.response_too_large');
+        expect(probe.chunksProduced, 0);
+        expect(probe.closeCalls, greaterThanOrEqualTo(1));
+        expect(adapter.calls, 1);
+      },
+    );
 
     test('rejects an oversized content-length before JSON parsing', () async {
       final adapter = _StubAdapter(
@@ -1307,5 +1455,59 @@ final class _MemoryCredentialStore implements CredentialStore {
   @override
   Future<void> writeTk(String value) async {
     tk = value;
+  }
+}
+
+final class _InvalidResponseLimits implements ProtocolResponseLimits {
+  const _InvalidResponseLimits({
+    required this.maxRawResponseBytes,
+    required this.maxDepth,
+    required this.maxNodes,
+  });
+
+  @override
+  final int maxRawResponseBytes;
+
+  @override
+  final int maxDepth;
+
+  @override
+  final int maxNodes;
+}
+
+final class _StreamingResponseProbe {
+  _StreamingResponseProbe({
+    this.contentLength,
+    this.contentLengthHeader = Headers.contentLengthHeader,
+  });
+
+  final int? contentLength;
+  final String contentLengthHeader;
+  final int totalChunks = 4;
+  int chunksProduced = 0;
+  int closeCalls = 0;
+  bool finalized = false;
+
+  ResponseBody responseBody() => ResponseBody(
+    _chunks(),
+    200,
+    onClose: () => closeCalls += 1,
+    headers: <String, List<String>>{
+      Headers.contentTypeHeader: <String>['text/plain'],
+      if (contentLength case final value?)
+        contentLengthHeader: <String>[value.toString()],
+    },
+  );
+
+  Stream<Uint8List> _chunks() async* {
+    try {
+      for (var index = 0; index < totalChunks; index += 1) {
+        chunksProduced += 1;
+        yield Uint8List.fromList(List<int>.filled(8, 0x61 + index));
+        await Future<void>.delayed(Duration.zero);
+      }
+    } finally {
+      finalized = true;
+    }
   }
 }
