@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -13,6 +12,7 @@ import 'package:printing/printing.dart';
 typedef AndroidSystemPrint = Future<bool> Function({
   required Uint8List bytes,
   required ReceiptPaperWidth paperWidth,
+  required TestReceiptRenderModel model,
 });
 
 typedef AndroidSocketConnector = Future<Socket> Function(
@@ -48,21 +48,25 @@ final class AndroidPrinterService implements PrinterService {
         ),
       );
     }
+    final targetFailure = validatePrinterTargetForReceipt(receipt, target);
+    if (targetFailure != null) return FailureResult<void>(targetFailure);
+    final model = TestReceiptRenderModel.fromReceipt(receipt);
     switch (target) {
       case SystemPrinterTarget():
-        return _printSystem(receipt, target.paperWidth);
+        return _printSystem(model);
       case LanEscPosTarget():
-        return _printLan(receipt, target);
+        return _printLan(model, target);
     }
   }
 
-  Future<Result<void>> _printSystem(
-    TestReceipt receipt,
-    ReceiptPaperWidth paperWidth,
-  ) async {
+  Future<Result<void>> _printSystem(TestReceiptRenderModel model) async {
     try {
-      final bytes = await buildAndroidTestReceiptPdf(receipt, paperWidth);
-      if (await _systemPrint(bytes: bytes, paperWidth: paperWidth)) {
+      final bytes = await buildAndroidTestReceiptPdf(model);
+      if (await _systemPrint(
+        bytes: bytes,
+        paperWidth: model.paperWidth,
+        model: model,
+      )) {
         return const Success<void>(null);
       }
     } on Object {
@@ -78,12 +82,12 @@ final class AndroidPrinterService implements PrinterService {
   }
 
   Future<Result<void>> _printLan(
-    TestReceipt receipt,
+    TestReceiptRenderModel model,
     LanEscPosTarget target,
   ) async {
     Socket? socket;
     try {
-      final bytes = buildAndroidEscPosTestReceipt(receipt, target.paperWidth);
+      final bytes = buildAndroidEscPosTestReceipt(model);
       socket = await _socketConnector(
         target.host,
         target.port,
@@ -109,6 +113,7 @@ final class AndroidPrinterService implements PrinterService {
   static Future<bool> _layoutPdf({
     required Uint8List bytes,
     required ReceiptPaperWidth paperWidth,
+    required TestReceiptRenderModel model,
   }) => Printing.layoutPdf(
     name: 'shouyin-device-test.pdf',
     format: _pageFormat(paperWidth),
@@ -124,32 +129,29 @@ final class AndroidPrinterService implements PrinterService {
 }
 
 Future<Uint8List> buildAndroidTestReceiptPdf(
-  TestReceipt receipt,
-  ReceiptPaperWidth paperWidth,
+  TestReceiptRenderModel model,
 ) async {
   final document = pw.Document();
   document.addPage(
     pw.Page(
-      pageFormat: _pageFormat(paperWidth),
+      pageFormat: _pageFormat(model.paperWidth),
       build: (_) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         children: <pw.Widget>[
           pw.Center(
             child: pw.CustomPaint(
               size: const PdfPoint(108, 22),
-              painter: _paintChineseSuccess,
+              painter: (canvas, size) =>
+                  _paintChineseSuccess(canvas, size, model.successText),
             ),
           ),
           pw.SizedBox(height: 8),
-          pw.Text('Paper: ${_paperLabel(paperWidth)}'),
-          pw.Text('App: ${receipt.appVersion}'),
-          pw.Text('Platform: ${receipt.platform}'),
-          pw.Text('Time: ${receipt.timestamp.toUtc().toIso8601String()}'),
+          for (final line in model.lines.skip(1)) pw.Text(line),
           pw.SizedBox(height: 10),
           pw.Center(
             child: pw.BarcodeWidget(
               barcode: pw.Barcode.qrCode(),
-              data: receipt.qrPayload,
+              data: model.qrPayload,
               width: 72,
               height: 72,
             ),
@@ -161,23 +163,16 @@ Future<Uint8List> buildAndroidTestReceiptPdf(
   return document.save();
 }
 
-List<int> buildAndroidEscPosTestReceipt(
-  TestReceipt receipt,
-  ReceiptPaperWidth paperWidth,
-) {
-  final qr = QRCode(receipt.qrPayload, QRSize.size4, QRCorrection.L);
+List<int> buildAndroidEscPosTestReceipt(TestReceiptRenderModel model) {
+  final qr = QRCode(model.qrPayload, QRSize.size4, QRCorrection.L);
   return <int>[
     0x1b,
     0x40,
     0x1c,
     0x26,
-    ...gbk_bytes.encode('打印测试成功\n'),
+    ...gbk_bytes.encode('${model.lines.join('\n')}\n'),
     0x1c,
     0x2e,
-    ...ascii.encode('Paper: ${_paperLabel(paperWidth)}\n'),
-    ...ascii.encode('App: ${receipt.appVersion}\n'),
-    ...ascii.encode('Platform: ${receipt.platform}\n'),
-    ...ascii.encode('Time: ${receipt.timestamp.toUtc().toIso8601String()}\n'),
     ...qr.bytes,
     0x1b,
     0x64,
@@ -194,12 +189,14 @@ PdfPageFormat _pageFormat(ReceiptPaperWidth width) => PdfPageFormat(
   marginAll: 4 * PdfPageFormat.mm,
 );
 
-String _paperLabel(ReceiptPaperWidth width) => switch (width) {
-  ReceiptPaperWidth.mm58 => '58mm',
-  ReceiptPaperWidth.mm80 => '80mm',
-};
-
-void _paintChineseSuccess(PdfGraphics canvas, PdfPoint size) {
+void _paintChineseSuccess(
+  PdfGraphics canvas,
+  PdfPoint size,
+  String successText,
+) {
+  if (successText != TestReceipt.canonicalSuccessText) {
+    throw ArgumentError.value(successText, 'successText');
+  }
   canvas.setLineWidth(1.35);
   for (var glyph = 0; glyph < _successGlyphs.length; glyph += 1) {
     final offset = glyph * 18.0;

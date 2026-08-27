@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 typedef WebSystemPrint = Future<bool> Function({
   required Uint8List bytes,
   required ReceiptPaperWidth paperWidth,
+  required TestReceiptRenderModel model,
 });
 
 final class WebPrinterService implements PrinterService {
@@ -22,6 +23,8 @@ final class WebPrinterService implements PrinterService {
     TestReceipt receipt,
     PrinterTarget target,
   ) async {
+    final targetFailure = validatePrinterTargetForReceipt(receipt, target);
+    if (targetFailure != null) return FailureResult<void>(targetFailure);
     if (target is LanEscPosTarget) {
       return const FailureResult<void>(
         AppFailure(
@@ -31,11 +34,13 @@ final class WebPrinterService implements PrinterService {
         ),
       );
     }
+    final model = TestReceiptRenderModel.fromReceipt(receipt);
     try {
-      final bytes = await buildWebTestReceiptPdf(receipt, target.paperWidth);
+      final bytes = await buildWebTestReceiptPdf(model);
       final accepted = await _systemPrint(
         bytes: bytes,
-        paperWidth: target.paperWidth,
+        paperWidth: model.paperWidth,
+        model: model,
       );
       if (accepted) return const Success<void>(null);
     } on Object {
@@ -53,6 +58,7 @@ final class WebPrinterService implements PrinterService {
   static Future<bool> _layoutPdf({
     required Uint8List bytes,
     required ReceiptPaperWidth paperWidth,
+    required TestReceiptRenderModel model,
   }) => Printing.layoutPdf(
     name: 'shouyin-device-test.pdf',
     format: _pageFormat(paperWidth),
@@ -61,33 +67,28 @@ final class WebPrinterService implements PrinterService {
   );
 }
 
-Future<Uint8List> buildWebTestReceiptPdf(
-  TestReceipt receipt,
-  ReceiptPaperWidth paperWidth,
-) async {
+Future<Uint8List> buildWebTestReceiptPdf(TestReceiptRenderModel model) async {
   final document = pw.Document();
   document.addPage(
     pw.Page(
-      pageFormat: _pageFormat(paperWidth),
+      pageFormat: _pageFormat(model.paperWidth),
       build: (_) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         children: <pw.Widget>[
           pw.Center(
             child: pw.CustomPaint(
               size: const PdfPoint(108, 22),
-              painter: _paintChineseSuccess,
+              painter: (canvas, size) =>
+                  _paintChineseSuccess(canvas, size, model.successText),
             ),
           ),
           pw.SizedBox(height: 8),
-          pw.Text('Paper: ${_paperLabel(paperWidth)}'),
-          pw.Text('App: ${receipt.appVersion}'),
-          pw.Text('Platform: ${receipt.platform}'),
-          pw.Text('Time: ${receipt.timestamp.toUtc().toIso8601String()}'),
+          for (final line in model.lines.skip(1)) pw.Text(line),
           pw.SizedBox(height: 10),
           pw.Center(
             child: pw.BarcodeWidget(
               barcode: pw.Barcode.qrCode(),
-              data: receipt.qrPayload,
+              data: model.qrPayload,
               width: 72,
               height: 72,
             ),
@@ -105,12 +106,14 @@ PdfPageFormat _pageFormat(ReceiptPaperWidth width) => PdfPageFormat(
   marginAll: 4 * PdfPageFormat.mm,
 );
 
-String _paperLabel(ReceiptPaperWidth width) => switch (width) {
-  ReceiptPaperWidth.mm58 => '58mm',
-  ReceiptPaperWidth.mm80 => '80mm',
-};
-
-void _paintChineseSuccess(PdfGraphics canvas, PdfPoint size) {
+void _paintChineseSuccess(
+  PdfGraphics canvas,
+  PdfPoint size,
+  String successText,
+) {
+  if (successText != TestReceipt.canonicalSuccessText) {
+    throw ArgumentError.value(successText, 'successText');
+  }
   canvas.setLineWidth(1.35);
   for (var glyph = 0; glyph < _successGlyphs.length; glyph += 1) {
     final offset = glyph * 18.0;

@@ -34,9 +34,12 @@ void main() {
       platform: 'Windows',
       timestamp: timestamp,
       diagnosticId: 'diag_A1b2c3',
+      paperWidth: ReceiptPaperWidth.mm58,
     );
 
     expect(receipt.timestamp, timestamp);
+    expect(receipt.paperWidth, ReceiptPaperWidth.mm58);
+    expect(receipt.successText, '打印测试成功');
     expect(receipt.qrPayload, 'diag_A1b2c3');
     expect(
       () => TestReceipt(
@@ -44,6 +47,7 @@ void main() {
         platform: 'Windows',
         timestamp: timestamp,
         diagnosticId: 'diag_A1b2c3',
+        paperWidth: ReceiptPaperWidth.mm58,
       ),
       throwsArgumentError,
     );
@@ -53,6 +57,7 @@ void main() {
         platform: 'Windows',
         timestamp: timestamp,
         diagnosticId: 'https://payment.example/abc',
+        paperWidth: ReceiptPaperWidth.mm58,
       ),
       throwsArgumentError,
     );
@@ -72,12 +77,62 @@ void main() {
       platform: 'test',
       timestamp: DateTime.utc(2026),
       diagnosticId: 'diagnostic-123',
+      paperWidth: ReceiptPaperWidth.mm80,
     );
     final result = await printer.printTestReceipt(
       receipt,
       const SystemPrinterTarget(paperWidth: ReceiptPaperWidth.mm80),
     );
     expect(result, isA<Success<void>>());
+  });
+
+  test('shared render model owns canonical receipt semantics', () {
+    final receipt = TestReceipt(
+      appVersion: '1.2.3+4',
+      platform: 'Android',
+      timestamp: DateTime.utc(2026, 8, 27, 10, 20),
+      diagnosticId: 'diagnostic-model-123',
+      paperWidth: ReceiptPaperWidth.mm80,
+    );
+
+    final model = TestReceiptRenderModel.fromReceipt(receipt);
+
+    expect(model.successText, '打印测试成功');
+    expect(model.paperWidth, ReceiptPaperWidth.mm80);
+    expect(model.paperLabel, '80mm');
+    expect(model.timestampText, '2026-08-27T10:20:00.000Z');
+    expect(model.qrPayload, 'diagnostic-model-123');
+    expect(model.lines, contains('打印测试成功'));
+    expect(model.lines, contains('Paper: 80mm'));
+    expect(model.lines, contains('Time: 2026-08-27T10:20:00.000Z'));
+  });
+
+  test('target width mismatch maps to typed invalid target failure', () {
+    final receipt = TestReceipt(
+      appVersion: '1.0.0',
+      platform: 'test',
+      timestamp: DateTime.utc(2026),
+      diagnosticId: 'diagnostic-123',
+      paperWidth: ReceiptPaperWidth.mm58,
+    );
+
+    expect(
+      validatePrinterTargetForReceipt(
+        receipt,
+        const SystemPrinterTarget(paperWidth: ReceiptPaperWidth.mm58),
+      ),
+      isNull,
+    );
+    expect(
+      validatePrinterTargetForReceipt(
+        receipt,
+        LanEscPosTarget(
+          host: 'printer.local',
+          paperWidth: ReceiptPaperWidth.mm80,
+        ),
+      )?.code,
+      'device.printer_target_invalid',
+    );
   });
 }
 

@@ -1,8 +1,6 @@
 import 'package:device_bridge_platform_interface/src/test_receipt.dart';
 import 'package:foundation/foundation.dart';
 
-enum ReceiptPaperWidth { mm58, mm80 }
-
 sealed class PrinterTarget {
   const PrinterTarget({required this.paperWidth});
 
@@ -56,3 +54,14 @@ abstract interface class PrinterService {
     PrinterTarget target,
   );
 }
+
+AppFailure? validatePrinterTargetForReceipt(
+  TestReceipt receipt,
+  PrinterTarget target,
+) => receipt.paperWidth == target.paperWidth
+    ? null
+    : const AppFailure(
+        kind: FailureKind.device,
+        code: 'device.printer_target_invalid',
+        safeMessage: '小票纸宽与打印目标不一致',
+      );

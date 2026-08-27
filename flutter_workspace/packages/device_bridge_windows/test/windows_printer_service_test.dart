@@ -11,11 +11,12 @@ import 'package:foundation/foundation.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final receipt = TestReceipt(
+  TestReceipt receipt(ReceiptPaperWidth paperWidth) => TestReceipt(
     appVersion: '1.0.0+1',
     platform: 'Windows',
     timestamp: DateTime.utc(2026, 8, 27, 10, 20),
     diagnosticId: 'diagnostic_A1b2c3',
+    paperWidth: paperWidth,
   );
 
   test(
@@ -23,17 +24,20 @@ void main() {
     () async {
       final widths = <ReceiptPaperWidth>[];
       final documents = <Uint8List>[];
+      final models = <TestReceiptRenderModel>[];
       final printer = WindowsPrinterService(
-        systemPrint: ({required bytes, required paperWidth}) async {
-          widths.add(paperWidth);
-          documents.add(bytes);
-          return true;
-        },
+        systemPrint:
+            ({required bytes, required paperWidth, required model}) async {
+              widths.add(paperWidth);
+              documents.add(bytes);
+              models.add(model);
+              return true;
+            },
       );
 
       for (final width in ReceiptPaperWidth.values) {
         final result = await printer.printTestReceipt(
-          receipt,
+          receipt(width),
           SystemPrinterTarget(paperWidth: width),
         );
         expect(result, isA<Success<void>>());
@@ -48,13 +52,24 @@ void main() {
         isTrue,
       );
       expect(documents[0], isNot(equals(documents[1])));
+      expect(models.map((model) => model.paperWidth), ReceiptPaperWidth.values);
+      expect(models.every((model) => model.successText == '打印测试成功'), isTrue);
+      expect(
+        models.every((model) => model.qrPayload == 'diagnostic_A1b2c3'),
+        isTrue,
+      );
+      expect(
+        models.every(
+          (model) => model.timestampText == '2026-08-27T10:20:00.000Z',
+        ),
+        isTrue,
+      );
     },
   );
 
   test('LAN printing sends init, content, QR, cut and closes socket', () async {
     final ticket = await buildWindowsEscPosTestReceipt(
-      receipt,
-      ReceiptPaperWidth.mm58,
+      TestReceiptRenderModel.fromReceipt(receipt(ReceiptPaperWidth.mm58)),
     );
     expect(ticket, isNotEmpty);
     final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
@@ -74,7 +89,7 @@ void main() {
     );
 
     final result = await printer.printTestReceipt(
-      receipt,
+      receipt(ReceiptPaperWidth.mm58),
       LanEscPosTarget(
         host: InternetAddress.loopbackIPv4.address,
         port: server.port,
@@ -102,7 +117,7 @@ void main() {
     );
 
     final result = await printer.printTestReceipt(
-      receipt,
+      receipt(ReceiptPaperWidth.mm80),
       LanEscPosTarget(
         host: InternetAddress.loopbackIPv4.address,
         port: port,
@@ -120,7 +135,7 @@ void main() {
     );
 
     final result = await printer.printTestReceipt(
-      receipt,
+      receipt(ReceiptPaperWidth.mm80),
       LanEscPosTarget(
         host: 'printer.local',
         paperWidth: ReceiptPaperWidth.mm80,
@@ -130,6 +145,28 @@ void main() {
     expect(result.failureOrNull?.code, 'device.lan_printer_unavailable');
     expect(result.failureOrNull?.safeMessage, '无法连接局域网打印机');
   });
+
+  test(
+    'paper mismatch is rejected before invoking a printer transport',
+    () async {
+      var called = false;
+      final printer = WindowsPrinterService(
+        systemPrint:
+            ({required bytes, required paperWidth, required model}) async {
+              called = true;
+              return true;
+            },
+      );
+
+      final result = await printer.printTestReceipt(
+        receipt(ReceiptPaperWidth.mm58),
+        const SystemPrinterTarget(paperWidth: ReceiptPaperWidth.mm80),
+      );
+
+      expect(result.failureOrNull?.code, 'device.printer_target_invalid');
+      expect(called, isFalse);
+    },
+  );
 }
 
 bool _contains(List<int> bytes, List<int> needle) {

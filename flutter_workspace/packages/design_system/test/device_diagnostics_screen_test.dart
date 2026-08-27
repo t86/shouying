@@ -10,10 +10,12 @@ import 'package:foundation/foundation.dart';
 void main() {
   late _FakeCameraScanner scanner;
   late _FakePrinter printer;
+  late _SessionSentinel sentinel;
 
   setUp(() {
     scanner = _FakeCameraScanner();
-    printer = _FakePrinter();
+    sentinel = _SessionSentinel();
+    printer = _FakePrinter(sentinel);
   });
 
   Widget subject() => ProviderScope(
@@ -109,8 +111,44 @@ void main() {
     expect(target.port, 9100);
     expect(target.paperWidth, ReceiptPaperWidth.mm80);
     expect(printer.receipt?.diagnosticId, 'diagnostic-ui-123');
+    expect(printer.receipt?.paperWidth, ReceiptPaperWidth.mm80);
+    expect(printer.receipt?.successText, '打印测试成功');
+    expect(
+      printer.receipt?.timestamp.toUtc().toIso8601String(),
+      '2026-08-27T00:00:00.000Z',
+    );
     expect(find.text('打印测试成功'), findsOneWidget);
+    expect(sentinel.modelState, 'unchanged');
+    expect(sentinel.sessionApiCalls, 0);
   });
+
+  testWidgets(
+    'typed print failure leaves unrelated session sentinel unchanged',
+    (tester) async {
+      printer.result = const FailureResult<void>(
+        AppFailure(
+          kind: FailureKind.device,
+          code: 'device.system_printer_unavailable',
+          safeMessage: '系统打印不可用',
+        ),
+      );
+      await tester.pumpWidget(subject());
+      await tester.ensureVisible(
+        find.byKey(DeviceDiagnosticsScreen.printButtonKey),
+      );
+
+      await tester.tap(find.byKey(DeviceDiagnosticsScreen.printButtonKey));
+      await tester.pump();
+
+      expect(find.text('device.system_printer_unavailable'), findsOneWidget);
+      expect(find.text('系统打印不可用'), findsOneWidget);
+      expect(find.text('打印失败'), findsOneWidget);
+      expect(printer.calls, 1);
+      expect(printer.receipt?.paperWidth, ReceiptPaperWidth.mm58);
+      expect(sentinel.modelState, 'unchanged');
+      expect(sentinel.sessionApiCalls, 0);
+    },
+  );
 
   testWidgets('invalid LAN input does not call printer', (tester) async {
     await tester.pumpWidget(subject());
@@ -150,20 +188,32 @@ void main() {
   });
 }
 
+final class _SessionSentinel {
+  String modelState = 'unchanged';
+  int sessionApiCalls = 0;
+}
+
 final class _FakePrinter implements PrinterService {
+  _FakePrinter(this.sentinel);
+
+  final _SessionSentinel sentinel;
   int calls = 0;
   TestReceipt? receipt;
   PrinterTarget? target;
+  Result<void> result = const Success<void>(null);
 
   @override
   Future<Result<void>> printTestReceipt(
     TestReceipt receipt,
     PrinterTarget target,
   ) async {
+    if (sentinel.modelState != 'unchanged' || sentinel.sessionApiCalls != 0) {
+      throw StateError('unrelated session sentinel changed before printing');
+    }
     calls += 1;
     this.receipt = receipt;
     this.target = target;
-    return const Success<void>(null);
+    return result;
   }
 }
 

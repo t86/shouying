@@ -1,9 +1,12 @@
+enum ReceiptPaperWidth { mm58, mm80 }
+
 final class TestReceipt {
   TestReceipt({
     required String appVersion,
     required String platform,
     required this.timestamp,
     required String diagnosticId,
+    required this.paperWidth,
   }) : appVersion = _safeText(appVersion, 'appVersion', 64),
        platform = _safeText(platform, 'platform', 32),
        diagnosticId = _diagnosticId(diagnosticId);
@@ -12,8 +15,13 @@ final class TestReceipt {
   final String platform;
   final DateTime timestamp;
   final String diagnosticId;
+  final ReceiptPaperWidth paperWidth;
+
+  static const String canonicalSuccessText = '打印测试成功';
 
   String get qrPayload => diagnosticId;
+
+  String get successText => canonicalSuccessText;
 
   static String _safeText(String value, String name, int maxLength) {
     final text = value.trim();

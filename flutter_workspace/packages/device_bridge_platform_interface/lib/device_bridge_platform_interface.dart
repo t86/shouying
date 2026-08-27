@@ -6,3 +6,4 @@ export 'src/hardware_keyboard_scanner_service.dart';
 export 'src/printer_service.dart';
 export 'src/scanner_service.dart';
 export 'src/test_receipt.dart';
+export 'src/test_receipt_render_model.dart';

@@ -368,6 +368,7 @@ final class _DeviceDiagnosticsScreenState
               platform: widget.platformLabel,
               timestamp: (widget.clock ?? DateTime.now)(),
               diagnosticId: (widget.diagnosticIdFactory ?? _newDiagnosticId)(),
+              paperWidth: _paperWidth,
             ),
             target,
           );
