@@ -31,6 +31,38 @@ void main() {
       expect(serverError.valueOrNull?.cursor, isNull);
     });
 
+    test('accepts canonical string event codes for all event types', () {
+      final data = SyncEnvelope.parse(<String, Object?>{
+        'p': '1',
+        't': '20260826010101',
+        'd': <String, Object?>{},
+      });
+      final heartbeat = SyncEnvelope.parse(<String, Object?>{
+        'p': '2',
+        't': '20260826010102',
+        'd': null,
+      });
+      final authError = SyncEnvelope.parse(<String, Object?>{
+        'p': '3',
+        'd': '授权信息未找到或已过期',
+      });
+
+      expect(data.valueOrNull?.type, SyncEventType.data);
+      expect(heartbeat.valueOrNull?.type, SyncEventType.heartbeat);
+      expect(authError.valueOrNull?.type, SyncEventType.serverError);
+    });
+
+    test('rejects noncanonical string and boolean event codes', () {
+      for (final code in <Object?>['01', '1.0', ' 1', '4', true]) {
+        final result = SyncEnvelope.parse(<String, Object?>{
+          'p': code,
+          't': '20260826010101',
+          'd': null,
+        });
+        expect(result.failureOrNull?.code, 'protocol.websocket_envelope');
+      }
+    });
+
     test('rejects malformed, invalid cursor, non-JSON, and mutable cycles', () {
       final cyclic = <String, Object?>{};
       cyclic['self'] = cyclic;
@@ -626,6 +658,40 @@ void main() {
       },
     );
 
+    test('live events stay observable without regressing cursor', () async {
+      final events = <SyncEnvelope>[];
+      final subscription = controller.events.listen(events.add);
+      await controller.start();
+      events.clear();
+      final socket = transport.connections.single;
+
+      socket
+        ..addJson(<String, Object?>{
+          'p': 1,
+          't': '20260826010105',
+          'd': <String, Object?>{'sequence': 1},
+        })
+        ..addJson(<String, Object?>{
+          'p': 1,
+          't': '20260826010105',
+          'd': <String, Object?>{'sequence': 2},
+        })
+        ..addJson(<String, Object?>{
+          'p': 1,
+          't': '20260826010104',
+          'd': <String, Object?>{'sequence': 3},
+        });
+      await _flush();
+
+      expect(events.map((event) => event.data), <Object?>[
+        <String, Object?>{'sequence': 1},
+        <String, Object?>{'sequence': 2},
+        <String, Object?>{'sequence': 3},
+      ]);
+      expect(controller.cursor, '20260826010105');
+      await subscription.cancel();
+    });
+
     test('messages reset heartbeat and update cursor/events', () async {
       final events = <SyncEnvelope>[];
       final subscription = controller.events.listen(events.add);
@@ -860,6 +926,108 @@ void main() {
     );
 
     test(
+      'failure listener can synchronously stop without a stale reconnect',
+      () async {
+        final subscription = controller.failures.listen(
+          (_) => unawaited(controller.stop()),
+        );
+        await controller.start();
+
+        transport.connections.single.fail();
+        await _flush();
+
+        expect(controller.phase, ConnectionPhase.blocked);
+        expect(scheduler.activeDelays, isEmpty);
+        scheduler.elapse(const Duration(days: 1));
+        await _flush();
+        expect(transport.connections, hasLength(1));
+        await subscription.cancel();
+      },
+    );
+
+    test(
+      'failure listener can synchronously dispose without stale state',
+      () async {
+        final subscription = controller.failures.listen(
+          (_) => unawaited(controller.dispose()),
+        );
+        await controller.start();
+
+        transport.connections.single.fail();
+        await _flush();
+
+        expect(controller.isDisposed, isTrue);
+        expect(controller.phase, ConnectionPhase.blocked);
+        expect(scheduler.activeDelays, isEmpty);
+        await subscription.cancel();
+      },
+    );
+
+    test(
+      'failure listener stop and restart cannot poison later recovery',
+      () async {
+        var restarted = false;
+        final subscription = controller.failures.listen((_) {
+          if (restarted) return;
+          restarted = true;
+          unawaited(controller.stop());
+          unawaited(controller.start());
+        });
+        await controller.start();
+
+        transport.connections.single.fail();
+        await _flush();
+
+        expect(transport.connections, hasLength(2));
+        expect(controller.phase, ConnectionPhase.online);
+        expect(scheduler.activeDelays, <Duration>[
+          RealtimeController.heartbeatTimeout,
+        ]);
+
+        transport.connections.last.fail();
+        await _flush();
+        expect(controller.phase, ConnectionPhase.reconciling);
+        expect(scheduler.activeDelays, <Duration>[const Duration(seconds: 3)]);
+        await subscription.cancel();
+      },
+    );
+
+    test('stop closes a socket whose ready handshake is pending', () async {
+      final pendingReady = Completer<void>();
+      transport.nextReadyCompleter = pendingReady;
+      final starting = controller.start();
+      await _flush();
+      final pendingConnection = transport.connections.single;
+
+      await controller.stop();
+      await starting;
+
+      expect(pendingConnection.closeCalls, greaterThanOrEqualTo(1));
+      expect(controller.phase, ConnectionPhase.blocked);
+      expect(scheduler.activeDelays, isEmpty);
+
+      await controller.start();
+      expect(transport.connections, hasLength(2));
+      expect(controller.phase, ConnectionPhase.online);
+    });
+
+    test('dispose closes a socket whose ready handshake is pending', () async {
+      final pendingReady = Completer<void>();
+      transport.nextReadyCompleter = pendingReady;
+      final starting = controller.start();
+      await _flush();
+      final pendingConnection = transport.connections.single;
+
+      await controller.dispose();
+      await starting;
+
+      expect(pendingConnection.closeCalls, greaterThanOrEqualTo(1));
+      expect(controller.isDisposed, isTrue);
+      expect(controller.phase, ConnectionPhase.blocked);
+      expect(scheduler.activeDelays, isEmpty);
+    });
+
+    test(
       'stop is idempotent, prevents callbacks, and supports clean restart',
       () async {
         await controller.start();
@@ -1055,6 +1223,7 @@ final class _FakeSocketTransport implements SocketTransport {
   Object? readyError;
   Object? sendError;
   Completer<void>? nextCloseCompleter;
+  Completer<void>? nextReadyCompleter;
   void Function(_FakeSocketConnection socket)? nextOnSend;
 
   @override
@@ -1068,9 +1237,11 @@ final class _FakeSocketTransport implements SocketTransport {
       readyError: readyError,
       sendError: sendError,
       closeCompleter: nextCloseCompleter,
+      readyCompleter: nextReadyCompleter,
       onSend: () => sendCallback?.call(connection),
     );
     nextCloseCompleter = null;
+    nextReadyCompleter = null;
     nextOnSend = null;
     connections.add(connection);
     return connection;
@@ -1082,12 +1253,14 @@ final class _FakeSocketConnection implements SocketConnection {
     this.readyError,
     this.sendError,
     this.closeCompleter,
+    this.readyCompleter,
     this.onSend,
   });
 
   final Object? readyError;
   final Object? sendError;
   final Completer<void>? closeCompleter;
+  final Completer<void>? readyCompleter;
   final void Function()? onSend;
   final StreamController<Object?> _incoming =
       StreamController<Object?>.broadcast(sync: true);
@@ -1096,6 +1269,7 @@ final class _FakeSocketConnection implements SocketConnection {
 
   @override
   Future<void> get ready async {
+    await readyCompleter?.future;
     final error = readyError;
     if (error != null) throw error;
   }
@@ -1114,6 +1288,10 @@ final class _FakeSocketConnection implements SocketConnection {
   @override
   Future<void> close() async {
     closeCalls += 1;
+    final pendingReady = readyCompleter;
+    if (pendingReady != null && !pendingReady.isCompleted) {
+      pendingReady.complete();
+    }
     await closeCompleter?.future;
   }
 

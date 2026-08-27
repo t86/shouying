@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 abstract interface class SocketTransport {
@@ -25,16 +27,6 @@ final class WebSocketChannelTransport implements SocketTransport {
       throw ArgumentError.value(uri, 'uri', 'must be an absolute ws/wss URI');
     }
     final channel = WebSocketChannel.connect(uri);
-    try {
-      await channel.ready;
-    } on Object {
-      try {
-        await channel.sink.close();
-      } on Object {
-        // Connection setup has already failed; cleanup is best effort.
-      }
-      rethrow;
-    }
     return _WebSocketChannelConnection(channel);
   }
 }
@@ -46,13 +38,36 @@ final class SocketMessageTypeException implements Exception {
   String toString() => 'SocketMessageTypeException(text message required)';
 }
 
-final class _WebSocketChannelConnection implements SocketConnection {
-  const _WebSocketChannelConnection(this._channel);
-
-  final WebSocketChannel _channel;
+final class SocketClosedBeforeReadyException implements Exception {
+  const SocketClosedBeforeReadyException();
 
   @override
-  Future<void> get ready => _channel.ready;
+  String toString() => 'SocketClosedBeforeReadyException()';
+}
+
+final class _WebSocketChannelConnection implements SocketConnection {
+  _WebSocketChannelConnection(this._channel) {
+    unawaited(_readyCompleter.future.catchError((Object _) {}));
+    unawaited(
+      _channel.ready.then(
+        (_) {
+          if (!_readyCompleter.isCompleted) _readyCompleter.complete();
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          if (!_readyCompleter.isCompleted) {
+            _readyCompleter.completeError(error, stackTrace);
+          }
+        },
+      ),
+    );
+  }
+
+  final WebSocketChannel _channel;
+  final Completer<void> _readyCompleter = Completer<void>();
+  Future<void>? _closeFuture;
+
+  @override
+  Future<void> get ready => _readyCompleter.future;
 
   @override
   Stream<Object?> get incoming => _channel.stream.map<Object?>((message) {
@@ -65,7 +80,14 @@ final class _WebSocketChannelConnection implements SocketConnection {
       Future<void>.sync(() => _channel.sink.add(value));
 
   @override
-  Future<void> close() async {
+  Future<void> close() {
+    if (!_readyCompleter.isCompleted) {
+      _readyCompleter.completeError(const SocketClosedBeforeReadyException());
+    }
+    return _closeFuture ??= _closeChannel();
+  }
+
+  Future<void> _closeChannel() async {
     await _channel.sink.close();
   }
 }

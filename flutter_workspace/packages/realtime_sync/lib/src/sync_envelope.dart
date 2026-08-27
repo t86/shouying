@@ -101,6 +101,14 @@ final class SyncEnvelope {
   );
 
   static int? _exactCode(Object? value) {
+    if (value is String) {
+      return switch (value) {
+        '1' => 1,
+        '2' => 2,
+        '3' => 3,
+        _ => null,
+      };
+    }
     if (value is! num || !value.isFinite || value % 1 != 0) return null;
     final code = value.toInt();
     return code >= 1 && code <= 3 ? code : null;

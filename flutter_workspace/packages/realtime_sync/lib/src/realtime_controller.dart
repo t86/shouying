@@ -115,6 +115,7 @@ final class RealtimeController {
   StreamSubscription<Object?>? _incomingSubscription;
   ScheduledHandle? _watchdogHandle;
   ScheduledHandle? _reconnectHandle;
+  Object? _reconnectToken;
   _ReconciliationBuffer? _reconciliationBuffer;
   int _generation = 0;
   bool _running = false;
@@ -335,13 +336,23 @@ final class RealtimeController {
     final connection = _connection;
     _connection = null;
     if (connection != null) unawaited(_closeQuietly(connection));
-    _emitFailure(failure);
     _setPhase(ConnectionPhase.reconciling);
-    _reconnectHandle = _scheduler.schedule(reconnectDelay, () {
+    final reconnectToken = Object();
+    _reconnectToken = reconnectToken;
+    final reconnectHandle = _scheduler.schedule(reconnectDelay, () {
+      if (identical(_reconnectToken, reconnectToken)) {
+        _reconnectToken = null;
+        _reconnectHandle = null;
+      }
       if (!_isCurrent(recoveryGeneration)) return;
-      _reconnectHandle = null;
       unawaited(_attemptConnection(recoveryGeneration));
     });
+    if (identical(_reconnectToken, reconnectToken)) {
+      _reconnectHandle = reconnectHandle;
+    } else {
+      reconnectHandle.cancel();
+    }
+    _emitFailure(failure);
   }
 
   void _scheduleWatchdog(int generation) {
@@ -421,7 +432,13 @@ final class RealtimeController {
   }
 
   void _applyLiveEnvelope(int generation, SyncEnvelope envelope) {
-    _cursor = envelope.cursor;
+    final currentCursor = _cursor;
+    final envelopeCursor = envelope.cursor!;
+    if (currentCursor == null || envelopeCursor.compareTo(currentCursor) > 0) {
+      _cursor = envelopeCursor;
+    }
+    // Older and same-cursor payloads remain observable because they may carry
+    // distinct changes, while the authoritative cursor never moves backward.
     if (!_eventController.isClosed) _eventController.add(envelope);
     if (_phase == ConnectionPhase.online && _isCurrent(generation)) {
       _scheduleWatchdog(generation);
@@ -452,6 +469,7 @@ final class RealtimeController {
 
   void _cancelScheduledWork() {
     _cancelWatchdog();
+    _reconnectToken = null;
     _reconnectHandle?.cancel();
     _reconnectHandle = null;
   }
