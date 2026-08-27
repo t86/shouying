@@ -89,11 +89,12 @@ abstract final class PermissionNormalizer {
         }
       }
       return PermissionSnapshot(
-          available: true,
-          stationId: station,
-          roleIds: roles,
-          moduleIds: modules,
-          subPermissions: subs);
+        available: true,
+        stationId: station,
+        roleIds: roles,
+        moduleIds: modules,
+        subPermissions: subs,
+      );
     } catch (_) {
       return _unavailable(station);
     }
@@ -101,25 +102,27 @@ abstract final class PermissionNormalizer {
 }
 
 /// Convenience wrapper for [PermissionNormalizer.normalize].
-PermissionSnapshot normalizePermissions(
-        {required Object? stationId,
-        required Object? sysRole,
-        required Object? sysRoleDetail,
-        Object? subPermissions,
-        Object? employeeId}) =>
-    PermissionNormalizer.normalize(
-        stationId: stationId,
-        sysRole: sysRole,
-        sysRoleDetail: sysRoleDetail,
-        subPermissions: subPermissions,
-        employeeId: employeeId);
+PermissionSnapshot normalizePermissions({
+  required Object? stationId,
+  required Object? sysRole,
+  required Object? sysRoleDetail,
+  Object? subPermissions,
+  Object? employeeId,
+}) => PermissionNormalizer.normalize(
+  stationId: stationId,
+  sysRole: sysRole,
+  sysRoleDetail: sysRoleDetail,
+  subPermissions: subPermissions,
+  employeeId: employeeId,
+);
 
 PermissionSnapshot _unavailable(int? station) => PermissionSnapshot(
-    available: false,
-    stationId: station,
-    roleIds: const {},
-    moduleIds: const {},
-    subPermissions: const {});
+  available: false,
+  stationId: station,
+  roleIds: const {},
+  moduleIds: const {},
+  subPermissions: const {},
+);
 
 final _listTypes = <Type>{
   <dynamic>[].runtimeType,

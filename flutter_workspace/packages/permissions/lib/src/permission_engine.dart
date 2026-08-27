@@ -14,30 +14,33 @@ final class PermissionEngine {
       return _deny('permission.module_missing');
     }
     if (requirement.allSubPermissions.any(
-        (subPermission) =>
-            !snapshot.moduleIds.contains(subPermission.parentId))) {
+      (subPermission) => !snapshot.moduleIds.contains(subPermission.parentId),
+    )) {
       return _deny('permission.sub_permission_missing');
     }
     if (!snapshot.subPermissions.containsAll(requirement.allSubPermissions)) {
       return _deny('permission.sub_permission_missing');
     }
     return PermissionDecision(
-        allowed: true,
-        reason: 'permission.allowed',
-        authorizationRequirement: AuthorizationRequirement.unknown,
-        effectiveScope: _copy());
+      allowed: true,
+      reason: 'permission.allowed',
+      authorizationRequirement: AuthorizationRequirement.unknown,
+      effectiveScope: _copy(),
+    );
   }
 
   PermissionDecision _deny(String reason) => PermissionDecision(
-      allowed: false,
-      reason: reason,
-      authorizationRequirement: AuthorizationRequirement.unknown,
-      effectiveScope: _copy());
+    allowed: false,
+    reason: reason,
+    authorizationRequirement: AuthorizationRequirement.unknown,
+    effectiveScope: _copy(),
+  );
 
   PermissionSnapshot _copy() => PermissionSnapshot(
-      available: snapshot.available,
-      stationId: snapshot.stationId,
-      roleIds: snapshot.roleIds,
-      moduleIds: snapshot.moduleIds,
-      subPermissions: snapshot.subPermissions);
+    available: snapshot.available,
+    stationId: snapshot.stationId,
+    roleIds: snapshot.roleIds,
+    moduleIds: snapshot.moduleIds,
+    subPermissions: snapshot.subPermissions,
+  );
 }

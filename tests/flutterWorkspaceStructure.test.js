@@ -247,12 +247,18 @@ test('uses focused smoke apps instead of the generated counter demo', () => {
 
   for (const [app, label] of Object.entries(apps)) {
     const mainSource = readWorkspaceFile(`apps/${app}/lib/main.dart`);
-    const testSource = readWorkspaceFile(`apps/${app}/test/widget_test.dart`);
+    const testRoot = assertFile(`apps/${app}/test`);
+    const testFiles = findMemberArtifacts(testRoot, (filePath) => filePath.endsWith('.dart'));
+    assert.notEqual(testFiles.length, 0, `${app} must keep at least one Dart test`);
+    const testSource = testFiles
+      .map((relativePath) => fs.readFileSync(path.join(workspaceRoot, relativePath), 'utf8'))
+      .join('\n');
 
     assert.doesNotMatch(mainSource, generatedDemoStrings, `${app} main.dart must not contain counter demo code`);
-    assert.doesNotMatch(testSource, generatedDemoStrings, `${app} widget test must not contain counter demo code`);
+    assert.doesNotMatch(testSource, generatedDemoStrings, `${app} tests must not contain counter demo code`);
     assert.match(mainSource, new RegExp(label), `${app} must display its platform label`);
-    assert.match(testSource, new RegExp(label), `${app} smoke test must verify its platform label`);
+    assert.match(testSource, /\btest(?:Widgets)?\s*\(/, `${app} must retain executable tests`);
+    assert.match(testSource, new RegExp(label), `${app} tests must verify its platform label`);
   }
 });
 

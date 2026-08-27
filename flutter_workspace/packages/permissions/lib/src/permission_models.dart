@@ -33,14 +33,17 @@ final class PermissionSnapshot {
   }) {
     final copiedModuleIds = SplayTreeSet<int>.from(moduleIds);
     final copiedSubPermissions = SplayTreeSet<SubPermissionKey>.from(
-        subPermissions.where(
-            (subPermission) => copiedModuleIds.contains(subPermission.parentId)));
+      subPermissions.where(
+        (subPermission) => copiedModuleIds.contains(subPermission.parentId),
+      ),
+    );
     return PermissionSnapshot._(
-        available: available,
-        roleIds: SplayTreeSet<int>.from(roleIds),
-        moduleIds: copiedModuleIds,
-        subPermissions: copiedSubPermissions,
-        stationId: stationId);
+      available: available,
+      roleIds: SplayTreeSet<int>.from(roleIds),
+      moduleIds: copiedModuleIds,
+      subPermissions: copiedSubPermissions,
+      stationId: stationId,
+    );
   }
 
   PermissionSnapshot._({
@@ -49,9 +52,9 @@ final class PermissionSnapshot {
     required SplayTreeSet<int> moduleIds,
     required SplayTreeSet<SubPermissionKey> subPermissions,
     required this.stationId,
-  })  : roleIds = UnmodifiableSetView(roleIds),
-        moduleIds = UnmodifiableSetView(moduleIds),
-        subPermissions = UnmodifiableSetView(subPermissions);
+  }) : roleIds = UnmodifiableSetView(roleIds),
+       moduleIds = UnmodifiableSetView(moduleIds),
+       subPermissions = UnmodifiableSetView(subPermissions);
 
   final bool available;
   final Set<int> roleIds;
@@ -69,8 +72,13 @@ final class PermissionSnapshot {
       _same(subPermissions, other.subPermissions);
 
   @override
-  int get hashCode => Object.hash(available, stationId, Object.hashAll(roleIds),
-      Object.hashAll(moduleIds), Object.hashAll(subPermissions));
+  int get hashCode => Object.hash(
+    available,
+    stationId,
+    Object.hashAll(roleIds),
+    Object.hashAll(moduleIds),
+    Object.hashAll(subPermissions),
+  );
 
   @override
   String toString() =>
@@ -85,10 +93,11 @@ final class PermissionRequirement {
     Iterable<int> anyRoleIds = const {},
     Iterable<int> allModuleIds = const {},
     Iterable<SubPermissionKey> allSubPermissions = const {},
-  })  : anyRoleIds = UnmodifiableSetView(SplayTreeSet.from(anyRoleIds)),
-        allModuleIds = UnmodifiableSetView(SplayTreeSet.from(allModuleIds)),
-        allSubPermissions =
-            UnmodifiableSetView(SplayTreeSet.from(allSubPermissions));
+  }) : anyRoleIds = UnmodifiableSetView(SplayTreeSet.from(anyRoleIds)),
+       allModuleIds = UnmodifiableSetView(SplayTreeSet.from(allModuleIds)),
+       allSubPermissions = UnmodifiableSetView(
+         SplayTreeSet.from(allSubPermissions),
+       );
 
   final Set<int> anyRoleIds;
   final Set<int> allModuleIds;
@@ -102,8 +111,11 @@ final class PermissionRequirement {
       _same(allSubPermissions, other.allSubPermissions);
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(anyRoleIds),
-      Object.hashAll(allModuleIds), Object.hashAll(allSubPermissions));
+  int get hashCode => Object.hash(
+    Object.hashAll(anyRoleIds),
+    Object.hashAll(allModuleIds),
+    Object.hashAll(allSubPermissions),
+  );
 
   @override
   String toString() =>

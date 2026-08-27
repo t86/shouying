@@ -1,0 +1,91 @@
+stages:
+  - validate
+  - build
+  - windows
+
+variables:
+  FLUTTER_VERSION: "3.47.0"
+  FVM_VERSION: "4.3.0"
+  PUB_CACHE: "$CI_PROJECT_DIR/.cache/pub"
+  FVM_CACHE_PATH: "$CI_PROJECT_DIR/.cache/fvm"
+
+default:
+  interruptible: true
+
+.linux-flutter:
+  image: ghcr.io/cirruslabs/flutter:3.47.0
+  before_script:
+    - export PATH="$PUB_CACHE/bin:$PATH"
+    - command -v node >/dev/null || (apt-get update -qq && apt-get install -y -qq nodejs)
+    - dart pub global activate fvm "$FVM_VERSION"
+    - fvm install "$FLUTTER_VERSION"
+    - fvm flutter --version
+    - node --version
+  cache:
+    key: flutter-3-47-linux
+    paths:
+      - .cache/pub/
+      - .cache/fvm/
+
+migration-ledger:
+  extends: .linux-flutter
+  stage: validate
+  script:
+    - node --test tests/flutterMigrationInventory.test.js tests/flutterWorkspaceStructure.test.js tests/flutterCiChecks.test.js
+    - node tools/flutter_migration_inventory/validate_ledgers.js
+    - node tools/flutter_migration_inventory/source_inventory.js
+    - node tools/flutter_migration_inventory/generate_report.js
+    - git diff --exit-code -- migration/flutter/generated/source-inventory.json migration/flutter/generated/coverage.md
+
+flutter-test:
+  extends: .linux-flutter
+  stage: validate
+  script:
+    - cd flutter_workspace
+    - fvm dart pub get --enforce-lockfile
+    - node --test tool/verify_boundaries.test.js
+    - node tool/verify_boundaries.js .
+    - fvm dart format --output=none --set-exit-if-changed .
+    - fvm dart analyze
+    - fvm flutter test packages/* apps/*
+
+flutter-web-android:
+  extends: .linux-flutter
+  stage: build
+  needs:
+    - migration-ledger
+    - flutter-test
+  script:
+    - cd flutter_workspace
+    - fvm dart pub get --enforce-lockfile
+    - cd apps/web_app
+    - fvm flutter build web --release
+    - cd ../android_app
+    - fvm flutter build apk --release
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - flutter_workspace/apps/web_app/build/web/
+      - flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-release.apk
+
+flutter-windows:
+  stage: windows
+  tags:
+    - windows
+  before_script:
+    - $env:PATH = "$env:PUB_CACHE\bin;$env:PATH"
+    - dart pub global activate fvm $env:FVM_VERSION
+    - fvm install $env:FLUTTER_VERSION
+    - fvm flutter --version
+    - node --version
+  script:
+    - '& "$env:CI_PROJECT_DIR\flutter_workspace\tool\check.ps1"'
+  cache:
+    key: flutter-3-47-windows
+    paths:
+      - .cache/pub/
+      - .cache/fvm/
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - flutter_workspace/apps/windows_app/build/windows/x64/runner/Release/
