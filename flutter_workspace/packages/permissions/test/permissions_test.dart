@@ -46,9 +46,8 @@ void main() {
     expect(r, beforeR);
     expect(m, beforeM);
     expect(() => result.roleIds.add(99), throwsUnsupportedError);
-    final scope = PermissionEngine(result)
-        .decide(const PermissionRequirement())
-        .effectiveScope;
+    final scope =
+        PermissionEngine(result).decide(PermissionRequirement()).effectiveScope;
     expect(() => scope.moduleIds.add(99), throwsUnsupportedError);
   });
 
@@ -105,8 +104,8 @@ void main() {
         stationId: 7, sysRole: [], sysRoleDetail: []);
     expect(empty.available, isTrue);
     expect(empty.roleIds, isEmpty);
-    expect(make(employee: 42, s: null).subPermissionIds, isEmpty);
-    expect(make(employee: 42, s: 'malformed').subPermissionIds, isEmpty);
+    expect(make(employee: 42, s: null).subPermissions, isEmpty);
+    expect(make(employee: 42, s: 'malformed').subPermissions, isEmpty);
     final sub = make(employee: 42, s: [
       {'emp_id': 42, 'sub_permission_id': 9, 'parent_id': 101, 'status': 1},
       {'emp_id': 42, 'sub_permission_id': 3, 'parent_id': 101, 'status': 1},
@@ -114,7 +113,8 @@ void main() {
       {'emp_id': 42, 'sub_permission_id': 4, 'parent_id': 101, 'status': 3},
       {'emp_id': 4, 'sub_permission_id': 1, 'parent_id': 101, 'status': 1},
     ]);
-    expect(sub.subPermissionIds, [3, 9]);
+    expect(sub.subPermissions,
+        [SubPermissionKey(101, 3), SubPermissionKey(101, 9)]);
   });
 
   test('product, region, and limit fields do not expand scope', () {
@@ -144,84 +144,90 @@ void main() {
   test('engine precedence and any/all semantics', () {
     final unavailableSnapshot = PermissionNormalizer.normalize(
         stationId: 7, sysRole: null, sysRoleDetail: []);
-    final unavailableDecision = PermissionEngine(unavailableSnapshot)
-        .decide(const PermissionRequirement());
+    final unavailableDecision =
+        PermissionEngine(unavailableSnapshot).decide(PermissionRequirement());
     expect(unavailableDecision.allowed, isFalse);
     expect(unavailableDecision.reason, 'permission.data_unavailable');
-    expect(unavailableDecision.requiredAuthorization, isFalse);
+    expect(unavailableDecision.authorizationRequirement,
+        AuthorizationRequirement.unknown);
     expect(unavailableDecision.effectiveScope, unavailableSnapshot);
     expect(unavailableDecision.effectiveScope.available, isFalse);
     expect(unavailableDecision.effectiveScope.stationId, 7);
     expect(unavailableDecision.effectiveScope.roleIds, isEmpty);
     expect(unavailableDecision.effectiveScope.moduleIds, isEmpty);
-    expect(unavailableDecision.effectiveScope.subPermissionIds, isEmpty);
+    expect(unavailableDecision.effectiveScope.subPermissions, isEmpty);
 
     final availableSnapshot = make(employee: 42, s: [
       {'emp_id': 42, 'sub_permission_id': 8, 'parent_id': 101, 'status': 1}
     ]);
-    final availableDecision = PermissionEngine(availableSnapshot)
-        .decide(const PermissionRequirement());
+    final availableDecision =
+        PermissionEngine(availableSnapshot).decide(PermissionRequirement());
     expect(availableDecision.allowed, isTrue);
     expect(availableDecision.reason, 'permission.allowed');
-    expect(availableDecision.requiredAuthorization, isFalse);
+    expect(availableDecision.authorizationRequirement,
+        AuthorizationRequirement.unknown);
     expect(availableDecision.effectiveScope, availableSnapshot);
     expect(availableDecision.effectiveScope.available, isTrue);
     expect(availableDecision.effectiveScope.stationId, 7);
     expect(availableDecision.effectiveScope.roleIds, [5]);
     expect(availableDecision.effectiveScope.moduleIds, [101]);
-    expect(availableDecision.effectiveScope.subPermissionIds, [8]);
+    expect(availableDecision.effectiveScope.subPermissions,
+        [SubPermissionKey(101, 8)]);
     expect(() => availableDecision.effectiveScope.roleIds.add(99),
         throwsUnsupportedError);
     final engine = PermissionEngine(availableSnapshot);
     expect(
         engine
-            .decide(const PermissionRequirement(
+            .decide(PermissionRequirement(
                 anyRoleIds: {99},
                 allModuleIds: {999},
-                allSubPermissionIds: {999}))
+                allSubPermissions: {SubPermissionKey(101, 999)}))
             .reason,
         'permission.role_missing');
     expect(
         engine
-            .decide(const PermissionRequirement(
-                allModuleIds: {999}, allSubPermissionIds: {999}))
+            .decide(PermissionRequirement(
+                allModuleIds: {999},
+                allSubPermissions: {SubPermissionKey(101, 999)}))
             .reason,
         'permission.module_missing');
     expect(
         engine
-            .decide(const PermissionRequirement(allSubPermissionIds: {999}))
+            .decide(PermissionRequirement(
+                allSubPermissions: {SubPermissionKey(101, 999)}))
             .reason,
         'permission.sub_permission_missing');
-    expect(
-        engine.decide(const PermissionRequirement(anyRoleIds: {5, 8})).allowed,
-        isTrue);
-    expect(engine.decide(const PermissionRequirement(anyRoleIds: {8})).allowed,
-        isFalse);
-    expect(
-        engine.decide(const PermissionRequirement(allModuleIds: {101})).allowed,
+    expect(engine.decide(PermissionRequirement(anyRoleIds: {5, 8})).allowed,
         isTrue);
     expect(
-        engine
-            .decide(const PermissionRequirement(allModuleIds: {101, 999}))
-            .allowed,
+        engine.decide(PermissionRequirement(anyRoleIds: {8})).allowed, isFalse);
+    expect(engine.decide(PermissionRequirement(allModuleIds: {101})).allowed,
+        isTrue);
+    expect(
+        engine.decide(PermissionRequirement(allModuleIds: {101, 999})).allowed,
         isFalse);
     expect(
         engine
-            .decide(const PermissionRequirement(allSubPermissionIds: {8}))
+            .decide(PermissionRequirement(
+                allSubPermissions: {SubPermissionKey(101, 8)}))
             .allowed,
         isTrue);
     expect(
         engine
-            .decide(const PermissionRequirement(allSubPermissionIds: {8, 999}))
+            .decide(PermissionRequirement(allSubPermissions: {
+              SubPermissionKey(101, 8),
+              SubPermissionKey(101, 999)
+            }))
             .allowed,
         isFalse);
     for (final requirement in [
-      const PermissionRequirement(),
-      const PermissionRequirement(anyRoleIds: {99}),
-      const PermissionRequirement(allModuleIds: {999}),
-      const PermissionRequirement(allSubPermissionIds: {999})
+      PermissionRequirement(),
+      PermissionRequirement(anyRoleIds: {99}),
+      PermissionRequirement(allModuleIds: {999}),
+      PermissionRequirement(allSubPermissions: {SubPermissionKey(101, 999)})
     ]) {
-      expect(engine.decide(requirement).requiredAuthorization, isFalse);
+      expect(engine.decide(requirement).authorizationRequirement,
+          AuthorizationRequirement.unknown);
     }
   });
 }

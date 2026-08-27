@@ -9,8 +9,6 @@ environment:
   sdk: ">=3.13.0 <4.0.0"
 
 dependencies:
-  foundation:
-    path: ../foundation
 
 dev_dependencies:
   test: ^1.25.0

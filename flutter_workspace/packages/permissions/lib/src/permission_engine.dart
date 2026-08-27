@@ -13,21 +13,20 @@ final class PermissionEngine {
     if (!snapshot.moduleIds.containsAll(requirement.allModuleIds)) {
       return _deny('permission.module_missing');
     }
-    if (!snapshot.subPermissionIds
-        .containsAll(requirement.allSubPermissionIds)) {
+    if (!snapshot.subPermissions.containsAll(requirement.allSubPermissions)) {
       return _deny('permission.sub_permission_missing');
     }
     return PermissionDecision(
         allowed: true,
         reason: 'permission.allowed',
-        requiredAuthorization: false,
+        authorizationRequirement: AuthorizationRequirement.unknown,
         effectiveScope: _copy());
   }
 
   PermissionDecision _deny(String reason) => PermissionDecision(
       allowed: false,
       reason: reason,
-      requiredAuthorization: false,
+      authorizationRequirement: AuthorizationRequirement.unknown,
       effectiveScope: _copy());
 
   PermissionSnapshot _copy() => PermissionSnapshot(
@@ -35,5 +34,5 @@ final class PermissionEngine {
       stationId: snapshot.stationId,
       roleIds: snapshot.roleIds,
       moduleIds: snapshot.moduleIds,
-      subPermissionIds: snapshot.subPermissionIds);
+      subPermissions: snapshot.subPermissions);
 }
