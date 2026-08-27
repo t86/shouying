@@ -4,6 +4,68 @@ import 'dart:convert';
 import 'package:permissions/permissions.dart';
 import 'package:test/test.dart';
 
+final class _HostileList extends ListBase<dynamic> {
+  int accesses = 0;
+
+  @override
+  int get length {
+    accesses++;
+    return 1 << 30;
+  }
+
+  @override
+  set length(int value) {
+    accesses++;
+    throw StateError('hostile list length mutation');
+  }
+
+  @override
+  dynamic operator [](int index) {
+    accesses++;
+    throw StateError('hostile list read');
+  }
+
+  @override
+  void operator []=(int index, dynamic value) {
+    accesses++;
+    throw StateError('hostile list write');
+  }
+}
+
+final class _HostileMap extends MapBase<dynamic, dynamic> {
+  int accesses = 0;
+
+  @override
+  dynamic operator [](Object? key) {
+    accesses++;
+    throw StateError('hostile map read');
+  }
+
+  @override
+  void operator []=(dynamic key, dynamic value) {
+    accesses++;
+    throw StateError('hostile map write');
+  }
+
+  @override
+  void clear() {
+    accesses++;
+    throw StateError('hostile map clear');
+  }
+
+  @override
+  Iterable<dynamic> get keys {
+    accesses++;
+    throw StateError('hostile map iteration');
+  }
+
+  @override
+  dynamic remove(Object? key) {
+    accesses++;
+    throw StateError('hostile map removal');
+  }
+}
+
 void main() {
   List<Map<String, Object?>> roles() => [
         {'station_id': 7, 'sys_role_id': 5, 'status': 1},
@@ -41,6 +103,26 @@ void main() {
               'sys_module_id': moduleId,
               'status': status
             })
+          ]));
+  PermissionSnapshot copiedListRows<T>(
+          {required T stationId,
+          required T roleId,
+          required T moduleId,
+          required T status}) =>
+      make(
+          r: List<Map<String, T>>.unmodifiable([
+            <String, T>{
+              'station_id': stationId,
+              'sys_role_id': roleId,
+              'status': status
+            }
+          ]),
+          m: List<Map<String, T>>.unmodifiable([
+            <String, T>{
+              'station_id': stationId,
+              'sys_module_id': moduleId,
+              'status': status
+            }
           ]));
   PermissionSnapshot unmodifiableViewRows<T>(
           {required T stationId,
@@ -127,7 +209,7 @@ void main() {
     expect(result.moduleIds, [101]);
   });
 
-  test('List.unmodifiable and Map.unmodifiable rows are normalized', () {
+  test('Map.unmodifiable rows make copied list datasets unavailable', () {
     final roleRows = List<Map<String, String>>.unmodifiable([
       Map<String, String>.unmodifiable(
           {'station_id': '7', 'sys_role_id': '5', 'status': '1'})
@@ -137,12 +219,26 @@ void main() {
           {'station_id': 7.0, 'sys_module_id': 101.0, 'status': 1.0})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('unmodifiable collection views are normalized', () {
+  test('const map rows make copied list datasets unavailable', () {
+    final result = make(
+        r: List<Map<String, int>>.unmodifiable(const [
+          {'station_id': 7, 'sys_role_id': 5, 'status': 1}
+        ]),
+        m: List<Map<String, int>>.unmodifiable(const [
+          {'station_id': 7, 'sys_module_id': 101, 'status': 1}
+        ]));
+
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
+  });
+
+  test('delegating collection views are unavailable', () {
     final roleRows = UnmodifiableListView<Map<String, Object?>>([
       UnmodifiableMapView<String, Object?>(
           {'station_id': 7, 'sys_role_id': 5, 'status': 1})
@@ -152,12 +248,12 @@ void main() {
           {'station_id': 7.0, 'sys_module_id': 101.0, 'status': 1.0})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('List.unmodifiable accepts Map<String, int>.unmodifiable rows', () {
+  test('List.unmodifiable rejects Map<String, int>.unmodifiable rows', () {
     final roleRows = List<Map<String, int>>.unmodifiable([
       Map<String, int>.unmodifiable(
           {'station_id': 7, 'sys_role_id': 5, 'status': 1})
@@ -167,12 +263,12 @@ void main() {
           {'station_id': 7, 'sys_module_id': 101, 'status': 1})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('List.unmodifiable accepts Map<String, num>.unmodifiable rows', () {
+  test('List.unmodifiable rejects Map<String, num>.unmodifiable rows', () {
     final roleRows = List<Map<String, num>>.unmodifiable([
       Map<String, num>.unmodifiable(
           {'station_id': 7, 'sys_role_id': 5.0, 'status': 1})
@@ -182,12 +278,12 @@ void main() {
           {'station_id': 7.0, 'sys_module_id': 101, 'status': 1.0})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('UnmodifiableListView accepts int UnmodifiableMapView rows', () {
+  test('UnmodifiableListView rejects int UnmodifiableMapView rows', () {
     final roleRows = UnmodifiableListView<Map<String, int>>([
       UnmodifiableMapView<String, int>(
           {'station_id': 7, 'sys_role_id': 5, 'status': 1})
@@ -197,12 +293,12 @@ void main() {
           {'station_id': 7, 'sys_module_id': 101, 'status': 1})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('UnmodifiableListView accepts num UnmodifiableMapView rows', () {
+  test('UnmodifiableListView rejects num UnmodifiableMapView rows', () {
     final roleRows = UnmodifiableListView<Map<String, num>>([
       UnmodifiableMapView<String, num>(
           {'station_id': 7, 'sys_role_id': 5.0, 'status': 1})
@@ -212,59 +308,78 @@ void main() {
           {'station_id': 7.0, 'sys_module_id': 101, 'status': 1.0})
     ]);
     final result = make(r: roleRows, m: moduleRows);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('List.unmodifiable accepts Map<String, Object>.unmodifiable rows', () {
+  test('List.unmodifiable rejects Map<String, Object>.unmodifiable rows', () {
     final result = unmodifiableRows<Object>(
         stationId: 7, roleId: 5, moduleId: 101, status: 1);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('List.unmodifiable accepts Map<String, dynamic>.unmodifiable rows', () {
+  test('List.unmodifiable rejects Map<String, dynamic>.unmodifiable rows', () {
     final result = unmodifiableRows<dynamic>(
         stationId: 7, roleId: 5, moduleId: 101, status: 1);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('UnmodifiableListView accepts Object UnmodifiableMapView rows', () {
+  test('UnmodifiableListView rejects Object UnmodifiableMapView rows', () {
     final result = unmodifiableViewRows<Object>(
         stationId: 7, roleId: 5, moduleId: 101, status: 1);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('UnmodifiableListView accepts dynamic UnmodifiableMapView rows', () {
+  test('UnmodifiableListView rejects dynamic UnmodifiableMapView rows', () {
     final result = unmodifiableViewRows<dynamic>(
         stationId: 7, roleId: 5, moduleId: 101, status: 1);
-    expect(result.available, isTrue);
-    expect(result.roleIds, [5]);
-    expect(result.moduleIds, [101]);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
   });
 
-  test('immutable outer and inner row generic types stay symmetric', () {
-    final snapshots = <String, PermissionSnapshot>{
-      'List.unmodifiable<String>': unmodifiableRows<String>(
+  test('copied lists succeed while map wrappers and views fail symmetrically',
+      () {
+    final copiedSnapshots = <String, PermissionSnapshot>{
+      'List.unmodifiable<String>': copiedListRows<String>(
           stationId: '7', roleId: '5', moduleId: '101', status: '1'),
-      'List.unmodifiable<int>': unmodifiableRows<int>(
+      'List.unmodifiable<int>': copiedListRows<int>(
           stationId: 7, roleId: 5, moduleId: 101, status: 1),
-      'List.unmodifiable<double>': unmodifiableRows<double>(
+      'List.unmodifiable<double>': copiedListRows<double>(
           stationId: 7.0, roleId: 5.0, moduleId: 101.0, status: 1.0),
-      'List.unmodifiable<num>': unmodifiableRows<num>(
+      'List.unmodifiable<num>': copiedListRows<num>(
           stationId: 7, roleId: 5.0, moduleId: 101, status: 1),
-      'List.unmodifiable<Object>': unmodifiableRows<Object>(
+      'List.unmodifiable<Object>': copiedListRows<Object>(
           stationId: 7, roleId: 5, moduleId: 101, status: 1),
-      'List.unmodifiable<Object?>': unmodifiableRows<Object?>(
+      'List.unmodifiable<Object?>': copiedListRows<Object?>(
           stationId: 7, roleId: 5, moduleId: 101, status: 1),
-      'List.unmodifiable<dynamic>': unmodifiableRows<dynamic>(
+      'List.unmodifiable<dynamic>': copiedListRows<dynamic>(
           stationId: 7, roleId: 5, moduleId: 101, status: 1),
+    };
+    final wrappedMapSnapshots = <String, PermissionSnapshot>{
+      'Map.unmodifiable<String>': unmodifiableRows<String>(
+          stationId: '7', roleId: '5', moduleId: '101', status: '1'),
+      'Map.unmodifiable<int>': unmodifiableRows<int>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'Map.unmodifiable<double>': unmodifiableRows<double>(
+          stationId: 7.0, roleId: 5.0, moduleId: 101.0, status: 1.0),
+      'Map.unmodifiable<num>': unmodifiableRows<num>(
+          stationId: 7, roleId: 5.0, moduleId: 101, status: 1),
+      'Map.unmodifiable<Object>': unmodifiableRows<Object>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'Map.unmodifiable<Object?>': unmodifiableRows<Object?>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'Map.unmodifiable<dynamic>': unmodifiableRows<dynamic>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+    };
+    final delegatingSnapshots = <String, PermissionSnapshot>{
       'UnmodifiableListView<String>': unmodifiableViewRows<String>(
           stationId: '7', roleId: '5', moduleId: '101', status: '1'),
       'UnmodifiableListView<int>': unmodifiableViewRows<int>(
@@ -281,14 +396,33 @@ void main() {
           stationId: 7, roleId: 5, moduleId: 101, status: 1),
     };
 
-    for (final entry in snapshots.entries) {
+    for (final entry in copiedSnapshots.entries) {
       expect(entry.value.available, isTrue, reason: entry.key);
       expect(entry.value.roleIds, [5], reason: entry.key);
       expect(entry.value.moduleIds, [101], reason: entry.key);
     }
+    for (final entry in wrappedMapSnapshots.entries) {
+      expect(entry.value.available, isFalse, reason: entry.key);
+      expect(entry.value.roleIds, isEmpty, reason: entry.key);
+      expect(entry.value.moduleIds, isEmpty, reason: entry.key);
+    }
+    for (final entry in delegatingSnapshots.entries) {
+      expect(entry.value.available, isFalse, reason: entry.key);
+      expect(entry.value.roleIds, isEmpty, reason: entry.key);
+      expect(entry.value.moduleIds, isEmpty, reason: entry.key);
+    }
   });
 
-  final rawImmutableContainers =
+  final copiedRawContainers =
+      <String, Object Function(Map<dynamic, dynamic>)>{
+    'List<dynamic>.unmodifiable + Map<dynamic, dynamic>':
+        (row) => List<dynamic>.unmodifiable([row]),
+    'List<Object>.unmodifiable + Map<dynamic, dynamic>':
+        (row) => List<Object>.unmodifiable([row]),
+    'List<Object?>.unmodifiable + Map<dynamic, dynamic>':
+        (row) => List<Object?>.unmodifiable([row]),
+  };
+  final wrappedRawMapContainers =
       <String, Object Function(Map<dynamic, dynamic>)>{
     'List<dynamic>.unmodifiable + Map<dynamic, dynamic>.unmodifiable':
         (row) => List<dynamic>.unmodifiable(
@@ -299,6 +433,9 @@ void main() {
     'List<Object?>.unmodifiable + Map<dynamic, dynamic>.unmodifiable':
         (row) => List<Object?>.unmodifiable(
             [Map<dynamic, dynamic>.unmodifiable(row)]),
+  };
+  final delegatingRawContainers =
+      <String, Object Function(Map<dynamic, dynamic>)>{
     'UnmodifiableListView<dynamic> + UnmodifiableMapView<dynamic, dynamic>':
         (row) => UnmodifiableListView<dynamic>(
             [UnmodifiableMapView<dynamic, dynamic>(row)]),
@@ -309,7 +446,7 @@ void main() {
         (row) => UnmodifiableListView<Object?>(
             [UnmodifiableMapView<dynamic, dynamic>(row)]),
   };
-  for (final entry in rawImmutableContainers.entries) {
+  for (final entry in copiedRawContainers.entries) {
     test('${entry.key} normalizes decoded untyped rows', () {
       final roleRow = Map<dynamic, dynamic>.from(jsonDecode(
           '{"station_id":7,"sys_role_id":5,"status":1}') as Map);
@@ -322,6 +459,69 @@ void main() {
       expect(result.moduleIds, [101]);
     });
   }
+  for (final entry in delegatingRawContainers.entries) {
+    test('${entry.key} rejects decoded untyped rows', () {
+      final roleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_role_id":5,"status":1}') as Map);
+      final moduleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_module_id":101,"status":1}') as Map);
+      final result = make(r: entry.value(roleRow), m: entry.value(moduleRow));
+
+      expect(result.available, isFalse);
+      expect(result.roleIds, isEmpty);
+      expect(result.moduleIds, isEmpty);
+    });
+  }
+  for (final entry in wrappedRawMapContainers.entries) {
+    test('${entry.key} rejects decoded untyped rows', () {
+      final roleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_role_id":5,"status":1}') as Map);
+      final moduleRow = Map<dynamic, dynamic>.from(jsonDecode(
+          '{"station_id":7,"sys_module_id":101,"status":1}') as Map);
+      final result = make(r: entry.value(roleRow), m: entry.value(moduleRow));
+
+      expect(result.available, isFalse);
+      expect(result.roleIds, isEmpty);
+      expect(result.moduleIds, isEmpty);
+    });
+  }
+
+  test('hostile delegating list view is rejected without backing access', () {
+    final hostileList = _HostileList();
+    final hostileMap = _HostileMap();
+    final result = make(
+        r: UnmodifiableListView<dynamic>(hostileList),
+        m: UnmodifiableListView<dynamic>(
+            [UnmodifiableMapView<dynamic, dynamic>(hostileMap)]));
+
+    expect(result.available, isFalse);
+    expect(hostileList.accesses, 0);
+    expect(hostileMap.accesses, 0);
+  });
+
+  test('hostile delegating map view is rejected without backing access', () {
+    final hostileMap = _HostileMap();
+    final result = make(
+        r: List<dynamic>.unmodifiable(
+            [UnmodifiableMapView<dynamic, dynamic>(hostileMap)]),
+        m: List<dynamic>.unmodifiable(const []));
+
+    expect(hostileMap.accesses, 0);
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+  });
+
+  test('broad Map<Object, Object> row containers are unavailable', () {
+    final result = make(r: <Map<Object, Object>>[
+      {'station_id': 7, 'sys_role_id': 5, 'status': 1}
+    ], m: <Map<Object, Object>>[
+      {'station_id': 7, 'sys_module_id': 101, 'status': 1}
+    ]);
+
+    expect(result.available, isFalse);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
+  });
 
   test('invalid values and malformed rows are ignored', () {
     final result = make(r: [
@@ -516,6 +716,40 @@ void main() {
                 allSubPermissions: {SubPermissionKey(303, 8)}))
             .allowed,
         isFalse);
+  });
+
+  test('snapshot filters subpermissions outside its module scope', () {
+    final sourceModules = <int>{101};
+    final sourceSubPermissions = <SubPermissionKey>{
+      const SubPermissionKey(101, 8),
+      const SubPermissionKey(999, 8),
+    };
+    final snapshot = PermissionSnapshot(
+        available: true,
+        stationId: 7,
+        roleIds: const {5},
+        moduleIds: sourceModules,
+        subPermissions: sourceSubPermissions);
+
+    sourceModules.add(999);
+    sourceSubPermissions.add(const SubPermissionKey(101, 9));
+    expect(snapshot.moduleIds, [101]);
+    expect(snapshot.subPermissions, [const SubPermissionKey(101, 8)]);
+    expect(() => snapshot.moduleIds.add(999), throwsUnsupportedError);
+    expect(() => snapshot.subPermissions.add(const SubPermissionKey(101, 9)),
+        throwsUnsupportedError);
+
+    final engine = PermissionEngine(snapshot);
+    final inconsistent = engine.decide(PermissionRequirement(
+        allSubPermissions: {const SubPermissionKey(999, 8)}));
+    expect(inconsistent.allowed, isFalse);
+    expect(inconsistent.reason, 'permission.sub_permission_missing');
+    expect(
+        engine
+            .decide(PermissionRequirement(
+                allSubPermissions: {const SubPermissionKey(101, 8)}))
+            .allowed,
+        isTrue);
   });
 
   test('requirements defensively copy inputs and have value semantics', () {

@@ -24,15 +24,34 @@ final class SubPermissionKey implements Comparable<SubPermissionKey> {
 }
 
 final class PermissionSnapshot {
-  PermissionSnapshot({
-    required this.available,
+  factory PermissionSnapshot({
+    required bool available,
     required Iterable<int> roleIds,
     required Iterable<int> moduleIds,
     required Iterable<SubPermissionKey> subPermissions,
+    required int? stationId,
+  }) {
+    final copiedModuleIds = SplayTreeSet<int>.from(moduleIds);
+    final copiedSubPermissions = SplayTreeSet<SubPermissionKey>.from(
+        subPermissions.where(
+            (subPermission) => copiedModuleIds.contains(subPermission.parentId)));
+    return PermissionSnapshot._(
+        available: available,
+        roleIds: SplayTreeSet<int>.from(roleIds),
+        moduleIds: copiedModuleIds,
+        subPermissions: copiedSubPermissions,
+        stationId: stationId);
+  }
+
+  PermissionSnapshot._({
+    required this.available,
+    required SplayTreeSet<int> roleIds,
+    required SplayTreeSet<int> moduleIds,
+    required SplayTreeSet<SubPermissionKey> subPermissions,
     required this.stationId,
-  })  : roleIds = UnmodifiableSetView(SplayTreeSet.from(roleIds)),
-        moduleIds = UnmodifiableSetView(SplayTreeSet.from(moduleIds)),
-        subPermissions = UnmodifiableSetView(SplayTreeSet.from(subPermissions));
+  })  : roleIds = UnmodifiableSetView(roleIds),
+        moduleIds = UnmodifiableSetView(moduleIds),
+        subPermissions = UnmodifiableSetView(subPermissions);
 
   final bool available;
   final Set<int> roleIds;

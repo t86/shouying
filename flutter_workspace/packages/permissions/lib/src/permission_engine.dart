@@ -13,6 +13,11 @@ final class PermissionEngine {
     if (!snapshot.moduleIds.containsAll(requirement.allModuleIds)) {
       return _deny('permission.module_missing');
     }
+    if (requirement.allSubPermissions.any(
+        (subPermission) =>
+            !snapshot.moduleIds.contains(subPermission.parentId))) {
+      return _deny('permission.sub_permission_missing');
+    }
     if (!snapshot.subPermissions.containsAll(requirement.allSubPermissions)) {
       return _deny('permission.sub_permission_missing');
     }

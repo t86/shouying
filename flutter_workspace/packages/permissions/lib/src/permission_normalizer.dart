@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:permissions/src/permission_models.dart';
@@ -8,6 +7,15 @@ const _maxStringLength = 32;
 const _safeInteger = 9007199254740991;
 
 abstract final class PermissionNormalizer {
+  /// Normalizes permission data from protocol-decoded JSON or explicitly
+  /// normalized ordinary maps in materialized or copied core lists.
+  ///
+  /// [List.unmodifiable] copies are supported, but const maps, [Map.unmodifiable]
+  /// wrappers, and delegating collection views are unsupported because the
+  /// immutable map implementations cannot be distinguished safely on every
+  /// Dart runtime. The finite runtime-type whitelist is a conservative security
+  /// boundary; unsupported required datasets or map wrappers fail closed as
+  /// unavailable.
   static PermissionSnapshot normalize({
     required Object? stationId,
     required Object? sysRole,
@@ -29,7 +37,10 @@ abstract final class PermissionNormalizer {
       }
       final roles = <int>{};
       for (final row in roleRows) {
-        if (!_materializedMap(row)) continue;
+        if (!_materializedMap(row)) {
+          if (row is Map) return _unavailable(station);
+          continue;
+        }
         final map = row as Map;
         if (map.length > 64 ||
             _integer(map['station_id'], positive: true) != station ||
@@ -41,7 +52,10 @@ abstract final class PermissionNormalizer {
       }
       final modules = <int>{};
       for (final row in moduleRows) {
-        if (!_materializedMap(row)) continue;
+        if (!_materializedMap(row)) {
+          if (row is Map) return _unavailable(station);
+          continue;
+        }
         final map = row as Map;
         if (map.length > 64 ||
             _integer(map['station_id'], positive: true) != station ||
@@ -57,7 +71,10 @@ abstract final class PermissionNormalizer {
         final rows = subPermissions as List;
         if (rows.length > _maxRows) return _unavailable(station);
         for (final row in rows) {
-          if (!_materializedMap(row)) continue;
+          if (!_materializedMap(row)) {
+            if (row is Map) return _unavailable(station);
+            continue;
+          }
           final map = row as Map;
           if (map.length > 64 ||
               _integer(map['emp_id'], positive: true) != employee ||
@@ -83,6 +100,7 @@ abstract final class PermissionNormalizer {
   }
 }
 
+/// Convenience wrapper for [PermissionNormalizer.normalize].
 PermissionSnapshot normalizePermissions(
         {required Object? stationId,
         required Object? sysRole,
@@ -139,21 +157,6 @@ final _listTypes = <Type>{
       .runtimeType,
   List<Map<String, dynamic>>.unmodifiable(const <Map<String, dynamic>>[])
       .runtimeType,
-  UnmodifiableListView<dynamic>(const <dynamic>[]).runtimeType,
-  UnmodifiableListView<Object>(const <Object>[]).runtimeType,
-  UnmodifiableListView<Object?>(const <Object?>[]).runtimeType,
-  UnmodifiableListView<Map<String, String>>(const <Map<String, String>>[])
-      .runtimeType,
-  UnmodifiableListView<Map<String, int>>(const <Map<String, int>>[]).runtimeType,
-  UnmodifiableListView<Map<String, double>>(const <Map<String, double>>[])
-      .runtimeType,
-  UnmodifiableListView<Map<String, num>>(const <Map<String, num>>[]).runtimeType,
-  UnmodifiableListView<Map<String, Object>>(const <Map<String, Object>>[])
-      .runtimeType,
-  UnmodifiableListView<Map<String, Object?>>(const <Map<String, Object?>>[])
-      .runtimeType,
-  UnmodifiableListView<Map<String, dynamic>>(const <Map<String, dynamic>>[])
-      .runtimeType,
   (jsonDecode('[]') as Object).runtimeType,
 };
 final _mapTypes = <Type>{
@@ -165,30 +168,6 @@ final _mapTypes = <Type>{
   <String, Object>{}.runtimeType,
   <String, Object?>{}.runtimeType,
   <String, dynamic>{}.runtimeType,
-  const <dynamic, dynamic>{}.runtimeType,
-  const <String, String>{}.runtimeType,
-  const <String, int>{}.runtimeType,
-  const <String, double>{}.runtimeType,
-  const <String, num>{}.runtimeType,
-  const <String, Object>{}.runtimeType,
-  const <String, Object?>{}.runtimeType,
-  const <String, dynamic>{}.runtimeType,
-  Map<dynamic, dynamic>.unmodifiable(const <dynamic, dynamic>{}).runtimeType,
-  Map<String, Object?>.unmodifiable(const <String, Object?>{}).runtimeType,
-  Map<String, String>.unmodifiable(const <String, String>{}).runtimeType,
-  Map<String, int>.unmodifiable(const <String, int>{}).runtimeType,
-  Map<String, double>.unmodifiable(const <String, double>{}).runtimeType,
-  Map<String, num>.unmodifiable(const <String, num>{}).runtimeType,
-  Map<String, Object>.unmodifiable(const <String, Object>{}).runtimeType,
-  Map<String, dynamic>.unmodifiable(const <String, dynamic>{}).runtimeType,
-  UnmodifiableMapView<dynamic, dynamic>(const <dynamic, dynamic>{}).runtimeType,
-  UnmodifiableMapView<String, Object?>(const <String, Object?>{}).runtimeType,
-  UnmodifiableMapView<String, String>(const <String, String>{}).runtimeType,
-  UnmodifiableMapView<String, int>(const <String, int>{}).runtimeType,
-  UnmodifiableMapView<String, double>(const <String, double>{}).runtimeType,
-  UnmodifiableMapView<String, num>(const <String, num>{}).runtimeType,
-  UnmodifiableMapView<String, Object>(const <String, Object>{}).runtimeType,
-  UnmodifiableMapView<String, dynamic>(const <String, dynamic>{}).runtimeType,
   (jsonDecode('{}') as Object).runtimeType,
 };
 bool _materializedList(Object? value) =>
