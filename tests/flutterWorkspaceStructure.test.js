@@ -102,15 +102,6 @@ function parseVersion(source, pattern, description) {
   return match[1].split('.').map(Number);
 }
 
-function compareVersions(left, right) {
-  const length = Math.max(left.length, right.length);
-  for (let index = 0; index < length; index += 1) {
-    const difference = (left[index] ?? 0) - (right[index] ?? 0);
-    if (difference !== 0) return Math.sign(difference);
-  }
-  return 0;
-}
-
 function assertAnalyzerShape(source) {
   const parsed = parseYamlSubset(source);
   assert.equal(yamlPath(parsed, ['include']), 'package:flutter_lints/flutter.yaml');
@@ -129,6 +120,7 @@ test('keeps Android AGP compatible with the compileSdk 37 dependency contract', 
   const lockfile = readWorkspaceFile('pubspec.lock');
   const settings = readWorkspaceFile('apps/android_app/android/settings.gradle.kts');
   const appBuild = readWorkspaceFile('apps/android_app/android/app/build.gradle.kts');
+  const gradleWrapper = readWorkspaceFile('apps/android_app/android/gradle/wrapper/gradle-wrapper.properties');
 
   assert.match(
     lockfile,
@@ -137,12 +129,20 @@ test('keeps Android AGP compatible with the compileSdk 37 dependency contract', 
   );
 
   const dependencyCompileSdk = 37;
-  const minimumAgpForCompileSdk37 = [9, 1, 1];
   const configuredAgp = parseVersion(
     settings,
     /id\("com\.android\.application"\) version "([0-9]+\.[0-9]+\.[0-9]+)"/,
     'Android Gradle Plugin version',
   );
+  const configuredGradle = parseVersion(
+    gradleWrapper,
+    /distributionUrl=.*gradle-([0-9]+\.[0-9]+\.[0-9]+)-all\.zip/,
+    'Gradle wrapper version',
+  );
+  const validatedAndroidToolchains = new Set(['9.1.1+9.3.1']);
+  const isSupportedAndroidToolchain = (agpVersion, gradleVersion) => {
+    return validatedAndroidToolchains.has(`${agpVersion.join('.')}+${gradleVersion.join('.')}`);
+  };
 
   assert.match(
     appBuild,
@@ -150,9 +150,14 @@ test('keeps Android AGP compatible with the compileSdk 37 dependency contract', 
     'the Android app must compile against the highest SDK required by its plugins',
   );
   assert.equal(
-    compareVersions(configuredAgp, minimumAgpForCompileSdk37) >= 0,
+    isSupportedAndroidToolchain(configuredAgp, configuredGradle),
     true,
-    `AGP ${configuredAgp.join('.')} is below the 9.1.1 minimum for compileSdk 37`,
+    `AGP ${configuredAgp.join('.')} with Gradle ${configuredGradle.join('.')} is not validated for compileSdk 37`,
+  );
+  assert.equal(
+    isSupportedAndroidToolchain([10, 0, 0], [9, 3, 1]),
+    false,
+    'higher AGP versions must not pass unless their Gradle combination is explicitly validated',
   );
 });
 
