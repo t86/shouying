@@ -327,6 +327,70 @@ void main() {
     );
 
     test(
+      'replays every post-batch envelope sharing the same newer cursor',
+      () async {
+        final pendingAll = Completer<Result<SyncBatch>>();
+        api.allCompleter = pendingAll;
+        final events = <SyncEnvelope>[];
+        final subscription = controller.events.listen(events.add);
+        final starting = controller.start();
+        await _flush();
+        final socket = transport.connections.single;
+
+        socket
+          ..addJson(<String, Object?>{
+            'p': 1,
+            't': '20260826010103',
+            'd': <String, Object?>{'source': 'batch-overlap'},
+          })
+          ..addJson(<String, Object?>{'p': 2, 't': '20260826010104', 'd': null})
+          ..addJson(<String, Object?>{
+            'p': 1,
+            't': '20260826010104',
+            'd': <String, Object?>{'sequence': 1},
+          })
+          ..addJson(<String, Object?>{
+            'p': 1,
+            't': '20260826010104',
+            'd': <String, Object?>{'sequence': 2},
+          });
+        await _flush();
+        expect(events, isEmpty);
+
+        pendingAll.complete(
+          const Success(
+            SyncBatch(
+              cursor: '20260826010103',
+              data: <String, Object?>{'source': 'batch'},
+              hasChanges: true,
+            ),
+          ),
+        );
+        await starting;
+
+        expect(events.map((event) => event.type), <SyncEventType>[
+          SyncEventType.data,
+          SyncEventType.heartbeat,
+          SyncEventType.data,
+          SyncEventType.data,
+        ]);
+        expect(events.map((event) => event.cursor), <String?>[
+          '20260826010103',
+          '20260826010104',
+          '20260826010104',
+          '20260826010104',
+        ]);
+        expect(events.skip(2).map((event) => event.data), <Object?>[
+          <String, Object?>{'sequence': 1},
+          <String, Object?>{'sequence': 2},
+        ]);
+        expect(controller.cursor, '20260826010104');
+        expect(controller.phase, ConnectionPhase.online);
+        await subscription.cancel();
+      },
+    );
+
+    test(
       'reconnect snapshots disconnected cursor before immediate socket data',
       () async {
         final events = <SyncEnvelope>[];

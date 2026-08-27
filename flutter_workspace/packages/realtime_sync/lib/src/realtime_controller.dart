@@ -220,15 +220,15 @@ final class RealtimeController {
       _recover(generation, _syncShapeFailure);
       return;
     }
-    if (requestedCursor != null &&
-        batch.cursor.compareTo(requestedCursor) < 0) {
+    final batchCursor = batch.cursor;
+    if (requestedCursor != null && batchCursor.compareTo(requestedCursor) < 0) {
       _recover(generation, _syncShapeFailure);
       return;
     }
     if (batch.hasChanges) {
       final batchEnvelope = SyncEnvelope.parse(<String, Object?>{
         'p': SyncEventType.data.code,
-        't': batch.cursor,
+        't': batchCursor,
         'd': batch.data,
       });
       final envelopeFailure = batchEnvelope.failureOrNull;
@@ -241,8 +241,8 @@ final class RealtimeController {
       }
       if (!_isCurrent(generation)) return;
     }
-    _cursor = batch.cursor;
-    if (!_replayBufferedEnvelopes(generation)) return;
+    _cursor = batchCursor;
+    if (!_replayBufferedEnvelopes(generation, batchCursor)) return;
     _setPhase(ConnectionPhase.online);
     _scheduleWatchdog(generation);
   }
@@ -428,7 +428,7 @@ final class RealtimeController {
     }
   }
 
-  bool _replayBufferedEnvelopes(int generation) {
+  bool _replayBufferedEnvelopes(int generation, String batchCursor) {
     final buffer = _reconciliationBuffer;
     if (buffer == null || buffer.generation != generation) return false;
     var index = 0;
@@ -436,9 +436,8 @@ final class RealtimeController {
       if (!_isCurrent(generation)) return false;
       final envelope = buffer.envelopes[index++];
       final envelopeCursor = envelope.cursor!;
-      final currentCursor = _cursor!;
-      if (envelopeCursor.compareTo(currentCursor) <= 0) continue;
-      _cursor = envelopeCursor;
+      if (envelopeCursor.compareTo(batchCursor) <= 0) continue;
+      if (envelopeCursor.compareTo(_cursor!) > 0) _cursor = envelopeCursor;
       if (!_eventController.isClosed) _eventController.add(envelope);
     }
     if (!_isCurrent(generation)) return false;
