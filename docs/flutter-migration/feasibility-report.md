@@ -31,7 +31,7 @@ Build artifacts are local, reproducible outputs and are excluded from source con
 | Result | `blocked-by-environment` |
 | Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `WEB-RUNTIME-001`, `ANDROID-RUNTIME-001`, `WINDOWS-ENV-001`, `AUTH-ENV-001` |
 | Sanitized error | Required external prerequisites were unavailable: terminal machine code, authorized test employee account, live backend coordination, and a Windows runtime host. No secret or backend payload was captured. |
-| Decision | Keep `AUTH-TERM-001`, `AUTH-LOGIN-001`, and `SYNC-CONNECT-001` at `defined`. Repeat on Web, Android, and Windows with controlled test access before any status advance. |
+| Decision | status=defined; capabilities=AUTH-TERM-001,AUTH-LOGIN-001,SYNC-CONNECT-001; action=hold current status until Gate A and Gate C both pass on every required platform |
 
 The available shell evidence cannot verify terminal authorization headers, login response handling, WebSocket authentication, heartbeat, forced disconnect, incremental reconciliation, logout, or the Android camera/HID scan required by this gate.
 
@@ -46,7 +46,7 @@ The available shell evidence cannot verify terminal authorization headers, login
 | Result | `blocked-by-environment` |
 | Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `ANDROID-DEBUG-BUILD-001`, `ANDROID-RELEASE-BUILD-001`, `ANDROID-RUNTIME-001`, `WINDOWS-ENV-001`, `DEVICE-ENV-001` |
 | Sanitized error | Required hardware was unavailable: a real Windows host, HID scanner, Windows-installed 58mm and 80mm printers, and a standards-compliant LAN ESC/POS printer reachable from Windows and Android. No device address or print payload was captured. |
-| Decision | Keep `DEVICE-SCAN-001` and `DEVICE-PRINT-001` at `defined`. Unit/widget tests and an emulator startup do not establish hardware compatibility; repeat the disconnect, typed-failure, reconnect, and reprint matrix on real devices. |
+| Decision | status=defined; capabilities=DEVICE-SCAN-001,DEVICE-PRINT-001; action=hold current status until the Gate B physical-device matrix passes |
 
 No per-store printer model adaptation is accepted as gate evidence. The live rerun must validate the generic system-print and LAN ESC/POS paths against standards-compliant equipment, including Chinese text, QR content, 58mm/80mm layouts, cut behavior where supported, timeouts, and recovery.
 
@@ -61,7 +61,7 @@ No per-store printer model adaptation is accepted as gate evidence. The live rer
 | Result | `blocked-by-environment` |
 | Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `WEB-RELEASE-BUILD-001`, `WEB-RUNTIME-001`, `WEB-DEPLOY-ENV-001` |
 | Sanitized error | No HTTPS same-origin deployment under `/shouyin-v2/` was available. The fresh localhost origin proves only fail-closed rendering and is insufficient for target routing, browser integration, or CORS evidence. |
-| Decision | Do not treat the local Web shell as deployment compatibility. Repeat on the target HTTPS origin before advancing authentication, synchronization, or Web release readiness. |
+| Decision | status=defined; capabilities=AUTH-TERM-001,AUTH-LOGIN-001,SYNC-CONNECT-001; action=hold current status until Gate A and Gate C both pass in the target deployment |
 
 The rerun must verify refresh and deep links under `/shouyin-v2/`, browser back/forward navigation, Chinese IME, browser print, file download, unchanged CORS behavior, release initial load, the default JavaScript build, and that no COOP/COEP header change is required.
 

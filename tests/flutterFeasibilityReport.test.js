@@ -64,18 +64,40 @@ function assertIsoDate(value, label) {
   assert.equal(parsed.toISOString().slice(0, 10), value, `${label} must be a real calendar date`);
 }
 
-function assertSanitized(text, label) {
+function assertSanitizedString(text, label) {
+  assert.equal(typeof text, 'string', `${label} must be a string`);
   assert.doesNotMatch(text, /\b(?:https?|wss?):\/\/[^\s)'"`]+/i, `${label} must not contain a URL or full endpoint`);
-  assert.doesNotMatch(text, /(?:\/Users\/|\/Volumes\/|\/tmp\/|\b[A-Za-z]:[\\/])/, `${label} must not contain a machine path`);
   assert.doesNotMatch(
     text,
-    /(?:^|[\s{[,;])(?:tk|stk|tt|token|password|credential|machineCode)\s*(?:=|:)/i,
+    /(?:\/Users\/|\/Volumes\/|\/tmp\/|\/home\/|\/private\/|\/var\/|\b[A-Za-z]:[\\/]|\\\\[^\\\s]+\\[^\\\s]+)/,
+    `${label} must not contain a machine path`,
+  );
+  assert.doesNotMatch(text, /\bAuthorization\s*:\s*Bearer\s+\S+/i, `${label} must not contain a bearer authorization header`);
+  assert.doesNotMatch(text, /\bCookie\s*:\s*\S+/i, `${label} must not contain a cookie header`);
+  assert.doesNotMatch(
+    text,
+    /(?:^|[\s{[,;])(?:tk|stk|tt|token|password|credential|machineCode|sessionSecret|apiKey|proxyHost|requestBody|responseBody|rawPayload|payload|endpoint|url)\s*(?:=|:)/i,
     `${label} must not contain a sensitive assignment`,
   );
+  assert.doesNotMatch(text, /\braw\s+(?:request|response)\s*=/i, `${label} must not contain a raw transport assignment`);
   assert.doesNotMatch(text, /"(?:payload|rawPayload|endpoint|url)"\s*:/i, `${label} must not contain a sensitive JSON key`);
   assert.doesNotMatch(text, /^\|\s*(?:payload|rawPayload|endpoint|url)\s*\|/im, `${label} must not contain a sensitive table key`);
   assert.doesNotMatch(text, /\b1[3-9]\d{9}\b/, `${label} must not contain a mainland China mobile number`);
   assert.doesNotMatch(text, /\b\d{18,24}\b/, `${label} must not contain a payment-code-shaped number`);
+}
+
+function assertSanitizedStrings(value, label) {
+  if (typeof value === 'string') {
+    assertSanitizedString(value, label);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertSanitizedStrings(item, `${label}[${index}]`));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    Object.entries(value).forEach(([key, item]) => assertSanitizedStrings(item, `${label}.${key}`));
+  }
 }
 
 function parseCoverageStatuses(source) {
@@ -86,6 +108,62 @@ function parseCoverageStatuses(source) {
   });
   return statuses;
 }
+
+function parseCapabilityDecision(report) {
+  const start = report.indexOf('## Capability decision');
+  const end = report.indexOf('## Residual non-blocking build warnings', start);
+  assert.notEqual(start, -1, 'Capability decision section must exist');
+  assert.notEqual(end, -1, 'Residual warning section must follow Capability decision');
+  const rows = report.slice(start, end).split('\n')
+    .filter((line) => line.startsWith('|'))
+    .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()))
+    .filter(([field]) => field !== 'Capability' && !/^-+$/.test(field));
+  const decisions = new Map();
+  rows.forEach((cells) => {
+    assert.equal(cells.length, 3, 'Capability decision rows must have three cells');
+    const id = inlineValue(cells[0]);
+    assert.equal(decisions.has(id), false, `duplicate Capability decision ${id}`);
+    decisions.set(id, { status: inlineValue(cells[1]), reason: cells[2] });
+  });
+  return decisions;
+}
+
+function parseGateDecision(value, gate) {
+  const match = value.match(
+    /^status=([a-z-]+); capabilities=([A-Z][A-Z0-9-]*(?:,[A-Z][A-Z0-9-]*)*); action=(.+)$/,
+  );
+  assert.notEqual(match, null, `Gate ${gate} Decision must use the stable status/capabilities/action format`);
+  return {
+    status: match[1],
+    capabilities: match[2].split(','),
+    action: match[3],
+  };
+}
+
+test('rejects sensitive mutation corpus without rejecting safe migration prose', () => {
+  const attacks = [
+    'Authorization: Bearer abc.def',
+    'Cookie: sid=x',
+    'sessionSecret=x',
+    'apiKey=x',
+    'proxyHost=127.0.0.1',
+    '/home/user/file',
+    'C:\\Users\\name\\file',
+    '\\\\server\\share\\file',
+    'raw response={...}',
+    'requestBody=[...]',
+  ];
+
+  attacks.forEach((value) => {
+    assert.throws(
+      () => assertSanitizedString(value, 'mutation corpus'),
+      assert.AssertionError,
+      `sanitizer must reject ${value}`,
+    );
+  });
+  assert.doesNotThrow(() => assertSanitizedString('no raw backend payload', 'safe prose'));
+  assert.doesNotThrow(() => assertSanitizedString('/shouyin-v2/', 'safe application path'));
+});
 
 test('validates dynamic gate tables and resolves every evidence reference', () => {
   const report = readRequired(reportRelativePath);
@@ -129,6 +207,7 @@ test('validates dynamic gate tables and resolves every evidence reference', () =
   };
   const referencedIds = new Set();
   for (const [gate, fields] of Object.entries(gates)) {
+    assertSanitizedStrings(fields, `Gate ${gate}`);
     assert.match(inlineValue(fields['App commit']), /^[0-9a-f]{40}$/);
     assert.match(inlineValue(fields['Flutter version']), /^\d+\.\d+\.\d+$/);
     assertIsoDate(inlineValue(fields['Test date']), `Gate ${gate} date`);
@@ -148,8 +227,8 @@ test('validates dynamic gate tables and resolves every evidence reference', () =
   }
   assert.deepEqual([...referencedIds].sort(), [...evidenceById.keys()].sort(), 'every evidence record must support at least one gate');
 
-  assertSanitized(report, 'feasibility report');
-  assertSanitized(evidenceSource, 'feasibility evidence');
+  assertSanitizedString(report, 'feasibility report');
+  assertSanitizedStrings(evidenceDocument, 'feasibility evidence');
 });
 
 test('derives capability and generated coverage status from live gate results', () => {
@@ -164,8 +243,17 @@ test('derives capability and generated coverage status from live gate results', 
   );
   const capabilities = JSON.parse(readRequired('migration/flutter/capabilities.json'));
   const coverageStatuses = parseCoverageStatuses(readRequired('migration/flutter/generated/coverage.md'));
+  const reportStatuses = parseCapabilityDecision(report);
   const authIds = new Set(['AUTH-TERM-001', 'AUTH-LOGIN-001', 'SYNC-CONNECT-001']);
   const deviceIds = new Set(['DEVICE-SCAN-001', 'DEVICE-PRINT-001']);
+  const gateCapabilityIds = {
+    A: [...authIds],
+    B: [...deviceIds],
+    C: [...authIds],
+  };
+  const statusById = new Map(capabilities.map((capability) => [capability.id, capability.status]));
+
+  assert.deepEqual([...reportStatuses.keys()].sort(), [...statusById.keys()].sort());
 
   for (const capability of capabilities) {
     const mayBePlatformVerified = authIds.has(capability.id)
@@ -173,6 +261,27 @@ test('derives capability and generated coverage status from live gate results', 
       : deviceIds.has(capability.id) && gatePassed.B;
     const expectedStatus = mayBePlatformVerified ? 'platform-verified' : 'defined';
     assert.equal(capability.status, expectedStatus, `${capability.id} status must follow its live gate evidence`);
+    assert.equal(reportStatuses.get(capability.id).status, capability.status, `${capability.id} report status must match its ledger`);
     assert.equal(coverageStatuses.get(capability.id), capability.status, `${capability.id} coverage status must match its ledger`);
+  }
+
+  for (const [gate, fields] of Object.entries(gates)) {
+    const decision = parseGateDecision(fields.Decision, gate);
+    assert.deepEqual([...new Set(decision.capabilities)].sort(), [...gateCapabilityIds[gate]].sort());
+    assert.equal(decision.capabilities.length, gateCapabilityIds[gate].length, `Gate ${gate} Decision must not duplicate capabilities`);
+    const currentStatuses = new Set(decision.capabilities.map((id) => statusById.get(id)));
+    assert.equal(currentStatuses.size, 1, `Gate ${gate} capabilities must share one current status`);
+    assert.equal(decision.status, [...currentStatuses][0], `Gate ${gate} Decision must state the current capability status`);
+    if (!gatePassed[gate]) {
+      assert.doesNotMatch(fields.Decision, /(?:advance|推进|platform-verified)/i, `Gate ${gate} cannot promise advancement when it did not pass`);
+    }
+    if (decision.status === 'platform-verified') {
+      decision.capabilities.forEach((id) => {
+        const allRequiredGatesPassed = authIds.has(id)
+          ? gatePassed.A && gatePassed.C
+          : gatePassed.B;
+        assert.equal(allRequiredGatesPassed, true, `${id} cannot be platform-verified before all required gates pass`);
+      });
+    }
   }
 });
