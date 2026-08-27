@@ -138,6 +138,43 @@ function assertIsoDate(value, label) {
   assert.equal(parsed.toISOString().slice(0, 10), value, `${label} must be a real calendar date`);
 }
 
+function normalizeAssignmentLhs(value) {
+  return value.replace(/[\s_.-]/g, '').toLowerCase();
+}
+
+function isSensitiveAssignmentLhs(value) {
+  const normalized = normalizeAssignmentLhs(value);
+  const identitySuffixes = ['secret', 'token', 'apikey', 'authorization', 'cookie'];
+  const knownSensitiveSuffixes = [
+    'password',
+    'credential',
+    'credentials',
+    'machinecode',
+    'tk',
+    'stk',
+    'tt',
+    'proxy',
+    'proxyhost',
+    'proxyport',
+    'httpproxy',
+    'httpsproxy',
+    'allproxy',
+  ];
+  return [...identitySuffixes, ...knownSensitiveSuffixes]
+    .some((suffix) => normalized === suffix || normalized.endsWith(suffix));
+}
+
+function assertNoSensitiveAssignments(text, label) {
+  const lhsPattern = /(?:^|[^A-Za-z0-9_.-])\s*["']?([A-Za-z0-9][A-Za-z0-9 ._-]{0,127}?)["']?\s*[:=]/g;
+  for (const match of text.matchAll(lhsPattern)) {
+    assert.equal(
+      isSensitiveAssignmentLhs(match[1]),
+      false,
+      `${label} must not contain sensitive header or assignment key ${match[1]}`,
+    );
+  }
+}
+
 function assertSanitizedString(text, label) {
   assert.equal(typeof text, 'string', `${label} must be a string`);
   assert.doesNotMatch(text, /\b(?:https?|wss?):\/\/[^\s)'"`]+/i, `${label} must not contain a URL or full endpoint`);
@@ -146,16 +183,7 @@ function assertSanitizedString(text, label) {
     /(?:\/Users\/|\/Volumes\/|\/tmp\/|\/home\/|\/root\/|\/opt\/|\/etc\/|\/mnt\/|\/srv\/|\/private\/|\/var\/|\b[A-Za-z]:[\\/]|\\\\[^\\\s]+\\[^\\\s]+)/,
     `${label} must not contain a machine path`,
   );
-  assert.doesNotMatch(
-    text,
-    /\b(?:Proxy-Authorization|Authorization|Cookie|Set-Cookie|X-API-Key)\s*:/i,
-    `${label} must not contain an authentication or cookie header`,
-  );
-  assert.doesNotMatch(
-    text,
-    /(?:^|[\s{[,;])["']?(?:(?:session[\s_-]?)?secret|client[\s_-]?secret|access[\s_-]?token|refresh[\s_-]?token|session[\s_-]?token|token|api[\s_-]?key|x[\s_-]?api[\s_-]?key|password|credentials?|machine[\s_-]?code|tk|stk|tt|https?[\s_-]?proxy|all[\s_-]?proxy|proxy[\s_-]?(?:host|port))["']?\s*[:=]/i,
-    `${label} must not contain a sensitive assignment`,
-  );
+  assertNoSensitiveAssignments(text, label);
   assert.doesNotMatch(
     text,
     /\b(?:raw[\s_-]*(?:request|response|body|payload)|(?:request|response)[\s_-]?body)\s*[:=]/i,
@@ -339,6 +367,8 @@ test('rejects sensitive mutation corpus without rejecting safe migration prose',
     'client-secret: x',
     'X-API-Key: x',
     'x_api_key=x',
+    'client.secret=x',
+    'X-Auth-Token: x',
   ];
 
   attacks.forEach((value) => {
@@ -350,6 +380,14 @@ test('rejects sensitive mutation corpus without rejecting safe migration prose',
   });
   assert.doesNotThrow(() => assertSanitizedString('no raw backend payload', 'safe prose'));
   assert.doesNotThrow(() => assertSanitizedString('/shouyin-v2/', 'safe application path'));
+  assert.doesNotThrow(() => assertSanitizedString(
+    'flutter_workspace/apps/web_app/build/web/main.dart.js at Flutter 3.47.0',
+    'safe dotted path and version',
+  ));
+  assert.doesNotThrow(() => assertSanitizedString(
+    'title=收银 Web 客户端; package=com.xmsj.shouyin.shouyin_android; activity=.MainActivity; resumed=true; focused=true; status=defined; capabilities=AUTH-TERM-001; action=hold',
+    'safe structured evidence keys',
+  ));
 });
 
 test('fails closed for uncontrolled evidence commands and summary shapes', () => {
