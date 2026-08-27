@@ -12,6 +12,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.4.2
+  foundation:
+    path: ../foundation
 
 dev_dependencies:
   flutter_test:

@@ -14,11 +14,14 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.4.2
+  flutter_secure_storage: 11.0.0
   foundation:
     path: ../foundation
   meta: ^1.15.0
   protocol:
     path: ../protocol
+  design_system:
+    path: ../design_system
 
 dev_dependencies:
   dio: ^5.11.0
