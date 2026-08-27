@@ -18,8 +18,7 @@ default:
     - export PATH="$PUB_CACHE/bin:$PATH"
     - command -v node >/dev/null || (apt-get update -qq && apt-get install -y -qq nodejs)
     - dart pub global activate fvm "$FVM_VERSION"
-    - fvm install "$FLUTTER_VERSION"
-    - fvm flutter --version | grep -F "Flutter $FLUTTER_VERSION"
+    - (cd flutter_workspace && fvm install "$FLUTTER_VERSION" && flutter_version_output=$(fvm flutter --version) && printf '%s\n' "$flutter_version_output" | grep -F "Flutter $FLUTTER_VERSION ")
     - node --version
   cache:
     key: flutter-3-47-linux
@@ -75,8 +74,7 @@ flutter-windows:
   before_script:
     - $env:PATH = "$env:PUB_CACHE\bin;$env:PATH"
     - dart pub global activate fvm $env:FVM_VERSION
-    - fvm install $env:FLUTTER_VERSION
-    - fvm flutter --version
+    - Push-Location (Join-Path $env:CI_PROJECT_DIR 'flutter_workspace'); try { & fvm install $env:FLUTTER_VERSION; if ($LASTEXITCODE -ne 0) { throw "FVM install failed with code $LASTEXITCODE" }; $FlutterVersionOutput = @(& fvm flutter --version); if ($LASTEXITCODE -ne 0) { throw "FVM version failed with code $LASTEXITCODE" }; if ($FlutterVersionOutput.Count -eq 0 -or -not $FlutterVersionOutput[0].StartsWith("Flutter $env:FLUTTER_VERSION ")) { throw "Unexpected Flutter SDK version" } } finally { Pop-Location }
     - node --version
   script:
     - '& "$env:CI_PROJECT_DIR\flutter_workspace\tool\check.ps1"'

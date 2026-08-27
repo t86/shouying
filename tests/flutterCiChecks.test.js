@@ -373,6 +373,66 @@ function parseYaml(file) {
   return JSON.parse(result.stdout);
 }
 
+function makeFvmBootstrapFixture(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fvm-bootstrap-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const workspace = path.join(root, 'flutter_workspace');
+  const bin = path.join(root, 'bin');
+  const log = path.join(root, 'fvm.log');
+  fs.mkdirSync(workspace, { recursive: true });
+  fs.mkdirSync(bin, { recursive: true });
+  if (process.platform === 'win32') {
+    const stub = [
+      '@echo off',
+      '>>"%FVM_LOG%" echo fvm^|%CD%^|%*',
+      'if /I "%~1"=="install" if "%FVM_FAIL_INSTALL%"=="1" exit /b 42',
+      'if /I "%~1"=="flutter" if /I "%~2"=="--version" if "%FVM_FAIL_VERSION%"=="1" exit /b 43',
+      'if /I "%~1"=="flutter" if /I "%~2"=="--version" echo Flutter %FVM_REPORTED_VERSION% fixture',
+      'exit /b 0',
+    ].join('\r\n');
+    fs.writeFileSync(path.join(bin, 'fvm.cmd'), `${stub}\r\n`);
+  } else {
+    const stub = [
+      '#!/bin/sh',
+      'printf "fvm|%s|%s\\n" "$PWD" "$*" >> "$FVM_LOG"',
+      'if [ "$1" = "install" ] && [ "${FVM_FAIL_INSTALL:-0}" = "1" ]; then exit 42; fi',
+      'if [ "$1" = "flutter" ] && [ "$2" = "--version" ] && [ "${FVM_FAIL_VERSION:-0}" = "1" ]; then exit 43; fi',
+      'if [ "$1" = "flutter" ] && [ "$2" = "--version" ]; then printf "Flutter %s fixture\\n" "$FVM_REPORTED_VERSION"; fi',
+    ].join('\n');
+    fs.writeFileSync(path.join(bin, 'fvm'), `${stub}\n`, { mode: 0o755 });
+  }
+  return { root, workspace, bin, log };
+}
+
+function fvmBootstrapEnvironment(fixture, options = {}) {
+  return {
+    ...process.env,
+    PATH: `${fixture.bin}${path.delimiter}${process.env.PATH}`,
+    CI_PROJECT_DIR: fixture.root,
+    FLUTTER_VERSION: '3.47.0',
+    FVM_LOG: fixture.log,
+    FVM_FAIL_INSTALL: options.failInstall ? '1' : '0',
+    FVM_FAIL_VERSION: options.failVersion ? '1' : '0',
+    FVM_REPORTED_VERSION: options.reportedVersion || '3.47.0',
+  };
+}
+
+function bootstrapLog(fixture) {
+  return fs.existsSync(fixture.log) ? read(fixture.log).trim().split(/\r?\n/) : [];
+}
+
+function assertFvmBootstrapLog(fixture, expectedArguments) {
+  const entries = bootstrapLog(fixture).map((line) => {
+    const [command, cwd, ...args] = line.split('|');
+    return { command, cwd, args: args.join('|') };
+  });
+  assert.deepEqual(entries.map((entry) => entry.args), expectedArguments);
+  for (const entry of entries) {
+    assert.equal(entry.command, 'fvm');
+    assert.equal(fs.realpathSync(entry.cwd), fs.realpathSync(fixture.workspace));
+  }
+}
+
 test('portable pipeline parser agrees with the platform YAML parser', () => {
   const actual = parseYaml(pipeline);
   const portable = parsePipelineSubset(read(pipeline));
@@ -586,11 +646,151 @@ test('GitLab defines four jobs across validate, build, and windows stages', () =
   assert.equal(config.variables.FLUTTER_VERSION, '3.47.0');
   assert.doesNotMatch(config['.linux-flutter'].image, /flutter:3\.47\.0(?:$|@)/);
   assert.match(config['.linux-flutter'].before_script.join('\n'), /fvm install "\$FLUTTER_VERSION"/);
-  assert.match(config['.linux-flutter'].before_script.join('\n'), /grep -F "Flutter \$FLUTTER_VERSION"/);
+  assert.match(config['.linux-flutter'].before_script.join('\n'), /grep -F "Flutter \$FLUTTER_VERSION "/);
+  const windowsBootstrap = config['flutter-windows'].before_script.find((command) => (
+    command.includes('Push-Location')
+  ));
+  assert.match(windowsBootstrap, /CI_PROJECT_DIR.*flutter_workspace/);
+  assert.match(windowsBootstrap, /\$LASTEXITCODE/);
+  assert.match(windowsBootstrap, /FlutterVersionOutput/);
+  assert.match(windowsBootstrap, /finally\s*\{\s*Pop-Location\s*\}/);
   for (const job of ['migration-ledger', 'flutter-test', 'flutter-web-android']) {
     assert.equal(config[job].extends, '.linux-flutter');
   }
   assert.deepEqual(config['flutter-windows'].tags, ['windows']);
+});
+
+test('Linux FVM bootstrap runs in the workspace, propagates failure, and restores cwd', (t) => {
+  const config = parseYaml(pipeline);
+  const command = config['.linux-flutter'].before_script.find((item) => item.includes('fvm install'));
+  const fixture = makeFvmBootstrapFixture(t);
+  const wrapper = `${command}\nbootstrap_code=$?\npwd\nexit $bootstrap_code`;
+  let result = childProcess.spawnSync('/bin/sh', ['-c', wrapper], {
+    cwd: fixture.root,
+    encoding: 'utf8',
+    env: fvmBootstrapEnvironment(fixture),
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+  assertFvmBootstrapLog(fixture, ['install 3.47.0', 'flutter --version']);
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync('/bin/sh', ['-c', wrapper], {
+    cwd: fixture.root,
+    encoding: 'utf8',
+    env: fvmBootstrapEnvironment(fixture, { failInstall: true }),
+  });
+  assert.equal(result.status, 42);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+  assertFvmBootstrapLog(fixture, ['install 3.47.0']);
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync('/bin/sh', ['-c', wrapper], {
+    cwd: fixture.root,
+    encoding: 'utf8',
+    env: fvmBootstrapEnvironment(fixture, { failVersion: true }),
+  });
+  assert.equal(result.status, 43);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+  assertFvmBootstrapLog(fixture, ['install 3.47.0', 'flutter --version']);
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync('/bin/sh', ['-c', wrapper], {
+    cwd: fixture.root,
+    encoding: 'utf8',
+    env: fvmBootstrapEnvironment(fixture, { reportedVersion: '3.46.0' }),
+  });
+  assert.equal(result.status, 1);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+});
+
+test('Windows FVM bootstrap runs in the workspace and restores cwd on failure', {
+  skip: !hasPowerShell,
+}, (t) => {
+  const config = parseYaml(pipeline);
+  const command = config['flutter-windows'].before_script.find((item) => item.includes('Push-Location'));
+  const fixture = makeFvmBootstrapFixture(t);
+  const wrapper = [
+    '$BootstrapCode = 0',
+    `try { ${command} } catch { $BootstrapCode = 73 }`,
+    'Write-Output ((Get-Location).Path)',
+    'exit $BootstrapCode',
+  ].join('; ');
+  let result = childProcess.spawnSync(
+    powerShellExecutable,
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', wrapper],
+    {
+      cwd: fixture.root,
+      encoding: 'utf8',
+      env: fvmBootstrapEnvironment(fixture),
+    },
+  );
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+  assertFvmBootstrapLog(fixture, ['install 3.47.0', 'flutter --version']);
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync(
+    powerShellExecutable,
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', wrapper],
+    {
+      cwd: fixture.root,
+      encoding: 'utf8',
+      env: fvmBootstrapEnvironment(fixture, { failInstall: true }),
+    },
+  );
+  assert.equal(result.status, 73);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync(
+    powerShellExecutable,
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', wrapper],
+    {
+      cwd: fixture.root,
+      encoding: 'utf8',
+      env: fvmBootstrapEnvironment(fixture, { failVersion: true }),
+    },
+  );
+  assert.equal(result.status, 73);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
+
+  fs.writeFileSync(fixture.log, '');
+  result = childProcess.spawnSync(
+    powerShellExecutable,
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', wrapper],
+    {
+      cwd: fixture.root,
+      encoding: 'utf8',
+      env: fvmBootstrapEnvironment(fixture, { reportedVersion: '3.46.0' }),
+    },
+  );
+  assert.equal(result.status, 73);
+  assert.equal(
+    fs.realpathSync(result.stdout.trim().split(/\r?\n/).at(-1)),
+    fs.realpathSync(fixture.root),
+  );
 });
 
 test('GitLab caches only Pub/FVM inputs and retains every platform artifact for seven days', () => {
