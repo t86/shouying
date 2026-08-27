@@ -24,6 +24,24 @@ function Invoke-Checked {
     }
 }
 
+function Get-MigrationStateSnapshot {
+    Push-Location $RepositoryRoot
+    try {
+        $Digest = & node $SnapshotCli
+        if ($LASTEXITCODE -ne 0) {
+            throw "Migration state snapshot failed with code $LASTEXITCODE"
+        }
+        $Digest = ([string]$Digest).Trim()
+        if ([string]::IsNullOrWhiteSpace($Digest)) {
+            throw 'Migration state snapshot was empty'
+        }
+        return $Digest
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 $InventoryTest = Join-Path $RepositoryRoot 'tests/flutterMigrationInventory.test.js'
 $WorkspaceStructureTest = Join-Path $RepositoryRoot 'tests/flutterWorkspaceStructure.test.js'
 $CiChecksTest = Join-Path $RepositoryRoot 'tests/flutterCiChecks.test.js'
@@ -32,6 +50,7 @@ $InventoryGenerator = Join-Path $RepositoryRoot 'tools/flutter_migration_invento
 $ReportGenerator = Join-Path $RepositoryRoot 'tools/flutter_migration_inventory/generate_report.js'
 $BoundaryTest = Join-Path $WorkspaceRoot 'tool/verify_boundaries.test.js'
 $BoundaryCli = Join-Path $WorkspaceRoot 'tool/verify_boundaries.js'
+$SnapshotCli = Join-Path $WorkspaceRoot 'tool/snapshot_migration_state.js'
 $FlutterMembers = @(
     Get-ChildItem (Join-Path $WorkspaceRoot 'packages') -Directory | Sort-Object Name | ForEach-Object FullName
     Get-ChildItem (Join-Path $WorkspaceRoot 'apps') -Directory | Sort-Object Name | ForEach-Object FullName
@@ -48,6 +67,9 @@ Invoke-Checked -Command 'node' -Arguments @($BoundaryCli, $WorkspaceRoot) -Worki
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'format', '--output=none', '--set-exit-if-changed', '.') -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'analyze') -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments (@('flutter', 'test') + $FlutterMembers) -WorkingDirectory $WorkspaceRoot
+$BuildStateBefore = Get-MigrationStateSnapshot
 Invoke-Checked -Command 'fvm' -Arguments @('flutter', 'build', 'windows', '--release') -WorkingDirectory (Join-Path $WorkspaceRoot 'apps/windows_app')
-Invoke-Checked -Command 'git' -Arguments @('diff', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated') -WorkingDirectory $RepositoryRoot
-Invoke-Checked -Command 'git' -Arguments @('diff', '--cached', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated') -WorkingDirectory $RepositoryRoot
+$BuildStateAfter = Get-MigrationStateSnapshot
+if ($BuildStateBefore -ne $BuildStateAfter) {
+    throw 'Build changed scoped migration state.'
+}

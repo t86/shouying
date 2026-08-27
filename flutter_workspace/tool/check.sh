@@ -38,6 +38,11 @@ REPO_ROOT=$(CDPATH= cd -- "$WORKSPACE_ROOT/.." && pwd)
   fvm flutter test packages/* apps/*
 )
 
+BUILD_STATE_BEFORE=$(
+  cd "$REPO_ROOT"
+  node "$WORKSPACE_ROOT/tool/snapshot_migration_state.js"
+)
+
 (
   cd "$WORKSPACE_ROOT/apps/web_app"
   fvm flutter build web --release
@@ -48,8 +53,12 @@ REPO_ROOT=$(CDPATH= cd -- "$WORKSPACE_ROOT/.." && pwd)
   fvm flutter build apk --release
 )
 
-(
+BUILD_STATE_AFTER=$(
   cd "$REPO_ROOT"
-  git diff --quiet -- flutter_workspace migration/flutter/generated
-  git diff --cached --quiet -- flutter_workspace migration/flutter/generated
+  node "$WORKSPACE_ROOT/tool/snapshot_migration_state.js"
 )
+
+if [ "$BUILD_STATE_BEFORE" != "$BUILD_STATE_AFTER" ]; then
+  echo "Build changed scoped migration state." >&2
+  exit 1
+fi

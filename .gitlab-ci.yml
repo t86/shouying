@@ -13,13 +13,13 @@ default:
   interruptible: true
 
 .linux-flutter:
-  image: ghcr.io/cirruslabs/flutter:3.47.0
+  image: ghcr.io/cirruslabs/flutter:3.44.0@sha256:46691e311715845de03a3ba4753a475476936805b29431b1f00f1816981033f8
   before_script:
     - export PATH="$PUB_CACHE/bin:$PATH"
     - command -v node >/dev/null || (apt-get update -qq && apt-get install -y -qq nodejs)
     - dart pub global activate fvm "$FVM_VERSION"
     - fvm install "$FLUTTER_VERSION"
-    - fvm flutter --version
+    - fvm flutter --version | grep -F "Flutter $FLUTTER_VERSION"
     - node --version
   cache:
     key: flutter-3-47-linux

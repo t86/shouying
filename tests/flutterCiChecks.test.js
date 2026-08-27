@@ -10,13 +10,42 @@ const test = require('node:test');
 const repositoryRoot = path.resolve(__dirname, '..');
 const shellCheck = path.join(repositoryRoot, 'flutter_workspace/tool/check.sh');
 const powershellCheck = path.join(repositoryRoot, 'flutter_workspace/tool/check.ps1');
+const snapshotCheck = path.join(repositoryRoot, 'flutter_workspace/tool/snapshot_migration_state.js');
 const pipeline = path.join(repositoryRoot, '.gitlab-ci.yml');
-const powershellProbe = childProcess.spawnSync(
-  'pwsh',
-  ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'],
-  { encoding: 'utf8' },
-);
-const hasPowerShell = powershellProbe.status === 0;
+
+function detectPowerShell(spawn = childProcess.spawnSync) {
+  for (const executable of ['pwsh', 'powershell.exe']) {
+    const probe = spawn(
+      executable,
+      ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'],
+      { encoding: 'utf8' },
+    );
+    if (probe.status === 0) return executable;
+  }
+  return null;
+}
+
+const powerShellExecutable = detectPowerShell();
+const hasPowerShell = powerShellExecutable !== null;
+
+test('PowerShell detection prefers pwsh and falls back to Windows PowerShell', () => {
+  const calls = [];
+  const fallback = detectPowerShell((command) => {
+    calls.push(command);
+    return { status: command === 'powershell.exe' ? 0 : 1 };
+  });
+  assert.equal(fallback, 'powershell.exe');
+  assert.deepEqual(calls, ['pwsh', 'powershell.exe']);
+
+  calls.length = 0;
+  const preferred = detectPowerShell((command) => {
+    calls.push(command);
+    return { status: 0 };
+  });
+  assert.equal(preferred, 'pwsh');
+  assert.deepEqual(calls, ['pwsh']);
+  assert.equal(detectPowerShell(() => ({ status: 1 })), null);
+});
 
 function read(file) {
   return fs.readFileSync(file, 'utf8');
@@ -57,6 +86,7 @@ function makeShellFixture(t) {
   fs.mkdirSync(path.join(root, 'tests'), { recursive: true });
   fs.mkdirSync(bin, { recursive: true });
   fs.copyFileSync(shellCheck, path.join(tool, 'check.sh'));
+  fs.copyFileSync(snapshotCheck, path.join(tool, 'snapshot_migration_state.js'));
   fs.chmodSync(path.join(tool, 'check.sh'), 0o755);
   const trackedFile = path.join(workspace, 'tracked.txt');
   fs.writeFileSync(trackedFile, 'clean\n');
@@ -65,6 +95,7 @@ function makeShellFixture(t) {
     '#!/bin/sh',
     'entry="$(basename "$0")|$PWD|$*"',
     'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+    'case "$1" in */snapshot_migration_state.js) exec "$CHECK_REAL_NODE" "$@" ;; esac',
     'if [ "${CHECK_DIRTY_AFTER_BUILD:-0}" = "1" ] && [ "$(basename "$0")" = "fvm" ]; then',
     '  case "$*" in flutter\\ build\\ *) printf "dirty\\n" >> "$CHECK_TRACKED_FILE" ;; esac',
     'fi',
@@ -80,8 +111,10 @@ function makeShellFixture(t) {
   assert.notEqual(realGit, '', 'git is required for the shell behavior fixture');
   const gitStub = [
     '#!/bin/sh',
-    'entry="git|$PWD|$*"',
-    'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+    'if [ "$1" != "ls-files" ]; then',
+    '  entry="git|$PWD|$*"',
+    '  printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+    'fi',
     'exec "$CHECK_REAL_GIT" "$@"',
   ].join('\n');
   fs.writeFileSync(path.join(bin, 'git'), `${gitStub}\n`, { mode: 0o755 });
@@ -119,6 +152,7 @@ function runFixture(fixture, options = {}) {
       CHECK_DIRTY_AFTER_BUILD: options.dirtyAfterBuild ? '1' : '0',
       CHECK_TRACKED_FILE: fixture.trackedFile,
       CHECK_REAL_GIT: fixture.realGit,
+      CHECK_REAL_NODE: process.execPath,
     },
   });
   fs.rmSync(unrelatedCwd, { recursive: true, force: true });
@@ -153,6 +187,7 @@ function makePowerShellFixture(t) {
   fs.mkdirSync(path.join(root, 'tests'), { recursive: true });
   fs.mkdirSync(bin, { recursive: true });
   fs.copyFileSync(powershellCheck, path.join(tool, 'check.ps1'));
+  fs.copyFileSync(snapshotCheck, path.join(tool, 'snapshot_migration_state.js'));
   const trackedFile = path.join(workspace, 'tracked.txt');
   fs.writeFileSync(trackedFile, 'clean\n');
 
@@ -179,12 +214,18 @@ function makePowerShellFixture(t) {
     const nodeStub = [
       '@echo off',
       '>>"%CHECK_LOG%" echo node^|%CD%^|%*',
+      'if /I not "%~nx1"=="snapshot_migration_state.js" goto node_done',
+      '"%CHECK_REAL_NODE%" %*',
+      'exit /b %ERRORLEVEL%',
+      ':node_done',
       'exit /b 0',
     ].join('\r\n');
     fs.writeFileSync(path.join(bin, 'node.cmd'), `${nodeStub}\r\n`);
     const gitStub = [
       '@echo off',
+      'if /I "%~1"=="ls-files" goto git_run',
       '>>"%CHECK_LOG%" echo git^|%CD%^|%*',
+      ':git_run',
       '"%CHECK_REAL_GIT%" %*',
       'exit /b %ERRORLEVEL%',
     ].join('\r\n');
@@ -194,6 +235,7 @@ function makePowerShellFixture(t) {
       '#!/bin/sh',
       'entry="$(basename "$0")|$PWD|$*"',
       'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+      'case "$1" in */snapshot_migration_state.js) exec "$CHECK_REAL_NODE" "$@" ;; esac',
       'if [ "${CHECK_DIRTY_AFTER_BUILD:-0}" = "1" ] && [ "$(basename "$0")" = "fvm" ]; then',
       '  case "$*" in flutter\\ build\\ windows\\ *) printf "dirty\\n" >> "$CHECK_TRACKED_FILE" ;; esac',
       'fi',
@@ -202,7 +244,7 @@ function makePowerShellFixture(t) {
     for (const command of ['fvm', 'node']) fs.writeFileSync(path.join(bin, command), `${nativeStub}\n`, { mode: 0o755 });
     const gitStub = [
       '#!/bin/sh',
-      'printf "git|%s|%s\\n" "$PWD" "$*" >> "$CHECK_LOG"',
+      'if [ "$1" != "ls-files" ]; then printf "git|%s|%s\\n" "$PWD" "$*" >> "$CHECK_LOG"; fi',
       'exec "$CHECK_REAL_GIT" "$@"',
     ].join('\n');
     fs.writeFileSync(path.join(bin, 'git'), `${gitStub}\n`, { mode: 0o755 });
@@ -232,7 +274,7 @@ function runPowerShellFixture(fixture, options = {}) {
   const log = path.join(fixture.root, 'commands.log');
   const unrelatedCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ps-cwd-'));
   const result = childProcess.spawnSync(
-    'pwsh',
+    powerShellExecutable,
     ['-NoLogo', '-NoProfile', '-NonInteractive', '-File', fixture.script],
     {
       cwd: unrelatedCwd,
@@ -245,6 +287,7 @@ function runPowerShellFixture(fixture, options = {}) {
         CHECK_DIRTY_AFTER_BUILD: options.dirtyAfterBuild ? '1' : '0',
         CHECK_TRACKED_FILE: fixture.trackedFile,
         CHECK_REAL_GIT: fixture.realGit,
+        CHECK_REAL_NODE: process.execPath,
       },
     },
   );
@@ -346,7 +389,7 @@ test('portable pipeline parser agrees with the platform YAML parser', () => {
 });
 
 test('creates executable local checks and a parseable GitLab pipeline', () => {
-  for (const file of [shellCheck, powershellCheck, pipeline]) {
+  for (const file of [shellCheck, powershellCheck, snapshotCheck, pipeline]) {
     assert.equal(fs.existsSync(file), true, `${path.relative(repositoryRoot, file)} must exist`);
   }
   if (process.platform !== 'win32') {
@@ -376,10 +419,10 @@ test('check.sh resolves roots from itself and runs the complete gate in order', 
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
     `fvm|${workspace}|flutter test packages/design_system packages/device_bridge_android packages/device_bridge_platform_interface packages/device_bridge_web packages/device_bridge_windows packages/foundation packages/permissions packages/protocol packages/realtime_sync packages/session apps/android_app apps/web_app apps/windows_app`,
+    `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/web_app|flutter build web --release`,
     `fvm|${workspace}/apps/android_app|flutter build apk --release`,
-    `git|${root}|diff --quiet -- flutter_workspace migration/flutter/generated`,
-    `git|${root}|diff --cached --quiet -- flutter_workspace migration/flutter/generated`,
+    `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
   ]);
 });
 
@@ -400,8 +443,33 @@ test('check.sh fails when a build changes a tracked migration file', {
   const fixture = makeShellFixture(t);
   const result = runFixture(fixture, { dirtyAfterBuild: true });
   assert.equal(result.status, 1);
-  assert.match(result.commands.at(-1), /git\|.*\|diff --quiet -- flutter_workspace migration\/flutter\/generated$/);
+  assert.match(result.commands.at(-1), /node\|.*\|.*snapshot_migration_state\.js$/);
   assert.equal(read(fixture.trackedFile), 'clean\ndirty\ndirty\n');
+});
+
+test('check.sh permits unchanged pre-existing staged, unstaged, and untracked state', {
+  skip: process.platform === 'win32',
+}, (t) => {
+  const fixture = makeShellFixture(t);
+  fs.appendFileSync(fixture.trackedFile, 'staged-before-run\n');
+  let result = childProcess.spawnSync(
+    fixture.realGit,
+    ['add', 'flutter_workspace/tracked.txt'],
+    { cwd: fixture.root, encoding: 'utf8' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  fs.appendFileSync(fixture.trackedFile, 'unstaged-before-run\n');
+  fs.writeFileSync(
+    path.join(fixture.workspace, 'pre-existing-untracked.txt'),
+    'untracked-before-run\n',
+  );
+
+  result = runFixture(fixture);
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.equal(
+    read(fixture.trackedFile),
+    'clean\nstaged-before-run\nunstaged-before-run\n',
+  );
 });
 
 test('PowerShell check uses checked native calls in the same required order', () => {
@@ -422,16 +490,16 @@ test('PowerShell check uses checked native calls in the same required order', ()
     "@('dart', 'format', '--output=none', '--set-exit-if-changed', '.')",
     "@('dart', 'analyze')",
     "@('flutter', 'test') + $FlutterMembers",
+    '$BuildStateBefore = Get-MigrationStateSnapshot',
     "@('flutter', 'build', 'windows', '--release')",
-    "@('diff', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated')",
-    "@('diff', '--cached', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated')",
+    '$BuildStateAfter = Get-MigrationStateSnapshot',
   ]);
 });
 
 test('Windows hosts provide pwsh for the PowerShell behavior gate', {
   skip: process.platform !== 'win32',
 }, () => {
-  assert.equal(hasPowerShell, true, 'pwsh is required on the Windows runner');
+  assert.notEqual(powerShellExecutable, null, 'PowerShell is required on the Windows runner');
 });
 
 test('check.ps1 resolves roots and runs every checked command in order', {
@@ -455,9 +523,9 @@ test('check.ps1 resolves roots and runs every checked command in order', {
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
     `fvm|${workspace}|flutter test ${workspace}/packages/design_system ${workspace}/packages/device_bridge_android ${workspace}/packages/device_bridge_platform_interface ${workspace}/packages/device_bridge_web ${workspace}/packages/device_bridge_windows ${workspace}/packages/foundation ${workspace}/packages/permissions ${workspace}/packages/protocol ${workspace}/packages/realtime_sync ${workspace}/packages/session ${workspace}/apps/android_app ${workspace}/apps/web_app ${workspace}/apps/windows_app`,
+    `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/windows_app|flutter build windows --release`,
-    `git|${root}|diff --quiet -- flutter_workspace migration/flutter/generated`,
-    `git|${root}|diff --cached --quiet -- flutter_workspace migration/flutter/generated`,
+    `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
   ]);
 });
 
@@ -473,7 +541,23 @@ test('check.ps1 stops on the first failure and rejects tracked build changes', {
   fixture = makePowerShellFixture(t);
   result = runPowerShellFixture(fixture, { dirtyAfterBuild: true });
   assert.equal(result.status, 1);
-  assert.match(result.commands.at(-1), /diff --quiet -- flutter_workspace migration[\\/]flutter[\\/]generated$/);
+  assert.match(result.commands.at(-1), /snapshot_migration_state\.js$/);
+
+  fixture = makePowerShellFixture(t);
+  fs.appendFileSync(fixture.trackedFile, 'staged-before-run\n');
+  result = childProcess.spawnSync(
+    fixture.realGit,
+    ['add', 'flutter_workspace/tracked.txt'],
+    { cwd: fixture.root, encoding: 'utf8' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  fs.appendFileSync(fixture.trackedFile, 'unstaged-before-run\n');
+  fs.writeFileSync(
+    path.join(fixture.workspace, 'pre-existing-untracked.txt'),
+    'untracked-before-run\n',
+  );
+  result = runPowerShellFixture(fixture);
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 });
 
 test('local checks never enable tracing or dump environment variables', () => {
@@ -495,7 +579,14 @@ test('GitLab defines four jobs across validate, build, and windows stages', () =
   assert.equal(config['flutter-test'].stage, 'validate');
   assert.equal(config['flutter-web-android'].stage, 'build');
   assert.equal(config['flutter-windows'].stage, 'windows');
-  assert.equal(config['.linux-flutter'].image, 'ghcr.io/cirruslabs/flutter:3.47.0');
+  assert.equal(
+    config['.linux-flutter'].image,
+    'ghcr.io/cirruslabs/flutter:3.44.0@sha256:46691e311715845de03a3ba4753a475476936805b29431b1f00f1816981033f8',
+  );
+  assert.equal(config.variables.FLUTTER_VERSION, '3.47.0');
+  assert.doesNotMatch(config['.linux-flutter'].image, /flutter:3\.47\.0(?:$|@)/);
+  assert.match(config['.linux-flutter'].before_script.join('\n'), /fvm install "\$FLUTTER_VERSION"/);
+  assert.match(config['.linux-flutter'].before_script.join('\n'), /grep -F "Flutter \$FLUTTER_VERSION"/);
   for (const job of ['migration-ledger', 'flutter-test', 'flutter-web-android']) {
     assert.equal(config[job].extends, '.linux-flutter');
   }
@@ -543,6 +634,7 @@ test('migration README documents deterministic local and CI entry points', () =>
     assert.match(source, new RegExp(`\\b${job}\\b`));
   }
   assert.match(source, /no live backend URLs, credentials, terminal identifiers, or device secrets/i);
+  assert.match(source, /3\.44\.0.*bootstrap.*FVM.*3\.47\.0/is);
 });
 
 test('pins every app analyzer file to the Flutter 3.47 migrated form', () => {
@@ -590,4 +682,51 @@ test('pins the Windows registrant to the current native plugin set', () => {
     `${registrant}\n${cmake}`,
     /(?:[A-Za-z]:\\Users\\|\/Users\/|BEGIN [A-Z ]+ PRIVATE KEY|SHOUYIN_(?:API|ONLINE|WS)_BASE)/,
   );
+});
+
+test('migration snapshot distinguishes index, worktree, and nonignored untracked changes', (t) => {
+  const { snapshotDigest } = require('../flutter_workspace/tool/snapshot_migration_state');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'migration-snapshot-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(root, 'flutter_workspace/apps/web_app'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'migration/flutter/generated'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, '.gitignore'),
+    'flutter_workspace/**/build/\n',
+  );
+  const tracked = path.join(root, 'flutter_workspace/tracked.txt');
+  fs.writeFileSync(tracked, 'base\n');
+  fs.writeFileSync(path.join(root, 'migration/flutter/generated/report.md'), 'report\n');
+  for (const args of [
+    ['init', '--quiet'],
+    ['config', 'user.name', 'Fixture'],
+    ['config', 'user.email', 'fixture@example.invalid'],
+    ['add', '.'],
+    ['commit', '--quiet', '-m', 'fixture'],
+  ]) {
+    const result = childProcess.spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+  }
+
+  const baseline = snapshotDigest(root);
+  fs.appendFileSync(tracked, 'pre-existing unstaged\n');
+  const unstaged = snapshotDigest(root);
+  assert.notEqual(unstaged, baseline);
+  assert.equal(snapshotDigest(root), unstaged, 'unchanged pre-existing dirt must be stable');
+
+  let result = childProcess.spawnSync('git', ['add', 'flutter_workspace/tracked.txt'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  const staged = snapshotDigest(root);
+  assert.notEqual(staged, unstaged, 'staging must change the snapshot even when content is unchanged');
+
+  fs.writeFileSync(path.join(root, 'flutter_workspace/untracked.txt'), 'new\n');
+  const untracked = snapshotDigest(root);
+  assert.notEqual(untracked, staged);
+
+  fs.mkdirSync(path.join(root, 'flutter_workspace/apps/web_app/build'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'flutter_workspace/apps/web_app/build/output.bin'), 'ignored\n');
+  assert.equal(snapshotDigest(root), untracked, 'ignored build outputs must not affect the snapshot');
 });
