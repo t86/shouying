@@ -2,83 +2,203 @@ import 'package:permissions/permissions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final roles = [
-    {'station_id': 7, 'sys_role_id': 7, 'status': 1},
-    {'station_id': 7, 'sys_role_id': 5, 'status': '1'},
-    {'station_id': 7, 'sys_role_id': 1, 'status': 1.0},
-    {'station_id': 7, 'sys_role_id': 11, 'status': 3},
-    {'station_id': 8, 'sys_role_id': 6, 'status': 1},
-  ];
-  final modules = [
-    {'station_id': 7, 'sys_module_id': 101, 'status': 1},
-    {'station_id': 7, 'sys_module_id': 102, 'status': 3},
-  ];
+  List<Map<String, Object?>> roles() => [
+        {'station_id': 7, 'sys_role_id': 5, 'status': 1},
+        {'station_id': 7, 'sys_role_id': 11, 'status': 3},
+        {'station_id': 8, 'sys_role_id': 6, 'status': 1},
+      ];
+  List<Map<String, Object?>> modules() => [
+        {'station_id': 7, 'sys_module_id': 101, 'status': 1},
+        {'station_id': 7, 'sys_module_id': 102, 'status': 3},
+      ];
+  PermissionSnapshot make(
+          {Object? r, Object? m, Object? s, Object? employee}) =>
+      PermissionNormalizer.normalize(
+          stationId: 7,
+          sysRole: r ?? roles(),
+          sysRoleDetail: m ?? modules(),
+          subPermissions: s,
+          employeeId: employee);
 
-  test('normalizes fixture, deduplicates and sorts', () {
-    final snapshot = PermissionNormalizer.normalize(
-        stationId: 7, sysRole: roles, sysRoleDetail: modules);
-    expect(snapshot.available, isTrue);
-    expect(snapshot.roleIds, [1, 5, 7]);
-    expect(snapshot.moduleIds, [101]);
-    expect(snapshot.subPermissionIds, isEmpty);
+  test('canonical synthetic fixture', () {
+    final result = make();
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
   });
 
-  test('invalid rows are ignored and null required data is unavailable', () {
-    final snapshot = PermissionNormalizer.normalize(
-      stationId: '7',
-      sysRole: [
-        {'station_id': 7, 'sys_role_id': '5', 'status': '1'},
-        {'station_id': '07', 'sys_role_id': 8, 'status': 1},
-        {'station_id': 7, 'sys_role_id': true, 'status': 1},
-        {'station_id': 7, 'sys_role_id': -1, 'status': 1},
-      ],
-      sysRoleDetail: [
-        {'station_id': 7, 'sys_module_id': 2.5, 'status': 1},
-        {'station_id': 7, 'sys_module_id': 2, 'status': 1},
-      ],
-    );
-    expect(snapshot.roleIds, [5]);
-    expect(snapshot.moduleIds, [2]);
+  test('deduplicates, sorts, and preserves inputs and scopes', () {
+    final r = [
+      {'station_id': 7, 'sys_role_id': 9, 'status': 1},
+      {'station_id': 7, 'sys_role_id': 2, 'status': 1},
+      {'station_id': 7, 'sys_role_id': 9, 'status': 1},
+    ];
+    final m = [
+      {'station_id': 7, 'sys_module_id': 30, 'status': 1},
+      {'station_id': 7, 'sys_module_id': 4, 'status': 1},
+      {'station_id': 7, 'sys_module_id': 30, 'status': 1},
+    ];
+    final beforeR = List<Map<String, Object?>>.from(r.map(Map.from));
+    final beforeM = List<Map<String, Object?>>.from(m.map(Map.from));
+    final result = make(r: r, m: m);
+    expect(result.roleIds, [2, 9]);
+    expect(result.moduleIds, [4, 30]);
+    expect(r, beforeR);
+    expect(m, beforeM);
+    expect(() => result.roleIds.add(99), throwsUnsupportedError);
+    final scope = PermissionEngine(result)
+        .decide(const PermissionRequirement())
+        .effectiveScope;
+    expect(() => scope.moduleIds.add(99), throwsUnsupportedError);
+  });
+
+  test('integral doubles and canonical strings match', () {
+    final doubles = make(r: [
+      {'station_id': 7.0, 'sys_role_id': 5.0, 'status': 1.0}
+    ], m: [
+      {'station_id': 7.0, 'sys_module_id': 101.0, 'status': 1.0}
+    ]);
+    final strings = make(r: [
+      {'station_id': '7', 'sys_role_id': '5', 'status': '1'}
+    ], m: [
+      {'station_id': '7', 'sys_module_id': '101', 'status': '1'}
+    ]);
+    expect(doubles, strings);
+  });
+
+  test('invalid values and malformed rows are ignored', () {
+    final result = make(r: [
+      {'station_id': 7, 'sys_role_id': true, 'status': 1},
+      {'station_id': 7, 'sys_role_id': 2.5, 'status': 1},
+      {'station_id': 7, 'sys_role_id': double.nan, 'status': 1},
+      {'station_id': 7, 'sys_role_id': double.infinity, 'status': 1},
+      {'station_id': 7, 'sys_role_id': 9007199254740992, 'status': 1},
+      {'station_id': 7, 'sys_role_id': '07', 'status': 1},
+      {'station_id': 7, 'sys_role_id': '5\u0000', 'status': 1},
+      {'station_id': 7, 'sys_role_id': 0, 'status': 1},
+      {'station_id': 7, 'sys_role_id': -1, 'status': 1},
+      'malformed',
+    ], m: [
+      {'station_id': 7, 'sys_module_id': true, 'status': 1},
+      {'station_id': 7, 'sys_module_id': 2.5, 'status': 1},
+      'malformed',
+    ]);
+    expect(result.roleIds, isEmpty);
+    expect(result.moduleIds, isEmpty);
+  });
+
+  test('required dataset availability and optional subpermissions', () {
     expect(
         PermissionNormalizer.normalize(
             stationId: 7, sysRole: null, sysRoleDetail: []).available,
         isFalse);
-  });
-
-  test('subpermissions filter employee and active rows', () {
-    final snapshot = PermissionNormalizer.normalize(
-      stationId: 7,
-      employeeId: 42,
-      sysRole: roles,
-      sysRoleDetail: modules,
-      subPermissions: [
-        {'emp_id': 42, 'sub_permission_id': 9, 'parent_id': 101, 'status': 1},
-        {'emp_id': 42, 'sub_permission_id': 3, 'parent_id': 101, 'status': 1},
-        {'emp_id': 4, 'sub_permission_id': 1, 'parent_id': 101, 'status': 1},
-      ],
-    );
-    expect(snapshot.subPermissionIds, [3, 9]);
-  });
-
-  test('engine applies any roles and all modules/subpermissions', () {
-    final snapshot = PermissionNormalizer.normalize(
-        stationId: 7, sysRole: roles, sysRoleDetail: modules);
-    final engine = PermissionEngine(snapshot);
-    expect(engine.decide(const PermissionRequirement()).reason,
-        'permission.allowed');
     expect(
-        engine.decide(const PermissionRequirement(anyRoleIds: {5, 99})).allowed,
-        isTrue);
+        PermissionNormalizer.normalize(
+                stationId: 7, sysRole: [], sysRoleDetail: null)
+            .available,
+        isFalse);
+    expect(
+        PermissionNormalizer.normalize(
+            stationId: 7, sysRole: {}, sysRoleDetail: []).available,
+        isFalse);
+    final empty = PermissionNormalizer.normalize(
+        stationId: 7, sysRole: [], sysRoleDetail: []);
+    expect(empty.available, isTrue);
+    expect(empty.roleIds, isEmpty);
+    expect(make(employee: 42, s: null).subPermissionIds, isEmpty);
+    expect(make(employee: 42, s: 'malformed').subPermissionIds, isEmpty);
+    final sub = make(employee: 42, s: [
+      {'emp_id': 42, 'sub_permission_id': 9, 'parent_id': 101, 'status': 1},
+      {'emp_id': 42, 'sub_permission_id': 3, 'parent_id': 101, 'status': 1},
+      {'emp_id': 42, 'sub_permission_id': 9, 'parent_id': 101, 'status': 1},
+      {'emp_id': 42, 'sub_permission_id': 4, 'parent_id': 101, 'status': 3},
+      {'emp_id': 4, 'sub_permission_id': 1, 'parent_id': 101, 'status': 1},
+    ]);
+    expect(sub.subPermissionIds, [3, 9]);
+  });
+
+  test('product, region, and limit fields do not expand scope', () {
+    final result = make(r: [
+      {
+        'station_id': 7,
+        'sys_role_id': 5,
+        'status': 1,
+        'product_id': 99,
+        'region_id': 3,
+        'limit': 100
+      }
+    ], m: [
+      {
+        'station_id': 7,
+        'sys_module_id': 101,
+        'status': 1,
+        'product_id': 99,
+        'region_id': 3,
+        'limit': 100
+      }
+    ]);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('engine precedence and any/all semantics', () {
+    final unavailable = PermissionEngine(PermissionNormalizer.normalize(
+        stationId: 7, sysRole: null, sysRoleDetail: []));
+    expect(unavailable.decide(const PermissionRequirement()).reason,
+        'permission.data_unavailable');
+    final engine = PermissionEngine(make(employee: 42, s: [
+      {'emp_id': 42, 'sub_permission_id': 8, 'parent_id': 101, 'status': 1}
+    ]));
+    expect(engine.decide(const PermissionRequirement()).allowed, isTrue);
     expect(
         engine
-            .decide(const PermissionRequirement(allModuleIds: {101, 102}))
+            .decide(const PermissionRequirement(
+                anyRoleIds: {99},
+                allModuleIds: {999},
+                allSubPermissionIds: {999}))
+            .reason,
+        'permission.role_missing');
+    expect(
+        engine
+            .decide(const PermissionRequirement(
+                allModuleIds: {999}, allSubPermissionIds: {999}))
             .reason,
         'permission.module_missing');
     expect(
         engine
-            .decide(const PermissionRequirement(
-                anyRoleIds: {99}, allModuleIds: {101}))
+            .decide(const PermissionRequirement(allSubPermissionIds: {999}))
             .reason,
-        'permission.role_missing');
+        'permission.sub_permission_missing');
+    expect(
+        engine.decide(const PermissionRequirement(anyRoleIds: {5, 8})).allowed,
+        isTrue);
+    expect(engine.decide(const PermissionRequirement(anyRoleIds: {8})).allowed,
+        isFalse);
+    expect(
+        engine.decide(const PermissionRequirement(allModuleIds: {101})).allowed,
+        isTrue);
+    expect(
+        engine
+            .decide(const PermissionRequirement(allModuleIds: {101, 999}))
+            .allowed,
+        isFalse);
+    expect(
+        engine
+            .decide(const PermissionRequirement(allSubPermissionIds: {8}))
+            .allowed,
+        isTrue);
+    expect(
+        engine
+            .decide(const PermissionRequirement(allSubPermissionIds: {8, 999}))
+            .allowed,
+        isFalse);
+    for (final requirement in [
+      const PermissionRequirement(),
+      const PermissionRequirement(anyRoleIds: {99}),
+      const PermissionRequirement(allModuleIds: {999}),
+      const PermissionRequirement(allSubPermissionIds: {999})
+    ]) {
+      expect(engine.decide(requirement).requiredAuthorization, isFalse);
+    }
   });
 }
