@@ -29,7 +29,7 @@ Build artifacts are local, reproducible outputs and are excluded from source con
 | Platform version | Web: Chrome 151.0.7922.174 on macOS 26.5.2; Android: Android 7.0 / API 24 emulator; Windows: unavailable |
 | Test date | `2026-08-27` |
 | Result | `blocked-by-environment` |
-| Evidence path | [Preliminary runtime evidence](#preliminary-runtime-evidence); local Web release and Android APK artifact paths listed there |
+| Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `WEB-RUNTIME-001`, `ANDROID-RUNTIME-001`, `WINDOWS-ENV-001`, `AUTH-ENV-001` |
 | Sanitized error | Required external prerequisites were unavailable: terminal machine code, authorized test employee account, live backend coordination, and a Windows runtime host. No secret or backend payload was captured. |
 | Decision | Keep `AUTH-TERM-001`, `AUTH-LOGIN-001`, and `SYNC-CONNECT-001` at `defined`. Repeat on Web, Android, and Windows with controlled test access before any status advance. |
 
@@ -44,7 +44,7 @@ The available shell evidence cannot verify terminal authorization headers, login
 | Platform version | Android: Android 7.0 / API 24 emulator; Windows: unavailable |
 | Test date | `2026-08-27` |
 | Result | `blocked-by-environment` |
-| Evidence path | [Preliminary runtime evidence](#preliminary-runtime-evidence); local Android debug and release APK artifact paths listed there |
+| Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `ANDROID-DEBUG-BUILD-001`, `ANDROID-RELEASE-BUILD-001`, `ANDROID-RUNTIME-001`, `WINDOWS-ENV-001`, `DEVICE-ENV-001` |
 | Sanitized error | Required hardware was unavailable: a real Windows host, HID scanner, Windows-installed 58mm and 80mm printers, and a standards-compliant LAN ESC/POS printer reachable from Windows and Android. No device address or print payload was captured. |
 | Decision | Keep `DEVICE-SCAN-001` and `DEVICE-PRINT-001` at `defined`. Unit/widget tests and an emulator startup do not establish hardware compatibility; repeat the disconnect, typed-failure, reconnect, and reprint matrix on real devices. |
 
@@ -59,7 +59,7 @@ No per-store printer model adaptation is accepted as gate evidence. The live rer
 | Platform version | Chrome 151.0.7922.174 on macOS 26.5.2; target HTTPS same-origin deployment unavailable |
 | Test date | `2026-08-27` |
 | Result | `blocked-by-environment` |
-| Evidence path | [Preliminary runtime evidence](#preliminary-runtime-evidence); local Web release artifact path listed there |
+| Evidence path | `docs/flutter-migration/feasibility-evidence.json` IDs: `WEB-RELEASE-BUILD-001`, `WEB-RUNTIME-001`, `WEB-DEPLOY-ENV-001` |
 | Sanitized error | No HTTPS same-origin deployment under `/shouyin-v2/` was available. The fresh localhost origin proves only fail-closed rendering and is insufficient for target routing, browser integration, or CORS evidence. |
 | Decision | Do not treat the local Web shell as deployment compatibility. Repeat on the target HTTPS origin before advancing authentication, synchronization, or Web release readiness. |
 

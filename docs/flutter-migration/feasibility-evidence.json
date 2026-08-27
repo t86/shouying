@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "evidence": [
+    {
+      "id": "WEB-RELEASE-BUILD-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "cd flutter_workspace/apps/web_app && fvm flutter build web --release",
+      "exitCode": 0,
+      "platformSummary": "Flutter Web release build on macOS 26.5.2 with Flutter 3.47.0",
+      "relativeArtifact": "flutter_workspace/apps/web_app/build/web/main.dart.js",
+      "sha256": "0775dc29f2cbb269849e4b2c89962abd3fafa3cdd2f55bbeb90c79933bae352b",
+      "resultSummary": "Release JavaScript bundle was produced successfully."
+    },
+    {
+      "id": "WEB-RUNTIME-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "serve the Web release bundle on a fresh localhost origin and inspect it with Chrome",
+      "exitCode": 0,
+      "platformSummary": "Google Chrome 151.0.7922.174 on macOS 26.5.2",
+      "relativeArtifact": "flutter_workspace/apps/web_app/build/web/index.html",
+      "sha256": "33cdb7f025e427baac589dc810c7b3bad65238b090e102edea3c849c20c6bdea",
+      "resultSummary": "title=收银 Web 客户端; blocker=应用配置不可用; consoleErrorCount=0"
+    },
+    {
+      "id": "ANDROID-DEBUG-BUILD-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "cd flutter_workspace/apps/android_app && fvm flutter build apk --debug",
+      "exitCode": 0,
+      "platformSummary": "Android debug APK built with compile SDK 37, minimum SDK 24, and target SDK 36",
+      "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk",
+      "sha256": "1f830d6cee0e6707bf3f38948df5b0dc9effa1469c45a66084ae46bfd1eade55",
+      "resultSummary": "Debug APK was produced successfully."
+    },
+    {
+      "id": "ANDROID-RELEASE-BUILD-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "cd flutter_workspace/apps/android_app && fvm flutter build apk --release",
+      "exitCode": 0,
+      "platformSummary": "Android release APK built with compile SDK 37, minimum SDK 24, and target SDK 36",
+      "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-release.apk",
+      "sha256": "06ab424cd3cacdc1574abd5ad281524aae7df01cf539dbfabee15471ad6cef13",
+      "resultSummary": "Release APK was produced successfully with the documented temporary signing configuration."
+    },
+    {
+      "id": "ANDROID-RUNTIME-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "adb install -r <debug-apk>; adb shell am start <package/.MainActivity>; inspect resumed and focused activities",
+      "exitCode": 0,
+      "platformSummary": "Android 7.0 API 24 arm64 emulator",
+      "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk",
+      "sha256": "1f830d6cee0e6707bf3f38948df5b0dc9effa1469c45a66084ae46bfd1eade55",
+      "resultSummary": "package=com.xmsj.shouyin.shouyin_android; activity=.MainActivity; resumed=true; focused=true"
+    },
+    {
+      "id": "WINDOWS-ENV-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "fvm flutter devices",
+      "exitCode": 0,
+      "platformSummary": "macOS development host with no Windows desktop device or Windows runner",
+      "relativeArtifact": null,
+      "sha256": null,
+      "resultSummary": "Windows runtime evidence is blocked because the required platform host is unavailable."
+    },
+    {
+      "id": "AUTH-ENV-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "controlled prerequisite review for Gate A",
+      "exitCode": null,
+      "platformSummary": "Web, Android, and Windows live authorization matrix",
+      "relativeArtifact": null,
+      "sha256": null,
+      "resultSummary": "Terminal identity, authorized test employee access, and coordinated backend access are unavailable."
+    },
+    {
+      "id": "DEVICE-ENV-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "controlled prerequisite review for Gate B",
+      "exitCode": null,
+      "platformSummary": "Windows and Android physical peripheral matrix",
+      "relativeArtifact": null,
+      "sha256": null,
+      "resultSummary": "HID scanner, 58mm and 80mm system printers, and LAN ESC/POS printer are unavailable."
+    },
+    {
+      "id": "WEB-DEPLOY-ENV-001",
+      "appCommit": "f6c9d496cf931e08d63219cd7ba8460b8fb3cf15",
+      "sanitizedCommand": "controlled prerequisite review for Gate C",
+      "exitCode": null,
+      "platformSummary": "Target Web deployment environment",
+      "relativeArtifact": null,
+      "sha256": null,
+      "resultSummary": "An HTTPS same-origin deployment under the required application base path is unavailable."
+    }
+  ]
+}
