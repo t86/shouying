@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:protocol/protocol.dart';
+import 'package:session/src/credential_transaction_coordinator.dart';
+import 'package:session/src/credential_transaction_coordinator_factory.dart';
 
 /// Narrow plugin seam used to keep secure-storage platform channels out of
 /// unit tests.
@@ -44,71 +46,85 @@ final class FlutterSecureStorageBackend implements SecureCredentialBackend {
 
 /// A deliberately detail-free failure for credential persistence operations.
 final class CredentialStorageException implements Exception {
-  const CredentialStorageException._();
+  const CredentialStorageException._(this.code);
+
+  final String code;
 
   @override
   String toString() => 'CredentialStorageException(storage operation failed)';
 }
 
-/// Secure credential storage with process-instance atomicity.
+/// Secure credential storage with one transaction per storage namespace.
 ///
 /// Every read, write, snapshot, and compare-and-clear operation is serialized
-/// through this instance's queue. This provides a consistent snapshot and
-/// conditional-clear guarantee for callers sharing the same store instance.
-/// Browser tabs and separately constructed store instances cannot share this
-/// mutex; compare-and-clear still re-reads the current value immediately before
-/// deletion, but cross-instance atomicity is not claimed.
+/// across all store instances sharing [namespace]. Native runtimes use a
+/// process-wide named mutex. Web uses an exclusive, origin-scoped Web Lock, so
+/// tabs and workers on the same origin participate in the same transaction.
+/// If Web Locks are unavailable or rejected, operations fail closed with
+/// [CredentialStorageException]; no compare-and-clear atomicity is claimed
+/// without the browser lock.
 ///
 /// On Web, `tk` uses the plugin's persistent encrypted storage while `stk`
 /// explicitly uses `sessionStorage`. Web confidentiality remains bounded by
 /// the application's same-origin and script security.
 final class FlutterSecureCredentialStore implements CredentialStore {
-  factory FlutterSecureCredentialStore({SecureCredentialBackend? backend}) =>
-      FlutterSecureCredentialStore._(
-        backend ?? const FlutterSecureStorageBackend(),
-      );
+  factory FlutterSecureCredentialStore({
+    SecureCredentialBackend? backend,
+    CredentialTransactionCoordinator? coordinator,
+    String namespace = defaultNamespace,
+  }) => FlutterSecureCredentialStore._(
+    backend ?? const FlutterSecureStorageBackend(),
+    coordinator ?? createCredentialTransactionCoordinator(),
+    namespace,
+  );
 
-  FlutterSecureCredentialStore._(this._backend);
+  FlutterSecureCredentialStore._(
+    this._backend,
+    this._coordinator,
+    this.namespace,
+  );
 
+  static const String defaultNamespace = 'shouyin.credentials.v1';
   static const String _tkKey = 'shouyin.tk';
   static const String _stkKey = 'shouyin.stk';
 
   final SecureCredentialBackend _backend;
-  Future<void> _operationTail = Future<void>.value();
+  final CredentialTransactionCoordinator _coordinator;
+  final String namespace;
 
   @override
   Future<String?> readTk() =>
-      _enqueue(() => _backend.read(_tkKey, sessionScoped: false));
+      _transaction(() => _backend.read(_tkKey, sessionScoped: false));
 
   @override
   Future<void> writeTk(String value) =>
-      _enqueue(() => _backend.write(_tkKey, value, sessionScoped: false));
+      _transaction(() => _backend.write(_tkKey, value, sessionScoped: false));
 
   @override
   Future<void> clearTk() =>
-      _enqueue(() => _backend.write(_tkKey, null, sessionScoped: false));
+      _transaction(() => _backend.write(_tkKey, null, sessionScoped: false));
 
   @override
   Future<String?> readStk() =>
-      _enqueue(() => _backend.read(_stkKey, sessionScoped: true));
+      _transaction(() => _backend.read(_stkKey, sessionScoped: true));
 
   @override
   Future<void> writeStk(String value) =>
-      _enqueue(() => _backend.write(_stkKey, value, sessionScoped: true));
+      _transaction(() => _backend.write(_stkKey, value, sessionScoped: true));
 
   @override
   Future<void> clearStk() =>
-      _enqueue(() => _backend.write(_stkKey, null, sessionScoped: true));
+      _transaction(() => _backend.write(_stkKey, null, sessionScoped: true));
 
   @override
-  Future<CredentialSnapshot> readSnapshot() => _enqueue(() async {
+  Future<CredentialSnapshot> readSnapshot() => _transaction(() async {
     final tk = await _backend.read(_tkKey, sessionScoped: false);
     final stk = await _backend.read(_stkKey, sessionScoped: true);
     return CredentialSnapshot(tk: tk, stk: stk);
   });
 
   @override
-  Future<void> clearTkIfMatches(String? expected) => _enqueue(() async {
+  Future<void> clearTkIfMatches(String? expected) => _transaction(() async {
     final current = await _backend.read(_tkKey, sessionScoped: false);
     if (current == expected) {
       await _backend.write(_tkKey, null, sessionScoped: false);
@@ -116,26 +132,25 @@ final class FlutterSecureCredentialStore implements CredentialStore {
   });
 
   @override
-  Future<void> clearStkIfMatches(String? expected) => _enqueue(() async {
+  Future<void> clearStkIfMatches(String? expected) => _transaction(() async {
     final current = await _backend.read(_stkKey, sessionScoped: true);
     if (current == expected) {
       await _backend.write(_stkKey, null, sessionScoped: true);
     }
   });
 
-  Future<T> _enqueue<T>(Future<T> Function() operation) {
-    final preceding = _operationTail;
-    final release = Completer<void>();
-    _operationTail = release.future;
-    return preceding.then((_) async {
-      try {
-        return await operation();
-      } on Object {
-        throw const CredentialStorageException._();
-      } finally {
-        release.complete();
-      }
-    });
+  Future<T> _transaction<T>(Future<T> Function() operation) async {
+    try {
+      return await _coordinator.synchronized(namespace, operation);
+    } on CredentialTransactionUnavailableException {
+      throw const CredentialStorageException._(
+        'credential.transaction_unavailable',
+      );
+    } on Object {
+      throw const CredentialStorageException._(
+        'credential.storage_unavailable',
+      );
+    }
   }
 
   @override

@@ -101,54 +101,130 @@ final class AppRuntimeConfiguration {
 
 enum _EndpointKind { api, online, websocket }
 
+abstract interface class ShellDependenciesFactory {
+  ShellDependencies create(ApiConfig config);
+
+  void onRouterCreated();
+
+  void onRouterDisposed();
+}
+
+abstract interface class ShellDependencies {
+  SessionRepository get sessionRepository;
+
+  ConnectionPhase get connectionPhase;
+
+  Stream<ConnectionPhase> get connectionPhases;
+
+  Stream<AppFailure> get realtimeFailures;
+
+  Future<void> startRealtime();
+
+  Future<void> stopRealtime();
+
+  Future<void> dispose();
+}
+
+final class DefaultShellDependenciesFactory
+    implements ShellDependenciesFactory {
+  const DefaultShellDependenciesFactory();
+
+  @override
+  ShellDependencies create(ApiConfig config) =>
+      _DefaultShellDependencies(config);
+
+  @override
+  void onRouterCreated() {}
+
+  @override
+  void onRouterDisposed() {}
+}
+
+final class _DefaultShellDependencies implements ShellDependencies {
+  _DefaultShellDependencies(this._config)
+    : _credentialStore = FlutterSecureCredentialStore(),
+      _dio = Dio() {
+    _protocolClient = ProtocolClient(
+      dio: _dio,
+      config: _config,
+      credentialStore: _credentialStore,
+      requestGate: RequestGate(clock: DateTime.now),
+    );
+    sessionRepository = SessionRepository(
+      api: SessionApi(client: _protocolClient),
+      credentialStore: _credentialStore,
+    );
+  }
+
+  final ApiConfig _config;
+  final CredentialStore _credentialStore;
+  final Dio _dio;
+  late final ProtocolClient _protocolClient;
+  RealtimeController? _realtimeController;
+  bool _disposed = false;
+
+  @override
+  late final SessionRepository sessionRepository;
+
+  RealtimeController get _realtime =>
+      _realtimeController ??= RealtimeController(
+        config: _config,
+        client: sessionRepository.currentMachine?.client ?? ClientKind.cashier,
+        credentialStore: _credentialStore,
+        syncApi: ProtocolSyncApi(client: _protocolClient),
+        socketTransport: const WebSocketChannelTransport(),
+      );
+
+  @override
+  ConnectionPhase get connectionPhase =>
+      _realtimeController?.phase ?? ConnectionPhase.blocked;
+
+  @override
+  Stream<ConnectionPhase> get connectionPhases =>
+      _realtimeController?.phases ??
+      Stream<ConnectionPhase>.value(ConnectionPhase.blocked);
+
+  @override
+  Stream<AppFailure> get realtimeFailures =>
+      _realtimeController?.failures ?? const Stream<AppFailure>.empty();
+
+  @override
+  Future<void> startRealtime() async {
+    if (_disposed || sessionRepository.currentUser == null) return;
+    await _realtime.start();
+  }
+
+  @override
+  Future<void> stopRealtime() async {
+    await _realtimeController?.stop();
+  }
+
+  @override
+  Future<void> dispose() async {
+    if (_disposed) return;
+    _disposed = true;
+    await _realtimeController?.dispose();
+    await sessionRepository.close();
+    _dio.close(force: true);
+  }
+}
+
 final _apiConfigProvider = Provider<ApiConfig>(
   (ref) => throw StateError('api config must be overridden'),
 );
-final _credentialStoreProvider = Provider<CredentialStore>(
-  (ref) => FlutterSecureCredentialStore(),
+final _dependenciesFactoryProvider = Provider<ShellDependenciesFactory>(
+  (ref) => const DefaultShellDependenciesFactory(),
 );
-final _dioProvider = Provider<Dio>((ref) {
-  final dio = Dio();
-  ref.onDispose(() => dio.close(force: true));
-  return dio;
+final _shellDependenciesProvider = Provider<ShellDependencies>((ref) {
+  final dependencies = ref
+      .watch(_dependenciesFactoryProvider)
+      .create(ref.watch(_apiConfigProvider));
+  ref.onDispose(() => unawaited(dependencies.dispose()));
+  return dependencies;
 });
-final _protocolClientProvider = Provider<ProtocolClient>(
-  (ref) => ProtocolClient(
-    dio: ref.watch(_dioProvider),
-    config: ref.watch(_apiConfigProvider),
-    credentialStore: ref.watch(_credentialStoreProvider),
-    requestGate: RequestGate(clock: DateTime.now),
-  ),
+final _appSessionRepositoryProvider = Provider<SessionRepository>(
+  (ref) => ref.watch(_shellDependenciesProvider).sessionRepository,
 );
-final _sessionApiProvider = Provider<SessionApi>(
-  (ref) => SessionApi(client: ref.watch(_protocolClientProvider)),
-);
-final _appSessionRepositoryProvider = Provider<SessionRepository>((ref) {
-  final repository = SessionRepository(
-    api: ref.watch(_sessionApiProvider),
-    credentialStore: ref.watch(_credentialStoreProvider),
-  );
-  ref.onDispose(() => unawaited(repository.close()));
-  return repository;
-});
-final _socketTransportProvider = Provider<SocketTransport>(
-  (ref) => const WebSocketChannelTransport(),
-);
-final _syncApiProvider = Provider<SyncApi>(
-  (ref) => ProtocolSyncApi(client: ref.watch(_protocolClientProvider)),
-);
-final _realtimeControllerProvider = Provider<RealtimeController>((ref) {
-  final repository = ref.watch(_appSessionRepositoryProvider);
-  final controller = RealtimeController(
-    config: ref.watch(_apiConfigProvider),
-    client: repository.currentMachine?.client ?? ClientKind.cashier,
-    credentialStore: ref.watch(_credentialStoreProvider),
-    syncApi: ref.watch(_syncApiProvider),
-    socketTransport: ref.watch(_socketTransportProvider),
-  );
-  ref.onDispose(() => unawaited(controller.dispose()));
-  return controller;
-});
 final _permissionSnapshotProvider = Provider<PermissionSnapshot>(
   (ref) => PermissionSnapshot(
     available: false,
@@ -162,14 +238,15 @@ final _currentUserProvider = StreamProvider<UserSession?>((ref) {
   return ref.watch(_appSessionRepositoryProvider).userSessions;
 });
 final _connectionPhaseProvider = StreamProvider<ConnectionPhase>((ref) {
-  return ref.watch(_realtimeControllerProvider).phases;
+  return ref.watch(_shellDependenciesProvider).connectionPhases;
 });
 final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
-  return ref.watch(_realtimeControllerProvider).failures;
+  return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
+  final factory = ref.watch(_dependenciesFactoryProvider);
   final refresh = _SessionRefresh(repository);
   ref.onDispose(refresh.dispose);
   final router = GoRouter(
@@ -196,24 +273,24 @@ final _routerProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) =>
         const Scaffold(body: Center(child: Text('页面不可用'))),
   );
-  ref.onDispose(router.dispose);
+  factory.onRouterCreated();
+  ref.onDispose(() {
+    router.dispose();
+    factory.onRouterDisposed();
+  });
   return router;
 });
 
 final class ShouyinWindowsApp extends StatelessWidget {
   const ShouyinWindowsApp({
     this.environment,
-    this.credentialStore,
-    this.sessionRepository,
-    this.realtimeController,
+    this.dependenciesFactory,
     this.initialLocation = '/login',
     super.key,
   });
 
   final AppRuntimeConfiguration? environment;
-  final CredentialStore? credentialStore;
-  final SessionRepository? sessionRepository;
-  final RealtimeController? realtimeController;
+  final ShellDependenciesFactory? dependenciesFactory;
   final String initialLocation;
 
   @override
@@ -229,12 +306,8 @@ final class ShouyinWindowsApp extends StatelessWidget {
     return ProviderScope(
       overrides: [
         _apiConfigProvider.overrideWithValue(config),
-        if (credentialStore case final value?)
-          _credentialStoreProvider.overrideWithValue(value),
-        if (sessionRepository case final value?)
-          _appSessionRepositoryProvider.overrideWithValue(value),
-        if (realtimeController case final value?)
-          _realtimeControllerProvider.overrideWithValue(value),
+        if (dependenciesFactory case final value?)
+          _dependenciesFactoryProvider.overrideWithValue(value),
         _initialLocationProvider.overrideWithValue(initialLocation),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
@@ -250,23 +323,18 @@ final class _AppView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(_currentUserProvider);
+    ref.watch(_currentUserProvider);
     ref.watch(_permissionSnapshotProvider);
     ref.listen<AsyncValue<UserSession?>>(_currentUserProvider, (
       previous,
       next,
     ) {
       if (next.value != null) {
-        unawaited(ref.read(_realtimeControllerProvider).start());
+        unawaited(ref.read(_shellDependenciesProvider).startRealtime());
       } else if (previous?.value != null) {
-        unawaited(ref.read(_realtimeControllerProvider).stop());
+        unawaited(ref.read(_shellDependenciesProvider).stopRealtime());
       }
     });
-    if (currentUser.value != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        unawaited(ref.read(_realtimeControllerProvider).start());
-      });
-    }
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
@@ -281,8 +349,10 @@ final class _DiagnosticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final repository = ref.watch(_appSessionRepositoryProvider);
     final config = ref.watch(_apiConfigProvider);
-    final controller = ref.watch(_realtimeControllerProvider);
-    final phase = ref.watch(_connectionPhaseProvider).value ?? controller.phase;
+    final dependencies = ref.watch(_shellDependenciesProvider);
+    final phase =
+        ref.watch(_connectionPhaseProvider).value ??
+        dependencies.connectionPhase;
     final failure = ref.watch(_realtimeFailureProvider).value;
     return Scaffold(
       appBar: AppBar(title: const Text(_appLabel)),

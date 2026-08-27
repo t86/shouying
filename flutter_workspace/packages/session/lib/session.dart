@@ -1,6 +1,10 @@
 /// Internal session lifecycle coordination for Shouyin Flutter applications.
 library;
 
+export 'src/credential_transaction_coordinator.dart'
+    show
+        CredentialTransactionCoordinator,
+        CredentialTransactionUnavailableException;
 export 'src/flutter_secure_credential_store.dart'
     show
         CredentialStorageException,
