@@ -11,6 +11,12 @@ const repositoryRoot = path.resolve(__dirname, '..');
 const shellCheck = path.join(repositoryRoot, 'flutter_workspace/tool/check.sh');
 const powershellCheck = path.join(repositoryRoot, 'flutter_workspace/tool/check.ps1');
 const pipeline = path.join(repositoryRoot, '.gitlab-ci.yml');
+const powershellProbe = childProcess.spawnSync(
+  'pwsh',
+  ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion.ToString()'],
+  { encoding: 'utf8' },
+);
+const hasPowerShell = powershellProbe.status === 0;
 
 function read(file) {
   return fs.readFileSync(file, 'utf8');
@@ -52,20 +58,51 @@ function makeShellFixture(t) {
   fs.mkdirSync(bin, { recursive: true });
   fs.copyFileSync(shellCheck, path.join(tool, 'check.sh'));
   fs.chmodSync(path.join(tool, 'check.sh'), 0o755);
+  const trackedFile = path.join(workspace, 'tracked.txt');
+  fs.writeFileSync(trackedFile, 'clean\n');
 
-  const stub = [
+  const commandStub = [
     '#!/bin/sh',
     'entry="$(basename "$0")|$PWD|$*"',
     'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+    'if [ "${CHECK_DIRTY_AFTER_BUILD:-0}" = "1" ] && [ "$(basename "$0")" = "fvm" ]; then',
+    '  case "$*" in flutter\\ build\\ *) printf "dirty\\n" >> "$CHECK_TRACKED_FILE" ;; esac',
+    'fi',
     'case "$entry" in',
     '  *"${CHECK_FAIL_PATTERN:-__never__}"*) exit 42 ;;',
     'esac',
   ].join('\n');
-  for (const command of ['fvm', 'node', 'git']) {
+  for (const command of ['fvm', 'node']) {
     const target = path.join(bin, command);
-    fs.writeFileSync(target, `${stub}\n`, { mode: 0o755 });
+    fs.writeFileSync(target, `${commandStub}\n`, { mode: 0o755 });
   }
-  return { root, workspace, bin, script: path.join(tool, 'check.sh') };
+  const realGit = childProcess.spawnSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).stdout.trim();
+  assert.notEqual(realGit, '', 'git is required for the shell behavior fixture');
+  const gitStub = [
+    '#!/bin/sh',
+    'entry="git|$PWD|$*"',
+    'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+    'exec "$CHECK_REAL_GIT" "$@"',
+  ].join('\n');
+  fs.writeFileSync(path.join(bin, 'git'), `${gitStub}\n`, { mode: 0o755 });
+  for (const args of [
+    ['init', '--quiet'],
+    ['config', 'user.name', 'Fixture'],
+    ['config', 'user.email', 'fixture@example.invalid'],
+    ['add', '.'],
+    ['commit', '--quiet', '-m', 'fixture'],
+  ]) {
+    const result = childProcess.spawnSync(realGit, args, { cwd: root, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  return {
+    root,
+    workspace,
+    bin,
+    realGit,
+    trackedFile,
+    script: path.join(tool, 'check.sh'),
+  };
 }
 
 function runFixture(fixture, options = {}) {
@@ -79,12 +116,142 @@ function runFixture(fixture, options = {}) {
       PATH: `${fixture.bin}${path.delimiter}${process.env.PATH}`,
       CHECK_LOG: log,
       CHECK_FAIL_PATTERN: options.failPattern || '',
+      CHECK_DIRTY_AFTER_BUILD: options.dirtyAfterBuild ? '1' : '0',
+      CHECK_TRACKED_FILE: fixture.trackedFile,
+      CHECK_REAL_GIT: fixture.realGit,
     },
   });
   fs.rmSync(unrelatedCwd, { recursive: true, force: true });
   return {
     ...result,
     commands: fs.existsSync(log) ? read(log).trim().split('\n') : [],
+  };
+}
+
+function makePowerShellFixture(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ps-check-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const workspace = path.join(root, 'flutter_workspace');
+  const tool = path.join(workspace, 'tool');
+  const bin = path.join(root, 'stub-bin');
+  fs.mkdirSync(tool, { recursive: true });
+  for (const member of [
+    'packages/device_bridge_android',
+    'packages/device_bridge_platform_interface',
+    'packages/device_bridge_web',
+    'packages/device_bridge_windows',
+    'packages/design_system',
+    'packages/foundation',
+    'packages/permissions',
+    'packages/protocol',
+    'packages/realtime_sync',
+    'packages/session',
+    'apps/android_app',
+    'apps/web_app',
+    'apps/windows_app',
+  ]) fs.mkdirSync(path.join(workspace, member), { recursive: true });
+  fs.mkdirSync(path.join(root, 'tests'), { recursive: true });
+  fs.mkdirSync(bin, { recursive: true });
+  fs.copyFileSync(powershellCheck, path.join(tool, 'check.ps1'));
+  const trackedFile = path.join(workspace, 'tracked.txt');
+  fs.writeFileSync(trackedFile, 'clean\n');
+
+  let realGit;
+  if (process.platform === 'win32') {
+    const result = childProcess.spawnSync('where.exe', ['git.exe'], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    realGit = result.stdout.split(/\r?\n/).find(Boolean);
+  } else {
+    realGit = childProcess.spawnSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).stdout.trim();
+  }
+  assert.notEqual(realGit, '', 'git is required for the PowerShell behavior fixture');
+
+  if (process.platform === 'win32') {
+    const fvmStub = [
+      '@echo off',
+      'set "entry=fvm|%CD%|%*"',
+      '>>"%CHECK_LOG%" echo %entry%',
+      'if "%CHECK_DIRTY_AFTER_BUILD%"=="1" if /I "%~1"=="flutter" if /I "%~2"=="build" >>"%CHECK_TRACKED_FILE%" echo dirty',
+      'if /I "%CHECK_FAIL_PATTERN%"=="dart analyze" if /I "%~1"=="dart" if /I "%~2"=="analyze" exit /b 42',
+      'exit /b 0',
+    ].join('\r\n');
+    fs.writeFileSync(path.join(bin, 'fvm.cmd'), `${fvmStub}\r\n`);
+    const nodeStub = [
+      '@echo off',
+      '>>"%CHECK_LOG%" echo node^|%CD%^|%*',
+      'exit /b 0',
+    ].join('\r\n');
+    fs.writeFileSync(path.join(bin, 'node.cmd'), `${nodeStub}\r\n`);
+    const gitStub = [
+      '@echo off',
+      '>>"%CHECK_LOG%" echo git^|%CD%^|%*',
+      '"%CHECK_REAL_GIT%" %*',
+      'exit /b %ERRORLEVEL%',
+    ].join('\r\n');
+    fs.writeFileSync(path.join(bin, 'git.cmd'), `${gitStub}\r\n`);
+  } else {
+    const nativeStub = [
+      '#!/bin/sh',
+      'entry="$(basename "$0")|$PWD|$*"',
+      'printf "%s\\n" "$entry" >> "$CHECK_LOG"',
+      'if [ "${CHECK_DIRTY_AFTER_BUILD:-0}" = "1" ] && [ "$(basename "$0")" = "fvm" ]; then',
+      '  case "$*" in flutter\\ build\\ windows\\ *) printf "dirty\\n" >> "$CHECK_TRACKED_FILE" ;; esac',
+      'fi',
+      'case "$entry" in *"${CHECK_FAIL_PATTERN:-__never__}"*) exit 42 ;; esac',
+    ].join('\n');
+    for (const command of ['fvm', 'node']) fs.writeFileSync(path.join(bin, command), `${nativeStub}\n`, { mode: 0o755 });
+    const gitStub = [
+      '#!/bin/sh',
+      'printf "git|%s|%s\\n" "$PWD" "$*" >> "$CHECK_LOG"',
+      'exec "$CHECK_REAL_GIT" "$@"',
+    ].join('\n');
+    fs.writeFileSync(path.join(bin, 'git'), `${gitStub}\n`, { mode: 0o755 });
+  }
+
+  for (const args of [
+    ['init', '--quiet'],
+    ['config', 'user.name', 'Fixture'],
+    ['config', 'user.email', 'fixture@example.invalid'],
+    ['add', '.'],
+    ['commit', '--quiet', '-m', 'fixture'],
+  ]) {
+    const result = childProcess.spawnSync(realGit, args, { cwd: root, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+  }
+  return {
+    root,
+    workspace,
+    bin,
+    realGit,
+    trackedFile,
+    script: path.join(tool, 'check.ps1'),
+  };
+}
+
+function runPowerShellFixture(fixture, options = {}) {
+  const log = path.join(fixture.root, 'commands.log');
+  const unrelatedCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'flutter-ps-cwd-'));
+  const result = childProcess.spawnSync(
+    'pwsh',
+    ['-NoLogo', '-NoProfile', '-NonInteractive', '-File', fixture.script],
+    {
+      cwd: unrelatedCwd,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fixture.bin}${path.delimiter}${process.env.PATH}`,
+        CHECK_LOG: log,
+        CHECK_FAIL_PATTERN: options.failPattern || '__never__',
+        CHECK_DIRTY_AFTER_BUILD: options.dirtyAfterBuild ? '1' : '0',
+        CHECK_TRACKED_FILE: fixture.trackedFile,
+        CHECK_REAL_GIT: fixture.realGit,
+      },
+    },
+  );
+  fs.rmSync(unrelatedCwd, { recursive: true, force: true });
+  return {
+    ...result,
+    commands: fs.existsSync(log) ? read(log).trim().split(/\r?\n/) : [],
   };
 }
 
@@ -182,11 +349,15 @@ test('creates executable local checks and a parseable GitLab pipeline', () => {
   for (const file of [shellCheck, powershellCheck, pipeline]) {
     assert.equal(fs.existsSync(file), true, `${path.relative(repositoryRoot, file)} must exist`);
   }
-  assert.notEqual(fs.statSync(shellCheck).mode & 0o111, 0, 'check.sh must be executable');
+  if (process.platform !== 'win32') {
+    assert.notEqual(fs.statSync(shellCheck).mode & 0o111, 0, 'check.sh must be executable');
+  }
   assert.doesNotThrow(() => parseYaml(pipeline));
 });
 
-test('check.sh resolves roots from itself and runs the complete gate in order', (t) => {
+test('check.sh resolves roots from itself and runs the complete gate in order', {
+  skip: process.platform === 'win32',
+}, (t) => {
   const fixture = makeShellFixture(t);
   const result = runFixture(fixture);
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
@@ -207,16 +378,30 @@ test('check.sh resolves roots from itself and runs the complete gate in order', 
     `fvm|${workspace}|flutter test packages/design_system packages/device_bridge_android packages/device_bridge_platform_interface packages/device_bridge_web packages/device_bridge_windows packages/foundation packages/permissions packages/protocol packages/realtime_sync packages/session apps/android_app apps/web_app apps/windows_app`,
     `fvm|${workspace}/apps/web_app|flutter build web --release`,
     `fvm|${workspace}/apps/android_app|flutter build apk --release`,
+    `git|${root}|diff --quiet -- flutter_workspace migration/flutter/generated`,
+    `git|${root}|diff --cached --quiet -- flutter_workspace migration/flutter/generated`,
   ]);
 });
 
-test('check.sh stops immediately after the first failed native command', (t) => {
+test('check.sh stops immediately after the first failed native command', {
+  skip: process.platform === 'win32',
+}, (t) => {
   const fixture = makeShellFixture(t);
   const result = runFixture(fixture, { failPattern: 'dart analyze' });
   assert.equal(result.status, 42);
   assert.match(result.commands.at(-1), /dart analyze$/);
   assert.equal(result.commands.some((command) => command.includes('flutter test')), false);
   assert.equal(result.commands.some((command) => command.includes('flutter build')), false);
+});
+
+test('check.sh fails when a build changes a tracked migration file', {
+  skip: process.platform === 'win32',
+}, (t) => {
+  const fixture = makeShellFixture(t);
+  const result = runFixture(fixture, { dirtyAfterBuild: true });
+  assert.equal(result.status, 1);
+  assert.match(result.commands.at(-1), /git\|.*\|diff --quiet -- flutter_workspace migration\/flutter\/generated$/);
+  assert.equal(read(fixture.trackedFile), 'clean\ndirty\ndirty\n');
 });
 
 test('PowerShell check uses checked native calls in the same required order', () => {
@@ -238,7 +423,57 @@ test('PowerShell check uses checked native calls in the same required order', ()
     "@('dart', 'analyze')",
     "@('flutter', 'test') + $FlutterMembers",
     "@('flutter', 'build', 'windows', '--release')",
+    "@('diff', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated')",
+    "@('diff', '--cached', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated')",
   ]);
+});
+
+test('Windows hosts provide pwsh for the PowerShell behavior gate', {
+  skip: process.platform !== 'win32',
+}, () => {
+  assert.equal(hasPowerShell, true, 'pwsh is required on the Windows runner');
+});
+
+test('check.ps1 resolves roots and runs every checked command in order', {
+  skip: !hasPowerShell,
+}, (t) => {
+  const fixture = makePowerShellFixture(t);
+  const result = runPowerShellFixture(fixture);
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  const normalized = result.commands.map((command) => command.replaceAll('\\', '/').replaceAll('"', ''));
+  const root = fixture.root.replaceAll('\\', '/');
+  const workspace = fixture.workspace.replaceAll('\\', '/');
+  assert.deepEqual(normalized, [
+    `fvm|${workspace}|dart pub get --enforce-lockfile`,
+    `node|${root}|--test ${root}/tests/flutterMigrationInventory.test.js ${root}/tests/flutterWorkspaceStructure.test.js ${root}/tests/flutterCiChecks.test.js`,
+    `node|${root}|${root}/tools/flutter_migration_inventory/validate_ledgers.js`,
+    `node|${root}|${root}/tools/flutter_migration_inventory/source_inventory.js`,
+    `node|${root}|${root}/tools/flutter_migration_inventory/generate_report.js`,
+    `git|${root}|diff --exit-code -- migration/flutter/generated/source-inventory.json migration/flutter/generated/coverage.md`,
+    `node|${workspace}|--test ${workspace}/tool/verify_boundaries.test.js`,
+    `node|${workspace}|${workspace}/tool/verify_boundaries.js ${workspace}`,
+    `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
+    `fvm|${workspace}|dart analyze`,
+    `fvm|${workspace}|flutter test ${workspace}/packages/design_system ${workspace}/packages/device_bridge_android ${workspace}/packages/device_bridge_platform_interface ${workspace}/packages/device_bridge_web ${workspace}/packages/device_bridge_windows ${workspace}/packages/foundation ${workspace}/packages/permissions ${workspace}/packages/protocol ${workspace}/packages/realtime_sync ${workspace}/packages/session ${workspace}/apps/android_app ${workspace}/apps/web_app ${workspace}/apps/windows_app`,
+    `fvm|${workspace}/apps/windows_app|flutter build windows --release`,
+    `git|${root}|diff --quiet -- flutter_workspace migration/flutter/generated`,
+    `git|${root}|diff --cached --quiet -- flutter_workspace migration/flutter/generated`,
+  ]);
+});
+
+test('check.ps1 stops on the first failure and rejects tracked build changes', {
+  skip: !hasPowerShell,
+}, (t) => {
+  let fixture = makePowerShellFixture(t);
+  let result = runPowerShellFixture(fixture, { failPattern: 'dart analyze' });
+  assert.equal(result.status, 1);
+  assert.match(result.commands.at(-1), /dart analyze$/);
+  assert.equal(result.commands.some((command) => command.includes('flutter build')), false);
+
+  fixture = makePowerShellFixture(t);
+  result = runPowerShellFixture(fixture, { dirtyAfterBuild: true });
+  assert.equal(result.status, 1);
+  assert.match(result.commands.at(-1), /diff --quiet -- flutter_workspace migration[\\/]flutter[\\/]generated$/);
 });
 
 test('local checks never enable tracing or dump environment variables', () => {
@@ -308,4 +543,51 @@ test('migration README documents deterministic local and CI entry points', () =>
     assert.match(source, new RegExp(`\\b${job}\\b`));
   }
   assert.match(source, /no live backend URLs, credentials, terminal identifiers, or device secrets/i);
+});
+
+test('pins every app analyzer file to the Flutter 3.47 migrated form', () => {
+  const expected = [
+    'analyzer:',
+    '  exclude:',
+    '    - build/**',
+    '    - android/**',
+    '    - ios/**',
+    '    - web/**',
+    '    - windows/**',
+    '    - macos/**',
+    '    - linux/**',
+    'include: ../../analysis_options.yaml',
+    '',
+  ].join('\n');
+  for (const app of ['android_app', 'web_app', 'windows_app']) {
+    assert.equal(
+      read(path.join(repositoryRoot, `flutter_workspace/apps/${app}/analysis_options.yaml`)),
+      expected,
+      `${app} must be pre-normalized before release builds`,
+    );
+  }
+});
+
+test('pins the Windows registrant to the current native plugin set', () => {
+  const generatedRoot = path.join(
+    repositoryRoot,
+    'flutter_workspace/apps/windows_app/windows/flutter',
+  );
+  const registrant = read(path.join(generatedRoot, 'generated_plugin_registrant.cc'));
+  const cmake = read(path.join(generatedRoot, 'generated_plugins.cmake'));
+  const pluginBlock = /list\(APPEND FLUTTER_PLUGIN_LIST\n([\s\S]*?)\n\)/.exec(cmake)?.[1];
+  const plugins = pluginBlock
+    ?.split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  assert.deepEqual(plugins, ['flutter_secure_storage_windows', 'printing']);
+  assert.match(registrant, /#include <flutter_secure_storage_windows\/flutter_secure_storage_windows_plugin\.h>/);
+  assert.match(registrant, /#include <printing\/printing_plugin\.h>/);
+  assert.match(registrant, /FlutterSecureStorageWindowsPluginRegisterWithRegistrar/);
+  assert.match(registrant, /PrintingPluginRegisterWithRegistrar/);
+  assert.doesNotMatch(
+    `${registrant}\n${cmake}`,
+    /(?:[A-Za-z]:\\Users\\|\/Users\/|BEGIN [A-Z ]+ PRIVATE KEY|SHOUYIN_(?:API|ONLINE|WS)_BASE)/,
+  );
 });

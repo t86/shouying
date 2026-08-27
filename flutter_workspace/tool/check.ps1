@@ -49,3 +49,5 @@ Invoke-Checked -Command 'fvm' -Arguments @('dart', 'format', '--output=none', '-
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'analyze') -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments (@('flutter', 'test') + $FlutterMembers) -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments @('flutter', 'build', 'windows', '--release') -WorkingDirectory (Join-Path $WorkspaceRoot 'apps/windows_app')
+Invoke-Checked -Command 'git' -Arguments @('diff', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated') -WorkingDirectory $RepositoryRoot
+Invoke-Checked -Command 'git' -Arguments @('diff', '--cached', '--quiet', '--', 'flutter_workspace', 'migration/flutter/generated') -WorkingDirectory $RepositoryRoot

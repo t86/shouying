@@ -47,3 +47,9 @@ REPO_ROOT=$(CDPATH= cd -- "$WORKSPACE_ROOT/.." && pwd)
   cd "$WORKSPACE_ROOT/apps/android_app"
   fvm flutter build apk --release
 )
+
+(
+  cd "$REPO_ROOT"
+  git diff --quiet -- flutter_workspace migration/flutter/generated
+  git diff --cached --quiet -- flutter_workspace migration/flutter/generated
+)
