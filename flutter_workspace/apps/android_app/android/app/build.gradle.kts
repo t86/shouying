@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.xmsj.shouyin.shouyin_android"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

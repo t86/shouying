@@ -96,6 +96,21 @@ function yamlPath(value, pathParts) {
   return pathParts.reduce((current, key) => current?.[key], value);
 }
 
+function parseVersion(source, pattern, description) {
+  const match = source.match(pattern);
+  assert.notEqual(match, null, `${description} must be declared`);
+  return match[1].split('.').map(Number);
+}
+
+function compareVersions(left, right) {
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    const difference = (left[index] ?? 0) - (right[index] ?? 0);
+    if (difference !== 0) return Math.sign(difference);
+  }
+  return 0;
+}
+
 function assertAnalyzerShape(source) {
   const parsed = parseYamlSubset(source);
   assert.equal(yamlPath(parsed, ['include']), 'package:flutter_lints/flutter.yaml');
@@ -108,6 +123,37 @@ function assertAnalyzerShape(source) {
 test('pins Flutter 3.47.0 for the workspace', () => {
   const fvmConfig = JSON.parse(readWorkspaceFile('.fvmrc'));
   assert.equal(fvmConfig.flutter, '3.47.0');
+});
+
+test('keeps Android AGP compatible with the compileSdk 37 dependency contract', () => {
+  const lockfile = readWorkspaceFile('pubspec.lock');
+  const settings = readWorkspaceFile('apps/android_app/android/settings.gradle.kts');
+  const appBuild = readWorkspaceFile('apps/android_app/android/app/build.gradle.kts');
+
+  assert.match(
+    lockfile,
+    /^  flutter_secure_storage:\n(?:    .*\n)+?    version: "11\.0\.0"$/m,
+    'the toolchain contract must be revisited when flutter_secure_storage changes',
+  );
+
+  const dependencyCompileSdk = 37;
+  const minimumAgpForCompileSdk37 = [9, 1, 1];
+  const configuredAgp = parseVersion(
+    settings,
+    /id\("com\.android\.application"\) version "([0-9]+\.[0-9]+\.[0-9]+)"/,
+    'Android Gradle Plugin version',
+  );
+
+  assert.match(
+    appBuild,
+    new RegExp(`^\\s+compileSdk = ${dependencyCompileSdk}$`, 'm'),
+    'the Android app must compile against the highest SDK required by its plugins',
+  );
+  assert.equal(
+    compareVersions(configuredAgp, minimumAgpForCompileSdk37) >= 0,
+    true,
+    `AGP ${configuredAgp.join('.')} is below the 9.1.1 minimum for compileSdk 37`,
+  );
 });
 
 test('declares a native Pub workspace with the required SDK range', () => {
