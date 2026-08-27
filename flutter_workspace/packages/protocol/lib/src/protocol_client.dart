@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:foundation/foundation.dart';
@@ -9,6 +8,8 @@ import 'package:protocol/src/canonical_uri.dart';
 import 'package:protocol/src/client_kind.dart';
 import 'package:protocol/src/credential_store.dart';
 import 'package:protocol/src/header_policy.dart';
+import 'package:protocol/src/limited_response_adapter.dart';
+import 'package:protocol/src/protocol_adapter.dart';
 import 'package:protocol/src/request_gate.dart';
 
 /// Application-level response budgets.
@@ -53,7 +54,7 @@ class ProtocolClient {
       ..connectTimeout = _requestTimeout
       ..sendTimeout = _requestTimeout
       ..receiveTimeout = _requestTimeout;
-    _installResponseLimit(dio, responseLimits.maxRawResponseBytes);
+    installProtocolAdapter(dio, responseLimits.maxRawResponseBytes);
     return ProtocolClient._(
       dio,
       config,
@@ -95,18 +96,6 @@ class ProtocolClient {
         limits.maxNodes,
         'responseLimits.maxNodes',
         'must be positive',
-      );
-    }
-  }
-
-  static void _installResponseLimit(Dio dio, int maxRawResponseBytes) {
-    final adapter = dio.httpClientAdapter;
-    if (adapter is _LimitedResponseAdapter) {
-      adapter.tightenLimit(maxRawResponseBytes);
-    } else {
-      dio.httpClientAdapter = _LimitedResponseAdapter(
-        adapter,
-        maxRawResponseBytes,
       );
     }
   }
@@ -173,10 +162,10 @@ class ProtocolClient {
         response.headers,
         headerSelection.snapshot,
       );
-    } on _ResponseTooLargeException {
+    } on ResponseTooLargeException {
       return const FailureResult(_responseTooLargeFailure);
     } on DioException catch (error) {
-      if (error.error is _ResponseTooLargeException) {
+      if (error.error is ResponseTooLargeException) {
         return const FailureResult(_responseTooLargeFailure);
       }
       return FailureResult(_mapDioFailure(error.type));
@@ -205,12 +194,14 @@ class ProtocolClient {
     }
 
     Object? decoded = data;
+    String? rawCodeToken;
     if (decoded is String) {
       if (decoded.length > _responseLimits.maxRawResponseBytes ||
           utf8.encode(decoded).length > _responseLimits.maxRawResponseBytes) {
         return const FailureResult(_responseTooLargeFailure);
       }
       try {
+        rawCodeToken = _topLevelCodeToken(decoded);
         decoded = jsonDecode(decoded);
       } on FormatException {
         return const FailureResult(_invalidTopLevelFailure);
@@ -235,9 +226,8 @@ class ProtocolClient {
       for (final entry in decoded.entries)
         entry.key as String: entry.value as Object?,
     };
-    final code = result['code'];
-    if ((code is int && (code == 11 || code == 12)) ||
-        (code is String && (code == '11' || code == '12'))) {
+    final code = _authCode(result['code'], rawCodeToken);
+    if (code == 11 || code == 12) {
       if (credentialSnapshot case final snapshot?) {
         await _ignoreClearFailure(
           () => _credentialStore.clearTkIfMatches(snapshot.tk),
@@ -245,8 +235,7 @@ class ProtocolClient {
       }
       return const FailureResult(_tkExpiredFailure);
     }
-    if ((code is int && (code == 14 || code == 15)) ||
-        (code is String && (code == '14' || code == '15'))) {
+    if (code == 14 || code == 15) {
       if (credentialSnapshot case final snapshot?) {
         await _ignoreClearFailure(
           () => _credentialStore.clearStkIfMatches(snapshot.stk),
@@ -255,6 +244,161 @@ class ProtocolClient {
       return const FailureResult(_stkExpiredFailure);
     }
     return Success(result);
+  }
+
+  int? _authCode(Object? decodedCode, String? rawCodeToken) {
+    if (rawCodeToken != null) {
+      final token = rawCodeToken.trim();
+      if (token == '11' || token == '12' || token == '14' || token == '15') {
+        return int.parse(token);
+      }
+      if (token.startsWith('"')) {
+        try {
+          final value = jsonDecode(token);
+          if (value is String &&
+              (value == '11' ||
+                  value == '12' ||
+                  value == '14' ||
+                  value == '15')) {
+            return int.parse(value);
+          }
+        } on FormatException {
+          return null;
+        }
+      }
+      return null;
+    }
+
+    if (decodedCode is int &&
+        (decodedCode == 11 ||
+            decodedCode == 12 ||
+            decodedCode == 14 ||
+            decodedCode == 15)) {
+      return decodedCode;
+    }
+    if (decodedCode is String &&
+        (decodedCode == '11' ||
+            decodedCode == '12' ||
+            decodedCode == '14' ||
+            decodedCode == '15')) {
+      return int.parse(decodedCode);
+    }
+    return null;
+  }
+
+  String? _topLevelCodeToken(String source) {
+    var index = _skipWhitespace(source, 0);
+    if (index >= source.length || source.codeUnitAt(index) != 0x7b) return null;
+    index += 1;
+    String? found;
+
+    while (true) {
+      index = _skipWhitespace(source, index);
+      if (index >= source.length || source.codeUnitAt(index) == 0x7d) {
+        return found;
+      }
+      if (source.codeUnitAt(index) != 0x22) return null;
+      final keyEnd = _skipJsonString(source, index);
+      if (keyEnd == null) return null;
+      final Object? key;
+      try {
+        key = jsonDecode(source.substring(index, keyEnd));
+      } on FormatException {
+        return null;
+      }
+      index = _skipWhitespace(source, keyEnd);
+      if (index >= source.length || source.codeUnitAt(index) != 0x3a) {
+        return null;
+      }
+      index = _skipWhitespace(source, index + 1);
+      final valueStart = index;
+      final valueEnd = _skipJsonValue(source, valueStart);
+      if (valueEnd == null) return null;
+      if (key == 'code') found = source.substring(valueStart, valueEnd);
+
+      index = _skipWhitespace(source, valueEnd);
+      if (index >= source.length) return null;
+      final delimiter = source.codeUnitAt(index);
+      if (delimiter == 0x7d) return found;
+      if (delimiter != 0x2c) return null;
+      index += 1;
+    }
+  }
+
+  int _skipWhitespace(String source, int index) {
+    while (index < source.length) {
+      final codeUnit = source.codeUnitAt(index);
+      if (codeUnit != 0x20 &&
+          codeUnit != 0x09 &&
+          codeUnit != 0x0a &&
+          codeUnit != 0x0d) {
+        break;
+      }
+      index += 1;
+    }
+    return index;
+  }
+
+  int? _skipJsonString(String source, int start) {
+    var escaped = false;
+    for (var index = start + 1; index < source.length; index += 1) {
+      final codeUnit = source.codeUnitAt(index);
+      if (escaped) {
+        escaped = false;
+      } else if (codeUnit == 0x5c) {
+        escaped = true;
+      } else if (codeUnit == 0x22) {
+        return index + 1;
+      }
+    }
+    return null;
+  }
+
+  int? _skipJsonValue(String source, int start) {
+    if (start >= source.length) return null;
+    if (source.codeUnitAt(start) == 0x22) return _skipJsonString(source, start);
+
+    final opening = source.codeUnitAt(start);
+    if (opening == 0x7b || opening == 0x5b) {
+      final expectedClosings = <int>[opening == 0x7b ? 0x7d : 0x5d];
+      var inString = false;
+      var escaped = false;
+      for (var index = start + 1; index < source.length; index += 1) {
+        final codeUnit = source.codeUnitAt(index);
+        if (inString) {
+          if (escaped) {
+            escaped = false;
+          } else if (codeUnit == 0x5c) {
+            escaped = true;
+          } else if (codeUnit == 0x22) {
+            inString = false;
+          }
+          continue;
+        }
+        if (codeUnit == 0x22) {
+          inString = true;
+        } else if (codeUnit == 0x7b) {
+          expectedClosings.add(0x7d);
+        } else if (codeUnit == 0x5b) {
+          expectedClosings.add(0x5d);
+        } else if (codeUnit == 0x7d || codeUnit == 0x5d) {
+          if (expectedClosings.isEmpty ||
+              expectedClosings.removeLast() != codeUnit) {
+            return null;
+          }
+          if (expectedClosings.isEmpty) return index + 1;
+        }
+      }
+      return null;
+    }
+
+    var index = start;
+    while (index < source.length) {
+      final codeUnit = source.codeUnitAt(index);
+      if (codeUnit == 0x2c || codeUnit == 0x7d) break;
+      index += 1;
+    }
+    return index > start ? index : null;
   }
 
   bool _contentLengthExceedsLimit(Headers headers) {
@@ -399,85 +543,3 @@ class ProtocolClient {
 }
 
 enum _JsonShapeResult { valid, tooLarge, tooDeep, invalid }
-
-final class _LimitedResponseAdapter implements HttpClientAdapter {
-  _LimitedResponseAdapter(this._delegate, this._maxRawResponseBytes);
-
-  final HttpClientAdapter _delegate;
-  int _maxRawResponseBytes;
-
-  void tightenLimit(int candidate) {
-    if (candidate < _maxRawResponseBytes) _maxRawResponseBytes = candidate;
-  }
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    final response = await _delegate.fetch(
-      options,
-      requestStream,
-      cancelFuture,
-    );
-    final contentLength = _trustedContentLength(response.headers);
-    if (contentLength != null && contentLength > _maxRawResponseBytes) {
-      _closeResponse(response);
-      throw const _ResponseTooLargeException();
-    }
-
-    response.stream = _limitStream(
-      response.stream,
-      response,
-      _maxRawResponseBytes,
-    );
-    return response;
-  }
-
-  int? _trustedContentLength(Map<String, List<String>> headers) {
-    List<String>? values;
-    for (final entry in headers.entries) {
-      if (entry.key.toLowerCase() != Headers.contentLengthHeader) continue;
-      if (values != null) return null;
-      values = entry.value;
-    }
-    if (values == null || values.length != 1) return null;
-    final value = int.tryParse(values.single.trim());
-    return value != null && value >= 0 ? value : null;
-  }
-
-  Stream<Uint8List> _limitStream(
-    Stream<Uint8List> source,
-    ResponseBody response,
-    int maxRawResponseBytes,
-  ) async* {
-    var receivedBytes = 0;
-    var exceeded = false;
-    try {
-      await for (final chunk in source) {
-        receivedBytes += chunk.length;
-        if (receivedBytes > maxRawResponseBytes) {
-          exceeded = true;
-          throw const _ResponseTooLargeException();
-        }
-        yield chunk;
-      }
-    } finally {
-      if (exceeded) _closeResponse(response);
-    }
-  }
-
-  void _closeResponse(ResponseBody response) {
-    // Dio exposes this internal close hook specifically for adapter cleanup.
-    // ignore: invalid_use_of_internal_member
-    response.close();
-  }
-
-  @override
-  void close({bool force = false}) => _delegate.close(force: force);
-}
-
-final class _ResponseTooLargeException implements Exception {
-  const _ResponseTooLargeException();
-}

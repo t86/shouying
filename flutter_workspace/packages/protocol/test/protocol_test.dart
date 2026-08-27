@@ -1114,7 +1114,9 @@ void main() {
       () async {
         for (final code in <Object>[11.0, true, ' 11 ', '11.0']) {
           final adapter = _StubAdapter(
-            (_) => _jsonBody(<String, Object?>{'code': code}),
+            (_) => code is double
+                ? _textBody('{"code":11.0}')
+                : _jsonBody(<String, Object?>{'code': code}),
           );
           final dio = Dio()..httpClientAdapter = adapter;
           final store = _MemoryCredentialStore(tk: 'synthetic-tk');
