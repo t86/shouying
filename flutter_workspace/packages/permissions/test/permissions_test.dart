@@ -21,6 +21,46 @@ void main() {
           sysRoleDetail: m ?? modules(),
           subPermissions: s,
           employeeId: employee);
+  PermissionSnapshot unmodifiableRows<T>(
+          {required T stationId,
+          required T roleId,
+          required T moduleId,
+          required T status}) =>
+      make(
+          r: List<Map<String, T>>.unmodifiable([
+            Map<String, T>.unmodifiable({
+              'station_id': stationId,
+              'sys_role_id': roleId,
+              'status': status
+            })
+          ]),
+          m: List<Map<String, T>>.unmodifiable([
+            Map<String, T>.unmodifiable({
+              'station_id': stationId,
+              'sys_module_id': moduleId,
+              'status': status
+            })
+          ]));
+  PermissionSnapshot unmodifiableViewRows<T>(
+          {required T stationId,
+          required T roleId,
+          required T moduleId,
+          required T status}) =>
+      make(
+          r: UnmodifiableListView<Map<String, T>>([
+            UnmodifiableMapView<String, T>({
+              'station_id': stationId,
+              'sys_role_id': roleId,
+              'status': status
+            })
+          ]),
+          m: UnmodifiableListView<Map<String, T>>([
+            UnmodifiableMapView<String, T>({
+              'station_id': stationId,
+              'sys_module_id': moduleId,
+              'status': status
+            })
+          ]));
 
   test('canonical synthetic fixture', () {
     final result = make();
@@ -174,6 +214,77 @@ void main() {
     expect(result.available, isTrue);
     expect(result.roleIds, [5]);
     expect(result.moduleIds, [101]);
+  });
+
+  test('List.unmodifiable accepts Map<String, Object>.unmodifiable rows', () {
+    final result = unmodifiableRows<Object>(
+        stationId: 7, roleId: 5, moduleId: 101, status: 1);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('List.unmodifiable accepts Map<String, dynamic>.unmodifiable rows', () {
+    final result = unmodifiableRows<dynamic>(
+        stationId: 7, roleId: 5, moduleId: 101, status: 1);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('UnmodifiableListView accepts Object UnmodifiableMapView rows', () {
+    final result = unmodifiableViewRows<Object>(
+        stationId: 7, roleId: 5, moduleId: 101, status: 1);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('UnmodifiableListView accepts dynamic UnmodifiableMapView rows', () {
+    final result = unmodifiableViewRows<dynamic>(
+        stationId: 7, roleId: 5, moduleId: 101, status: 1);
+    expect(result.available, isTrue);
+    expect(result.roleIds, [5]);
+    expect(result.moduleIds, [101]);
+  });
+
+  test('immutable outer and inner row generic types stay symmetric', () {
+    final snapshots = <String, PermissionSnapshot>{
+      'List.unmodifiable<String>': unmodifiableRows<String>(
+          stationId: '7', roleId: '5', moduleId: '101', status: '1'),
+      'List.unmodifiable<int>': unmodifiableRows<int>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'List.unmodifiable<double>': unmodifiableRows<double>(
+          stationId: 7.0, roleId: 5.0, moduleId: 101.0, status: 1.0),
+      'List.unmodifiable<num>': unmodifiableRows<num>(
+          stationId: 7, roleId: 5.0, moduleId: 101, status: 1),
+      'List.unmodifiable<Object>': unmodifiableRows<Object>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'List.unmodifiable<Object?>': unmodifiableRows<Object?>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'List.unmodifiable<dynamic>': unmodifiableRows<dynamic>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'UnmodifiableListView<String>': unmodifiableViewRows<String>(
+          stationId: '7', roleId: '5', moduleId: '101', status: '1'),
+      'UnmodifiableListView<int>': unmodifiableViewRows<int>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'UnmodifiableListView<double>': unmodifiableViewRows<double>(
+          stationId: 7.0, roleId: 5.0, moduleId: 101.0, status: 1.0),
+      'UnmodifiableListView<num>': unmodifiableViewRows<num>(
+          stationId: 7, roleId: 5.0, moduleId: 101, status: 1),
+      'UnmodifiableListView<Object>': unmodifiableViewRows<Object>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'UnmodifiableListView<Object?>': unmodifiableViewRows<Object?>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+      'UnmodifiableListView<dynamic>': unmodifiableViewRows<dynamic>(
+          stationId: 7, roleId: 5, moduleId: 101, status: 1),
+    };
+
+    for (final entry in snapshots.entries) {
+      expect(entry.value.available, isTrue, reason: entry.key);
+      expect(entry.value.roleIds, [5], reason: entry.key);
+      expect(entry.value.moduleIds, [101], reason: entry.key);
+    }
   });
 
   test('invalid values and malformed rows are ignored', () {
