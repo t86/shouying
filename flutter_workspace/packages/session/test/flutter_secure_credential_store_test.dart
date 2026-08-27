@@ -11,7 +11,10 @@ void main() {
       'implements tk and stk read write and clear with fixed scopes',
       () async {
         final backend = _MemoryBackend();
-        final store = FlutterSecureCredentialStore(backend: backend);
+        final store = FlutterSecureCredentialStore(
+          backend: backend,
+          coordinator: const _TestCoordinator(),
+        );
 
         await store.writeTk('tk-value');
         await store.writeStk('stk-value');
@@ -42,7 +45,10 @@ void main() {
         final backend = _MemoryBackend()
           ..persistent['shouyin.tk'] = 'old-tk'
           ..session['shouyin.stk'] = 'old-stk';
-        final store = FlutterSecureCredentialStore(backend: backend);
+        final store = FlutterSecureCredentialStore(
+          backend: backend,
+          coordinator: const _TestCoordinator(),
+        );
         final readStarted = Completer<void>();
         final releaseRead = Completer<void>();
         backend.onRead = (key) async {
@@ -67,7 +73,10 @@ void main() {
 
     test('conditional clear preserves a newer token', () async {
       final backend = _MemoryBackend();
-      final store = FlutterSecureCredentialStore(backend: backend);
+      final store = FlutterSecureCredentialStore(
+        backend: backend,
+        coordinator: const _TestCoordinator(),
+      );
       await store.writeTk('old-tk');
       await store.writeStk('old-stk');
       final snapshot = await store.readSnapshot();
@@ -83,7 +92,10 @@ void main() {
 
     test('all operations are serialized per store instance', () async {
       final backend = _MemoryBackend(delay: const Duration(milliseconds: 2));
-      final store = FlutterSecureCredentialStore(backend: backend);
+      final store = FlutterSecureCredentialStore(
+        backend: backend,
+        coordinator: const _TestCoordinator(),
+      );
 
       await Future.wait<void>(<Future<void>>[
         store.writeTk('one'),
@@ -101,10 +113,12 @@ void main() {
         final backend = _MemoryBackend(delay: const Duration(milliseconds: 2));
         final first = FlutterSecureCredentialStore(
           backend: backend,
+          coordinator: const _TestCoordinator(),
           namespace: 'test.shared.queue',
         );
         final second = FlutterSecureCredentialStore(
           backend: backend,
+          coordinator: const _TestCoordinator(),
           namespace: 'test.shared.queue',
         );
 
@@ -125,10 +139,12 @@ void main() {
         final backend = _CasGateBackend()..value = 'old-tk';
         final first = FlutterSecureCredentialStore(
           backend: backend,
+          coordinator: const _TestCoordinator(),
           namespace: 'test.shared.cas',
         );
         final second = FlutterSecureCredentialStore(
           backend: backend,
+          coordinator: const _TestCoordinator(),
           namespace: 'test.shared.cas',
         );
 
@@ -153,10 +169,12 @@ void main() {
         ..session['shouyin.stk'] = 'old-stk';
       final first = FlutterSecureCredentialStore(
         backend: backend,
+        coordinator: const _TestCoordinator(),
         namespace: 'test.shared.snapshot',
       );
       final second = FlutterSecureCredentialStore(
         backend: backend,
+        coordinator: const _TestCoordinator(),
         namespace: 'test.shared.snapshot',
       );
 
@@ -214,6 +232,7 @@ void main() {
         const secret = 'hostile-secret-token';
         final store = FlutterSecureCredentialStore(
           backend: _ThrowingBackend(StateError('write failed: $secret')),
+          coordinator: const _TestCoordinator(),
         );
 
         Object? failure;
@@ -366,4 +385,30 @@ final class _UnavailableCoordinator
   @override
   Future<T> synchronized<T>(String namespace, Future<T> Function() operation) =>
       Future<T>.error(const CredentialTransactionUnavailableException());
+}
+
+final class _TestCoordinator implements CredentialTransactionCoordinator {
+  const _TestCoordinator();
+
+  static final Map<String, Future<void>> _tails = <String, Future<void>>{};
+
+  @override
+  Future<T> synchronized<T>(
+    String namespace,
+    Future<T> Function() operation,
+  ) async {
+    final previous = _tails[namespace] ?? Future<void>.value();
+    final release = Completer<void>();
+    final tail = release.future;
+    _tails[namespace] = tail;
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release.complete();
+      if (identical(_tails[namespace], tail)) {
+        unawaited(_tails.remove(namespace));
+      }
+    }
+  }
 }

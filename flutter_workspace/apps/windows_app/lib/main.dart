@@ -154,6 +154,14 @@ final class _DefaultShellDependencies implements ShellDependencies {
       api: SessionApi(client: _protocolClient),
       credentialStore: _credentialStore,
     );
+    connectionPhases = _CurrentValueStream<ConnectionPhase>(
+      _phaseEvents.stream,
+      () => _currentPhase,
+    );
+    realtimeFailures = _OptionalCurrentValueStream<AppFailure>(
+      _failureEvents.stream,
+      () => _lastFailure,
+    );
   }
 
   final ApiConfig _config;
@@ -161,32 +169,49 @@ final class _DefaultShellDependencies implements ShellDependencies {
   final Dio _dio;
   late final ProtocolClient _protocolClient;
   RealtimeController? _realtimeController;
+  final StreamController<ConnectionPhase> _phaseEvents =
+      StreamController<ConnectionPhase>.broadcast(sync: true);
+  final StreamController<AppFailure> _failureEvents =
+      StreamController<AppFailure>.broadcast(sync: true);
+  StreamSubscription<ConnectionPhase>? _phaseSubscription;
+  StreamSubscription<AppFailure>? _failureSubscription;
+  ConnectionPhase _currentPhase = ConnectionPhase.blocked;
+  AppFailure? _lastFailure;
   bool _disposed = false;
 
   @override
   late final SessionRepository sessionRepository;
 
-  RealtimeController get _realtime =>
-      _realtimeController ??= RealtimeController(
-        config: _config,
-        client: sessionRepository.currentMachine?.client ?? ClientKind.cashier,
-        credentialStore: _credentialStore,
-        syncApi: ProtocolSyncApi(client: _protocolClient),
-        socketTransport: const WebSocketChannelTransport(),
-      );
+  @override
+  late final Stream<ConnectionPhase> connectionPhases;
 
   @override
-  ConnectionPhase get connectionPhase =>
-      _realtimeController?.phase ?? ConnectionPhase.blocked;
+  late final Stream<AppFailure> realtimeFailures;
+
+  RealtimeController get _realtime {
+    final existing = _realtimeController;
+    if (existing != null) return existing;
+    final controller = RealtimeController(
+      config: _config,
+      client: sessionRepository.currentMachine?.client ?? ClientKind.cashier,
+      credentialStore: _credentialStore,
+      syncApi: ProtocolSyncApi(client: _protocolClient),
+      socketTransport: const WebSocketChannelTransport(),
+    );
+    _realtimeController = controller;
+    _phaseSubscription = controller.phases.listen((phase) {
+      _currentPhase = phase;
+      if (!_phaseEvents.isClosed) _phaseEvents.add(phase);
+    });
+    _failureSubscription = controller.failures.listen((failure) {
+      _lastFailure = failure;
+      if (!_failureEvents.isClosed) _failureEvents.add(failure);
+    });
+    return controller;
+  }
 
   @override
-  Stream<ConnectionPhase> get connectionPhases =>
-      _realtimeController?.phases ??
-      Stream<ConnectionPhase>.value(ConnectionPhase.blocked);
-
-  @override
-  Stream<AppFailure> get realtimeFailures =>
-      _realtimeController?.failures ?? const Stream<AppFailure>.empty();
+  ConnectionPhase get connectionPhase => _currentPhase;
 
   @override
   Future<void> startRealtime() async {
@@ -204,7 +229,11 @@ final class _DefaultShellDependencies implements ShellDependencies {
     if (_disposed) return;
     _disposed = true;
     await _realtimeController?.dispose();
+    await _phaseSubscription?.cancel();
+    await _failureSubscription?.cancel();
     await sessionRepository.close();
+    await _phaseEvents.close();
+    await _failureEvents.close();
     _dio.close(force: true);
   }
 }
@@ -236,6 +265,15 @@ final _permissionSnapshotProvider = Provider<PermissionSnapshot>(
 );
 final _currentUserProvider = StreamProvider<UserSession?>((ref) {
   return ref.watch(_appSessionRepositoryProvider).userSessions;
+});
+final _realtimeLifecycleProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<UserSession?>>(_currentUserProvider, (previous, next) {
+    if (next.value != null) {
+      unawaited(ref.read(_shellDependenciesProvider).startRealtime());
+    } else if (previous?.value != null) {
+      unawaited(ref.read(_shellDependenciesProvider).stopRealtime());
+    }
+  }, fireImmediately: true);
 });
 final _connectionPhaseProvider = StreamProvider<ConnectionPhase>((ref) {
   return ref.watch(_shellDependenciesProvider).connectionPhases;
@@ -324,17 +362,8 @@ final class _AppView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(_currentUserProvider);
+    ref.watch(_realtimeLifecycleProvider);
     ref.watch(_permissionSnapshotProvider);
-    ref.listen<AsyncValue<UserSession?>>(_currentUserProvider, (
-      previous,
-      next,
-    ) {
-      if (next.value != null) {
-        unawaited(ref.read(_shellDependenciesProvider).startRealtime());
-      } else if (previous?.value != null) {
-        unawaited(ref.read(_shellDependenciesProvider).stopRealtime());
-      }
-    });
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
@@ -413,4 +442,86 @@ final class _SessionRefresh extends ChangeNotifier {
     unawaited(_userSubscription.cancel());
     super.dispose();
   }
+}
+
+final class _CurrentValueStream<T> extends Stream<T> {
+  const _CurrentValueStream(this.source, this.current);
+
+  final Stream<T> source;
+  final T Function() current;
+
+  @override
+  bool get isBroadcast => true;
+
+  @override
+  StreamSubscription<T> listen(
+    void Function(T event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) => _replayStream(
+    source: source,
+    initial: current(),
+    onData: onData,
+    onError: onError,
+    onDone: onDone,
+    cancelOnError: cancelOnError,
+  );
+}
+
+final class _OptionalCurrentValueStream<T> extends Stream<T> {
+  const _OptionalCurrentValueStream(this.source, this.current);
+
+  final Stream<T> source;
+  final T? Function() current;
+
+  @override
+  bool get isBroadcast => true;
+
+  @override
+  StreamSubscription<T> listen(
+    void Function(T event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) => _replayStream(
+    source: source,
+    initial: current(),
+    onData: onData,
+    onError: onError,
+    onDone: onDone,
+    cancelOnError: cancelOnError,
+  );
+}
+
+StreamSubscription<T> _replayStream<T>({
+  required Stream<T> source,
+  required T? initial,
+  required void Function(T event)? onData,
+  required Function? onError,
+  required void Function()? onDone,
+  required bool? cancelOnError,
+}) {
+  late final StreamController<T> controller;
+  StreamSubscription<T>? subscription;
+  controller = StreamController<T>(
+    sync: true,
+    onListen: () {
+      subscription = source.listen(
+        controller.add,
+        onError: controller.addError,
+        onDone: controller.close,
+      );
+      if (initial != null) controller.add(initial);
+    },
+    onPause: () => subscription?.pause(),
+    onResume: () => subscription?.resume(),
+    onCancel: () => subscription?.cancel(),
+  );
+  return controller.stream.listen(
+    onData,
+    onError: onError,
+    onDone: onDone,
+    cancelOnError: cancelOnError,
+  );
 }

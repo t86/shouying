@@ -58,8 +58,12 @@ final class CredentialStorageException implements Exception {
 ///
 /// Every read, write, snapshot, and compare-and-clear operation is serialized
 /// across all store instances sharing [namespace]. Native runtimes use a
-/// process-wide named mutex. Web uses an exclusive, origin-scoped Web Lock, so
+/// a blocking named OS file lock in the application-support directory, with a
+/// same-isolate queue and an atomic PID-scoped guard for platforms whose file
+/// locks are process-level. Web uses an exclusive, origin-scoped Web Lock, so
 /// tabs and workers on the same origin participate in the same transaction.
+/// Namespace names are SHA-256 hashed before becoming file names; credentials
+/// never enter a lock path.
 /// If Web Locks are unavailable or rejected, operations fail closed with
 /// [CredentialStorageException]; no compare-and-clear atomicity is claimed
 /// without the browser lock.

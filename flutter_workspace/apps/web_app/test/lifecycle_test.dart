@@ -58,7 +58,6 @@ void main() {
       tester.widget<MaterialApp>(find.byType(MaterialApp)).title,
       '收银 Web 客户端',
     );
-
     await tester.runAsync(dependencies.authenticate);
     await tester.pumpAndSettle();
     expect(dependencies.startCalls, 1);
@@ -117,6 +116,65 @@ void main() {
     expect(dependencies.hasOpenStreams, isFalse);
     expect(factory.routerDisposeCalls, 1);
   });
+
+  testWidgets('initially authenticated root starts realtime exactly once', (
+    tester,
+  ) async {
+    final factory = (await tester.runAsync(
+      () => _LifecycleFactory.authenticated(_validEnvironment.config!),
+    ))!;
+
+    await tester.pumpWidget(
+      ShouyinWebApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(factory.dependencies.startCalls, 1);
+    expect(find.text('收银 Web 客户端'), findsOneWidget);
+    await tester.pump();
+    expect(factory.dependencies.startCalls, 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+    expect(factory.dependencies.disposeCalls, 1);
+  });
+
+  test(
+    'shell phase and failure streams stay stable from construction',
+    () async {
+      final dependencies = _LifecycleDependencies(_validEnvironment.config!);
+      final phaseStream = dependencies.connectionPhases;
+      final failureStream = dependencies.realtimeFailures;
+      final phases = <ConnectionPhase>[];
+      final failures = <AppFailure>[];
+      final phaseSubscription = phaseStream.listen(phases.add);
+      final failureSubscription = failureStream.listen(failures.add);
+      await Future<void>.delayed(Duration.zero);
+      expect(phases, <ConnectionPhase>[ConnectionPhase.blocked]);
+
+      dependencies.emitFailure(
+        const AppFailure(
+          kind: FailureKind.realtime,
+          code: 'realtime.synthetic',
+          safeMessage: '测试实时错误',
+        ),
+      );
+      await dependencies.startRealtime();
+      await Future<void>.delayed(Duration.zero);
+      expect(identical(phaseStream, dependencies.connectionPhases), isTrue);
+      expect(identical(failureStream, dependencies.realtimeFailures), isTrue);
+      expect(phases, contains(ConnectionPhase.online));
+      expect(failures.single.code, 'realtime.synthetic');
+
+      await phaseSubscription.cancel();
+      await failureSubscription.cancel();
+      await dependencies.dispose();
+      expect(dependencies.hasOpenStreams, isFalse);
+    },
+  );
 }
 
 final AppRuntimeConfiguration _validEnvironment =
@@ -127,6 +185,17 @@ final AppRuntimeConfiguration _validEnvironment =
     );
 
 final class _LifecycleFactory implements ShellDependenciesFactory {
+  _LifecycleFactory();
+
+  static Future<_LifecycleFactory> authenticated(ApiConfig config) async {
+    final factory = _LifecycleFactory();
+    final dependencies = _LifecycleDependencies(config);
+    await dependencies.authenticate();
+    factory._prepared = dependencies;
+    return factory;
+  }
+
+  _LifecycleDependencies? _prepared;
   int createCalls = 0;
   int routerCreateCalls = 0;
   int routerDisposeCalls = 0;
@@ -135,7 +204,7 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
   @override
   ShellDependencies create(ApiConfig config) {
     createCalls += 1;
-    dependencies = _LifecycleDependencies(config);
+    dependencies = _prepared ?? _LifecycleDependencies(config);
     return dependencies;
   }
 
@@ -187,10 +256,15 @@ final class _LifecycleDependencies implements ShellDependencies {
   ConnectionPhase get connectionPhase => _phase;
 
   @override
-  Stream<ConnectionPhase> get connectionPhases => _phases.stream;
+  late final Stream<ConnectionPhase> connectionPhases = _CurrentValueStream(
+    _phases.stream,
+    () => _phase,
+  );
 
   @override
-  Stream<AppFailure> get realtimeFailures => _failures.stream;
+  late final Stream<AppFailure> realtimeFailures = _failures.stream;
+
+  void emitFailure(AppFailure failure) => _failures.add(failure);
 
   Future<void> authenticate() async {
     await sessionRepository.authorizeMachine('TERM-001');
@@ -305,4 +379,45 @@ final class _MemoryCredentialStore implements CredentialStore {
   Future<void> writeStk(String value) async => _stk = value;
   @override
   Future<void> writeTk(String value) async => _tk = value;
+}
+
+final class _CurrentValueStream<T> extends Stream<T> {
+  const _CurrentValueStream(this.source, this.current);
+
+  final Stream<T> source;
+  final T Function() current;
+
+  @override
+  bool get isBroadcast => true;
+
+  @override
+  StreamSubscription<T> listen(
+    void Function(T event)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    late final StreamController<T> controller;
+    StreamSubscription<T>? subscription;
+    controller = StreamController<T>(
+      sync: true,
+      onListen: () {
+        subscription = source.listen(
+          controller.add,
+          onError: controller.addError,
+          onDone: controller.close,
+        );
+        controller.add(current());
+      },
+      onPause: () => subscription?.pause(),
+      onResume: () => subscription?.resume(),
+      onCancel: () => subscription?.cancel(),
+    );
+    return controller.stream.listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
+  }
 }
