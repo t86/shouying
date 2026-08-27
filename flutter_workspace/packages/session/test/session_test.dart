@@ -8,7 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:protocol/protocol.dart';
 import 'package:session/session.dart';
-import 'package:session/src/session_api.dart' show MachineAuthorization;
+import 'package:session/src/session_api.dart'
+    show MachineAuthorization, SessionRemoteApi;
 
 void main() {
   group('session models', () {
@@ -107,11 +108,11 @@ void main() {
         final store = _AtomicCredentialStore();
         final adapter = _StubAdapter(
           (_) => _jsonBody(<String, Object?>{
-            'code': 1,
+            'code': 1.0,
             'data': <String, Object?>{
               'tk': 'synthetic-issued-tk',
               'am': '8',
-              'id': 42,
+              'id': 'terminal-A7',
               'n': ' Front Counter ',
             },
           }),
@@ -123,7 +124,7 @@ void main() {
         expect(
           result.valueOrNull?.session,
           const MachineSession(
-            machineId: '42',
+            machineId: 'terminal-A7',
             machineName: 'Front Counter',
             client: ClientKind.cashier,
           ),
@@ -197,25 +198,19 @@ void main() {
           <String, Object?>{
             'tk': 'synthetic-tk',
             'am': 8,
-            'id': '01',
-            'n': 'Counter',
-          },
-          <String, Object?>{
-            'tk': 'synthetic-tk',
-            'am': 8,
-            'id': '1.0',
-            'n': 'Counter',
-          },
-          <String, Object?>{
-            'tk': 'synthetic-tk',
-            'am': 8,
             'id': 9007199254740992,
             'n': 'Counter',
           },
           <String, Object?>{
             'tk': 'synthetic-tk',
             'am': 8,
-            'id': '9007199254740992',
+            'id': 'terminal\nA7',
+            'n': 'Counter',
+          },
+          <String, Object?>{
+            'tk': 'synthetic-tk',
+            'am': 8,
+            'id': List<String>.filled(129, 'x').join(),
             'n': 'Counter',
           },
           <String, Object?>{'tk': 'synthetic-tk', 'am': 8, 'id': 1, 'n': ''},
@@ -342,6 +337,34 @@ void main() {
     });
 
     test(
+      'rejects nonintegral, nonfinite, bool, and padded success codes',
+      () async {
+        for (final code in <Object>[1.5, true, ' 1', '01']) {
+          final adapter = _StubAdapter(
+            (_) => _jsonBody(<String, Object?>{
+              'code': code,
+              'msg': 'Ordinary rejection',
+            }),
+          );
+
+          final result = await _api(adapter: adapter)
+              .authorizeMachine('TERM-1');
+
+          expect(result.failureOrNull?.code, 'business.term_auth_rejected');
+        }
+
+        final adapter = _StubAdapter(
+          (_) => _jsonBody(<String, Object?>{'code': 2}),
+        );
+        final nonfinite = await _api(
+          adapter: adapter,
+          decodedResponse: <String, Object?>{'code': double.nan},
+        ).authorizeMachine('TERM-1');
+        expect(nonfinite.failureOrNull?.code, 'protocol.invalid_top_level');
+      },
+    );
+
+    test(
       'propagates ProtocolClient auth failures before mapping response data',
       () async {
         final store = _AtomicCredentialStore(tk: 'synthetic-expired-tk');
@@ -373,9 +396,9 @@ void main() {
         (_) => _jsonBody(<String, Object?>{
           'code': '1',
           'data': <String, Object?>{
-            'emp_id': 88,
+            'emp_id': 'EMP-A7',
             'name': ' Synthetic Employee ',
-            'station_id': '9',
+            'station_id': 'station-9',
           },
         }),
       );
@@ -391,9 +414,9 @@ void main() {
       expect(
         result.valueOrNull,
         const UserSession(
-          employeeId: '88',
+          employeeId: 'EMP-A7',
           name: 'Synthetic Employee',
-          stationId: '9',
+          stationId: 'station-9',
         ),
       );
       final request = adapter.requests.single;
@@ -413,10 +436,10 @@ void main() {
       );
     });
 
-    test('uses pt 2 for card login', () async {
+    test('accepts integral numeric success code for card login', () async {
       final adapter = _StubAdapter(
         (_) => _jsonBody(<String, Object?>{
-          'code': 1,
+          'code': 1.0,
           'data': <String, Object?>{
             'emp_id': '8',
             'name': 'Synthetic Employee',
@@ -425,7 +448,7 @@ void main() {
         }),
       );
 
-      await _api(adapter: adapter).login(
+      final result = await _api(adapter: adapter).login(
         machine: machine,
         account: 'CARD-8',
         password: 'synthetic-card-password',
@@ -433,6 +456,7 @@ void main() {
       );
 
       expect((adapter.requests.single.data as Map)['pt'], 2);
+      expect(result, isA<Success<UserSession>>());
     });
 
     test('rejects invalid login input without hashing or transport', () async {
@@ -468,17 +492,26 @@ void main() {
         <String, Object?>{'emp_id': 1, 'name': '', 'station_id': 2},
         <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': 2.5},
         <String, Object?>{'emp_id': true, 'name': 'Employee', 'station_id': 2},
-        <String, Object?>{'emp_id': '01', 'name': 'Employee', 'station_id': 2},
-        <String, Object?>{'emp_id': 1, 'name': 'Employee', 'station_id': '2.0'},
         <String, Object?>{
           'emp_id': 9007199254740992,
+          'name': 'Employee',
+          'station_id': 2,
+        },
+        <String, Object?>{'emp_id': '', 'name': 'Employee', 'station_id': 2},
+        <String, Object?>{
+          'emp_id': 'EMP\u0000A7',
+          'name': 'Employee',
+          'station_id': 2,
+        },
+        <String, Object?>{
+          'emp_id': List<String>.filled(129, 'x').join(),
           'name': 'Employee',
           'station_id': 2,
         },
         <String, Object?>{
           'emp_id': 1,
           'name': 'Employee',
-          'station_id': '9007199254740992',
+          'station_id': 'station\n9',
         },
       ];
 
@@ -552,7 +585,7 @@ void main() {
     test('posts logout once using the current machine client', () async {
       final store = _AtomicCredentialStore(tk: 'synthetic-machine-tk');
       final adapter = _StubAdapter(
-        (_) => _jsonBody(<String, Object?>{'code': 1}),
+        (_) => _jsonBody(<String, Object?>{'code': 1.0}),
       );
 
       final result = await _api(
@@ -1480,9 +1513,20 @@ void main() {
 SessionApi _api({
   required _StubAdapter adapter,
   _AtomicCredentialStore? credentialStore,
+  Object? decodedResponse,
 }) {
   final store = credentialStore ?? _AtomicCredentialStore();
   final dio = Dio()..httpClientAdapter = adapter;
+  if (decodedResponse != null) {
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (response, handler) {
+          response.data = decodedResponse;
+          handler.next(response);
+        },
+      ),
+    );
+  }
   var now = 0;
   final protocolClient = ProtocolClient(
     dio: dio,

@@ -17,6 +17,9 @@ final class MachineAuthorization {
   String toString() => 'MachineAuthorization(session: $session)';
 }
 
+/// Package-internal transport seam used by `SessionRepository` test doubles.
+/// Applications compose sessions with the public [SessionApi] implementation.
+@internal
 abstract interface class SessionRemoteApi {
   Future<Result<MachineAuthorization>> authorizeMachine(String code);
 
@@ -181,8 +184,11 @@ final class SessionApi implements SessionRemoteApi {
     return const Success<void>(null);
   }
 
-  static bool _isSuccessCode(Object? value) =>
-      (value is int && value.runtimeType == int && value == 1) || value == '1';
+  static bool _isSuccessCode(Object? value) => switch (value) {
+    num() => _safeWireInteger(value) == 1,
+    String() => value == '1',
+    _ => false,
+  };
 
   static Map<String, Object?>? _stringKeyedMap(Object? value) {
     if (value is! Map || value.keys.any((key) => key is! String)) return null;
@@ -197,16 +203,11 @@ final class SessionApi implements SessionRemoteApi {
     if (value is! String ||
         value.isEmpty ||
         value.length > _maxIdentifierLength ||
-        !RegExp(r'^(?:0|-?[1-9]\d*)$').hasMatch(value)) {
+        value != value.trim() ||
+        RegExp(r'[\x00-\x1f\x7f]').hasMatch(value)) {
       return null;
     }
-    final parsed = BigInt.tryParse(value);
-    if (parsed == null ||
-        parsed < BigInt.from(-_maxSafeWireInteger) ||
-        parsed > BigInt.from(_maxSafeWireInteger)) {
-      return null;
-    }
-    return parsed.toString();
+    return value;
   }
 
   static int? _safeWireInteger(num value) {
