@@ -151,6 +151,40 @@ void main() {
     expect(unrestricted.valueOrNull!.tables.length, 3);
   });
 
+  test('limits supervisor card visibility to configured regions', () {
+    final restricted = LegacyCardTableStore(stationId: '9').applyEnvelope(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(
+          roleRows: <Object?>[
+            <Object?>[9, 11, 1],
+          ],
+          supervisorRegions: <Object?>[
+            <Object?>[9, 2, 1],
+          ],
+        ),
+      ),
+    );
+    expect(restricted.valueOrNull!.tables.map((table) => table.id), <String>[
+      '200',
+    ]);
+
+    final fullAccess = LegacyCardTableStore(stationId: '9').applyEnvelope(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(
+          roleRows: <Object?>[
+            <Object?>[9, 11, 1],
+          ],
+          supervisorRegions: <Object?>[
+            <Object?>[9, 0, 1],
+          ],
+        ),
+      ),
+    );
+    expect(fullAccess.valueOrNull!.tables.length, 3);
+  });
+
   testWidgets('renders source-aligned region and card filters', (tester) async {
     final events = StreamController<SyncEnvelope>.broadcast(sync: true);
     var switchCalls = 0;
@@ -312,8 +346,10 @@ void main() {
 List<Object?> _fullData({
   int businessDayId = 9,
   List<Object?> machineAccess = const <Object?>[],
+  List<Object?> roleRows = const <Object?>[],
+  List<Object?> supervisorRegions = const <Object?>[],
 }) {
-  final data = List<Object?>.filled(41, const <Object?>[]);
+  final data = List<Object?>.filled(57, const <Object?>[]);
   data[0] = <Object?>[
     <Object?>[2, '包厢', 1, 20, 0, 0, 0],
     <Object?>[1, '大厅', 1, 10, 0, 0, 0],
@@ -365,6 +401,8 @@ List<Object?> _fullData({
     <Object?>[1, 2, 1],
   ];
   data[40] = machineAccess;
+  data[13] = roleRows;
+  data[56] = supervisorRegions;
   return data;
 }
 

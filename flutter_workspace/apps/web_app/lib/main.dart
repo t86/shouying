@@ -666,6 +666,7 @@ final class _BusinessHomeScreen extends ConsumerWidget {
       onOpenDiagnostics: () => context.go('/diagnostics'),
       userName: dependencies.sessionRepository.currentUser?.name,
       machineId: dependencies.sessionRepository.currentMachine?.machineId,
+      stationId: dependencies.sessionRepository.currentUser?.stationId,
     );
   }
 }

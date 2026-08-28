@@ -23,6 +23,7 @@ final class CardTableScreen extends StatefulWidget {
     this.userName,
     this.showCustomerDetails = false,
     this.machineId,
+    this.stationId,
     super.key,
   });
 
@@ -47,6 +48,7 @@ final class CardTableScreen extends StatefulWidget {
   final String? userName;
   final bool showCustomerDetails;
   final String? machineId;
+  final String? stationId;
 
   @override
   State<CardTableScreen> createState() => _CardTableScreenState();
@@ -70,15 +72,22 @@ final class _CardTableScreenState extends State<CardTableScreen> {
   @override
   void initState() {
     super.initState();
-    _store = LegacyCardTableStore(machineId: widget.machineId);
+    _store = LegacyCardTableStore(
+      machineId: widget.machineId,
+      stationId: widget.stationId,
+    );
     _subscribe();
   }
 
   @override
   void didUpdateWidget(CardTableScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.machineId != widget.machineId) {
-      _store = LegacyCardTableStore(machineId: widget.machineId);
+    if (oldWidget.machineId != widget.machineId ||
+        oldWidget.stationId != widget.stationId) {
+      _store = LegacyCardTableStore(
+        machineId: widget.machineId,
+        stationId: widget.stationId,
+      );
       _snapshot = null;
       _failure = null;
       _subscribe();

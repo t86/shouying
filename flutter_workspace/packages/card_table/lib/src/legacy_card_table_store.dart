@@ -3,14 +3,15 @@ import 'package:foundation/foundation.dart';
 import 'package:realtime_sync/realtime_sync.dart';
 
 final class LegacyCardTableStore {
-  factory LegacyCardTableStore({String? machineId}) =>
-      LegacyCardTableStore._(machineId);
+  factory LegacyCardTableStore({String? machineId, String? stationId}) =>
+      LegacyCardTableStore._(machineId, stationId);
 
-  LegacyCardTableStore._(this._machineId);
+  LegacyCardTableStore._(this._machineId, this._stationId);
 
   static const Set<int> _requiredDatasets = <int>{0, 1, 14, 18};
 
   final String? _machineId;
+  final String? _stationId;
   Map<String, List<Object?>> _regions = <String, List<Object?>>{};
   Map<String, List<Object?>> _seats = <String, List<Object?>>{};
   Map<String, List<Object?>> _business = <String, List<Object?>>{};
@@ -18,6 +19,8 @@ final class LegacyCardTableStore {
   Map<String, List<Object?>> _futureBookings = <String, List<Object?>>{};
   Map<String, List<Object?>> _statusCounts = <String, List<Object?>>{};
   Map<String, List<Object?>> _machineAccess = <String, List<Object?>>{};
+  Map<String, List<Object?>> _roles = <String, List<Object?>>{};
+  Map<String, List<Object?>> _supervisorRegions = <String, List<Object?>>{};
   List<Object?>? _businessDay;
   CardTableSnapshot? _currentSnapshot;
 
@@ -57,6 +60,10 @@ final class LegacyCardTableStore {
     final nextMachineAccess = isFull
         ? <String, List<Object?>>{}
         : _copyRows(_machineAccess);
+    final nextRoles = isFull ? <String, List<Object?>>{} : _copyRows(_roles);
+    final nextSupervisorRegions = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_supervisorRegions);
     var nextBusinessDay = isFull
         ? null
         : _businessDay == null
@@ -69,6 +76,13 @@ final class LegacyCardTableStore {
       }
       if (datasets.containsKey(1)) {
         _mergeRows(nextSeats, _rows(datasets[1], minimumLength: 8), 2);
+      }
+      if (datasets.containsKey(13)) {
+        _mergeRowsByKey(
+          nextRoles,
+          _rows(datasets[13], minimumLength: 3),
+          (row) => '${_id(row[0])}|${_integer(row[1])}',
+        );
       }
       if (datasets.containsKey(14)) {
         _mergeRows(
@@ -111,6 +125,13 @@ final class LegacyCardTableStore {
           (row) => '${_id(row[0])}|${_integer(row[1])}|${_id(row[3])}',
         );
       }
+      if (datasets.containsKey(56)) {
+        _mergeRowsByKey(
+          nextSupervisorRegions,
+          _rows(datasets[56], minimumLength: 3),
+          (row) => '${_id(row[0])}|${_id(row[1])}',
+        );
+      }
       if (nextBusinessDay == null) throw const FormatException();
       final snapshot = _buildSnapshot(
         cursor: envelope.cursor!,
@@ -123,6 +144,9 @@ final class LegacyCardTableStore {
         statusCountRows: nextStatusCounts,
         machineId: _machineId,
         machineAccess: nextMachineAccess,
+        stationId: _stationId,
+        roles: nextRoles,
+        supervisorRegions: nextSupervisorRegions,
       );
       _regions = nextRegions;
       _seats = nextSeats;
@@ -131,6 +155,8 @@ final class LegacyCardTableStore {
       _futureBookings = nextFutureBookings;
       _statusCounts = nextStatusCounts;
       _machineAccess = nextMachineAccess;
+      _roles = nextRoles;
+      _supervisorRegions = nextSupervisorRegions;
       _businessDay = nextBusinessDay;
       _currentSnapshot = snapshot;
       return Success(snapshot);
@@ -214,6 +240,9 @@ final class LegacyCardTableStore {
     required Map<String, List<Object?>> statusCountRows,
     required String? machineId,
     required Map<String, List<Object?>> machineAccess,
+    required String? stationId,
+    required Map<String, List<Object?>> roles,
+    required Map<String, List<Object?>> supervisorRegions,
   }) {
     final normalizedRegions =
         <CardRegion>[
@@ -236,7 +265,13 @@ final class LegacyCardTableStore {
           for (final row in seats.values)
             if (_integer(row[2]) == 1 &&
                 activeRegionIds.contains(_id(row[3])) &&
-                _isSeatPermitted(row, machineId, machineAccess))
+                _isSeatPermitted(row, machineId, machineAccess) &&
+                _isSupervisorRegionPermitted(
+                  row,
+                  stationId,
+                  roles,
+                  supervisorRegions,
+                ))
               _table(row, business[_id(row[0])]),
         ]..sort((left, right) {
           final region = normalizedRegions
@@ -261,7 +296,13 @@ final class LegacyCardTableStore {
             for (final seat in seats.values)
               if (_integer(seat[2]) == 1 &&
                   activeRegionIds.contains(_id(seat[3])) &&
-                  _isSeatPermitted(seat, machineId, machineAccess))
+                  _isSeatPermitted(seat, machineId, machineAccess) &&
+                  _isSupervisorRegionPermitted(
+                    seat,
+                    stationId,
+                    roles,
+                    supervisorRegions,
+                  ))
                 _futureTable(
                   seat,
                   business[_id(seat[0])],
@@ -374,6 +415,29 @@ final class LegacyCardTableStore {
       return false;
     }
     return allowedSeats.isEmpty || allowedSeats.contains(seatId);
+  }
+
+  static bool _isSupervisorRegionPermitted(
+    List<Object?> seat,
+    String? stationId,
+    Map<String, List<Object?>> roleRows,
+    Map<String, List<Object?>> supervisorRegionRows,
+  ) {
+    if (stationId == null) return true;
+    final normalizedStationId = _id(stationId);
+    final isSupervisor = roleRows.values.any(
+      (row) =>
+          _id(row[0]) == normalizedStationId &&
+          _integer(row[1]) == 11 &&
+          _integer(row[2]) == 1,
+    );
+    if (!isSupervisor) return true;
+    final rows = supervisorRegionRows.values.where(
+      (row) => _id(row[0]) == normalizedStationId && _integer(row[2]) == 1,
+    );
+    if (rows.any((row) => _id(row[1]) == '0')) return true;
+    final allowedRegions = rows.map((row) => _id(row[1])).toSet();
+    return allowedRegions.contains(_id(seat[3]));
   }
 
   static ({Map<int, int> totals, Map<String, Map<int, int>> byRegion})
