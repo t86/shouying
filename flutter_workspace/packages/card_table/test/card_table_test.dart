@@ -32,6 +32,19 @@ void main() {
     expect(snapshot.tables.first.businessStatus, 4);
     expect(snapshot.tables.first.customerName, '顾客');
     expect(snapshot.tables.first.orderAmount, 120);
+    expect(snapshot.businessDates.map((date) => date.id), <String>[
+      '20260828',
+      '20260829',
+    ]);
+    expect(
+      snapshot
+          .tablesForDate('20260829')
+          .firstWhere((table) => table.id == '101')
+          .businessStatus,
+      8,
+    );
+    expect(snapshot.statusCounts[20], 1);
+    expect(snapshot.statusCountsForRegion('1')[1], 1);
     expect(snapshot.toString(), isNot(contains('顾客')));
   });
 
@@ -96,6 +109,8 @@ void main() {
   testWidgets('renders source-aligned region and card filters', (tester) async {
     final events = StreamController<SyncEnvelope>.broadcast(sync: true);
     var switchCalls = 0;
+    var refreshCalls = 0;
+    var diagnosticsCalls = 0;
     addTearDown(events.close);
     await tester.pumpWidget(
       MaterialApp(
@@ -107,6 +122,12 @@ void main() {
             switchCalls += 1;
             return const Success<void>(null);
           },
+          onRefresh: () async {
+            refreshCalls += 1;
+            return const Success<void>(null);
+          },
+          onOpenDiagnostics: () => diagnosticsCalls += 1,
+          userName: '系统管理员',
         ),
       ),
     );
@@ -131,6 +152,17 @@ void main() {
     );
     expect(find.text('A02'), findsOneWidget);
     expect(find.text('B01'), findsOneWidget);
+    expect(find.text('今天'), findsOneWidget);
+    expect(find.text('明天'), findsOneWidget);
+    expect(find.text('空台 2'), findsOneWidget);
+    expect(find.text('抵达数 1'), findsOneWidget);
+    expect(find.text('顾客'), findsNothing);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, '大厅'));
+    await tester.pump();
+    expect(find.text('空台 1'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ChoiceChip, '全部区域'));
+    await tester.pump();
 
     await tester.enterText(find.byKey(CardTableScreen.searchKey), 'A01');
     await tester.pump();
@@ -147,6 +179,18 @@ void main() {
     await tester.tap(find.byKey(CardTableScreen.switchSystemKey));
     await tester.pumpAndSettle();
     expect(switchCalls, 1);
+    await tester.tap(find.byKey(CardTableScreen.refreshKey));
+    await tester.pumpAndSettle();
+    expect(refreshCalls, 1);
+    await tester.tap(find.byKey(CardTableScreen.moreFunctionsKey));
+    await tester.pumpAndSettle();
+    expect(find.text('开台记录'), findsOneWidget);
+    expect(diagnosticsCalls, 0);
+    await tester.ensureVisible(find.byKey(CardTableScreen.openDiagnosticsKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(CardTableScreen.openDiagnosticsKey));
+    await tester.pumpAndSettle();
+    expect(diagnosticsCalls, 1);
   });
 
   testWidgets(
@@ -221,7 +265,7 @@ void main() {
 }
 
 List<Object?> _fullData({int businessDayId = 9}) {
-  final data = List<Object?>.filled(19, const <Object?>[]);
+  final data = List<Object?>.filled(40, const <Object?>[]);
   data[0] = <Object?>[
     <Object?>[2, '包厢', 1, 20, 0, 0, 0],
     <Object?>[1, '大厅', 1, 10, 0, 0, 0],
@@ -239,6 +283,38 @@ List<Object?> _fullData({int businessDayId = 9}) {
   ];
   data[18] = <Object?>[
     <Object?>[businessDayId, '', '测试门店'],
+  ];
+  data[24] = <Object?>[
+    <Object?>['今天', '20260828'],
+    <Object?>['明天', '20260829'],
+  ];
+  data[25] = <Object?>[
+    <Object?>[
+      '20260829',
+      101,
+      'future-book-1',
+      '20260829120000',
+      '20260829123000',
+      1,
+      '未来顾客',
+      '',
+      6,
+      1,
+      0,
+      0,
+      '',
+      'WLGK',
+    ],
+  ];
+  data[39] = <Object?>[
+    <Object?>[1, 0, 2],
+    <Object?>[3, 0, 0],
+    <Object?>[4, 0, 1],
+    <Object?>[20, 0, 1],
+    <Object?>[1, 1, 1],
+    <Object?>[4, 1, 1],
+    <Object?>[20, 1, 1],
+    <Object?>[1, 2, 1],
   ];
   return data;
 }

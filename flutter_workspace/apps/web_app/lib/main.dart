@@ -200,6 +200,8 @@ abstract interface class ShellDependencies {
 
   Future<Result<void>> openBusinessDay();
 
+  Future<Result<void>> refreshRealtime();
+
   Future<void> startRealtime();
 
   Future<void> stopRealtime();
@@ -368,6 +370,21 @@ final class _DefaultShellDependencies implements ShellDependencies {
   }
 
   @override
+  Future<Result<void>> refreshRealtime() async {
+    if (_disposed || sessionRepository.currentUser == null) {
+      return const FailureResult<void>(_realtimeRefreshUnavailableFailure);
+    }
+    try {
+      await stopRealtime();
+      _lastEvent = null;
+      await startRealtime();
+      return const Success<void>(null);
+    } on Object {
+      return const FailureResult<void>(_realtimeRefreshFailure);
+    }
+  }
+
+  @override
   Future<void> startRealtime() async {
     if (_disposed || sessionRepository.currentUser == null) return;
     await _realtime.start();
@@ -424,6 +441,16 @@ final class _DefaultShellDependencies implements ShellDependencies {
     kind: FailureKind.business,
     code: 'permission.business_day_booking_required',
     safeMessage: '仅预定系统可以开启营业日',
+  );
+  static const AppFailure _realtimeRefreshUnavailableFailure = AppFailure(
+    kind: FailureKind.authentication,
+    code: 'realtime.refresh_unavailable',
+    safeMessage: '当前登录状态不可刷新',
+  );
+  static const AppFailure _realtimeRefreshFailure = AppFailure(
+    kind: FailureKind.realtime,
+    code: 'realtime.refresh_failed',
+    safeMessage: '刷新卡台数据失败，请重试',
   );
 }
 
@@ -635,6 +662,9 @@ final class _BusinessHomeScreen extends ConsumerWidget {
       onOpenBusinessDay: system == BusinessSystem.booking
           ? dependencies.openBusinessDay
           : null,
+      onRefresh: dependencies.refreshRealtime,
+      onOpenDiagnostics: () => context.go('/diagnostics'),
+      userName: dependencies.sessionRepository.currentUser?.name,
     );
   }
 }

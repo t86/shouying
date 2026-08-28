@@ -536,6 +536,7 @@ final class _LifecycleDependencies implements ShellDependencies {
   int dioCloseCalls = 0;
   int currentGeneration = 0;
   int openBusinessDayCalls = 0;
+  int refreshRealtimeCalls = 0;
   final List<int> disposedGenerations = <int>[];
   Completer<void> stopStarted = Completer<void>();
   Completer<void> stopFinished = Completer<void>();
@@ -566,6 +567,12 @@ final class _LifecycleDependencies implements ShellDependencies {
   @override
   Future<Result<void>> openBusinessDay() async {
     openBusinessDayCalls += 1;
+    return const Success<void>(null);
+  }
+
+  @override
+  Future<Result<void>> refreshRealtime() async {
+    refreshRealtimeCalls += 1;
     return const Success<void>(null);
   }
 

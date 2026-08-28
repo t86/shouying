@@ -8,6 +8,9 @@ final class LegacyCardTableStore {
   Map<String, List<Object?>> _regions = <String, List<Object?>>{};
   Map<String, List<Object?>> _seats = <String, List<Object?>>{};
   Map<String, List<Object?>> _business = <String, List<Object?>>{};
+  Map<String, List<Object?>> _businessDates = <String, List<Object?>>{};
+  Map<String, List<Object?>> _futureBookings = <String, List<Object?>>{};
+  Map<String, List<Object?>> _statusCounts = <String, List<Object?>>{};
   List<Object?>? _businessDay;
   CardTableSnapshot? _currentSnapshot;
 
@@ -35,6 +38,15 @@ final class LegacyCardTableStore {
     final nextBusiness = isFull
         ? <String, List<Object?>>{}
         : _copyRows(_business);
+    final nextBusinessDates = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_businessDates);
+    final nextFutureBookings = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_futureBookings);
+    final nextStatusCounts = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_statusCounts);
     var nextBusinessDay = isFull
         ? null
         : _businessDay == null
@@ -61,6 +73,27 @@ final class LegacyCardTableStore {
         if (rows.isEmpty) throw const FormatException();
         nextBusinessDay = List<Object?>.unmodifiable(rows.first);
       }
+      if (datasets.containsKey(24)) {
+        _mergeRowsByKey(
+          nextBusinessDates,
+          _rows(datasets[24], minimumLength: 2),
+          (row) => _id(row[1]),
+        );
+      }
+      if (datasets.containsKey(25)) {
+        _mergeRowsByKey(
+          nextFutureBookings,
+          _rows(datasets[25], minimumLength: 14),
+          (row) => '${_id(row[0])}|${_id(row[1])}',
+        );
+      }
+      if (datasets.containsKey(39)) {
+        _mergeRowsByKey(
+          nextStatusCounts,
+          _rows(datasets[39], minimumLength: 3),
+          (row) => '${_integer(row[0])}|${_id(row[1])}',
+        );
+      }
       if (nextBusinessDay == null) throw const FormatException();
       final snapshot = _buildSnapshot(
         cursor: envelope.cursor!,
@@ -68,10 +101,16 @@ final class LegacyCardTableStore {
         seats: nextSeats,
         business: nextBusiness,
         businessDay: nextBusinessDay,
+        businessDates: nextBusinessDates,
+        futureBookings: nextFutureBookings,
+        statusCountRows: nextStatusCounts,
       );
       _regions = nextRegions;
       _seats = nextSeats;
       _business = nextBusiness;
+      _businessDates = nextBusinessDates;
+      _futureBookings = nextFutureBookings;
+      _statusCounts = nextStatusCounts;
       _businessDay = nextBusinessDay;
       _currentSnapshot = snapshot;
       return Success(snapshot);
@@ -134,12 +173,25 @@ final class LegacyCardTableStore {
     }
   }
 
+  static void _mergeRowsByKey(
+    Map<String, List<Object?>> target,
+    List<List<Object?>> rows,
+    String Function(List<Object?> row) keyOf,
+  ) {
+    for (final row in rows) {
+      target[keyOf(row)] = List<Object?>.unmodifiable(row);
+    }
+  }
+
   static CardTableSnapshot _buildSnapshot({
     required String cursor,
     required Map<String, List<Object?>> regions,
     required Map<String, List<Object?>> seats,
     required Map<String, List<Object?>> business,
     required List<Object?> businessDay,
+    required Map<String, List<Object?>> businessDates,
+    required Map<String, List<Object?>> futureBookings,
+    required Map<String, List<Object?>> statusCountRows,
   }) {
     final normalizedRegions =
         <CardRegion>[
@@ -174,12 +226,46 @@ final class LegacyCardTableStore {
           final order = left.displayOrder.compareTo(right.displayOrder);
           return order != 0 ? order : left.name.compareTo(right.name);
         });
+    final normalizedDates = <CardBusinessDate>[
+      for (final row in businessDates.values)
+        CardBusinessDate(id: _id(row[1]), label: _text(row[0])),
+    ];
+    final tablesByDate = <String, Iterable<CardTable>>{};
+    for (final date in normalizedDates.skip(1)) {
+      tablesByDate[date.id] =
+          <CardTable>[
+            for (final seat in seats.values)
+              if (_integer(seat[2]) == 1 &&
+                  activeRegionIds.contains(_id(seat[3])))
+                _futureTable(
+                  seat,
+                  business[_id(seat[0])],
+                  futureBookings['${date.id}|${_id(seat[0])}'],
+                ),
+          ]..sort((left, right) {
+            final region = normalizedRegions
+                .indexWhere((value) => value.id == left.regionId)
+                .compareTo(
+                  normalizedRegions.indexWhere(
+                    (value) => value.id == right.regionId,
+                  ),
+                );
+            if (region != 0) return region;
+            final order = left.displayOrder.compareTo(right.displayOrder);
+            return order != 0 ? order : left.name.compareTo(right.name);
+          });
+    }
+    final normalizedStatusCounts = _normalizeStatusCounts(statusCountRows);
     return CardTableSnapshot(
       cursor: cursor,
       businessDayId: _id(businessDay[0]),
       storeName: _text(businessDay[2]),
       regions: normalizedRegions,
       tables: normalizedTables,
+      businessDates: normalizedDates,
+      tablesByDate: tablesByDate,
+      statusCounts: normalizedStatusCounts.totals,
+      statusCountsByRegion: normalizedStatusCounts.byRegion,
     );
   }
 
@@ -202,6 +288,62 @@ final class LegacyCardTableStore {
         remark: business == null ? '' : _optionalText(business[24]),
         mark: business == null ? '' : _optionalText(business[25]),
       );
+
+  static CardTable _futureTable(
+    List<Object?> seat,
+    List<Object?>? currentBusiness,
+    List<Object?>? booking,
+  ) {
+    final currentStatus = currentBusiness == null
+        ? 1
+        : _integer(currentBusiness[19]);
+    final activeBooking = booking != null && _integer(booking[9]) == 1;
+    return CardTable(
+      id: _id(seat[0]),
+      name: _text(seat[1]),
+      regionId: _id(seat[3]),
+      seatType: _integer(seat[4]),
+      businessType: _integer(seat[5]),
+      capacity: _integer(seat[6]),
+      displayOrder: _integer(seat[7]),
+      businessStatus: activeBooking ? 8 : (currentStatus == 2 ? 2 : 1),
+      orderAmount: 0,
+      paidAmount: 0,
+      customerName: activeBooking ? _optionalText(booking[6]) : '',
+      customerCount: activeBooking ? _integer(booking[8]) : 0,
+      reservationTime: activeBooking ? _optionalText(booking[3]) : '',
+      openTime: '',
+      remark: activeBooking ? _optionalText(booking[12]) : '',
+      mark: '',
+    );
+  }
+
+  static ({Map<int, int> totals, Map<String, Map<int, int>> byRegion})
+  _normalizeStatusCounts(Map<String, List<Object?>> rows) {
+    final totals = <int, int>{};
+    final regionTotals = <int, int>{};
+    final byRegion = <String, Map<int, int>>{};
+    for (final row in rows.values) {
+      final status = _integer(row[0]);
+      final regionId = _id(row[1]);
+      final count = _integer(row[2]);
+      if (count < 0) throw const FormatException();
+      if (regionId == '0') {
+        totals[status] = count;
+      } else {
+        byRegion.putIfAbsent(regionId, () => <int, int>{})[status] = count;
+        regionTotals.update(
+          status,
+          (value) => value + count,
+          ifAbsent: () => count,
+        );
+      }
+    }
+    for (final entry in regionTotals.entries) {
+      totals.putIfAbsent(entry.key, () => entry.value);
+    }
+    return (totals: totals, byRegion: byRegion);
+  }
 
   static Map<String, List<Object?>> _copyRows(
     Map<String, List<Object?>> source,
