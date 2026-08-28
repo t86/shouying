@@ -199,7 +199,7 @@ void main() {
 
       expect(adapter.requests[0].uri.path, '/server/sync_base/all');
       expect(adapter.requests[1].uri.path, '/server/sync_base/increment');
-      expect(adapter.encodedBodies[0], anyOf(isEmpty, '{}'));
+      expect(adapter.encodedBodies[0], isEmpty);
       expect(jsonDecode(adapter.encodedBodies[1]), <String, Object?>{
         'last_sync_time': '20260826010101',
       });
@@ -242,6 +242,18 @@ void main() {
       final result = await api.fetchAll(ClientKind.cashier);
 
       expect(result.failureOrNull?.kind, FailureKind.protocol);
+      expect(result.failureOrNull?.code, 'protocol.sync_response_shape');
+    });
+
+    test('full synchronization rejects code 2 without a dataset', () async {
+      final adapter = _StubAdapter(
+        (_) => _jsonBody(<String, Object?>{
+          'code': 2,
+          'data': <String, Object?>{'ts': '20260826010101'},
+        }),
+      );
+      final result = await ProtocolSyncApi(client: _protocolClient(adapter))
+          .fetchAll(ClientKind.cashier);
       expect(result.failureOrNull?.code, 'protocol.sync_response_shape');
     });
   });

@@ -119,6 +119,11 @@ class ProtocolClient {
     required ClientKind client,
   }) => _request(method: 'POST', path: path, body: body, client: client);
 
+  Future<Result<Map<String, Object?>>> postWithoutBody(
+    String path, {
+    required ClientKind client,
+  }) => _request(method: 'POST', path: path, client: client);
+
   Future<Result<Map<String, Object?>>> _request({
     required String method,
     required String path,

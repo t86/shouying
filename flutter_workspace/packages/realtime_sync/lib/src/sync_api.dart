@@ -38,8 +38,11 @@ final class ProtocolSyncApi implements SyncApi {
 
   @override
   Future<Result<SyncBatch>> fetchAll(ClientKind client) async {
-    final response = await _client.post('/sync_base/all', client: client);
-    return _mapResponse(response);
+    final response = await _client.postWithoutBody(
+      '/sync_base/all',
+      client: client,
+    );
+    return _mapResponse(response, requireData: true);
   }
 
   @override
@@ -55,10 +58,13 @@ final class ProtocolSyncApi implements SyncApi {
       body: <String, Object?>{'last_sync_time': lastSyncTime},
       client: client,
     );
-    return _mapResponse(response);
+    return _mapResponse(response, requireData: false);
   }
 
-  Result<SyncBatch> _mapResponse(Result<Map<String, Object?>> response) {
+  Result<SyncBatch> _mapResponse(
+    Result<Map<String, Object?>> response, {
+    required bool requireData,
+  }) {
     final failure = response.failureOrNull;
     if (failure != null) return FailureResult(failure);
     final payload = response.valueOrNull!;
@@ -73,7 +79,7 @@ final class ProtocolSyncApi implements SyncApi {
     if (data == null || !SyncEnvelope.isCanonicalCursor(cursor)) {
       return const FailureResult(_responseShapeFailure);
     }
-    if (code == 1 && !data.containsKey('ds')) {
+    if ((requireData && code != 1) || (code == 1 && !data.containsKey('ds'))) {
       return const FailureResult(_responseShapeFailure);
     }
 
