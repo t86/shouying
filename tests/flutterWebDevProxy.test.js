@@ -31,9 +31,9 @@ function close(server) {
   });
 }
 
-function request(origin, path) {
+function request(origin, path, headers = {}) {
   return new Promise((resolve, reject) => {
-    const request = http.get(`${origin}${path}`, (response) => {
+    const request = http.get(`${origin}${path}`, { headers }, (response) => {
       const chunks = [];
       response.on('data', (chunk) => chunks.push(chunk));
       response.on('end', () => resolve({
@@ -55,6 +55,8 @@ function upgrade(origin, requestPath) {
       headers: {
         connection: 'Upgrade',
         upgrade: 'websocket',
+        authorization: 'Bearer test-value',
+        'proxy-authorization': 'Basic proxy-value',
         'sec-websocket-key': 'dGhlIHNhbXBsZSBub25jZQ==',
         'sec-websocket-version': '13',
       },
@@ -79,7 +81,12 @@ test('loopback development proxy preserves original service paths', async (t) =>
     response.end('flutter-shell');
   });
   const apiServer = http.createServer((request, response) => {
-    received.push(['api', request.url]);
+    received.push([
+      'api',
+      request.url,
+      request.headers.authorization,
+      request.headers['proxy-authorization'],
+    ]);
     response.end('api-ok');
   });
   const onlineServer = http.createServer((request, response) => {
@@ -88,7 +95,12 @@ test('loopback development proxy preserves original service paths', async (t) =>
   });
   const websocketHttpServer = http.createServer();
   websocketHttpServer.on('upgrade', (request, socket) => {
-    received.push(['websocket', request.url]);
+    received.push([
+      'websocket',
+      request.url,
+      request.headers.authorization,
+      request.headers['proxy-authorization'],
+    ]);
     socket.end(
       'HTTP/1.1 101 Switching Protocols\r\n' +
       'Connection: Upgrade\r\n' +
@@ -124,7 +136,14 @@ test('loopback development proxy preserves original service paths', async (t) =>
     statusCode: 200,
     body: 'flutter-shell',
   });
-  assert.deepEqual(await request(proxy.origin, '/api/server/term/auth?pt=1'), {
+  assert.deepEqual(await request(
+    proxy.origin,
+    '/api/server/term/auth?pt=1',
+    {
+      authorization: 'Bearer test-value',
+      'proxy-authorization': 'Basic proxy-value',
+    },
+  ), {
     statusCode: 200,
     body: 'api-ok',
   });
@@ -140,9 +159,9 @@ test('loopback development proxy preserves original service paths', async (t) =>
   assert.equal(await upgrade(proxy.origin, '/socket/server/sync'), 101);
   assert.deepEqual(received, [
     ['flutter', '/main.dart.js'],
-    ['api', '/server/term/auth?pt=1'],
+    ['api', '/server/term/auth?pt=1', 'Bearer test-value', undefined],
     ['online', '/server/sync/all'],
-    ['websocket', '/server/sync'],
+    ['websocket', '/server/sync', 'Bearer test-value', undefined],
   ]);
 });
 

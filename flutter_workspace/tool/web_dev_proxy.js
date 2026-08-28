@@ -39,7 +39,12 @@ function stripPrefix(url, prefix) {
 function requestHeaders(source, target, { websocket = false } = {}) {
   const headers = {};
   for (const [name, value] of Object.entries(source)) {
-    if (value == null || (!websocket && hopByHopHeaders.has(name.toLowerCase()))) {
+    const lowerName = name.toLowerCase();
+    if (
+      value == null ||
+      lowerName === 'proxy-authorization' ||
+      (!websocket && hopByHopHeaders.has(lowerName))
+    ) {
       continue;
     }
     headers[name] = value;
