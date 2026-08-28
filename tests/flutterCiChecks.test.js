@@ -69,6 +69,7 @@ function makeShellFixture(t) {
   const bin = path.join(root, 'stub-bin');
   fs.mkdirSync(tool, { recursive: true });
   for (const member of [
+    'packages/card_table',
     'packages/device_bridge_android',
     'packages/device_bridge_platform_interface',
     'packages/device_bridge_web',
@@ -170,6 +171,7 @@ function makePowerShellFixture(t) {
   const bin = path.join(root, 'stub-bin');
   fs.mkdirSync(tool, { recursive: true });
   for (const member of [
+    'packages/card_table',
     'packages/device_bridge_android',
     'packages/device_bridge_platform_interface',
     'packages/device_bridge_web',
@@ -478,7 +480,7 @@ test('check.sh resolves roots from itself and runs the complete gate in order', 
     `node|${workspace}|${workspace}/tool/verify_boundaries.js ${workspace}`,
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
-    `fvm|${workspace}|flutter test packages/design_system packages/device_bridge_android packages/device_bridge_platform_interface packages/device_bridge_web packages/device_bridge_windows packages/foundation packages/permissions packages/protocol packages/realtime_sync packages/session apps/android_app apps/web_app apps/windows_app`,
+    `fvm|${workspace}|flutter test packages/card_table packages/design_system packages/device_bridge_android packages/device_bridge_platform_interface packages/device_bridge_web packages/device_bridge_windows packages/foundation packages/permissions packages/protocol packages/realtime_sync packages/session apps/android_app apps/web_app apps/windows_app`,
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/web_app|flutter build web --release`,
     `fvm|${workspace}/apps/android_app|flutter build apk --release`,
@@ -582,7 +584,7 @@ test('check.ps1 resolves roots and runs every checked command in order', {
     `node|${workspace}|${workspace}/tool/verify_boundaries.js ${workspace}`,
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
-    `fvm|${workspace}|flutter test ${workspace}/packages/design_system ${workspace}/packages/device_bridge_android ${workspace}/packages/device_bridge_platform_interface ${workspace}/packages/device_bridge_web ${workspace}/packages/device_bridge_windows ${workspace}/packages/foundation ${workspace}/packages/permissions ${workspace}/packages/protocol ${workspace}/packages/realtime_sync ${workspace}/packages/session ${workspace}/apps/android_app ${workspace}/apps/web_app ${workspace}/apps/windows_app`,
+    `fvm|${workspace}|flutter test ${workspace}/packages/card_table ${workspace}/packages/design_system ${workspace}/packages/device_bridge_android ${workspace}/packages/device_bridge_platform_interface ${workspace}/packages/device_bridge_web ${workspace}/packages/device_bridge_windows ${workspace}/packages/foundation ${workspace}/packages/permissions ${workspace}/packages/protocol ${workspace}/packages/realtime_sync ${workspace}/packages/session ${workspace}/apps/android_app ${workspace}/apps/web_app ${workspace}/apps/windows_app`,
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/windows_app|flutter build windows --release`,
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,

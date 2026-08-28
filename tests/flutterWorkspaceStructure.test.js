@@ -17,6 +17,7 @@ const packageDescriptions = {
   foundation: 'Internal shared foundations for Shouyin Flutter applications.',
   protocol: 'Internal protocol contracts for Shouyin service communication.',
   session: 'Internal session lifecycle coordination for Shouyin Flutter applications.',
+  card_table: 'Internal legacy card-table normalization and presentation for Shouyin Flutter applications.',
   realtime_sync: 'Internal real-time state synchronization for Shouyin Flutter applications.',
   permissions: 'Internal permission policy coordination for Shouyin Flutter applications.',
   design_system: 'Internal design foundations shared by Shouyin Flutter applications.',

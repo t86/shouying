@@ -279,7 +279,7 @@ void main() {
     expect(dependencies.startCalls, 1);
     expect(dependencies.realtimeCreated, isTrue);
     expect(find.text('收银 · 卡台列表'), findsOneWidget);
-    expect(find.text('正在同步卡台数据'), findsOneWidget);
+    expect(find.text('正在等待完整卡台数据'), findsOneWidget);
 
     final businessContext = tester.element(find.text('收银 · 卡台列表'));
     GoRouter.of(businessContext).go('/diagnostics');

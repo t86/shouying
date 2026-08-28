@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:card_table/card_table.dart';
 import 'package:design_system/design_system.dart';
 import 'package:device_bridge_web/device_bridge_web.dart';
 import 'package:dio/dio.dart';
@@ -582,16 +583,24 @@ const Set<String> _businessLandingPaths = <String>{
   '/moneyCard',
 };
 
-final class _BusinessHomeScreen extends StatelessWidget {
+final class _BusinessHomeScreen extends ConsumerWidget {
   const _BusinessHomeScreen({required this.system});
 
   final BusinessSystem system;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text('${system.label} · 卡台列表')),
-    body: const Center(child: Text('正在同步卡台数据')),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dependencies = ref.watch(_shellDependenciesProvider);
+    final phase =
+        ref.watch(_connectionPhaseProvider).value ??
+        dependencies.connectionPhase;
+    return CardTableScreen(
+      system: system,
+      events: dependencies.realtimeEvents,
+      connectionPhase: phase,
+      lastFailure: ref.watch(_realtimeFailureProvider).value,
+    );
+  }
 }
 
 final class _DiagnosticsScreen extends ConsumerWidget {
