@@ -6,6 +6,7 @@
         </trust-anchors>
     </base-config>
     <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
         <domain includeSubdomains="false">nls.server.com</domain>
         <domain includeSubdomains="false">nls-dev.xmsjznwl.com</domain>
     </domain-config>

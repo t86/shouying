@@ -25,6 +25,7 @@ final class AppRuntimeConfiguration {
   const AppRuntimeConfiguration._({
     required this.config,
     required this.invalidKeys,
+    required this.developmentSystemSelection,
   });
 
   factory AppRuntimeConfiguration.fromEnvironment() =>
@@ -32,12 +33,16 @@ final class AppRuntimeConfiguration {
         apiBase: const String.fromEnvironment('SHOUYIN_API_BASE'),
         onlineBase: const String.fromEnvironment('SHOUYIN_ONLINE_BASE'),
         websocketBase: const String.fromEnvironment('SHOUYIN_WS_BASE'),
+        developmentSystemSelection: const bool.fromEnvironment(
+          'SHOUYIN_DEV_SYSTEM_SELECTION',
+        ),
       );
 
   factory AppRuntimeConfiguration.fromValues({
     required String apiBase,
     required String onlineBase,
     required String websocketBase,
+    bool developmentSystemSelection = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -60,11 +65,40 @@ final class AppRuntimeConfiguration {
     return AppRuntimeConfiguration._(
       config: config,
       invalidKeys: List<String>.unmodifiable(invalidKeys),
+      developmentSystemSelection:
+          developmentSystemSelection &&
+          config != null &&
+          _validLoopbackDevelopment(api, online, websocket),
     );
   }
 
   final ApiConfig? config;
   final List<String> invalidKeys;
+  final bool developmentSystemSelection;
+
+  static bool _validLoopbackDevelopment(Uri? api, Uri? online, Uri? websocket) {
+    if (api == null || online == null || websocket == null) return false;
+    if (api.scheme != 'http' ||
+        online.scheme != 'http' ||
+        websocket.scheme != 'ws') {
+      return false;
+    }
+    if (!_isLoopback(api.host) ||
+        api.host != online.host ||
+        api.host != websocket.host) {
+      return false;
+    }
+    int port(Uri uri) => uri.hasPort ? uri.port : 80;
+    if (port(api) != port(online) || port(api) != port(websocket)) {
+      return false;
+    }
+    return api.path == '/dev-api/server' &&
+        online.path == '/online/server' &&
+        websocket.path == '/socket/server';
+  }
+
+  static bool _isLoopback(String host) =>
+      host == '127.0.0.1' || host == 'localhost' || host == '::1';
 
   static Uri? _validatedEndpoint(String raw, _EndpointKind kind) {
     if (raw.trim().isEmpty) return null;
@@ -318,22 +352,42 @@ final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
   return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
+final _developmentSystemSelectionProvider = Provider<bool>((ref) => false);
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
   final factory = ref.watch(_dependenciesFactoryProvider);
+  final developmentSystemSelection = ref.watch(
+    _developmentSystemSelectionProvider,
+  );
   final refresh = _SessionRefresh(repository);
   ref.onDispose(refresh.dispose);
   final router = GoRouter(
     initialLocation: ref.watch(_initialLocationProvider),
     refreshListenable: refresh,
     redirect: (context, state) {
+      final machine = repository.currentMachine;
       final authenticated = repository.currentUser != null;
-      final atLogin = state.matchedLocation == '/login';
-      if (!authenticated && !atLogin) return '/login';
-      if (authenticated && atLogin) return '/diagnostics';
+      final location = state.matchedLocation;
+      if (developmentSystemSelection && machine == null) {
+        return location == '/select-system' ? null : '/select-system';
+      }
+      if (machine == null || !authenticated) {
+        return location == '/login' ? null : '/login';
+      }
+      if (location == '/login' || location == '/select-system') {
+        return '/diagnostics';
+      }
       return null;
     },
     routes: <RouteBase>[
+      GoRoute(
+        path: '/select-system',
+        builder: (context, state) => BusinessSystemSelectionScreen(
+          authorize: (system) => ref
+              .read(loginViewModelProvider.notifier)
+              .authorizeMachine(system.developmentAuthorizationPlaceholder),
+        ),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/diagnostics',
@@ -386,6 +440,9 @@ final class ShouyinAndroidApp extends StatelessWidget {
         if (dependenciesFactory case final value?)
           _dependenciesFactoryProvider.overrideWithValue(value),
         _initialLocationProvider.overrideWithValue(initialLocation),
+        _developmentSystemSelectionProvider.overrideWithValue(
+          resolved.developmentSystemSelection,
+        ),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
         ),

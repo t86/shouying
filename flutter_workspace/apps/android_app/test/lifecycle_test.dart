@@ -15,6 +15,66 @@ import 'package:session/session.dart';
 import 'package:shouyin_android/main.dart';
 
 void main() {
+  testWidgets('loopback development selects a system before employee login', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    final environment = AppRuntimeConfiguration.fromValues(
+      apiBase: 'http://127.0.0.1:8183/dev-api/server',
+      onlineBase: 'http://127.0.0.1:8183/online/server',
+      websocketBase: 'ws://127.0.0.1:8183/socket/server',
+      developmentSystemSelection: true,
+    );
+
+    await tester.pumpWidget(
+      ShouyinAndroidApp(environment: environment, dependenciesFactory: factory),
+    );
+    await tester.pumpAndSettle();
+
+    expect(environment.developmentSystemSelection, isTrue);
+    expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+    await tester.tap(find.byKey(BusinessSystemSelectionScreen.cashierKey));
+    await tester.pumpAndSettle();
+
+    expect(factory.dependencies.sessionRepository.currentMachine, isNotNull);
+    expect(
+      factory.dependencies.sessionRepository.currentMachine?.client,
+      ClientKind.cashier,
+    );
+    expect(find.byKey(LoginScreen.employeeFieldsKey), findsOneWidget);
+    expect(find.byKey(LoginScreen.machineFieldsKey), findsNothing);
+    expect(find.byKey(LoginScreen.machineCodeFieldKey), findsNothing);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
+
+  test('development system selection cannot escape loopback endpoints', () {
+    for (final environment in <AppRuntimeConfiguration>[
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'https://api.example.test/server',
+        onlineBase: 'https://online.example.test/server',
+        websocketBase: 'wss://socket.example.test/server',
+        developmentSystemSelection: true,
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://127.0.0.1:8183/api/server',
+        onlineBase: 'http://127.0.0.1:8183/online/server',
+        websocketBase: 'ws://127.0.0.1:8183/socket/server',
+        developmentSystemSelection: true,
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://127.0.0.1:8184/dev-api/server',
+        onlineBase: 'http://127.0.0.1:8183/online/server',
+        websocketBase: 'ws://127.0.0.1:8183/socket/server',
+        developmentSystemSelection: true,
+      ),
+    ]) {
+      expect(environment.config, isNotNull);
+      expect(environment.developmentSystemSelection, isFalse);
+    }
+  });
+
   testWidgets('invalid config creates no shell or secure/network dependency', (
     tester,
   ) async {

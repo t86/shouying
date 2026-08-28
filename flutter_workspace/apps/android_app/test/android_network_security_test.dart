@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('release manifest uses a narrow legacy cleartext allowlist', () {
+  test('release manifest uses a narrow legacy and loopback allowlist', () {
     final prefix = File('android/app/src/main/AndroidManifest.xml').existsSync()
         ? ''
         : 'apps/android_app/';
@@ -31,6 +31,10 @@ void main() {
     final domains = RegExp(
       r'<domain includeSubdomains="false">([^<]+)</domain>',
     ).allMatches(config).map((match) => match.group(1)).toSet();
-    expect(domains, <String>{'nls.server.com', 'nls-dev.xmsjznwl.com'});
+    expect(domains, <String>{
+      '127.0.0.1',
+      'nls.server.com',
+      'nls-dev.xmsjznwl.com',
+    });
   });
 }
