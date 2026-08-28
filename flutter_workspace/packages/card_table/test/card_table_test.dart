@@ -95,6 +95,7 @@ void main() {
 
   testWidgets('renders source-aligned region and card filters', (tester) async {
     final events = StreamController<SyncEnvelope>.broadcast(sync: true);
+    var switchCalls = 0;
     addTearDown(events.close);
     await tester.pumpWidget(
       MaterialApp(
@@ -102,6 +103,10 @@ void main() {
           system: BusinessSystem.cashier,
           events: events.stream,
           connectionPhase: ConnectionPhase.online,
+          onSwitchSystem: () async {
+            switchCalls += 1;
+            return const Success<void>(null);
+          },
         ),
       ),
     );
@@ -138,6 +143,10 @@ void main() {
     );
     expect(find.text('A02'), findsNothing);
     expect(find.text('B01'), findsNothing);
+
+    await tester.tap(find.byKey(CardTableScreen.switchSystemKey));
+    await tester.pumpAndSettle();
+    expect(switchCalls, 1);
   });
 }
 

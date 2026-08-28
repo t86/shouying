@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:card_table/card_table.dart';
 import 'package:design_system/design_system.dart';
 import 'package:device_bridge_web/device_bridge_web.dart';
 import 'package:dio/dio.dart';
@@ -196,6 +197,11 @@ void main() {
         GoRouterState.of(tester.element(find.text(expectedTitle))).uri.path,
         system.landingPath,
       );
+
+      await tester.tap(find.byKey(CardTableScreen.switchSystemKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+      expect(factory.dependencies.stopCalls, 1);
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.runAsync(() => factory.dependencies.disposed.future);

@@ -7,22 +7,30 @@ import 'package:foundation/foundation.dart';
 import 'package:realtime_sync/realtime_sync.dart';
 import 'package:session/session.dart';
 
+typedef CardTableSessionAction = Future<Result<void>> Function();
+
 final class CardTableScreen extends StatefulWidget {
   const CardTableScreen({
     required this.system,
     required this.events,
     required this.connectionPhase,
     this.lastFailure,
+    this.onLogout,
+    this.onSwitchSystem,
     super.key,
   });
 
   static const Key searchKey = Key('card-table-search');
   static const Key gridKey = Key('card-table-grid');
+  static const Key logoutKey = Key('card-table-logout');
+  static const Key switchSystemKey = Key('card-table-switch-system');
 
   final BusinessSystem system;
   final Stream<SyncEnvelope> events;
   final ConnectionPhase connectionPhase;
   final AppFailure? lastFailure;
+  final CardTableSessionAction? onLogout;
+  final CardTableSessionAction? onSwitchSystem;
 
   @override
   State<CardTableScreen> createState() => _CardTableScreenState();
@@ -36,6 +44,8 @@ final class _CardTableScreenState extends State<CardTableScreen> {
   AppFailure? _failure;
   String? _regionId;
   int? _businessStatus;
+  bool _sessionActionInProgress = false;
+  AppFailure? _sessionFailure;
 
   @override
   void initState() {
@@ -72,10 +82,42 @@ final class _CardTableScreenState extends State<CardTableScreen> {
   Widget build(BuildContext context) {
     final snapshot = _snapshot;
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.system.label} · 卡台列表')),
+      appBar: AppBar(
+        title: Text('${widget.system.label} · 卡台列表'),
+        actions: <Widget>[
+          if (widget.onSwitchSystem != null)
+            TextButton(
+              key: CardTableScreen.switchSystemKey,
+              onPressed: _sessionActionInProgress
+                  ? null
+                  : () => _runSessionAction(widget.onSwitchSystem!),
+              child: const Text('切换系统'),
+            ),
+          if (widget.onLogout != null)
+            TextButton(
+              key: CardTableScreen.logoutKey,
+              onPressed: _sessionActionInProgress
+                  ? null
+                  : () => _runSessionAction(widget.onLogout!),
+              child: const Text('退出登录'),
+            ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Column(
         children: <Widget>[
           _connectionBanner(context),
+          if (_sessionFailure case final failure?)
+            ColoredBox(
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(failure.safeMessage, textAlign: TextAlign.center),
+                ),
+              ),
+            ),
           if (snapshot == null)
             Expanded(child: _waitingState(context))
           else if (!snapshot.businessOpen)
@@ -110,6 +152,25 @@ final class _CardTableScreenState extends State<CardTableScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _runSessionAction(CardTableSessionAction action) async {
+    if (_sessionActionInProgress) return;
+    setState(() {
+      _sessionActionInProgress = true;
+      _sessionFailure = null;
+    });
+    Result<void> result;
+    try {
+      result = await action();
+    } on Object {
+      result = const FailureResult<void>(_sessionActionFailure);
+    }
+    if (!mounted) return;
+    setState(() {
+      _sessionActionInProgress = false;
+      _sessionFailure = result.failureOrNull;
+    });
   }
 
   Widget _waitingState(BuildContext context) {
@@ -246,4 +307,10 @@ final class _CardTableScreenState extends State<CardTableScreen> {
     8 => '线上预订',
     _ => '未知状态',
   };
+
+  static const AppFailure _sessionActionFailure = AppFailure(
+    kind: FailureKind.unknown,
+    code: 'session.action_failed',
+    safeMessage: '登录状态切换失败，请重试',
+  );
 }

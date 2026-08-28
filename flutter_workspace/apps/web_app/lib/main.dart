@@ -599,6 +599,8 @@ final class _BusinessHomeScreen extends ConsumerWidget {
       events: dependencies.realtimeEvents,
       connectionPhase: phase,
       lastFailure: ref.watch(_realtimeFailureProvider).value,
+      onLogout: ref.read(loginViewModelProvider.notifier).logout,
+      onSwitchSystem: ref.read(loginViewModelProvider.notifier).logout,
     );
   }
 }
