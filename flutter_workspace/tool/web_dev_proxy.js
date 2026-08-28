@@ -53,15 +53,21 @@ function requestHeaders(source, target, { websocket = false } = {}) {
   return headers;
 }
 
-function proxyHttp(request, response, target) {
+function proxyHttp(request, response, target, { body } = {}) {
   const client = target.protocol === 'https:' ? https : http;
+  const headers = requestHeaders(request.headers, target);
+  if (body != null) {
+    headers['content-length'] = String(body.length);
+    headers['content-type'] = 'application/json';
+    delete headers['transfer-encoding'];
+  }
   const upstream = client.request({
     protocol: target.protocol,
     hostname: target.hostname,
     port: target.port || undefined,
     method: request.method,
     path: request.url,
-    headers: requestHeaders(request.headers, target),
+    headers,
   }, (upstreamResponse) => {
     response.writeHead(
       upstreamResponse.statusCode ?? 502,
@@ -76,7 +82,12 @@ function proxyHttp(request, response, target) {
     }
     response.end('development proxy unavailable');
   });
-  request.pipe(upstream);
+  if (body == null) {
+    request.pipe(upstream);
+  } else {
+    request.resume();
+    upstream.end(body);
+  }
 }
 
 function websocketHandshake(request, target) {
@@ -120,12 +131,19 @@ function createDevelopmentProxy({
   apiOrigin,
   onlineOrigin,
   websocketOrigin,
+  developmentMachineCode,
 }) {
   if (!loopbackHosts.has(listenHost)) {
     throw new TypeError('development proxy must bind to a loopback host');
   }
   if (!Number.isInteger(listenPort) || listenPort < 0 || listenPort > 65535) {
     throw new TypeError('development proxy port is invalid');
+  }
+  if (
+    developmentMachineCode != null &&
+    !/^[A-Za-z0-9_-]{3,128}$/.test(developmentMachineCode)
+  ) {
+    throw new TypeError('development machine code is invalid');
   }
 
   const targets = {
@@ -151,6 +169,28 @@ function createDevelopmentProxy({
     ),
   };
 
+  const trustedServiceRequest = (request) => {
+    const source = request.headers.origin ?? request.headers.referer;
+    if (source == null) return true;
+    let sourceOrigin;
+    try {
+      sourceOrigin = new URL(source).origin;
+    } catch {
+      return false;
+    }
+    const address = server.address();
+    if (!address || typeof address === 'string') return false;
+    return sourceOrigin === `http://${listenHost}:${address.port}`;
+  };
+
+  const rejectServiceRequest = (request, response) => {
+    request.resume();
+    response.writeHead(403, {
+      'content-type': 'text/plain; charset=utf-8',
+    });
+    response.end('development proxy origin rejected');
+  };
+
   const server = http.createServer((request, response) => {
     if (request.url === '/__health') {
       response.writeHead(200, {
@@ -161,11 +201,47 @@ function createDevelopmentProxy({
       return;
     }
     if (request.url?.startsWith('/api/')) {
+      if (!trustedServiceRequest(request)) {
+        rejectServiceRequest(request, response);
+        return;
+      }
       request.url = stripPrefix(request.url, '/api');
       proxyHttp(request, response, targets.api);
       return;
     }
+    if (request.url?.startsWith('/dev-api/')) {
+      if (!trustedServiceRequest(request)) {
+        rejectServiceRequest(request, response);
+        return;
+      }
+      request.url = stripPrefix(request.url, '/dev-api');
+      if (
+        request.method === 'POST' &&
+        request.url === '/server/term/auth' &&
+        developmentMachineCode != null
+      ) {
+        const declaredLength = Number(request.headers['content-length'] ?? 0);
+        if (!Number.isFinite(declaredLength) || declaredLength > 8192) {
+          request.resume();
+          response.writeHead(413, {
+            'content-type': 'text/plain; charset=utf-8',
+          });
+          response.end('development authorization request is too large');
+          return;
+        }
+        proxyHttp(request, response, targets.api, {
+          body: Buffer.from(JSON.stringify({ code: developmentMachineCode })),
+        });
+        return;
+      }
+      proxyHttp(request, response, targets.api);
+      return;
+    }
     if (request.url?.startsWith('/online/')) {
+      if (!trustedServiceRequest(request)) {
+        rejectServiceRequest(request, response);
+        return;
+      }
       request.url = stripPrefix(request.url, '/online');
       proxyHttp(request, response, targets.online);
       return;
@@ -175,6 +251,14 @@ function createDevelopmentProxy({
   server.on('upgrade', (request, socket, head) => {
     if (!request.url?.startsWith('/socket/')) {
       socket.destroy();
+      return;
+    }
+    if (!trustedServiceRequest(request)) {
+      socket.end(
+        'HTTP/1.1 403 Forbidden\r\n' +
+        'Connection: close\r\n' +
+        'Content-Length: 0\r\n\r\n',
+      );
       return;
     }
     request.url = stripPrefix(request.url, '/socket');

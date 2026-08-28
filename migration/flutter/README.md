@@ -58,3 +58,6 @@ repository root and open `http://127.0.0.1:8183/`. The runner binds only to the
 loopback interface and proxies the primary API, online HTTP service, and
 WebSocket service behind one browser origin. This debug-only path does not
 weaken the HTTPS/WSS same-origin requirement in release builds.
+It also mirrors the Vue development terminal bootstrap without exposing the
+configured terminal code to browser JavaScript or logs; employee credentials
+remain manual input and are never compiled into Flutter.

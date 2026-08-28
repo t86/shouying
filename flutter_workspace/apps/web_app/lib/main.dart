@@ -24,6 +24,7 @@ final class AppRuntimeConfiguration {
   const AppRuntimeConfiguration._({
     required this.config,
     required this.invalidKeys,
+    required this.autoAuthorizeTerminal,
   });
 
   factory AppRuntimeConfiguration.fromEnvironment() =>
@@ -35,6 +36,9 @@ final class AppRuntimeConfiguration {
         allowInsecureLoopback:
             kDebugMode &&
             const bool.fromEnvironment('SHOUYIN_ALLOW_INSECURE_LOOPBACK'),
+        autoAuthorizeTerminal:
+            kDebugMode &&
+            const bool.fromEnvironment('SHOUYIN_DEV_AUTO_TERMINAL_AUTH'),
       );
 
   factory AppRuntimeConfiguration.fromValues({
@@ -43,6 +47,7 @@ final class AppRuntimeConfiguration {
     required String websocketBase,
     Uri? servingOrigin,
     bool allowInsecureLoopback = false,
+    bool autoAuthorizeTerminal = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -75,11 +80,18 @@ final class AppRuntimeConfiguration {
     return AppRuntimeConfiguration._(
       config: config,
       invalidKeys: List<String>.unmodifiable(invalidKeys),
+      autoAuthorizeTerminal:
+          autoAuthorizeTerminal &&
+          allowInsecureLoopback &&
+          config != null &&
+          servingOrigin?.scheme == 'http' &&
+          _isLoopback(servingOrigin?.host ?? ''),
     );
   }
 
   final ApiConfig? config;
   final List<String> invalidKeys;
+  final bool autoAuthorizeTerminal;
 
   static bool _validWebSecurity(
     Uri origin,
@@ -382,6 +394,18 @@ final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
   return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
+final _autoAuthorizeTerminalProvider = Provider<bool>((ref) => false);
+final _automaticTerminalAuthorizationProvider = FutureProvider<void>((
+  ref,
+) async {
+  if (!ref.watch(_autoAuthorizeTerminalProvider)) return;
+  await Future<void>.delayed(Duration.zero);
+  final repository = ref.read(_appSessionRepositoryProvider);
+  if (repository.currentMachine != null) return;
+  await ref
+      .read(loginViewModelProvider.notifier)
+      .authorizeMachine('loopback-development');
+});
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
   final factory = ref.watch(_dependenciesFactoryProvider);
@@ -456,6 +480,9 @@ final class ShouyinWebApp extends StatelessWidget {
         if (dependenciesFactory case final value?)
           _dependenciesFactoryProvider.overrideWithValue(value),
         _initialLocationProvider.overrideWithValue(initialLocation),
+        _autoAuthorizeTerminalProvider.overrideWithValue(
+          resolved.autoAuthorizeTerminal,
+        ),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
         ),
@@ -479,6 +506,7 @@ final class _AppView extends ConsumerWidget {
     ref.watch(_currentUserProvider);
     ref.watch(_realtimeLifecycleProvider);
     ref.watch(_permissionSnapshotProvider);
+    ref.watch(_automaticTerminalAuthorizationProvider);
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),

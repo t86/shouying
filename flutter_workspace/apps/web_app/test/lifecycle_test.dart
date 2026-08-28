@@ -89,6 +89,49 @@ void main() {
     }
   });
 
+  testWidgets('loopback development auto-authorizes before employee login', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    final environment = AppRuntimeConfiguration.fromValues(
+      apiBase: 'http://127.0.0.1:8183/dev-api/server',
+      onlineBase: 'http://127.0.0.1:8183/online/server',
+      websocketBase: 'ws://127.0.0.1:8183/socket/server',
+      servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
+      allowInsecureLoopback: true,
+      autoAuthorizeTerminal: true,
+    );
+
+    await tester.pumpWidget(
+      ShouyinWebApp(environment: environment, dependenciesFactory: factory),
+    );
+    await tester.pumpAndSettle();
+
+    expect(environment.autoAuthorizeTerminal, isTrue);
+    expect(factory.dependencies.adapter.termAuthCalls, 1);
+    expect(factory.dependencies.sessionRepository.currentMachine, isNotNull);
+    expect(find.byKey(LoginScreen.employeeFieldsKey), findsOneWidget);
+    expect(find.byKey(LoginScreen.machineFieldsKey), findsNothing);
+    expect(find.byKey(LoginScreen.machineCodeFieldKey), findsNothing);
+    expect(find.byKey(LoginScreen.accountFieldKey), findsOneWidget);
+    expect(find.byKey(LoginScreen.passwordFieldKey), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
+
+  test('auto terminal authorization cannot escape loopback debug mode', () {
+    final secure = AppRuntimeConfiguration.fromValues(
+      apiBase: 'https://pos.example.test/api',
+      onlineBase: 'https://pos.example.test/online',
+      websocketBase: 'wss://pos.example.test/socket',
+      servingOrigin: Uri.parse('https://pos.example.test/'),
+      autoAuthorizeTerminal: true,
+    );
+    expect(secure.config, isNotNull);
+    expect(secure.autoAuthorizeTerminal, isFalse);
+  });
+
   test('old insecure Web flag is absent and cannot downgrade startup', () {
     final prefix = File('lib/main.dart').existsSync() ? '' : 'apps/web_app/';
     final source = File('${prefix}lib/main.dart').readAsStringSync();
@@ -362,8 +405,9 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
 final class _LifecycleDependencies implements ShellDependencies {
   _LifecycleDependencies(ApiConfig config)
     : _store = _MemoryCredentialStore(),
-      _dio = Dio() {
-    _dio.httpClientAdapter = _AuthAdapter();
+      _dio = Dio(),
+      adapter = _AuthAdapter() {
+    _dio.httpClientAdapter = adapter;
     final client = ProtocolClient(
       dio: _dio,
       config: config,
@@ -378,6 +422,7 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   final _MemoryCredentialStore _store;
   final Dio _dio;
+  final _AuthAdapter adapter;
   final StreamController<ConnectionPhase> _phases =
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failures =
@@ -478,6 +523,8 @@ final class _LifecycleDependencies implements ShellDependencies {
 }
 
 final class _AuthAdapter implements HttpClientAdapter {
+  int termAuthCalls = 0;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -485,7 +532,9 @@ final class _AuthAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     if (requestStream != null) await requestStream.drain<void>();
-    final body = options.path.endsWith('/term/auth')
+    final isTermAuth = options.path.endsWith('/term/auth');
+    if (isTermAuth) termAuthCalls += 1;
+    final body = isTermAuth
         ? <String, Object?>{
             'code': 1,
             'data': <String, Object?>{

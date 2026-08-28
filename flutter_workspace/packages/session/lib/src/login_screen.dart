@@ -10,9 +10,11 @@ final class LoginScreen extends ConsumerStatefulWidget {
 
   static const Key machineCodeFieldKey = Key('login-machine-code-field');
   static const Key machineSubmitKey = Key('login-machine-submit');
+  static const Key machineFieldsKey = Key('login-machine-fields');
   static const Key accountFieldKey = Key('login-account-field');
   static const Key passwordFieldKey = Key('login-password-field');
   static const Key loginSubmitKey = Key('login-submit');
+  static const Key employeeFieldsKey = Key('login-employee-fields');
 
   final ConnectionPhase connectionPhase;
 
@@ -104,6 +106,7 @@ final class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _machineAuthorizationFields(bool isBusy) => Column(
+    key: LoginScreen.machineFieldsKey,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: <Widget>[
       TextField(
@@ -129,6 +132,7 @@ final class _LoginScreenState extends ConsumerState<LoginScreen> {
   );
 
   Widget _employeeLoginFields(bool isBusy) => Column(
+    key: LoginScreen.employeeFieldsKey,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: <Widget>[
       TextField(

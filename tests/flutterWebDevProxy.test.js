@@ -12,6 +12,7 @@ const {
 const {
   buildFlutterArguments,
   developmentTargets,
+  extractDevelopmentMachineCode,
 } = require('../flutter_workspace/tool/web_dev_runner');
 
 function listen(server) {
@@ -31,9 +32,14 @@ function close(server) {
   });
 }
 
-function request(origin, path, headers = {}) {
+function request(origin, path, {
+  body,
+  headers = {},
+  method = 'GET',
+} = {}) {
   return new Promise((resolve, reject) => {
-    const request = http.get(`${origin}${path}`, { headers }, (response) => {
+    const target = new URL(path, origin);
+    const request = http.request(target, { headers, method }, (response) => {
       const chunks = [];
       response.on('data', (chunk) => chunks.push(chunk));
       response.on('end', () => resolve({
@@ -42,6 +48,8 @@ function request(origin, path, headers = {}) {
       }));
     });
     request.once('error', reject);
+    if (body != null) request.write(body);
+    request.end();
   });
 }
 
@@ -81,13 +89,18 @@ test('loopback development proxy preserves original service paths', async (t) =>
     response.end('flutter-shell');
   });
   const apiServer = http.createServer((request, response) => {
-    received.push([
-      'api',
-      request.url,
-      request.headers.authorization,
-      request.headers['proxy-authorization'],
-    ]);
-    response.end('api-ok');
+    const chunks = [];
+    request.on('data', (chunk) => chunks.push(chunk));
+    request.on('end', () => {
+      received.push([
+        'api',
+        request.url,
+        request.headers.authorization,
+        request.headers['proxy-authorization'],
+        Buffer.concat(chunks).toString('utf8'),
+      ]);
+      response.end('api-ok');
+    });
   });
   const onlineServer = http.createServer((request, response) => {
     received.push(['online', request.url]);
@@ -120,6 +133,7 @@ test('loopback development proxy preserves original service paths', async (t) =>
     apiOrigin,
     onlineOrigin,
     websocketOrigin,
+    developmentMachineCode: 'machine-code-for-test',
   });
   await proxy.listen();
   t.after(async () => {
@@ -139,10 +153,10 @@ test('loopback development proxy preserves original service paths', async (t) =>
   assert.deepEqual(await request(
     proxy.origin,
     '/api/server/term/auth?pt=1',
-    {
+    { headers: {
       authorization: 'Bearer test-value',
       'proxy-authorization': 'Basic proxy-value',
-    },
+    } },
   ), {
     statusCode: 200,
     body: 'api-ok',
@@ -151,16 +165,53 @@ test('loopback development proxy preserves original service paths', async (t) =>
     statusCode: 200,
     body: 'online-ok',
   });
+  assert.deepEqual(await request(proxy.origin, '/dev-api/server/term/auth', {
+    body: '{"code":"loopback-development"}',
+    headers: { 'content-type': 'application/json' },
+    method: 'POST',
+  }), {
+    statusCode: 200,
+    body: 'api-ok',
+  });
+  assert.deepEqual(await request(proxy.origin, '/dev-api/server/auth/login', {
+    body: '{"code":"employee"}',
+    headers: { 'content-type': 'application/json' },
+    method: 'POST',
+  }), {
+    statusCode: 200,
+    body: 'api-ok',
+  });
   assert.deepEqual(await request(proxy.origin, '/__health'), {
     statusCode: 200,
     body: '{"status":"ok"}',
+  });
+  assert.deepEqual(await request(proxy.origin, '/api/server/term/auth', {
+    headers: { origin: 'https://untrusted.example.test' },
+    method: 'POST',
+  }), {
+    statusCode: 403,
+    body: 'development proxy origin rejected',
   });
 
   assert.equal(await upgrade(proxy.origin, '/socket/server/sync'), 101);
   assert.deepEqual(received, [
     ['flutter', '/main.dart.js'],
-    ['api', '/server/term/auth?pt=1', 'Bearer test-value', undefined],
+    ['api', '/server/term/auth?pt=1', 'Bearer test-value', undefined, ''],
     ['online', '/server/sync/all'],
+    [
+      'api',
+      '/server/term/auth',
+      undefined,
+      undefined,
+      '{"code":"machine-code-for-test"}',
+    ],
+    [
+      'api',
+      '/server/auth/login',
+      undefined,
+      undefined,
+      '{"code":"employee"}',
+    ],
     ['websocket', '/server/sync', 'Bearer test-value', undefined],
   ]);
 });
@@ -198,7 +249,8 @@ test('local runner enables only the loopback debug configuration', () => {
     '--web-port',
     '8184',
     '--dart-define=SHOUYIN_ALLOW_INSECURE_LOOPBACK=true',
-    '--dart-define=SHOUYIN_API_BASE=http://127.0.0.1:8183/api/server',
+    '--dart-define=SHOUYIN_DEV_AUTO_TERMINAL_AUTH=true',
+    '--dart-define=SHOUYIN_API_BASE=http://127.0.0.1:8183/dev-api/server',
     '--dart-define=SHOUYIN_ONLINE_BASE=http://127.0.0.1:8183/online/server',
     '--dart-define=SHOUYIN_WS_BASE=ws://127.0.0.1:8183/socket/server',
   ]);
@@ -208,4 +260,15 @@ test('local runner enables only the loopback debug configuration', () => {
     websocketOrigin: 'ws://nls-dev.xmsjznwl.com',
   });
   assert.doesNotMatch(JSON.stringify(developmentTargets), /password|credential|token/i);
+  assert.equal(
+    extractDevelopmentMachineCode(`
+      { name: "Order", client: "order", code: "order-code" },
+      { name: "Cashier", client: "money", code: "cashier-code" },
+    `),
+    'cashier-code',
+  );
+  assert.throws(
+    () => extractDevelopmentMachineCode('{ client: "money", code: "" }'),
+    /cash register terminal code/,
+  );
 });
