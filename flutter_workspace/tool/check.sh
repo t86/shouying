@@ -16,7 +16,9 @@ REPO_ROOT=$(CDPATH= cd -- "$WORKSPACE_ROOT/.." && pwd)
   node --test \
     "$REPO_ROOT/tests/flutterMigrationInventory.test.js" \
     "$REPO_ROOT/tests/flutterWorkspaceStructure.test.js" \
-    "$REPO_ROOT/tests/flutterCiChecks.test.js"
+    "$REPO_ROOT/tests/flutterCiChecks.test.js" \
+    "$REPO_ROOT/tests/flutterFeasibilityReport.test.js" \
+    "$REPO_ROOT/tests/flutterWebDevProxy.test.js"
 )
 
 (

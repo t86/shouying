@@ -51,3 +51,10 @@ The Windows gate performs the same validation sequence and produces `flutter_wor
 GitLab CI has four jobs across `validate`, `build`, and `windows`: `migration-ledger`, `flutter-test`, `flutter-web-android`, and `flutter-windows`. Linux jobs use a digest-pinned Flutter 3.44.0 image only as the bootstrap toolchain; FVM installs and verifies the required Flutter 3.47.0 SDK before any job commands run. The Windows job requires a runner tagged `windows` with Dart, Node.js, Visual Studio desktop tooling, and either PowerShell 7 (`pwsh`) or Windows PowerShell available. Pub and FVM downloads are cached, while application build directories are never cached. Platform artifacts expire after seven days.
 
 Ordinary CI deliberately supplies no live backend URLs, credentials, terminal identifiers, or device secrets. Live backend and hardware feasibility evidence belongs only in the separately controlled feasibility-gate process.
+
+For local Flutter Web development against the original Vue development
+services, run `node flutter_workspace/tool/web_dev_runner.js` from the
+repository root and open `http://127.0.0.1:8183/`. The runner binds only to the
+loopback interface and proxies the primary API, online HTTP service, and
+WebSocket service behind one browser origin. This debug-only path does not
+weaken the HTTPS/WSS same-origin requirement in release builds.

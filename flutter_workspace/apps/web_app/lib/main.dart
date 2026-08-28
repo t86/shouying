@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:design_system/design_system.dart';
 import 'package:device_bridge_web/device_bridge_web.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:foundation/foundation.dart';
@@ -31,6 +32,9 @@ final class AppRuntimeConfiguration {
         onlineBase: const String.fromEnvironment('SHOUYIN_ONLINE_BASE'),
         websocketBase: const String.fromEnvironment('SHOUYIN_WS_BASE'),
         servingOrigin: Uri.base,
+        allowInsecureLoopback:
+            kDebugMode &&
+            const bool.fromEnvironment('SHOUYIN_ALLOW_INSECURE_LOOPBACK'),
       );
 
   factory AppRuntimeConfiguration.fromValues({
@@ -38,6 +42,7 @@ final class AppRuntimeConfiguration {
     required String onlineBase,
     required String websocketBase,
     Uri? servingOrigin,
+    bool allowInsecureLoopback = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -50,7 +55,13 @@ final class AppRuntimeConfiguration {
     if (online == null) invalidKeys.add('SHOUYIN_ONLINE_BASE');
     if (websocket == null) invalidKeys.add('SHOUYIN_WS_BASE');
     if (servingOrigin != null &&
-        !_validWebSecurity(servingOrigin, api, online, websocket)) {
+        !_validWebSecurity(
+          servingOrigin,
+          api,
+          online,
+          websocket,
+          allowInsecureLoopback: allowInsecureLoopback,
+        )) {
       invalidKeys.add('SHOUYIN_WEB_SECURITY');
     }
     ApiConfig? config;
@@ -74,13 +85,23 @@ final class AppRuntimeConfiguration {
     Uri origin,
     Uri? api,
     Uri? online,
-    Uri? websocket,
-  ) {
+    Uri? websocket, {
+    required bool allowInsecureLoopback,
+  }) {
     if (api == null || online == null || websocket == null) return false;
-    if (origin.scheme != 'https' ||
-        api.scheme != 'https' ||
-        online.scheme != 'https' ||
-        websocket.scheme != 'wss') {
+    final secureSchemes =
+        origin.scheme == 'https' &&
+        api.scheme == 'https' &&
+        online.scheme == 'https' &&
+        websocket.scheme == 'wss';
+    final loopbackSchemes =
+        allowInsecureLoopback &&
+        origin.scheme == 'http' &&
+        _isLoopback(origin.host) &&
+        api.scheme == 'http' &&
+        online.scheme == 'http' &&
+        websocket.scheme == 'ws';
+    if (!secureSchemes && !loopbackSchemes) {
       return false;
     }
     int port(Uri uri, String effectiveScheme) => uri.hasPort
@@ -105,6 +126,9 @@ final class AppRuntimeConfiguration {
 
     return matches(api) && matches(online) && matches(websocket);
   }
+
+  static bool _isLoopback(String host) =>
+      host == 'localhost' || host == '127.0.0.1' || host == '::1';
 
   static Uri? _validatedEndpoint(String raw, _EndpointKind kind) {
     if (raw.trim().isEmpty) return null;

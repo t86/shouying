@@ -469,7 +469,7 @@ test('check.sh resolves roots from itself and runs the complete gate in order', 
   const workspace = fixture.workspace;
   assert.deepEqual(result.commands, [
     `fvm|${workspace}|dart pub get --enforce-lockfile`,
-    `node|${root}|--test ${root}/tests/flutterMigrationInventory.test.js ${root}/tests/flutterWorkspaceStructure.test.js ${root}/tests/flutterCiChecks.test.js`,
+    `node|${root}|--test ${root}/tests/flutterMigrationInventory.test.js ${root}/tests/flutterWorkspaceStructure.test.js ${root}/tests/flutterCiChecks.test.js ${root}/tests/flutterFeasibilityReport.test.js ${root}/tests/flutterWebDevProxy.test.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/validate_ledgers.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/source_inventory.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/generate_report.js`,
@@ -540,7 +540,7 @@ test('PowerShell check uses checked native calls in the same required order', ()
   assert.match(source, /throw/);
   assertOrdered(source, [
     "@('dart', 'pub', 'get', '--enforce-lockfile')",
-    "@('--test', $InventoryTest, $WorkspaceStructureTest, $CiChecksTest)",
+    "@('--test', $InventoryTest, $WorkspaceStructureTest, $CiChecksTest, $FeasibilityTest, $WebDevProxyTest)",
     "@($LedgerValidator)",
     "@($InventoryGenerator)",
     "@($ReportGenerator)",
@@ -573,7 +573,7 @@ test('check.ps1 resolves roots and runs every checked command in order', {
   const workspace = fixture.workspace.replaceAll('\\', '/');
   assert.deepEqual(normalized, [
     `fvm|${workspace}|dart pub get --enforce-lockfile`,
-    `node|${root}|--test ${root}/tests/flutterMigrationInventory.test.js ${root}/tests/flutterWorkspaceStructure.test.js ${root}/tests/flutterCiChecks.test.js`,
+    `node|${root}|--test ${root}/tests/flutterMigrationInventory.test.js ${root}/tests/flutterWorkspaceStructure.test.js ${root}/tests/flutterCiChecks.test.js ${root}/tests/flutterFeasibilityReport.test.js ${root}/tests/flutterWebDevProxy.test.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/validate_ledgers.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/source_inventory.js`,
     `node|${root}|${root}/tools/flutter_migration_inventory/generate_report.js`,

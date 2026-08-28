@@ -30,7 +30,7 @@ migration-ledger:
   extends: .linux-flutter
   stage: validate
   script:
-    - node --test tests/flutterMigrationInventory.test.js tests/flutterWorkspaceStructure.test.js tests/flutterCiChecks.test.js
+    - node --test tests/flutterMigrationInventory.test.js tests/flutterWorkspaceStructure.test.js tests/flutterCiChecks.test.js tests/flutterFeasibilityReport.test.js tests/flutterWebDevProxy.test.js
     - node tools/flutter_migration_inventory/validate_ledgers.js
     - node tools/flutter_migration_inventory/source_inventory.js
     - node tools/flutter_migration_inventory/generate_report.js

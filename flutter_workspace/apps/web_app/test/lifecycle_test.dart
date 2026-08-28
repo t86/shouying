@@ -52,6 +52,43 @@ void main() {
     }
   });
 
+  test('web security permits only explicitly enabled same-origin loopback', () {
+    final local = AppRuntimeConfiguration.fromValues(
+      apiBase: 'http://127.0.0.1:8183/api/server',
+      onlineBase: 'http://127.0.0.1:8183/online/server',
+      websocketBase: 'ws://127.0.0.1:8183/socket/server',
+      servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
+      allowInsecureLoopback: true,
+    );
+    expect(local.config, isNotNull);
+
+    for (final rejected in <AppRuntimeConfiguration>[
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://127.0.0.1:8183/api/server',
+        onlineBase: 'http://127.0.0.1:8183/online/server',
+        websocketBase: 'ws://127.0.0.1:8183/socket/server',
+        servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://dev.example.test/api/server',
+        onlineBase: 'http://dev.example.test/online/server',
+        websocketBase: 'ws://dev.example.test/socket/server',
+        servingOrigin: Uri.parse('http://dev.example.test/'),
+        allowInsecureLoopback: true,
+      ),
+      AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://127.0.0.1:8184/api/server',
+        onlineBase: 'http://127.0.0.1:8183/online/server',
+        websocketBase: 'ws://127.0.0.1:8183/socket/server',
+        servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
+        allowInsecureLoopback: true,
+      ),
+    ]) {
+      expect(rejected.config, isNull);
+      expect(rejected.invalidKeys, contains('SHOUYIN_WEB_SECURITY'));
+    }
+  });
+
   test('old insecure Web flag is absent and cannot downgrade startup', () {
     final prefix = File('lib/main.dart').existsSync() ? '' : 'apps/web_app/';
     final source = File('${prefix}lib/main.dart').readAsStringSync();

@@ -45,6 +45,8 @@ function Get-MigrationStateSnapshot {
 $InventoryTest = Join-Path $RepositoryRoot 'tests/flutterMigrationInventory.test.js'
 $WorkspaceStructureTest = Join-Path $RepositoryRoot 'tests/flutterWorkspaceStructure.test.js'
 $CiChecksTest = Join-Path $RepositoryRoot 'tests/flutterCiChecks.test.js'
+$FeasibilityTest = Join-Path $RepositoryRoot 'tests/flutterFeasibilityReport.test.js'
+$WebDevProxyTest = Join-Path $RepositoryRoot 'tests/flutterWebDevProxy.test.js'
 $LedgerValidator = Join-Path $RepositoryRoot 'tools/flutter_migration_inventory/validate_ledgers.js'
 $InventoryGenerator = Join-Path $RepositoryRoot 'tools/flutter_migration_inventory/source_inventory.js'
 $ReportGenerator = Join-Path $RepositoryRoot 'tools/flutter_migration_inventory/generate_report.js'
@@ -57,7 +59,7 @@ $FlutterMembers = @(
 )
 
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'pub', 'get', '--enforce-lockfile') -WorkingDirectory $WorkspaceRoot
-Invoke-Checked -Command 'node' -Arguments @('--test', $InventoryTest, $WorkspaceStructureTest, $CiChecksTest) -WorkingDirectory $RepositoryRoot
+Invoke-Checked -Command 'node' -Arguments @('--test', $InventoryTest, $WorkspaceStructureTest, $CiChecksTest, $FeasibilityTest, $WebDevProxyTest) -WorkingDirectory $RepositoryRoot
 Invoke-Checked -Command 'node' -Arguments @($LedgerValidator) -WorkingDirectory $RepositoryRoot
 Invoke-Checked -Command 'node' -Arguments @($InventoryGenerator) -WorkingDirectory $RepositoryRoot
 Invoke-Checked -Command 'node' -Arguments @($ReportGenerator) -WorkingDirectory $RepositoryRoot
