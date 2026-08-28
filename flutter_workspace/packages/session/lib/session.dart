@@ -1,6 +1,8 @@
 /// Internal session lifecycle coordination for Shouyin Flutter applications.
 library;
 
+export 'src/business_system.dart' show BusinessSystem;
+
 export 'src/credential_transaction_coordinator.dart'
     show
         CredentialTransactionCoordinator,
