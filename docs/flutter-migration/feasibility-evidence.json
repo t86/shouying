@@ -3,17 +3,17 @@
   "evidence": [
     {
       "id": "WEB-RELEASE-BUILD-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "cd flutter_workspace/apps/web_app && fvm flutter build web --release",
       "exitCode": 0,
       "platformSummary": "Flutter Web release build on macOS 26.5.2 with Flutter 3.47.0",
       "relativeArtifact": "flutter_workspace/apps/web_app/build/web/main.dart.js",
-      "sha256": "aab74853d38bc114bacf0a1e3d59b37d4bd8f34420c4c565f2396794d2fda0ad",
+      "sha256": "3e639090133982d0f0546f46c4d8b84bae7c092e230768e5ee34ddc3e3e77874",
       "resultSummary": "Release JavaScript bundle was produced successfully."
     },
     {
       "id": "WEB-RUNTIME-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "serve the Web release bundle on a fresh localhost origin and inspect it with Chrome",
       "exitCode": 0,
       "platformSummary": "Google Chrome 151.0.7922.174 on macOS 26.5.2",
@@ -23,37 +23,37 @@
     },
     {
       "id": "ANDROID-DEBUG-BUILD-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "cd flutter_workspace/apps/android_app && fvm flutter build apk --debug",
       "exitCode": 0,
       "platformSummary": "Android debug APK built with compile SDK 37, minimum SDK 24, and target SDK 36",
       "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk",
-      "sha256": "1f830d6cee0e6707bf3f38948df5b0dc9effa1469c45a66084ae46bfd1eade55",
+      "sha256": "330aae9226159ca4c7f2d1a88dfb3cd935457aa8555db7c5e4e437fcf78998d2",
       "resultSummary": "Debug APK was produced successfully."
     },
     {
       "id": "ANDROID-RELEASE-BUILD-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "cd flutter_workspace/apps/android_app && fvm flutter build apk --release",
       "exitCode": 0,
       "platformSummary": "Android release APK built with compile SDK 37, minimum SDK 24, and target SDK 36",
       "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-release.apk",
-      "sha256": "06ab424cd3cacdc1574abd5ad281524aae7df01cf539dbfabee15471ad6cef13",
+      "sha256": "1cfec22147c39189e87d40998c99a23d53110e5f95ab24b58ac133403a5acbc0",
       "resultSummary": "Release APK was produced successfully with the documented temporary signing configuration."
     },
     {
       "id": "ANDROID-RUNTIME-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "adb install -r <debug-apk>; adb shell am start <package/.MainActivity>; inspect resumed and focused activities",
       "exitCode": 0,
       "platformSummary": "Android 7.0 API 24 arm64 emulator",
       "relativeArtifact": "flutter_workspace/apps/android_app/build/app/outputs/flutter-apk/app-debug.apk",
-      "sha256": "1f830d6cee0e6707bf3f38948df5b0dc9effa1469c45a66084ae46bfd1eade55",
+      "sha256": "330aae9226159ca4c7f2d1a88dfb3cd935457aa8555db7c5e4e437fcf78998d2",
       "resultSummary": "package=com.xmsj.shouyin.shouyin_android; activity=.MainActivity; resumed=true; focused=true"
     },
     {
       "id": "WINDOWS-ENV-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "fvm flutter devices",
       "exitCode": 0,
       "platformSummary": "macOS development host with no Windows desktop device or Windows runner",
@@ -63,7 +63,7 @@
     },
     {
       "id": "AUTH-ENV-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "controlled prerequisite review for Gate A",
       "exitCode": null,
       "platformSummary": "Web, Android, and Windows live authorization matrix",
@@ -73,7 +73,7 @@
     },
     {
       "id": "DEVICE-ENV-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "controlled prerequisite review for Gate B",
       "exitCode": null,
       "platformSummary": "Windows and Android physical peripheral matrix",
@@ -83,7 +83,7 @@
     },
     {
       "id": "WEB-DEPLOY-ENV-001",
-      "appCommit": "cbae483b63723592252f3989df4e510f4da5e28b",
+      "appCommit": "9da8b8fa9778c5fa6ccd2a429734e28cc20c473e",
       "sanitizedCommand": "controlled prerequisite review for Gate C",
       "exitCode": null,
       "platformSummary": "Target Web deployment environment",
