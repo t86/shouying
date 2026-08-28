@@ -24,7 +24,7 @@ Build artifacts are local, reproducible outputs and are excluded from source con
 
 | Field | Value |
 | --- | --- |
-| App commit | `f6c9d496cf931e08d63219cd7ba8460b8fb3cf15` |
+| App commit | `cbae483b63723592252f3989df4e510f4da5e28b` |
 | Flutter version | `3.47.0` |
 | Platform version | Web: Chrome 151.0.7922.174 on macOS 26.5.2; Android: Android 7.0 / API 24 emulator; Windows: unavailable |
 | Test date | `2026-08-27` |
@@ -39,7 +39,7 @@ The available shell evidence cannot verify terminal authorization headers, login
 
 | Field | Value |
 | --- | --- |
-| App commit | `f6c9d496cf931e08d63219cd7ba8460b8fb3cf15` |
+| App commit | `cbae483b63723592252f3989df4e510f4da5e28b` |
 | Flutter version | `3.47.0` |
 | Platform version | Android: Android 7.0 / API 24 emulator; Windows: unavailable |
 | Test date | `2026-08-27` |
@@ -54,7 +54,7 @@ No per-store printer model adaptation is accepted as gate evidence. The live rer
 
 | Field | Value |
 | --- | --- |
-| App commit | `f6c9d496cf931e08d63219cd7ba8460b8fb3cf15` |
+| App commit | `cbae483b63723592252f3989df4e510f4da5e28b` |
 | Flutter version | `3.47.0` |
 | Platform version | Chrome 151.0.7922.174 on macOS 26.5.2; target HTTPS same-origin deployment unavailable |
 | Test date | `2026-08-27` |
