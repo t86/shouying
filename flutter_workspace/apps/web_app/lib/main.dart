@@ -24,7 +24,7 @@ final class AppRuntimeConfiguration {
   const AppRuntimeConfiguration._({
     required this.config,
     required this.invalidKeys,
-    required this.autoAuthorizeTerminal,
+    required this.developmentSystemSelection,
   });
 
   factory AppRuntimeConfiguration.fromEnvironment() =>
@@ -36,9 +36,9 @@ final class AppRuntimeConfiguration {
         allowInsecureLoopback:
             kDebugMode &&
             const bool.fromEnvironment('SHOUYIN_ALLOW_INSECURE_LOOPBACK'),
-        autoAuthorizeTerminal:
+        developmentSystemSelection:
             kDebugMode &&
-            const bool.fromEnvironment('SHOUYIN_DEV_AUTO_TERMINAL_AUTH'),
+            const bool.fromEnvironment('SHOUYIN_DEV_SYSTEM_SELECTION'),
       );
 
   factory AppRuntimeConfiguration.fromValues({
@@ -47,7 +47,7 @@ final class AppRuntimeConfiguration {
     required String websocketBase,
     Uri? servingOrigin,
     bool allowInsecureLoopback = false,
-    bool autoAuthorizeTerminal = false,
+    bool developmentSystemSelection = false,
   }) {
     final invalidKeys = <String>[];
     final api = _validatedEndpoint(apiBase, _EndpointKind.api);
@@ -80,8 +80,8 @@ final class AppRuntimeConfiguration {
     return AppRuntimeConfiguration._(
       config: config,
       invalidKeys: List<String>.unmodifiable(invalidKeys),
-      autoAuthorizeTerminal:
-          autoAuthorizeTerminal &&
+      developmentSystemSelection:
+          developmentSystemSelection &&
           allowInsecureLoopback &&
           config != null &&
           servingOrigin?.scheme == 'http' &&
@@ -91,7 +91,7 @@ final class AppRuntimeConfiguration {
 
   final ApiConfig? config;
   final List<String> invalidKeys;
-  final bool autoAuthorizeTerminal;
+  final bool developmentSystemSelection;
 
   static bool _validWebSecurity(
     Uri origin,
@@ -394,35 +394,53 @@ final _realtimeFailureProvider = StreamProvider<AppFailure>((ref) {
   return ref.watch(_shellDependenciesProvider).realtimeFailures;
 });
 final _initialLocationProvider = Provider<String>((ref) => '/login');
-final _autoAuthorizeTerminalProvider = Provider<bool>((ref) => false);
-final _automaticTerminalAuthorizationProvider = FutureProvider<void>((
-  ref,
-) async {
-  if (!ref.watch(_autoAuthorizeTerminalProvider)) return;
-  await Future<void>.delayed(Duration.zero);
-  final repository = ref.read(_appSessionRepositoryProvider);
-  if (repository.currentMachine != null) return;
-  await ref
-      .read(loginViewModelProvider.notifier)
-      .authorizeMachine('loopback-development');
-});
+final _developmentSystemSelectionProvider = Provider<bool>((ref) => false);
 final _routerProvider = Provider<GoRouter>((ref) {
   final repository = ref.watch(_appSessionRepositoryProvider);
   final factory = ref.watch(_dependenciesFactoryProvider);
+  final developmentSystemSelection = ref.watch(
+    _developmentSystemSelectionProvider,
+  );
   final refresh = _SessionRefresh(repository);
   ref.onDispose(refresh.dispose);
   final router = GoRouter(
     initialLocation: ref.watch(_initialLocationProvider),
     refreshListenable: refresh,
     redirect: (context, state) {
+      final machine = repository.currentMachine;
       final authenticated = repository.currentUser != null;
-      final atLogin = state.matchedLocation == '/login';
-      if (!authenticated && !atLogin) return '/login';
-      if (authenticated && atLogin) return '/diagnostics';
+      final location = state.matchedLocation;
+      if (developmentSystemSelection && machine == null) {
+        return location == '/select-system' ? null : '/select-system';
+      }
+      if (machine == null || !authenticated) {
+        return location == '/login' ? null : '/login';
+      }
+      final system = BusinessSystem.fromClient(machine.client);
+      final landingPath = system?.landingPath ?? '/diagnostics';
+      if (location == '/login' || location == '/select-system') {
+        return landingPath;
+      }
+      if (_businessLandingPaths.contains(location) && location != landingPath) {
+        return landingPath;
+      }
       return null;
     },
     routes: <RouteBase>[
+      GoRoute(
+        path: '/select-system',
+        builder: (context, state) => BusinessSystemSelectionScreen(
+          authorize: (system) => ref
+              .read(loginViewModelProvider.notifier)
+              .authorizeMachine(system.developmentAuthorizationPlaceholder),
+        ),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      for (final system in BusinessSystem.values)
+        GoRoute(
+          path: system.landingPath,
+          builder: (context, state) => _BusinessHomeScreen(system: system),
+        ),
       GoRoute(
         path: '/diagnostics',
         builder: (context, state) => const _DiagnosticsScreen(),
@@ -480,8 +498,8 @@ final class ShouyinWebApp extends StatelessWidget {
         if (dependenciesFactory case final value?)
           _dependenciesFactoryProvider.overrideWithValue(value),
         _initialLocationProvider.overrideWithValue(initialLocation),
-        _autoAuthorizeTerminalProvider.overrideWithValue(
-          resolved.autoAuthorizeTerminal,
+        _developmentSystemSelectionProvider.overrideWithValue(
+          resolved.developmentSystemSelection,
         ),
         sessionRepositoryProvider.overrideWith(
           (ref) => ref.watch(_appSessionRepositoryProvider),
@@ -506,12 +524,29 @@ final class _AppView extends ConsumerWidget {
     ref.watch(_currentUserProvider);
     ref.watch(_realtimeLifecycleProvider);
     ref.watch(_permissionSnapshotProvider);
-    ref.watch(_automaticTerminalAuthorizationProvider);
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
     );
   }
+}
+
+const Set<String> _businessLandingPaths = <String>{
+  '/cardMachine',
+  '/orderCard',
+  '/moneyCard',
+};
+
+final class _BusinessHomeScreen extends StatelessWidget {
+  const _BusinessHomeScreen({required this.system});
+
+  final BusinessSystem system;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text('${system.label} · 卡台列表')),
+    body: const Center(child: Text('正在同步卡台数据')),
+  );
 }
 
 final class _DiagnosticsScreen extends ConsumerWidget {

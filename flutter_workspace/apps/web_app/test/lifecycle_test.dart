@@ -89,7 +89,7 @@ void main() {
     }
   });
 
-  testWidgets('loopback development auto-authorizes before employee login', (
+  testWidgets('loopback development selects a system before employee login', (
     tester,
   ) async {
     final factory = _LifecycleFactory();
@@ -99,7 +99,7 @@ void main() {
       websocketBase: 'ws://127.0.0.1:8183/socket/server',
       servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
       allowInsecureLoopback: true,
-      autoAuthorizeTerminal: true,
+      developmentSystemSelection: true,
     );
 
     await tester.pumpWidget(
@@ -107,9 +107,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(environment.autoAuthorizeTerminal, isTrue);
+    expect(environment.developmentSystemSelection, isTrue);
+    expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+    expect(factory.dependencies.adapter.termAuthCalls, 0);
+    await tester.tap(find.byKey(BusinessSystemSelectionScreen.cashierKey));
+    await tester.pumpAndSettle();
+
     expect(factory.dependencies.adapter.termAuthCalls, 1);
     expect(factory.dependencies.sessionRepository.currentMachine, isNotNull);
+    expect(
+      factory.dependencies.sessionRepository.currentMachine?.client,
+      ClientKind.cashier,
+    );
     expect(find.byKey(LoginScreen.employeeFieldsKey), findsOneWidget);
     expect(find.byKey(LoginScreen.machineFieldsKey), findsNothing);
     expect(find.byKey(LoginScreen.machineCodeFieldKey), findsNothing);
@@ -120,17 +129,77 @@ void main() {
     await tester.runAsync(() => factory.dependencies.disposed.future);
   });
 
-  test('auto terminal authorization cannot escape loopback debug mode', () {
+  test('development system selection cannot escape loopback debug mode', () {
     final secure = AppRuntimeConfiguration.fromValues(
       apiBase: 'https://pos.example.test/api',
       onlineBase: 'https://pos.example.test/online',
       websocketBase: 'wss://pos.example.test/socket',
       servingOrigin: Uri.parse('https://pos.example.test/'),
-      autoAuthorizeTerminal: true,
+      developmentSystemSelection: true,
     );
     expect(secure.config, isNotNull);
-    expect(secure.autoAuthorizeTerminal, isFalse);
+    expect(secure.developmentSystemSelection, isFalse);
   });
+
+  for (final (system, buttonKey, expectedTitle)
+      in <(BusinessSystem, Key, String)>[
+        (
+          BusinessSystem.booking,
+          BusinessSystemSelectionScreen.bookingKey,
+          '预定 · 卡台列表',
+        ),
+        (
+          BusinessSystem.order,
+          BusinessSystemSelectionScreen.orderKey,
+          '点单 · 卡台列表',
+        ),
+        (
+          BusinessSystem.cashier,
+          BusinessSystemSelectionScreen.cashierKey,
+          '收银 · 卡台列表',
+        ),
+      ]) {
+    testWidgets('${system.name} login lands on the legacy card route', (
+      tester,
+    ) async {
+      final factory = _LifecycleFactory();
+      final environment = AppRuntimeConfiguration.fromValues(
+        apiBase: 'http://127.0.0.1:8183/dev-api/server',
+        onlineBase: 'http://127.0.0.1:8183/online/server',
+        websocketBase: 'ws://127.0.0.1:8183/socket/server',
+        servingOrigin: Uri.parse('http://127.0.0.1:8183/'),
+        allowInsecureLoopback: true,
+        developmentSystemSelection: true,
+      );
+      await tester.pumpWidget(
+        ShouyinWebApp(environment: environment, dependenciesFactory: factory),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(buttonKey));
+      await tester.pumpAndSettle();
+      expect(
+        factory.dependencies.sessionRepository.currentMachine?.client,
+        system.client,
+      );
+
+      await tester.runAsync(
+        () => factory.dependencies.sessionRepository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(expectedTitle), findsOneWidget);
+      expect(
+        GoRouterState.of(tester.element(find.text(expectedTitle))).uri.path,
+        system.landingPath,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() => factory.dependencies.disposed.future);
+    });
+  }
 
   test('old insecure Web flag is absent and cannot downgrade startup', () {
     final prefix = File('lib/main.dart').existsSync() ? '' : 'apps/web_app/';
@@ -208,6 +277,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(dependencies.startCalls, 1);
     expect(dependencies.realtimeCreated, isTrue);
+    expect(find.text('收银 · 卡台列表'), findsOneWidget);
+    expect(find.text('正在同步卡台数据'), findsOneWidget);
+
+    final businessContext = tester.element(find.text('收银 · 卡台列表'));
+    GoRouter.of(businessContext).go('/diagnostics');
+    await tester.pumpAndSettle();
     expect(find.byKey(DiagnosticPanel.wideLayoutKey), findsOneWidget);
     expect(find.text('收银 Web 客户端'), findsOneWidget);
 
@@ -289,7 +364,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(factory.dependencies.startCalls, 1);
-    expect(find.text('收银 Web 客户端'), findsOneWidget);
+    expect(find.text('收银 · 卡台列表'), findsOneWidget);
     await tester.pump();
     expect(factory.dependencies.startCalls, 1);
 
@@ -531,15 +606,28 @@ final class _AuthAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    if (requestStream != null) await requestStream.drain<void>();
+    final requestBytes = <int>[];
+    if (requestStream != null) {
+      await for (final chunk in requestStream) {
+        requestBytes.addAll(chunk);
+      }
+    }
     final isTermAuth = options.path.endsWith('/term/auth');
     if (isTermAuth) termAuthCalls += 1;
+    final requestBody = requestBytes.isEmpty
+        ? const <String, Object?>{}
+        : jsonDecode(utf8.decode(requestBytes)) as Map<String, Object?>;
+    final accessMode = switch (requestBody['code']) {
+      'loopback-development-book' => 2,
+      'loopback-development-order' => 4,
+      _ => 8,
+    };
     final body = isTermAuth
         ? <String, Object?>{
             'code': 1,
             'data': <String, Object?>{
               'tk': 'synthetic-tk',
-              'am': 8,
+              'am': accessMode,
               'id': 'machine-1',
               'n': 'Front Counter',
             },

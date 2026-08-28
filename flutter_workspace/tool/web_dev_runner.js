@@ -24,21 +24,28 @@ function buildFlutterArguments({ proxyPort, flutterPort }) {
     '--web-port',
     String(flutterPort),
     '--dart-define=SHOUYIN_ALLOW_INSECURE_LOOPBACK=true',
-    '--dart-define=SHOUYIN_DEV_AUTO_TERMINAL_AUTH=true',
+    '--dart-define=SHOUYIN_DEV_SYSTEM_SELECTION=true',
     `--dart-define=SHOUYIN_API_BASE=http://${localOrigin}/dev-api/server`,
     `--dart-define=SHOUYIN_ONLINE_BASE=http://${localOrigin}/online/server`,
     `--dart-define=SHOUYIN_WS_BASE=ws://${localOrigin}/socket/server`,
   ];
 }
 
-function extractDevelopmentMachineCode(source) {
-  const match = source.match(
-    /client\s*:\s*['"]money['"][\s\S]{0,256}?code\s*:\s*['"]([A-Za-z0-9_-]{3,128})['"]/,
-  );
-  if (match == null) {
-    throw new Error('cash register terminal code is unavailable');
+function extractDevelopmentMachineCodes(source) {
+  const result = {};
+  for (const client of ['book', 'order', 'money']) {
+    const match = source.match(
+      new RegExp(
+        `client\\s*:\\s*['"]${client}['"][\\s\\S]{0,256}?` +
+        `code\\s*:\\s*['"]([A-Za-z0-9_-]{3,128})['"]`,
+      ),
+    );
+    if (match == null) {
+      throw new Error('development terminal codes are unavailable');
+    }
+    result[client] = match[1];
   }
-  return match[1];
+  return Object.freeze(result);
 }
 
 async function startLocalWeb({
@@ -48,7 +55,7 @@ async function startLocalWeb({
 } = {}) {
   const workspaceRoot = path.resolve(__dirname, '..');
   const repositoryRoot = path.resolve(workspaceRoot, '..');
-  const developmentMachineCode = extractDevelopmentMachineCode(
+  const developmentMachineCodes = extractDevelopmentMachineCodes(
     fs.readFileSync(
       path.join(repositoryRoot, 'src/views/Register/register.vue'),
       'utf8',
@@ -63,7 +70,7 @@ async function startLocalWeb({
     listenPort: proxyPort,
     flutterOrigin: `http://127.0.0.1:${flutterPort}`,
     ...developmentTargets,
-    developmentMachineCode,
+    developmentMachineCodes,
   });
   await proxy.listen();
   const child = spawnProcess(
@@ -109,6 +116,6 @@ if (require.main === module) {
 module.exports = {
   buildFlutterArguments,
   developmentTargets,
-  extractDevelopmentMachineCode,
+  extractDevelopmentMachineCodes,
   startLocalWeb,
 };

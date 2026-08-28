@@ -12,7 +12,7 @@ const {
 const {
   buildFlutterArguments,
   developmentTargets,
-  extractDevelopmentMachineCode,
+  extractDevelopmentMachineCodes,
 } = require('../flutter_workspace/tool/web_dev_runner');
 
 function listen(server) {
@@ -133,7 +133,11 @@ test('loopback development proxy preserves original service paths', async (t) =>
     apiOrigin,
     onlineOrigin,
     websocketOrigin,
-    developmentMachineCode: 'machine-code-for-test',
+    developmentMachineCodes: {
+      book: 'book-code-for-test',
+      order: 'order-code-for-test',
+      money: 'money-code-for-test',
+    },
   });
   await proxy.listen();
   t.after(async () => {
@@ -166,13 +170,23 @@ test('loopback development proxy preserves original service paths', async (t) =>
     body: 'online-ok',
   });
   assert.deepEqual(await request(proxy.origin, '/dev-api/server/term/auth', {
-    body: '{"code":"loopback-development"}',
+    body: '{"code":"loopback-development-money"}',
     headers: { 'content-type': 'application/json' },
     method: 'POST',
   }), {
     statusCode: 200,
     body: 'api-ok',
   });
+  for (const client of ['book', 'order']) {
+    assert.deepEqual(await request(proxy.origin, '/dev-api/server/term/auth', {
+      body: JSON.stringify({ code: `loopback-development-${client}` }),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+    }), {
+      statusCode: 200,
+      body: 'api-ok',
+    });
+  }
   assert.deepEqual(await request(proxy.origin, '/dev-api/server/auth/login', {
     body: '{"code":"employee"}',
     headers: { 'content-type': 'application/json' },
@@ -203,7 +217,21 @@ test('loopback development proxy preserves original service paths', async (t) =>
       '/server/term/auth',
       undefined,
       undefined,
-      '{"code":"machine-code-for-test"}',
+      '{"code":"money-code-for-test"}',
+    ],
+    [
+      'api',
+      '/server/term/auth',
+      undefined,
+      undefined,
+      '{"code":"book-code-for-test"}',
+    ],
+    [
+      'api',
+      '/server/term/auth',
+      undefined,
+      undefined,
+      '{"code":"order-code-for-test"}',
     ],
     [
       'api',
@@ -249,7 +277,7 @@ test('local runner enables only the loopback debug configuration', () => {
     '--web-port',
     '8184',
     '--dart-define=SHOUYIN_ALLOW_INSECURE_LOOPBACK=true',
-    '--dart-define=SHOUYIN_DEV_AUTO_TERMINAL_AUTH=true',
+    '--dart-define=SHOUYIN_DEV_SYSTEM_SELECTION=true',
     '--dart-define=SHOUYIN_API_BASE=http://127.0.0.1:8183/dev-api/server',
     '--dart-define=SHOUYIN_ONLINE_BASE=http://127.0.0.1:8183/online/server',
     '--dart-define=SHOUYIN_WS_BASE=ws://127.0.0.1:8183/socket/server',
@@ -260,15 +288,22 @@ test('local runner enables only the loopback debug configuration', () => {
     websocketOrigin: 'ws://nls-dev.xmsjznwl.com',
   });
   assert.doesNotMatch(JSON.stringify(developmentTargets), /password|credential|token/i);
-  assert.equal(
-    extractDevelopmentMachineCode(`
+  assert.deepEqual(
+    extractDevelopmentMachineCodes(`
       { name: "Order", client: "order", code: "order-code" },
       { name: "Cashier", client: "money", code: "cashier-code" },
+      { name: "Booking", client: "book", code: "booking-code" },
     `),
-    'cashier-code',
+    {
+      book: 'booking-code',
+      order: 'order-code',
+      money: 'cashier-code',
+    },
   );
   assert.throws(
-    () => extractDevelopmentMachineCode('{ client: "money", code: "" }'),
-    /cash register terminal code/,
+    () => extractDevelopmentMachineCodes(
+      '{ client: "money", code: "cashier-code" }',
+    ),
+    /development terminal codes/,
   );
 });

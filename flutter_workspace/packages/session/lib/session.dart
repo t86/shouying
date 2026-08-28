@@ -2,6 +2,8 @@
 library;
 
 export 'src/business_system.dart' show BusinessSystem;
+export 'src/business_system_selection_screen.dart'
+    show BusinessSystemAuthorization, BusinessSystemSelectionScreen;
 
 export 'src/credential_transaction_coordinator.dart'
     show

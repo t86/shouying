@@ -124,6 +124,42 @@ function proxyWebSocket(request, clientSocket, head, target) {
   });
 }
 
+async function proxyDevelopmentAuthorization(
+  request,
+  response,
+  target,
+  developmentMachineCodes,
+) {
+  const chunks = [];
+  let bytes = 0;
+  try {
+    for await (const chunk of request) {
+      bytes += chunk.length;
+      if (bytes > 8192) throw constProxyInputError;
+      chunks.push(chunk);
+    }
+    const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    const placeholder = payload?.code;
+    const match = typeof placeholder === 'string'
+      ? placeholder.match(/^loopback-development-(book|order|money)$/)
+      : null;
+    if (match == null) throw constProxyInputError;
+    const machineCode = developmentMachineCodes[match[1]];
+    proxyHttp(request, response, target, {
+      body: Buffer.from(JSON.stringify({ code: machineCode })),
+    });
+  } catch {
+    if (!response.headersSent) {
+      response.writeHead(400, {
+        'content-type': 'text/plain; charset=utf-8',
+      });
+    }
+    response.end('development authorization request is invalid');
+  }
+}
+
+const constProxyInputError = Object.freeze({});
+
 function createDevelopmentProxy({
   listenHost,
   listenPort,
@@ -131,7 +167,7 @@ function createDevelopmentProxy({
   apiOrigin,
   onlineOrigin,
   websocketOrigin,
-  developmentMachineCode,
+  developmentMachineCodes,
 }) {
   if (!loopbackHosts.has(listenHost)) {
     throw new TypeError('development proxy must bind to a loopback host');
@@ -139,11 +175,20 @@ function createDevelopmentProxy({
   if (!Number.isInteger(listenPort) || listenPort < 0 || listenPort > 65535) {
     throw new TypeError('development proxy port is invalid');
   }
+  const requiredClients = ['book', 'order', 'money'];
   if (
-    developmentMachineCode != null &&
-    !/^[A-Za-z0-9_-]{3,128}$/.test(developmentMachineCode)
+    developmentMachineCodes == null ||
+    typeof developmentMachineCodes !== 'object' ||
+    Object.keys(developmentMachineCodes).sort().join(',') !==
+        [...requiredClients].sort().join(',') ||
+    requiredClients.some(
+      (client) =>
+        !/^[A-Za-z0-9_-]{3,128}$/.test(developmentMachineCodes[client]),
+    ) ||
+    new Set(requiredClients.map((client) => developmentMachineCodes[client]))
+          .size !== requiredClients.length
   ) {
-    throw new TypeError('development machine code is invalid');
+    throw new TypeError('development machine codes are invalid');
   }
 
   const targets = {
@@ -217,21 +262,14 @@ function createDevelopmentProxy({
       request.url = stripPrefix(request.url, '/dev-api');
       if (
         request.method === 'POST' &&
-        request.url === '/server/term/auth' &&
-        developmentMachineCode != null
+        request.url === '/server/term/auth'
       ) {
-        const declaredLength = Number(request.headers['content-length'] ?? 0);
-        if (!Number.isFinite(declaredLength) || declaredLength > 8192) {
-          request.resume();
-          response.writeHead(413, {
-            'content-type': 'text/plain; charset=utf-8',
-          });
-          response.end('development authorization request is too large');
-          return;
-        }
-        proxyHttp(request, response, targets.api, {
-          body: Buffer.from(JSON.stringify({ code: developmentMachineCode })),
-        });
+        void proxyDevelopmentAuthorization(
+          request,
+          response,
+          targets.api,
+          developmentMachineCodes,
+        );
         return;
       }
       proxyHttp(request, response, targets.api);
