@@ -17,6 +17,7 @@ final class CardTableScreen extends StatefulWidget {
     this.lastFailure,
     this.onLogout,
     this.onSwitchSystem,
+    this.onOpenBusinessDay,
     super.key,
   });
 
@@ -24,6 +25,7 @@ final class CardTableScreen extends StatefulWidget {
   static const Key gridKey = Key('card-table-grid');
   static const Key logoutKey = Key('card-table-logout');
   static const Key switchSystemKey = Key('card-table-switch-system');
+  static const Key openBusinessDayKey = Key('card-table-open-business-day');
 
   final BusinessSystem system;
   final Stream<SyncEnvelope> events;
@@ -31,6 +33,7 @@ final class CardTableScreen extends StatefulWidget {
   final AppFailure? lastFailure;
   final CardTableSessionAction? onLogout;
   final CardTableSessionAction? onSwitchSystem;
+  final CardTableSessionAction? onOpenBusinessDay;
 
   @override
   State<CardTableScreen> createState() => _CardTableScreenState();
@@ -46,6 +49,9 @@ final class _CardTableScreenState extends State<CardTableScreen> {
   int? _businessStatus;
   bool _sessionActionInProgress = false;
   AppFailure? _sessionFailure;
+  bool _businessDayOpening = false;
+  AppFailure? _businessDayFailure;
+  String? _businessDayMessage;
 
   @override
   void initState() {
@@ -118,10 +124,10 @@ final class _CardTableScreenState extends State<CardTableScreen> {
                 ),
               ),
             ),
+          if (snapshot != null && !snapshot.businessOpen)
+            _closedBusinessDayBanner(context),
           if (snapshot == null)
             Expanded(child: _waitingState(context))
-          else if (!snapshot.businessOpen)
-            const Expanded(child: Center(child: Text('营业日未开启，卡台操作不可用')))
           else ...<Widget>[
             _filters(snapshot),
             Expanded(child: _tableGrid(snapshot)),
@@ -170,6 +176,77 @@ final class _CardTableScreenState extends State<CardTableScreen> {
     setState(() {
       _sessionActionInProgress = false;
       _sessionFailure = result.failureOrNull;
+    });
+  }
+
+  Widget _closedBusinessDayBanner(BuildContext context) => ColoredBox(
+    color: Theme.of(context).colorScheme.tertiaryContainer,
+    child: SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: <Widget>[
+            const Expanded(child: Text('营业日未开启')),
+            if (_businessDayFailure case final failure?)
+              Expanded(child: Text(failure.safeMessage))
+            else if (_businessDayMessage case final message?)
+              Expanded(child: Text(message)),
+            if (widget.system == BusinessSystem.booking &&
+                widget.onOpenBusinessDay != null)
+              FilledButton(
+                key: CardTableScreen.openBusinessDayKey,
+                onPressed:
+                    widget.connectionPhase.allowsWrites && !_businessDayOpening
+                    ? _confirmOpenBusinessDay
+                    : null,
+                child: Text(_businessDayOpening ? '开启中…' : '开启营业日'),
+              )
+            else
+              const Text('卡台仅供查看'),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Future<void> _confirmOpenBusinessDay() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('开启营业日'),
+        content: const Text('是否确认开启营业日？'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() {
+      _businessDayOpening = true;
+      _businessDayFailure = null;
+      _businessDayMessage = null;
+    });
+    Result<void> result;
+    try {
+      result = await widget.onOpenBusinessDay!();
+    } on Object {
+      result = const FailureResult<void>(_businessDayActionFailure);
+    }
+    if (!mounted) return;
+    setState(() {
+      _businessDayOpening = false;
+      _businessDayFailure = result.failureOrNull;
+      _businessDayMessage = result.failureOrNull == null
+          ? '开启请求已提交，等待服务端同步'
+          : null;
     });
   }
 
@@ -312,5 +389,10 @@ final class _CardTableScreenState extends State<CardTableScreen> {
     kind: FailureKind.unknown,
     code: 'session.action_failed',
     safeMessage: '登录状态切换失败，请重试',
+  );
+  static const AppFailure _businessDayActionFailure = AppFailure(
+    kind: FailureKind.unknown,
+    code: 'business_day.action_failed',
+    safeMessage: '开启营业日失败，请重试',
   );
 }

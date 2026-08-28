@@ -148,9 +148,79 @@ void main() {
     await tester.pumpAndSettle();
     expect(switchCalls, 1);
   });
+
+  testWidgets(
+    'closed business day keeps cards visible and booking can open it',
+    (tester) async {
+      final events = StreamController<SyncEnvelope>.broadcast(sync: true);
+      var openCalls = 0;
+      addTearDown(events.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CardTableScreen(
+            system: BusinessSystem.booking,
+            events: events.stream,
+            connectionPhase: ConnectionPhase.online,
+            onOpenBusinessDay: () async {
+              openCalls += 1;
+              return const Success<void>(null);
+            },
+          ),
+        ),
+      );
+      events.add(
+        SyncEnvelope.fromValidatedReconciliation(
+          cursor: '20260828010101',
+          data: _fullData(businessDayId: 0),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('营业日未开启'), findsOneWidget);
+      expect(find.byKey(CardTableScreen.openBusinessDayKey), findsOneWidget);
+      expect(find.text('A01'), findsOneWidget);
+      expect(find.text('A02'), findsOneWidget);
+
+      await tester.tap(find.byKey(CardTableScreen.openBusinessDayKey));
+      await tester.pumpAndSettle();
+      expect(find.text('是否确认开启营业日？'), findsOneWidget);
+      await tester.tap(find.text('确定'));
+      await tester.pumpAndSettle();
+      expect(openCalls, 1);
+      expect(find.text('开启请求已提交，等待服务端同步'), findsOneWidget);
+    },
+  );
+
+  testWidgets('only online booking can start a business day', (tester) async {
+    final events = StreamController<SyncEnvelope>.broadcast(sync: true);
+    addTearDown(events.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CardTableScreen(
+          system: BusinessSystem.booking,
+          events: events.stream,
+          connectionPhase: ConnectionPhase.blocked,
+          onOpenBusinessDay: () async => const Success<void>(null),
+        ),
+      ),
+    );
+    events.add(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(businessDayId: 0),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(CardTableScreen.openBusinessDayKey))
+          .onPressed,
+      isNull,
+    );
+  });
 }
 
-List<Object?> _fullData() {
+List<Object?> _fullData({int businessDayId = 9}) {
   final data = List<Object?>.filled(19, const <Object?>[]);
   data[0] = <Object?>[
     <Object?>[2, '包厢', 1, 20, 0, 0, 0],
@@ -168,7 +238,7 @@ List<Object?> _fullData() {
     _businessRow(200, status: 22, orderAmount: 50),
   ];
   data[18] = <Object?>[
-    <Object?>[9, '', '测试门店'],
+    <Object?>[businessDayId, '', '测试门店'],
   ];
   return data;
 }

@@ -198,6 +198,8 @@ abstract interface class ShellDependencies {
 
   Stream<SyncEnvelope> get realtimeEvents;
 
+  Future<Result<void>> openBusinessDay();
+
   Future<void> startRealtime();
 
   Future<void> stopRealtime();
@@ -242,6 +244,7 @@ final class _DefaultShellDependencies implements ShellDependencies {
         maxNodes: 1000000,
       ),
     );
+    _businessDayApi = ProtocolBusinessDayApi(client: _protocolClient);
     sessionRepository = SessionRepository(
       api: SessionApi(client: _protocolClient),
       credentialStore: _credentialStore,
@@ -266,6 +269,7 @@ final class _DefaultShellDependencies implements ShellDependencies {
   final Dio _syncDio;
   late final ProtocolClient _protocolClient;
   late final ProtocolClient _syncProtocolClient;
+  late final BusinessDayApi _businessDayApi;
   RealtimeController? _realtimeController;
   final StreamController<ConnectionPhase> _phaseEvents =
       StreamController<ConnectionPhase>.broadcast(sync: true);
@@ -348,6 +352,22 @@ final class _DefaultShellDependencies implements ShellDependencies {
   ConnectionPhase get connectionPhase => _currentPhase;
 
   @override
+  Future<Result<void>> openBusinessDay() {
+    if (_disposed) {
+      return Future<Result<void>>.value(
+        const FailureResult<void>(_businessDayUnavailableFailure),
+      );
+    }
+    final machine = sessionRepository.currentMachine;
+    if (machine?.client != ClientKind.booking) {
+      return Future<Result<void>>.value(
+        const FailureResult<void>(_businessDayBookingRequiredFailure),
+      );
+    }
+    return _businessDayApi.open(machine!.client);
+  }
+
+  @override
   Future<void> startRealtime() async {
     if (_disposed || sessionRepository.currentUser == null) return;
     await _realtime.start();
@@ -394,6 +414,17 @@ final class _DefaultShellDependencies implements ShellDependencies {
     _dio.close(force: true);
     _syncDio.close(force: true);
   }
+
+  static const AppFailure _businessDayUnavailableFailure = AppFailure(
+    kind: FailureKind.unknown,
+    code: 'business_day.unavailable',
+    safeMessage: '营业日服务不可用',
+  );
+  static const AppFailure _businessDayBookingRequiredFailure = AppFailure(
+    kind: FailureKind.business,
+    code: 'permission.business_day_booking_required',
+    safeMessage: '仅预定系统可以开启营业日',
+  );
 }
 
 final _apiConfigProvider = Provider<ApiConfig>(
@@ -601,6 +632,9 @@ final class _BusinessHomeScreen extends ConsumerWidget {
       lastFailure: ref.watch(_realtimeFailureProvider).value,
       onLogout: ref.read(loginViewModelProvider.notifier).logout,
       onSwitchSystem: ref.read(loginViewModelProvider.notifier).logout,
+      onOpenBusinessDay: system == BusinessSystem.booking
+          ? dependencies.openBusinessDay
+          : null,
     );
   }
 }

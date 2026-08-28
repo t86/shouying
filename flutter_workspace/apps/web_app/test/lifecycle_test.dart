@@ -535,6 +535,7 @@ final class _LifecycleDependencies implements ShellDependencies {
   int disposeCalls = 0;
   int dioCloseCalls = 0;
   int currentGeneration = 0;
+  int openBusinessDayCalls = 0;
   final List<int> disposedGenerations = <int>[];
   Completer<void> stopStarted = Completer<void>();
   Completer<void> stopFinished = Completer<void>();
@@ -561,6 +562,12 @@ final class _LifecycleDependencies implements ShellDependencies {
   void emitFailure(AppFailure failure) => _failures.add(failure);
 
   void emitEvent(SyncEnvelope event) => _events.add(event);
+
+  @override
+  Future<Result<void>> openBusinessDay() async {
+    openBusinessDayCalls += 1;
+    return const Success<void>(null);
+  }
 
   Future<void> authenticate() async {
     await sessionRepository.authorizeMachine('TERM-001');
