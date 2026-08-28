@@ -234,6 +234,8 @@ void main() {
     expect(find.text('今天'), findsOneWidget);
     expect(find.text('明天'), findsOneWidget);
     expect(find.text('空台 2'), findsOneWidget);
+    expect(find.text('预订 0'), findsOneWidget);
+    expect(find.text('开台 0'), findsOneWidget);
     expect(find.text('抵达数 1'), findsOneWidget);
     expect(find.text('顾客'), findsNothing);
 
@@ -270,6 +272,43 @@ void main() {
     await tester.tap(find.byKey(CardTableScreen.openDiagnosticsKey));
     await tester.pumpAndSettle();
     expect(diagnosticsCalls, 1);
+  });
+
+  testWidgets('booking empty card opens the source-aligned action menu', (
+    tester,
+  ) async {
+    final events = StreamController<SyncEnvelope>.broadcast(sync: true);
+    addTearDown(events.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CardTableScreen(
+          system: BusinessSystem.booking,
+          events: events.stream,
+          connectionPhase: ConnectionPhase.online,
+        ),
+      ),
+    );
+    events.add(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(CardTableScreen.cardKey('101')));
+    await tester.pumpAndSettle();
+    final menu = find.byType(BottomSheet);
+    Finder menuText(String text) =>
+        find.descendant(of: menu, matching: find.text(text));
+    expect(menuText('A02 · 空台'), findsOneWidget);
+    expect(menuText('预留'), findsOneWidget);
+    expect(menuText('开台'), findsOneWidget);
+    expect(menuText('锁定'), findsOneWidget);
+    expect(menuText('置顶'), findsOneWidget);
+    expect(menuText('取消锁定'), findsNothing);
+    await tester.tap(menuText('关闭'));
+    await tester.pumpAndSettle();
   });
 
   testWidgets(
@@ -392,7 +431,7 @@ List<Object?> _fullData({
   ];
   data[39] = <Object?>[
     <Object?>[1, 0, 2],
-    <Object?>[3, 0, 0],
+    <Object?>[3, 0, 2],
     <Object?>[4, 0, 1],
     <Object?>[20, 0, 1],
     <Object?>[1, 1, 1],

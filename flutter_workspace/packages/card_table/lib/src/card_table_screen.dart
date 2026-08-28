@@ -35,6 +35,7 @@ final class CardTableScreen extends StatefulWidget {
   static const Key refreshKey = Key('card-table-refresh');
   static const Key moreFunctionsKey = Key('card-table-more-functions');
   static const Key openDiagnosticsKey = Key('card-table-open-diagnostics');
+  static Key cardKey(String id) => ValueKey<String>('card-table-$id');
 
   final BusinessSystem system;
   final Stream<SyncEnvelope> events;
@@ -436,41 +437,47 @@ final class _CardTableScreenState extends State<CardTableScreen> {
                 margin: EdgeInsets.zero,
                 child: DefaultTextStyle.merge(
                   style: const TextStyle(color: Colors.white),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                regionNames[table.regionId] ?? '未知区域',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                  child: InkWell(
+                    key: CardTableScreen.cardKey(table.id),
+                    onTap: () => _showCardMenu(snapshot, table),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(
+                                  regionNames[table.regionId] ?? '未知区域',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            Text('${table.capacity > 0 ? table.capacity : 1}人'),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          table.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(color: Colors.white),
-                        ),
-                        const Spacer(),
-                        Text(_statusLabel(table.businessStatus)),
-                        if (widget.showCustomerDetails &&
-                            table.customerName.isNotEmpty)
+                              Text(
+                                '${table.capacity > 0 ? table.capacity : 1}人',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
                           Text(
-                            table.customerName,
+                            table.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(color: Colors.white),
                           ),
-                      ],
+                          const Spacer(),
+                          Text(_statusLabel(table.businessStatus)),
+                          if (widget.showCustomerDetails &&
+                              table.customerName.isNotEmpty)
+                            Text(
+                              table.customerName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -494,10 +501,13 @@ final class _CardTableScreenState extends State<CardTableScreen> {
         ifAbsent: () => 1,
       );
     }
-    final counts = _businessDateId == snapshot.businessDates.firstOrNull?.id
+    final isCurrentDate =
+        _businessDateId == snapshot.businessDates.firstOrNull?.id;
+    final counts = isCurrentDate
         ? snapshot.statusCountsForRegion(_regionId)
         : derived;
-    int count(int status) => counts[status] ?? derived[status] ?? 0;
+    int count(int status) =>
+        counts[status] ?? (isCurrentDate ? 0 : derived[status] ?? 0);
     return ColoredBox(
       color: const Color(0xff0d1a31),
       child: DefaultTextStyle.merge(
@@ -516,8 +526,8 @@ final class _CardTableScreenState extends State<CardTableScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       children: <Widget>[
                         _legendItem('空台', count(1), 1),
-                        _legendItem('预订', count(8) + count(3), 8),
-                        _legendItem('开台', counts[10] ?? count(4), 4),
+                        _legendItem('预订', count(8), 8),
+                        _legendItem('开台', counts[10] ?? 0, 4),
                         _legendItem('点单', count(5) + count(6), 5),
                         _legendItem('已结', count(7), 7),
                         _legendItem('抵达数', counts[20] ?? 0, 20),
@@ -551,6 +561,138 @@ final class _CardTableScreenState extends State<CardTableScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showCardMenu(
+    CardTableSnapshot snapshot,
+    CardTable table,
+  ) async {
+    final actions = _cardActions(snapshot, table);
+    if (actions.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('当前卡台没有可用操作')));
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  '${table.name} · ${_statusLabel(table.businessStatus)}',
+                ),
+                subtitle: const Text('卡台操作'),
+              ),
+              const Divider(height: 1),
+              for (final action in actions)
+                ListTile(
+                  leading: Icon(action.icon),
+                  title: Text(action.label),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${action.label}功能正在迁移')),
+                    );
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: const Text('关闭'),
+                onTap: () => Navigator.pop(sheetContext),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<_CardMenuAction> _cardActions(
+    CardTableSnapshot snapshot,
+    CardTable table,
+  ) {
+    final isCurrentDate =
+        _businessDateId == snapshot.businessDates.firstOrNull?.id;
+    final actions = switch (widget.system) {
+      BusinessSystem.booking => _bookingCardActions(
+        table.businessStatus,
+        businessOpen: snapshot.businessOpen,
+        isCurrentDate: isCurrentDate,
+      ),
+      BusinessSystem.order => <_CardMenuAction>[
+        if (<int>{4, 5, 6, 7}.contains(table.businessStatus)) ...const [
+          _CardMenuAction('存酒', Icons.wine_bar_outlined),
+          _CardMenuAction('取酒', Icons.output_outlined),
+        ],
+        const _CardMenuAction('充公', Icons.inventory_2_outlined),
+      ],
+      BusinessSystem.cashier => <_CardMenuAction>[
+        if (<int>{4, 5, 6, 7}.contains(table.businessStatus))
+          const _CardMenuAction('查看卡台记录', Icons.receipt_long_outlined),
+      ],
+    };
+    return List<_CardMenuAction>.of(actions);
+  }
+
+  static List<_CardMenuAction> _bookingCardActions(
+    int status, {
+    required bool businessOpen,
+    required bool isCurrentDate,
+  }) {
+    final actions = switch (status) {
+      1 when !businessOpen || !isCurrentDate => <_CardMenuAction>[
+        const _CardMenuAction('预留', Icons.history_toggle_off),
+      ],
+      1 => <_CardMenuAction>[
+        const _CardMenuAction('预留', Icons.history_toggle_off),
+        const _CardMenuAction('开台', Icons.play_arrow),
+        const _CardMenuAction('锁定', Icons.lock_outline),
+      ],
+      2 when businessOpen && isCurrentDate => <_CardMenuAction>[
+        const _CardMenuAction('取消锁定', Icons.lock_open),
+      ],
+      4 => <_CardMenuAction>[
+        const _CardMenuAction('修改低消', Icons.price_change_outlined),
+        const _CardMenuAction('修改订位人', Icons.person_outline),
+        const _CardMenuAction('转台', Icons.swap_horiz),
+        const _CardMenuAction('撤台', Icons.undo),
+        const _CardMenuAction('查看卡台详情', Icons.receipt_long_outlined),
+        const _CardMenuAction('修改翻台订位人', Icons.manage_accounts_outlined),
+        const _CardMenuAction('修改卡台标记', Icons.flag_outlined),
+        const _CardMenuAction('修改备注', Icons.edit_note_outlined),
+        const _CardMenuAction('修改服务员', Icons.badge_outlined),
+        const _CardMenuAction('取消必点商品', Icons.remove_shopping_cart_outlined),
+      ],
+      5 || 6 || 7 => <_CardMenuAction>[
+        const _CardMenuAction('修改低消', Icons.price_change_outlined),
+        const _CardMenuAction('修改订位人', Icons.person_outline),
+        const _CardMenuAction('转台', Icons.swap_horiz),
+        const _CardMenuAction('查看卡台详情', Icons.receipt_long_outlined),
+        const _CardMenuAction('修改翻台订位人', Icons.manage_accounts_outlined),
+        const _CardMenuAction('修改卡台标记', Icons.flag_outlined),
+        const _CardMenuAction('修改备注', Icons.edit_note_outlined),
+        const _CardMenuAction('修改服务员', Icons.badge_outlined),
+      ],
+      8 when !businessOpen || !isCurrentDate => <_CardMenuAction>[
+        const _CardMenuAction('修改预留', Icons.edit_calendar_outlined),
+        const _CardMenuAction('取消预留', Icons.event_busy_outlined),
+      ],
+      8 => <_CardMenuAction>[
+        const _CardMenuAction('开台', Icons.play_arrow),
+        const _CardMenuAction('转台', Icons.swap_horiz),
+        const _CardMenuAction('取消预留', Icons.event_busy_outlined),
+        const _CardMenuAction('修改预留', Icons.edit_calendar_outlined),
+        const _CardMenuAction('修改翻台订位人', Icons.manage_accounts_outlined),
+      ],
+      _ => <_CardMenuAction>[],
+    };
+    return <_CardMenuAction>[
+      ...actions,
+      const _CardMenuAction('置顶', Icons.vertical_align_top),
+    ];
   }
 
   Widget _legendItem(String label, int count, int status) => InkWell(
@@ -655,4 +797,11 @@ final class _CardTableScreenState extends State<CardTableScreen> {
     code: 'business_day.action_failed',
     safeMessage: '开启营业日失败，请重试',
   );
+}
+
+final class _CardMenuAction {
+  const _CardMenuAction(this.label, this.icon);
+
+  final String label;
+  final IconData icon;
 }
