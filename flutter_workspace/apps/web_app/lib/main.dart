@@ -665,6 +665,7 @@ final class _BusinessHomeScreen extends ConsumerWidget {
       onRefresh: dependencies.refreshRealtime,
       onOpenDiagnostics: () => context.go('/diagnostics'),
       userName: dependencies.sessionRepository.currentUser?.name,
+      machineId: dependencies.sessionRepository.currentMachine?.machineId,
     );
   }
 }

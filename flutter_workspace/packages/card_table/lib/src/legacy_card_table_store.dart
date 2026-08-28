@@ -3,14 +3,21 @@ import 'package:foundation/foundation.dart';
 import 'package:realtime_sync/realtime_sync.dart';
 
 final class LegacyCardTableStore {
+  factory LegacyCardTableStore({String? machineId}) =>
+      LegacyCardTableStore._(machineId);
+
+  LegacyCardTableStore._(this._machineId);
+
   static const Set<int> _requiredDatasets = <int>{0, 1, 14, 18};
 
+  final String? _machineId;
   Map<String, List<Object?>> _regions = <String, List<Object?>>{};
   Map<String, List<Object?>> _seats = <String, List<Object?>>{};
   Map<String, List<Object?>> _business = <String, List<Object?>>{};
   Map<String, List<Object?>> _businessDates = <String, List<Object?>>{};
   Map<String, List<Object?>> _futureBookings = <String, List<Object?>>{};
   Map<String, List<Object?>> _statusCounts = <String, List<Object?>>{};
+  Map<String, List<Object?>> _machineAccess = <String, List<Object?>>{};
   List<Object?>? _businessDay;
   CardTableSnapshot? _currentSnapshot;
 
@@ -47,6 +54,9 @@ final class LegacyCardTableStore {
     final nextStatusCounts = isFull
         ? <String, List<Object?>>{}
         : _copyRows(_statusCounts);
+    final nextMachineAccess = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_machineAccess);
     var nextBusinessDay = isFull
         ? null
         : _businessDay == null
@@ -94,6 +104,13 @@ final class LegacyCardTableStore {
           (row) => '${_integer(row[0])}|${_id(row[1])}',
         );
       }
+      if (datasets.containsKey(40)) {
+        _mergeRowsByKey(
+          nextMachineAccess,
+          _rows(datasets[40], minimumLength: 4),
+          (row) => '${_id(row[0])}|${_integer(row[1])}|${_id(row[3])}',
+        );
+      }
       if (nextBusinessDay == null) throw const FormatException();
       final snapshot = _buildSnapshot(
         cursor: envelope.cursor!,
@@ -104,6 +121,8 @@ final class LegacyCardTableStore {
         businessDates: nextBusinessDates,
         futureBookings: nextFutureBookings,
         statusCountRows: nextStatusCounts,
+        machineId: _machineId,
+        machineAccess: nextMachineAccess,
       );
       _regions = nextRegions;
       _seats = nextSeats;
@@ -111,6 +130,7 @@ final class LegacyCardTableStore {
       _businessDates = nextBusinessDates;
       _futureBookings = nextFutureBookings;
       _statusCounts = nextStatusCounts;
+      _machineAccess = nextMachineAccess;
       _businessDay = nextBusinessDay;
       _currentSnapshot = snapshot;
       return Success(snapshot);
@@ -192,6 +212,8 @@ final class LegacyCardTableStore {
     required Map<String, List<Object?>> businessDates,
     required Map<String, List<Object?>> futureBookings,
     required Map<String, List<Object?>> statusCountRows,
+    required String? machineId,
+    required Map<String, List<Object?>> machineAccess,
   }) {
     final normalizedRegions =
         <CardRegion>[
@@ -212,7 +234,9 @@ final class LegacyCardTableStore {
     final normalizedTables =
         <CardTable>[
           for (final row in seats.values)
-            if (_integer(row[2]) == 1 && activeRegionIds.contains(_id(row[3])))
+            if (_integer(row[2]) == 1 &&
+                activeRegionIds.contains(_id(row[3])) &&
+                _isSeatPermitted(row, machineId, machineAccess))
               _table(row, business[_id(row[0])]),
         ]..sort((left, right) {
           final region = normalizedRegions
@@ -236,7 +260,8 @@ final class LegacyCardTableStore {
           <CardTable>[
             for (final seat in seats.values)
               if (_integer(seat[2]) == 1 &&
-                  activeRegionIds.contains(_id(seat[3])))
+                  activeRegionIds.contains(_id(seat[3])) &&
+                  _isSeatPermitted(seat, machineId, machineAccess))
                 _futureTable(
                   seat,
                   business[_id(seat[0])],
@@ -255,6 +280,12 @@ final class LegacyCardTableStore {
             return order != 0 ? order : left.name.compareTo(right.name);
           });
     }
+    final visibleRegionIds = normalizedTables
+        .map((table) => table.regionId)
+        .toSet();
+    normalizedRegions.removeWhere(
+      (region) => !visibleRegionIds.contains(region.id),
+    );
     final normalizedStatusCounts = _normalizeStatusCounts(statusCountRows);
     return CardTableSnapshot(
       cursor: cursor,
@@ -316,6 +347,33 @@ final class LegacyCardTableStore {
       remark: activeBooking ? _optionalText(booking[12]) : '',
       mark: '',
     );
+  }
+
+  static bool _isSeatPermitted(
+    List<Object?> seat,
+    String? machineId,
+    Map<String, List<Object?>> accessRows,
+  ) {
+    if (machineId == null) return true;
+    final normalizedMachineId = _id(machineId);
+    final rows = accessRows.values.where(
+      (row) => _id(row[0]) == normalizedMachineId && _integer(row[2]) == 1,
+    );
+    if (rows.any((row) => _integer(row[1]) == 3)) return true;
+    final allowedRegions = <String>{
+      for (final row in rows)
+        if (_integer(row[1]) == 1) _id(row[3]),
+    };
+    final allowedSeats = <String>{
+      for (final row in rows)
+        if (_integer(row[1]) == 2) _id(row[3]),
+    };
+    final regionId = _id(seat[3]);
+    final seatId = _id(seat[0]);
+    if (allowedRegions.isNotEmpty && !allowedRegions.contains(regionId)) {
+      return false;
+    }
+    return allowedSeats.isEmpty || allowedSeats.contains(seatId);
   }
 
   static ({Map<int, int> totals, Map<String, Map<int, int>> byRegion})

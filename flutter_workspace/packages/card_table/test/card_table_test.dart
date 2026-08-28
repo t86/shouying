@@ -106,6 +106,51 @@ void main() {
     expect(store.currentSnapshot, isNull);
   });
 
+  test('applies source-aligned terminal region and card restrictions', () {
+    final regionRestricted = LegacyCardTableStore(machineId: '77')
+        .applyEnvelope(
+          SyncEnvelope.fromValidatedReconciliation(
+            cursor: '20260828010101',
+            data: _fullData(
+              machineAccess: <Object?>[
+                <Object?>[77, 1, 1, 1],
+              ],
+            ),
+          ),
+        );
+    expect(
+      regionRestricted.valueOrNull!.tables.map((table) => table.id),
+      <String>['100', '101'],
+    );
+
+    final cardRestricted = LegacyCardTableStore(machineId: '77').applyEnvelope(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(
+          machineAccess: <Object?>[
+            <Object?>[77, 2, 1, 200],
+          ],
+        ),
+      ),
+    );
+    expect(
+      cardRestricted.valueOrNull!.tables.map((table) => table.id),
+      <String>['200'],
+    );
+
+    final unrestricted = LegacyCardTableStore(machineId: '77').applyEnvelope(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: _fullData(
+          machineAccess: <Object?>[
+            <Object?>[77, 3, 1, 0],
+          ],
+        ),
+      ),
+    );
+    expect(unrestricted.valueOrNull!.tables.length, 3);
+  });
+
   testWidgets('renders source-aligned region and card filters', (tester) async {
     final events = StreamController<SyncEnvelope>.broadcast(sync: true);
     var switchCalls = 0;
@@ -264,8 +309,11 @@ void main() {
   });
 }
 
-List<Object?> _fullData({int businessDayId = 9}) {
-  final data = List<Object?>.filled(40, const <Object?>[]);
+List<Object?> _fullData({
+  int businessDayId = 9,
+  List<Object?> machineAccess = const <Object?>[],
+}) {
+  final data = List<Object?>.filled(41, const <Object?>[]);
   data[0] = <Object?>[
     <Object?>[2, '包厢', 1, 20, 0, 0, 0],
     <Object?>[1, '大厅', 1, 10, 0, 0, 0],
@@ -316,6 +364,7 @@ List<Object?> _fullData({int businessDayId = 9}) {
     <Object?>[20, 1, 1],
     <Object?>[1, 2, 1],
   ];
+  data[40] = machineAccess;
   return data;
 }
 

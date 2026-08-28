@@ -22,6 +22,7 @@ final class CardTableScreen extends StatefulWidget {
     this.onOpenDiagnostics,
     this.userName,
     this.showCustomerDetails = false,
+    this.machineId,
     super.key,
   });
 
@@ -45,13 +46,14 @@ final class CardTableScreen extends StatefulWidget {
   final VoidCallback? onOpenDiagnostics;
   final String? userName;
   final bool showCustomerDetails;
+  final String? machineId;
 
   @override
   State<CardTableScreen> createState() => _CardTableScreenState();
 }
 
 final class _CardTableScreenState extends State<CardTableScreen> {
-  final LegacyCardTableStore _store = LegacyCardTableStore();
+  late LegacyCardTableStore _store;
   final TextEditingController _searchController = TextEditingController();
   StreamSubscription<SyncEnvelope>? _subscription;
   CardTableSnapshot? _snapshot;
@@ -68,13 +70,21 @@ final class _CardTableScreenState extends State<CardTableScreen> {
   @override
   void initState() {
     super.initState();
+    _store = LegacyCardTableStore(machineId: widget.machineId);
     _subscribe();
   }
 
   @override
   void didUpdateWidget(CardTableScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.events, widget.events)) _subscribe();
+    if (oldWidget.machineId != widget.machineId) {
+      _store = LegacyCardTableStore(machineId: widget.machineId);
+      _snapshot = null;
+      _failure = null;
+      _subscribe();
+    } else if (!identical(oldWidget.events, widget.events)) {
+      _subscribe();
+    }
   }
 
   @override
