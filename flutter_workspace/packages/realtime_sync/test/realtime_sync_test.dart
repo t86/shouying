@@ -125,6 +125,35 @@ void main() {
       );
     });
 
+    test('accepts an already validated large reconciliation batch only', () {
+      final largeData = <String, Object?>{
+        '0': <Object?>['x' * (SyncEnvelope.maxRawMessageBytes + 1)],
+      };
+      expect(
+        SyncEnvelope.parse(<String, Object?>{
+          'p': 1,
+          't': '20260826010101',
+          'd': largeData,
+        }).failureOrNull?.code,
+        'protocol.websocket_message_too_large',
+      );
+
+      final reconciled = SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260826010101',
+        data: largeData,
+      );
+      expect(reconciled.type, SyncEventType.data);
+      expect(reconciled.cursor, '20260826010101');
+      expect(identical(reconciled.data, largeData), isTrue);
+      expect(
+        () => SyncEnvelope.fromValidatedReconciliation(
+          cursor: 'invalid',
+          data: largeData,
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('deep-freezes payload and never prints it', () {
       final source = <String, Object?>{
         'secret': <Object?>['raw-server-payload'],

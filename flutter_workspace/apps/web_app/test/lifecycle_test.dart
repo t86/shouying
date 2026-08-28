@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protocol/protocol.dart';
+import 'package:realtime_sync/realtime_sync.dart';
 import 'package:session/session.dart';
 import 'package:shouyin_web/main.dart';
 
@@ -379,10 +380,13 @@ void main() {
       final dependencies = _LifecycleDependencies(_validEnvironment.config!);
       final phaseStream = dependencies.connectionPhases;
       final failureStream = dependencies.realtimeFailures;
+      final eventStream = dependencies.realtimeEvents;
       final phases = <ConnectionPhase>[];
       final failures = <AppFailure>[];
+      final events = <SyncEnvelope>[];
       final phaseSubscription = phaseStream.listen(phases.add);
       final failureSubscription = failureStream.listen(failures.add);
+      final eventSubscription = eventStream.listen(events.add);
       await Future<void>.delayed(Duration.zero);
       expect(phases, <ConnectionPhase>[ConnectionPhase.blocked]);
 
@@ -393,15 +397,24 @@ void main() {
           safeMessage: '测试实时错误',
         ),
       );
+      dependencies.emitEvent(
+        SyncEnvelope.fromValidatedReconciliation(
+          cursor: '20260828010101',
+          data: const <String, Object?>{'0': <Object?>[]},
+        ),
+      );
       await dependencies.startRealtime();
       await Future<void>.delayed(Duration.zero);
       expect(identical(phaseStream, dependencies.connectionPhases), isTrue);
       expect(identical(failureStream, dependencies.realtimeFailures), isTrue);
+      expect(identical(eventStream, dependencies.realtimeEvents), isTrue);
       expect(phases, contains(ConnectionPhase.online));
       expect(failures.single.code, 'realtime.synthetic');
+      expect(events.single.cursor, '20260828010101');
 
       await phaseSubscription.cancel();
       await failureSubscription.cancel();
+      await eventSubscription.cancel();
       await dependencies.dispose();
       expect(dependencies.hasOpenStreams, isFalse);
     },
@@ -502,6 +515,8 @@ final class _LifecycleDependencies implements ShellDependencies {
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failures =
       StreamController<AppFailure>.broadcast(sync: true);
+  final StreamController<SyncEnvelope> _events =
+      StreamController<SyncEnvelope>.broadcast(sync: true);
   final Completer<void> disposed = Completer<void>();
 
   @override
@@ -519,7 +534,8 @@ final class _LifecycleDependencies implements ShellDependencies {
   Completer<void> stopFinished = Completer<void>();
   Completer<void>? _stopRelease;
 
-  bool get hasOpenStreams => !_phases.isClosed || !_failures.isClosed;
+  bool get hasOpenStreams =>
+      !_phases.isClosed || !_failures.isClosed || !_events.isClosed;
 
   @override
   ConnectionPhase get connectionPhase => _phase;
@@ -533,7 +549,12 @@ final class _LifecycleDependencies implements ShellDependencies {
   @override
   late final Stream<AppFailure> realtimeFailures = _failures.stream;
 
+  @override
+  late final Stream<SyncEnvelope> realtimeEvents = _events.stream;
+
   void emitFailure(AppFailure failure) => _failures.add(failure);
+
+  void emitEvent(SyncEnvelope event) => _events.add(event);
 
   Future<void> authenticate() async {
     await sessionRepository.authorizeMachine('TERM-001');
@@ -591,6 +612,7 @@ final class _LifecycleDependencies implements ShellDependencies {
     await sessionRepository.close();
     await _phases.close();
     await _failures.close();
+    await _events.close();
     _dio.close(force: true);
     dioCloseCalls += 1;
     disposed.complete();

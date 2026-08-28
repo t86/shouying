@@ -195,6 +195,8 @@ abstract interface class ShellDependencies {
 
   Stream<AppFailure> get realtimeFailures;
 
+  Stream<SyncEnvelope> get realtimeEvents;
+
   Future<void> startRealtime();
 
   Future<void> stopRealtime();
@@ -220,12 +222,24 @@ final class DefaultShellDependenciesFactory
 final class _DefaultShellDependencies implements ShellDependencies {
   _DefaultShellDependencies(this._config)
     : _credentialStore = FlutterSecureCredentialStore(),
-      _dio = Dio() {
+      _dio = Dio(),
+      _syncDio = Dio() {
     _protocolClient = ProtocolClient(
       dio: _dio,
       config: _config,
       credentialStore: _credentialStore,
       requestGate: RequestGate(clock: DateTime.now),
+    );
+    _syncProtocolClient = ProtocolClient(
+      dio: _syncDio,
+      config: _config,
+      credentialStore: _credentialStore,
+      requestGate: RequestGate(clock: DateTime.now),
+      responseLimits: const ProtocolResponseLimits(
+        maxRawResponseBytes: 64 * 1024 * 1024,
+        maxDepth: 64,
+        maxNodes: 1000000,
+      ),
     );
     sessionRepository = SessionRepository(
       api: SessionApi(client: _protocolClient),
@@ -239,23 +253,34 @@ final class _DefaultShellDependencies implements ShellDependencies {
       _failureEvents.stream,
       () => _lastFailure,
     );
+    realtimeEvents = _OptionalCurrentValueStream<SyncEnvelope>(
+      _eventEvents.stream,
+      () => _lastEvent,
+    );
   }
 
   final ApiConfig _config;
   final CredentialStore _credentialStore;
   final Dio _dio;
+  final Dio _syncDio;
   late final ProtocolClient _protocolClient;
+  late final ProtocolClient _syncProtocolClient;
   RealtimeController? _realtimeController;
   final StreamController<ConnectionPhase> _phaseEvents =
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failureEvents =
       StreamController<AppFailure>.broadcast(sync: true);
+  final StreamController<SyncEnvelope> _eventEvents =
+      StreamController<SyncEnvelope>.broadcast(sync: true);
   // ignore: cancel_subscriptions
   StreamSubscription<ConnectionPhase>? _phaseSubscription;
   // ignore: cancel_subscriptions
   StreamSubscription<AppFailure>? _failureSubscription;
+  // ignore: cancel_subscriptions
+  StreamSubscription<SyncEnvelope>? _eventSubscription;
   ConnectionPhase _currentPhase = ConnectionPhase.blocked;
   AppFailure? _lastFailure;
+  SyncEnvelope? _lastEvent;
   int _realtimeGeneration = 0;
   int? _activeRealtimeGeneration;
   bool _disposed = false;
@@ -269,6 +294,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
   @override
   late final Stream<AppFailure> realtimeFailures;
 
+  @override
+  late final Stream<SyncEnvelope> realtimeEvents;
+
   RealtimeController get _realtime {
     final existing = _realtimeController;
     if (existing != null) return existing;
@@ -276,7 +304,7 @@ final class _DefaultShellDependencies implements ShellDependencies {
       config: _config,
       client: sessionRepository.currentMachine?.client ?? ClientKind.cashier,
       credentialStore: _credentialStore,
-      syncApi: ProtocolSyncApi(client: _protocolClient),
+      syncApi: ProtocolSyncApi(client: _syncProtocolClient),
       socketTransport: const WebSocketChannelTransport(),
     );
     final generation = ++_realtimeGeneration;
@@ -302,6 +330,16 @@ final class _DefaultShellDependencies implements ShellDependencies {
       _lastFailure = failure;
       if (!_failureEvents.isClosed) _failureEvents.add(failure);
     });
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _eventSubscription = controller.events.listen((event) {
+      if (!identical(_realtimeController, controller) ||
+          _activeRealtimeGeneration != generation) {
+        return;
+      }
+      _lastEvent = event;
+      if (!_eventEvents.isClosed) _eventEvents.add(event);
+    });
     return controller;
   }
 
@@ -323,15 +361,20 @@ final class _DefaultShellDependencies implements ShellDependencies {
     _activeRealtimeGeneration = null;
     final phaseSubscription = _phaseSubscription;
     final failureSubscription = _failureSubscription;
+    final eventSubscription = _eventSubscription;
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _phaseSubscription = null;
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _failureSubscription = null;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _eventSubscription = null;
     await controller.dispose();
     await phaseSubscription?.cancel();
     await failureSubscription?.cancel();
+    await eventSubscription?.cancel();
     if (_realtimeController == null && _realtimeGeneration == generation) {
       _currentPhase = ConnectionPhase.blocked;
       if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
@@ -346,7 +389,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
     await sessionRepository.close();
     await _phaseEvents.close();
     await _failureEvents.close();
+    await _eventEvents.close();
     _dio.close(force: true);
+    _syncDio.close(force: true);
   }
 }
 

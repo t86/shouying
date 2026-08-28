@@ -94,6 +94,19 @@ final class SyncEnvelope {
     );
   }
 
+  /// Builds an event from a [ProtocolSyncApi] batch that has already passed
+  /// the HTTP response byte, depth, node, JSON-shape, and immutability checks.
+  /// Live WebSocket input must continue to use [parse].
+  static SyncEnvelope fromValidatedReconciliation({
+    required String cursor,
+    required Object? data,
+  }) {
+    if (!isCanonicalCursor(cursor)) {
+      throw ArgumentError.value(cursor, 'cursor', 'must be yyyyMMddHHmmss');
+    }
+    return SyncEnvelope._(type: SyncEventType.data, cursor: cursor, data: data);
+  }
+
   static SyncEnvelope safeServerError({String? cursor}) => SyncEnvelope._(
     type: SyncEventType.serverError,
     cursor: cursor,

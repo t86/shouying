@@ -227,18 +227,12 @@ final class RealtimeController {
       return;
     }
     if (batch.hasChanges) {
-      final batchEnvelope = SyncEnvelope.parse(<String, Object?>{
-        'p': SyncEventType.data.code,
-        't': batchCursor,
-        'd': batch.data,
-      });
-      final envelopeFailure = batchEnvelope.failureOrNull;
-      if (envelopeFailure != null) {
-        _recover(generation, envelopeFailure);
-        return;
-      }
+      final batchEnvelope = SyncEnvelope.fromValidatedReconciliation(
+        cursor: batchCursor,
+        data: batch.data,
+      );
       if (!_eventController.isClosed) {
-        _eventController.add(batchEnvelope.valueOrNull!);
+        _eventController.add(batchEnvelope);
       }
       if (!_isCurrent(generation)) return;
     }
