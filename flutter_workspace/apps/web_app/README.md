@@ -16,12 +16,11 @@ original Vue development service paths:
 - `/online/server` for synchronization HTTP calls;
 - `/socket/server` for WebSocket traffic.
 
-The runner also performs the same development cash-register terminal
-authorization that the Vue registration screen provides. The terminal code is
-read server-side from the existing Vue development configuration, substituted
-only into the loopback `/term/auth` request, and is never added to Flutter
-defines, browser JavaScript, or runner output. A failed authorization falls
-back to the normal terminal-code form.
+The runner also exposes the same booking, ordering, and cashier choices as the
+Vue registration flow. After a choice, its terminal code is read server-side
+from the existing Vue development configuration and substituted only into the
+loopback `/term/auth` request. Terminal codes are never added to Flutter
+defines, browser JavaScript, or runner output.
 
 The insecure exception is compiled only into Flutter Debug when
 `SHOUYIN_ALLOW_INSECURE_LOOPBACK=true`, accepts only `localhost`, `127.0.0.1`,
