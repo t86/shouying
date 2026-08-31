@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:card_table/card_table.dart';
 import 'package:design_system/design_system.dart';
 import 'package:device_bridge_android/device_bridge_android.dart';
 import 'package:dio/dio.dart';
@@ -153,6 +154,10 @@ abstract interface class ShellDependencies {
 
   Stream<AppFailure> get realtimeFailures;
 
+  Stream<SyncEnvelope> get cardTableEvents;
+
+  Future<Result<void>> refreshRealtime();
+
   Future<void> startRealtime();
 
   Future<void> stopRealtime();
@@ -178,12 +183,24 @@ final class DefaultShellDependenciesFactory
 final class _DefaultShellDependencies implements ShellDependencies {
   _DefaultShellDependencies(this._config)
     : _credentialStore = FlutterSecureCredentialStore(),
-      _dio = Dio() {
+      _dio = Dio(),
+      _syncDio = Dio() {
     _protocolClient = ProtocolClient(
       dio: _dio,
       config: _config,
       credentialStore: _credentialStore,
       requestGate: RequestGate(clock: DateTime.now),
+    );
+    _syncProtocolClient = ProtocolClient(
+      dio: _syncDio,
+      config: _config,
+      credentialStore: _credentialStore,
+      requestGate: RequestGate(clock: DateTime.now),
+      responseLimits: const ProtocolResponseLimits(
+        maxRawResponseBytes: 64 * 1024 * 1024,
+        maxDepth: 64,
+        maxNodes: 1000000,
+      ),
     );
     sessionRepository = SessionRepository(
       api: SessionApi(client: _protocolClient),
@@ -202,16 +219,21 @@ final class _DefaultShellDependencies implements ShellDependencies {
   final ApiConfig _config;
   final CredentialStore _credentialStore;
   final Dio _dio;
+  final Dio _syncDio;
   late final ProtocolClient _protocolClient;
+  late final ProtocolClient _syncProtocolClient;
   RealtimeController? _realtimeController;
   final StreamController<ConnectionPhase> _phaseEvents =
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failureEvents =
       StreamController<AppFailure>.broadcast(sync: true);
+  final CardTableEventFeed _cardEvents = CardTableEventFeed();
   // ignore: cancel_subscriptions
   StreamSubscription<ConnectionPhase>? _phaseSubscription;
   // ignore: cancel_subscriptions
   StreamSubscription<AppFailure>? _failureSubscription;
+  // ignore: cancel_subscriptions
+  StreamSubscription<SyncEnvelope>? _eventSubscription;
   ConnectionPhase _currentPhase = ConnectionPhase.blocked;
   AppFailure? _lastFailure;
   int _realtimeGeneration = 0;
@@ -227,6 +249,9 @@ final class _DefaultShellDependencies implements ShellDependencies {
   @override
   late final Stream<AppFailure> realtimeFailures;
 
+  @override
+  Stream<SyncEnvelope> get cardTableEvents => _cardEvents.events;
+
   RealtimeController get _realtime {
     final existing = _realtimeController;
     if (existing != null) return existing;
@@ -234,7 +259,7 @@ final class _DefaultShellDependencies implements ShellDependencies {
       config: _config,
       client: sessionRepository.currentMachine?.client ?? ClientKind.cashier,
       credentialStore: _credentialStore,
-      syncApi: ProtocolSyncApi(client: _protocolClient),
+      syncApi: ProtocolSyncApi(client: _syncProtocolClient),
       socketTransport: const WebSocketChannelTransport(),
     );
     final generation = ++_realtimeGeneration;
@@ -260,11 +285,47 @@ final class _DefaultShellDependencies implements ShellDependencies {
       _lastFailure = failure;
       if (!_failureEvents.isClosed) _failureEvents.add(failure);
     });
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _eventSubscription = controller.events.listen((event) {
+      if (!identical(_realtimeController, controller) ||
+          _activeRealtimeGeneration != generation) {
+        return;
+      }
+      _cardEvents.add(event);
+    });
     return controller;
   }
 
   @override
   ConnectionPhase get connectionPhase => _currentPhase;
+
+  @override
+  Future<Result<void>> refreshRealtime() async {
+    final user = sessionRepository.currentUser;
+    final machine = sessionRepository.currentMachine;
+    if (_disposed || user == null || machine == null) {
+      return const FailureResult<void>(_refreshUnavailable);
+    }
+    try {
+      await stopRealtime();
+      if (_disposed ||
+          !identical(user, sessionRepository.currentUser) ||
+          !identical(machine, sessionRepository.currentMachine)) {
+        return const FailureResult<void>(_refreshUnavailable);
+      }
+      await startRealtime();
+      return const Success<void>(null);
+    } on Object {
+      return const FailureResult<void>(
+        AppFailure(
+          kind: FailureKind.realtime,
+          code: 'realtime.refresh_failed',
+          safeMessage: '刷新卡台数据失败，请重试',
+        ),
+      );
+    }
+  }
 
   @override
   Future<void> startRealtime() async {
@@ -274,6 +335,10 @@ final class _DefaultShellDependencies implements ShellDependencies {
 
   @override
   Future<void> stopRealtime() async {
+    _cardEvents.reset();
+    _lastFailure = null;
+    _currentPhase = ConnectionPhase.blocked;
+    if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
     final controller = _realtimeController;
     if (controller == null) return;
     final generation = _activeRealtimeGeneration;
@@ -281,15 +346,20 @@ final class _DefaultShellDependencies implements ShellDependencies {
     _activeRealtimeGeneration = null;
     final phaseSubscription = _phaseSubscription;
     final failureSubscription = _failureSubscription;
+    final eventSubscription = _eventSubscription;
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _phaseSubscription = null;
     // Stored and cancelled by stopRealtime/dispose.
     // ignore: cancel_subscriptions
     _failureSubscription = null;
+    // Stored and cancelled by stopRealtime/dispose.
+    // ignore: cancel_subscriptions
+    _eventSubscription = null;
     await controller.dispose();
     await phaseSubscription?.cancel();
     await failureSubscription?.cancel();
+    await eventSubscription?.cancel();
     if (_realtimeController == null && _realtimeGeneration == generation) {
       _currentPhase = ConnectionPhase.blocked;
       if (!_phaseEvents.isClosed) _phaseEvents.add(_currentPhase);
@@ -304,8 +374,16 @@ final class _DefaultShellDependencies implements ShellDependencies {
     await sessionRepository.close();
     await _phaseEvents.close();
     await _failureEvents.close();
+    await _cardEvents.close();
     _dio.close(force: true);
+    _syncDio.close(force: true);
   }
+
+  static const _refreshUnavailable = AppFailure(
+    kind: FailureKind.authentication,
+    code: 'realtime.refresh_unavailable',
+    safeMessage: '当前登录状态不可刷新',
+  );
 }
 
 final _apiConfigProvider = Provider<ApiConfig>(
@@ -374,8 +452,14 @@ final _routerProvider = Provider<GoRouter>((ref) {
       if (machine == null || !authenticated) {
         return location == '/login' ? null : '/login';
       }
+      final system = BusinessSystem.fromClient(machine.client);
+      final landingPath = system?.landingPath ?? '/diagnostics';
       if (location == '/login' || location == '/select-system') {
-        return '/diagnostics';
+        return landingPath;
+      }
+      if (BusinessSystem.values.any((value) => value.landingPath == location) &&
+          location != landingPath) {
+        return landingPath;
       }
       return null;
     },
@@ -388,7 +472,15 @@ final _routerProvider = Provider<GoRouter>((ref) {
               .authorizeMachine(system.developmentAuthorizationPlaceholder),
         ),
       ),
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const _SystemLoginScreen(),
+      ),
+      for (final system in BusinessSystem.values)
+        GoRoute(
+          path: system.landingPath,
+          builder: (context, state) => _BusinessHomeScreen(system: system),
+        ),
       GoRoute(
         path: '/diagnostics',
         builder: (context, state) => const _DiagnosticsScreen(),
@@ -469,6 +561,60 @@ final class _AppView extends ConsumerWidget {
     return MaterialApp.router(
       title: _appLabel,
       routerConfig: ref.watch(_routerProvider),
+    );
+  }
+}
+
+final class _SystemLoginScreen extends ConsumerWidget {
+  const _SystemLoginScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(loginViewModelProvider);
+    final machine = ref.watch(_appSessionRepositoryProvider).currentMachine;
+    final system = machine == null
+        ? null
+        : BusinessSystem.fromClient(machine.client);
+    if (system == null) return const LoginScreen();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${system.label}登录'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => ref.read(loginViewModelProvider.notifier).logout(),
+            child: const Text('切换系统'),
+          ),
+        ],
+      ),
+      body: const LoginScreen(),
+    );
+  }
+}
+
+final class _BusinessHomeScreen extends ConsumerWidget {
+  const _BusinessHomeScreen({required this.system});
+
+  final BusinessSystem system;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dependencies = ref.watch(_shellDependenciesProvider);
+    final phase =
+        ref.watch(_connectionPhaseProvider).value ??
+        dependencies.connectionPhase;
+    return CardTableScreen(
+      key: ValueKey(system),
+      system: system,
+      events: dependencies.cardTableEvents,
+      connectionPhase: phase,
+      lastFailure: ref.watch(_realtimeFailureProvider).value,
+      onLogout: ref.read(loginViewModelProvider.notifier).logout,
+      onSwitchSystem: ref.read(loginViewModelProvider.notifier).logout,
+      onRefresh: dependencies.refreshRealtime,
+      onOpenDiagnostics: () => context.push('/diagnostics/devices'),
+      userName: dependencies.sessionRepository.currentUser?.name,
+      machineId: dependencies.sessionRepository.currentMachine?.machineId,
+      stationId: dependencies.sessionRepository.currentUser?.stationId,
     );
   }
 }

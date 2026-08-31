@@ -8,6 +8,98 @@ import 'package:realtime_sync/realtime_sync.dart';
 import 'package:session/session.dart';
 
 void main() {
+  testWidgets('late malformed full snapshot shows protocol failure and retry', (
+    tester,
+  ) async {
+    final feed = (await tester.runAsync(() async => CardTableEventFeed()))!;
+    addTearDown(() => tester.runAsync(feed.close));
+    final data = _fullData();
+    data[1] = <Object?>[
+      <Object?>['invalid'],
+    ];
+    feed.add(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260828010101',
+        data: data,
+      ),
+    );
+    var refreshCalls = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CardTableScreen(
+          system: BusinessSystem.booking,
+          events: feed.events,
+          connectionPhase: ConnectionPhase.online,
+          onRefresh: () async {
+            refreshCalls += 1;
+            return const Success<void>(null);
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('卡台数据格式无法识别'), findsOneWidget);
+    await tester.tap(find.byKey(CardTableScreen.refreshKey));
+    await tester.pumpAndSettle();
+    expect(refreshCalls, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  test(
+    'card feed reset drops the previous session and closes cleanly',
+    () async {
+      final feed = CardTableEventFeed();
+      feed.add(
+        SyncEnvelope.fromValidatedReconciliation(
+          cursor: '20260828010101',
+          data: _fullData(),
+        ),
+      );
+      feed.reset();
+      final replay = <SyncEnvelope>[];
+      final subscription = feed.events.listen(replay.add);
+      await Future<void>.delayed(Duration.zero);
+      expect(replay, isEmpty);
+      await subscription.cancel();
+      await feed.close().timeout(const Duration(seconds: 1));
+    },
+  );
+  testWidgets(
+    'late card listener receives full state after buffered increments',
+    (tester) async {
+      final feed = (await tester.runAsync(() async => CardTableEventFeed()))!;
+      addTearDown(() => tester.runAsync(feed.close));
+      feed.add(
+        SyncEnvelope.fromValidatedReconciliation(
+          cursor: '20260828010101',
+          data: _fullData(),
+        ),
+      );
+      feed.add(
+        SyncEnvelope.fromValidatedReconciliation(
+          cursor: '20260828010102',
+          data: <String, Object?>{
+            '1': <Object?>[
+              <Object?>[101, 'A02更新', 1, 1, 3, 1, 4, 2],
+            ],
+          },
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CardTableScreen(
+            system: BusinessSystem.booking,
+            events: feed.events,
+            connectionPhase: ConnectionPhase.online,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('A01'), findsOneWidget);
+      expect(find.text('A02更新'), findsOneWidget);
+      expect(find.text('正在等待完整卡台数据'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
   test('normalizes legacy full datasets 0, 1, 14, and 18', () {
     final store = LegacyCardTableStore();
     final result = store.applyEnvelope(

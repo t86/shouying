@@ -49,6 +49,8 @@ dependencies:
     path: ../../packages/design_system
   device_bridge_android:
     path: ../../packages/device_bridge_android
+  card_table:
+    path: ../../packages/card_table
 
 dev_dependencies:
   flutter_test:

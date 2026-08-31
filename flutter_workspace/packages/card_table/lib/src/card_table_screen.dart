@@ -293,7 +293,23 @@ final class _CardTableScreenState extends State<CardTableScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Text(failure?.safeMessage ?? '正在等待完整卡台数据'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(failure?.safeMessage ?? '正在等待完整卡台数据'),
+            if (widget.onRefresh != null) ...<Widget>[
+              const SizedBox(height: 12),
+              TextButton.icon(
+                key: CardTableScreen.refreshKey,
+                onPressed: _sessionActionInProgress
+                    ? null
+                    : () => _runSessionAction(widget.onRefresh!),
+                icon: const Icon(Icons.refresh),
+                label: const Text('重新同步'),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -516,24 +532,22 @@ final class _CardTableScreenState extends State<CardTableScreen> {
           data: const IconThemeData(color: Colors.white70),
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              height: 64,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      children: <Widget>[
-                        _legendItem('空台', count(1), 1),
-                        _legendItem('预订', count(8), 8),
-                        _legendItem('开台', counts[10] ?? 0, 4),
-                        _legendItem('点单', count(5) + count(6), 5),
-                        _legendItem('已结', count(7), 7),
-                        _legendItem('抵达数', counts[20] ?? 0, 20),
-                      ],
-                    ),
-                  ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 700;
+                final legend = ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  children: <Widget>[
+                    _legendItem('空台', count(1), 1),
+                    _legendItem('预订', count(8), 8),
+                    _legendItem('开台', counts[10] ?? 0, 4),
+                    _legendItem('点单', count(5) + count(6), 5),
+                    _legendItem('已结', count(7), 7),
+                    _legendItem('抵达数', counts[20] ?? 0, 20),
+                  ],
+                );
+                final controls = <Widget>[
                   if (widget.onRefresh != null)
                     TextButton.icon(
                       key: CardTableScreen.refreshKey,
@@ -550,12 +564,36 @@ final class _CardTableScreenState extends State<CardTableScreen> {
                     label: const Text('更多功能'),
                   ),
                   if (widget.userName case final userName?)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Text(userName),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Text(
+                          userName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
-                ],
-              ),
+                ];
+                if (compact) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      SizedBox(height: 54, child: legend),
+                      SizedBox(height: 48, child: Row(children: controls)),
+                    ],
+                  );
+                }
+                return SizedBox(
+                  height: 64,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: legend),
+                      SizedBox(width: 400, child: Row(children: controls)),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),

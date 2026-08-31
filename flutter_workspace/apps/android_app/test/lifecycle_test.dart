@@ -11,10 +11,142 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protocol/protocol.dart';
+import 'package:realtime_sync/realtime_sync.dart';
 import 'package:session/session.dart';
 import 'package:shouyin_android/main.dart';
 
 void main() {
+  for (final (system, buttonKey, expectedPath, expectedTitle) in [
+    (
+      BusinessSystem.booking,
+      BusinessSystemSelectionScreen.bookingKey,
+      '/cardMachine',
+      '预定 · 卡台列表',
+    ),
+    (
+      BusinessSystem.order,
+      BusinessSystemSelectionScreen.orderKey,
+      '/orderCard',
+      '点单 · 卡台列表',
+    ),
+    (
+      BusinessSystem.cashier,
+      BusinessSystemSelectionScreen.cashierKey,
+      '/moneyCard',
+      '收银 · 卡台列表',
+    ),
+  ]) {
+    testWidgets('${system.name} employee login opens its business system', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(412, 915));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final factory = _LifecycleFactory();
+      await tester.pumpWidget(
+        ShouyinAndroidApp(
+          environment: AppRuntimeConfiguration.fromValues(
+            apiBase: 'http://127.0.0.1:8183/dev-api/server',
+            onlineBase: 'http://127.0.0.1:8183/online/server',
+            websocketBase: 'ws://127.0.0.1:8183/socket/server',
+            developmentSystemSelection: true,
+          ),
+          dependenciesFactory: factory,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(buttonKey));
+      await tester.pumpAndSettle();
+      expect(
+        factory.dependencies.sessionRepository.currentMachine?.client,
+        system.client,
+      );
+      expect(factory.dependencies.startCalls, 0);
+      expect(find.text('${system.label}登录'), findsOneWidget);
+      await tester.enterText(
+        find.byKey(LoginScreen.accountFieldKey),
+        'employee',
+      );
+      await tester.enterText(
+        find.byKey(LoginScreen.passwordFieldKey),
+        'synthetic-password',
+      );
+      await tester.tap(find.byKey(LoginScreen.loginSubmitKey));
+      await tester.pumpAndSettle();
+      expect(
+        factory.dependencies.adapter.loginClientName,
+        system.client.clientName,
+      );
+      expect(
+        factory.dependencies.adapter.loginTermType,
+        system.client.termType.toString(),
+      );
+      expect(find.text(expectedTitle), findsOneWidget);
+      expect(find.byType(DiagnosticPanel), findsNothing);
+      expect(
+        GoRouterState.of(tester.element(find.text(expectedTitle))).uri.path,
+        expectedPath,
+      );
+      expect(factory.dependencies.startCalls, 1);
+      factory.dependencies.emitEvent(_cardEnvelope('A01'));
+      await tester.pumpAndSettle();
+      expect(find.text('A01'), findsOneWidget);
+      expect(find.text('营业日未开启'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      final router = GoRouter.of(tester.element(find.text(expectedTitle)));
+      router.go(expectedPath == '/moneyCard' ? '/cardMachine' : '/moneyCard');
+      await tester.pumpAndSettle();
+      expect(
+        GoRouterState.of(tester.element(find.text(expectedTitle))).uri.path,
+        expectedPath,
+      );
+      await tester.tap(find.text('切换系统'));
+      await tester.pumpAndSettle();
+      expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+      expect(factory.dependencies.sessionRepository.currentUser, isNull);
+      expect(factory.dependencies.stopCalls, 1);
+      expect(find.text('A01'), findsNothing);
+      router.go(expectedPath);
+      await tester.pumpAndSettle();
+      expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() => factory.dependencies.disposed.future);
+    });
+  }
+
+  testWidgets('rejected employee login stays at login without realtime', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    await tester.pumpWidget(
+      ShouyinAndroidApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.runAsync(
+      () => factory.dependencies.sessionRepository.authorizeMachine('TERM-001'),
+    );
+    await tester.pumpAndSettle();
+    factory.dependencies.adapter.rejectLogin = true;
+    await tester.enterText(find.byKey(LoginScreen.accountFieldKey), 'employee');
+    await tester.enterText(
+      find.byKey(LoginScreen.passwordFieldKey),
+      'synthetic-password',
+    );
+    await tester.tap(find.byKey(LoginScreen.loginSubmitKey));
+    await tester.pumpAndSettle();
+    expect(find.text('账号或密码错误'), findsOneWidget);
+    expect(factory.dependencies.sessionRepository.currentUser, isNull);
+    expect(factory.dependencies.startCalls, 0);
+    expect(
+      GoRouterState.of(tester.element(find.byType(LoginScreen))).uri.path,
+      '/login',
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
+
   testWidgets('loopback development selects a system before employee login', (
     tester,
   ) async {
@@ -44,6 +176,12 @@ void main() {
     expect(find.byKey(LoginScreen.employeeFieldsKey), findsOneWidget);
     expect(find.byKey(LoginScreen.machineFieldsKey), findsNothing);
     expect(find.byKey(LoginScreen.machineCodeFieldKey), findsNothing);
+
+    await tester.tap(find.text('切换系统'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+    expect(factory.dependencies.sessionRepository.currentMachine, isNull);
+    expect(factory.dependencies.startCalls, 0);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(() => factory.dependencies.disposed.future);
@@ -124,6 +262,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(dependencies.startCalls, 1);
     expect(dependencies.realtimeCreated, isTrue);
+    expect(find.text('收银 · 卡台列表'), findsOneWidget);
+    GoRouter.of(tester.element(find.text('收银 · 卡台列表'))).go('/diagnostics');
+    await tester.pumpAndSettle();
     expect(find.byKey(DiagnosticPanel.narrowLayoutKey), findsOneWidget);
     expect(find.text('收银 Android 客户端'), findsOneWidget);
 
@@ -205,7 +346,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(factory.dependencies.startCalls, 1);
-    expect(find.text('收银 Android 客户端'), findsOneWidget);
+    expect(find.text('收银 · 卡台列表'), findsOneWidget);
     await tester.pump();
     expect(factory.dependencies.startCalls, 1);
 
@@ -321,8 +462,9 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
 final class _LifecycleDependencies implements ShellDependencies {
   _LifecycleDependencies(ApiConfig config)
     : _store = _MemoryCredentialStore(),
-      _dio = Dio() {
-    _dio.httpClientAdapter = _AuthAdapter();
+      _dio = Dio(),
+      adapter = _AuthAdapter() {
+    _dio.httpClientAdapter = adapter;
     final client = ProtocolClient(
       dio: _dio,
       config: config,
@@ -337,10 +479,13 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   final _MemoryCredentialStore _store;
   final Dio _dio;
+  final _AuthAdapter adapter;
   final StreamController<ConnectionPhase> _phases =
       StreamController<ConnectionPhase>.broadcast(sync: true);
   final StreamController<AppFailure> _failures =
       StreamController<AppFailure>.broadcast(sync: true);
+  final StreamController<SyncEnvelope> _events =
+      StreamController<SyncEnvelope>.broadcast(sync: true);
   final Completer<void> disposed = Completer<void>();
 
   @override
@@ -358,7 +503,16 @@ final class _LifecycleDependencies implements ShellDependencies {
   Completer<void> stopFinished = Completer<void>();
   Completer<void>? _stopRelease;
 
-  bool get hasOpenStreams => !_phases.isClosed || !_failures.isClosed;
+  bool get hasOpenStreams =>
+      !_phases.isClosed || !_failures.isClosed || !_events.isClosed;
+
+  @override
+  Stream<SyncEnvelope> get cardTableEvents => _events.stream;
+
+  void emitEvent(SyncEnvelope event) => _events.add(event);
+
+  @override
+  Future<Result<void>> refreshRealtime() async => const Success<void>(null);
 
   @override
   ConnectionPhase get connectionPhase => _phase;
@@ -430,6 +584,7 @@ final class _LifecycleDependencies implements ShellDependencies {
     await sessionRepository.close();
     await _phases.close();
     await _failures.close();
+    await _events.close();
     _dio.close(force: true);
     dioCloseCalls += 1;
     disposed.complete();
@@ -437,19 +592,41 @@ final class _LifecycleDependencies implements ShellDependencies {
 }
 
 final class _AuthAdapter implements HttpClientAdapter {
+  String? loginClientName;
+  String? loginTermType;
+  bool rejectLogin = false;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    if (requestStream != null) await requestStream.drain<void>();
-    final body = options.path.endsWith('/term/auth')
+    final bytes = <int>[];
+    if (requestStream != null) {
+      await for (final chunk in requestStream) {
+        bytes.addAll(chunk);
+      }
+    }
+    final payload = bytes.isEmpty
+        ? <String, Object?>{}
+        : jsonDecode(utf8.decode(bytes)) as Map<String, Object?>;
+    if (options.path.endsWith('/auth/login')) {
+      loginClientName = payload['client_name'] as String?;
+      loginTermType = options.headers['tt'] as String?;
+    }
+    final mode = switch (payload['code']) {
+      'loopback-development-book' => 2,
+      'loopback-development-order' => 4,
+      _ => 8,
+    };
+    final body = options.path.endsWith('/auth/login') && rejectLogin
+        ? <String, Object?>{'code': 0, 'msg': '账号或密码错误'}
+        : options.path.endsWith('/term/auth')
         ? <String, Object?>{
             'code': 1,
             'data': <String, Object?>{
               'tk': 'synthetic-tk',
-              'am': 8,
+              'am': mode,
               'id': 'machine-1',
               'n': 'Front Counter',
             },
@@ -474,6 +651,23 @@ final class _AuthAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {}
 }
+
+SyncEnvelope _cardEnvelope(String name) =>
+    SyncEnvelope.fromValidatedReconciliation(
+      cursor: '20260831100000',
+      data: <String, Object?>{
+        '0': <Object?>[
+          <Object?>[1, '大厅', 1, 1],
+        ],
+        '1': <Object?>[
+          <Object?>[1, name, 1, 1, 3, 1, 4, 1],
+        ],
+        '14': <Object?>[],
+        '18': <Object?>[
+          <Object?>[0, '', '测试门店'],
+        ],
+      },
+    );
 
 final class _MemoryCredentialStore implements CredentialStore {
   String? _tk;

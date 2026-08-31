@@ -26,6 +26,28 @@ final class LegacyCardTableStore {
 
   CardTableSnapshot? get currentSnapshot => _currentSnapshot;
 
+  /// Reconstructs only the datasets consumed by this card-table store.
+  /// This is not a general-purpose replay of all business domains.
+  SyncEnvelope? get replayEnvelope {
+    final snapshot = _currentSnapshot;
+    if (snapshot == null) return null;
+    final data = List<Object?>.filled(57, const <Object?>[]);
+    data[0] = _regions.values.toList(growable: false);
+    data[1] = _seats.values.toList(growable: false);
+    data[13] = _roles.values.toList(growable: false);
+    data[14] = _business.values.toList(growable: false);
+    data[18] = <Object?>[_businessDay];
+    data[24] = _businessDates.values.toList(growable: false);
+    data[25] = _futureBookings.values.toList(growable: false);
+    data[39] = _statusCounts.values.toList(growable: false);
+    data[40] = _machineAccess.values.toList(growable: false);
+    data[56] = _supervisorRegions.values.toList(growable: false);
+    return SyncEnvelope.fromValidatedReconciliation(
+      cursor: snapshot.cursor,
+      data: data,
+    );
+  }
+
   Result<CardTableSnapshot> applyEnvelope(SyncEnvelope envelope) {
     if (envelope.type != SyncEventType.data) {
       final current = _currentSnapshot;
