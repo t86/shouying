@@ -27,8 +27,14 @@ export default {
     axios.post(`${base.htgl}/wsc/add_hl`, params),
 
   // 获取购物车列表
-  reqGetShoppingList: (params) =>
-    axios.post(`${base.htgl}/wsc/get_items`, params),
+  reqGetShoppingList: async (params) => {
+    const res = await axios.post(`${base.htgl}/wsc/get_items`, params);
+    const data = res.data;
+    return {
+      ...res,
+      data: Array.isArray(data) ? data : (data && data.records) || [],
+    };
+  },
 
   // 修改购物车商品数量
   reqUpdateShoppingCount: (params) =>
