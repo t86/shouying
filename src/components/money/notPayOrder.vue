@@ -15,6 +15,7 @@
           <div class="th">单价(元)</div>
           <div class="th">小计(元)</div>
           <div class="th">服务员</div>
+          <div class="th">授权人</div>
           <div class="th">点单时间</div>
           <div class="th">操作</div>
         </div>
@@ -73,6 +74,10 @@
                         class="td-td"
                         :class="{'opacity':items.back}"
                       >{{items.personInfo ? items.personInfo.name : '自助'}}</div>
+                      <div
+                        class="td-td"
+                        :class="{'opacity':items.back}"
+                      >{{items.authInfo ? items.authInfo.name : ''}}</div>
                       <div class="td-td" :class="{'opacity':items.back}">{{items.ot.slice(7)}}</div>
                       <div class="td-td">
                         <img
@@ -134,6 +139,7 @@
                           class="online-detail-td one-txt-cut"
                         >{{itemss.groupInfo.name}}{{itemss.r ? '（'+itemss.r+'）':''}}</div>
                         <div class="online-detail-td">{{itemss.sc * itemss.dpc * items.pc}}</div>
+                        <div class="online-detail-td"></div>
                         <div class="online-detail-td"></div>
                         <div class="online-detail-td"></div>
                         <div class="online-detail-td"></div>
@@ -211,6 +217,10 @@
                   class="td"
                   :class="{'opacity':item.back}"
                 >{{item.personInfo ? item.personInfo.name : '自助'}}</div>
+                <div
+                  class="td"
+                  :class="{'opacity':item.back}"
+                >{{item.authInfo ? item.authInfo.name : ''}}</div>
                 <div class="td" :class="{'opacity':item.back}">{{item.ot.slice(7)}}</div>
                 <div class="td">
                   <img
@@ -276,6 +286,7 @@
                     class="td one-txt-cut"
                   >{{items.groupInfo.name}}{{items.r ? '（'+items.r+'）':''}}</div>
                   <div class="td">{{items.sc * items.dpc * item.changeCount}}</div>
+                  <div class="td"></div>
                   <div class="td"></div>
                   <div class="td"></div>
                   <div class="td"></div>
