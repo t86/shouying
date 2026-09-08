@@ -244,6 +244,7 @@
               >
                   <span>{{ item.remark }}</span>
               </p>
+              <card-transfer-history :history="item.chgSeatInfo" />
             </div>
           </div>
           <!-- 无数据 -->
@@ -1089,6 +1090,7 @@
 </template>
 
 <script>
+import cardTransferHistory from "@/components/common/cardTransferHistory.vue";
 import api_money from "@/api/money";
 import api_auth from "@/api/UtilAuth";
 import { legendList } from "@/utils/config/card";
@@ -2558,6 +2560,7 @@ export default {
   },
 
   components: {
+    cardTransferHistory,
     drawerStopStore,
     drawerNeedBackOrderList,
     outSomething,

@@ -199,6 +199,7 @@
                 >
               </span>
             </p>
+            <card-transfer-history :history="item.chgSeatInfo" />
             <!-- 选项操作箭头 -->
             <img
               v-if="item.showOption && item.isLeftArrow"
@@ -535,6 +536,7 @@
 </template>
 
 <script>
+import cardTransferHistory from "@/components/common/cardTransferHistory.vue";
 import drawerReserved from "@/components/book/reserved/drawerReserved.vue";
 import cardDrawer from "@/components/book/machine/cardDrawer"; // 抽屉组件
 import fullPageTable from "@/components/book/machine/fullPageTable"; // 全屏表格
@@ -2031,6 +2033,7 @@ export default {
   },
 
   components: {
+    cardTransferHistory,
     drawerReserved, // 未来日期预留
     cardDrawer, // 右侧弹出框
     fullPageTable, // 全屏表格数据
