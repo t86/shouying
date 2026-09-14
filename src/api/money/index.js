@@ -176,6 +176,10 @@ export default {
   reqGetPayRecordList: (params) =>
     axios.post(`${base.htgl}/sel/get_pay_list`, params),
 
+  // 根据完整支付订单号查询订单信息
+  reqGetOnlinePayOrderInfo: (params) =>
+    axios.post(`${base.htgl}/sel/get_ol_pay_order_info`, params),
+
   // 通过手机号读取客人信息用于绑定支付订单
   reqGetCustInfoByPhone: (params) =>
     axios.post(`${base.htgl}/sel/get_cust_info_by_phonenum`, params),

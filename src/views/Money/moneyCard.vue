@@ -447,6 +447,16 @@
                 </div>
                 <div
                   class="option-item line"
+                  @click.stop="openOrderLookup"
+                >
+                  <img
+                    :src="require('@/assets/money-img/online-pay-detail.png')"
+                    alt
+                  />
+                  <span>订单查询</span>
+                </div>
+                <div
+                  class="option-item line"
                   @click="showOrHideRegionIncomeDrawer"
                 >
                   <img
@@ -889,6 +899,10 @@
       :showDrawer="showPayRecordDrawer"
       @showOrHidePayRecordDrawer="showOrHidePayRecordDrawer"
     />
+    <drawerOrderLookup
+      :showDrawer="showOrderLookupDrawer"
+      @close="showOrderLookupDrawer = false"
+    />
 
     <!-- 业绩日报表 -->
     <drawerKpiReport
@@ -1116,6 +1130,7 @@ import drawerOnlinePayTotal from "../../components/money/drawerOnlineTotal.vue";
 // 线上支付记录
 import drawerOnlinePayDetail from "../../components/money/drawerOnlinePayDetail.vue";
 import drawerPayRecord from "../../components/money/drawerPayRecord.vue";
+import drawerOrderLookup from "../../components/money/drawerOrderLookup.vue";
 
 // 业绩日报表
 import drawerKpiReport from "../../components/money/drawerKpiReport.vue";
@@ -1257,6 +1272,7 @@ export default {
       showOrHideOnlinePayTotal: false, // 线上支付汇总
       showOrHideOnlinePayDetail: false, // 线上支付记录
       showPayRecordDrawer: false, // 支付记录
+      showOrderLookupDrawer: false, // 完整订单号查询
       showOrHideKpiReport: false, // 业绩日报表
       showOrHideOnlineBooking: false, // 线上预订记录
       showOrHideYHDetail: false, // 优惠明细表
@@ -1857,6 +1873,10 @@ export default {
     },
     showOrHidePayRecordDrawer() {
       this.showPayRecordDrawer = !this.showPayRecordDrawer;
+    },
+    openOrderLookup() {
+      this.legendOptions.showMoreFunc = false;
+      this.showOrderLookupDrawer = true;
     },
 
     // 业绩日报表
@@ -2570,6 +2590,7 @@ export default {
     drawerOnlinePayTotal,
     drawerOnlinePayDetail,
     drawerPayRecord,
+    drawerOrderLookup,
     drawerKpiReport,
     drawerOnlineBooking,
     drawerYHDetail,

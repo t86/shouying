@@ -72,6 +72,9 @@
                 >
                   <span style="width: 70px">结账时间:</span>{{ item.pt || '' }}
                 </p>
+              <p class="amt" style="font-size: 12px" layout="row" layout-align="start center">
+                <span style="width: 70px">结账人:</span>{{ formatPaymentCashier(paymentCashiers[item.checkoutPayId], item.checkoutOnline) }}
+              </p>
             </div>
           </div>
         </div>
@@ -427,6 +430,7 @@
 </template>
 
 <script>
+import { formatPaymentCashier } from "@/utils/paymentCashiers";
 import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
 import api_order from "@/api/order";
@@ -468,6 +472,7 @@ export default {
     };
   },
   methods: {
+    formatPaymentCashier,
     // 获取当前支付详情的支付渠道列表
     getPayedDetailList() {
       const payedList = JSON.parse(JSON.stringify(this.payedOrderInfo.ps));
@@ -721,6 +726,10 @@ export default {
     });
   },
   props: {
+    paymentCashiers: {
+      type: Object,
+      default: () => ({}),
+    },
     turnOverCount: {
       // 当前选中的翻台数 activeTurnOverCount
       default: 0,

@@ -56,6 +56,12 @@
               :formatter="formatPayTime"
             />
             <el-table-column
+              prop="pe"
+              label="结账人"
+              min-width="120"
+              :formatter="formatCashier"
+            />
+            <el-table-column
               prop="pa"
               label="付款金额"
               min-width="120"
@@ -281,6 +287,11 @@ export default {
     },
     formatPayTime(row, column, cellValue) {
       return cellValue || "--";
+    },
+    formatCashier(row) {
+      const name = (row.pe || "").trim();
+      if (name && name !== "-" && name !== "--") return name;
+      return this.isSelfService(row) ? "自助收银" : "--";
     },
     formatAmount(row, column, cellValue) {
       const field =
@@ -509,4 +520,3 @@ export default {
 @import "../../style/common/scrollBar.less";
 @import "../../style/money/payRecord.less";
 </style>
-

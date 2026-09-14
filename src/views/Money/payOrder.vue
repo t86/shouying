@@ -82,6 +82,7 @@
           :turnOverCount="turnOverInfo.activeTurnOverCount"
           :payedOrderList="payedData.payedOrderList"
           :payedOrderInfo="payedData.payedOrderInfo"
+          :paymentCashiers="paymentCashiers"
           :payTabList="payTabInfo.payTabList"
           :isTurnOver="isOldOrder"
           :showBatchWaiterDrawer="showBatchWaiterDrawer"
@@ -490,6 +491,7 @@ import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
 
 import notPayOrder from "@/components/money/notPayOrder";
 import payedOrder from "@/components/money/payedOrder";
+import { loadPaymentCashiers } from "@/utils/paymentCashiers";
 import drawerPayMoney from "@/components/money/drawerPayMoney";
 import drawerOrderBack from "@/components/money/drawerOrderBack";
 import footBar from "@/components/order/footBar";
@@ -540,6 +542,11 @@ export default {
       },
       // 当前卡台所有订单信息
       cardAllOrderInfo: [],
+      paymentCashiers: {},
+      cashierRequestId: 0,
+      cashierLookupKey: "",
+      cashierLookupPromise: null,
+      cashierLookupVersion: 0,
       // 未支付订单信息
       notPayData: {
         // 选择的即将要支付的订单信息
@@ -930,14 +937,49 @@ export default {
       }, 200);
     },
 
+    updatePaymentCashiers(paymentIds, params, cashierRequestId) {
+      const isCurrent = () =>
+        !this._isDestroyed &&
+        this.cashierRequestId === cashierRequestId &&
+        this.$store.state.orderInfo.currentCardInfo.seatId * 1 === params.seat_id &&
+        this.turnOverInfo.activeTurnOverCount === params.turnover_cnt;
+      const lookupKey = JSON.stringify([params.seat_id, params.turnover_cnt, paymentIds.map(String).sort()]);
+      if (this.cashierLookupKey !== lookupKey || !this.cashierLookupPromise) {
+        this.cashierLookupKey = lookupKey;
+        const lookupVersion = ++this.cashierLookupVersion;
+        this.cashierLookupPromise = loadPaymentCashiers(
+          api_money.reqGetPayRecordList,
+          "",
+          paymentIds,
+          () => !this._isDestroyed && this.cashierLookupVersion === lookupVersion
+        ).catch(error => {
+          if (this.cashierLookupVersion === lookupVersion) this.cashierLookupPromise = null;
+          throw error;
+        });
+      }
+      this.cashierLookupPromise.then(names => {
+        if (isCurrent()) this.paymentCashiers = names;
+      }).catch(() => {
+        // Cashier lookup failure must not interrupt the order or payment UI.
+        if (isCurrent()) this.paymentCashiers = {};
+      });
+    },
+
     // 获取订单相关数据
     async getOrderInfo(callback, backToCardList) {
+      const cashierRequestId = ++this.cashierRequestId;
+      this.paymentCashiers = {};
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
         turnover_cnt: this.turnOverInfo.activeTurnOverCount, // int   第几次翻台,默认是0; 总翻台次数可以从业务原数据中获取
       };
       try {
         const res = await api_money.reqGetCardPayInfo(params);
+        if (
+          cashierRequestId !== this.cashierRequestId ||
+          this.$store.state.orderInfo.currentCardInfo.seatId * 1 !== params.seat_id ||
+          this.turnOverInfo.activeTurnOverCount !== params.turnover_cnt
+        ) return;
         if (res.code === 1) {
 
           this.selFwy = res.data.waiter_emp_id || ''
@@ -1120,7 +1162,7 @@ export default {
               payedOrderList.push({
                 pid: el.id,
                 list: [...anotherPayedOrderList, ...onlinePayedOrderList],
-                ps: el.ps.map(item => { return {...item, pt: el.pt} }), // 支付渠道
+                ps: el.ps.map(item => { return {...item, pt: el.pt, checkoutPayId: el.id, checkoutOnline: !!(el.oos && el.oos.length)} }), // 支付渠道
                 amts: el.amts || {},
               });
             });
@@ -1133,6 +1175,8 @@ export default {
             },
             ...payedOrderList,
           ];
+
+          this.updatePaymentCashiers(payedOrderList.map(order => order.pid), params, cashierRequestId);
 
           callback && callback();
           if (backToCardList) {
