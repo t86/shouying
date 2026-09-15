@@ -36,6 +36,11 @@ export default [
     path: '/BMS/prdConfig', name: "prdConfig", meta: { title: '商品管理' },
     component: () => import('@/views/ManagementSystem/BMS/prdConfig/prdConfig.vue')
   },
+  // 小费特饮价格方案配置
+  {
+    path: '/BMS/fcPriceConfig', name: 'fcPriceConfig', meta: { title: '小费特饮价格方案配置' },
+    component: () => import('@/views/ManagementSystem/BMS/fcPriceConfig/fcPriceConfig.vue')
+  },
   // 批量上传商品图片
   {
     path: '/BMS/uploadProImg', name: "uploadProImg", meta: { title: '批量上传商品图片' },

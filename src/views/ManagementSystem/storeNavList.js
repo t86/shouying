@@ -63,6 +63,10 @@ export default [
               name: "商品管理",
               url: "/BMS/prdConfig"
             },
+            {
+              name: "小费特饮价格方案配置",
+              url: "/BMS/fcPriceConfig"
+            },
             // {
             //   name: "商品管理(old)",
             //   url: "/BMS/Prds"
