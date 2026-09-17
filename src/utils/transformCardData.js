@@ -673,6 +673,16 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
         })
       })
       break
+    case 58: // 分成商品方案折后价，金额为分
+      arr.forEach(el => {
+        resultArr.push({ prd_id: el[0], plan_id: el[1], pay_amt: el[2], status: el[3] })
+      })
+      break
+    case 59: // 价格方案包含员工
+      arr.forEach(el => {
+        resultArr.push({ plan_id: el[0], emp_id: el[1], status: el[2] })
+      })
+      break
   }
   return resultArr
 }

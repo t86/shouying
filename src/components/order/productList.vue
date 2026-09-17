@@ -37,8 +37,8 @@
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
             <div v-if="getProductPriceInfoData(item).hasMemberPrice" class="vip-price">
-              <p class="ori-price">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
-              <p class="real-price">会员价: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
+              <p class="ori-price" :style="getProductPriceInfoData(item).isScheme ? { color: '#999', textDecoration: 'line-through' } : null">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
+              <p class="real-price">{{ getProductPriceInfoData(item).isScheme ? "方案价" : "会员价" }}: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
             </div>
             <p v-else class="price">{{ formatPriceDisplay(getProductPriceInfoData(item).displayPrice) }}</p>
           </div>
@@ -66,8 +66,8 @@
             <p v-if="item.outSomethingCount != 'many'" class="count">余:{{ item.outSomethingCount }}</p>
             <p v-else class="count"></p>
             <div v-if="getProductPriceInfoData(item).hasMemberPrice" class="vip-price">
-              <p class="ori-price">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
-              <p class="real-price">会员价: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
+              <p class="ori-price" :style="getProductPriceInfoData(item).isScheme ? { color: '#999', textDecoration: 'line-through' } : null">原价: ￥{{ getProductPriceInfoData(item).originalPrice }}</p>
+              <p class="real-price">{{ getProductPriceInfoData(item).isScheme ? "方案价" : "会员价" }}: ￥{{ getProductPriceInfoData(item).memberPrice }}</p>
             </div>
             <p v-else class="price">{{ formatPriceDisplay(getProductPriceInfoData(item).displayPrice) }}</p>
           </div>
@@ -248,6 +248,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import common_book from "@/utils/common/book";
 import api_order from "@/api/order";
 import search from "@/assets/order-img/search-icon.png";
@@ -873,6 +874,7 @@ export default {
       ) {
         // 添加存货花篮特饮3/普通花篮特饮8、小费4  13:定价花篮  14：定价小费
         if (
+            this.fcProductPrice(this.productInfo) === null &&
             !this.amt &&
             this.productInfo.prdType != 13 &&
             this.productInfo.prdType != 14
@@ -893,7 +895,7 @@ export default {
         };
 
         try {
-          const res = await api_order.reqAddAmtToShopping(params);
+          const res = await api_order.reqAddAmtToShopping(this.fcApplyAmount(params, this.productInfo));
           if (res.code == 1) {
             this.$message.success("加入购物车成功");
             this.$store.dispatch("getShoppingCount", this);
@@ -907,7 +909,7 @@ export default {
       } else {
         // 正常商品添加购物车
         try {
-          const res = await api_order.reqAddProductToShopping(params);
+          const res = await api_order.reqAddProductToShopping(this.fcApplyPrice(params, this.productInfo));
           if (res.code === 1) {
             this.$message.success("加入购物车成功");
             this.$store.dispatch("getShoppingCount", this);
@@ -1121,6 +1123,8 @@ export default {
       const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
       const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
       const priceInfo = getProductPriceInfo(item, cardInfo, currentBusiness, businessEmpList);
+      const schemePrice = this.fcProductPrice(item);
+      if (schemePrice !== null) return { ...priceInfo, originalPrice: this.fcProductOriginalPrice(item).toFixed(2), memberPrice: schemePrice.toFixed(2), hasMemberPrice: this.fcProductOriginalPrice(item) > 0 && this.fcProductOriginalPrice(item) !== schemePrice, displayPrice: schemePrice.toFixed(2), isScheme: true };
       
       // 调试信息：打印价格信息
       if (item.name && item.name.includes('扫码枪')) {
@@ -1151,6 +1155,8 @@ export default {
     },
     // 获取商品显示价格（保留用于兼容）
     getProductDisplayPrice(item) {
+      const schemePrice = this.fcProductPrice(item);
+      if (schemePrice !== null) return "￥" + schemePrice.toFixed(2);
       if (!item) return "0";
       if ([3, 4, 5].includes(item.prdType * 1)) {
         return "时价";
@@ -1160,6 +1166,8 @@ export default {
     },
     // 获取商品实际价格
     getProductPrice(item) {
+      const schemePrice = this.fcProductPrice(item);
+      if (schemePrice !== null) return schemePrice.toFixed(2);
       const cardInfo = this.$store.state.orderInfo.currentCardInfo;
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
       const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
@@ -1426,7 +1434,7 @@ export default {
     downKeyCode = [0, 0]
     window.removeEventListener('resize', this.adjustFontSize); // 在组件销毁前移除事件监听器
   },
-  mixins: [cardPageMixins],
+  mixins: [fcPriceMixin, cardPageMixins],
 };
 </script>
 

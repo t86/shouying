@@ -4,6 +4,10 @@
     @submit.native.prevent
     style="margin-top: 30px"
   >
+    <div v-if="!isGQ && fcProductPrice(productInfo) !== null" style="margin-bottom:16px">
+      <span v-if="fcProductOriginalPrice(productInfo) > 0 && fcProductOriginalPrice(productInfo) !== fcProductPrice(productInfo)" style="display:block;color:#999;text-decoration:line-through">原价：￥{{ fcProductOriginalPrice(productInfo).toFixed(2) }}</span>
+      <span>单价：￥{{ fcProductPrice(productInfo).toFixed(2) }}</span>
+    </div>
     <!-- 数量 -->
     <el-form-item :class="{ 'm-b-2': orderMealStatus == 2 }">
       <input
@@ -28,7 +32,7 @@
     <!-- 金额 -->
     <div
       v-if="
-        !isGQ &&
+        !isGQ && fcProductPrice(productInfo) === null &&
         (productInfo.prdType == 3 ||
           productInfo.prdType == 4 ||
           productInfo.prdType == 5 ||
@@ -184,6 +188,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
 
@@ -194,6 +199,7 @@ import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
 import drawerBj from "@/components/order/drawerMeal/drawerBj/index.vue";
 import { getProductPrice } from '@/utils/priceCalculator';
 export default {
+  mixins: [fcPriceMixin],
   data() {
     return {
       modalRadio: "", // 1：服务员点单  2：优惠  3：花篮
@@ -410,6 +416,7 @@ export default {
         this.$store.state.orderInfo.currentCardInfo.bizType == 3 &&
         this.productInfo.prdType != 2 &&
         isTimePriceProduct &&
+        this.fcProductPrice(this.productInfo) === null &&
         !this.amt
       ) {
         // 关联台 + 时价商品 + 金额未填写
@@ -481,7 +488,7 @@ export default {
       const businessData = this.$store.state.cardPageInfo.resResultDataObj.businessData || [];
       const currentBusiness = businessData.find(ite => ite.seatId * 1 == cardInfo.seatId * 1);
       const businessEmpList = this.$store.state.cardPageInfo.resResultDataObj.businessEmpList || [];
-      const price = getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList);
+      const price = (this.fcProductPrice(this.productInfo) !== null ? this.fcProductPrice(this.productInfo).toFixed(2) : getProductPrice(this.productInfo, cardInfo, currentBusiness, businessEmpList));
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //  int64  卡台Id
         prd_id: this.productInfo.id * 1, //  int64  商品Id
@@ -503,6 +510,7 @@ export default {
       ) {
         // 添加存货花篮特饮3/普通花篮特饮8、小费4  13:定价花篮  14：定价小费
         if (
+          this.fcProductPrice(this.productInfo) === null &&
           !this.amt &&
           this.productInfo.prdType != 13 &&
           this.productInfo.prdType != 14
@@ -522,7 +530,7 @@ export default {
         };
 
         try {
-          const res = await api_order.reqAddAmtToShopping(params);
+          const res = await api_order.reqAddAmtToShopping(this.fcApplyAmount(params, this.productInfo));
           if (res.code == 1) {
             this.$message.success("加入购物车成功");
             this.$store.dispatch("getShoppingCount", this);
@@ -539,7 +547,7 @@ export default {
       } else {
         // 正常商品添加购物车
         try {
-          const res = await api_order.reqAddProductToShopping(params);
+          const res = await api_order.reqAddProductToShopping(this.fcApplyPrice(params, this.productInfo));
           if (res.code === 1) {
             this.$message.success("加入购物车成功");
             this.$store.dispatch("getShoppingCount", this);
@@ -562,6 +570,7 @@ export default {
       }
       else if (
         this.orderMealStatus == 3 &&
+        this.fcProductPrice(this.productInfo) === null &&
         this.amt === "" &&
         this.productInfo.prdType != 13 &&
         this.productInfo.prdType != 14
@@ -587,7 +596,7 @@ export default {
         const res =
           this.orderMealStatus == 2
             ? await api_order.reqAddYhToShopping(params)
-            : await api_order.reqAddAmtToShopping(params);
+            : await api_order.reqAddAmtToShopping(this.fcApplyAmount(params, this.productInfo));
         if (res.code == 1) {
           this.$message.success("加入购物车成功");
           this.$store.dispatch("getShoppingCount", this);

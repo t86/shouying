@@ -88,6 +88,8 @@ export const resResultDataArr = [
   'positionYH', // 55-岗位优惠开关
   'supervisorRegionConfig', // 56-督查可查区域配置
   'businessEmpList', // 57-商务订位人列表
+  'fcProductPrices', // 58-分成商品方案折后价
+  'fcPlanEmployees', // 59-分成商品价格方案包含员工
 ]
 
 // 图例列表

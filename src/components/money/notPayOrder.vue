@@ -65,11 +65,11 @@
                         <img :src="imgSrc.addDisabled" />
                       </div>
                       <div class="td-td" :class="{'opacity':items.back}">{{items.pc}}</div>
-                      <div class="td-td" :class="{'opacity':items.back}">{{getDisplayPrice(items)}}</div>
+                      <div class="td-td" :class="{'opacity':items.back}"><span class="fc-price-stack"><del v-if="showOriginalUnit(items)" class="fc-original-price">{{originalUnit(items)}}</del><span>{{getDisplayPrice(items)}}</span></span></div>
                       <div
                         class="td-td"
                         :class="{'opacity':items.back}"
-                      >{{items.at==2 || items.at==3 ? '0.00' : getSubtotal(items)}}</div>
+                      ><span class="fc-price-stack"><del v-if="showOriginalSubtotal(items)" class="fc-original-price">{{originalSubtotal(items)}}</del><span>{{items.at==2 || items.at==3 ? '0.00' : getSubtotal(items)}}</span></span></div>
                       <div
                         class="td-td"
                         :class="{'opacity':items.back}"
@@ -208,11 +208,11 @@
                   />
                 </div>
                 <div class="td" :class="{'opacity':item.back}">{{item.pc}}</div>
-                <div class="td" :class="{'opacity':item.back}">{{getDisplayPrice(item)}}</div>
+                <div class="td" :class="{'opacity':item.back}"><span class="fc-price-stack"><del v-if="showOriginalUnit(item)" class="fc-original-price">{{originalUnit(item)}}</del><span>{{getDisplayPrice(item)}}</span></span></div>
                 <div
                   class="td"
                   :class="{'opacity':item.back}"
-                >{{item.at==2 || item.at==3 ? '0.00' : getSubtotal(item)}}</div>
+                ><span class="fc-price-stack"><del v-if="showOriginalSubtotal(item)" class="fc-original-price">{{originalSubtotal(item)}}</del><span>{{item.at==2 || item.at==3 ? '0.00' : getSubtotal(item)}}</span></span></div>
                 <div
                   class="td"
                   :class="{'opacity':item.back}"
@@ -324,6 +324,7 @@
 </template>
  
 <script>
+import { getFcPrice } from "@/utils/fcPrice";
 import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
@@ -365,6 +366,31 @@ export default {
     };
   },
   methods: {
+    // Display current author-plan prices without rewriting historical payment amounts.
+    schemePrice(item) {
+      if (!item) return null;
+      const metadata = this.$store.state.cardPageInfo.resResultDataObj;
+      return getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, metadata);
+    },
+    originalUnit(item) { return Number(item.pp || 0).toFixed(2); },
+    displayCount(item) {
+      return Number((item.changeCount !== undefined && item.changeCount !== null ? item.changeCount : item.pc) || 0);
+    },
+    originalSubtotal(item) {
+      return (Number(item.pp) === 0 ? Number(item.pa || 0) : Number(item.pp || 0) * this.displayCount(item)).toFixed(2);
+    },
+    showOriginalUnit(item) {
+      const price = this.schemePrice(item);
+      return price !== null && Number(item.pp) !== 0 && Number(item.pp).toFixed(2) !== price.toFixed(2);
+    },
+    showOriginalSubtotal(item, online) {
+      const price = this.schemePrice(item);
+      return price !== null && !this.isFreeDisplay(item, online) && this.originalSubtotal(item) !== (price * this.displayCount(item)).toFixed(2);
+    },
+    isFreeDisplay(item, online) {
+      return item.at == 2 || item.at == 3;
+    },
+
     getPriceContext() {
       const ctx = buildPriceContextFromStore(this.$store);
 
@@ -635,6 +661,8 @@ export default {
 
     // 获取订单项的显示价格（根据商务价格等优先级计算）
     getDisplayPrice(item) {
+      const scheme = this.schemePrice(item);
+      if (scheme !== null) return scheme.toFixed(2);
       if (!item) {
         return '0.00';
       }
@@ -664,6 +692,9 @@ export default {
       if (item.at == 2 || item.at == 3) {
         return '0.00';
       }
+
+      const scheme = this.schemePrice(item);
+      if (scheme !== null) return (scheme * this.displayCount(item)).toFixed(2);
 
       // 时价商品：pp = 0 时，使用 pa（实际金额）作为小计
       if (item.pp * 1 == 0) {
@@ -706,4 +737,7 @@ export default {
 <style scoped lang="less">
 @import "../../style/money/notPayOrder.less";
 @import "../../style/common/scrollBar.less";
+
+.fc-price-stack { display: inline-flex; flex-direction: column; align-items: center; line-height: 18px; }
+.fc-original-price { color: #9299a8; font-size: 12px; text-decoration: line-through; }
 </style>

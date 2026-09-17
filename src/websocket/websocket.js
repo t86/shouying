@@ -27,6 +27,8 @@ let keys = {
   50: ["station_id", "seat_id"],
   52: ["tpl_id", "seq_id"],
   56: ["station_id", "region_id"],
+  58: ["prd_id", "plan_id"],
+  59: ["plan_id", "emp_id"],
 };
 export default class WebSocketClient {
   constructor(vue) {
@@ -35,12 +37,23 @@ export default class WebSocketClient {
     this.initAllData = this.initAllData.bind(this);
     this.resResultDataObj =
       this.vue.$store.state.cardPageInfo.resResultDataObj || {};
+    // 兼容旧缓存：先注册响应式字段，后续全量或增量到达时页面能立即更新价格。
+    [58, 59].forEach(key => {
+      const name = resResultDataArr[key];
+      if (!this.resResultDataObj[name]) this.vue.$set(this.resResultDataObj, name, []);
+    });
     // 初始化 WebSocket 连接
     this.initAllData();
     window.addEventListener("beforeunload", (e) => this.closeHandle(e));
     this.vue.$observer.subscribe(CODE_INVALID, () => {
       this.reset();
     });
+  }
+
+  hasFcPriceMetadata() {
+    const data = this.vue.$store.state.cardPageInfo.resResultDataObj || {};
+    return data.fcPriceMetadataVersion === 1 &&
+      Array.isArray(data.fcProductPrices) && Array.isArray(data.fcPlanEmployees);
   }
 
   connect = () => {
@@ -67,7 +80,7 @@ export default class WebSocketClient {
       const allLocalTime = localStorage.getItem("refreshAllLocalTime");
       // 如果上次拉取all的时间已经超过一定时间: 暂定13小时，确保超过一个营业时间
       //  || allLocalTime < +this.formattedDate() - 130000
-      if (!allLocalTime) {
+      if (!allLocalTime || !this.hasFcPriceMetadata()) {
         await this.getAllData(true, true, true);
       } else {
         await this.getUpdateData();
@@ -186,18 +199,19 @@ export default class WebSocketClient {
     const needReloadData =
       reload ||
       !(this.resResultDataObj && this.resResultDataObj.areaInfo) ||
-      !localStorage.getItem("websocketTimeMessageTime");
+      !localStorage.getItem("websocketTimeMessageTime") ||
+      !this.hasFcPriceMetadata();
     try {
       let res = {};
-      if (reload || this.res.code != 1) {
-        res = needReloadData ? await api_card.reqGetAllData() : { code: 1 };
+      if (needReloadData) {
+        res = await api_card.reqGetAllData();
         
         this.res = JSON.parse(JSON.stringify(res));
       } else {
         res = JSON.parse(JSON.stringify(this.res));
       }
       if (res.code == 1 || res.code == 2) {
-        this.websocketTimeMessageTime = res.data.ts
+        this.websocketTimeMessageTime = res.data && res.data.ts
           ? res.data.ts
           : this.websocketTimeMessageTime;
       }
@@ -224,6 +238,11 @@ export default class WebSocketClient {
                     (item) => item.bizStatus != 22 && item.bizStatus != 33
                   );
           });
+
+          // 空占位数组不能证明已同步：只有服务端完整返回58/59才标记缓存已升级。
+          if (Array.isArray(data[58]) && Array.isArray(data[59])) {
+            this.resResultDataObj.fcPriceMetadataVersion = 1;
+          }
 
           this.vue.$store.commit(
             "updateResResultDataObj",
@@ -311,9 +330,8 @@ export default class WebSocketClient {
   getUpdateData = async () => {
     this.websocketTimeMessageTime =
       localStorage.getItem("websocketTimeMessageTime") || "";
-    if (!this.websocketTimeMessageTime || this.websocketTimeMessageTime == "") {
-      this.getAllData();
-      return;
+    if (!this.websocketTimeMessageTime || !this.hasFcPriceMetadata()) {
+      return this.getAllData(true, true, true);
     }
     const params = {
       // '20220902171731'//
@@ -513,7 +531,11 @@ export default class WebSocketClient {
               });
             }
 
-            if (index < 0) {
+            if (Number(key) === 58 || Number(key) === 59) {
+              // 新增、改价、失效都按复合主键替换，Vue 2 用 $set 触发更新。
+              const rows = this.resResultDataObj[resResultDataArr[key]];
+              this.vue.$set(rows, index < 0 ? rows.length : index, el);
+            } else if (index < 0) {
               this.resResultDataObj[resResultDataArr[key]][
                 this.resResultDataObj[resResultDataArr[key]].length
               ] = el;

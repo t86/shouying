@@ -128,6 +128,7 @@ export default {
       }
       try {
         const ctx = buildPriceContextFromStore(this.$store);
+        ctx.fcProductPrices = []; // 退单沿用原订单价格
         const unit = resolveUnitPrice(item, ctx);
         if (unit === null || unit === undefined || Number.isNaN(Number(unit))) {
           return '时价';
@@ -141,6 +142,7 @@ export default {
     formatRefundSubtotal(item) {
       try {
         const ctx = buildPriceContextFromStore(this.$store);
+        ctx.fcProductPrices = []; // 退单沿用原订单价格
         const amt = calcItemAmount(item, ctx);
         return (amt || 0).toFixed(2);
       } catch (e) {

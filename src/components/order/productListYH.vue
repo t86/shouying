@@ -13,7 +13,7 @@
           <div class="card-item-content">
             <div class="card-item-title">{{ item.name }}</div>
             <div class="card-item-info">
-              <div class="card-item-price">￥{{ item.price }}</div>
+              <div class="card-item-price"><span v-if="fcProductPrice(item) !== null && fcProductOriginalPrice(item) > 0 && fcProductOriginalPrice(item) !== fcProductPrice(item)" style="display:block;color:#999;text-decoration:line-through">￥{{ fcProductOriginalPrice(item).toFixed(2) }}</span><span>￥{{ fcProductPrice(item) === null ? item.price : fcProductPrice(item).toFixed(2) }}</span></div>
               <img v-if="item.outSomethingCount == 0" class="no-data-count" :src="loadImage(require('@/assets/order-img/noCount.png'))" />
               <div v-else class="card-item-count">剩余：{{ item.outSomethingCount }}</div>
             </div>
@@ -57,7 +57,7 @@
                     alt
                   />
                 </div>
-                <div class="td">{{item.price * 1 == 0 ? item.amt.toFixed(2) : item.pc * item.price}}</div>
+                <div class="td">{{ fcProductPrice(item) !== null ? (fcProductPrice(item) * item.pc).toFixed(2) : (item.price * 1 == 0 ? item.amt.toFixed(2) : item.pc * item.price) }}</div>
                 <div class="td" @click="deletePrdHandle(item.id)">删除</div>
               </div>
               <div class="require p-l-2">{{item.require}}</div>
@@ -111,6 +111,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import search from "@/assets/order-img/search.png";
 import mealDrawer from "@/components/order/drawerMeal";
 import drawerYH2Submit from "@/components/order/drawerMeal/drawerYH2Submit.vue";
@@ -132,6 +133,7 @@ let downKeyCode = [0, 0]
 const ctrlAndShiftCode = [17, 16]
 
 export default {
+  mixins: [fcPriceMixin],
   data() {
     return {
       centerType: 100, // 卡台版心宽度

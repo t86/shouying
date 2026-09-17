@@ -1,4 +1,5 @@
 import { getProductPrice } from "./priceCalculator";
+import { getFcPrice } from "./fcPrice";
 
 const toNumber = (val) => {
   if (val === undefined || val === null || val === "") return null;
@@ -25,16 +26,21 @@ export const buildPriceContextFromStore = (store) => {
     cardInfo,
     businessData,
     businessEmpList,
+    fcProductPrices: resData.fcProductPrices || [],
+    fcPlanEmployees: resData.fcPlanEmployees || [],
   };
 };
 
 /**
- * 获取订单项的实际单价（优先级：p2 实际价 > 商务价 > 原价pp）
+ * 获取当前订单项单价（方案价 > p2 实际价 > 商务价 > 原价pp）
  * 注意：pm 会员价仅用于展示，不参与计算
  * 返回 null 表示使用"时价"展示
  */
 export const resolveUnitPrice = (item, ctx = {}) => {
   if (!item) return null;
+
+  const schemePrice = getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, ctx);
+  if (schemePrice !== null) return schemePrice;
 
   // 时价商品：pp = 0 时，返回 null 表示使用"时价"展示
   const pp = toNumber(item.pp);
@@ -90,18 +96,18 @@ export const getMemberPrice = (item) => {
   return null;
 };
 
-export const isTimePriceItem = (item, ctx = {}) => {
-  const unitPrice = resolveUnitPrice(item, ctx);
-  if (unitPrice === null || Number.isNaN(unitPrice)) {
-    const pp = toNumber(item ? item.pp : null);
-    return pp === 0;
-  }
-  return false;
-};
+// 方案价不改变时价商品的身份，仍保留不可拆分结账的数量限制。
+export const isTimePriceItem = (item) => toNumber(item ? item.pp : null) === 0;
 
 export const calcItemAmount = (item, ctx = {}) => {
   if (!item) return 0;
   if (item.at == 2 || item.at == 3) return 0;
+
+  const schemePrice = getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, ctx);
+  if (schemePrice !== null) {
+    const count = item.changeCount !== undefined && item.changeCount !== null ? item.changeCount : item.pc;
+    return Math.round(schemePrice * 100 * (toNumber(count) || 0)) / 100;
+  }
 
   // 时价商品：pp = 0 时，直接使用 pa（实际金额）作为小计
   const pp = toNumber(item.pp);
@@ -139,7 +145,8 @@ export const calcRefundAmount = (item, ctx = {}) => {
     return pa === null ? 0 : pa;
   }
 
-  const unitPrice = resolveUnitPrice(item, ctx);
+  // 退款沿用订单已记录的价格，不能因当前方案调价而重新计算历史退款。
+  const unitPrice = resolveUnitPrice(item, { ...ctx, fcProductPrices: [] });
   if (unitPrice === null || Number.isNaN(unitPrice)) {
     const pa = toNumber(item.pa);
     return pa === null ? 0 : pa;
@@ -153,4 +160,3 @@ export const calcRefundAmount = (item, ctx = {}) => {
 
   return (unitPrice || 0) * count;
 };
-

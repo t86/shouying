@@ -61,8 +61,8 @@
 <!--                  <div class="td" v-if="item.p2 !== item.pp">{{item.pp}}</div>-->
 <!--                  <div class="td" v-else>{{item.p2}}</div>-->
 <!--                </div>-->
-                <div class="td">{{getDisplayPrice(item)}}</div>
-                <div class="td">{{getSubtotal(item)}}</div>
+                <div class="td"><span v-if="fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{getDisplayPrice(item)}}</span></div>
+                <div class="td"><span v-if="fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{getSubtotal(item)}}</span></div>
 
 
 <!--                <div class="td" v-if="item.p * 1 === 0">-->
@@ -217,6 +217,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
@@ -245,6 +246,7 @@ let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
 
 export default {
+  mixins: [fcPriceMixin],
   data() {
     return {
       vipPrice: false,
@@ -773,6 +775,8 @@ export default {
 
     // 获取订单项的显示价格（根据商务价格等优先级计算）
     getDisplayPrice(item) {
+      const schemePrice = this.fcOrderPrice(item);
+      if (schemePrice !== null) return schemePrice.toFixed(2);
       if (!item || !item.productInfo) {
         return item && item.pp * 1 == 0 ? '时价' : (item ? (item.pp * 1).toFixed(2) : '0.00');
       }
@@ -802,6 +806,10 @@ export default {
 
     // 获取订单项的小计（根据商务价格等优先级计算）
     getSubtotal(item) {
+      if (item && (item.at == 2 || item.at == 3)) return "0.00";
+      const schemePrice = this.fcOrderPrice(item);
+      if (schemePrice !== null) return (schemePrice * Number(item.pc || 0)).toFixed(2);
+
       if (!item) {
         return '0.00';
       }
@@ -832,6 +840,9 @@ export default {
 
     // 计算订单项的金额（根据商务价格等优先级计算）
     calculateOrderItemAmount(item) {
+      if (item && (item.at == 2 || item.at == 3)) return 0;
+      const schemePrice = this.fcOrderPrice(item);
+      if (schemePrice !== null) return schemePrice * Number(item.pc || 0);
       // 如果是时价商品，使用实际金额
       if (item.pp * 1 == 0) {
         return item.pa * 1;

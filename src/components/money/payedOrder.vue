@@ -155,20 +155,12 @@
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{ items.pc }}
                           </div>
-                          <!-- 单价：使用 p2（实际价格）而不是 pp（原价） -->
                           <div class="td-td" :class="{ opacity: items.back }">
-                            {{ items.pp * 1 == 0 ? '时价' : (items.p2 ? (items.p2 * 1).toFixed(2) : (items.pp * 1).toFixed(2)) }}
-                          </div>
-                          <!-- 小计：使用 pa（实际金额）而不是重新计算 -->
-                          <div class="td-td" :class="{ opacity: items.back }">
-                            {{
-                              items.at == 2 || items.at == 3
-                                ? "0.00"
-                                : items.pa !== undefined && items.pa !== null
-                                ? (items.pa * 1).toFixed(2)
-                                : (items.pp * items.pc).toFixed(2)
-                            }}
-                          </div>
+                      <span class="fc-price-stack"><del v-if="showOriginalUnit(items)" class="fc-original-price">{{originalUnit(items)}}</del><span>{{getDisplayPrice(items)}}</span></span>
+                    </div>
+                    <div class="td-td" :class="{ opacity: items.back }">
+                      <span class="fc-price-stack"><del v-if="showOriginalSubtotal(items, true)" class="fc-original-price">{{originalSubtotal(items)}}</del><span>{{getSubtotal(items, true)}}</span></span>
+                    </div>
                           <div class="td-td" :class="{ opacity: items.back }">
                             {{
                               items.personInfo ? items.personInfo.name : "自助"
@@ -262,20 +254,11 @@
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.pc }}
                     </div>
-                    <!-- 单价：使用 p2（实际价格）而不是 pp（原价） -->
                     <div class="td" :class="{ opacity: item.back }">
-                      {{ item.pp * 1 == 0 ? "时价" : (item.p2 ? (item.p2 * 1).toFixed(2) : (item.pp * 1).toFixed(2)) }}
+                      <span class="fc-price-stack"><del v-if="showOriginalUnit(item)" class="fc-original-price">{{originalUnit(item)}}</del><span>{{getDisplayPrice(item)}}</span></span>
                     </div>
-                    <!-- 小计：使用 pa（实际金额）而不是重新计算 -->
                     <div class="td" :class="{ opacity: item.back }">
-                      {{
-                        item.at == 2 ||
-                        (item.at == 3 && !(item.io == 1 || item.oid))
-                          ? "0.00"
-                          : item.pa !== undefined && item.pa !== null
-                          ? (item.pa * 1).toFixed(2)
-                          : (item.pp * item.pc).toFixed(2)
-                      }}
+                      <span class="fc-price-stack"><del v-if="showOriginalSubtotal(item)" class="fc-original-price">{{originalSubtotal(item)}}</del><span>{{getSubtotal(item)}}</span></span>
                     </div>
                     <div class="td" :class="{ opacity: item.back }">
                       {{ item.personInfo ? item.personInfo.name : "自助" }}
@@ -430,6 +413,7 @@
 </template>
 
 <script>
+import { getFcPrice } from "@/utils/fcPrice";
 import { formatPaymentCashier } from "@/utils/paymentCashiers";
 import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
@@ -472,6 +456,42 @@ export default {
     };
   },
   methods: {
+    // Display current author-plan prices without rewriting historical payment amounts.
+    schemePrice(item) {
+      if (!item) return null;
+      const metadata = this.$store.state.cardPageInfo.resResultDataObj;
+      return getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, metadata);
+    },
+    originalUnit(item) { return Number(item.pp || 0).toFixed(2); },
+    displayCount(item) {
+      return Number(item.pc || 0);
+    },
+    originalSubtotal(item) {
+      return (Number(item.pp) === 0 ? Number(item.pa || 0) : Number(item.pp || 0) * this.displayCount(item)).toFixed(2);
+    },
+    showOriginalUnit(item) {
+      const price = this.schemePrice(item);
+      return price !== null && Number(item.pp) !== 0 && Number(item.pp).toFixed(2) !== price.toFixed(2);
+    },
+    showOriginalSubtotal(item, online) {
+      const price = this.schemePrice(item);
+      return price !== null && !this.isFreeDisplay(item, online) && this.originalSubtotal(item) !== (price * this.displayCount(item)).toFixed(2);
+    },
+    isFreeDisplay(item, online) {
+      return item.at == 2 || (item.at == 3 && (online || !(item.io == 1 || item.oid)));
+    },
+    getDisplayPrice(item) {
+      const price = this.schemePrice(item);
+      if (price !== null) return price.toFixed(2);
+      return Number(item.pp) === 0 ? '时价' : Number(item.p2 || item.pp || 0).toFixed(2);
+    },
+    getSubtotal(item, online) {
+      if (this.isFreeDisplay(item, online)) return '0.00';
+      const price = this.schemePrice(item);
+      if (price !== null) return (price * this.displayCount(item)).toFixed(2);
+      return Number(item.pa !== undefined && item.pa !== null ? item.pa : item.pp * item.pc).toFixed(2);
+    },
+
     formatPaymentCashier,
     // 获取当前支付详情的支付渠道列表
     getPayedDetailList() {
@@ -802,4 +822,7 @@ export default {
 @import "../../style/money/payedOrder.less";
 @import "../../style/common/scrollBar.less";
 @import "../../style/common/elementConfirm.less";
+
+.fc-price-stack { display: inline-flex; flex-direction: column; align-items: center; line-height: 18px; }
+.fc-original-price { color: #9299a8; font-size: 12px; text-decoration: line-through; }
 </style>

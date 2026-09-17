@@ -66,8 +66,8 @@
                   alt
                 />
               </div>
-              <div class="td">{{ item.pp }}</div>
-              <div class="td">{{ item.pa }}</div>
+              <div class="td"><span v-if="fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span></div>
+              <div class="td"><span v-if="fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span></div>
               <div class="td">{{ item.personInfo.name }}</div>
               <div class="td">
                 {{ item.authInfo ? item.authInfo.name : "---" }}
@@ -208,6 +208,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import common_order from "@/utils/common/order";
@@ -228,6 +229,7 @@ let downKeyCode = [0, 0];
 const ctrlAndShiftCode = [17, 16];
 
 export default {
+  mixins: [fcPriceMixin],
   data() {
     return {
       isRect: true, // 是否为横屏
@@ -267,6 +269,9 @@ export default {
     };
   },
   methods: {
+    getDisplayPrice(item) { const price = this.fcOrderPrice(item); return price === null ? item.pp : price.toFixed(2); },
+    getSubtotal(item) {
+      if (item && (item.at == 2 || item.at == 3)) return "0.00"; const price = this.fcOrderPrice(item); return price === null ? item.pa : (price * Number(item.pc || 0)).toFixed(2); },
     // 删除购物车商品
     delProduct(info) {
       this.$confirm("确认删除此商品吗？", "删除？", {
@@ -749,7 +754,7 @@ export default {
         } else if (el.at == 6) {
           // 自用
         } else {
-          allAmt += el.pa * 1;
+          allAmt += Number(this.getSubtotal(el));
         }
       });
       return {

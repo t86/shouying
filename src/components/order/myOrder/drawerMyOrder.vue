@@ -1432,6 +1432,7 @@ export default {
 
       try {
         const ctx = buildPriceContextFromStore(this.$store);
+        ctx.fcProductPrices = []; // 退单沿用原订单价格
         // 创建一个临时商品对象，包含退单数量
         const tempItem = {
           ...this.currentProductInfo,

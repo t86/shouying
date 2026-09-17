@@ -61,10 +61,10 @@
                     {{ item.pc }}
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
-                    {{ getDisplayPrice(item) }}
+                    <span v-if="fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span>
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
-                    {{ getSubtotal(item) }}
+                    <span v-if="fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span>
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
                     {{ item.personInfo && item.personInfo.name }}
@@ -196,6 +196,7 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import eventVue from "@/utils/eventVue";
 
 import api_order from "@/api/order";
@@ -227,7 +228,7 @@ const orderDetailLookups = {
 };
 
 export default {
-  mixins: [authStatus],
+  mixins: [fcPriceMixin, authStatus],
   data() {
     return {
       isRect: true, // 是否为横屏
@@ -560,6 +561,8 @@ export default {
     // 注意：对于已下单的订单，应该使用 API 返回的 p2（实际价格），而不是重新计算
     // 因为订单价格在下单时已经确定，不应该因为当前卡台状态变化而改变显示价格
     getDisplayPrice(item) {
+      const schemePrice = this.fcOrderPrice(item);
+      if (schemePrice !== null) return schemePrice.toFixed(2);
       // 如果是时价商品（pp = 0），返回"时价"
       if (item && item.pp * 1 == 0) {
         return '时价';
@@ -585,6 +588,9 @@ export default {
     // 注意：对于已下单的订单，应该使用 API 返回的 pa（商品金额），而不是重新计算
     // 因为订单金额在下单时已经确定，不应该因为当前卡台状态变化而改变显示金额
     getSubtotal(item) {
+      if (item && (item.at == 2 || item.at == 3)) return "0.00";
+      const schemePrice = this.fcOrderPrice(item);
+      if (schemePrice !== null) return (schemePrice * Number(item.pc || 0)).toFixed(2);
       if (!item) {
         return '0.00';
       }

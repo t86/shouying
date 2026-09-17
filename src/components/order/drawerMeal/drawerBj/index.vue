@@ -25,12 +25,14 @@
 </template>
 
 <script>
+import fcPriceMixin from "@/components/order/fcPriceMixin";
 import { sessionStorage } from '@/utils/common/storage.js'
 import api_order from "@/api/order";
 import bj from './bj.vue'
 import chooseCard from './chooseCard.vue'
 import chooseOrder from './chooseOrder.vue'
 export default {
+  mixins: [fcPriceMixin],
   data() {
     return {
       status: 1, // 1:补交  2：选择卡台  3：选择流水
@@ -107,10 +109,10 @@ export default {
             this.productInfo.prdType == 13 ||
             this.productInfo.prdType == 14 ||
             this.productInfo.prdType == 8) {
-            res = await api_order.reqAddAmtToShopping(params);
+            res = await api_order.reqAddAmtToShopping(this.fcApplyAmount(params, this.productInfo));
           } else {
             params.prd_price = this.productInfo.price, //  string  商品单价,用于做二次验证
-            res = await api_order.reqAddProductToShopping(params);
+            res = await api_order.reqAddProductToShopping(this.fcApplyPrice(params, this.productInfo));
           }
           if (res.code == 1) {
             this.$message.success("加入购物车成功");
