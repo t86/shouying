@@ -118,15 +118,7 @@
           >
             <span>未结账金额:</span>
             <span class="amt">
-              ¥{{
-                turnOverInfo.activeTurnOverCount ==
-                turnOverInfo.turnOverTabList.length - 1
-                  ? (
-                      $store.state.orderInfo.currentCardInfo.orderAmt -
-                      $store.state.orderInfo.currentCardInfo.payedAmt
-                    ).toFixed(2)
-                  : "0.00"
-              }}
+              ¥{{ unpaidOrderAmount }}
             </span>
           </div>
 
@@ -485,6 +477,7 @@ import personSearch from "@/utils/personSearch";
 import {
   buildPriceContextFromStore,
   calcItemAmount,
+  calcUnpaidOrderAmount,
 } from "@/utils/orderItemPrice";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
@@ -1083,6 +1076,8 @@ export default {
               ...anotherNotPayOrderList,
               ...onlineNotPayOrderList,
             ]);
+          } else {
+            this.getOrderDetailInfo(res, []);
           }
 
           const payedOrderList = [];
@@ -2493,6 +2488,18 @@ export default {
     inputSelect,
   },
   computed: {
+    unpaidOrderAmount() {
+      if (
+        this.turnOverInfo.activeTurnOverCount !=
+        this.turnOverInfo.turnOverTabList.length - 1
+      ) return "0.00";
+
+      const priceContext = buildPriceContextFromStore(this.$store);
+      return calcUnpaidOrderAmount(
+        this.notPayData.notPayOrderList,
+        priceContext
+      ).toFixed(2);
+    },
     bindGuestOpen () {
       let arr = this.$store.state.cardPageInfo.resResultDataObj.showAmt
       if (arr && arr.length > 0) {

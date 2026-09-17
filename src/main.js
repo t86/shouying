@@ -164,7 +164,10 @@ import packageJson from "../package.json";
 const version = packageJson.version;
 const localVersion = localStorage.getItem("projectVersion");
 if (!localVersion || version !== localVersion) {
-  localStorage.clear();
+  // 开发编译会更新版本号，热更新时应保留设备授权和登录信息。
+  if (process.env.NODE_ENV !== 'development') {
+    localStorage.clear();
+  }
   localStorage.setItem("projectVersion", version);
 }
 

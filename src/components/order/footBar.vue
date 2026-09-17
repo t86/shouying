@@ -267,6 +267,7 @@ import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import api_money from "@/api/money";
+import waiterPayAmountMixin from "./waiterPayAmountMixin";
 
 import drawerPayQR from "./drawerPayQR.vue";
 
@@ -351,6 +352,7 @@ const payTypeList = [
 ];
 
 export default {
+  mixins: [waiterPayAmountMixin],
   data() {
     return {
       canLookOrderAmt: false,
@@ -383,7 +385,6 @@ export default {
       qrResult: null, // 扫码结果
 
       cardInfo: {},
-      payAmount: 0, // 待支付金额
       authInfo: {
         month: "00",
         day: "00",
@@ -817,27 +818,6 @@ export default {
         common_book.getOrderPersonInfo(empId) || { name: "散客" };
       const groupInfoName = common_book.getDepartmentName(empId) || "";
       return (groupInfoName ? groupInfoName + "/" : "") + empInfo.name;
-    },
-
-    // 加载待支付金额
-    async loadPayAmount() {
-      try {
-        const seatId = this.currentSeatId;
-        const res = await api_money.reqGetCardPayInfo({
-          id: seatId,
-        });
-        if (res.code === 1 && res.data) {
-          const receivable =
-            parseFloat(res.data.receivable || res.data.all_amt || 0) /
-            100;
-          const collected =
-            parseFloat(res.data.collected || res.data.choose_amt || 0) /
-            100;
-          this.payAmount = Math.max(0, receivable - collected);
-        }
-      } catch (error) {
-        console.error("加载待支付金额失败:", error);
-      }
     },
 
     // 处理会员绑定成功

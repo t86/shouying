@@ -107,7 +107,7 @@
                 <span
                   style="display: inline-block; width: calc(100% - 34px)"
                   class="one-txt-cut"
-                >¥{{ Number(item.orderAmt).toFixed(2) }}</span>
+                >¥{{ getCardOrderAmount(item) }}</span>
                 <span class="dixiao-jindu">{{ item.diXiaoJindu }}</span>
               </p>
               <p v-else style="height: 16px"></p>
@@ -149,7 +149,7 @@
                 <span
                   class="one-txt-cut"
                   style="display: inline-block; width: calc(100% - 34px)"
-                  >¥{{ Number(item.orderAmt - item.payedAmt || 0).toFixed(2) }}</span
+                  >¥{{ getCardUnpaidAmount(item) }}</span
                 >
               </p>
               <p v-else style="height: 16px"></p>
@@ -1106,6 +1106,7 @@
 <script>
 import cardTransferHistory from "@/components/common/cardTransferHistory.vue";
 import api_money from "@/api/money";
+import cardAmountMixin from "@/components/money/cardAmountMixin";
 import api_auth from "@/api/UtilAuth";
 import { legendList } from "@/utils/config/card";
 
@@ -2690,7 +2691,7 @@ export default {
     },
   },
 
-  mixins: [cardPageMixins, authStatus],
+  mixins: [cardPageMixins, cardAmountMixin, authStatus],
 };
 </script>
 

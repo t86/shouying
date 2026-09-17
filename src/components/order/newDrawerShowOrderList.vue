@@ -65,11 +65,11 @@
                           </div>
                           <div class="td-td" :class="{'opacity':items.back}">{{items.productInfo.name}}</div>
                           <div class="td-td" :class="{'opacity':items.back}">{{items.pc}}</div>
-                          <div class="td-td" :class="{'opacity':items.back}">{{(items.pp*1).toFixed(2)}}</div>
+                          <div class="td-td" :class="{'opacity':items.back}"><span class="fc-price-stack"><del v-if="!items.back && fcOrderOriginal(items, getDisplayPrice(items))" class="fc-original-price">{{ fcOriginalText(items) }}</del><span>{{ getDisplayPrice(items) }}</span></span></div>
                           <div
                             class="td-td"
                             :class="{'opacity':items.back}"
-                          >{{items.at==2 || items.at==3 ? '0.00' : items.pp==0? (items.pa*1).toFixed(2) : (items.pp * items.pc).toFixed(2)}}</div>
+                          ><span class="fc-price-stack"><del v-if="!items.back && items.at != 2 && items.at != 3 && fcSubtotalOriginal(items, getSubtotal(items))" class="fc-original-price">{{ fcOriginalSubtotal(items).toFixed(2) }}</del><span>{{ getSubtotal(items) }}</span></span></div>
                           <div
                             class="td-td"
                             :class="{'opacity':items.back}"
@@ -121,11 +121,11 @@
                     </div>
                     <div class="td">{{item.productInfo.name}}</div>
                     <div class="td" :class="{'opacity':item.back}">{{item.pc}}</div>
-                    <div class="td" :class="{'opacity':item.back}">{{item.pp * 1 == 0 ? '时价' : (item.pp*1).toFixed(2)}}</div>
+                    <div class="td" :class="{'opacity':item.back}"><span class="fc-price-stack"><del v-if="!item.back && fcOrderOriginal(item, getDisplayPrice(item))" class="fc-original-price">{{ fcOriginalText(item) }}</del><span>{{ getDisplayPrice(item) }}</span></span></div>
                     <div
                       class="td"
                       :class="{'opacity':item.back}"
-                    >{{item.at==2 || item.at==3 ? '0.00' : item.pp==0? (item.pa*1).toFixed(2) : (item.pa * 1).toFixed(2)}}</div>
+                    ><span class="fc-price-stack"><del v-if="!item.back && item.at != 2 && item.at != 3 && fcSubtotalOriginal(item, getSubtotal(item))" class="fc-original-price">{{ fcOriginalSubtotal(item).toFixed(2) }}</del><span>{{ getSubtotal(item) }}</span></span></div>
                     <div
                       class="td"
                       :class="{'opacity':item.back}"
@@ -168,11 +168,13 @@
 </template>
  
 <script>
+import payOrderPriceMixin from "./payOrderPriceMixin";
 import api_money from "@/api/money";
 import api_order from "@/api/order";
 import common_book from "@/utils/common/book";
 import common_order from "@/utils/common/order";
 export default {
+  mixins: [payOrderPriceMixin],
   data() {
     return {
       tabIndex: 1,  // tab选中下标
@@ -571,6 +573,9 @@ export default {
 @import "../../style/common/newElementFormBtn.less";
 @import "../../style/common/scrollBar.less";
 @import "../../style/order/orderMeal/newDrawerShowOrderList.less";
+
+.fc-price-stack { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.fc-original-price { color: #9299a8; font-size: 12px; text-decoration: line-through; }
 </style>
 <style scoped lang='less'>
 .session {

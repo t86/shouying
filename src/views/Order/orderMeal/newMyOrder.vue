@@ -61,10 +61,10 @@
                     {{ item.pc }}
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
-                    <span v-if="fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span>
+                    <span v-if="!item.back && item.s != 5 && fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span>
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
-                    <span v-if="fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span>
+                    <span v-if="!item.back && item.s != 5 && fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span>
                   </div>
                   <div class="td" :class="{ opacity: item.back }">
                     {{ item.personInfo && item.personInfo.name }}
@@ -197,6 +197,7 @@
 
 <script>
 import fcPriceMixin from "@/components/order/fcPriceMixin";
+import myOrderAmountMixin from "@/components/order/myOrderAmountMixin";
 import eventVue from "@/utils/eventVue";
 
 import api_order from "@/api/order";
@@ -228,7 +229,7 @@ const orderDetailLookups = {
 };
 
 export default {
-  mixins: [fcPriceMixin, authStatus],
+  mixins: [fcPriceMixin, myOrderAmountMixin, authStatus],
   data() {
     return {
       isRect: true, // 是否为横屏
@@ -245,11 +246,6 @@ export default {
         currentItemInfo: {}, // 当前正在操作的商品信息
       },
       showPrintDrawer: false, // 是否显示打印消费单drawer
-      amt: {
-        allAmt: "0.00", // 点单金额
-        giveAmt: "0.00", // 赠送金额
-        notPayAmt: "0.00", // 未付金额
-      },
       imgSrc: {
         add,
         sub,
@@ -285,7 +281,8 @@ export default {
         const res = await api_order.reqGetOrderList(params);
         if (res.code === 1) {
           const detailData = normalizeOrderDetailResponse(res.data, orderDetailLookups);
-          this.amt = detailData.payInfo;
+          this.orderGiftAmount = detailData.payInfo.giveAmt;
+          this.amountOrderList = detailData.consumptionRows;
           
           // eventVue.$emit("changeTurnOverCountHandle", [{
           //   amts: {
@@ -308,6 +305,9 @@ export default {
         } else if (res.code == 2) {
           console.log("当前人员未参与当前卡台点单");
           this.orderList = [];
+          this.amountOrderList = [];
+          this.orderGiftAmount = "0.00";
+          this.wineList = [];
         } else {
           this.$message.warning(res.msg);
         }
@@ -558,11 +558,12 @@ export default {
     },
 
     // 获取订单项的显示价格
-    // 注意：对于已下单的订单，应该使用 API 返回的 p2（实际价格），而不是重新计算
-    // 因为订单价格在下单时已经确定，不应该因为当前卡台状态变化而改变显示价格
+    // 未结明细应用员工价格方案；已结和退单明细保留下单时的价格。
     getDisplayPrice(item) {
-      const schemePrice = this.fcOrderPrice(item);
-      if (schemePrice !== null) return schemePrice.toFixed(2);
+      if (item && !item.back && Number(item.s) !== 5) {
+        const schemePrice = this.fcOrderPrice(item);
+        if (schemePrice !== null) return schemePrice.toFixed(2);
+      }
       // 如果是时价商品（pp = 0），返回"时价"
       if (item && item.pp * 1 == 0) {
         return '时价';
@@ -585,12 +586,13 @@ export default {
     },
 
     // 获取订单项的小计
-    // 注意：对于已下单的订单，应该使用 API 返回的 pa（商品金额），而不是重新计算
-    // 因为订单金额在下单时已经确定，不应该因为当前卡台状态变化而改变显示金额
+    // 汇总复用此小计，已结和退单金额不随当前员工方案变化。
     getSubtotal(item) {
       if (item && (item.at == 2 || item.at == 3)) return "0.00";
-      const schemePrice = this.fcOrderPrice(item);
-      if (schemePrice !== null) return (schemePrice * Number(item.pc || 0)).toFixed(2);
+      if (item && !item.back && Number(item.s) !== 5) {
+        const schemePrice = this.fcOrderPrice(item);
+        if (schemePrice !== null) return (schemePrice * Number(item.pc || 0)).toFixed(2);
+      }
       if (!item) {
         return '0.00';
       }

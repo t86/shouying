@@ -387,6 +387,7 @@ import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 import api_money from "@/api/money";
+import waiterPayAmountMixin from "./waiterPayAmountMixin";
 import api_card from "@/api/Book";
 
 import drawerPayQR from "./newDrawerPayQR.vue";
@@ -622,7 +623,6 @@ export default {
       showVipRechargeDrawer: false, // 是否显示会员充值弹窗
       currentSourceRoute: '', // 来源路由
       currentCsmId: 0, // 流水ID
-      payAmount: 0, // 待支付金额
     };
   },
   methods: {
@@ -1628,24 +1628,6 @@ export default {
       this.currentCsmId = 0;
     },
 
-    // 加载待支付金额
-    async loadPayAmount() {
-      try {
-        const seatId = this.currentSeatId;
-        const res = await api_money.reqGetCardPayInfo({
-          id: seatId,
-        });
-        if (res.code === 1 && res.data) {
-          // 计算待支付金额 = 应收金额 - 已收金额
-          const receivable = parseFloat(res.data.receivable || res.data.all_amt || 0) / 100;
-          const collected = parseFloat(res.data.collected || res.data.choose_amt || 0) / 100;
-          this.payAmount = Math.max(0, receivable - collected);
-        }
-      } catch (error) {
-        console.error("加载待支付金额失败:", error);
-      }
-    },
-
     // 处理会员绑定成功
     handleMemberBound(memberInfo) {
       console.log("会员绑定成功:", memberInfo);
@@ -1819,7 +1801,7 @@ export default {
     // 移除事件监听
     eventVue.$off("safeModeChanged");
   },
-  mixins: [cardPageMixins, authStatus],
+  mixins: [cardPageMixins, authStatus, waiterPayAmountMixin],
 };
 </script>
 <style>
@@ -1876,4 +1858,3 @@ export default {
   transform: translateX(150px) !important;
 }
 </style>
-

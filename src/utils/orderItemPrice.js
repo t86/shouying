@@ -131,6 +131,27 @@ export const calcItemAmount = (item, ctx = {}) => {
   return (unitPrice || 0) * count;
 };
 
+// 未结账总额按剩余数量汇总，不受本次结账的勾选状态和拆分数量影响。
+export const calcUnpaidOrderAmount = (orderList, ctx = {}) => {
+  let totalCents = 0;
+  const addItem = (item) => {
+    if (!item || item.back || Number(item.pc) === 0) return;
+    const amount = calcItemAmount({ ...item, changeCount: item.pc }, ctx);
+    totalCents += Math.round(amount * 100);
+  };
+
+  (orderList || []).forEach((order) => {
+    if (!order || order.back) return;
+    if (order.oid) {
+      // 线上订单的退款明细已经展开，只计未退商品，套餐明细不重复计费。
+      (order.resultNotPayData || order.os || []).forEach(addItem);
+    } else {
+      addItem(order);
+    }
+  });
+  return totalCents / 100;
+};
+
 /**
  * 计算退单金额（与 calcItemAmount 类似，但不排除 at=2/at=3 的商品）
  * 用于退单场景，需要计算优惠商品的实际退款金额

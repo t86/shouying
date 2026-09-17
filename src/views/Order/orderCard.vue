@@ -110,7 +110,7 @@
               >
                 <span>
                   <!-- 有查单权限 -->
-                  <span v-if="item.canLookOrder">点:￥{{ item.orderAmt }}</span>
+                  <span v-if="item.canLookOrder">点:￥{{ getCardOrderAmount(item) }}</span>
                   <!-- 无查单权限 -->
                   <span v-else></span>
                 </span>
@@ -460,6 +460,7 @@
 </template>
 
 <script>
+import cardAmountMixin from "@/components/order/cardAmountMixin";
 import api_auth from "@/api/UtilAuth";
 import api_order from "@/api/order";
 
@@ -1827,7 +1828,7 @@ export default {
     },
   },
 
-  mixins: [cardPageMixins, authStatus],
+  mixins: [cardPageMixins, cardAmountMixin, authStatus],
 };
 </script>
 
