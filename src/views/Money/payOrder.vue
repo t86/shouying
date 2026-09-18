@@ -112,14 +112,20 @@
         >
           <div
             v-if="payTabInfo.activePayId == 0 || payTabInfo.activePayId == -1"
-            class="money"
-            layout="row"
-            layout-align="start center"
+            class="money-list-wrapper"
           >
-            <span>未结账金额:</span>
-            <span class="amt">
-              ¥{{ unpaidOrderAmount }}
-            </span>
+            <div class="money" layout="row" layout-align="start center">
+              <span>折前金额:</span><span class="amt">¥{{ orderSummary.allAmt }}</span>
+            </div>
+            <div class="money" layout="row" layout-align="start center">
+              <span>优惠金额:</span><span class="amt">¥{{ orderSummary.giveAmt }}</span>
+            </div>
+            <div class="money" layout="row" layout-align="start center">
+              <span>折扣金额:</span><span class="amt">¥{{ orderSummary.discountAmt }}</span>
+            </div>
+            <div class="money" layout="row" layout-align="start center">
+              <span>未结账金额:</span><span class="amt">¥{{ unpaidOrderAmount }}</span>
+            </div>
           </div>
 
           <div v-else class="money-list-wrapper">
@@ -473,6 +479,7 @@ import eventVue from "@/utils/eventVue";
 import inputSelect from "@/components/book/inputSelect";
 
 import api_order from "@/api/order";
+import { calculateOrderSummary } from "@/utils/orderSummary";
 import api_money from "@/api/money";
 import api_book from "@/api/Book";
 import common_order from "@/utils/common/order";
@@ -481,7 +488,6 @@ import personSearch from "@/utils/personSearch";
 import {
   buildPriceContextFromStore,
   calcItemAmount,
-  calcUnpaidOrderAmount,
 } from "@/utils/orderItemPrice";
 
 import arrowBottom from "@/assets/card-imgs/new-arrow-bottom.png";
@@ -541,6 +547,9 @@ export default {
       cardAllOrderInfo: [],
       paymentCashiers: {},
       cashierRequestId: 0,
+      orderSummaryRequestId: 0,
+      orderSummaryInfo: null,
+      orderSummaryKey: "",
       cashierLookupKey: "",
       cashierLookupPromise: null,
       cashierLookupVersion: 0,
@@ -962,8 +971,30 @@ export default {
       });
     },
 
+    async loadOrderSummary() {
+      const requestId = ++this.orderSummaryRequestId;
+      const params = {
+        seat_id: Number(this.$store.state.orderInfo.currentCardInfo.seatId),
+        turnover_cnt: this.turnOverInfo.activeTurnOverCount,
+      };
+      this.orderSummaryInfo = null;
+      this.orderSummaryKey = JSON.stringify([params.seat_id, params.turnover_cnt]);
+      try {
+        const res = await api_order.reqGetOrderList(params);
+        if (requestId !== this.orderSummaryRequestId ||
+            Number(this.$store.state.orderInfo.currentCardInfo.seatId) !== params.seat_id ||
+            this.turnOverInfo.activeTurnOverCount !== params.turnover_cnt) return;
+        if (res.code === 1 && res.data && res.data.pay_info) {
+          this.orderSummaryInfo = res.data.pay_info;
+        }
+      } catch (error) {
+        // Summary availability must not block loading or paying orders.
+      }
+    },
+
     // 获取订单相关数据
     async getOrderInfo(callback, backToCardList) {
+      this.loadOrderSummary();
       const cashierRequestId = ++this.cashierRequestId;
       this.paymentCashiers = {};
       const params = {
@@ -2498,17 +2529,18 @@ export default {
       const actual = Math.round((Number(amts.pv) || 0) * 100);
       return (Math.max(0, original - actual) / 100).toFixed(2);
     },
+    orderSummary() {
+      const currentKey = JSON.stringify([
+        Number(this.$store.state.orderInfo.currentCardInfo.seatId),
+        this.turnOverInfo.activeTurnOverCount,
+      ]);
+      if (!this.orderSummaryInfo || currentKey !== this.orderSummaryKey) {
+        return { allAmt: "--", giveAmt: "--", discountAmt: "--", notPayAmt: "--" };
+      }
+      return calculateOrderSummary(this.orderSummaryInfo);
+    },
     unpaidOrderAmount() {
-      if (
-        this.turnOverInfo.activeTurnOverCount !=
-        this.turnOverInfo.turnOverTabList.length - 1
-      ) return "0.00";
-
-      const priceContext = buildPriceContextFromStore(this.$store);
-      return calcUnpaidOrderAmount(
-        this.notPayData.notPayOrderList,
-        priceContext
-      ).toFixed(2);
+      return this.orderSummary.notPayAmt;
     },
     bindGuestOpen () {
       let arr = this.$store.state.cardPageInfo.resResultDataObj.showAmt
@@ -2578,6 +2610,7 @@ export default {
     },
   },
   beforeDestroy() {
+    this.orderSummaryRequestId++;
     document.body.removeEventListener("click", () => {
       this.payTabInfo.payTabShow = false;
       this.turnOverInfo.turnOverTabShow = false;

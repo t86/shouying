@@ -18,7 +18,9 @@ function loadMixin(file, dependencies = {}) {
   return scope.module.exports;
 }
 const fcPriceMixin = loadMixin('src/components/order/fcPriceMixin.js', { getFcPrice: priceScope.getFcPrice });
-const myOrderAmountMixin = loadMixin('src/components/order/myOrderAmountMixin.js');
+const summaryScope = {};
+vm.runInNewContext(read('src/utils/orderSummary.js').replace(/export /g, ''), summaryScope);
+const myOrderAmountMixin = loadMixin('src/components/order/myOrderAmountMixin.js', {calculateOrderSummary: summaryScope.calculateOrderSummary});
 const lookups = {
   getProductInfo: id => ({ id, name: 'Product ' + id }),
   getProductInfoFromGroup: id => ({ id }),
@@ -78,94 +80,38 @@ function assertAmounts(view, allAmt, notPayAmt, giveAmt = '0.00') {
 }
 
 for (const name of ['myOrder', 'newMyOrder']) {
-  test(name + ' uses recorded prices and pa including zero regardless of current metadata', async () => {
-    const { view, respond } = createView(name);
-    respond(response([
-      ...screenshotRows(),
-      { id: 5, pid: 9, ae: 22, wei: 22, pp: 800, p2: 0, pa: 0, pc: 1, s: 1 },
-    ]));
+  test(name + ' uses the specified wo/list summary formulas in cents', async () => {
+    const {view,respond}=createView(name);
     try {
+      respond({code:1,data:{records:screenshotRows(),pay_info:{order_amt:380000,discount_amt:120000,payed_amt:60000,payed_free_amt:1000,yh_amt:123}}});
       await view.getOrderedData();
-      assert.deepEqual(Array.from(view.orderList, row => view.getSubtotal(row)), ['777.00', '0.10', '800.00', '800.00', '0.00']);
-      assert.equal(view.getDisplayPrice(view.orderList[4]), '0.00');
-      view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
-      await Vue.nextTick();
-      assert.equal(view.getDisplayPrice(view.orderList[2]), '800.00');
-      assertAmounts(view, '2377.10', '1577.10');
-    } finally { view.$destroy(); }
+      assertAmounts(view,'5000.00','4400.00','1.23');
+      assert.equal(view.amt.discountAmt,'1210.00');
+      // API signed values are used as returned; never silently change addition to subtraction.
+      respond({code:1,data:{records:[],pay_info:{order_amt:'380000',discount_amt:'120000',payed_amt:'-60000',payed_free_amt:'0',yh_amt:'0'}}});
+      await view.getOrderedData();
+      assertAmounts(view,'5000.00','3200.00');
+      assert.equal(view.amt.discountAmt,'1200.00');
+    } finally {view.$destroy();}
   });
-
-  test(name + ' keeps backend before-discount total and reports discount separately from gifts', async () => {
-    const { view, respond } = createView(name);
-    const data = response();
-    data.data.pay_info = { order_amt: 240010, payed_amt: 80000, payed_val_amt: 80000, payed_free_amt: 0, yh_amt: 123 };
-    respond(data);
+  test(name + ' preserves zero and treats missing summary fields as zero without deriving from rows', async () => {
+    const {view,respond}=createView(name);
     try {
-      view.$store.state.userInfo.sys_modules = [6];
-      await view.getOrderedData();
-      assert.equal(view.orderList.length, 3);
-      assertAmounts(view, '2400.10', '1577.10', '1.23');
-      assert.equal(view.amt.discountAmt, '23.00');
-      assert.match(read('src/views/Order/orderMeal/' + name + '.vue'), /amt\.discountAmt/);
-    } finally { view.$destroy(); }
+      respond({code:1,data:{records:screenshotRows(),pay_info:{order_amt:0,discount_amt:0,payed_amt:0,payed_free_amt:0}}});
+      await view.getOrderedData();assertAmounts(view,'0.00','0.00');assert.equal(view.amt.discountAmt,'0.00');
+      respond({code:1,data:{records:screenshotRows()}});
+      await view.getOrderedData();assertAmounts(view,'0.00','0.00');
+      respond({code:2});await view.getOrderedData();assertAmounts(view,'0.00','0.00');
+    } finally {view.$destroy();}
   });
-
-  test(name + ' shows paid row original prices and refreshes all totals from a new response', async () => {
-    const { view, respond } = createView(name);
-    const data = response([{ id: 1, pid: 9, pp: 800, p2: 700, pa: 700, pc: 1, s: 5 }]);
-    data.data.pay_info = { order_amt: 80000, payed_free_amt: 10000, yh_amt: 0 };
-    respond(data);
+  test(name + ' keeps recorded item prices and template valid', async () => {
+    const {view}=createView(name);
     try {
       await view.getOrderedData();
-      assertAmounts(view, '800.00', '0.00');
-      assert.equal(view.amt.discountAmt, '100.00');
-      assert.equal(view.getSubtotal(view.orderList[0]), '700.00');
-      const template = compiler.parseComponent(read('src/views/Order/orderMeal/' + name + '.vue')).template.content;
-      assert.doesNotMatch(template, /item\.s != 5 && fc(?:OrderOriginal|SubtotalOriginal)/);
-      respond({ code: 2 });
-      await view.getOrderedData();
-      assertAmounts(view, '0.00', '0.00');
-      assert.equal(view.amt.discountAmt, '0.00');
-    } finally { view.$destroy(); }
-  });
-
-  test(name + ' excludes returns and gifts from unpaid and uses recorded p2 only when pa is absent', async () => {
-    const { view, respond } = createView(name);
-    respond({ code: 1, data: { records: [
-      { id: 1, pid: 9, pp: 800, p2: 600, pc: 2, s: 1 },
-      { id: 2, pid: 9, pp: 800, p2: 600, pa: 0, pc: 1, s: 1, at: 2 },
-      { id: 3, pid: 9, pp: 800, p2: 600, pa: 600, pc: 0, s: 1, bs: [{ id: 4, pc: 1, pa: 600 }] },
-    ] } });
-    try {
-      await view.getOrderedData();
-      assert.equal(view.amt.notPayAmt, '1200.00');
-      assert.equal(view.getDisplayPrice({ pp: 0, p2: 0 }), '时价');
-    } finally { view.$destroy(); }
-  });
-}
-
-for (const name of ['myOrder', 'newMyOrder']) {
-  test(name + ' accounts for unpaid and settled discounts once, excluding gifts', async () => {
-    const { view, respond } = createView(name);
-    const unpaid = { id: 1, pid: 9, pp: 800, p2: 777, pa: 777, pc: 1, s: 1 };
-    const settled = { id: 2, pid: 9, pp: 1000, p2: 200, pa: 200, pc: 1, s: 5 };
-    const gift = { id: 3, pid: 9, pp: 800, p2: 0, pa: 0, pc: 1, at: 2, s: 1 };
-    const cases = [
-      [[unpaid], { order_amt: 80000, payed_val_amt: 0, payed_free_amt: 0 }, '23.00'],
-      [[settled], { order_amt: 100000, payed_val_amt: 20000, payed_free_amt: 80000 }, '800.00'],
-      [[unpaid, settled, gift], { order_amt: 180000, payed_val_amt: 20000, payed_free_amt: 80000, yh_amt: 80000 }, '823.00'],
-      [[{ ...unpaid, p2: 0, pa: 0 }], { order_amt: 80000, payed_val_amt: 0, payed_free_amt: 0 }, '800.00'],
-      [[], { order_amt: 0, payed_val_amt: 0, payed_free_amt: 10000 }, '0.00'],
-      [[unpaid, settled, gift], { payed_free_amt: 80000, yh_amt: 80000 }, '823.00'],
-      [[unpaid, gift], { order_amt: 80000, payed_val_amt: null, payed_free_amt: 0 }, '23.00'],
-      [[gift], { yh_amt: 80000, payed_free_amt: 0 }, '0.00'],
-    ];
-    try {
-      for (const [records, pay_info, discount] of cases) {
-        respond({ code: 1, data: { records, pay_info } });
-        await view.getOrderedData();
-        assert.equal(view.amt.discountAmt, discount, JSON.stringify(pay_info));
-      }
-    } finally { view.$destroy(); }
+      assert.equal(view.getDisplayPrice({pp:800,p2:0}),'0.00');
+      assert.equal(view.getSubtotal({pp:800,p2:777,pa:700,pc:1}),'700.00');
+      const template=compiler.parseComponent(read('src/views/Order/orderMeal/'+name+'.vue')).template.content;
+      assert.deepEqual(compiler.compile(template).errors,[]);
+    } finally {view.$destroy();}
   });
 }

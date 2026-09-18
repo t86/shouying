@@ -107,27 +107,22 @@ test('without a scheme the footer retains recorded actual and original prices wi
   ], context), 372);
 });
 
-test('the Vue 2 footer ignores current schemes and updates on recorded API changes', async () => {
-  const computed = pageSection('computed');
-  const store = Vue.observable({ state: { orderInfo: { currentCardInfo: { seatId: 1 } }, cardPageInfo: { resResultDataObj: metadata() } } });
-  const view = new Vue({ data: () => ({ turnOverInfo: { activeTurnOverCount: 1, turnOverTabList: [0, 1] }, notPayData: { notPayOrderList: screenshotItems() } }), computed: { unpaidOrderAmount: computed.unpaidOrderAmount } });
+test('the Vue 2 footer follows wo/list summary and hides stale seat totals', async () => {
+  const { calculateOrderSummary } = load('src/utils/orderSummary.js');
+  const computed = pageSection('computed', { calculateOrderSummary });
+  const store = Vue.observable({ state: { orderInfo: { currentCardInfo: { seatId: 1 } } } });
+  const view = new Vue({ data: () => ({ turnOverInfo: { activeTurnOverCount: 1 },
+    orderSummaryKey: '[1,1]', orderSummaryInfo: { order_amt: 380000, payed_amt: -60000 } }),
+    computed: { orderSummary: computed.orderSummary, unpaidOrderAmount: computed.unpaidOrderAmount } });
   view.$store = store;
   try {
-    assert.equal(view.unpaidOrderAmount, '1600.10');
-    store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 20000;
+    assert.equal(view.unpaidOrderAmount, '3200.00');
+    view.orderSummaryInfo.payed_amt = -100000;
     await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1600.10');
-    view.notPayData.notPayOrderList[2].p2 = 200;
-    view.notPayData.notPayOrderList[2].pa = 200;
+    assert.equal(view.unpaidOrderAmount, '2800.00');
+    store.state.orderInfo.currentCardInfo.seatId = 2;
     await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1000.10');
-    view.turnOverInfo.activeTurnOverCount = 0;
-    await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '0.00');
-    view.turnOverInfo.activeTurnOverCount = 1;
-    view.notPayData.notPayOrderList = [];
-    await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '0.00');
+    assert.equal(view.unpaidOrderAmount, '--');
   } finally { view.$destroy(); }
 });
 
@@ -150,7 +145,7 @@ test('a successful response without unpaid orders clears rows from the previous 
     turnOverInfo: { activeTurnOverCount: 1, turnOverTabList: [0, 1] },
     notPayData: { notPayOrderList: screenshotItems(), choosePayOrderList: screenshotItems() },
     $refs: { footBar: { cardInfo: {} } }, $forceUpdate() {},
-    maskedPhone: () => '', updatePaymentCashiers() {},
+    maskedPhone: () => '', updatePaymentCashiers() {}, loadOrderSummary() {},
   };
   let callbackCalled = false;
   await methods.getOrderInfo.call(context, () => { callbackCalled = true; });
