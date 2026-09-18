@@ -53,7 +53,7 @@
           <h3>待选{{ editor.kind === 'products' ? '商品' : '员工' }}列表</h3>
           <div class="toolbar filters">
             <el-cascader v-if="editor.kind === 'products'" v-model="editor.category" :options="editor.cates" :props="categoryProps" clearable placeholder="商品分类" :disabled="editor.saving || editor.initializing" />
-            <el-cascader v-else v-model="editor.department" :options="departments" :props="departmentProps" clearable placeholder="部门" :disabled="editor.saving || editor.initializing" />
+            <el-cascader v-else v-model="editor.department" :options="departments" :props="departmentProps" clearable collapse-tags placeholder="部门（可多选）" :disabled="editor.saving || editor.initializing" />
             <el-input v-model.trim="editor.keyword" :placeholder="editor.kind === 'products' ? '商品名称/拼音' : '工号/姓名'" :disabled="editor.saving || editor.initializing" @keyup.enter.native="searchCandidates(false)" />
             <el-button type="primary" :disabled="editor.saving || editor.initializing" @click="searchCandidates(false)">查询</el-button>
             <el-button :disabled="editor.saving || editor.initializing" @click="resetCandidates">重置</el-button>
@@ -98,7 +98,7 @@ import deptApi from '@/api/BMS/dept';
 import { yuanToCents, centsToYuan, priceFor, isUnavailable, addSelection, responseData } from './model';
 
 function emptyEditor(session) {
-  return { visible: false, kind: 'products', id: 0, name: '', keyword: '', category: [], department: null,
+  return { visible: false, kind: 'products', id: 0, name: '', keyword: '', category: [], department: [],
     cates: [], candidates: [], checked: [], selected: [], session, request: 0,
     loading: false, initializing: false, saving: false, ready: false };
 }
@@ -108,7 +108,7 @@ export default {
     return { tab: 'products', keyword: '', products: [], columns: [], plans: [], listSelection: [],
       loading: false, deleting: false, listRequest: 0, savingPrices: {}, departments: [], editor: emptyEditor(0),
       categoryProps: { value: 'id', label: 'n', children: 'cs', checkStrictly: true },
-      departmentProps: { value: 'id', label: 'n', children: 'subs', checkStrictly: true, emitPath: false } };
+      departmentProps: { value: 'id', label: 'n', children: 'subs', checkStrictly: true, emitPath: false, multiple: true } };
   },
   created() { this.loadList(); },
   beforeDestroy() { this.listRequest++; this.editor.visible = false; },
@@ -183,15 +183,27 @@ export default {
       const editor = this.editor;
       if (!editor.visible || editor.saving) return;
       initial = initial || !editor.ready;
-      if (initial) { editor.keyword = ""; editor.department = null; editor.category = []; }
+      if (initial) { editor.keyword = ""; editor.department = []; editor.category = []; }
       const request = ++editor.request;
       editor.loading = true;
       if (initial) editor.initializing = true;
       editor.checked = [];
       try {
-        const data = responseData(await (editor.kind === 'products'
-          ? api.productItems({ one_cate_id: editor.category[0] || 0, two_cate_id: editor.category[1] || 0, key: editor.keyword })
-          : api.employeeItems({ plan_id: editor.id, dept_id: editor.department || 0, key: editor.keyword })));
+        let data;
+        if (editor.kind === 'products') {
+          data = responseData(await api.productItems({ one_cate_id: editor.category[0] || 0, two_cate_id: editor.category[1] || 0, key: editor.keyword }));
+        } else {
+          const departmentIds = editor.department.length ? editor.department.slice() : [0];
+          const planId = editor.id;
+          const keyword = editor.keyword;
+          const records = new Map();
+          for (const departmentId of departmentIds) {
+            const result = responseData(await api.employeeItems({ plan_id: planId, dept_id: departmentId, key: keyword }));
+            if (this.editor !== editor || !editor.visible || request !== editor.request) return;
+            (result.records || []).forEach(row => records.set(String(row.id), row));
+          }
+          data = { records: Array.from(records.values()) };
+        }
         if (this.editor !== editor || !editor.visible || request !== editor.request) return;
         editor.candidates = data.records || [];
         if (editor.kind === 'products') editor.cates = data.cates || [];
@@ -204,7 +216,7 @@ export default {
       }
     },
     resetCandidates() {
-      this.editor.keyword = ''; this.editor.category = []; this.editor.department = null;
+      this.editor.keyword = ''; this.editor.category = []; this.editor.department = [];
       this.searchCandidates(!this.editor.ready);
     },
     candidateSelectionChanged(rows) {

@@ -45,21 +45,21 @@ test('inactive metadata is ignored; zero prices are valid; invalid amounts are n
   assert.equal(getFcPrice(9, 11, 22, {}), null);
 });
 
-test('scheme overrides member/room prices, supports time-priced items and selected quantities', () => {
+test('recorded prices ignore current schemes and support time-priced items and selected quantities', () => {
   const { getFcPrice } = load('src/utils/fcPrice.js');
   const functions = load('src/utils/orderItemPrice.js', { getFcPrice, getProductPrice: () => '80' });
   const ctx = fixture();
   const item = { pid: 9, ae: 11, wei: 22, pp: '100', p2: '80', pm: '70', pa: '160', pc: 2, at: 0 };
-  assert.equal(functions.resolveUnitPrice(item, ctx), 33);
-  assert.equal(functions.calcItemAmount(item, ctx), 66);
-  assert.equal(functions.calcItemAmount({ ...item, changeCount: 1 }, ctx), 33);
-  assert.equal(functions.calcItemAmount({ ...item, pp: '0' }, ctx), 66);
+  assert.equal(functions.resolveUnitPrice(item, ctx), 80);
+  assert.equal(functions.calcItemAmount(item, ctx), 160);
+  assert.equal(functions.calcItemAmount({ ...item, changeCount: 1 }, ctx), 80);
+  assert.equal(functions.calcItemAmount({ ...item, pp: '0' }, ctx), 160);
   assert.equal(functions.isTimePriceItem({ ...item, pp: '0' }, ctx), true, 'scheme prices must not allow splitting a time-priced item');
   assert.equal(functions.calcItemAmount({ ...item, at: 2 }, ctx), 0);
   assert.equal(functions.resolveUnitPrice(item, {}), 80);
   assert.equal(functions.calcRefundAmount(item, ctx), 160, 'refund retains the existing recorded-price path');
   const storeContext = functions.buildPriceContextFromStore({ state: { cardPageInfo: { resResultDataObj: ctx } } });
-  assert.equal(functions.resolveUnitPrice(item, storeContext), 33);
+  assert.equal(functions.resolveUnitPrice(item, storeContext), 80);
 });
 
 test('metadata 58/59 transformation preserves composite ids, cents and status', () => {
@@ -108,4 +108,33 @@ test('WebSocket full/incremental metadata uses composite keys and reacts to inse
   await Vue.nextTick();
   assert.equal(view.price, null);
   view.$destroy();
+});
+
+test('recorded 1000 stays fixed after metadata changes to 200 until the order API returns a new price', () => {
+  const { getFcPrice } = load('src/utils/fcPrice.js');
+  const prices = load('src/utils/orderItemPrice.js', { getFcPrice, getProductPrice: () => 200 });
+  const ctx = fixture();
+  const row = { pid: 9, ae: 11, pp: 1000, p2: 1000, pa: 1000, pc: 1 };
+  ctx.fcProductPrices[0].pay_amt = 100000;
+  assert.equal(prices.calcItemAmount(row, ctx), 1000);
+  ctx.fcProductPrices[0].pay_amt = 20000;
+  assert.equal(prices.resolveUnitPrice(row, ctx), 1000);
+  assert.equal(prices.calcItemAmount(row, ctx), 1000);
+  assert.equal(prices.calcItemAmount({ ...row, p2: 200, pa: 200 }, ctx), 200);
+});
+
+test('recorded line totals, zero prices, gifts and split checkout keep their semantics', () => {
+  const prices = load('src/utils/orderItemPrice.js');
+  const row = { pp: 100, p2: 80, pa: 150, pc: 2 };
+  assert.equal(prices.calcItemAmount(row), 150, 'full rows retain recorded rounding and adjustments');
+  assert.equal(prices.calcItemAmount({ ...row, changeCount: 1 }), 80, 'split checkout uses recorded unit price');
+  assert.equal(prices.calcItemAmount({ ...row, changeCount: 0 }), 0);
+  assert.equal(prices.calcItemAmount({ ...row, p2: 0, pa: 0 }), 0);
+  assert.equal(prices.resolveUnitPrice({ ...row, p2: 0 }), 0);
+  assert.equal(prices.calcItemAmount({ ...row, at: 2 }), 0);
+  assert.equal(prices.calcItemAmount({ ...row, at: 3 }), 0);
+  assert.equal(prices.calcRefundAmount({ ...row, changeCount: 1 }), 80);
+  assert.equal(prices.calcRefundAmount({ ...row, changeCount: 2 }), 150);
+  assert.equal(prices.calcRefundAmount({ ...row, p2: 0, pa: 0 }), 0);
+  assert.equal(prices.calcItemAmount({ ...row, pp: 0, changeCount: 1 }), 150, 'time prices stay indivisible');
 });

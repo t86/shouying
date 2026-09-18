@@ -38,10 +38,10 @@ function screenshotItems() {
   ];
 }
 
-test('unpaid total follows the screenshot line prices: 777 + 0.10 + 600 = 1377.10', () => {
+test('unpaid total follows the screenshot line prices: 800 + 0.10 + 800 = 1600.10', () => {
   const items = screenshotItems();
   const before = JSON.stringify(items);
-  assert.equal(prices.calcUnpaidOrderAmount(items, metadata()).toFixed(2), '1377.10');
+  assert.equal(prices.calcUnpaidOrderAmount(items, metadata()).toFixed(2), '1600.10');
   assert.equal(JSON.stringify(items), before, 'calculating the footer must preserve recorded order amounts');
   assert.equal(prices.calcUnpaidOrderAmount([]), 0);
   assert.equal(prices.calcUnpaidOrderAmount(null), 0);
@@ -49,13 +49,13 @@ test('unpaid total follows the screenshot line prices: 777 + 0.10 + 600 = 1377.1
 
 test('unpaid total uses the entire remaining quantity regardless of checkout selection', () => {
   const item = { pid: 9, ae: 22, pp: '800', pc: 3, changeCount: 1, checkout: true };
-  assert.equal(prices.calcItemAmount(item, metadata()), 600, 'the selected checkout subtotal remains separate');
-  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 1800);
+  assert.equal(prices.calcItemAmount(item, metadata()), 800, 'the selected checkout subtotal remains separate');
+  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 2400);
   item.checkout = false;
   item.changeCount = 0;
-  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 1800);
+  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 2400);
   item.pc = 2;
-  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 1200, 'a changed remaining quantity changes the total');
+  assert.equal(prices.calcUnpaidOrderAmount([item], metadata()), 1600, 'a changed remaining quantity changes the total');
 });
 
 test('online groups use expanded unrefunded rows and charge a package only once', () => {
@@ -80,7 +80,7 @@ test('zero scheme prices, time prices, exhausted rows and per-line cents keep th
   const context = metadata();
   context.fcProductPrices[0].pay_amt = 0;
   const items = [
-    { pid: 9, ae: 11, pp: 800, p2: 700, pc: 2 },
+    { pid: 9, ae: 11, pp: 800, p2: 0, pc: 2 },
     { pp: 0, pa: '12.34', pc: 3, changeCount: 1 },
     { pp: 0, pa: 999, pc: 0 },
     { pp: 0, pa: 999, pc: '0' },
@@ -90,10 +90,10 @@ test('zero scheme prices, time prices, exhausted rows and per-line cents keep th
     { pp: '0.2', pc: 1 },
   ];
   assert.equal(prices.calcUnpaidOrderAmount(items, context), 13.32);
-  assert.equal(prices.calcUnpaidOrderAmount([{ pid: 9, ae: 22, pp: 0, pa: 999, pc: 2 }], context), 1200);
+  assert.equal(prices.calcUnpaidOrderAmount([{ pid: 9, ae: 22, pp: 0, pa: 999, pc: 2 }], context), 999);
 });
 
-test('without a scheme the footer retains actual, business and original price fallbacks', () => {
+test('without a scheme the footer retains recorded actual and original prices without current business repricing', () => {
   const context = {
     cardInfo: { seatId: 1, seatType: 4 },
     businessData: [{ seatId: 1, sales_emp_id: 22, csm_cust_phone: '13800000000' }],
@@ -104,45 +104,31 @@ test('without a scheme the footer retains actual, business and original price fa
     { pp: 100, p2: 80, pm: 70, pc: 2, productInfo },
     { pp: 100, pc: 2, productInfo },
     { pp: 12, pc: 1 },
-  ], context), 282);
+  ], context), 372);
 });
 
-test('the Vue 2 footer reacts to scheme metadata, author, quantity and turnover changes', async () => {
+test('the Vue 2 footer ignores current schemes and updates on recorded API changes', async () => {
   const computed = pageSection('computed');
-  assert.equal(typeof computed.unpaidOrderAmount, 'function');
   const store = Vue.observable({ state: { orderInfo: { currentCardInfo: { seatId: 1 } }, cardPageInfo: { resResultDataObj: metadata() } } });
-  const view = new Vue({
-    data: () => ({ turnOverInfo: { activeTurnOverCount: 1, turnOverTabList: [0, 1] }, notPayData: { notPayOrderList: screenshotItems() } }),
-    computed: { unpaidOrderAmount: computed.unpaidOrderAmount },
-  });
+  const view = new Vue({ data: () => ({ turnOverInfo: { activeTurnOverCount: 1, turnOverTabList: [0, 1] }, notPayData: { notPayOrderList: screenshotItems() } }), computed: { unpaidOrderAmount: computed.unpaidOrderAmount } });
   view.$store = store;
   try {
-    assert.equal(view.unpaidOrderAmount, '1377.10');
-    store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
+    assert.equal(view.unpaidOrderAmount, '1600.10');
+    store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 20000;
     await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1277.10');
-    view.notPayData.notPayOrderList[2].ae = 11;
+    assert.equal(view.unpaidOrderAmount, '1600.10');
+    view.notPayData.notPayOrderList[2].p2 = 200;
+    view.notPayData.notPayOrderList[2].pa = 200;
     await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1554.10');
-    view.notPayData.notPayOrderList[2].ae = 0;
-    await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1277.10', 'absent author falls back to the waiter scheme');
-    view.notPayData.notPayOrderList[2].ae = 99;
-    await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '1577.10', 'unmatched author uses the actual order price');
-    view.notPayData.notPayOrderList[2].pc = 2;
-    await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '2377.10');
+    assert.equal(view.unpaidOrderAmount, '1000.10');
     view.turnOverInfo.activeTurnOverCount = 0;
     await Vue.nextTick();
-    assert.equal(view.unpaidOrderAmount, '0.00', 'historical turnovers do not expose the current unpaid total');
+    assert.equal(view.unpaidOrderAmount, '0.00');
     view.turnOverInfo.activeTurnOverCount = 1;
     view.notPayData.notPayOrderList = [];
     await Vue.nextTick();
     assert.equal(view.unpaidOrderAmount, '0.00');
-  } finally {
-    view.$destroy();
-  }
+  } finally { view.$destroy(); }
 });
 
 test('the unpaid amount label binds to the reactive total and the page template compiles', () => {

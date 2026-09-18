@@ -262,6 +262,7 @@
 </template>
 
 <script>
+import footerCardAmountMixin from "./footerCardAmountMixin";
 import common_book from "@/utils/common/book";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
@@ -352,7 +353,7 @@ const payTypeList = [
 ];
 
 export default {
-  mixins: [waiterPayAmountMixin],
+  mixins: [footerCardAmountMixin, waiterPayAmountMixin],
   data() {
     return {
       canLookOrderAmt: false,
@@ -508,6 +509,7 @@ export default {
       if (this.$store.state.userInfo.authStatus == 4) {
         eventVue.$off("changeTurnOverCountHandle");
         eventVue.$on("changeTurnOverCountHandle", (amtInfoList = []) => {
+          this.footerHistoricalAmounts = true;
           let orderAmt = 0;
           let payed_val_amt = 0;
           let order_zy_amt = 0;
@@ -517,7 +519,7 @@ export default {
           amtInfoList.forEach((el) => {
             orderAmt += el.amts.o * 1;
             payed_val_amt += el.amts.pv * 1;
-            order_zy_amt += el.amts.pzv * 1;
+            order_zy_amt += el.amts.oz * 1;
             payedAmt += el.amts.p * 1;
             payed_zy_val_amt += el.amts.pzv * 1;
           });
@@ -534,10 +536,11 @@ export default {
 
         eventVue.$off("changeTurnOverCountNotPayHandle");
         eventVue.$on("changeTurnOverCountNotPayHandle", () => {
-          this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+          this.footerHistoricalAmounts = false;
+          this.refreshFooterCardAmounts();
         });
       }
-      this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      this.refreshFooterCardAmounts();
       this.getAuthInfo();
       this.timer = setInterval(this.getAuthInfo, 30000);
       this.$store.dispatch("getShoppingCount", this);

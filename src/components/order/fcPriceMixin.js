@@ -29,13 +29,13 @@ export default {
       return result;
     },
     fcOrderOriginal(item, actual) {
-      return this.fcOrderPrice(item) !== null && Number(item.pp) > 0 && Number(item.pp) !== Number(actual);
+      return Boolean(item) && Number.isFinite(Number(actual)) && Number(item.pp) > 0 && Number(item.pp) !== Number(actual);
     },
     fcOriginalSubtotal(item) {
       return Number(item.pp) > 0 ? Number(item.pp) * Number(item.pc || 0) : Number(item.pa || 0);
     },
     fcSubtotalOriginal(item, actual) {
-      return this.fcOrderPrice(item) !== null && this.fcOriginalSubtotal(item) > 0 && this.fcOriginalSubtotal(item) !== Number(actual);
+      return Boolean(item) && Number.isFinite(Number(actual)) && this.fcOriginalSubtotal(item) > 0 && this.fcOriginalSubtotal(item) !== Number(actual);
     },
     fcProductOriginalPrice(product) { return Number(product.vipPrice || product.price || 0); },
     fcOriginalText(item) { return Number(item.pp).toFixed(2); },

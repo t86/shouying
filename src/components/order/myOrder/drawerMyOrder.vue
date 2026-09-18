@@ -1240,7 +1240,9 @@ export default {
         };
         const res = await api_money.chg_wkorder_auther(params)
         if (res.code == 1) {
-          this.$message.success('修改授权人成功');
+          this.$message.success(res.data && res.data.amt_chged == 1
+            ? '修改授权人成功，商品折后价格已更新'
+            : '修改授权人成功');
           this.$parent.$parent.getOrderInfo();
           this.onCancelDrawer(true);
         } else {

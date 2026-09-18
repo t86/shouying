@@ -75,21 +75,21 @@ for(const variant of ['drawerMeal','newDrawerMeal']) {
   });
 }
 for(const page of ['shoppingCart','newShoppingCart','myOrder','newMyOrder']) {
- test(page+' displays scheme instead of prior p2/pa and preserves raw order',()=>{
+ test(page+' displays recorded p2/pa despite current employee scheme',()=>{
    const ctx=context();Object.assign(ctx,methods('views/Order/orderMeal/'+page+'.vue'));
    const row={pid:1,ae:4,wei:2,pc:2,pp:'100',p2:'80',pa:'160',at:0,productInfo:{price:100}};
-   assert.equal(ctx.getDisplayPrice(row),'12.34');
-   assert.equal(ctx.getSubtotal(row),'24.68');
+   assert.equal(ctx.getDisplayPrice(row),'80.00');
+   assert.equal(ctx.getSubtotal(row),'160.00');
    assert.equal(row.p2,'80');assert.equal(row.pa,'160');
-   row.ae=0;assert.equal(ctx.getDisplayPrice(row),'0.00');assert.equal(ctx.getSubtotal(row),'0.00');
+   row.ae=0;assert.equal(ctx.getDisplayPrice(row),'80.00');assert.equal(ctx.getSubtotal(row),'160.00');
  });
 }
 for (const page of ['shoppingCart','newShoppingCart']) {
- test(page+' payable total uses scheme line totals while preserving gift exclusions',()=>{
+ test(page+' payable total uses recorded amounts while preserving gift exclusions',()=>{
    const file='views/Order/orderMeal/'+page+'.vue';
    const ctx=context();Object.assign(ctx,methods(file));
    ctx.shoppingCartList=[{pid:1,ae:4,wei:2,pc:2,pp:'100',pa:'200',at:0},{pid:1,ae:0,wei:2,pc:5,pp:'100',pa:'500',at:0},{pid:1,ae:4,wei:2,pc:1,pa:'100',at:2}];
-   assert.equal(methods(file,{},'computed').amt.call(ctx).allAmt,'24.68');
+   assert.equal(methods(file,{},'computed').amt.call(ctx).allAmt,'700.00');
  });
 }
 test('original-price indication compares values without rewriting product or order data',()=>{
@@ -128,8 +128,8 @@ test('product real original price survives the prior business-price promotion',(
  assert.equal(info.originalPrice,'100.00');assert.equal(info.memberPrice,'0.00');
 });
 for (const page of ['myOrder', 'newMyOrder']) {
- test(page+' preserves original unit price when no scheme exists and p2 is numeric zero', () => {
+ test(page+' preserves recorded zero price when no scheme exists', () => {
    const ctx=context();Object.assign(ctx,methods('views/Order/orderMeal/'+page+'.vue'));
-   assert.equal(ctx.getDisplayPrice({pid:999,ae:0,wei:2,pp:100,p2:0}),'100.00');
+   assert.equal(ctx.getDisplayPrice({pid:999,ae:0,wei:2,pp:100,p2:0}),'0.00');
  });
 }

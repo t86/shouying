@@ -269,9 +269,21 @@ export default {
     };
   },
   methods: {
-    getDisplayPrice(item) { const price = this.fcOrderPrice(item); return price === null ? item.pp : price.toFixed(2); },
+    // 购物车金额沿用接口记录；商品或员工方案调价不重算已有项。
+    getDisplayPrice(item) {
+      if (!item) return "0.00";
+      const hasP2 = item.p2 !== undefined && item.p2 !== null && item.p2 !== "";
+      if (hasP2 && Number.isFinite(Number(item.p2))) return Number(item.p2).toFixed(2);
+      return Number(item.pp) === 0 ? "时价" : Number(item.pp || 0).toFixed(2);
+    },
     getSubtotal(item) {
-      if (item && (item.at == 2 || item.at == 3)) return "0.00"; const price = this.fcOrderPrice(item); return price === null ? item.pa : (price * Number(item.pc || 0)).toFixed(2); },
+      if (!item || item.at == 2 || item.at == 3 || Number(item.pc) === 0) return "0.00";
+      const hasAmount = item.pa !== undefined && item.pa !== null && item.pa !== "";
+      if (hasAmount && Number.isFinite(Number(item.pa))) return Number(item.pa).toFixed(2);
+      const price = Number(this.getDisplayPrice(item));
+      return Number.isFinite(price) ? (price * Number(item.pc || 0)).toFixed(2) : "0.00";
+    },
+
     // 删除购物车商品
     delProduct(info) {
       this.$confirm("确认删除此商品吗？", "删除？", {

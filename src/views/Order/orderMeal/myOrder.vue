@@ -68,10 +68,10 @@
                   {{ item.pc }}
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
-                  <span v-if="!item.back && item.s != 5 && fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span>
+                  <span v-if="!item.back && fcOrderOriginal(item, getDisplayPrice(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalText(item) }}</span><span>{{ getDisplayPrice(item) }}</span>
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
-                  <span v-if="!item.back && item.s != 5 && fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span>
+                  <span v-if="!item.back && fcSubtotalOriginal(item, getSubtotal(item))" style="display:block;color:#999;text-decoration:line-through">{{ fcOriginalSubtotal(item).toFixed(2) }}</span><span>{{ getSubtotal(item) }}</span>
                 </div>
                 <div class="td" :class="{ opacity: item.back }">
                   {{ item.personInfo && item.personInfo.name }}
@@ -176,12 +176,16 @@
         >
           <div class="amt" layout="row">
             <div class="p m-r-5" layout="row" layout-align="start center">
-              <span>点单金额：</span>
+              <span>折前金额：</span>
               <span class="num">￥{{ amt.allAmt }}</span>
             </div>
             <div class="p m-r-5" layout="row" layout-align="start center">
               <span>优惠金额：</span>
               <span class="num">￥{{ amt.giveAmt }}</span>
+            </div>
+            <div class="p m-r-5" layout="row" layout-align="start center">
+              <span>折扣金额：</span>
+              <span class="num">￥{{ amt.discountAmt }}</span>
             </div>
             <div class="p" layout="row" layout-align="start center">
               <span>未结账金额：</span>
@@ -327,7 +331,7 @@ export default {
         const res = await api_order.reqGetOrderList(params);
         if (res.code === 1) {
           const payInfo = res.data.pay_info || {};
-          this.orderGiftAmount = ((payInfo.yh_amt || 0) / 100).toFixed(2);
+          this.orderPayInfo = payInfo;
           const data = res.data.records || [];
           data.forEach((el) => {
             el.productInfo = common_order.getProductInfo(el.pid);
@@ -383,7 +387,7 @@ export default {
           console.log("当前人员未参与当前卡台点单");
           this.orderList = [];
           this.amountOrderList = [];
-          this.orderGiftAmount = "0.00";
+          this.orderPayInfo = {};
           this.wineList = [];
         } else {
           this.$message.warning(res.msg);
@@ -629,65 +633,19 @@ export default {
       return subPermissionId === 98; // 默认返回可查看当台消费
     },
 
-    // 获取订单项的显示价格
-    // 未结明细应用员工价格方案；已结和退单明细保留下单时的价格。
+    // 已下单记录使用接口保存的价格，不随当前员工方案变化。
     getDisplayPrice(item) {
-      if (item && !item.back && Number(item.s) !== 5) {
-        const schemePrice = this.fcOrderPrice(item);
-        if (schemePrice !== null) return schemePrice.toFixed(2);
-      }
-      // 如果是时价商品（pp = 0），返回"时价"
-      if (item && item.pp * 1 == 0) {
-        return '时价';
-      }
-
-      // ========== 关键修复：使用 p2（实际价格）而不是重新计算 ==========
-      // p2 是下单时确定的价格，即使卡台状态变化（会员变散客），显示的价格也应该是下单时的价格
-      if (item && item.p2) {
-        return (item.p2 * 1).toFixed(2);
-      }
-
-      // 降级方案：如果没有 p2 字段，使用 pp（原价）
-      // 注意：这种情况理论上不应该出现，因为 API 应该总是返回 p2
-      if (item && item.pp) {
-        console.warn('[订单显示] 缺少 p2 字段，使用 pp 作为降级方案:', item);
-        return (item.pp * 1).toFixed(2);
-      }
-
-      return '0.00';
+      if (!item) return '0.00';
+      if (item.pp !== undefined && item.pp !== null && item.pp !== '' && Number(item.pp) === 0) return '时价';
+      const price = item.p2 !== undefined && item.p2 !== null && item.p2 !== '' ? item.p2 : item.pp;
+      return Number(price || 0).toFixed(2);
     },
 
-    // 获取订单项的小计
-    // 汇总复用此小计，已结和退单金额不随当前员工方案变化。
     getSubtotal(item) {
-      if (item && (item.at == 2 || item.at == 3)) return "0.00";
-      if (item && !item.back && Number(item.s) !== 5) {
-        const schemePrice = this.fcOrderPrice(item);
-        if (schemePrice !== null) return (schemePrice * Number(item.pc || 0)).toFixed(2);
-      }
-      if (!item) {
-        return '0.00';
-      }
-
-      // 如果是优惠商品，返回0.00
-      if (item.at == 2 || item.at == 3) {
-        return '0.00';
-      }
-
-      // ========== 关键修复：使用 pa（商品金额）而不是重新计算 ==========
-      // pa 是下单时确定的金额，即使卡台状态变化，显示的金额也应该是下单时的金额
-      if (item.pa !== undefined && item.pa !== null) {
-        return (item.pa * 1).toFixed(2);
-      }
-
-      // 降级方案：如果没有 pa 字段，使用 pp * pc（原价 × 数量）
-      // 注意：这种情况理论上不应该出现，因为 API 应该总是返回 pa
-      if (item.pp && item.pc) {
-        console.warn('[订单显示] 缺少 pa 字段，使用 pp × pc 作为降级方案:', item);
-        return (item.pp * item.pc).toFixed(2);
-      }
-
-      return '0.00';
+      if (!item || Number(item.pc) === 0 || item.at == 2 || item.at == 3) return '0.00';
+      if (item.pa !== undefined && item.pa !== null && item.pa !== '') return Number(item.pa).toFixed(2);
+      const price = item.p2 !== undefined && item.p2 !== null && item.p2 !== '' ? item.p2 : item.pp;
+      return (Number(price || 0) * Number(item.pc || 0)).toFixed(2);
     },
   },
   created() {

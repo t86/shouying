@@ -123,3 +123,36 @@ test('own plan members are checked while other-plan employees remain disabled an
   assert.equal(ctx.canSelect(own),false);
   assert.equal(ctx.canSelect(other),false);
 });
+
+test('multiple departments merge employees once and retain selected members', async () => {
+  const calls=[];
+  const {ctx}=component({employeeItems:async params=>{
+    calls.push({...params});
+    return {code:1,data:{records:params.dept_id===10 ? [{id:1,s:0},{id:2,s:2}] : [{id:'1',s:0},{id:3,s:0}]}};
+  }});
+  assert.equal(ctx.departmentProps.multiple,true);
+  Object.assign(ctx.editor,{visible:true,kind:'plans',id:8,ready:true,department:[10,20],keyword:'员工',selected:[{id:9,s:1}]});
+  await ctx.searchCandidates(false);
+  assert.deepEqual(calls,[{plan_id:8,dept_id:10,key:'员工'},{plan_id:8,dept_id:20,key:'员工'}]);
+  assert.equal(JSON.stringify(ctx.editor.candidates.map(row=>String(row.id))),'["1","2","3"]');
+  assert.equal(ctx.canSelect(ctx.editor.candidates[1]),false);
+  assert.equal(ctx.editor.selected[0].id,9);
+});
+test('clearing multiple departments queries all employees without dropping selection', async () => {
+  let params;
+  const {ctx}=component({employeeItems:async p=>{params=p;return {code:1,data:{records:[]}};}});
+  Object.assign(ctx.editor,{visible:true,kind:'plans',ready:true,department:[],selected:[{id:7}],keyword:''});
+  await ctx.searchCandidates(false);
+  assert.equal(params.dept_id,0);
+  assert.equal(ctx.editor.selected[0].id,7);
+  ctx.editor.department=[10,20]; ctx.searchCandidates=()=>{};ctx.resetCandidates();
+  assert.equal(JSON.stringify(ctx.editor.department),'[]');
+});
+test('a failed department request does not publish a partial employee list', async () => {
+ const {ctx,messages}=component({employeeItems:async p=>p.dept_id===10 ? {code:1,data:{records:[{id:1}]}} : {code:0,msg:'部门查询失败'}});
+ Object.assign(ctx.editor,{visible:true,kind:'plans',ready:true,department:[10,20],candidates:[{id:9}]});
+ await ctx.searchCandidates(false);
+ assert.equal(ctx.editor.candidates[0].id,9);
+ assert.deepEqual(messages,['部门查询失败']);
+ assert.equal(ctx.editor.loading,false);
+});

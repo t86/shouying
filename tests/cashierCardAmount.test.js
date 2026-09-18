@@ -65,7 +65,7 @@ function fixture(request = async () => response(), cards = [card()], safeModeEna
   return { view, store, calls };
 }
 
-test('cashier card uses 777 + 0.10 + 600, retaining the already settled 800', async () => {
+test('cashier card uses 777 + 0.10 + 800, retaining the already settled 800', async () => {
   const originalRows = rows();
   const before = JSON.stringify(originalRows);
   const { view, calls } = fixture(async () => response(originalRows));
@@ -74,8 +74,8 @@ test('cashier card uses 777 + 0.10 + 600, retaining the already settled 800', as
     assert.equal(view.getCardUnpaidAmount(current), '--', 'the stale summary is not used while loading');
     await settled(view);
     assert.deepEqual(calls, [{ seat_id: 7, turnover_cnt: 1 }]);
-    assert.equal(view.getCardUnpaidAmount(current), '1377.10');
-    assert.equal(view.getCardOrderAmount(current), '2177.10');
+    assert.equal(view.getCardUnpaidAmount(current), '1577.10');
+    assert.equal(view.getCardOrderAmount(current), '2377.10');
     assert.equal(current.payedAmt, 800);
     assert.equal(current.orderAmt, 2377.1);
     assert.equal(JSON.stringify(originalRows), before, 'server records stay unchanged');
@@ -87,29 +87,29 @@ test('order total preserves paid historical gross amounts and settlement discoun
   try {
     await settled(view);
     const current = view.card.cardList[0];
-    assert.equal(view.getCardUnpaidAmount(current), '1377.10');
-    assert.equal(view.getCardOrderAmount(current), '2377.10', 'only the unpaid 200 price difference changes the total');
+    assert.equal(view.getCardUnpaidAmount(current), '1577.10');
+    assert.equal(view.getCardOrderAmount(current), '2577.10', 'recorded summary must not be repriced');
   } finally { view.$destroy(); }
 });
 
-test('scheme metadata updates the cached detail total reactively without another request', async () => {
+test('scheme metadata cannot change recorded detail totals', async () => {
   const { view, store, calls } = fixture();
   try {
     await settled(view);
     const current = view.card.cardList[0];
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
     await Vue.nextTick();
-    assert.equal(view.getCardUnpaidAmount(current), '1277.10');
-    assert.equal(view.getCardOrderAmount(current), '2077.10');
+    assert.equal(view.getCardUnpaidAmount(current), '1577.10');
+    assert.equal(view.getCardOrderAmount(current), '2377.10');
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 0;
-    assert.equal(view.getCardUnpaidAmount(current), '777.10');
+    assert.equal(view.getCardUnpaidAmount(current), '1577.10');
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].status = 2;
     assert.equal(view.getCardUnpaidAmount(current), '1577.10');
     assert.equal(calls.length, 1);
   } finally { view.$destroy(); }
 });
 
-test('each card uses its own business/member/box metadata rather than the selected card', async () => {
+test('current business/member/box metadata cannot overwrite recorded prices', async () => {
   const pending = deferred();
   const { view, store } = fixture(() => pending.promise, [
     card({ seatId: 1, seatType: 4, orderAmt: 100, payedAmt: 0 }),
@@ -126,8 +126,8 @@ test('each card uses its own business/member/box metadata rather than the select
     metadata.businessEmpList = [{ emp_id: 11, status: 1 }];
     pending.resolve(response([{ pid: 40, pp: 100, pa: 100, pc: 1 }]));
     await settled(view);
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '55.00');
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '55.00');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '100.00');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '100.00');
     assert.equal(view.getCardUnpaidAmount(view.card.cardList[1]), '100.00');
   } finally { view.$destroy(); }
 });
@@ -149,16 +149,16 @@ test('online rows count once, refunds and gifts count zero, and remaining pc ign
   }, payed_order: { os: [{ pp: 800, pc: 1, pa: 800 }] } } }));
   try {
     await settled(view);
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1212.64');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1612.64');
   } finally { view.$destroy(); }
 });
 
-test('missing recorded subtotal uses the no-scheme amount for the historical-price delta', async () => {
+test('missing recorded subtotal falls back to recorded unit price', async () => {
   const { view } = fixture(async () => response([{ pid: 9, ae: 22, pp: 800, p2: 800, pc: 2 }]), [card({ orderAmt: 2400 })]);
   try {
     await settled(view);
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1200.00');
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2000.00');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1600.00');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2400.00');
   } finally { view.$destroy(); }
 });
 
@@ -206,7 +206,7 @@ test('a changed amount summary invalidates the cache before its refreshed respon
     assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '--');
     pending.resolve(response(rows().concat({ pp: 12, p2: 12, pa: 12, pc: 1 })));
     await settled(view);
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1389.10');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1589.10');
   } finally { view.$destroy(); }
 });
 
@@ -221,7 +221,7 @@ test('failed requests hide stale amounts and the next refresh retries successful
     assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '--');
     fail = false;
     await view.refreshCardAmounts();
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1377.10');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1577.10');
     assert.equal(calls.length, 3);
   } finally { view.$destroy(); }
 });
@@ -250,7 +250,7 @@ test('refreshes share a runner with at most three simultaneous detail requests',
     assert.equal(view.cardAmountRefreshRunning, false);
     assert.equal(maxActive, 3);
     assert.equal(new Set(calls.map(params => params.seat_id)).size, 8);
-    for (const current of view.card.cardList) assert.equal(view.getCardUnpaidAmount(current), '1377.10');
+    for (const current of view.card.cardList) assert.equal(view.getCardUnpaidAmount(current), '1577.10');
   } finally { view.$destroy(); }
 });
 
@@ -261,7 +261,7 @@ test('safe mode skips reads, clears cached details, and loads again when disable
     assert.equal(calls.length, 0);
     view.safeModeEnabled = false;
     await settled(view);
-    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1377.10');
+    assert.equal(view.getCardUnpaidAmount(view.card.cardList[0]), '1577.10');
     view.safeModeEnabled = true;
     await settled(view);
     assert.equal(calls.length, 1);

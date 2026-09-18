@@ -216,6 +216,7 @@ export default {
       this.loading = true;
       let successCount = 0;
       let failCount = 0;
+      let amountChanged = false;
 
       for (const order of selectedOrders) {
         try {
@@ -227,6 +228,7 @@ export default {
           const res = await api_money.chg_wkorder_auther(params);
           if (res.code == 1) {
             successCount++;
+            if (res.data && res.data.amt_chged == 1) amountChanged = true;
           } else {
             failCount++;
             console.log(`订单${order.id}修改失败:`, res.msg);
@@ -241,7 +243,7 @@ export default {
 
       if (successCount > 0) {
         this.$message.success(
-          `批量修改完成！成功${successCount}个${failCount > 0 ? `，失败${failCount}个` : ""}`
+          `批量修改完成！成功${successCount}个${failCount > 0 ? `，失败${failCount}个` : ""}${amountChanged ? "，商品折后价格已更新" : ""}`
         );
         this.$emit("success");
         this.onCancelDialog();

@@ -413,7 +413,6 @@
 </template>
 
 <script>
-import { getFcPrice } from "@/utils/fcPrice";
 import { formatPaymentCashier } from "@/utils/paymentCashiers";
 import api_money from "@/api/money";
 import common_money from "@/utils/common/money";
@@ -456,12 +455,7 @@ export default {
     };
   },
   methods: {
-    // Display current author-plan prices without rewriting historical payment amounts.
-    schemePrice(item) {
-      if (!item) return null;
-      const metadata = this.$store.state.cardPageInfo.resResultDataObj;
-      return getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, metadata);
-    },
+    // 历史订单的价格与折扣仅使用接口记录，不随当前方案变化。
     originalUnit(item) { return Number(item.pp || 0).toFixed(2); },
     displayCount(item) {
       return Number(item.pc || 0);
@@ -470,25 +464,20 @@ export default {
       return (Number(item.pp) === 0 ? Number(item.pa || 0) : Number(item.pp || 0) * this.displayCount(item)).toFixed(2);
     },
     showOriginalUnit(item) {
-      const price = this.schemePrice(item);
-      return price !== null && Number(item.pp) !== 0 && Number(item.pp).toFixed(2) !== price.toFixed(2);
+      const actual = Number(this.getDisplayPrice(item));
+      return Number(item.pp) > 0 && Number.isFinite(actual) && Number(item.pp) !== actual;
     },
     showOriginalSubtotal(item, online) {
-      const price = this.schemePrice(item);
-      return price !== null && !this.isFreeDisplay(item, online) && this.originalSubtotal(item) !== (price * this.displayCount(item)).toFixed(2);
+      return !this.isFreeDisplay(item, online) && Number(this.originalSubtotal(item)) > 0 && this.originalSubtotal(item) !== this.getSubtotal(item, online);
     },
     isFreeDisplay(item, online) {
       return item.at == 2 || (item.at == 3 && (online || !(item.io == 1 || item.oid)));
     },
     getDisplayPrice(item) {
-      const price = this.schemePrice(item);
-      if (price !== null) return price.toFixed(2);
-      return Number(item.pp) === 0 ? '时价' : Number(item.p2 || item.pp || 0).toFixed(2);
+      return Number(item.pp) === 0 ? '时价' : Number(item.p2 !== undefined && item.p2 !== null && item.p2 !== '' ? item.p2 : item.pp || 0).toFixed(2);
     },
     getSubtotal(item, online) {
       if (this.isFreeDisplay(item, online)) return '0.00';
-      const price = this.schemePrice(item);
-      if (price !== null) return (price * this.displayCount(item)).toFixed(2);
       return Number(item.pa !== undefined && item.pa !== null ? item.pa : item.pp * item.pc).toFixed(2);
     },
 

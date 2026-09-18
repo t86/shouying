@@ -1,6 +1,5 @@
 import api_order from "@/api/order";
 import cardAmountLoaderMixin from "@/components/common/cardAmountLoaderMixin";
-import fcPriceMixin from "./fcPriceMixin";
 
 function needsDetails(card) {
   // 关联功能台展示 get_sp_seat_list 的合并金额，不用单个流水的明细覆盖。
@@ -10,7 +9,7 @@ function needsDetails(card) {
 }
 
 export default {
-  mixins: [cardAmountLoaderMixin, fcPriceMixin],
+  mixins: [cardAmountLoaderMixin],
   methods: {
     canReadCardAmount(card) {
       return Boolean(card && card.canLookOrder && Number(this.typeModule) === 1 && !this.safeModeEnabled);
@@ -48,19 +47,7 @@ export default {
       if (!detail) return "--";
       let orderCents = detail.orderCents;
       if (orderCents === null) orderCents = Math.round(Number(card.orderAmt || 0) * 100);
-      detail.rows.forEach((row) => {
-        // pc 已扣除退单数量，bs/si 不再重复计费；已结记录保持原结算价格。
-        if (!row || row.back || Number(row.s) === 5 || row.at == 2 || row.at == 3) return;
-        const count = Number(row.pc);
-        if (!Number.isFinite(count) || count <= 0) return;
-        const schemePrice = this.fcOrderPrice(row);
-        if (schemePrice === null) return;
-        let recordedAmount = Number(row.p2 || row.pp || 0) * count;
-        if (row.pa !== undefined && row.pa !== null && row.pa !== "") recordedAmount = Number(row.pa);
-        if (!Number.isFinite(recordedAmount)) return;
-        orderCents += Math.round(schemePrice * count * 100) - Math.round(recordedAmount * 100);
-      });
-      // 只调整未结商品的方案价差，保留接口的全台范围和已结账优惠。
+      // 全台已记账总额以接口摘要为准，不叠加当前方案差额。
       return (orderCents / 100).toFixed(2);
     },
   },

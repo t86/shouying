@@ -382,6 +382,7 @@
 </template>
 
 <script>
+import footerCardAmountMixin from "./footerCardAmountMixin";
 import common_book from "@/utils/common/book";
 import eventVue from "@/utils/eventVue";
 import api_auth from "@/api/UtilAuth";
@@ -1289,6 +1290,7 @@ export default {
         // 查看翻台记录（开台/清台状态下，查看历史消费），更新页面底部的五个金额
         eventVue.$off("changeTurnOverCountHandle");
         eventVue.$on("changeTurnOverCountHandle", (amtInfoList = []) => {
+          this.footerHistoricalAmounts = true;
           console.log('changeTurnOverCountHandle=========================================', amtInfoList)
           let orderAmt = 0;
           let payed_val_amt = 0;
@@ -1323,10 +1325,11 @@ export default {
         // 查看当台记录，更新页面底部的五个金额
         eventVue.$off("changeTurnOverCountNotPayHandle");
         eventVue.$on("changeTurnOverCountNotPayHandle", () => {
-          this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+          this.footerHistoricalAmounts = false;
+          this.refreshFooterCardAmounts();
         });
       }
-      this.cardInfo = this.$store.state.orderInfo.currentCardInfo;
+      this.refreshFooterCardAmounts();
       this.getAuthInfo();
       this.timer = setInterval(this.getAuthInfo, 30000);
       this.$store.dispatch("getShoppingCount", this);
@@ -1801,7 +1804,7 @@ export default {
     // 移除事件监听
     eventVue.$off("safeModeChanged");
   },
-  mixins: [cardPageMixins, authStatus, waiterPayAmountMixin],
+  mixins: [footerCardAmountMixin, cardPageMixins, authStatus, waiterPayAmountMixin],
 };
 </script>
 <style>

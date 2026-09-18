@@ -78,114 +78,94 @@ function assertAmounts(view, allAmt, notPayAmt, giveAmt = '0.00') {
 }
 
 for (const name of ['myOrder', 'newMyOrder']) {
-  test(name + ' loads the screenshot rows and sums current subtotals without subtracting paid money twice', async () => {
-    const { view, requests } = createView(name);
-    try {
-      assertAmounts(view, '0.00', '0.00');
-      await view.getOrderedData();
-      assert.deepEqual(JSON.parse(JSON.stringify(requests)), [{ seat_id: 31, turnover_cnt: 2 }]);
-      assert.deepEqual(Array.from(view.orderList, row => view.getSubtotal(row)), ['777.00', '0.10', '600.00', '800.00']);
-      assertAmounts(view, '2177.10', '1377.10');
-      assert.equal(view.amountOrderList[2].pa, '800', 'display correction must preserve the API amount');
-      assert.equal(view.amountOrderList[3].s, 5);
-    } finally { view.$destroy(); }
-  });
-
-  test(name + ' keeps whole-table amount scope when actual permission filtering hides other employees', async () => {
-    const { view } = createView(name);
-    try {
-      view.$store.state.userInfo.sys_modules = [6];
-      await view.getOrderedData();
-      assert.deepEqual(Array.from(view.orderList, row => row.id), [1, 2, 4]);
-      assert.equal(view.amountOrderList.length, 4);
-      assertAmounts(view, '2177.10', '1377.10');
-    } finally { view.$destroy(); }
-  });
-
-  test(name + ' updates totals reactively for metadata and quantities while paid and returned prices remain recorded', async () => {
+  test(name + ' uses recorded prices and pa including zero regardless of current metadata', async () => {
     const { view, respond } = createView(name);
     respond(response([
-      ...screenshotRows().slice(0, 3),
-      { id: 4, pid: 9, ae: 22, wei: 22, pp: 800, p2: 700, pa: 700, pc: 1, s: '5' },
-      { id: 5, pid: 9, ae: 22, wei: 22, pp: 800, p2: 650, pa: 650, pc: 1, s: 1, back: true },
+      ...screenshotRows(),
+      { id: 5, pid: 9, ae: 22, wei: 22, pp: 800, p2: 0, pa: 0, pc: 1, s: 1 },
     ]));
     try {
       await view.getOrderedData();
-      assertAmounts(view, '2077.10', '1377.10');
-      assert.equal(view.getDisplayPrice(view.amountOrderList[3]), '700.00');
-      assert.equal(view.getSubtotal(view.amountOrderList[4]), '650.00');
+      assert.deepEqual(Array.from(view.orderList, row => view.getSubtotal(row)), ['777.00', '0.10', '800.00', '800.00', '0.00']);
+      assert.equal(view.getDisplayPrice(view.orderList[4]), '0.00');
       view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
       await Vue.nextTick();
-      assertAmounts(view, '1977.10', '1277.10');
-      assert.equal(view.getSubtotal(view.amountOrderList[3]), '700.00');
-      assert.equal(view.getDisplayPrice(view.amountOrderList[4]), '650.00');
-      view.amountOrderList[2].pc = 2;
-      await Vue.nextTick();
-      assertAmounts(view, '2477.10', '1777.10');
-      view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 0;
-      await Vue.nextTick();
-      assertAmounts(view, '1477.10', '777.10');
-      view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices = [];
-      await Vue.nextTick();
-      assertAmounts(view, '2277.10', '1577.10', '0.00');
+      assert.equal(view.getDisplayPrice(view.orderList[2]), '800.00');
+      assertAmounts(view, '2377.10', '1577.10');
     } finally { view.$destroy(); }
   });
 
-  test(name + ' ignores gift, zero-quantity and return rows and preserves unmatched recorded amounts', async () => {
+  test(name + ' keeps backend before-discount total and reports discount separately from gifts', async () => {
     const { view, respond } = createView(name);
-    const rows = [
-      { id: 1, pid: 9, ae: 22, wei: 22, pp: 800, pa: 800, pc: 1, at: 2, s: 1 },
-      { id: 2, pid: 9, ae: 22, wei: 22, pp: 800, pa: 800, pc: 1, at: '3', s: 1 },
-      { id: 3, pid: 99, ae: 22, wei: 22, pp: 800, pa: 800, pc: 0, s: 1 },
-      { id: 4, pid: 99, ae: 22, wei: 22, pp: 800, pa: 800, pc: 0, s: 1, bs: [{ id: 5, pa: 800, pc: 1 }] },
-      { id: 6, pid: 99, ae: 22, wei: 22, pp: 800, pa: '12.34', pc: 1, s: 1 },
-      { id: 7, pid: 99, ae: 22, wei: 22, pp: 800, pa: 0, pc: 1, s: 1 },
-    ];
-    const data = response(rows);
-    data.data.pay_info.yh_amt = 123;
+    const data = response();
+    data.data.pay_info = { order_amt: 240010, payed_amt: 80000, payed_val_amt: 80000, payed_free_amt: 0, yh_amt: 123 };
+    respond(data);
+    try {
+      view.$store.state.userInfo.sys_modules = [6];
+      await view.getOrderedData();
+      assert.equal(view.orderList.length, 3);
+      assertAmounts(view, '2400.10', '1577.10', '1.23');
+      assert.equal(view.amt.discountAmt, '23.00');
+      assert.match(read('src/views/Order/orderMeal/' + name + '.vue'), /amt\.discountAmt/);
+    } finally { view.$destroy(); }
+  });
+
+  test(name + ' shows paid row original prices and refreshes all totals from a new response', async () => {
+    const { view, respond } = createView(name);
+    const data = response([{ id: 1, pid: 9, pp: 800, p2: 700, pa: 700, pc: 1, s: 5 }]);
+    data.data.pay_info = { order_amt: 80000, payed_free_amt: 10000, yh_amt: 0 };
     respond(data);
     try {
       await view.getOrderedData();
-      assert.ok(view.amountOrderList.some(row => row.back), 'loader must expand API return rows');
-      assertAmounts(view, '12.34', '12.34', '1.23');
-    } finally { view.$destroy(); }
-  });
-
-  test(name + ' treats split paid and unpaid records independently and yields zero after all rows settle', async () => {
-    const { view, respond } = createView(name);
-    const rows = [
-      { id: 8, pid: 9, ae: 22, wei: 22, pp: 800, pa: 800, pc: 1, s: 1 },
-      { id: 8, pid: 9, ae: 22, wei: 22, pp: 800, pa: 800, pc: 1, s: 5 },
-    ];
-    respond(response(rows));
-    try {
-      await view.getOrderedData();
-      assertAmounts(view, '1400.00', '600.00');
-      view.amountOrderList[0].s = 5;
-      await Vue.nextTick();
-      assertAmounts(view, '1600.00', '0.00');
-    } finally { view.$destroy(); }
-  });
-
-  test(name + ' clears previous totals after empty records and no-participation responses', async () => {
-    const { view, respond } = createView(name);
-    try {
-      await view.getOrderedData();
-      assertAmounts(view, '2177.10', '1377.10');
-      respond(response([]));
-      await view.getOrderedData();
-      assertAmounts(view, '0.00', '0.00');
-      assert.equal(view.orderList.length, 0);
-      const data = response();
-      data.data.pay_info.yh_amt = 100;
-      respond(data);
-      await view.getOrderedData();
-      assertAmounts(view, '2177.10', '1377.10', '1.00');
+      assertAmounts(view, '800.00', '0.00');
+      assert.equal(view.amt.discountAmt, '100.00');
+      assert.equal(view.getSubtotal(view.orderList[0]), '700.00');
+      const template = compiler.parseComponent(read('src/views/Order/orderMeal/' + name + '.vue')).template.content;
+      assert.doesNotMatch(template, /item\.s != 5 && fc(?:OrderOriginal|SubtotalOriginal)/);
       respond({ code: 2 });
       await view.getOrderedData();
       assertAmounts(view, '0.00', '0.00');
-      assert.equal(view.orderList.length, 0);
-      assert.equal(view.amountOrderList.length, 0);
+      assert.equal(view.amt.discountAmt, '0.00');
+    } finally { view.$destroy(); }
+  });
+
+  test(name + ' excludes returns and gifts from unpaid and uses recorded p2 only when pa is absent', async () => {
+    const { view, respond } = createView(name);
+    respond({ code: 1, data: { records: [
+      { id: 1, pid: 9, pp: 800, p2: 600, pc: 2, s: 1 },
+      { id: 2, pid: 9, pp: 800, p2: 600, pa: 0, pc: 1, s: 1, at: 2 },
+      { id: 3, pid: 9, pp: 800, p2: 600, pa: 600, pc: 0, s: 1, bs: [{ id: 4, pc: 1, pa: 600 }] },
+    ] } });
+    try {
+      await view.getOrderedData();
+      assert.equal(view.amt.notPayAmt, '1200.00');
+      assert.equal(view.getDisplayPrice({ pp: 0, p2: 0 }), '时价');
+    } finally { view.$destroy(); }
+  });
+}
+
+for (const name of ['myOrder', 'newMyOrder']) {
+  test(name + ' accounts for unpaid and settled discounts once, excluding gifts', async () => {
+    const { view, respond } = createView(name);
+    const unpaid = { id: 1, pid: 9, pp: 800, p2: 777, pa: 777, pc: 1, s: 1 };
+    const settled = { id: 2, pid: 9, pp: 1000, p2: 200, pa: 200, pc: 1, s: 5 };
+    const gift = { id: 3, pid: 9, pp: 800, p2: 0, pa: 0, pc: 1, at: 2, s: 1 };
+    const cases = [
+      [[unpaid], { order_amt: 80000, payed_val_amt: 0, payed_free_amt: 0 }, '23.00'],
+      [[settled], { order_amt: 100000, payed_val_amt: 20000, payed_free_amt: 80000 }, '800.00'],
+      [[unpaid, settled, gift], { order_amt: 180000, payed_val_amt: 20000, payed_free_amt: 80000, yh_amt: 80000 }, '823.00'],
+      [[{ ...unpaid, p2: 0, pa: 0 }], { order_amt: 80000, payed_val_amt: 0, payed_free_amt: 0 }, '800.00'],
+      [[], { order_amt: 0, payed_val_amt: 0, payed_free_amt: 10000 }, '0.00'],
+      [[unpaid, settled, gift], { payed_free_amt: 80000, yh_amt: 80000 }, '823.00'],
+      [[unpaid, gift], { order_amt: 80000, payed_val_amt: null, payed_free_amt: 0 }, '23.00'],
+      [[gift], { yh_amt: 80000, payed_free_amt: 0 }, '0.00'],
+    ];
+    try {
+      for (const [records, pay_info, discount] of cases) {
+        respond({ code: 1, data: { records, pay_info } });
+        await view.getOrderedData();
+        assert.equal(view.amt.discountAmt, discount, JSON.stringify(pay_info));
+      }
     } finally { view.$destroy(); }
   });
 }

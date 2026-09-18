@@ -73,7 +73,7 @@ test('order homepage A03 displays 2177.10 from the waiter order response', async
     assert.equal(view.getCardOrderAmount(current), '--');
     await settled(view);
     assert.deepEqual(calls, [{ seat_id: 7, turnover_cnt: 1 }]);
-    assert.equal(view.getCardOrderAmount(current), '2177.10');
+    assert.equal(view.getCardOrderAmount(current), '2377.10');
     assert.equal(current.orderAmt, 2377.1);
     assert.equal(current.payedAmt, 800);
     assert.equal(JSON.stringify(records), before);
@@ -84,11 +84,11 @@ test('backend cents remain the scope of the total and retain historical settleme
   const { view } = fixture(async () => response(rows(), 257710));
   try {
     await settled(view);
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2377.10', 'only the unpaid scheme price delta changes the backend total');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2577.10', 'the backend total is authoritative');
   } finally { view.$destroy(); }
 });
 
-test('scheme changes, free scheme prices and disabled schemes update without refetching', async () => {
+test('scheme changes, free scheme prices and disabled schemes cannot reprice recorded totals', async () => {
   const { view, store, calls } = fixture();
   try {
     await settled(view);
@@ -96,9 +96,9 @@ test('scheme changes, free scheme prices and disabled schemes update without ref
     const scheme = store.state.cardPageInfo.resResultDataObj.fcProductPrices[1];
     scheme.pay_amt = 50000;
     await Vue.nextTick();
-    assert.equal(view.getCardOrderAmount(current), '2077.10');
+    assert.equal(view.getCardOrderAmount(current), '2377.10');
     scheme.pay_amt = 0;
-    assert.equal(view.getCardOrderAmount(current), '1577.10');
+    assert.equal(view.getCardOrderAmount(current), '2377.10');
     scheme.status = 2;
     assert.equal(view.getCardOrderAmount(current), '2377.10');
     assert.equal(calls.length, 1);
@@ -118,7 +118,7 @@ test('paid records, refunds, gifts and package children do not create scheme cor
   const { view } = fixture(async () => response(records, 500000));
   try {
     await settled(view);
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '4600.00', 'only remaining pc=2 has a 400 scheme difference');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '5000.00', 'current metadata cannot change the summary');
   } finally { view.$destroy(); }
 });
 
@@ -131,7 +131,7 @@ test('missing recorded subtotals fall back to effective unit price while explici
   const { view } = fixture(async () => response(records, 200000));
   try {
     await settled(view);
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2400.00', 'missing author scheme must not fall back to waiter scheme');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2000.00', 'missing author scheme must not fall back to waiter scheme');
   } finally { view.$destroy(); }
 });
 
@@ -140,7 +140,7 @@ test('missing or invalid backend totals fall back to the card summary; backend z
     const { view } = fixture(async () => ({ code: 1, data: { records: rows(), pay_info: { order_amt: orderAmount } } }));
     try {
       await settled(view);
-      assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2177.10');
+      assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2377.10');
     } finally { view.$destroy(); }
   }
   const { view } = fixture(async () => response([], 0));
@@ -184,7 +184,7 @@ test('switching wine or safe mode clears details and resuming order mode reloads
     assert.deepEqual(Object.keys(view.cardAmountDetails), []);
     view.typeModule = 1;
     await settled(view);
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2177.10');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2377.10');
     view.safeModeEnabled = true;
     await settled(view);
     assert.deepEqual(Object.keys(view.cardAmountDetails), []);
@@ -209,7 +209,7 @@ test('truthy employee lookup permissions work while linked function tables keep 
   try {
     await settled(view);
     assert.deepEqual(calls, [{ seat_id: 1, turnover_cnt: 1 }]);
-    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2177.10');
+    assert.equal(view.getCardOrderAmount(view.card.cardList[0]), '2377.10');
     assert.equal(view.getCardOrderAmount(view.card.cardList[1]), '12000.00', 'a normal-seat detail total cannot replace a grouped function table summary');
   } finally { view.$destroy(); }
 });

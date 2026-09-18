@@ -324,7 +324,6 @@
 </template>
  
 <script>
-import { getFcPrice } from "@/utils/fcPrice";
 import add from "@/assets/order-img/order_add.png";
 import sub from "@/assets/order-img/sub.png";
 import addDisabled from "@/assets/order-img/add-disabled.png";
@@ -366,12 +365,7 @@ export default {
     };
   },
   methods: {
-    // Display current author-plan prices without rewriting historical payment amounts.
-    schemePrice(item) {
-      if (!item) return null;
-      const metadata = this.$store.state.cardPageInfo.resResultDataObj;
-      return getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, metadata);
-    },
+    // 历史订单的价格与折扣仅使用接口记录，不随当前方案变化。
     originalUnit(item) { return Number(item.pp || 0).toFixed(2); },
     displayCount(item) {
       return Number((item.changeCount !== undefined && item.changeCount !== null ? item.changeCount : item.pc) || 0);
@@ -380,12 +374,11 @@ export default {
       return (Number(item.pp) === 0 ? Number(item.pa || 0) : Number(item.pp || 0) * this.displayCount(item)).toFixed(2);
     },
     showOriginalUnit(item) {
-      const price = this.schemePrice(item);
-      return price !== null && Number(item.pp) !== 0 && Number(item.pp).toFixed(2) !== price.toFixed(2);
+      const actual = Number(this.getDisplayPrice(item));
+      return Number(item.pp) > 0 && Number.isFinite(actual) && Number(item.pp) !== actual;
     },
     showOriginalSubtotal(item, online) {
-      const price = this.schemePrice(item);
-      return price !== null && !this.isFreeDisplay(item, online) && this.originalSubtotal(item) !== (price * this.displayCount(item)).toFixed(2);
+      return !this.isFreeDisplay(item, online) && Number(this.originalSubtotal(item)) > 0 && this.originalSubtotal(item) !== this.getSubtotal(item, online);
     },
     isFreeDisplay(item, online) {
       return item.at == 2 || item.at == 3;
@@ -661,8 +654,6 @@ export default {
 
     // 获取订单项的显示价格（根据商务价格等优先级计算）
     getDisplayPrice(item) {
-      const scheme = this.schemePrice(item);
-      if (scheme !== null) return scheme.toFixed(2);
       if (!item) {
         return '0.00';
       }
@@ -693,8 +684,6 @@ export default {
         return '0.00';
       }
 
-      const scheme = this.schemePrice(item);
-      if (scheme !== null) return (scheme * this.displayCount(item)).toFixed(2);
 
       // 时价商品：pp = 0 时，使用 pa（实际金额）作为小计
       if (item.pp * 1 == 0) {

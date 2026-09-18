@@ -1,17 +1,7 @@
-import { getProductPrice } from "./priceCalculator";
-import { getFcPrice } from "./fcPrice";
-
 const toNumber = (val) => {
   if (val === undefined || val === null || val === "") return null;
   const num = Number(val);
   return Number.isNaN(num) ? null : num;
-};
-
-const getCurrentBusiness = (cardInfo, businessData) => {
-  if (!cardInfo || !businessData || !businessData.length) return null;
-  const seatId = cardInfo.seatId || cardInfo.id;
-  if (!seatId) return null;
-  return businessData.find((item) => item.seatId * 1 === seatId * 1);
 };
 
 export const buildPriceContextFromStore = (store) => {
@@ -31,55 +21,12 @@ export const buildPriceContextFromStore = (store) => {
   };
 };
 
-/**
- * 获取当前订单项单价（方案价 > p2 实际价 > 商务价 > 原价pp）
- * 注意：pm 会员价仅用于展示，不参与计算
- * 返回 null 表示使用"时价"展示
- */
+/** 已下单价格只读取订单快照，不随当前商品、会员或员工方案变化。 */
 export const resolveUnitPrice = (item, ctx = {}) => {
   if (!item) return null;
-
-  const schemePrice = getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, ctx);
-  if (schemePrice !== null) return schemePrice;
-
-  // 时价商品：pp = 0 时，返回 null 表示使用"时价"展示
-  const pp = toNumber(item.pp);
-  if (pp === 0) {
-    return null;
-  }
-
-  // 优先使用 p2（实际价格，后端已根据会员状态计算好）
-  const hasP2 = Object.prototype.hasOwnProperty.call(item, "p2");
+  if (toNumber(item.pp) === 0) return null;
   const p2 = toNumber(item.p2);
-  if (hasP2 && p2 !== null) {
-    return p2;
-  }
-
-  // 如果没有 p2，使用商务价计算
-  const cardInfo = ctx.cardInfo;
-  const businessData = ctx.businessData;
-  const businessEmpList = ctx.businessEmpList || [];
-  const currentBusiness = getCurrentBusiness(cardInfo, businessData);
-
-  if (item.productInfo && cardInfo && currentBusiness) {
-    const calcPrice = getProductPrice(
-      item.productInfo,
-      cardInfo,
-      currentBusiness,
-      businessEmpList
-    );
-    const calcNumber = toNumber(calcPrice);
-    if (calcNumber !== null && calcNumber !== 0) {
-      return calcNumber;
-    }
-  }
-
-  // 最后使用原价 pp（不使用 pm 会员价，因为会员价仅用于展示）
-  if (pp === null || pp === 0) {
-    return null;
-  }
-
-  return pp;
+  return p2 !== null ? p2 : toNumber(item.pp);
 };
 
 /**
@@ -103,17 +50,17 @@ export const calcItemAmount = (item, ctx = {}) => {
   if (!item) return 0;
   if (item.at == 2 || item.at == 3) return 0;
 
-  const schemePrice = getFcPrice(item.pid || (item.productInfo && item.productInfo.id), item.ae, item.wei, ctx);
-  if (schemePrice !== null) {
-    const count = item.changeCount !== undefined && item.changeCount !== null ? item.changeCount : item.pc;
-    return Math.round(schemePrice * 100 * (toNumber(count) || 0)) / 100;
-  }
-
   // 时价商品：pp = 0 时，直接使用 pa（实际金额）作为小计
   const pp = toNumber(item.pp);
   if (pp === 0) {
     const pa = toNumber(item.pa);
     return pa === null ? 0 : pa;
+  }
+
+  // 完整行沿用接口实收金额；只有拆分数量时使用记录单价。
+  const recordedAmount = toNumber(item.pa);
+  if (recordedAmount !== null && (item.changeCount === undefined || item.changeCount === null || Number(item.changeCount) === Number(item.pc))) {
+    return Number(item.pc) === 0 ? 0 : recordedAmount;
   }
 
   const unitPrice = resolveUnitPrice(item, ctx);
@@ -166,8 +113,14 @@ export const calcRefundAmount = (item, ctx = {}) => {
     return pa === null ? 0 : pa;
   }
 
+  // 整行退款不能超过订单记录金额；拆分退款才按记录单价计算。
+  const recordedAmount = toNumber(item.pa);
+  if (recordedAmount !== null && (item.changeCount === undefined || item.changeCount === null || Number(item.changeCount) === Number(item.pc))) {
+    return Number(item.pc) === 0 ? 0 : recordedAmount;
+  }
+
   // 退款沿用订单已记录的价格，不能因当前方案调价而重新计算历史退款。
-  const unitPrice = resolveUnitPrice(item, { ...ctx, fcProductPrices: [] });
+  const unitPrice = resolveUnitPrice(item, ctx);
   if (unitPrice === null || Number.isNaN(unitPrice)) {
     const pa = toNumber(item.pa);
     return pa === null ? 0 : pa;

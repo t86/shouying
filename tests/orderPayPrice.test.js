@@ -35,7 +35,7 @@ function metadata() {
 }
 function screenshotRows() {
   return [
-    { id: 1, pid: 9, ae: 11, wei: 11, pp: '800', p2: '800', pa: '777', pc: 1, checked: true },
+    { id: 1, pid: 9, ae: 11, wei: 11, pp: '800', p2: '777', pa: '777', pc: 1, checked: true },
     { id: 2, pid: 10, ae: 0, wei: 11, pp: '0.10', p2: '0.10', pa: '0.10', pc: 1, checked: true },
     { id: 3, pid: 9, ae: 22, wei: 22, pp: '800', p2: '800', pa: '800', pc: 1, checked: true },
   ];
@@ -57,11 +57,11 @@ for (const name of variants) {
     const rows = screenshotRows();
     const before = JSON.stringify(rows);
     try {
-      assert.deepEqual(rows.map(row => view.getDisplayPrice(row)), ['777.00', '0.10', '600.00']);
-      assert.deepEqual(rows.map(row => view.getSubtotal(row)), ['777.00', '0.10', '600.00']);
-      assert.equal(rows.reduce((sum, row) => sum + Number(view.getSubtotal(row)), 0).toFixed(2), '1377.10');
+      assert.deepEqual(rows.map(row => view.getDisplayPrice(row)), ['777.00', '0.10', '800.00']);
+      assert.deepEqual(rows.map(row => view.getSubtotal(row)), ['777.00', '0.10', '800.00']);
+      assert.equal(rows.reduce((sum, row) => sum + Number(view.getSubtotal(row)), 0).toFixed(2), '1577.10');
       assert.equal(view.fcOrderOriginal(rows[0], view.getDisplayPrice(rows[0])), true);
-      assert.equal(view.fcSubtotalOriginal(rows[2], view.getSubtotal(rows[2])), true);
+      assert.equal(view.fcSubtotalOriginal(rows[2], view.getSubtotal(rows[2])), false);
       assert.equal(view.fcOrderOriginal(rows[1], view.getDisplayPrice(rows[1])), false);
       assert.equal(JSON.stringify(rows), before);
     } finally {
@@ -103,50 +103,23 @@ for (const name of variants) {
   });
 }
 
-test('Vue 2 updates displayed amounts when scheme metadata, author, quantity or metadata arrays change', async () => {
-  const view = createView({
-    mixins: [payOrderPriceMixin],
-    data: () => ({ row: screenshotRows()[2] }),
-    computed: {
-      displayPrice() { return this.getDisplayPrice(this.row); },
-      subtotal() { return this.getSubtotal(this.row); },
-    },
-  });
+test('Vue 2 retains recorded prices across metadata changes and updates after API repricing', async () => {
+  const view = createView({ mixins: [payOrderPriceMixin], data: () => ({ row: { pid: 9, ae: 22, pp: 1000, p2: 1000, pa: 1000, pc: 1 } }),
+    computed: { displayPrice() { return this.getDisplayPrice(this.row); }, subtotal() { return this.getSubtotal(this.row); } } });
   try {
-    assert.equal(view.displayPrice, '600.00');
-    assert.equal(view.subtotal, '600.00');
-    view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
-    await Vue.nextTick();
-    assert.equal(view.displayPrice, '500.00');
-    assert.equal(view.subtotal, '500.00');
-    view.row.pc = 2;
-    await Vue.nextTick();
     assert.equal(view.subtotal, '1000.00');
-    view.row.ae = 11;
+    view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 20000;
     await Vue.nextTick();
-    assert.equal(view.displayPrice, '777.00');
-    assert.equal(view.subtotal, '1554.00');
-    view.row.ae = 0;
+    assert.equal(view.displayPrice, '1000.00');
+    assert.equal(view.subtotal, '1000.00');
+    view.row = { ...view.row, ae: 11, p2: 200, pa: 200 };
     await Vue.nextTick();
-    assert.equal(view.displayPrice, '500.00', 'absent author uses the ordering employee');
-    view.row.ae = 99;
-    await Vue.nextTick();
-    assert.equal(view.displayPrice, '800.00', 'an unmatched author must not fall back to the ordering employee');
-    assert.equal(view.subtotal, '800.00', 'no matching scheme keeps the recorded subtotal');
-    view.row.ae = 22;
-    view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices = [];
-    await Vue.nextTick();
-    assert.equal(view.displayPrice, '800.00');
-    view.$store.state.cardPageInfo.resResultDataObj = metadata();
-    await Vue.nextTick();
-    assert.equal(view.displayPrice, '600.00');
-    assert.equal(view.subtotal, '1200.00');
-  } finally {
-    view.$destroy();
-  }
+    assert.equal(view.displayPrice, '200.00');
+    assert.equal(view.subtotal, '200.00');
+  } finally { view.$destroy(); }
 });
 
-test('missing schemes preserve recorded p2/pa values and the existing numeric-zero p2 fallback', () => {
+test('missing schemes preserve recorded p2/pa values including numeric-zero p2', () => {
   const view = createView();
   try {
     const row = { pid: 99, ae: 11, wei: 22, pp: 100, p2: 80, pa: 150, pc: 2 };
@@ -157,8 +130,8 @@ test('missing schemes preserve recorded p2/pa values and the existing numeric-ze
     delete row.pa;
     assert.equal(view.getSubtotal(row), '160.00');
     row.p2 = 0;
-    assert.equal(view.getDisplayPrice(row), '100.00');
-    assert.equal(view.getSubtotal(row), '200.00');
+    assert.equal(view.getDisplayPrice(row), '0.00');
+    assert.equal(view.getSubtotal(row), '0.00');
     row.p2 = '0';
     assert.equal(view.getDisplayPrice(row), '0.00', 'preserve the established string-zero p2 behavior');
     assert.equal(view.getSubtotal(row), '0.00');
@@ -169,7 +142,7 @@ test('missing schemes preserve recorded p2/pa values and the existing numeric-ze
   }
 });
 
-test('time prices retain their label and recorded subtotal unless a valid scheme supplies a price', () => {
+test('time prices retain their label and recorded subtotal even when a current scheme supplies a price', () => {
   const view = createView();
   try {
     const row = { pid: 99, ae: 11, pp: '0', p2: 80, pc: 2, pa: '12.34' };
@@ -178,8 +151,8 @@ test('time prices retain their label and recorded subtotal unless a valid scheme
     delete row.pa;
     assert.equal(view.getSubtotal(row), '0.00');
     row.pid = 9;
-    assert.equal(view.getDisplayPrice(row), '777.00');
-    assert.equal(view.getSubtotal(row), '1554.00');
+    assert.equal(view.getDisplayPrice(row), '时价');
+    assert.equal(view.getSubtotal(row), '0.00');
   } finally {
     view.$destroy();
   }
@@ -188,12 +161,12 @@ test('time prices retain their label and recorded subtotal unless a valid scheme
 test('zero scheme prices and zero quantities are valid while gift amounts remain excluded', () => {
   const view = createView();
   try {
-    const row = { pid: 9, ae: 11, wei: 22, pp: 800, pa: 1600, pc: 2, at: 0 };
+    const row = { pid: 9, ae: 11, wei: 22, pp: 800, p2: 0, pa: 0, pc: 2, at: 0 };
     view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[0].pay_amt = 0;
     assert.equal(view.getDisplayPrice(row), '0.00');
     assert.equal(view.getSubtotal(row), '0.00');
     view.$store.state.cardPageInfo.resResultDataObj.fcProductPrices[0].pay_amt = 29;
-    row.pc = 3;
+    row.pc = 3; row.p2 = 0.29; row.pa = 0.87;
     assert.equal(view.getSubtotal(row), '0.87');
     row.pc = 0;
     assert.equal(view.getSubtotal(row), '0.00');

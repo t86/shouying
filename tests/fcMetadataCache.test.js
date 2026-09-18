@@ -12,12 +12,12 @@ function setup(cached = {}, options = {}) {
   const storage = new Map(Object.entries({ tk: 'test-token', refreshAllLocalTime: '20260916160000',
     websocketTimeMessageTime: '20260916160000', frontVersion: 'test', ...options.storage }));
   const state = Vue.observable({ cardPageInfo: { resResultDataObj: { areaInfo: [], ...cached } } });
-  const calls = { full: 0, delta: 0 };
+  const calls = { full: 0, delta: 0, events: [] };
   const ds = { 18: [['1']], 23: ['1'], 43: ['test'],
     58: [['9', '3', '77700', '1']], 59: [['3', '11', '1']] };
   const dependencies = {
     resResultDataArr, transformCardDataHandle, CODE_INVALID: 'invalid',
-    window: { addEventListener() {} }, eventVue: { $emit() {} }, console: { log() {} },
+    window: { addEventListener() {} }, eventVue: { $emit(event) { calls.events.push(event); } }, console: { log() {} },
     localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) },
     api_card: {
       async reqGetAllData() { calls.full++; return options.response || { code: 1, data: { ts: '20260916170000', ds } }; },
@@ -78,3 +78,20 @@ test('failed or incomplete snapshots must not mark the cache as having scheme da
     assert.equal(calls.delta, 0);
   }
 });
+
+for (const route of ['myOrder', 'oldMyOrder', 'payOrder']) {
+  test(route + ' reloads recorded amounts once after current-table updates, not scheme updates', () => {
+    const { client, calls, state } = setup({ businessData: [{ seatId: 31 }] });
+    state.orderInfo = { currentCardInfo: { seatId: 31 } };
+    client.vue.$route.name = route;
+    client.updateTabListData = () => {};
+    client.updateCardListData = () => {};
+    const businessRow = id => [id, ...Array(33).fill('')];
+    client.updateCardList({ 14: [businessRow(31), businessRow(32)] });
+    assert.deepEqual(calls.events, [route === 'payOrder' ? 'reloadPayOrderList' : 'reloadMyOrderTableData']);
+    calls.events.length = 0;
+    client.updateCardList({ 14: [businessRow(32)] });
+    client.updateCardList({ 58: [[9, 3, 12300, 1]], 59: [[3, 11, 1]] });
+    assert.deepEqual(calls.events, []);
+  });
+}

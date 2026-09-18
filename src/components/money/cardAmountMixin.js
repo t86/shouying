@@ -1,6 +1,6 @@
 import api_money from "@/api/money";
 import cardAmountLoaderMixin from "@/components/common/cardAmountLoaderMixin";
-import { buildPriceContextFromStore, calcItemAmount, calcUnpaidOrderAmount } from "@/utils/orderItemPrice";
+import { calcUnpaidOrderAmount } from "@/utils/orderItemPrice";
 
 const needsDetails = (card) => card && [5, 6].includes(Number(card.bizStatus));
 const amountCents = (value) => Math.round((Number(value) || 0) * 100);
@@ -36,25 +36,10 @@ export default {
       const rows = this.cardAmountDetails[this.cardAmountKey(card)];
       // 尚未读到明细时不把摘要中的旧价格当作正确未付金额显示。
       if (!rows) return { order: "--", unpaid: "--" };
-      const context = { ...buildPriceContextFromStore(this.$store), cardInfo: card };
-      const products = this.$store.state.cardPageInfo.resResultDataObj.goodsAroundInfo || [];
-      const pricedRows = rows.map((row) => ({
-        ...row,
-        productInfo: products.find((product) => product.id == row.pid) || row.productInfo,
-      }));
-      const unpaidCents = amountCents(calcUnpaidOrderAmount(pricedRows, context));
-      let recordedCents = 0;
-      pricedRows.forEach((row) => {
-        if (row.at == 2 || row.at == 3) return;
-        if (row.pa !== undefined && row.pa !== null && row.pa !== "") {
-          recordedCents += amountCents(row.pa);
-        } else {
-          recordedCents += amountCents(calcItemAmount({ ...row, changeCount: row.pc }, { ...context, fcProductPrices: [] }));
-        }
-      });
-      // 仅修正未结商品的价差，保留已结商品、实收及结账优惠的历史金额。
+      const unpaidCents = amountCents(calcUnpaidOrderAmount(rows));
+      // 全台摘要和未付明细都使用服务端已记录的金额。
       return {
-        order: ((amountCents(card.orderAmt) + unpaidCents - recordedCents) / 100).toFixed(2),
+        order: Number(card.orderAmt || 0).toFixed(2),
         unpaid: (unpaidCents / 100).toFixed(2),
       };
     },

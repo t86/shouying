@@ -567,20 +567,6 @@ export default class WebSocketClient {
               }
             }
 
-            // 刷新收银系统订单数据
-            if (
-              this.vue.$route.name == "payOrder" &&
-              key * 1 == 14 &&
-              this.vue.$store.state.orderInfo.currentCardInfo &&
-              dataObj[key].some(
-                (item) =>
-                  item.seatId ==
-                  this.vue.$store.state.orderInfo.currentCardInfo.seatId
-              )
-            ) {
-              eventVue.$emit("reloadPayOrderList");
-            }
-
             if(key == 47 ||key == 48 || key == 49 || key == 46){
               this.vue.$observer.send(QUEUE_TASK);
             }
@@ -589,6 +575,16 @@ export default class WebSocketClient {
       }
 
       this.vue.$store.commit("updateResResultDataObj", this.resResultDataObj);
+      // 当前卡台业务发生变化时重新读取订单快照；方案配置变化不改写已下单价格。
+      const currentCard = this.vue.$store.state.orderInfo && this.vue.$store.state.orderInfo.currentCardInfo;
+      if (currentCard && Array.isArray(dataObj[14]) && dataObj[14].some(item => item.seatId == currentCard.seatId)) {
+        if (this.vue.$route.name === "payOrder") {
+          eventVue.$emit("reloadPayOrderList");
+        } else if (["myOrder", "oldMyOrder"].includes(this.vue.$route.name)) {
+          eventVue.$emit("reloadMyOrderTableData");
+        }
+      }
+
       // 如果是权限字段更新 则刷新用户信息
       if (Object.keys(dataObj).some((item) => item == 13 || item == 41 || item == 45)) {
         const userInfo = this.vue.$store.state.userInfo;

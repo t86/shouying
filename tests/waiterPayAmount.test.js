@@ -52,20 +52,20 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-test('the preview sums selected discounted orders and reacts to selection and metadata', async () => {
+test('the preview sums selected discounted orders and reacts to selection but not current metadata', async () => {
   const { view, store, calls } = fixture();
   try {
     view.selectedOrderIdList = [1, '2', 3, 3];
     await view.loadPayAmount();
     assert.deepEqual(calls, [{ seat_id: 7 }]);
-    assert.equal(view.payAmount, 1377.1);
+    assert.equal(view.payAmount, 1577.1);
     view.selectedOrderIdList = ['3'];
-    assert.equal(view.payAmount, 600);
+    assert.equal(view.payAmount, 800);
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 50000;
     await Vue.nextTick();
-    assert.equal(view.payAmount, 500);
+    assert.equal(view.payAmount, 800);
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].pay_amt = 0;
-    assert.equal(view.payAmount, 0, 'a zero scheme is a real price');
+    assert.equal(view.payAmount, 800, 'metadata zero does not overwrite the recorded price');
     store.state.cardPageInfo.resResultDataObj.fcProductPrices[1].status = 2;
     assert.equal(view.payAmount, 800, 'inactive schemes fall back to the recorded order subtotal');
     assert.equal(view.payOrderItems[2].pa, '800', 'preview must not overwrite backend order amounts');
@@ -88,7 +88,7 @@ test('refunds, exhausted orders, online groups and gifts are excluded without do
   try {
     view.selectedOrderIdList = orders.map(item => item.id);
     await view.loadPayAmount();
-    assert.equal(view.payAmount, 1212.64);
+    assert.equal(view.payAmount, 1612.64);
   } finally { view.$destroy(); }
 });
 

@@ -136,6 +136,10 @@
               </span>
             </div>
             <div class="money" layout="row" layout-align="start center">
+              <span>折扣:</span>
+              <span class="amt">¥{{ paidOrderDiscount }}</span>
+            </div>
+            <div class="money" layout="row" layout-align="start center">
               <span>主营实收:</span>
               <span class="amt">
                 ¥{{ payedData.payedOrderInfo.amts.pzv || "0.00" }}
@@ -2488,6 +2492,12 @@ export default {
     inputSelect,
   },
   computed: {
+    paidOrderDiscount() {
+      const amts = this.payedData.payedOrderInfo.amts || {};
+      const original = Math.round((Number(amts.o) || 0) * 100);
+      const actual = Math.round((Number(amts.pv) || 0) * 100);
+      return (Math.max(0, original - actual) / 100).toFixed(2);
+    },
     unpaidOrderAmount() {
       if (
         this.turnOverInfo.activeTurnOverCount !=
