@@ -55,3 +55,18 @@ for (const page of ['shoppingCart', 'newShoppingCart']) {
     assert.equal(ctx.getSubtotal(row), '2331.00');
   });
 }
+
+test('cart original total uses recorded pp while actual total retains pa', () => {
+  const {methods,computed}=load('newShoppingCart');
+  const ctx={...methods,shoppingCartList:[{pp:1000,p2:900,pa:900,pc:1},{pp:1000,p2:900,pa:900,pc:1}]};
+  assert.equal(computed.amt.call(ctx).oriAmt,'2000.00');
+  assert.equal(computed.amt.call(ctx).allAmt,'1800.00');
+  ctx.shoppingCartList=[{pp:1000,p2:0,pa:0,pc:1},{pp:0,pa:123,pc:1},{pp:1000,pa:900,pc:0},{pp:1000,pa:900,pc:1,at:2}];
+  assert.equal(computed.amt.call(ctx).oriAmt,'1123.00');
+  assert.equal(computed.amt.call(ctx).allAmt,'123.00');
+});
+test('cart total labels avoid membership wording',()=>{
+ const source=fs.readFileSync(path.join(__dirname,'../src/views/Order/orderMeal/newShoppingCart.vue'),'utf8');
+ const template=source.split('</template>')[0];
+ assert.doesNotMatch(template,/购物车金额\((?:非会员价|会员价)\)/);
+});

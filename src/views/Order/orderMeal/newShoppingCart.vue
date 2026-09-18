@@ -135,7 +135,7 @@
             
             <div v-if="vipPrice && (hasVipPriceDirect || hasShouyin)" class="p" layout="row" layout-align="start center">
               <div v-if="hasVipPriceDirect || hasShouyin" class="num">
-                <span>购物车金额：</span>：
+                <span>购物车金额：</span>
                 <span class="num mr-4" style="color:#009370;">￥{{ amt.allAmt }}</span>
               </div>
             </div>
@@ -147,15 +147,13 @@
                 <span>￥{{ amt.oriAmt }}</span>
               </div>
               <div>
-                <span v-if="vipPrice && bindphone === '' ">购物车金额(非会员价)：</span>
-                <span v-else>购物车金额(会员价)：</span>
+                <span>购物车金额：</span>
                 <span class="num">￥{{ amt.allAmt }}</span>
               </div>
             </div>
             <div class="p m-r-10" layout="colume" layout-align="start center" v-else>
               <div>
-                <span v-if="vipPrice && bindphone === '' ">购物车金额(非会员价)：</span>
-                <span v-else>购物车金额：</span>
+                <span>购物车金额：</span>
                 <span class="num" style="color:#009370;">￥{{ amt.allAmt }}</span>
               </div>
             </div>
@@ -853,9 +851,7 @@ export default {
       return isHaveAuth;
     },
     showNewShoppingCar(){
-      let has = this.shoppingCartList.findIndex(item => item.p2 * 1 > 0) > -1
-      console.log('showNewShoppingCar:', has)
-      return has
+      return Number(this.amt.oriAmt) !== Number(this.amt.allAmt)
     },
     amt() {
       let allAmt = 0;
@@ -872,7 +868,8 @@ export default {
           // 使用新的价格计算逻辑
           const itemAmount = this.calculateOrderItemAmount(el);
           allAmt += itemAmount;
-          oriAmt += itemAmount;
+          // 原价取购物车记录，不读取当前商品或方案配置。时价无固定原价，沿用记录金额。
+          oriAmt += Number(el.pp) > 0 ? Math.round(Number(el.pp) * 100 * Number(el.pc || 0)) / 100 : itemAmount;
         }
       });
       return {
