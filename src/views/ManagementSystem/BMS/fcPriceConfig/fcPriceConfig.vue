@@ -45,18 +45,18 @@
     <el-dialog :title="editor.kind === 'products' ? '添加商品' : (editor.id ? '编辑价格方案' : '新增价格方案')" :visible.sync="editor.visible" width="90%" top="5vh" :close-on-click-modal="false" :before-close="closeEditor" append-to-body>
       <div v-if="editor.kind === 'plans'" class="toolbar">
         <label for="fc-plan-name"><span class="required">*</span>方案名称：</label>
-        <el-input id="fc-plan-name" v-model.trim="editor.name" maxlength="50" :disabled="editor.saving" placeholder="请输入方案名称" />
+        <el-input id="fc-plan-name" v-model.trim="editor.name" maxlength="50" :disabled="editor.removingId !== null || editor.saving" placeholder="请输入方案名称" />
       </div>
-      <p v-if="editor.kind === 'plans'" class="hint">其他价格方案已包含的员工不可重复选择。</p>
+      <p v-if="editor.kind === 'plans'" class="hint">其他方案中的员工可先移除再添加。移除立即生效，加入当前方案需点击“确定”保存。</p>
       <div class="transfer">
         <section>
           <h3>待选{{ editor.kind === 'products' ? '商品' : '员工' }}列表</h3>
           <div class="toolbar filters">
-            <el-cascader v-if="editor.kind === 'products'" v-model="editor.category" :options="editor.cates" :props="categoryProps" clearable placeholder="商品分类" :disabled="editor.saving || editor.initializing" />
-            <el-cascader v-else v-model="editor.department" :options="departments" :props="departmentProps" clearable collapse-tags placeholder="部门（可多选）" :disabled="editor.saving || editor.initializing" />
-            <el-input v-model.trim="editor.keyword" :placeholder="editor.kind === 'products' ? '商品名称/拼音' : '工号/姓名'" :disabled="editor.saving || editor.initializing" @keyup.enter.native="searchCandidates(false)" />
-            <el-button type="primary" :disabled="editor.saving || editor.initializing" @click="searchCandidates(false)">查询</el-button>
-            <el-button :disabled="editor.saving || editor.initializing" @click="resetCandidates">重置</el-button>
+            <el-cascader v-if="editor.kind === 'products'" v-model="editor.category" :options="editor.cates" :props="categoryProps" clearable placeholder="商品分类" :disabled="editor.removingId !== null || editor.saving || editor.initializing" />
+            <el-cascader v-else v-model="editor.department" :options="departments" :props="departmentProps" clearable collapse-tags placeholder="部门（可多选）" :disabled="editor.removingId !== null || editor.saving || editor.initializing" />
+            <el-input v-model.trim="editor.keyword" :placeholder="editor.kind === 'products' ? '商品名称/拼音' : '工号/姓名'" :disabled="editor.removingId !== null || editor.saving || editor.initializing" @keyup.enter.native="searchCandidates(false)" />
+            <el-button type="primary" :disabled="editor.removingId !== null || editor.saving || editor.initializing" @click="searchCandidates(false)">查询</el-button>
+            <el-button :disabled="editor.removingId !== null || editor.saving || editor.initializing" @click="resetCandidates">重置</el-button>
           </div>
           <el-table :key="editor.session" ref="candidates" :data="editor.candidates" height="390" border v-loading="editor.loading" @selection-change="candidateSelectionChanged">
             <el-table-column type="selection" width="42" :selectable="canSelect" />
@@ -66,10 +66,13 @@
             <el-table-column v-if="editor.kind === 'products'" label="单价（元）" width="90"><template slot-scope="{row}">{{ money(row.p) }}</template></el-table-column>
             <el-table-column v-if="editor.kind === 'plans'" prop="d" label="部门" min-width="120" />
             <el-table-column v-if="editor.kind === 'plans'" prop="c" label="工号" width="90" />
-            <el-table-column label="状态" width="100"><template slot-scope="{row}">{{ candidateStatus(row) }}</template></el-table-column>
+            <el-table-column label="状态" min-width="170"><template slot-scope="{row}">
+              <span>{{ candidateStatus(row) }}</span>
+              <el-button v-if="editor.kind === 'plans' && (row.s == 1 || row.s == 2) && Number(row.p) > 0" type="text" class="remove-plan" :loading="editor.removingId === String(row.id)" :disabled="editor.removingId !== null || editor.saving || editor.loading" @click.stop="removeEmployeeFromPlan(row)">移除</el-button>
+            </template></el-table-column>
           </el-table>
         </section>
-        <el-button class="add-selection" type="primary" :disabled="!editor.checked.length || editor.saving || editor.loading" @click="addChecked">添加 &gt;</el-button>
+        <el-button class="add-selection" type="primary" :disabled="editor.removingId !== null || !editor.checked.length || editor.saving || editor.loading" @click="addChecked">添加 &gt;</el-button>
         <section>
           <h3>已选{{ editor.kind === 'products' ? '商品' : '员工' }}列表（{{ editor.selected.length }}个）</h3>
           <el-table :data="editor.selected" height="445" border>
@@ -80,13 +83,13 @@
             <el-table-column v-if="editor.kind === 'products'" label="单价（元）" width="90"><template slot-scope="{row}">{{ money(row.p) }}</template></el-table-column>
             <el-table-column v-if="editor.kind === 'plans'" prop="d" label="部门" min-width="120" />
             <el-table-column v-if="editor.kind === 'plans'" prop="c" label="工号" width="90" />
-            <el-table-column label="操作" width="60"><template slot-scope="{row}"><el-button type="text" :disabled="editor.saving" @click="removeSelected(row)">移除</el-button></template></el-table-column>
+            <el-table-column label="操作" width="60"><template slot-scope="{row}"><el-button type="text" :disabled="editor.removingId !== null || editor.saving" @click="removeSelected(row)">移除</el-button></template></el-table-column>
           </el-table>
         </section>
       </div>
       <div slot="footer">
-        <el-button :disabled="editor.saving" @click="closeEditor()">取消</el-button>
-        <el-button type="primary" :loading="editor.saving" :disabled="editor.initializing || !editor.ready" @click="submitEditor">确定</el-button>
+        <el-button :disabled="editor.removingId !== null || editor.saving" @click="closeEditor()">取消</el-button>
+        <el-button type="primary" :loading="editor.saving" :disabled="editor.removingId !== null || editor.initializing || !editor.ready" @click="submitEditor">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -100,7 +103,7 @@ import { yuanToCents, centsToYuan, priceFor, isUnavailable, addSelection, respon
 function emptyEditor(session) {
   return { visible: false, kind: 'products', id: 0, name: '', keyword: '', category: [], department: [],
     cates: [], candidates: [], checked: [], selected: [], session, request: 0,
-    loading: false, initializing: false, saving: false, ready: false };
+    loading: false, initializing: false, saving: false, removingId: null, ready: false };
 }
 export default {
   name: 'FcPriceConfig',
@@ -174,14 +177,14 @@ export default {
       }
     },
     closeEditor(done) {
-      if (this.editor.saving) return;
+      if (this.editor.saving || this.editor.removingId !== null) return;
       this.editor.visible = false;
       this.editor.request++;
       if (typeof done === 'function') done();
     },
     async searchCandidates(initial) {
       const editor = this.editor;
-      if (!editor.visible || editor.saving) return;
+      if (!editor.visible || editor.saving || editor.removingId !== null) return;
       initial = initial || !editor.ready;
       if (initial) { editor.keyword = ""; editor.department = []; editor.category = []; }
       const request = ++editor.request;
@@ -233,11 +236,35 @@ export default {
         table.toggleRowSelection(row, checked);
       });
     },
-    canSelect(row) { return !this.editor.saving && !this.editor.loading && !isUnavailable(row, this.editor.kind, this.editor.selected); },
+    canSelect(row) { return this.editor.removingId === null && !this.editor.saving && !this.editor.loading && !isUnavailable(row, this.editor.kind, this.editor.selected); },
     candidateStatus(row) {
       if (this.editor.kind === 'products' && Number(row.c) === 1) return '已配置';
+      if (this.editor.kind === 'plans' && row.r) return row.r;
       if (this.editor.kind === 'plans' && Number(row.s) === 2) return '其他方案占用';
       return this.editor.selected.some(item => String(item.id) === String(row.id)) ? '已选' : '';
+    },
+    async removeEmployeeFromPlan(row) {
+      const editor = this.editor;
+      if (!editor.visible || editor.kind !== 'plans' || editor.saving || editor.loading || editor.removingId !== null || ![1, 2].includes(Number(row.s)) || !(Number(row.p) > 0)) return;
+      const planId = row.p;
+      editor.removingId = String(row.id);
+      try {
+        await this.$confirm(`确认将“${row.n || row.c || row.id}”从“${row.r || '原方案'}”移除？移除立即生效，取消当前编辑也不会恢复。`, '移除方案人员', { type: 'warning' });
+        if (this.editor !== editor || !editor.visible) return;
+        responseData(await api.removeEmployee({ plan_id: planId, emp_id: row.id }));
+        if (this.editor !== editor) return;
+        editor.request++;
+        editor.selected = editor.selected.filter(item => String(item.id) !== String(row.id));
+        editor.checked = editor.checked.filter(item => String(item.id) !== String(row.id));
+        Object.assign(row, { s: 0, r: '', p: 0 });
+        this.syncCandidateSelection();
+        this.$message.success('已从原方案移除，可重新选择并添加');
+        this.loadList();
+      } catch (error) {
+        if (error !== 'cancel' && error !== 'close' && this.editor === editor) this.error(error);
+      } finally {
+        editor.removingId = null;
+      }
     },
     addChecked() {
       this.editor.selected = addSelection(this.editor.selected, this.editor.checked, this.editor.kind);
@@ -250,7 +277,7 @@ export default {
     },
     async submitEditor() {
       const editor = this.editor;
-      if (editor.saving || !editor.ready || editor.initializing) return;
+      if (editor.removingId !== null || editor.saving || !editor.ready || editor.initializing) return;
       if (editor.kind === 'plans' && !editor.name.trim()) return this.$message.warning('请输入方案名称');
       if (editor.kind === 'products' && !editor.selected.length) return this.$message.warning('请选择商品');
       editor.saving = true;
@@ -275,6 +302,7 @@ export default {
 .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .toolbar .el-input { width: 220px; }
 .toolbar .el-button + .el-button { margin-left: 0; }
+.remove-plan { margin-left: 8px; }
 .hint { font-size: 13px; color: #909399; margin: 0 0 16px; }
 .price-cell { display: flex; gap: 8px; align-items: center; }
 .price-cell .el-input { min-width: 85px; }

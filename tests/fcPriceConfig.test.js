@@ -156,3 +156,44 @@ test('a failed department request does not publish a partial employee list', asy
  assert.deepEqual(messages,['部门查询失败']);
  assert.equal(ctx.editor.loading,false);
 });
+
+test('employee status displays server plan remark',()=>{
+ const {ctx}=component();ctx.editor.kind='plans';
+ assert.equal(ctx.candidateStatus({id:1,s:2,r:'无底薪方案',p:8}),'无底薪方案');
+ assert.equal(ctx.candidateStatus({id:2,s:1,r:'有底薪方案',p:9}),'有底薪方案');
+});
+test('remove uses the occupied plan id and unlocks employee without losing other selections',async()=>{
+ let payload;
+ const {ctx}=component({removeEmployee:async p=>{payload=p;return {code:1};}});
+ const row={id:'12',s:2,r:'原方案',p:'8'};
+ Object.assign(ctx.editor,{visible:true,kind:'plans',id:9,ready:true,candidates:[row],selected:[{id:7}]});
+ ctx.$confirm=async()=>{};ctx.loadList=()=>{};
+ await ctx.removeEmployeeFromPlan(row);
+ assert.equal(payload.plan_id,'8');assert.equal(payload.emp_id,'12');
+ assert.equal(row.s,0);assert.equal(ctx.canSelect(row),true);
+ assert.equal(ctx.editor.selected[0].id,7);
+ ctx.editor.checked=[row];ctx.addChecked();assert.equal(ctx.editor.selected.length,2);
+});
+test('cancel or rejected removal keeps the original association',async()=>{
+ for(const cancel of [true,false]){
+  let calls=0;
+  const {ctx}=component({removeEmployee:async()=>{calls++;return {code:0,msg:'移除失败'};}});
+  const row={id:12,s:2,r:'原方案',p:8};
+  Object.assign(ctx.editor,{visible:true,kind:'plans',ready:true,candidates:[row]});
+  ctx.$confirm=async()=>{if(cancel)throw 'cancel';};ctx.loadList=()=>{};
+  await ctx.removeEmployeeFromPlan(row);
+  assert.equal(calls,cancel?0:1);assert.equal(row.s,2);assert.equal(row.p,8);
+  assert.equal(ctx.canSelect(row),false);assert.equal(ctx.editor.removingId,null);
+ }
+});
+test('pending removal blocks duplicate removal, save and closing editor',async()=>{
+ let finish,calls=0;
+ const {ctx}=component({removeEmployee:()=>{calls++;return new Promise(resolve=>{finish=resolve;});}});
+ const row={id:12,s:2,r:'原方案',p:8};
+ Object.assign(ctx.editor,{visible:true,kind:'plans',ready:true,candidates:[row]});
+ ctx.$confirm=async()=>{};ctx.loadList=()=>{};
+ const pending=ctx.removeEmployeeFromPlan(row);await Promise.resolve();
+ await ctx.removeEmployeeFromPlan(row);await ctx.submitEditor();ctx.closeEditor();
+ assert.equal(calls,1);assert.equal(ctx.editor.visible,true);
+ finish({code:1});await pending;assert.equal(ctx.editor.removingId,null);
+});
