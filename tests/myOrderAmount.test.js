@@ -85,10 +85,10 @@ for (const name of ['myOrder', 'newMyOrder']) {
     try {
       respond({code:1,data:{records:screenshotRows(),pay_info:{order_amt:380000,discount_amt:120000,payed_amt:60000,payed_free_amt:1000,yh_amt:123}}});
       await view.getOrderedData();
-      assertAmounts(view,'5000.00','4400.00','1.23');
+      assertAmounts(view,'5000.00','3200.00','1.23');
       assert.equal(view.amt.discountAmt,'1210.00');
-      // API signed values are used as returned; never silently change addition to subtraction.
-      respond({code:1,data:{records:[],pay_info:{order_amt:'380000',discount_amt:'120000',payed_amt:'-60000',payed_free_amt:'0',yh_amt:'0'}}});
+      // 未结金额扣除已付，字符串字段也必须先转为数字。
+      respond({code:1,data:{records:[],pay_info:{order_amt:'380000',discount_amt:'120000',payed_amt:'60000',payed_free_amt:'0',yh_amt:'0'}}});
       await view.getOrderedData();
       assertAmounts(view,'5000.00','3200.00');
       assert.equal(view.amt.discountAmt,'1200.00');

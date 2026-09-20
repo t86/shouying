@@ -18,7 +18,7 @@ function context(api) {
 }
 test('cashier summary requests wo/list for selected seat and turnover', async () => {
   let params;
-  const info = { discount_amt: 120000, order_amt: 380000, payed_amt: -60000 };
+  const info = { discount_amt: 120000, order_amt: 380000, payed_amt: 60000 };
   const ctx = context({ reqGetOrderList: async p => { params = p; return { code: 1, data: { pay_info: info } }; } });
   await ctx.loadOrderSummary();
   assert.equal(params.seat_id, 2);

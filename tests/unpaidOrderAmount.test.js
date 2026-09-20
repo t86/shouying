@@ -112,12 +112,12 @@ test('the Vue 2 footer follows wo/list summary and hides stale seat totals', asy
   const computed = pageSection('computed', { calculateOrderSummary });
   const store = Vue.observable({ state: { orderInfo: { currentCardInfo: { seatId: 1 } } } });
   const view = new Vue({ data: () => ({ turnOverInfo: { activeTurnOverCount: 1 },
-    orderSummaryKey: '[1,1]', orderSummaryInfo: { order_amt: 380000, payed_amt: -60000 } }),
+    orderSummaryKey: '[1,1]', orderSummaryInfo: { order_amt: 380000, payed_amt: 60000 } }),
     computed: { orderSummary: computed.orderSummary, unpaidOrderAmount: computed.unpaidOrderAmount } });
   view.$store = store;
   try {
     assert.equal(view.unpaidOrderAmount, '3200.00');
-    view.orderSummaryInfo.payed_amt = -100000;
+    view.orderSummaryInfo.payed_amt = 100000;
     await Vue.nextTick();
     assert.equal(view.unpaidOrderAmount, '2800.00');
     store.state.orderInfo.currentCardInfo.seatId = 2;
