@@ -197,3 +197,28 @@ test('pending removal blocks duplicate removal, save and closing editor',async()
  assert.equal(calls,1);assert.equal(ctx.editor.visible,true);
  finish({code:1});await pending;assert.equal(ctx.editor.removingId,null);
 });
+
+test('remove-and-add moves an occupied employee into the current selection and saves with all existing members',async()=>{
+ for(const planId of [0,9]){
+  let removal,saved;
+  const {ctx}=component({removeEmployee:async p=>{removal=p;return {code:1};},savePlan:async p=>{saved=p;return {code:1};},addPlan:async p=>{saved=p;return {code:1};}});
+  const row={id:12,s:2,r:'旧方案',p:8};
+  Object.assign(ctx.editor,{visible:true,kind:'plans',id:planId,name:'新方案',ready:true,candidates:[row],selected:[{id:7}]});
+  ctx.$confirm=async()=>{};ctx.loadList=()=>{};
+  await ctx.removeEmployeeFromPlan(row,true);
+  assert.equal(removal.plan_id,8);assert.equal(removal.emp_id,12);
+  assert.equal(JSON.stringify(ctx.editor.selected.map(x=>x.id)),'[7,12]');
+  assert.equal(ctx.candidateStatus(row),'已选');assert.equal(saved,undefined,'wait for explicit editor save');
+  await ctx.submitEditor();assert.equal(JSON.stringify(saved.emp_ids),'[7,12]');
+ }
+});
+test('failed or cancelled remove-and-add never adds employee to target plan',async()=>{
+ for(const cancel of [true,false]){
+  const {ctx}=component({removeEmployee:async()=>({code:0,msg:'移除失败'})});
+  const row={id:12,s:2,r:'旧方案',p:8};
+  Object.assign(ctx.editor,{visible:true,kind:'plans',ready:true,candidates:[row],selected:[{id:7}]});
+  ctx.$confirm=async()=>{if(cancel)throw 'cancel';};ctx.loadList=()=>{};
+  await ctx.removeEmployeeFromPlan(row,true);
+  assert.equal(JSON.stringify(ctx.editor.selected.map(x=>x.id)),'[7]');assert.equal(row.s,2);
+ }
+});

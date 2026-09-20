@@ -47,7 +47,7 @@
         <label for="fc-plan-name"><span class="required">*</span>方案名称：</label>
         <el-input id="fc-plan-name" v-model.trim="editor.name" maxlength="50" :disabled="editor.removingId !== null || editor.saving" placeholder="请输入方案名称" />
       </div>
-      <p v-if="editor.kind === 'plans'" class="hint">其他方案中的员工可先移除再添加。移除立即生效，加入当前方案需点击“确定”保存。</p>
+      <p v-if="editor.kind === 'plans'" class="hint">其他方案中的员工可“移除并添加”到当前已选列表。移除立即生效，加入当前方案需点击“确定”保存。</p>
       <div class="transfer">
         <section>
           <h3>待选{{ editor.kind === 'products' ? '商品' : '员工' }}列表</h3>
@@ -66,9 +66,10 @@
             <el-table-column v-if="editor.kind === 'products'" label="单价（元）" width="90"><template slot-scope="{row}">{{ money(row.p) }}</template></el-table-column>
             <el-table-column v-if="editor.kind === 'plans'" prop="d" label="部门" min-width="120" />
             <el-table-column v-if="editor.kind === 'plans'" prop="c" label="工号" width="90" />
-            <el-table-column label="状态" min-width="170"><template slot-scope="{row}">
+            <el-table-column label="状态" min-width="230"><template slot-scope="{row}">
               <span>{{ candidateStatus(row) }}</span>
               <el-button v-if="editor.kind === 'plans' && (row.s == 1 || row.s == 2) && Number(row.p) > 0" type="text" class="remove-plan" :loading="editor.removingId === String(row.id)" :disabled="editor.removingId !== null || editor.saving || editor.loading" @click.stop="removeEmployeeFromPlan(row)">移除</el-button>
+              <el-button v-if="editor.kind === 'plans' && row.s == 2 && Number(row.p) > 0" type="text" class="remove-plan" :disabled="editor.removingId !== null || editor.saving || editor.loading" @click.stop="removeEmployeeFromPlan(row, true)">移除并添加</el-button>
             </template></el-table-column>
           </el-table>
         </section>
@@ -243,13 +244,16 @@ export default {
       if (this.editor.kind === 'plans' && Number(row.s) === 2) return '其他方案占用';
       return this.editor.selected.some(item => String(item.id) === String(row.id)) ? '已选' : '';
     },
-    async removeEmployeeFromPlan(row) {
+    async removeEmployeeFromPlan(row, addToCurrent = false) {
       const editor = this.editor;
       if (!editor.visible || editor.kind !== 'plans' || editor.saving || editor.loading || editor.removingId !== null || ![1, 2].includes(Number(row.s)) || !(Number(row.p) > 0)) return;
+      if (addToCurrent && Number(row.s) !== 2) return;
       const planId = row.p;
       editor.removingId = String(row.id);
       try {
-        await this.$confirm(`确认将“${row.n || row.c || row.id}”从“${row.r || '原方案'}”移除？移除立即生效，取消当前编辑也不会恢复。`, '移除方案人员', { type: 'warning' });
+        const action = addToCurrent ? '移除并加入当前方案的已选列表' : '移除';
+        const saveTip = addToCurrent ? '加入当前方案需点击“确定”保存。' : '';
+        await this.$confirm(`确认将“${row.n || row.c || row.id}”从“${row.r || '原方案'}”${action}？移除立即生效，取消当前编辑也不会恢复。${saveTip}`, addToCurrent ? '移除并添加' : '移除方案人员', { type: 'warning' });
         if (this.editor !== editor || !editor.visible) return;
         responseData(await api.removeEmployee({ plan_id: planId, emp_id: row.id }));
         if (this.editor !== editor) return;
@@ -257,8 +261,9 @@ export default {
         editor.selected = editor.selected.filter(item => String(item.id) !== String(row.id));
         editor.checked = editor.checked.filter(item => String(item.id) !== String(row.id));
         Object.assign(row, { s: 0, r: '', p: 0 });
+        if (addToCurrent) editor.selected = addSelection(editor.selected, [row], 'plans');
         this.syncCandidateSelection();
-        this.$message.success('已从原方案移除，可重新选择并添加');
+        this.$message.success(addToCurrent ? '已移除并加入已选列表，请点击确定保存' : '已从原方案移除，可重新选择并添加');
         this.loadList();
       } catch (error) {
         if (error !== 'cancel' && error !== 'close' && this.editor === editor) this.error(error);
