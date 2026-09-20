@@ -116,7 +116,7 @@
           <p class="new-one-txt-cut">
             <!-- 折前：当太总消费的应收金额（不含赠送） -->
             <span class="new-one-txt-title">折前金额:</span>
-            <span class="new-one-txt-price">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+            <span class="new-one-txt-price">￥{{ footerOriginalAmount }}</span>
           </p>
           <p class="new-one-txt-cut">
             <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->
@@ -152,7 +152,7 @@
         <p class="new-one-txt-cut">
           <!-- 折前：当太总消费的应收金额（不含赠送） -->
           <span class="new-one-txt-title">折前金额:</span>
-          <span class="new-one-txt-price">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+          <span class="new-one-txt-price">￥{{ footerOriginalAmount }}</span>
         </p>
         <p class="new-one-txt-cut">
           <!-- 折后：已结账的金额（包含主营非主营，不含折扣） -->

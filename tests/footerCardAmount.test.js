@@ -49,3 +49,25 @@ test('both footers wire current and historical events and compile', () => {
     assert.deepEqual(compiler.compile(source.template.content).errors, []);
   }
 });
+
+test('metadata discount adds to displayed original amount without changing payment or historical totals',async()=>{
+ const {view,store}=fixture();
+ try {
+  const row=store.state.cardPageInfo.resResultDataObj.businessData[0];
+  row.orderAmt='4700.02';Vue.set(row,'discount_amt','1100.00');view.refreshFooterCardAmounts();
+  assert.equal(view.footerOriginalAmount,'5800.02');
+  assert.equal(view.cardInfo.orderAmt,'4700.02');
+  assert.equal(view.cardInfo.payed_val_amt,1000);
+  row.discount_amt='0.00';await Vue.nextTick();assert.equal(view.footerOriginalAmount,'4700.02');
+  row.discount_amt='800.00';await Vue.nextTick();assert.equal(view.footerOriginalAmount,'5500.02');
+  view.footerHistoricalAmounts=true;view.cardInfo={...view.cardInfo,orderAmt:55};
+  assert.equal(view.footerOriginalAmount,'55.00','current discount cannot leak into historical totals');
+ }finally{view.$destroy();}
+});
+test('business metadata maps the appended discount amount without shifting older fields',()=>{
+ const transform=Function(fs.readFileSync('src/utils/transformCardData.js','utf8').replace('export const transformCardDataHandle','const transformCardDataHandle')+';return transformCardDataHandle;')();
+ const raw=Array(39).fill('0');raw[20]='';raw[6]='4700.02';raw[37]='2';raw[38]='1100.00';
+ const row=transform([raw],14)[0];
+ assert.equal(row.orderAmt,'4700.02');assert.equal(row.disable_must_order,'2');assert.equal(row.discount_amt,'1100.00');
+ assert.equal(transform([raw.slice(0,38)],14)[0].discount_amt,'0.00');
+});

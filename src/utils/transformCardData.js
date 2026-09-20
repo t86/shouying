@@ -228,6 +228,7 @@ export const transformCardDataHandle = (arr = [], index = 0) => {
           csm_cust_phone: el[35], // 流水台指定的客人手机号
           csm_cust_name: el[36], // 流水台对应的客人姓名(可能为空)
           disable_must_order: el[37], // 临时关闭流水必点开关
+          discount_amt: el[38] == null || el[38] === "" ? "0.00" : el[38], // 直接打折金额，单位元
         })
       })
       break

@@ -56,6 +56,11 @@ export default class WebSocketClient {
       Array.isArray(data.fcProductPrices) && Array.isArray(data.fcPlanEmployees);
   }
 
+  hasBusinessAmountMetadata() {
+    const data = this.vue.$store.state.cardPageInfo.resResultDataObj || {};
+    return data.businessAmountMetadataVersion === 1 && Array.isArray(data.businessData);
+  }
+
   connect = () => {
     typeof WebSocket === "undefined"
       ? this.vue.$message.warning("您的浏览器不支持socket")
@@ -80,7 +85,7 @@ export default class WebSocketClient {
       const allLocalTime = localStorage.getItem("refreshAllLocalTime");
       // 如果上次拉取all的时间已经超过一定时间: 暂定13小时，确保超过一个营业时间
       //  || allLocalTime < +this.formattedDate() - 130000
-      if (!allLocalTime || !this.hasFcPriceMetadata()) {
+      if (!allLocalTime || !this.hasFcPriceMetadata() || !this.hasBusinessAmountMetadata()) {
         await this.getAllData(true, true, true);
       } else {
         await this.getUpdateData();
@@ -200,7 +205,8 @@ export default class WebSocketClient {
       reload ||
       !(this.resResultDataObj && this.resResultDataObj.areaInfo) ||
       !localStorage.getItem("websocketTimeMessageTime") ||
-      !this.hasFcPriceMetadata();
+      !this.hasFcPriceMetadata() ||
+      !this.hasBusinessAmountMetadata();
     try {
       let res = {};
       if (needReloadData) {
@@ -242,6 +248,11 @@ export default class WebSocketClient {
           // 空占位数组不能证明已同步：只有服务端完整返回58/59才标记缓存已升级。
           if (Array.isArray(data[58]) && Array.isArray(data[59])) {
             this.resResultDataObj.fcPriceMetadataVersion = 1;
+          }
+
+          // 旧缓存补拉一次业务金额；旧后端尚无折扣列也算升级，避免重复全量。
+          if (Array.isArray(data[14])) {
+            this.resResultDataObj.businessAmountMetadataVersion = 1;
           }
 
           this.vue.$store.commit(
@@ -330,7 +341,7 @@ export default class WebSocketClient {
   getUpdateData = async () => {
     this.websocketTimeMessageTime =
       localStorage.getItem("websocketTimeMessageTime") || "";
-    if (!this.websocketTimeMessageTime || !this.hasFcPriceMetadata()) {
+    if (!this.websocketTimeMessageTime || !this.hasFcPriceMetadata() || !this.hasBusinessAmountMetadata()) {
       return this.getAllData(true, true, true);
     }
     const params = {

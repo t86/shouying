@@ -13,7 +13,7 @@ function setup(cached = {}, options = {}) {
     websocketTimeMessageTime: '20260916160000', frontVersion: 'test', ...options.storage }));
   const state = Vue.observable({ cardPageInfo: { resResultDataObj: { areaInfo: [], ...cached } } });
   const calls = { full: 0, delta: 0, events: [] };
-  const ds = { 18: [['1']], 23: ['1'], 43: ['test'],
+  const ds = { 14: [], 18: [['1']], 23: ['1'], 43: ['test'],
     58: [['9', '3', '77700', '1']], 59: [['3', '11', '1']] };
   const dependencies = {
     resResultDataArr, transformCardDataHandle, CODE_INVALID: 'invalid',
@@ -95,3 +95,45 @@ for (const route of ['myOrder', 'oldMyOrder', 'payOrder']) {
     assert.deepEqual(calls.events, []);
   });
 }
+
+const migratedSchemeCache = { fcPriceMetadataVersion: 1, fcProductPrices: [], fcPlanEmployees: [] };
+
+for (const entry of ['openHandle', 'getUpdateData', 'getAllData']) {
+  test(entry + ' refreshes old business amount cache once even with migrated scheme metadata', async () => {
+    const { client, calls, state } = setup(migratedSchemeCache);
+    await client[entry]();
+    assert.equal(calls.full, 1);
+    assert.equal(state.cardPageInfo.resResultDataObj.businessAmountMetadataVersion, 1);
+    await client.getUpdateData();
+    assert.equal(calls.full, 1);
+    assert.equal(calls.delta, 1);
+  });
+}
+
+test('business amount migration accepts old backend rows without discount column', async () => {
+  const { client, calls, ds } = setup(migratedSchemeCache);
+  ds[14] = [[31, ...Array(37).fill('')]];
+  await client.openHandle();
+  await client.openHandle();
+  assert.equal(calls.full, 1);
+  assert.equal(calls.delta, 1);
+});
+
+test('already migrated business amounts use incremental sync immediately', async () => {
+  const { client, calls } = setup({ ...migratedSchemeCache, businessAmountMetadataVersion: 1, businessData: [] });
+  await client.openHandle();
+  assert.equal(calls.full, 0);
+  assert.equal(calls.delta, 1);
+});
+
+test('failed or missing business snapshots cannot mark amount migration complete', async () => {
+  for (const response of [{ code: 0 }, { code: 1, data: { ts: '20260916170000', ds: {
+    18: [['1']], 23: ['1'], 43: ['test'], 58: [], 59: [],
+  } } }]) {
+    const { client, calls, state } = setup(migratedSchemeCache, { response });
+    await client.openHandle();
+    assert.notEqual(state.cardPageInfo.resResultDataObj.businessAmountMetadataVersion, 1);
+    await client.openHandle();
+    assert.equal(calls.full, 2);
+  }
+});

@@ -3,6 +3,14 @@ export default {
   data() {
     return { footerHistoricalAmounts: false };
   },
+  computed: {
+    footerOriginalAmount() {
+      const orderCents = Math.round((Number(this.cardInfo.orderAmt) || 0) * 100);
+      // 历史流水沿用历史接口摘要，不叠加当前卡台的折扣。
+      const discountCents = this.footerHistoricalAmounts ? 0 : Math.round((Number(this.cardInfo.discount_amt) || 0) * 100);
+      return ((orderCents + discountCents) / 100).toFixed(2);
+    },
+  },
   methods: {
     refreshFooterCardAmounts() {
       if (this.footerHistoricalAmounts) return;
@@ -15,7 +23,7 @@ export default {
       );
       const amounts = {};
       if (business) {
-        ["orderAmt", "payed_val_amt", "order_zy_amt", "payedAmt", "payed_zy_val_amt"].forEach((key) => {
+        ["discount_amt", "orderAmt", "payed_val_amt", "order_zy_amt", "payedAmt", "payed_zy_val_amt"].forEach((key) => {
           if (business[key] !== undefined && business[key] !== null && business[key] !== "" && Number.isFinite(Number(business[key]))) {
             amounts[key] = business[key];
           }

@@ -100,7 +100,7 @@
             <div class="left m-r-2">
               <p class="one-txt-cut">
                 <span>折前金额:</span>
-                <span>￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+                <span>￥{{ footerOriginalAmount }}</span>
               </p>
               <p class="one-txt-cut">
                 <span>折后金额:</span>
@@ -147,7 +147,7 @@
           <div class="left m-r-2" layout="row">
             <p class="one-txt-cut">
               <span>折前金额:</span>
-              <span class="m-r-4">￥{{ Number(cardInfo.orderAmt || 0).toFixed(2) }}</span>
+              <span class="m-r-4">￥{{ footerOriginalAmount }}</span>
             </p>
             <p class="one-txt-cut">
               <span>折后金额:</span>
