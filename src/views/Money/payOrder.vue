@@ -132,7 +132,7 @@
             <div class="money" layout="row" layout-align="start center">
               <span>折前:</span>
               <span class="amt">
-                ¥{{ payedData.payedOrderInfo.amts.o || "0.00" }}
+                ¥{{ paidOrderOriginalAmount }}
               </span>
             </div>
             <div class="money" layout="row" layout-align="start center">
@@ -480,6 +480,7 @@ import inputSelect from "@/components/book/inputSelect";
 
 import api_order from "@/api/order";
 import { calculateOrderSummary } from "@/utils/orderSummary";
+import { summarizeCashierRows } from "@/utils/cashierTabAmounts";
 import api_money from "@/api/money";
 import api_book from "@/api/Book";
 import common_order from "@/utils/common/order";
@@ -547,6 +548,7 @@ export default {
       cardAllOrderInfo: [],
       paymentCashiers: {},
       cashierRequestId: 0,
+      cashierRowsKey: "",
       orderSummaryRequestId: 0,
       orderSummaryInfo: null,
       orderSummaryKey: "",
@@ -996,6 +998,7 @@ export default {
     async getOrderInfo(callback, backToCardList) {
       this.loadOrderSummary();
       const cashierRequestId = ++this.cashierRequestId;
+      this.cashierRowsKey = "";
       this.paymentCashiers = {};
       const params = {
         seat_id: this.$store.state.orderInfo.currentCardInfo.seatId * 1, //    int64  卡台Id
@@ -1206,6 +1209,7 @@ export default {
             ...payedOrderList,
           ];
 
+          this.cashierRowsKey = JSON.stringify([params.seat_id, params.turnover_cnt]);
           this.updatePaymentCashiers(payedOrderList.map(order => order.pid), params, cashierRequestId);
 
           callback && callback();
@@ -2523,9 +2527,12 @@ export default {
     inputSelect,
   },
   computed: {
+    paidOrderOriginalAmount() {
+      return summarizeCashierRows(this.payedData.payedOrderList).allAmt;
+    },
     paidOrderDiscount() {
       const amts = this.payedData.payedOrderInfo.amts || {};
-      const original = Math.round((Number(amts.o) || 0) * 100);
+      const original = Math.round((Number(this.paidOrderOriginalAmount) || 0) * 100);
       const actual = Math.round((Number(amts.pv) || 0) * 100);
       return (Math.max(0, original - actual) / 100).toFixed(2);
     },
@@ -2534,6 +2541,12 @@ export default {
         Number(this.$store.state.orderInfo.currentCardInfo.seatId),
         this.turnOverInfo.activeTurnOverCount,
       ]);
+      if (this.payTabInfo.activePayId === 0) {
+        if (currentKey !== this.cashierRowsKey) {
+          return { allAmt: "--", giveAmt: "--", discountAmt: "--", notPayAmt: "--" };
+        }
+        return summarizeCashierRows(this.notPayData.notPayOrderList);
+      }
       if (!this.orderSummaryInfo || currentKey !== this.orderSummaryKey) {
         return { allAmt: "--", giveAmt: "--", discountAmt: "--", notPayAmt: "--" };
       }

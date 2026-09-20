@@ -13,9 +13,9 @@ function amount(amts) {
  assert.ok(property, 'paid summary exposes the recorded discount');
  const code = parsed.script.content.slice(property.start,property.end);
  const methods = vm.runInNewContext('({' + code + '})');
- return methods.paidOrderDiscount.call({payedData:{payedOrderInfo:{amts}}});
+ return methods.paidOrderDiscount.call({paidOrderOriginalAmount: amts.o,payedData:{payedOrderInfo:{amts}}});
 }
-test('paid discount is the difference between returned original and actual totals, not metadata',()=>{
+test('paid discount combines the recorded original total and actual settlement total without adding free payments twice',()=>{
  assert.equal(amount({o:'1000',pv:'200',pf:'0'}),'800.00');
  assert.equal(amount({o:'1000',pv:'200',pf:'800'}),'800.00');
  assert.equal(amount({o:'0.30',pv:'0.10'}),'0.20');
