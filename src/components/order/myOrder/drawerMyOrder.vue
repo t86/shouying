@@ -365,7 +365,7 @@
           <div class="form">
             <el-form label-position="right" label-width="150px"  @submit.native.prevent>
               <h3 class="m-b-4 m-l-4">修改授权人</h3>
-              <el-form-item  label="原授权人：">{{  }}</el-form-item>
+              <el-form-item  label="原授权人：">{{ formData.originAe || '—' }}</el-form-item>
               <el-form-item label="授权人：">
                 <input-select
                     :autoFocus="true"
@@ -1693,7 +1693,9 @@ export default {
             this.formData.originName = this.currentItemInfo.personInfo.name;
             break;
           case 99:
-            this.formData.originAe = this.currentItemInfo.authInfo.name;
+            this.formData.originAe = (this.currentItemInfo.authInfo && this.currentItemInfo.authInfo.name) || '';
+            this.formData.aes = { sales_name: '', sales_emp_id: '', sales_phone: '', sales_info_option: [] };
+            break;
 
         }
       } else {
