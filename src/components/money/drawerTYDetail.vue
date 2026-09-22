@@ -86,7 +86,10 @@
               <div class="td">{{ item.on }}</div>
               <div class="td">{{ item.tn }}</div>
               <div class="td">{{ item.n }}</div>
-              <div class="td">{{ item.a }}</div>
+              <div class="td hl-report-amount">
+                <span v-if="reportAmounts(item).changed" class="hl-original"><span>原价：</span><del>{{ reportAmounts(item).original }}</del></span>
+                <span><span v-if="reportAmounts(item).changed">方案价：</span>{{ reportAmounts(item).actual }}</span>
+              </div>
               <div class="td">{{ item.se }}</div>
               <div class="td">{{ item.sd }}</div>
               <div class="td">{{ item.ss }}</div>
@@ -115,6 +118,7 @@
 </template>
 
 <script>
+import { reportAmounts, sumReportAmounts } from "@/utils/hlReportAmounts";
 import api_money from "@/api/money";
 import api_order from "@/api/order";
 let originTableData = [];
@@ -128,6 +132,7 @@ export default {
     };
   },
   methods: {
+    reportAmounts,
     // 获取数据
     async getTableData() {
       const params = {
@@ -144,11 +149,11 @@ export default {
         }
          
         if (res.code == 1) {
-          this.tableData = res.data.records || [];
+          this.tableData = (res.data.records || []).slice();
           if(this.isOrder()) {
             this.tableData.push({
               rn: '合计',
-              a: (this.tableData.reduce((total, item) => total + item.a * 1, 0)).toFixed(2)
+              ...sumReportAmounts(this.tableData)
             })
           }
         } else {
@@ -238,6 +243,8 @@ export default {
 </script>
 
 <style scoped lang="less">
+.hl-report-amount { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 18px; }
+.hl-original { color: #999; font-size: 12px; }
 @import "../../style/money/drawerTYDetail.less";
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";

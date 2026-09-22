@@ -66,7 +66,10 @@
               <div class="td">{{ item.ae }}</div>
               <div class="td">{{ item.as }}</div>
               <div class="td">{{ item.n }}</div>
-              <div class="td">{{ item.a }}</div>
+              <div class="td hl-report-amount">
+                <span v-if="reportAmounts(item).changed" class="hl-original"><span>原价：</span><del>{{ reportAmounts(item).original }}</del></span>
+                <span><span v-if="reportAmounts(item).changed">方案价：</span>{{ reportAmounts(item).actual }}</span>
+              </div>
             </div>
             <p
               v-if="tableData.length == 0"
@@ -87,6 +90,7 @@
 </template>
 
 <script>
+import { reportAmounts } from "@/utils/hlReportAmounts";
 import api_money from "@/api/money";
 let originTableData = [];
 export default {
@@ -99,6 +103,7 @@ export default {
     };
   },
   methods: {
+    reportAmounts,
     // 获取数据
     async getTableData() {
       const params = {
@@ -107,7 +112,7 @@ export default {
       try {
         const res = await api_money.reqGetTYHZList(params);
         if (res.code == 1) {
-          this.tableData = res.data.records || [];
+          this.tableData = (res.data.records || []).slice();
         } else {
           this.$message.warning(res.msg);
         }
@@ -191,6 +196,8 @@ export default {
 </script>
 
 <style scoped lang="less">
+.hl-report-amount { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 18px; }
+.hl-original { color: #999; font-size: 12px; }
 @import "../../style/money/drawerTYHZ.less";
 @import "../../style/common/elementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
