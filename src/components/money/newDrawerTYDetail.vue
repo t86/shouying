@@ -16,13 +16,13 @@
             <el-button
               class="m-l-2"
               type="primary"
-              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
+              size="medium"
               @click="getTableData"
               >查询</el-button
             >
             <el-button
               type="info"
-              style="width: 70px; height: 30px; line-height: 30px; padding: 0"
+              size="medium"
               @click="resetHandle"
               >重置</el-button
             >
@@ -31,36 +31,36 @@
             v-if="!isOrder()"
             type="primary"
             @click="exportExcel"
-            style="width: 90px; height: 30px; line-height: 30px; padding: 0"
+            size="medium"
             >导出Excel</el-button
           >
         </div>
 
-        <div class="table">
+        <div class="report-hint">左右滑动查看完整报表，左侧卡台信息固定显示</div>
+        <div class="table" tabindex="0" aria-label="鸡尾酒明细报表">
           <div class="thead">
             <div class="tr" layout="row" layout-align="start center">
               <div class="th">序号</div>
               <div class="th">区域</div>
-              <div class="th">卡台名称</div>
-              <div class="th">下单/补交时间</div>
-              <div class="th">结账时间</div>
-              <div class="th">点单人</div>
-              <div class="th">点单人部门</div>
-              <div class="th">点单人岗位</div>
+              <div class="th">卡台</div>
+              <div class="th">商品名称</div>
+              <div class="th">金额（元）</div>
               <div class="th">授权人</div>
               <div class="th">授权人部门</div>
               <div class="th">授权人岗位</div>
+              <div class="th">点单人</div>
+              <div class="th">点单人部门</div>
+              <div class="th">点单人岗位</div>
+              <div class="th">下单 / 补交时间</div>
+              <div class="th">结账时间</div>
               <div class="th">商品一级分类</div>
               <div class="th">商品二级分类</div>
-              <div class="th">商品名称</div>
-              <div class="th">点单金额</div>
               <div class="th">订台人</div>
               <div class="th">订位部门</div>
               <div class="th">订位人岗位</div>
               <div class="th">关联功能台</div>
               <div class="th">补交营业日</div>
-              <div class="th">支付信息描述</div>
-              <div class="th">{{ showArrow ? ">>" : "" }}</div>
+              <div class="th">支付信息</div>
             </div>
           </div>
           <div class="tbody">
@@ -70,32 +70,32 @@
               layout-align="start center"
               v-for="(item, index) in tableData"
               :key="index"
+              :class="{ 'total-row': item.rn === '合计' }"
             >
-              <div class="td one-txt-cut">{{ item.rn == '合计' ? '' : index + 1 }}</div>
-              <div class="td">{{ item.rn }}</div>
-              <div class="td">{{ item.s }}</div>
-              <div class="td">{{ item.o }}</div>
-              <div class="td">{{ item.pt }}</div>
-              <div class="td">{{ item.w }}</div>
-              <div class="td">{{ item.wd }}</div>
-              <div class="td">{{ item.ws }}</div>
-              <div class="td">{{ item.ae }}</div>
-              <div class="td">{{ item.ad }}</div>
-              <div class="td">{{ item.as }}</div>
-              <div class="td">{{ item.on }}</div>
-              <div class="td">{{ item.tn }}</div>
-              <div class="td">{{ item.n }}</div>
+              <div class="td">{{ item.rn === '合计' ? '' : index + 1 }}</div>
+              <div class="td" :title="item.rn">{{ item.rn }}</div>
+              <div class="td" :title="item.s">{{ item.s }}</div>
+              <div class="td" :title="item.n">{{ item.n }}</div>
               <div class="td hl-report-amount">
-                <span v-if="reportAmounts(item).changed" class="hl-original"><span>原价：</span><del>{{ reportAmounts(item).original }}</del></span>
-                <span><span v-if="reportAmounts(item).changed">方案价：</span>{{ reportAmounts(item).actual }}</span>
+                <span v-if="reportAmounts(item).changed" class="hl-original">原价 <del>{{ reportAmounts(item).original }}</del></span>
+                <span class="hl-actual"><span v-if="reportAmounts(item).changed" class="hl-price-label">方案价 </span>{{ reportAmounts(item).actual }}</span>
               </div>
-              <div class="td">{{ item.se }}</div>
-              <div class="td">{{ item.sd }}</div>
-              <div class="td">{{ item.ss }}</div>
-              <div class="td">{{ item.bs }}</div>
-              <div class="td">{{ item.bb }}</div>
-              <div class="td">{{ item.p }}</div>
-              <div class="td">{{ showArrow ? ">>" : "" }}</div>
+              <div class="td" :title="item.ae">{{ item.ae }}</div>
+              <div class="td" :title="item.ad">{{ item.ad }}</div>
+              <div class="td" :title="item.as">{{ item.as }}</div>
+              <div class="td" :title="item.w">{{ item.w }}</div>
+              <div class="td" :title="item.wd">{{ item.wd }}</div>
+              <div class="td" :title="item.ws">{{ item.ws }}</div>
+              <div class="td" :title="item.o">{{ item.o }}</div>
+              <div class="td" :title="item.pt">{{ item.pt }}</div>
+              <div class="td" :title="item.on">{{ item.on }}</div>
+              <div class="td" :title="item.tn">{{ item.tn }}</div>
+              <div class="td" :title="item.se">{{ item.se }}</div>
+              <div class="td" :title="item.sd">{{ item.sd }}</div>
+              <div class="td" :title="item.ss">{{ item.ss }}</div>
+              <div class="td" :title="item.bs">{{ item.bs }}</div>
+              <div class="td" :title="item.bb">{{ item.bb }}</div>
+              <div class="td" :title="item.p">{{ item.p }}</div>
             </div>
             <p
               v-if="tableData.length == 0"
@@ -126,7 +126,6 @@ export default {
       show: false,
       keyword: "",
       tableData: [],
-      showArrow: true,
     };
   },
   methods: {
@@ -211,16 +210,7 @@ export default {
     resetHandle() {
       this.keyword = "";
       this.getTableData();
-      setTimeout(() => {
-        const table = document.querySelector(".table");
-        const tableWidth = table.offsetWidth;
-        const tbody = document.querySelector(".tbody");
-        const tbodyWidth = tbody.offsetWidth;
-        const that = this;
-        table.onscroll = function () {
-          that.showArrow = tbodyWidth - (table.scrollLeft + tableWidth) >= 40;
-        };
-      }, 1000);
+
     },
     isOrder(){
       return sessionStorage.getItem("client") == "order"
@@ -264,8 +254,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-.hl-report-amount { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 18px; }
-.hl-original { color: #999; font-size: 12px; }
 @import "../../style/money/newDrawerTYDetail.less";
 @import "../../style/common/newElementDrawer.less";
 @import "../../style/common/elementDrawerHeaderAndSession.less";
