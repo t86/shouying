@@ -7,6 +7,10 @@ const article = {
   requestStationList(data) {
     return axios.post(`${base.htgl}/station/list`, data);
   },
+  // 批量设置员工端距离限制，单位米，0 表示不限制
+  requestStationSetDistance(data) {
+    return axios.post(`${base.htgl}/station/batch_set_distance`, data);
+  },
   // 新建岗位
   requestStationNew(data) {
     return axios.post(`${base.htgl}/station/new`, data);

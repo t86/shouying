@@ -37,6 +37,11 @@
           colors="#383943"
           wz="角色权限"
         ></characters-button>
+        <characters-button
+          @click.native="openDistanceDialog"
+          colors="#383943"
+          wz="员工端距离限制"
+        ></characters-button>
         <!-- <characters-button
           @click.native="setConfigHandle(1)"
           colors="#383943"
@@ -114,6 +119,7 @@
             <div class="th">状态</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
+            <div class="th">员工端距离限制</div>
           </div>
         </div>
         <div class="tbody">
@@ -140,12 +146,36 @@
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.c }}</div>
             <div class="td">{{ item.u }}</div>
+            <div class="td">{{ formatDistance(item.d) }}</div>
           </div>
           <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
             <p>暂无数据</p>
           </div>
         </div>
+        <el-dialog
+          title="员工端距离限制"
+          :visible.sync="showDistanceDialog"
+          width="480px"
+          append-to-body
+          :close-on-click-modal="false"
+          :close-on-press-escape="!distanceSaving"
+          :show-close="!distanceSaving"
+        >
+          <p>已选 {{ distanceStations.length }} 个岗位</p>
+          <el-form label-width="100px" @submit.native.prevent="saveDistance">
+            <el-form-item label="限制距离">
+              <el-input v-model="distanceInput" :disabled="distanceSaving" placeholder="请输入非负整数">
+                <template slot="append">米</template>
+              </el-input>
+            </el-form-item>
+          </el-form>
+          <p style="color: #909399; line-height: 1.6">0 表示不限制。多岗位批量设置默认填入 0，保存后统一应用于已选岗位。</p>
+          <span slot="footer">
+            <el-button :disabled="distanceSaving" @click="showDistanceDialog = false">取消</el-button>
+            <el-button type="primary" :loading="distanceSaving" @click="saveDistance">确定</el-button>
+          </span>
+        </el-dialog>
         <!-- 新增或编辑 -->
         <drawerAddOrUpdateStation
           v-model="showAddOrUpdateDrawer"
@@ -231,6 +261,10 @@ import drawerNextDrawer from "./stationConfigCom/drawerNextDrawer.vue";
 export default {
   data() {
     return {
+      showDistanceDialog: false,
+      distanceStations: [],
+      distanceInput: "0",
+      distanceSaving: false,
       searchKey: "", // 搜索关键字
       tableData: [],
       checkAll: false,
@@ -259,6 +293,44 @@ export default {
     };
   },
   methods: {
+    formatDistance(value) {
+      return Number(value) > 0 ? value + "米" : "不限制";
+    },
+    openDistanceDialog() {
+      if (this.distanceSaving) return;
+      const selected = this.tableData.filter(item => item.checked);
+      if (!selected.length) return this.$message.warning("请选择岗位");
+      this.distanceStations = selected.map(item => ({ id: item.id }));
+      this.distanceInput = selected.length === 1 ? String(selected[0].d || 0) : "0";
+      this.showDistanceDialog = true;
+    },
+    async saveDistance() {
+      if (this.distanceSaving) return;
+      const input = String(this.distanceInput).trim();
+      const distance = Number(input);
+      if (!/^\d+$/.test(input) || !Number.isSafeInteger(distance) || distance < 0) {
+        return this.$message.warning("请输入非负整数距离，0 表示不限制");
+      }
+      if (!this.distanceStations.length) return this.$message.warning("请选择岗位");
+      this.distanceSaving = true;
+      try {
+        const res = await this.$api.BMS.station.requestStationSetDistance({
+          station_ids: this.distanceStations.map(item => item.id),
+          distance,
+        });
+        if (res.code == 1) {
+          this.showDistanceDialog = false;
+          this.$message.success("设置成功");
+          this.getTableData();
+        } else {
+          this.$message.warning(res.msg || "设置失败，请重试");
+        }
+      } catch (error) {
+        this.$message.warning("设置失败，请重试");
+      } finally {
+        this.distanceSaving = false;
+      }
+    },
     async getTableData() {
       const checked = this.tableData.filter((item) => item.checked);
 
