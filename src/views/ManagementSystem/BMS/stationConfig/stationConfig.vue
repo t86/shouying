@@ -146,7 +146,7 @@
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.c }}</div>
             <div class="td">{{ item.u }}</div>
-            <div class="td">{{ formatDistance(item.d) }}</div>
+            <div class="td">{{ item.d }}</div>
           </div>
           <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
@@ -293,9 +293,6 @@ export default {
     };
   },
   methods: {
-    formatDistance(value) {
-      return Number(value) > 0 ? value + "米" : "不限制";
-    },
     openDistanceDialog() {
       if (this.distanceSaving) return;
       const selected = this.tableData.filter(item => item.checked);

@@ -18,8 +18,8 @@ function setup(response = { code: 1 }) {
 }
 test('distance labels and selection are initialized from saved station settings', () => {
   const { state, notices } = setup();
-  for (const value of [undefined, null, '', '0', 0]) assert.equal(state.formatDistance(value), '不限制');
-  assert.equal(state.formatDistance('200'), '200米');
+  assert.match(source, /\{\{ item\.d \}\}/);
+  assert.doesNotMatch(source, /formatDistance/);
   state.openDistanceDialog(); assert.equal(state.showDistanceDialog, false); assert.equal(notices.length, 1);
   state.tableData = [{ id: 1, checked: true, d: '200' }, { id: 2, checked: false, d: '300' }];
   state.openDistanceDialog(); assert.equal(state.distanceInput, ''); assert.equal(state.distanceStations.length, 1);
