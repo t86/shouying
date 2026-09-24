@@ -165,12 +165,12 @@
           <p>已选 {{ distanceStations.length }} 个岗位</p>
           <el-form label-width="100px" @submit.native.prevent="saveDistance">
             <el-form-item label="限制距离">
-              <el-input v-model="distanceInput" :disabled="distanceSaving" placeholder="请输入非负整数">
+              <el-input v-model="distanceInput" @input="onDistanceInput" :disabled="distanceSaving" placeholder="0:不限制" inputmode="numeric">
                 <template slot="append">米</template>
               </el-input>
             </el-form-item>
           </el-form>
-          <p style="color: #909399; line-height: 1.6">0 表示不限制。多岗位批量设置默认填入 0，保存后统一应用于已选岗位。</p>
+          <p style="color: #909399; line-height: 1.6">请输入 0 或大于 0 的整数（单位：米），0 表示不限制。</p>
           <span slot="footer">
             <el-button :disabled="distanceSaving" @click="showDistanceDialog = false">取消</el-button>
             <el-button type="primary" :loading="distanceSaving" @click="saveDistance">确定</el-button>
@@ -263,7 +263,7 @@ export default {
     return {
       showDistanceDialog: false,
       distanceStations: [],
-      distanceInput: "0",
+      distanceInput: "",
       distanceSaving: false,
       searchKey: "", // 搜索关键字
       tableData: [],
@@ -301,8 +301,11 @@ export default {
       const selected = this.tableData.filter(item => item.checked);
       if (!selected.length) return this.$message.warning("请选择岗位");
       this.distanceStations = selected.map(item => ({ id: item.id }));
-      this.distanceInput = selected.length === 1 ? String(selected[0].d || 0) : "0";
+      this.distanceInput = "";
       this.showDistanceDialog = true;
+    },
+    onDistanceInput(value) {
+      this.distanceInput = String(value).match(/^\d*/)[0];
     },
     async saveDistance() {
       if (this.distanceSaving) return;

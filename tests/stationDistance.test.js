@@ -22,8 +22,8 @@ test('distance labels and selection are initialized from saved station settings'
   assert.equal(state.formatDistance('200'), '200米');
   state.openDistanceDialog(); assert.equal(state.showDistanceDialog, false); assert.equal(notices.length, 1);
   state.tableData = [{ id: 1, checked: true, d: '200' }, { id: 2, checked: false, d: '300' }];
-  state.openDistanceDialog(); assert.equal(state.distanceInput, '200'); assert.equal(state.distanceStations.length, 1);
-  state.tableData[1].checked = true; state.openDistanceDialog(); assert.equal(state.distanceInput, '0');
+  state.openDistanceDialog(); assert.equal(state.distanceInput, ''); assert.equal(state.distanceStations.length, 1);
+  state.tableData[1].checked = true; state.openDistanceDialog(); assert.equal(state.distanceInput, '');
 });
 test('invalid distances never reach API', async () => {
   const { state, calls } = setup(); state.distanceStations = [{ id: 1 }];
@@ -49,4 +49,13 @@ test('pending save blocks duplicate submissions', async () => {
   state.distanceStations = [{ id: 1 }]; state.distanceInput = '20';
   state.$api.BMS.station.requestStationSetDistance = () => { calls++; return new Promise(resolve => { finish = resolve; }); };
   const pending = state.saveDistance(); await state.saveDistance(); assert.equal(calls, 1); finish({ code: 1 }); await pending;
+});
+
+test('input accepts only zero or positive integers', () => {
+  const { state } = setup();
+  state.onDistanceInput('0'); assert.equal(state.distanceInput, '0');
+  state.onDistanceInput('12.5'); assert.equal(state.distanceInput, '12');
+  state.onDistanceInput('-8'); assert.equal(state.distanceInput, '');
+  state.onDistanceInput('abc'); assert.equal(state.distanceInput, '');
+  assert.match(source, /placeholder=\"0:不限制\"/);
 });
