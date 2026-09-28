@@ -142,7 +142,11 @@
             </div>
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.p }}</div>
-            <div class="td">{{ item.ec }}</div>
+            <div class="td">
+              <el-tooltip :content="item.es || '暂无员工'" placement="top" effect="dark">
+                <span>{{ item.ec }}</span>
+              </el-tooltip>
+            </div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.c }}</div>
             <div class="td">{{ item.u }}</div>
