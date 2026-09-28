@@ -143,7 +143,15 @@
             <div class="td">{{ item.n }}</div>
             <div class="td">{{ item.p }}</div>
             <div class="td">
-              <el-tooltip :content="item.es || '暂无员工'" placement="top" effect="dark">
+              <el-tooltip placement="top" effect="dark" :enterable="true">
+                <div
+                  slot="content"
+                  class="employee-tooltip-list"
+                  :style="{ width: Math.min(Math.max(employeeNames(item.es).length, 1), 5) * 100 + 'px', gridTemplateColumns: 'repeat(' + Math.min(Math.max(employeeNames(item.es).length, 1), 5) + ', minmax(0, 1fr))' }"
+                >
+                  <span v-for="(name, nameIndex) in employeeNames(item.es)" :key="nameIndex">{{ name }}</span>
+                  <span v-if="!employeeNames(item.es).length">暂无员工</span>
+                </div>
                 <span>{{ item.ec }}</span>
               </el-tooltip>
             </div>
@@ -297,6 +305,9 @@ export default {
     };
   },
   methods: {
+    employeeNames(value) {
+      return String(value || "").split(/[;；]/).map(name => name.trim()).filter(Boolean);
+    },
     openDistanceDialog() {
       if (this.distanceSaving) return;
       const selected = this.tableData.filter(item => item.checked);
@@ -514,6 +525,15 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.employee-tooltip-list {
+  display: grid;
+  gap: 8px 10px;
+  max-width: calc(100vw - 60px);
+  max-height: 220px;
+  overflow-y: auto;
+  word-break: break-all;
+}
+
 @import "../../../../style/erp/table.less";
 </style>
 <style scoped lang="less">

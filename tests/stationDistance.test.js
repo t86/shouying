@@ -59,3 +59,12 @@ test('input accepts only zero or positive integers', () => {
   state.onDistanceInput('abc'); assert.equal(state.distanceInput, '');
   assert.match(source, /placeholder=\"0:不限制\"/);
 });
+
+test('employee hover list uses five columns and scrolls for long lists', () => {
+  const { state } = setup();
+  assert.equal(state.employeeNames('甲;乙;丙;丁;戊;己').join(','), '甲,乙,丙,丁,戊,己');
+  assert.equal(state.employeeNames(' ; ').length, 0);
+  assert.match(source, /gridTemplateColumns: 'repeat\('/);
+  assert.match(source, /max-height: 220px/);
+  assert.match(source, /overflow-y: auto/);
+});
