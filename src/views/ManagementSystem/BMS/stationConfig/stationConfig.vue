@@ -147,7 +147,7 @@
                 <div
                   slot="content"
                   class="employee-tooltip-list"
-                  :style="{ width: Math.min(Math.max(employeeNames(item.es).length, 1), 5) * 100 + 'px', gridTemplateColumns: 'repeat(' + Math.min(Math.max(employeeNames(item.es).length, 1), 5) + ', minmax(0, 1fr))' }"
+                  :style="{ width: Math.min(Math.max(employeeNames(item.es).length, 1), 5) * 180 + 'px', gridTemplateColumns: 'repeat(' + Math.min(Math.max(employeeNames(item.es).length, 1), 5) + ', minmax(0, 1fr))' }"
                 >
                   <span v-for="(name, nameIndex) in employeeNames(item.es)" :key="nameIndex">{{ name }}</span>
                   <span v-if="!employeeNames(item.es).length">暂无员工</span>
