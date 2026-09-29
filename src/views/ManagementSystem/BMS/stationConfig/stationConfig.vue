@@ -116,10 +116,10 @@
             <div class="th">岗位名称</div>
             <div class="th">权限</div>
             <div class="th">岗位下员工数</div>
+            <div class="th">员工端距离限制</div>
             <div class="th">状态</div>
             <div class="th">创建时间</div>
             <div class="th">更新时间</div>
-            <div class="th">员工端距离限制</div>
           </div>
         </div>
         <div class="tbody">
@@ -155,10 +155,10 @@
                 <span>{{ item.ec }}</span>
               </el-tooltip>
             </div>
+            <div class="td">{{ item.d }}</div>
             <div class="td">{{ item.s }}</div>
             <div class="td">{{ item.c }}</div>
             <div class="td">{{ item.u }}</div>
-            <div class="td">{{ item.d }}</div>
           </div>
           <div class="no-data" v-if="tableData.length == 0">
             <img :src="require('@/assets/img/wu.png')" alt />
@@ -561,7 +561,7 @@ export default {
       .th,
       .td {
         &:nth-child(1),
-        &:nth-child(5) {
+        &:nth-child(6) {
           width: 30%;
         }
         &:nth-child(3) {
