@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>收银系统（S3）全端视觉还原稿预览 · macOS / Windows / Android平板 / Android手机</title>
+<style>
+  :root {
+    --canvas-primary: #202C4A;
+    --canvas-deep: #08080A;
+    --surface-header: #222D47;
+    --surface-footer: #0D172D;
+    --surface-pay-panel: #212C44;
+    --surface-drawer: #202C42;
+    --surface-drawer-ft: #161D33;
+    --surface-tbl-hd: #182037;
+    --surface-tbl-alt: #293449;
+    --st-empty: #3D4866;
+    --st-reserved: #00D5CF;
+    --st-opened: #F59723;
+    --st-ordered: #E03755;
+    --st-paid: #4E39D1;
+    --brand-primary: #455EFF;
+    --brand-light: #4B89FF;
+    --brand-secondary: #374368;
+    --glow-border: #32B9FF;
+    --glow-shadow: rgba(26, 137, 255, 0.78);
+    --mint-amt: #1EDAAD;
+    --pay-tip: #31D2FF;
+    --overtime: #F1FF00;
+    --mark-green: #83FC9A;
+    --ice-white: #F8FEFF;
+    --ice-accent: #A9D1FA;
+    --text-ice: #AED8FF;
+    --divider-blue: rgba(39, 117, 186, 0.5);
+    --danger-red: #FF2F4B;
+    --warning-amber: #FFAD45;
+    --late-purple: #553366;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    background: #060913; color: #fff; min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  .studio-bar {
+    position: sticky; top: 0; z-index: 100; background: #0B1020;
+    border-bottom: 1px solid rgba(50,185,255,0.35);
+    padding: 10px 18px; display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; justify-content: space-between;
+  }
+  .studio-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sys-switch {
+    display: inline-flex; background: #141D35;
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 9px; padding: 2px; gap: 2px;
+  }
+  .sys-link {
+    text-decoration: none; color: rgba(255,255,255,0.72);
+    font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px;
+  }
+  .sys-link.active { background: var(--brand-primary); color: #fff; }
+  .studio-left h1 { font-size: 15px; font-weight: 700; }
+  .studio-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg-group {
+    display: flex; background: #131B33;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 3px; gap: 3px;
+  }
+  .seg-btn {
+    border: none; background: transparent; color: rgba(255,255,255,0.74);
+    padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .seg-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .seg-btn.active { background: var(--brand-primary); color: #fff; }
+
+  .stage { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 18px; gap: 16px; }
+  .device-meta { font-size: 12px; color: var(--text-ice); display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+  .device-frame {
+    position: relative; background: var(--canvas-primary); color: #fff;
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid rgba(50,185,255,0.4);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.65);
+    display: flex; flex-direction: column;
+    transition: width .22s ease, height .22s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .device-frame.desktop { width: min(1360px, calc(100vw - 36px)); height: 780px; }
+  .device-frame.tablet { width: min(1024px, calc(100vw - 36px)); height: 740px; border-radius: 20px; border: 6px solid #1A2238; }
+  .device-frame.phone { width: 390px; height: 800px; border-radius: 30px; border: 8px solid #1A2238; }
+
+  .mac-chrome {
+    height: 30px; background: #141B2F; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; padding: 0 12px; gap: 7px; flex-shrink: 0;
+  }
+  .device-frame:not(.desktop) .mac-chrome { display: none; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #FF5F56; } .dot.y { background: #FFBD2E; } .dot.g { background: #27C93F; }
+  .mac-title { margin-left: 8px; font-size: 12px; color: rgba(255,255,255,0.68); }
+
+  .screen { flex: 1; display: none; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* Common Buttons */
+  .btn-pill {
+    background: var(--brand-primary); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px; height: 38px; padding: 0 16px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .btn-pill.sec { background: var(--brand-secondary); }
+  .btn-pill.mint { background: #00A884; }
+  .btn-pill.danger { background: var(--st-ordered); }
+  .btn-pill.purple { background: var(--late-purple); border-color: rgba(255,255,255,0.22); }
+  .btn-pill:disabled { opacity: .42; cursor: not-allowed; }
+  .mini-btn {
+    border: 1px solid rgba(50,185,255,0.45); background: rgba(13,23,45,0.85); color: var(--text-ice);
+    border-radius: 6px; padding: 4px 9px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .mini-btn.danger { border-color: var(--danger-red); color: #FF788B; }
+  .mini-btn.mint { border-color: var(--mint-amt); color: var(--mint-amt); }
+
+  /* ================= P1 MONEY CARD HOME ================= */
+  .top-filter {
+    background: var(--surface-header); border-bottom: 1px solid var(--divider-blue);
+    padding: 9px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+  }
+  .device-frame.phone .top-filter { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px 10px; }
+  .reg-row { display: flex; gap: 8px; overflow-x: auto; align-items: center; }
+  .reg-pill {
+    flex-shrink: 0; height: 34px; min-width: 70px; padding: 0 14px; border-radius: 20px;
+    background: rgba(0,0,0,0.4); border: 1px solid #2775BA; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .reg-pill.active { background: var(--brand-primary); border-color: rgba(255,255,255,0.5); }
+  .search-in {
+    width: 260px; height: 34px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(0,0,0,0.24); color: #fff; padding: 0 12px; font-size: 13px; outline: none;
+  }
+  .device-frame.phone .search-in { width: 100%; }
+
+  .card-grid-wrap { flex: 1; overflow-y: auto; padding: 10px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(162px, 1fr)); gap: 8px; }
+  .device-frame.phone .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .m-seat {
+    min-height: 176px; border-radius: 8px; padding: 9px 11px; color: #fff; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55); transition: transform .12s;
+  }
+  .m-seat:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 6px 16px rgba(0,0,0,0.38); }
+  .device-frame.phone .m-seat { min-height: 158px; padding: 8px 9px; }
+  .m-seat.s1, .m-seat.s2 { background: var(--st-empty); }
+  .m-seat.s3, .m-seat.s8 { background: var(--st-reserved); }
+  .m-seat.s4 { background: var(--st-opened); }
+  .m-seat.s5 { background: var(--st-ordered); }
+  .m-seat.s6, .m-seat.s7 { background: var(--st-paid); }
+
+  .sq-badge {
+    display: inline-flex; width: 18px; height: 18px; border-radius: 4px; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #08080A;
+  }
+  .sq-badge.pay { background: var(--pay-tip); }
+  .sq-badge.warn { background: var(--overtime); }
+  .sq-badge.mark { background: var(--mark-green); }
+
+  .cash-foot {
+    background: var(--surface-footer); border-top: 1px solid var(--divider-blue);
+    min-height: 60px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+  }
+  .device-frame.phone .cash-foot { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px; }
+  .legend-strip { display: flex; gap: 8px; align-items: center; overflow-x: auto; }
+  .lg-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; cursor: pointer; flex-shrink: 0; }
+  .lg-sw { width: 32px; height: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.22); }
+  .cash-act-strip { display: flex; gap: 6px; align-items: center; overflow-x: auto; }
+  .merchant-chip {
+    background: rgba(30,218,173,0.14); border: 1px solid rgba(30,218,173,0.45); color: var(--mint-amt);
+    border-radius: 8px; padding: 5px 9px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .obj-btn {
+    position: relative; background: #263955; border: 1px solid rgba(255,255,255,0.18); color: #fff;
+    border-radius: 8px; padding: 7px 11px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .red-dot {
+    position: absolute; top: -5px; right: -4px; background: var(--danger-red); color: #fff;
+    border-radius: 10px; padding: 0 5px; font-size: 10px; font-weight: 700; line-height: 16px;
+  }
+
+  /* ================= P2 PAY ORDER WORKBENCH ================= */
+  .pay-screen { background: var(--canvas-deep); padding-bottom: 10px; }
+  .turn-bar {
+    height: 54px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+  }
+  .turn-tabs { display: flex; gap: 10px; overflow-x: auto; align-items: center; }
+  .turn-pill {
+    position: relative; height: 34px; padding: 0 18px; border-radius: 18px;
+    background: var(--surface-footer); border: 1px solid #2775BA; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .turn-pill.active { background: var(--ice-white); color: #08080A; border-color: var(--ice-accent); }
+  .turn-pill.active::after {
+    content: ""; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--ice-accent);
+  }
+
+  .pay-glow-box {
+    flex: 1; margin: 4px 14px 4px; background: var(--surface-pay-panel);
+    border: 1px solid var(--glow-border); box-shadow: 0 0 14px var(--glow-shadow);
+    border-radius: 18px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .device-frame.phone .pay-glow-box { margin: 2px 6px; border-radius: 12px; }
+
+  .sub-tab-bar {
+    background: var(--surface-header); padding: 9px 14px; border-bottom: 1px solid var(--divider-blue);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  }
+  .sub-pills { display: flex; gap: 8px; overflow-x: auto; align-items: center; }
+  .sub-pill {
+    height: 30px; padding: 0 14px; border-radius: 16px; background: transparent;
+    border: 1px solid #2767BA; color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .sub-pill.active { background: var(--brand-primary); border-color: transparent; color: #fff; }
+
+  .dark-tbl-wrap { flex: 1; overflow: auto; }
+  .device-frame.phone .dark-tbl-wrap { display: none; }
+  .dark-card-list { display: none; flex: 1; overflow-y: auto; padding: 8px; flex-direction: column; gap: 8px; }
+  .device-frame.phone .dark-card-list { display: flex; }
+
+  .dtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dtable th {
+    position: sticky; top: 0; background: var(--surface-tbl-hd); color: rgba(255,255,255,0.58);
+    text-align: left; padding: 10px 12px; font-weight: 600; white-space: nowrap;
+  }
+  .dtable td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+  .dtable tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  .dtable tr.online-row td { background: rgba(255, 47, 100, 0.12); }
+
+  .c-dot {
+    display: inline-flex; width: 22px; height: 22px; border-radius: 50%; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+  }
+  .m-pay-card {
+    background: var(--surface-tbl-hd); border: 1px solid rgba(50,185,255,0.24); border-radius: 10px;
+    padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 13px;
+  }
+  .m-pay-card.online { background: rgba(255, 47, 100, 0.14); border-color: rgba(255, 47, 100, 0.45); }
+
+  .pay-bottom {
+    background: var(--surface-tbl-hd); border-top: 1px solid var(--divider-blue);
+    padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .pay-summary { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; font-size: 12.5px; color: rgba(255,255,255,0.78); }
+  .amt-mint { color: var(--mint-amt); font-size: 22px; font-weight: 700; }
+
+  /* ================= P2+ COMBO PAYMENT DRAWER ================= */
+  .pay-drawer-layout { flex: 1; display: grid; grid-template-columns: 160px 1fr 310px; background: var(--surface-drawer); overflow: hidden; }
+  .device-frame.tablet .pay-drawer-layout { grid-template-columns: 136px 1fr 260px; }
+  .device-frame.phone .pay-drawer-layout { display: flex; flex-direction: column; overflow-y: auto; }
+  .cnl-col { background: var(--surface-pay-panel); border-right: 1px solid var(--divider-blue); padding: 10px 8px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+  .device-frame.phone .cnl-col { flex-direction: row; border-right: none; border-bottom: 1px solid var(--divider-blue); padding: 8px; flex-shrink: 0; }
+  .cnl-btn {
+    border: 1px solid transparent; background: rgba(0,0,0,0.22); color: #fff; border-radius: 8px;
+    padding: 10px 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; white-space: nowrap;
+  }
+  .cnl-btn.active { background: rgba(75,137,255,0.22); border-color: var(--glow-border); color: #6A9EFF; }
+  .cnl-btn.special { border-color: rgba(255,173,69,0.35); }
+  .pay-mid { padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+  .pay-cart-col { background: var(--surface-tbl-hd); border-left: 1px solid var(--divider-blue); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .device-frame.phone .pay-cart-col { border-left: none; border-top: 1px solid var(--divider-blue); }
+  .kpi-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpi-box { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 10px; text-align: center; }
+  .kpi-box small { display: block; font-size: 11px; color: rgba(255,255,255,0.58); margin-bottom: 3px; }
+  .kpi-box strong { font-size: 16px; }
+  .keypad-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kp { height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--surface-header); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+  /* ================= P2+ SCAN & P3 OBJECTION / P4 SHIFT ================= */
+  .two-col-panel { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px; overflow-y: auto; background: var(--canvas-primary); }
+  .device-frame.phone .two-col-panel { grid-template-columns: 1fr; padding: 10px; }
+  .sub-panel {
+    background: var(--surface-drawer); border: 1px solid rgba(50,185,255,0.38);
+    border-radius: 14px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sub-hd { background: var(--surface-header); padding: 11px 16px; border-bottom: 1px solid var(--divider-blue); font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .sub-bd { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+  .receipt-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 5px 0; border-bottom: 1px dashed rgba(255,255,255,0.16); }
+
+  /* ================= DARK GLOWING POPUPS, DRAWERS, MODALS ================= */
+  .cash-overlay {
+    position: absolute; inset: 0; background: rgba(4, 8, 20, 0.56);
+    display: none; z-index: 60;
+  }
+  .cash-overlay.show { display: flex; }
+  .cash-pop {
+    position: absolute; bottom: 66px; right: 14px; width: 220px; max-height: 540px;
+    background: var(--canvas-deep); color: #fff;
+    border: 1px solid var(--glow-border); box-shadow: 0 0 18px var(--glow-shadow);
+    border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .cash-pop.wide { width: 320px; right: 108px; }
+  .device-frame.phone .cash-pop, .device-frame.phone .cash-pop.wide {
+    left: 0; right: 0; bottom: 0; width: 100%; max-height: 78%;
+    border-radius: 16px 16px 0 0; border-left: none; border-right: none; border-bottom: none;
+    background: var(--surface-footer);
+  }
+  .cash-pop-hd {
+    padding: 10px 12px; background: var(--surface-tbl-hd);
+    border-bottom: 1px solid rgba(50,185,255,0.35);
+    display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 700;
+  }
+  .cash-pop-search {
+    padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(13,23,45,0.9);
+  }
+  .cash-pop-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+  .cash-pop-item {
+    padding: 9px 10px; border-radius: 7px; font-size: 13.5px; color: var(--text-ice);
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    border-bottom: 1px solid rgba(174,216,255,0.1);
+  }
+  .cash-pop-item:hover { background: rgba(50,185,255,0.18); color: #fff; }
+  .cash-pop-item.danger { color: #FF788B; }
+  .cash-pop-num {
+    font-size: 11px; color: rgba(174,216,255,0.6); min-width: 22px; font-weight: 700;
+  }
+  .cash-drawer {
+    margin-left: auto; width: 720px; max-width: 100%; height: 100%;
+    background: var(--surface-drawer); border-left: 1px solid var(--glow-border);
+    box-shadow: -8px 0 32px rgba(26,137,255,0.35); display: flex; flex-direction: column;
+  }
+  .device-frame.phone .cash-drawer { width: 100%; border-left: none; }
+  .cash-modal {
+    margin: auto; width: 460px; max-width: calc(100% - 24px); max-height: calc(100% - 24px);
+    background: #1B2742; border: 1px solid var(--glow-border);
+    box-shadow: 0 0 26px rgba(26,137,255,0.48); border-radius: 14px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .cash-ft {
+    padding: 12px 16px; background: var(--surface-drawer-ft);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+  .special-cnl-box {
+    background: rgba(50,185,255,0.1); border: 1px solid rgba(50,185,255,0.4);
+    border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;
+  }
+  .cash-toast {
+    position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
+    background: rgba(13, 23, 45, 0.96); border: 1px solid var(--glow-border); color: #fff;
+    padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    z-index: 95; box-shadow: 0 6px 20px rgba(0,0,0,0.55); display: none; white-space: nowrap;
+  }
+  .cash-toast.show { display: block; }
+  .lg-item.active .lg-sw { border: 2px solid #fff; box-shadow: 0 0 10px rgba(69,94,255,0.9); }
+
+  .token-strip {
+    width: min(1360px, calc(100vw - 36px)); background: #0B1020;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 18px;
+  }
+  .token-strip h3 { font-size: 13px; color: var(--text-ice); margin-bottom: 10px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sw { display: flex; align-items: center; gap: 8px; background: #131B33; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 5px 10px; font-size: 11.5px; }
+  .sw-box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.28); }
+</style>
+</head>
+<body>
+  <header class="studio-bar">
+    <div class="studio-left">
+      <div class="sys-switch">
+        <a class="sys-link" href="index.html">S1 预订系统</a>
+        <a class="sys-link" href="order.html">S2 点单系统</a>
+        <a class="sys-link active" href="cashier.html">S3 收银系统</a>
+      </div>
+      <h1>收银系统（S3）全端视觉还原稿</h1>
+    </div>
+    <div class="studio-controls">
+      <div class="seg-group" id="pageTabs">
+        <button class="seg-btn active" data-page="p1">P1 收银卡台首页</button>
+        <button class="seg-btn" data-page="p2">P2 结账主工作台</button>
+        <button class="seg-btn" data-page="p2pay">P2+ 组合收款抽屉</button>
+        <button class="seg-btn" data-page="p2scan">P2+ 付款码 &amp; 退单</button>
+        <button class="seg-btn" data-page="p3">P3 异议单 &amp; 滞留金</button>
+        <button class="seg-btn" data-page="p4">P4 班结 &amp; 财务报表</button>
+      </div>
+      <div class="seg-group" id="deviceTabs">
+        <button class="seg-btn active" data-device="desktop">🖥 macOS / Windows</button>
+        <button class="seg-btn" data-device="tablet">📟 Android 平板</button>
+        <button class="seg-btn" data-device="phone">📱 Android 手机</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="device-meta" id="deviceMeta">
+      <span>当前视口：Desktop 宽屏（macOS / Windows · ≥1200dp）</span>
+      <span>·</span>
+      <span>提示：P1 点击「⊞ 更多功能」查看完整 37 项财务报表/营业日弹窗菜单，点「王收银」看 3 项账户菜单；P2 支持未结/付款单/全部消费切换；P2+ 支持 4 种专用渠道交互</span>
+    </div>
+
+    <div class="device-frame desktop" id="deviceFrame">
+      <div class="mac-chrome">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="mac-title">收银桌面客户端 · 收银系统 (/moneyCard · /payOrder)</span>
+      </div>
+      <div class="cash-toast" id="cashToast">操作成功</div>
+
+      <!-- ================= P1 MONEY CARD HOME ================= -->
+      <section class="screen active" id="screen-p1">
+        <div class="top-filter">
+          <div class="reg-row" id="cashRegions">
+            <button class="reg-pill active" data-reg="all">全部</button>
+            <button class="reg-pill" data-reg="VIP">VIP区</button>
+            <button class="reg-pill" data-reg="大厅">大厅卡座</button>
+            <button class="reg-pill" data-reg="散台">散台区</button>
+            <button class="reg-pill" data-reg="包房">尊享包房</button>
+          </div>
+          <input class="search-in" id="cashSearch" placeholder="🔍 卡台名称 / 客人姓名 / 手机尾号后四位" />
+        </div>
+        <div class="card-grid-wrap">
+          <div class="card-grid" id="cashGrid"></div>
+        </div>
+        <div class="cash-foot">
+          <div class="legend-strip" id="cashLegends">
+            <div class="lg-item" data-st="1"><span class="lg-sw" style="background:var(--st-empty)"></span><span>空台 1</span></div>
+            <div class="lg-item" data-st="8"><span class="lg-sw" style="background:var(--st-reserved)"></span><span>预订 1</span></div>
+            <div class="lg-item" data-st="4"><span class="lg-sw" style="background:var(--st-opened)"></span><span>开台 1</span></div>
+            <div class="lg-item" data-st="5"><span class="lg-sw" style="background:var(--st-ordered)"></span><span>点单 4</span></div>
+            <div class="lg-item" data-st="7"><span class="lg-sw" style="background:var(--st-paid)"></span><span>已结 1</span></div>
+          </div>
+          <div class="cash-act-strip">
+            <span class="merchant-chip" title="点击进商户号管理" onclick="openCashReportDrawer('商户号管理')">商户A ¥48,260</span>
+            <button class="obj-btn" onclick="switchPage('p3')">异议单<span class="red-dot" id="objBadge">2</span></button>
+            <button class="btn-pill purple" style="height:34px;font-size:12.5px;padding:0 12px" onclick="switchPage('p3')">滞留金</button>
+            <button class="btn-pill" style="height:34px;font-size:12.5px;padding:0 12px;background:#2362D5" onclick="openCashReportDrawer('会员系统')">会员系统</button>
+            <button class="mini-btn" style="height:34px" onclick="openCashPopup('cashMorePop')">⊞ 更多功能 (37)</button>
+            <button class="mini-btn" style="height:34px" onclick="openCashPopup('cashAccPop')">👤 王收银 ▴</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2 PAY ORDER WORKBENCH ================= -->
+      <section class="screen pay-screen" id="screen-p2">
+        <div class="turn-bar">
+          <div class="turn-tabs" id="turnTabs">
+            <button class="turn-pill active" onclick="switchTurn(this,'cur')">A08（当前）</button>
+            <button class="turn-pill" onclick="switchTurn(this,'prev')">A08（翻台 1）</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="payModeBadge" style="font-size:12px;color:var(--text-ice)">模式：后买单</span>
+            <button class="mini-btn" onclick="switchPage('p1')">← 返回卡台</button>
+          </div>
+        </div>
+
+        <div class="pay-glow-box">
+          <div class="sub-tab-bar">
+            <div class="sub-pills" id="paySubTabs">
+              <button class="sub-pill active" data-tab="unpaid" onclick="switchPaySubTab('unpaid')">未结订单 (3)</button>
+              <button class="sub-pill" data-tab="paid" onclick="switchPaySubTab('paid')">付款单 #1 (¥1,360)</button>
+              <button class="sub-pill" data-tab="all" onclick="switchPaySubTab('all')">全部消费</button>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="mini-btn" onclick="togglePayMode()">切换先后买单</button>
+              <button class="mini-btn" onclick="openCashModal('batchStaff')">批量改服务员/授权人</button>
+              <button class="mini-btn danger" onclick="openCashModal('clearTable')">🧹 清台</button>
+              <button class="mini-btn mint" onclick="location.href='order.html'">＋ 去点单</button>
+            </div>
+          </div>
+
+          <div class="dark-tbl-wrap">
+            <table class="dtable">
+              <thead>
+                <tr><th>选</th><th>标</th><th>商品名称</th><th>数量</th><th>历史单价</th><th>金额</th><th>状态 / 备注</th><th>操作</th></tr>
+              </thead>
+              <tbody id="payTbody"></tbody>
+            </table>
+          </div>
+          <div class="dark-card-list" id="payCards"></div>
+
+          <div class="pay-bottom">
+            <div class="pay-summary" id="paySummaryBar">
+              <span>折前 <strong>¥5,164.00</strong></span>
+              <span>赠送 <strong style="color:#67C23A">¥188.00</strong></span>
+              <span>优惠 <strong>¥300.00</strong></span>
+              <span>全单未结 <strong style="color:#FFAD45">¥3,560.00</strong></span>
+              <span>本次勾选应收 <span class="amt-mint" id="selectedDueText">¥3,560.00</span></span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="payFooterActions">
+              <button class="btn-pill sec" style="height:36px;font-size:13px" onclick="showCashToast('已下发打印 A08 预结算单')">🖨 打印结算单</button>
+              <button class="btn-pill mint" style="height:36px;font-size:13px" onclick="switchPage('p2scan')">📷 客人付款码</button>
+              <button class="btn-pill" style="height:36px;font-size:13.5px;padding:0 22px" onclick="switchPage('p2pay')">组合收款结账</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2+ COMBO PAYMENT DRAWER ================= -->
+      <section class="screen" id="screen-p2pay">
+        <div class="sub-hd">
+          <span>组合收款 · 卡台 A08（支持多渠道拆分组合）</span>
+          <button class="mini-btn" onclick="switchPage('p2')">✕ 返回结账页</button>
+        </div>
+        <div class="pay-drawer-layout">
+          <div class="cnl-col" id="cnlList">
+            <button class="cnl-btn active" data-cnl="微信扫码">💚 微信扫码</button>
+            <button class="cnl-btn" data-cnl="支付宝">💙 支付宝</button>
+            <button class="cnl-btn" data-cnl="银行卡POS">💳 银行卡 POS</button>
+            <button class="cnl-btn" data-cnl="现金">💵 现金</button>
+            <button class="cnl-btn" data-cnl="挂账">📒 挂账账户</button>
+            <button class="cnl-btn special" data-cnl="会员卡扣款">👑 会员卡（专用）</button>
+            <button class="cnl-btn special" data-cnl="预订金核销">🏷 预订金（专用）</button>
+            <button class="cnl-btn special" data-cnl="滞留金抵扣">🏦 滞留金（专用）</button>
+            <button class="cnl-btn special" data-cnl="抹零授权">✂️ 抹零（需授权）</button>
+          </div>
+          <div class="pay-mid">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <strong id="activeCnlTitle" style="font-size:17px;color:var(--text-ice)">当前渠道：微信扫码</strong>
+              <button class="mini-btn mint" onclick="fillRemain()">一键填入剩余金额</button>
+            </div>
+            <div id="specialCnlForm"></div>
+            <input id="cnlAmtInput" class="search-in" style="width:100%;height:46px;font-size:22px;font-weight:700;color:var(--mint-amt)" value="1560" />
+            <div class="keypad-3">
+              <button class="kp" onclick="tapKp('1')">1</button><button class="kp" onclick="tapKp('2')">2</button><button class="kp" onclick="tapKp('3')">3</button>
+              <button class="kp" onclick="tapKp('4')">4</button><button class="kp" onclick="tapKp('5')">5</button><button class="kp" onclick="tapKp('6')">6</button>
+              <button class="kp" onclick="tapKp('7')">7</button><button class="kp" onclick="tapKp('8')">8</button><button class="kp" onclick="tapKp('9')">9</button>
+              <button class="kp" onclick="tapKp('.')">.</button><button class="kp" onclick="tapKp('0')">0</button><button class="kp" onclick="tapKp('C')" style="background:var(--brand-secondary)">清空</button>
+            </div>
+            <button class="btn-pill" style="height:44px;font-size:15px" onclick="addPayChannel()">＋ 加入待结算收款车</button>
+          </div>
+          <div class="pay-cart-col">
+            <strong style="font-size:14px">待结算收款明细</strong>
+            <div class="kpi-3">
+              <div class="kpi-box"><small>本次应收</small><strong style="color:#fff">¥3,560</strong></div>
+              <div class="kpi-box"><small>已加渠道</small><strong id="paidSumTxt" style="color:var(--mint-amt)">¥2,000</strong></div>
+              <div class="kpi-box"><small>还差金额</small><strong id="remainTxt" style="color:#FFAD45">¥1,560</strong></div>
+            </div>
+            <div id="addedCnls" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+            <button id="confirmSettleBtn" class="btn-pill" style="height:44px;font-size:15px" disabled onclick="alert('结账提交成功！小票已下发打印队列。');switchPage('p2')">确认结账提交</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2+ SCAN CODE & PAID REFUND ================= -->
+      <section class="screen" id="screen-p2scan">
+        <div class="two-col-panel">
+          <div class="sub-panel">
+            <div class="sub-hd"><span>📷 客人付款码扫码收款</span><span style="font-size:12px;color:var(--mint-amt)">HID 扫码枪就绪</span></div>
+            <div class="sub-bd" style="align-items:center;text-align:center;justify-content:center">
+              <div style="font-size:14px;color:rgba(255,255,255,0.75)">卡台 A08 · 应收金额</div>
+              <div style="font-size:34px;font-weight:700;color:var(--mint-amt)">¥3,560.00</div>
+              <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.28);border:1px dashed var(--glow-border);border-radius:12px;padding:18px;margin:8px 0">
+                <div style="font-size:28px;margin-bottom:6px">🔫 / 📷</div>
+                <div style="font-size:13px;color:var(--text-ice)">请扫描客人微信 / 支付宝付款码</div>
+                <div style="font-size:11.5px;color:rgba(255,255,255,0.55);margin-top:4px">桌面端自动监听 USB/HID 扫码枪回车结束 · Android 端可唤起摄像头</div>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button class="btn-pill" style="background:var(--brand-light)" onclick="showCashToast('已启动扫码监听，等待客人付款码输入…')">启动扫码收款</button>
+                <button class="btn-pill danger" onclick="switchPage('p2')">取消扫码</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="sub-hd"><span>↩️ 已结订单退单 &amp; 整笔转单</span><span style="font-size:12px;color:#FFAD45">按历史成交价</span></div>
+            <div class="sub-bd">
+              <div class="m-pay-card">
+                <div style="display:flex;justify-content:space-between"><strong>付款单 #1 · 野格 700ml × 2</strong><strong style="color:var(--mint-amt)">历史实付 ¥1,360.00</strong></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.68)">支付渠道：微信扫码 ¥1,360.00 · 不按现行价格方案重算</div>
+                <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+                  <button class="mini-btn danger" onclick="openCashModal('paidRefund')">退单（多选数量）</button>
+                  <button class="mini-btn" onclick="openCashModal('paidTransfer')">已结整笔转单</button>
+                  <button class="mini-btn" onclick="openCashModal('changeChannel')">改支付渠道</button>
+                </div>
+              </div>
+              <div style="background:rgba(255,173,69,0.14);border:1px solid rgba(255,173,69,0.5);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.6">
+                <strong style="color:#FFAD45">⚠️ 滞留金强确认提示</strong><br/>
+                当前付款单含滞留金抵扣或已关联线上渠道，退单前需完成 fresh 状态复核与主管授权，避免重复退款或账实不符。
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P3 OBJECTIONS & LATE DEPOSIT ================= -->
+      <section class="screen" id="screen-p3">
+        <div class="two-col-panel">
+          <div class="sub-panel">
+            <div class="sub-hd"><span>🚨 异议单列表（待处理 2 笔）</span><button class="mini-btn" onclick="switchPage('p1')">返回</button></div>
+            <div class="sub-bd">
+              <div class="m-pay-card online">
+                <div style="display:flex;justify-content:space-between"><strong>A08 · 线上退款同步超时</strong><span style="color:#FF788B;font-weight:700">¥680.00</span></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.72)">单号：YY202608190012 · 21:24 · 原因：第三方渠道响应超时</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="mini-btn" onclick="showCashToast('已向支付渠道重发同步请求')">重试同步</button>
+                  <button class="mini-btn mint" onclick="openCashModal('resolveObj','YY202608190012')">人工确认处理</button>
+                </div>
+              </div>
+              <div class="m-pay-card online">
+                <div style="display:flex;justify-content:space-between"><strong>V02 · 卡券核销回滚异常</strong><span style="color:#FF788B;font-weight:700">¥300.00</span></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.72)">单号：YY202608190015 · 21:41 · 原因：核销券已过期需核实</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="mini-btn" onclick="showCashToast('已向卡券平台重新核验状态')">重试同步</button>
+                  <button class="mini-btn mint" onclick="openCashModal('resolveObj','YY202608190015')">人工确认处理</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="sub-hd"><span>🏦 滞留金管理</span><button class="btn-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="openCashModal('addLate')">＋ 新增滞留金</button></div>
+            <div class="sub-bd">
+              <div class="m-pay-card">
+                <div style="display:flex;justify-content:space-between"><strong>V05 · 吴总 (186****1120)</strong><strong style="color:var(--mint-amt)">余额 ¥2,000.00</strong></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.7)">来源：银行卡 POS 预存 · 20:15 · 经办人：王收银</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="mini-btn" onclick="openCashModal('transferLate','V05 · ¥2,000')">转至其它卡台</button>
+                  <button class="mini-btn danger" onclick="openCashModal('refundLate','V05 · ¥2,000')">退还滞留金</button>
+                </div>
+              </div>
+              <div class="m-pay-card">
+                <div style="display:flex;justify-content:space-between"><strong>A08 · 陈先生 (135****4456)</strong><strong style="color:var(--mint-amt)">余额 ¥800.00</strong></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.7)">来源：线上单转滞留金 · 21:02 · 可直接入收款车抵扣</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="mini-btn" onclick="openCashModal('transferLate','A08 · ¥800')">转至其它卡台</button>
+                  <button class="mini-btn danger" onclick="openCashModal('refundLate','A08 · ¥800')">退还滞留金</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P4 SHIFT CLOSE & FINANCIAL REPORTS ================= -->
+      <section class="screen" id="screen-p4">
+        <div class="two-col-panel">
+          <div class="sub-panel">
+            <div class="sub-hd"><span>🧾 班结表（当前营业日）</span><button class="btn-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showCashToast('已下发打印当前营业日班结小票')">🖨 打印班结单</button></div>
+            <div class="sub-bd">
+              <div class="receipt-row"><span>总营业实收</span><strong style="color:var(--mint-amt);font-size:18px">¥128,640.00</strong></div>
+              <div class="receipt-row"><span>微信扫码（商户A）</span><strong>¥48,260.00</strong></div>
+              <div class="receipt-row"><span>支付宝（商户B）</span><strong>¥32,180.00</strong></div>
+              <div class="receipt-row"><span>银行卡 POS</span><strong>¥24,500.00</strong></div>
+              <div class="receipt-row"><span>会员卡消费抵扣</span><strong>¥18,200.00</strong></div>
+              <div class="receipt-row"><span>滞留金入账 / 抵扣</span><strong>¥5,500.00</strong></div>
+              <div class="receipt-row"><span>退单金额（4笔）</span><strong style="color:#FF788B">-¥1,860.00</strong></div>
+              <div class="receipt-row"><span>经营赠送 / 优惠合计</span><strong style="color:#FFAD45">¥6,420.00</strong></div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <div class="sub-hd"><span>📊 区域实时营收（37 项更多功能统一样式）</span><div style="display:flex;gap:6px"><button class="mini-btn" onclick="openCashPopup('cashMorePop')">切换37项报表</button><button class="btn-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showCashToast('已导出 Excel 财务报表')">导出 Excel</button></div></div>
+            <div class="sub-bd" style="padding:0">
+              <table class="dtable">
+                <thead><tr><th>区域名称</th><th>开台数</th><th>实收金额</th><th>未结金额</th></tr></thead>
+                <tbody>
+                  <tr><td>VIP 区</td><td>8</td><td style="color:var(--mint-amt)">¥68,400.00</td><td>¥12,600.00</td></tr>
+                  <tr><td>大厅卡座</td><td>14</td><td style="color:var(--mint-amt)">¥42,880.00</td><td>¥8,420.00</td></tr>
+                  <tr><td>散台区</td><td>9</td><td style="color:var(--mint-amt)">¥17,360.00</td><td>¥2,180.00</td></tr>
+                  <tr style="font-weight:700"><td style="color:#FFAD45">合计</td><td style="color:#FFAD45">31</td><td style="color:#FFAD45">¥128,640.00</td><td style="color:#FFAD45">¥23,200.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= GLOBAL S3 POPUPS, DRAWERS & MODALS ================= -->
+      <!-- /moneyCard 更多功能 (ALL 37 REAL ITEMS from moneyCard.vue:392) -->
+      <div class="cash-overlay" id="cashMorePop" onclick="closeCashOverlays()">
+        <div class="cash-pop wide" onclick="event.stopPropagation()">
+          <div class="cash-pop-hd">
+            <span>⊞ 收银更多功能（全量 37 项）</span>
+            <span style="cursor:pointer;color:var(--text-ice)" onclick="closeCashOverlays()">✕</span>
+          </div>
+          <div class="cash-pop-search">
+            <input id="moreFilterInp" class="search-in" style="width:100%;height:32px" placeholder="🔍 快速检索 37 项报表 / 功能名称…" oninput="renderMore37List()" />
+          </div>
+          <div class="cash-pop-list" id="cashMore37List"></div>
+        </div>
+      </div>
+
+      <!-- /moneyCard 账户菜单 (3 REAL ITEMS) -->
+      <div class="cash-overlay" id="cashAccPop" onclick="closeCashOverlays()">
+        <div class="cash-pop" style="width:190px;right:14px" onclick="event.stopPropagation()">
+          <div class="cash-pop-hd">
+            <span>王收银 · 账户</span>
+            <span style="cursor:pointer;color:var(--text-ice)" onclick="closeCashOverlays()">✕</span>
+          </div>
+          <div class="cash-pop-list">
+            <div class="cash-pop-item" onclick="openCashModal('pwd')"><span>🔑 修改密码</span></div>
+            <div class="cash-pop-item" onclick="openCashModal('authPwd')"><span>🛡 授权密码</span></div>
+            <div class="cash-pop-item danger" style="border-bottom:none" onclick="closeCashOverlays();showCashToast('已退出登录（演示保持在收银首页）')"><span>🚪 退出登录</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic Dark Financial Report / Management Drawer -->
+      <div class="cash-overlay" id="cashDrawerMask" onclick="closeCashOverlays()">
+        <div class="cash-drawer" onclick="event.stopPropagation()">
+          <div class="sub-hd">
+            <span id="cashDrawerTitle">财务报表</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="mini-btn mint" onclick="showCashToast('已导出当前报表 Excel 文件')">导出 Excel</button>
+              <button class="mini-btn" onclick="showCashToast('已发送至热敏小票/A4打印机')">🖨 打印</button>
+              <span style="cursor:pointer;color:var(--text-ice);font-size:16px" onclick="closeCashOverlays()">✕</span>
+            </div>
+          </div>
+          <div id="cashDrawerBody" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px"></div>
+          <div class="cash-ft" id="cashDrawerFoot">
+            <button class="btn-pill sec" style="height:36px" onclick="closeCashOverlays()">关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic Dark Modal -->
+      <div class="cash-overlay" id="cashModalMask" onclick="closeCashOverlays()">
+        <div class="cash-modal" onclick="event.stopPropagation()">
+          <div class="sub-hd">
+            <span id="cashModalTitle">操作确认</span>
+            <span style="cursor:pointer;color:var(--text-ice)" onclick="closeCashOverlays()">✕</span>
+          </div>
+          <div id="cashModalBody" style="padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
+          <div class="cash-ft">
+            <button class="btn-pill sec" style="height:36px" onclick="closeCashOverlays()">取消</button>
+            <button class="btn-pill" style="height:36px;padding:0 20px" id="cashModalConfirm">确认</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-strip">
+      <h3>S3 收银系统核心色板 Token（对齐 `moneyCard.less` / `payOrder.less` / `notPayOrder.less` / `customerPaymentCode.less`）</h3>
+      <div class="swatches">
+        <div class="sw"><span class="sw-box" style="background:#08080A"></span>结账外底 #08080A</div>
+        <div class="sw"><span class="sw-box" style="background:#212C44"></span>结账发光框 #212C44</div>
+        <div class="sw"><span class="sw-box" style="background:#32B9FF"></span>辉光边 #32B9FF</div>
+        <div class="sw"><span class="sw-box" style="background:#182037"></span>表头/底栏 #182037</div>
+        <div class="sw"><span class="sw-box" style="background:#1EDAAD"></span>应收翡翠青 #1EDAAD</div>
+        <div class="sw"><span class="sw-box" style="background:#31D2FF"></span>支付标 #31D2FF</div>
+        <div class="sw"><span class="sw-box" style="background:#F1FF00"></span>超时预警 #F1FF00</div>
+        <div class="sw"><span class="sw-box" style="background:#553366"></span>滞留金紫 #553366</div>
+        <div class="sw"><span class="sw-box" style="background:#FF2F4B"></span>异议/告警红 #FF2F4B</div>
+      </div>
+    </div>
+  </main>
+
+<script>
+  const CASH_SEATS = [
+    { name:'A08', area:'大厅', status:5, payTip:'付', overtime:true, mark:'A', time:'21:10', due:'3560.00', paid:'1360.00', sales:'李四 营销一部', cust:'陈先生 4456', turn:1 },
+    { name:'V02', area:'VIP', status:5, payTip:'先', overtime:false, mark:'V', time:'20:45', due:'6800.00', paid:'0.00', sales:'林经理 营销一部', cust:'周总 3321', turn:1 },
+    { name:'V03', area:'VIP', status:4, payTip:'', overtime:false, mark:'', time:'21:15', due:'1800.00', paid:'0.00', sales:'赵丽 市场部', cust:'孙女士 9081', turn:0 },
+    { name:'V05', area:'VIP', status:7, payTip:'结', overtime:false, mark:'', time:'19:50', due:'0.00', paid:'4200.00', sales:'林经理 营销一部', cust:'吴总 1120', turn:2 },
+    { name:'A12', area:'大厅', status:6, payTip:'半', overtime:false, mark:'', time:'20:20', due:'1200.00', paid:'1900.00', sales:'林经理 营销一部', cust:'黄总 6612', turn:0 },
+    { name:'S02', area:'散台', status:5, payTip:'', overtime:false, mark:'', time:'21:30', due:'680.00', paid:'0.00', sales:'赵丽 市场部', cust:'刘先生 2234', turn:0 },
+    { name:'A09', area:'大厅', status:8, payTip:'', overtime:false, mark:'生', time:'22:00', due:'', paid:'', sales:'王敏 市场部', cust:'郑小姐 7789', turn:0 },
+    { name:'A01', area:'大厅', status:1, payTip:'', overtime:false, mark:'', time:'', due:'', paid:'', sales:'', cust:'', turn:0 },
+  ];
+
+  const UNPAID_ITEMS = [
+    { id:1, checked:true, tag:'套', tagBg:'#00C0B5', name:'轩尼诗 VSOP 尊享套餐', qty:1, price:2880, online:false, note:'含 VSOP×2、绿茶×4、果盘×1' },
+    { id:2, checked:true, tag:'线', tagBg:'#0079FF', name:'百威铝瓶 12支（线上自助单）', qty:1, price:680, online:true, note:'线上未付 · 可转线下或立即出品' },
+    { id:3, checked:false, tag:'惠', tagBg:'#9068FE', name:'豪华鲜果盘（大份 · 经营赠送）', qty:1, price:0, online:false, note:'授权人：林经理' },
+  ];
+
+  const CASH_MORE_37 = [
+    '班结表', '售出日报表', '商品出库表', '查询优惠额度', '线上支付汇总',
+    '支付记录', '区域实时营收', '业绩日报表', '转台记录', '线上预订记录',
+    '优惠明细表', '当日卡券核销记录表', '商品卡台销售表', '鸡尾酒明细表', '鸡尾酒汇总表',
+    '挂账账户', '翻台记录', '点单记录', '历史点单记录', '非鸡尾酒类补交报表',
+    '修改订位人记录', '估清商品', '盘盈盘亏', '商户号管理', '低消进度统计表',
+    '现抽明细表', '现抽汇总表', '非主营分类渠道', '分类渠道汇总表', '部门销售明细表',
+    '部门销售汇总表', '套餐统计表', '挂账还款记录表', '预订金流水表', '预订金余额表',
+    '结束营业日', '自动结束营业日'
+  ];
+
+  const PAID_ITEMS = [
+    { id:101, checked:true, tag:'结', tagBg:'#0D9940', name:'野格 700ml（付款单 #1 · 已结）', qty:2, price:680, online:false, note:'支付渠道：微信扫码 ¥1,360.00 · 20:55 · 按历史成交价' }
+  ];
+
+  let cashReg = 'all';
+  let cashStFilter = null;
+  let paySubTab = 'unpaid';
+  let payModePre = false;
+  let activeCnl = '微信扫码';
+  let addedChannels = [{ name:'滞留金抵扣', amt: 2000 }];
+  const TARGET_DUE = 3560;
+  let cashToastTimer = null;
+
+  function showCashToast(msg) {
+    const el = document.getElementById('cashToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(cashToastTimer);
+    cashToastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+  function closeCashOverlays() {
+    ['cashMorePop','cashAccPop','cashDrawerMask','cashModalMask'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+  }
+  function openCashPopup(id) {
+    closeCashOverlays();
+    if (id === 'cashMorePop') {
+      const inp = document.getElementById('moreFilterInp');
+      if (inp) inp.value = '';
+      renderMore37List();
+    }
+    document.getElementById(id).classList.add('show');
+  }
+  function renderMore37List() {
+    const kw = (document.getElementById('moreFilterInp')?.value || '').trim().toLowerCase();
+    const list = CASH_MORE_37.map((name, i) => ({ idx: i + 1, name }))
+      .filter(it => !kw || it.name.toLowerCase().includes(kw) || String(it.idx).includes(kw));
+    document.getElementById('cashMore37List').innerHTML = list.map(it => {
+      const isDanger = it.name === '结束营业日';
+      return `<div class="cash-pop-item ${isDanger ? 'danger' : ''}" onclick="openCashReportDrawer('${it.name}')">
+        <span><span class="cash-pop-num">${String(it.idx).padStart(2,'0')}</span> ${it.name}</span>
+        <span style="font-size:11px;opacity:.6">›</span>
+      </div>`;
+    }).join('') || '<div style="padding:18px;text-align:center;color:rgba(255,255,255,0.5);font-size:12.5px">未匹配到对应功能</div>';
+  }
+
+  function openCashReportDrawer(name) {
+    closeCashOverlays();
+    if (name === '班结表') { switchPage('p4'); showCashToast('已打开：01 班结表'); return; }
+    if (name === '结束营业日') { openCashModal('endBizDay'); return; }
+    if (name === '自动结束营业日') { openCashModal('autoEndBizDay'); return; }
+
+    const title = document.getElementById('cashDrawerTitle');
+    const body = document.getElementById('cashDrawerBody');
+    const foot = document.getElementById('cashDrawerFoot');
+    title.textContent = `📊 ${name}`;
+    foot.innerHTML = `<button class="btn-pill sec" style="height:36px" onclick="closeCashOverlays()">关闭</button>`;
+
+    const custom = {
+      '商户号管理': `
+        <div class="m-pay-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>商户A（主收款商户 · 微信/支付宝）</strong><div style="font-size:12px;color:rgba(255,255,255,0.65)">商户号：1608923411 · 状态：<span style="color:#1EDAAD">当前启用</span></div></div>
+            <strong style="color:var(--mint-amt);font-size:18px">¥48,260.00</strong>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button class="mini-btn mint" onclick="showCashToast('商户A已是当前默认收款商户')">当前默认</button></div>
+        </div>
+        <div class="m-pay-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>商户B（备用分流商户）</strong><div style="font-size:12px;color:rgba(255,255,255,0.65)">商户号：1608928820 · 今日收款额度上限 ¥100,000</div></div>
+            <strong style="color:var(--text-ice);font-size:18px">¥32,180.00</strong>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button class="mini-btn" onclick="showCashToast('已切换当前默认收款商户为：商户B')">切换为当前收款商户</button></div>
+        </div>`,
+      '会员系统': `
+        <div style="display:flex;gap:8px"><input class="search-in" style="flex:1" value="13800138888" placeholder="输入会员手机号 / 实体卡号 / 姓名" /><button class="btn-pill" style="height:34px" onclick="showCashToast('已检索到黑金会员：王先生')">查询会员</button></div>
+        <div class="m-pay-card">
+          <div style="display:flex;justify-content:space-between"><strong>👑 王先生（黑金卡 · 138****8888）</strong><strong style="color:var(--mint-amt)">本金余额 ¥6,200.00</strong></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7)">赠送余额 ¥800.00 · 累计消费 ¥142,800 · 专属营销：林经理</div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+            <button class="mini-btn mint" onclick="showCashToast('打开会员充值收款流程')">快速充值</button>
+            <button class="mini-btn" onclick="showCashToast('查看会员消费与充值流水')">流水明细</button>
+          </div>
+        </div>`,
+      '当日卡券核销记录表': `
+        <table class="dtable"><thead><tr><th>核销时间</th><th>卡台</th><th>卡券名称</th><th>渠道</th><th>核销码</th><th>操作</th></tr></thead><tbody>
+          <tr><td>21:06</td><td>A08</td><td>2880尊享套餐券</td><td>抖音团购</td><td>DY8829-9901</td><td><button class="mini-btn danger" onclick="showCashToast('已发起卡券退券核验（需主管授权）')">退券</button></td></tr>
+          <tr><td>20:32</td><td>V02</td><td>黑桃A立减500券</td><td>小程序</td><td>WX2026-4410</td><td><button class="mini-btn danger" onclick="showCashToast('已发起卡券退券核验（需主管授权）')">退券</button></td></tr>
+        </tbody></table>`,
+      '挂账账户': `
+        <table class="dtable"><thead><tr><th>挂账账户</th><th>授信额度</th><th>已挂余额</th><th>可用额度</th><th>操作</th></tr></thead><tbody>
+          <tr><td>周总（VIP大客户）</td><td>¥50,000</td><td style="color:#FFAD45">¥12,400</td><td style="color:var(--mint-amt)">¥37,600</td><td><button class="mini-btn mint" onclick="showCashToast('已打开挂账还款收款窗口')">还款</button></td></tr>
+          <tr><td>营销一部公账</td><td>¥20,000</td><td style="color:#FFAD45">¥3,800</td><td style="color:var(--mint-amt)">¥16,200</td><td><button class="mini-btn mint" onclick="showCashToast('已打开挂账还款收款窗口')">还款</button></td></tr>
+        </tbody></table>`,
+      '查询优惠额度': `
+        <table class="dtable"><thead><tr><th>员工/主管</th><th>部门</th><th>本月额度</th><th>已使用</th><th>剩余可用额度</th></tr></thead><tbody>
+          <tr><td>林经理 (1001)</td><td>营销一部</td><td>¥10,000</td><td>¥7,600</td><td style="color:var(--mint-amt);font-weight:700">¥2,400.00</td></tr>
+          <tr><td>陈主管 (1005)</td><td>营销二部</td><td>¥8,000</td><td>¥2,100</td><td style="color:var(--mint-amt);font-weight:700">¥5,900.00</td></tr>
+        </tbody></table>`,
+      '盘盈盘亏': `
+        <table class="dtable"><thead><tr><th>酒水商品</th><th>系统账面</th><th>实盘数量</th><th>盈亏差额</th><th>登记人</th></tr></thead><tbody>
+          <tr><td>轩尼诗 VSOP 700ml</td><td>24 支</td><td>24 支</td><td style="color:var(--mint-amt)">0</td><td>王收银</td></tr>
+          <tr><td>百威铝瓶</td><td>142 支</td><td>140 支</td><td style="color:#FF788B">-2 支（盘亏）</td><td>王收银</td></tr>
+        </tbody></table>`,
+      '估清商品': `
+        <div class="m-pay-card"><div style="display:flex;justify-content:space-between;align-items:center"><span>麦卡伦 18年 单一麦芽（¥5,600）</span><button class="mini-btn mint" onclick="showCashToast('已恢复可售状态')">恢复可售</button></div></div>
+        <div class="m-pay-card"><div style="display:flex;justify-content:space-between;align-items:center"><span>黑桃A 黄金香槟（剩 3 支）</span><button class="mini-btn danger" onclick="showCashToast('已设为估清状态')">设为估清</button></div></div>`
+    };
+
+    body.innerHTML = custom[name] || `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="search-in" style="width:180px" value="2026-08-19（当前营业日）" />
+        <input class="search-in" style="flex:1;min-width:160px" placeholder="按卡台 / 员工 / 单号筛选…" />
+        <button class="btn-pill" style="height:34px;font-size:12.5px" onclick="showCashToast('已刷新「${name}」数据')">查询</button>
+      </div>
+      <div style="background:rgba(50,185,255,0.08);border:1px solid rgba(50,185,255,0.28);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;font-size:13px">
+        <span>统计范围：当前营业日 · <strong>${name}</strong></span>
+        <span>汇总金额：<strong style="color:var(--mint-amt)">¥128,640.00</strong></span>
+      </div>
+      <table class="dtable">
+        <thead><tr><th>营业日</th><th>卡台 / 部门</th><th>明细项</th><th>数量</th><th>实收 / 金额</th><th>经办人</th></tr></thead>
+        <tbody>
+          <tr><td>08-19</td><td>VIP · V02</td><td>${name}明细 #01</td><td>4</td><td style="color:var(--mint-amt)">¥68,400.00</td><td>王收银</td></tr>
+          <tr><td>08-19</td><td>大厅 · A08</td><td>${name}明细 #02</td><td>6</td><td style="color:var(--mint-amt)">¥42,880.00</td><td>王收银</td></tr>
+          <tr><td>08-19</td><td>散台 · S02</td><td>${name}明细 #03</td><td>3</td><td style="color:var(--mint-amt)">¥17,360.00</td><td>王收银</td></tr>
+          <tr style="font-weight:700"><td colspan="3" style="color:#FFAD45">合计</td><td style="color:#FFAD45">13</td><td style="color:#FFAD45">¥128,640.00</td><td>—</td></tr>
+        </tbody>
+      </table>`;
+    document.getElementById('cashDrawerMask').classList.add('show');
+  }
+
+  function openCashModal(kind, extra) {
+    closeCashOverlays();
+    const title = document.getElementById('cashModalTitle');
+    const body = document.getElementById('cashModalBody');
+    const confirmBtn = document.getElementById('cashModalConfirm');
+    confirmBtn.onclick = () => { closeCashOverlays(); showCashToast('操作已确认提交'); };
+
+    const views = {
+      pwd: ['🔑 修改登录密码', `
+        <input class="search-in" style="width:100%" type="password" placeholder="请输入原登录密码" />
+        <input class="search-in" style="width:100%" type="password" placeholder="请输入新登录密码" />
+        <input class="search-in" style="width:100%" type="password" placeholder="确认新登录密码" />`],
+      authPwd: ['🛡 修改授权密码（收银主管审批用）', `
+        <div style="font-size:12.5px;color:var(--text-ice)">用于抹零授权、已结退单、异议单人工处理等高风险财务操作。</div>
+        <input class="search-in" style="width:100%" type="password" placeholder="原授权密码" />
+        <input class="search-in" style="width:100%" type="password" placeholder="新 6 位授权密码" />`],
+      batchStaff: ['👤 批量修改服务员 / 授权人 · A08', `
+        <div style="font-size:12.5px;color:rgba(255,255,255,0.72)">将当前勾选的订单统一修改归属服务员或优惠授权人：</div>
+        <input class="search-in" style="width:100%" value="李四 (工号 1022)" placeholder="新服务员" />
+        <input class="search-in" style="width:100%" value="林经理 (营销一部)" placeholder="新授权人" />`],
+      clearTable: ['🧹 收银清台确认 · A08', `
+        <div style="font-size:13.5px;line-height:1.6">卡台 <strong>A08</strong> 当前仍有 <strong style="color:#FFAD45">¥3,560.00 未结金额</strong>，确认清台前需完成收款结账或主管授权强制清台。</div>`],
+      transferOrder: [`🔄 订单转单 · ${extra || '当前商品'}`, `
+        <div style="font-size:12.5px;color:rgba(255,255,255,0.72)">选择目标卡台（将把该笔消费迁移至目标台账单）：</div>
+        <select class="search-in" style="width:100%"><option>V02（VIP区 · 周总）</option><option>A12（大厅 · 黄总）</option><option>V03（VIP区 · 孙女士）</option></select>`],
+      paidRefund: ['↩️ 已结订单退单（按历史成交价）', `
+        <div style="font-size:13px;color:var(--text-ice)">付款单 #1 · 野格 700ml × 2（历史实付 ¥1,360.00）</div>
+        <input class="search-in" style="width:100%" value="1" placeholder="退单数量（最多 2）" />
+        <input class="search-in" style="width:100%" type="password" placeholder="请输入主管 6 位授权密码" />`],
+      paidTransfer: ['🔄 已结付款单整笔转单', `
+        <div style="font-size:13px;color:rgba(255,255,255,0.78)">将付款单 #1（¥1,360.00）整笔账务转移至目标卡台：</div>
+        <select class="search-in" style="width:100%"><option>V02（VIP区 · 周总）</option><option>V05（VIP区 · 吴总）</option></select>`],
+      changeChannel: ['💳 修改已结支付渠道 · 付款单 #1', `
+        <div style="font-size:12.5px;color:rgba(255,255,255,0.72)">原支付渠道：微信扫码 ¥1,360.00</div>
+        <select class="search-in" style="width:100%"><option>银行卡 POS</option><option>支付宝</option><option>现金</option><option>挂账账户</option></select>
+        <input class="search-in" style="width:100%" placeholder="填写改渠道原因（审计留痕）" value="收银员误选支付渠道" />`],
+      resolveObj: [`✅ 人工确认异议单 · ${extra || ''}`, `
+        <div style="font-size:13px;line-height:1.6">已核实第三方商户后台资金流水状态，确认标记该异议单为「已人工处理」？</div>
+        <input class="search-in" style="width:100%" placeholder="处理备注（必填）" value="已核对微信商户平台退款回执" />`],
+      addLate: ['🏦 新增滞留金预存', `
+        <input class="search-in" style="width:100%" value="A08（陈先生 135****4456）" placeholder="关联卡台/客人" />
+        <input class="search-in" style="width:100%" value="1000" placeholder="滞留金金额 (元)" />
+        <select class="search-in" style="width:100%"><option>微信扫码</option><option>银行卡 POS</option><option>现金</option></select>`],
+      transferLate: [`🔄 滞留金转台 · ${extra || ''}`, `
+        <select class="search-in" style="width:100%"><option>V02（VIP区 · 周总）</option><option>A08（大厅 · 陈先生）</option></select>`],
+      refundLate: [`↩️ 退还滞留金 · ${extra || ''}`, `
+        <div style="font-size:13px;color:#FFAD45">确认原路退还该笔滞留金余额？退还后将打印退款签字凭证。</div>
+        <input class="search-in" style="width:100%" type="password" placeholder="请输入主管授权密码" />`],
+      endBizDay: ['⚠️ 结束营业日确认（高危财务操作）', `
+        <div style="background:rgba(255,47,75,0.14);border:1px solid #FF2F4B;border-radius:10px;padding:12px;font-size:13px;line-height:1.6">
+          当前仍有 <strong style="color:#FFAD45">3 张未结清卡台</strong> 与 <strong style="color:#FF788B">2 笔未处理异议单</strong>。<br/>
+          确认结束 2026-08-19 营业日并生成最终日结班结报表？
+        </div>
+        <input class="search-in" style="width:100%" type="password" placeholder="请输入主管授权密码确认日结" />`],
+      autoEndBizDay: ['⏰ 自动结束营业日配置', `
+        <div style="font-size:13px;color:rgba(255,255,255,0.78)">设置每日自动触发日结切日的时间点（无未结台时自动生效）：</div>
+        <input class="search-in" style="width:100%" value="每日 06:30 自动结束营业日" />
+        <label style="font-size:13px"><input type="checkbox" checked /> 启用自动日结并自动推送班结报表</label>`]
+    };
+    const v = views[kind] || ['操作确认', '<div>确认执行该操作？</div>'];
+    title.textContent = v[0];
+    body.innerHTML = v[1];
+    document.getElementById('cashModalMask').classList.add('show');
+  }
+
+  function switchTurn(btn, which) {
+    document.querySelectorAll('#turnTabs .turn-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showCashToast(which === 'cur' ? '当前查看：A08（当前台次）' : '当前查看：A08（翻台 1 历史账单）');
+  }
+  function togglePayMode() {
+    payModePre = !payModePre;
+    document.getElementById('payModeBadge').textContent = payModePre ? '模式：先买单（出品前须结清）' : '模式：后买单';
+    showCashToast('已切换 A08 结账模式为：' + (payModePre ? '先买单' : '后买单'));
+  }
+  function switchPaySubTab(tab) {
+    paySubTab = tab;
+    document.querySelectorAll('#paySubTabs .sub-pill').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    renderPayOrders();
+  }
+
+  function renderCashGrid() {
+    const kw = (document.getElementById('cashSearch').value || '').trim().toLowerCase();
+    const list = CASH_SEATS.filter(s => {
+      if (cashReg !== 'all' && s.area !== cashReg) return false;
+      if (cashStFilter !== null) {
+        if (cashStFilter === 8 && ![3,8].includes(s.status)) return false;
+        else if (cashStFilter === 5 && ![5,6].includes(s.status)) return false;
+        else if (![8,5].includes(cashStFilter) && s.status !== cashStFilter) return false;
+      }
+      if (kw && !`${s.name} ${s.cust} ${s.sales}`.toLowerCase().includes(kw)) return false;
+      return true;
+    });
+    document.getElementById('cashGrid').innerHTML = list.map(s => `
+      <div class="m-seat s${s.status}" onclick="${[4,5,6,7].includes(s.status) ? "switchPage('p2')" : "showCashToast('空台/预订台暂无结账账单')"}">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span>${s.area}</span>
+            <span style="display:flex;gap:3px;align-items:center">
+              ${s.payTip ? `<span class="sq-badge pay">${s.payTip}</span>` : ''}
+              ${s.overtime ? `<span class="sq-badge warn">超</span>` : ''}
+              ${s.mark ? `<span class="sq-badge mark">${s.mark}</span>` : ''}
+              <span>${s.time ? `(${s.time})` : ''}</span>
+            </span>
+          </div>
+          <div style="font-size:27px;font-weight:700;margin:3px 0">${s.name}</div>
+          ${s.due !== '' ? `
+            <div style="font-size:12px;background:rgba(0,0,0,0.18);border-radius:5px;padding:3px 6px">
+              <div>未结 ¥${s.due}</div>
+              <div>已结 ¥${s.paid}</div>
+            </div>` : ''}
+        </div>
+        <div style="font-size:12px">
+          ${s.sales ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.sales}</div>` : ''}
+          ${s.cust ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.cust}</div>` : '<div style="opacity:.7">空台</div>'}
+          ${s.turn > 0 ? `<div style="text-align:right;font-size:11px">翻${s.turn}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderPayOrders() {
+    const items = paySubTab === 'unpaid' ? UNPAID_ITEMS : (paySubTab === 'paid' ? PAID_ITEMS : [...UNPAID_ITEMS, ...PAID_ITEMS]);
+    const due = UNPAID_ITEMS.filter(x => x.checked).reduce((s, x) => s + x.price * x.qty, 0);
+    const dueEl = document.getElementById('selectedDueText');
+    if (dueEl) dueEl.textContent = '¥' + due.toFixed(2);
+
+    const ft = document.getElementById('payFooterActions');
+    if (paySubTab === 'paid') {
+      ft.innerHTML = `
+        <button class="btn-pill danger" style="height:36px;font-size:13px" onclick="openCashModal('paidRefund')">↩️ 已结退单</button>
+        <button class="btn-pill sec" style="height:36px;font-size:13px" onclick="openCashModal('paidTransfer')">🔄 已结整笔转单</button>
+        <button class="btn-pill sec" style="height:36px;font-size:13px" onclick="openCashModal('changeChannel')">💳 修改支付渠道</button>
+        <button class="btn-pill" style="height:36px;font-size:13px" onclick="showCashToast('已补打付款单 #1 结算小票')">🖨 补打结算单</button>`;
+    } else {
+      ft.innerHTML = `
+        <button class="btn-pill sec" style="height:36px;font-size:13px" onclick="showCashToast('已下发打印 A08 预结算单')">🖨 打印结算单</button>
+        <button class="btn-pill mint" style="height:36px;font-size:13px" onclick="switchPage('p2scan')">📷 客人付款码</button>
+        <button class="btn-pill" style="height:36px;font-size:13.5px;padding:0 22px" onclick="switchPage('p2pay')">组合收款结账</button>`;
+    }
+
+    document.getElementById('payTbody').innerHTML = items.map(x => {
+      const isPaidRow = x.tag === '结';
+      return `
+      <tr class="${x.online ? 'online-row' : ''}">
+        <td>${isPaidRow ? '✓' : `<input type="checkbox" ${x.checked ? 'checked' : ''} onchange="togglePayItem(${x.id})" />`}</td>
+        <td><span class="c-dot" style="background:${x.tagBg}">${x.tag}</span></td>
+        <td><strong>${x.name}</strong><div style="font-size:11.5px;color:rgba(255,255,255,0.6)">${x.note}</div></td>
+        <td>${x.qty}</td>
+        <td>¥${x.price.toFixed(2)}</td>
+        <td style="color:var(--mint-amt);font-weight:700">¥${(x.price*x.qty).toFixed(2)}</td>
+        <td>${isPaidRow ? '<span style="color:#67C23A">已结账</span>' : (x.online ? '<span style="color:#FF788B">线上单</span>' : '未结')}</td>
+        <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${isPaidRow
+            ? `<button class="mini-btn danger" onclick="openCashModal('paidRefund')">退单</button><button class="mini-btn" onclick="openCashModal('changeChannel')">改渠道</button>`
+            : `<button class="mini-btn" onclick="openCashModal('transferOrder','${x.name}')">转单</button>${x.tag==='套'?`<button class="mini-btn" onclick="showCashToast('打开套餐明细调整')">改明细</button>`:''}${x.online?`<button class="mini-btn mint" onclick="showCashToast('已向酒水吧台下发立即出品单')">立即出品</button><button class="mini-btn" onclick="showCashToast('已转为线下卡台结算单')">转线下</button>`:''}`
+          }
+        </div></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('payCards').innerHTML = items.map(x => {
+      const isPaidRow = x.tag === '结';
+      return `
+      <div class="m-pay-card ${x.online ? 'online' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <label style="display:flex;align-items:center;gap:6px">${isPaidRow ? '' : `<input type="checkbox" ${x.checked ? 'checked' : ''} onchange="togglePayItem(${x.id})" />`}<span class="c-dot" style="background:${x.tagBg}">${x.tag}</span><strong>${x.name}</strong></label>
+          <strong style="color:var(--mint-amt)">¥${(x.price*x.qty).toFixed(0)}</strong>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65)">${x.note}</div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          ${isPaidRow
+            ? `<button class="mini-btn danger" onclick="openCashModal('paidRefund')">退单</button><button class="mini-btn" onclick="openCashModal('changeChannel')">改渠道</button>`
+            : `<button class="mini-btn" onclick="openCashModal('transferOrder','${x.name}')">转单</button>${x.online?`<button class="mini-btn mint" onclick="showCashToast('已立即出品')">立即出品</button>`:''}`
+          }
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderSpecialChannelForm() {
+    const box = document.getElementById('specialCnlForm');
+    if (!box) return;
+    const forms = {
+      '会员卡扣款': `<div class="special-cnl-box">
+        <div style="display:flex;justify-content:space-between"><strong>👑 会员卡专用扣款</strong><span style="color:var(--mint-amt)">可用余额 ¥6,200.00</span></div>
+        <div style="display:flex;gap:6px"><input class="search-in" style="flex:1;height:32px" value="13800138888 (王先生·黑金卡)" /><input class="search-in" style="width:120px;height:32px" type="password" value="666666" placeholder="支付密码" /></div>
+      </div>`,
+      '预订金核销': `<div class="special-cnl-box">
+        <div style="display:flex;justify-content:space-between"><strong>🏷 预订金专用核销</strong><span style="color:var(--mint-amt)">可核销 ¥1,000.00</span></div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.78)">已关联：小程序预订金单 OL2026081901（点击下方按钮一键带入 ¥1000）</div>
+        <div><button class="mini-btn mint" onclick="document.getElementById('cnlAmtInput').value='1000'">带入预订金 ¥1,000</button></div>
+      </div>`,
+      '滞留金抵扣': `<div class="special-cnl-box">
+        <div style="display:flex;justify-content:space-between"><strong>🏦 滞留金专用抵扣</strong><span style="color:var(--mint-amt)">本台可用 ¥800.00</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><label><input type="radio" name="ld" checked onchange="document.getElementById('cnlAmtInput').value='800'" /> A08 陈先生 (¥800)</label><label><input type="radio" name="ld" onchange="document.getElementById('cnlAmtInput').value='2000'" /> V05 吴总 (¥2,000)</label></div>
+      </div>`,
+      '抹零授权': `<div class="special-cnl-box" style="border-color:rgba(255,173,69,0.55);background:rgba(255,173,69,0.1)">
+        <div style="display:flex;justify-content:space-between"><strong style="color:#FFAD45">✂️ 抹零需主管授权</strong><span style="font-size:12px">单笔抹零上限 ¥100</span></div>
+        <div style="display:flex;gap:6px"><input class="search-in" style="flex:1;height:32px" value="1001 (林经理)" placeholder="授权人工号" /><input class="search-in" style="width:130px;height:32px" type="password" value="888888" placeholder="6位授权密码" /></div>
+      </div>`,
+      '挂账': `<div class="special-cnl-box">
+        <strong>📒 选择挂账签单账户</strong>
+        <select class="search-in" style="width:100%;height:32px"><option>周总（剩余可用额度 ¥37,600）</option><option>营销一部公账（剩余可用额度 ¥16,200）</option></select>
+      </div>`
+    };
+    box.innerHTML = forms[activeCnl] || '';
+  }
+
+  function togglePayItem(id) {
+    const it = UNPAID_ITEMS.find(x => x.id === id);
+    if (it) it.checked = !it.checked;
+    renderPayOrders();
+  }
+
+  function renderComboPay() {
+    const paid = addedChannels.reduce((s, c) => s + c.amt, 0);
+    const remain = Math.max(0, TARGET_DUE - paid);
+    document.getElementById('paidSumTxt').textContent = '¥' + paid.toLocaleString();
+    document.getElementById('remainTxt').textContent = '¥' + remain.toLocaleString();
+    document.getElementById('remainTxt').style.color = remain === 0 ? '#67C23A' : '#FFAD45';
+    document.getElementById('confirmSettleBtn').disabled = remain > 0;
+    document.getElementById('addedCnls').innerHTML = addedChannels.map((c, idx) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 10px;font-size:13px">
+        <span>${c.name}</span>
+        <span style="display:flex;align-items:center;gap:8px"><strong style="color:var(--mint-amt)">¥${c.amt}</strong><button class="mini-btn danger" style="padding:2px 6px" onclick="delPayChannel(${idx})">删</button></span>
+      </div>
+    `).join('');
+  }
+  function fillRemain() {
+    const paid = addedChannels.reduce((s, c) => s + c.amt, 0);
+    document.getElementById('cnlAmtInput').value = Math.max(0, TARGET_DUE - paid);
+  }
+  function tapKp(ch) {
+    const inp = document.getElementById('cnlAmtInput');
+    inp.value = ch === 'C' ? '' : (inp.value + ch);
+  }
+  function addPayChannel() {
+    const v = Number(document.getElementById('cnlAmtInput').value);
+    if (!v || v <= 0) return;
+    addedChannels.push({ name: activeCnl, amt: v });
+    renderComboPay();
+    fillRemain();
+  }
+  function delPayChannel(idx) {
+    addedChannels.splice(idx, 1);
+    renderComboPay();
+  }
+
+  function switchPage(id) {
+    closeCashOverlays();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  }
+
+  document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+  document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.addEventListener('click', () => {
+    const m = b.dataset.device;
+    document.getElementById('deviceFrame').className = 'device-frame ' + m;
+    document.querySelectorAll('#deviceTabs .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+    const labels = {
+      desktop: 'Desktop 宽屏（macOS / Windows · ≥1200dp）',
+      tablet: 'Android 平板（1024×768 · 720–1199dp）',
+      phone: 'Android 手机（390×800 · <720dp，暗色财务卡片 + 手机组合收款流）'
+    };
+    document.querySelector('#deviceMeta span').textContent = '当前视口：' + labels[m];
+  }));
+  document.querySelectorAll('#cashRegions .reg-pill').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#cashRegions .reg-pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    cashReg = b.dataset.reg;
+    renderCashGrid();
+  }));
+  document.querySelectorAll('#cashLegends .lg-item').forEach(el => el.addEventListener('click', () => {
+    const st = Number(el.dataset.st);
+    cashStFilter = cashStFilter === st ? null : st;
+    document.querySelectorAll('#cashLegends .lg-item').forEach(x => x.classList.toggle('active', Number(x.dataset.st) === cashStFilter));
+    renderCashGrid();
+  }));
+  document.getElementById('cashSearch').addEventListener('input', renderCashGrid);
+  document.querySelectorAll('#cnlList .cnl-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#cnlList .cnl-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    activeCnl = b.dataset.cnl;
+    document.getElementById('activeCnlTitle').textContent = '当前渠道：' + activeCnl;
+    renderSpecialChannelForm();
+  }));
+
+  renderCashGrid();
+  renderPayOrders();
+  renderComboPay();
+  renderSpecialChannelForm();
+  renderMore37List();
+</script>
+</body>
+</html>

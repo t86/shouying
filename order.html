@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>点单系统（S2）全端视觉还原稿预览 · macOS / Windows / Android平板 / Android手机</title>
+<style>
+  :root {
+    --order-canvas: #DCE1EA;
+    --order-header: #C4CBD7;
+    --order-footer: #ECEFF4;
+    --order-subnav: #989FAF;
+    --order-card: #FAFAFC;
+    --order-white: #FFFFFF;
+    --order-ink: #08080A;
+    --order-ink-2: #1A1A21;
+    --order-muted: #5C6475;
+    --order-primary: #3373E8;
+    --order-green: #009370;
+    --order-promo-red: #E63122;
+    --order-action-red: #D44F44;
+    --order-slate: #2A3355;
+    --order-slate-2: #374368;
+    --order-brown: #9B5911;
+    --order-req-blue: #125A9C;
+    --order-mark: #F1FF00;
+    --order-set-sel: #D8C9D0;
+    --st-empty: #FAFAFC;
+    --st-reserved: #A1E7C2;
+    --st-opened: #FFF6A5;
+    --st-ordered: #F8A27A;
+    --st-paid: #BAB9F7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    background: #0F1524;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Studio Bar */
+  .studio-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: #0B1020;
+    border-bottom: 1px solid rgba(51, 115, 232, 0.45);
+    padding: 10px 18px;
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; justify-content: space-between;
+  }
+  .studio-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sys-switch {
+    display: inline-flex; background: #141D35;
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 9px; padding: 2px; gap: 2px;
+  }
+  .sys-link {
+    text-decoration: none; color: rgba(255,255,255,0.72);
+    font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px;
+  }
+  .sys-link.active { background: var(--order-primary); color: #fff; }
+  .studio-left h1 { font-size: 15px; font-weight: 700; }
+  .studio-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg-group {
+    display: flex; background: #131B33;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 3px; gap: 3px;
+  }
+  .seg-btn {
+    border: none; background: transparent; color: rgba(255,255,255,0.74);
+    padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .seg-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .seg-btn.active { background: var(--order-primary); color: #fff; }
+
+  /* Stage */
+  .stage {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 18px; gap: 16px;
+  }
+  .device-meta {
+    font-size: 12px; color: #BFD8FF;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
+  }
+  .device-frame {
+    position: relative;
+    background: var(--order-canvas);
+    color: var(--order-ink);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(51,115,232,0.45);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.55);
+    display: flex; flex-direction: column;
+    transition: width .22s ease, height .22s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .device-frame.desktop { width: min(1360px, calc(100vw - 36px)); height: 780px; }
+  .device-frame.tablet { width: min(1024px, calc(100vw - 36px)); height: 740px; border-radius: 20px; border: 6px solid #1E2840; }
+  .device-frame.phone { width: 390px; height: 800px; border-radius: 30px; border: 8px solid #1E2840; }
+
+  .mac-chrome {
+    height: 30px; background: #B8C0CE; border-bottom: 1px solid #9FA8BC;
+    display: flex; align-items: center; padding: 0 12px; gap: 7px; flex-shrink: 0;
+  }
+  .device-frame:not(.desktop) .mac-chrome { display: none; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #FF5F56; } .dot.y { background: #FFBD2E; } .dot.g { background: #27C93F; }
+  .mac-title { margin-left: 8px; font-size: 12px; color: #1A1A21; font-weight: 600; }
+
+  .screen { flex: 1; display: none; flex-direction: column; overflow: hidden; position: relative; }
+  .screen.active { display: flex; }
+
+  /* ================= P1 ORDER CARD HOME ================= */
+  .ord-top {
+    background: var(--order-header);
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    flex-shrink: 0;
+  }
+  .ord-regions { display: flex; gap: 8px; overflow-x: auto; align-items: center; }
+  .ord-reg-btn {
+    flex-shrink: 0; height: 42px; min-width: 82px; padding: 0 14px;
+    background: #fff; color: var(--order-ink);
+    border: none; border-radius: 8px; font-size: 16px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  }
+  .ord-reg-btn.active { background: var(--order-primary); color: #fff; }
+  .device-frame.phone .ord-reg-btn { height: 34px; min-width: 66px; font-size: 13px; padding: 0 10px; }
+  .ord-pager { display: flex; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .device-frame.phone .ord-pager { display: none; }
+  .ord-pager button { width: 42px; height: 40px; border: none; background: #fff; color: var(--order-ink); font-size: 15px; cursor: pointer; }
+  .ord-pager button:first-child { border-right: 1px solid #C4CBD7; }
+
+  .wine-mode-banner {
+    display: none; background: var(--order-green); color: #fff;
+    padding: 6px 14px; font-size: 13px; font-weight: 600;
+    justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .wine-mode-banner.show { display: flex; }
+
+  .ord-grid-wrap { flex: 1; overflow-y: auto; padding: 10px; }
+  .ord-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 10px;
+  }
+  .device-frame.phone .ord-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+  .ord-card {
+    border-radius: 8px; padding: 10px 12px; min-height: 176px;
+    color: var(--order-ink); border: 1px solid #9FA8BC;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: pointer; transition: transform .12s, box-shadow .12s;
+  }
+  .ord-card:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,35,64,0.18); border-color: var(--order-primary); }
+  .device-frame.phone .ord-card { min-height: 154px; padding: 8px 9px; }
+  .ord-card.s1, .ord-card.s2 { background: var(--st-empty); }
+  .ord-card.s3, .ord-card.s8 { background: var(--st-reserved); }
+  .ord-card.s4 { background: var(--st-opened); }
+  .ord-card.s5 { background: var(--st-ordered); }
+  .ord-card.s6, .ord-card.s7 { background: var(--st-paid); }
+
+  .oc-r1 { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .device-frame.phone .oc-r1 { font-size: 12px; }
+  .oc-mark {
+    display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center;
+    background: var(--order-mark); color: var(--order-ink); border-radius: 4px; font-weight: 700; font-size: 12px;
+  }
+  .oc-name { font-size: 32px; font-weight: 700; line-height: 1.15; margin: 2px 0; }
+  .device-frame.phone .oc-name { font-size: 24px; }
+  .oc-amt { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; }
+  .device-frame.phone .oc-amt { font-size: 12.5px; }
+  .oc-gift { font-size: 13.5px; color: #262A36; }
+  .device-frame.phone .oc-gift { font-size: 12px; }
+  .oc-foot { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #2B3040; margin-top: 4px; gap: 4px; }
+  .device-frame.phone .oc-foot { font-size: 11.5px; }
+  .lock-sq {
+    display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center;
+    border-radius: 3px; background: #FFBD00; color: #08080A; font-size: 11px; font-weight: 700;
+  }
+  .wine-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+  .wine-btn {
+    border: 1px solid rgba(8,8,10,0.16); background: rgba(255,255,255,0.72);
+    border-radius: 8px; padding: 8px 2px; text-align: center; font-size: 13px; font-weight: 600;
+    color: var(--order-ink); cursor: pointer;
+  }
+  .wine-btn:hover { background: var(--order-green); color: #fff; border-color: var(--order-green); }
+
+  /* Light Footer */
+  .ord-footer {
+    background: var(--order-footer); border-top: 1px solid #C4CBD7;
+    min-height: 60px; padding: 6px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+  }
+  .device-frame.phone .ord-footer { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px; }
+  .ord-legends { display: flex; align-items: center; gap: 10px; overflow-x: auto; }
+  .ol-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; flex-shrink: 0; font-size: 12px; }
+  .ol-sw { width: 32px; height: 14px; border-radius: 5px; border: 1px solid #939BAD; }
+  .ol-item.active .ol-sw { border: 2px solid var(--order-primary); box-shadow: 0 0 8px rgba(51,115,232,0.5); }
+  .ord-actions { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+  .btn-ord-blue {
+    background: var(--order-primary); color: #fff; border: none; border-radius: 8px;
+    height: 40px; padding: 0 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ord-green {
+    background: var(--order-green); color: #fff; border: none; border-radius: 8px;
+    height: 40px; padding: 0 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ord-red {
+    background: var(--order-action-red); color: #fff; border: none; border-radius: 8px;
+    height: 42px; padding: 0 16px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ord-slate {
+    background: var(--order-slate); color: #fff; border: none; border-radius: 8px;
+    height: 42px; padding: 0 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ord-white {
+    background: #fff; color: var(--order-ink); border: 1px solid #C4CBD7; border-radius: 8px;
+    height: 38px; padding: 0 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+
+  /* ================= P2 ORDER MEAL LIST ================= */
+  .meal-shell { flex: 1; display: flex; overflow: hidden; }
+  .device-frame.phone .meal-shell { flex-direction: column; }
+
+  .mobile-cat1-bar {
+    display: none; background: var(--order-footer); border-bottom: 1px solid #C4CBD7;
+    padding: 6px 8px; gap: 6px; overflow-x: auto; flex-shrink: 0;
+  }
+  .device-frame.phone .mobile-cat1-bar { display: flex; }
+
+  .meal-body-row { flex: 1; display: flex; overflow: hidden; }
+  .nav-dual { display: flex; width: 200px; flex-shrink: 0; border-right: 1px solid #C4CBD7; }
+  .device-frame.tablet .nav-dual { width: 176px; }
+  .device-frame.phone .nav-dual { width: 78px; }
+  .nav-col1 {
+    width: 50%; background: var(--order-footer); padding: 8px 5px;
+    display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
+  }
+  .device-frame.phone .nav-col1 { display: none; }
+  .nav-col2 {
+    width: 50%; background: var(--order-subnav); padding: 8px 5px;
+    display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
+  }
+  .device-frame.phone .nav-col2 { width: 100%; }
+  .cat-btn {
+    min-height: 52px; border: none; border-radius: 8px; padding: 6px 4px;
+    background: var(--order-card); color: var(--order-ink);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  }
+  .device-frame.phone .cat-btn { min-height: 44px; font-size: 12px; }
+  .nav-col1 .cat-btn.active { background: var(--order-subnav); color: #fff; }
+  .nav-col2 .cat-btn.active { background: var(--order-primary); color: #fff; box-shadow: none; }
+
+  .meal-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--order-canvas); }
+  .meal-search-bar {
+    background: var(--order-canvas); border-bottom: 1px solid rgba(0,0,0,0.12);
+    padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .meal-search-bar input {
+    width: 280px; max-width: 100%; height: 34px; border-radius: 20px;
+    border: 1px solid #C4CBD7; background: #fff; padding: 0 14px; color: var(--order-ink); font-size: 13px; outline: none;
+  }
+  .meal-search-bar input:focus { border-color: var(--order-primary); }
+  .device-frame.phone .meal-search-bar input { width: 100%; }
+
+  .prd-grid-wrap { flex: 1; overflow-y: auto; padding: 10px; }
+  .prd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
+  .device-frame.phone .prd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+  .prd-card {
+    background: var(--order-card); border-radius: 8px; overflow: hidden;
+    border: 1px solid #C4CBD7; display: flex; flex-direction: column; cursor: pointer;
+    position: relative; transition: transform .12s, border-color .12s;
+  }
+  .prd-card:hover { transform: translateY(-1px); border-color: var(--order-primary); }
+  .prd-card.soldout { opacity: .42; cursor: not-allowed; }
+  .prd-img {
+    height: 118px; position: relative; display: flex; align-items: center; justify-content: center;
+    font-size: 42px; background: linear-gradient(135deg, #212C45 0%, #37496E 100%);
+  }
+  .device-frame.phone .prd-img { height: 82px; font-size: 32px; }
+  .prd-cnt-badge {
+    position: absolute; bottom: 6px; right: 6px;
+    background: var(--order-action-red); color: #fff;
+    border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 700;
+  }
+  .soldout-stamp {
+    position: absolute; background: rgba(212,79,68,0.92); color: #fff;
+    padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; transform: rotate(-10deg);
+  }
+  .prd-info { padding: 8px 10px 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; }
+  .prd-title { font-size: 15px; font-weight: 600; color: var(--order-ink); line-height: 1.25; }
+  .device-frame.phone .prd-title { font-size: 13px; }
+  .prd-en { font-size: 12px; color: var(--order-brown); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prd-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
+  .prd-stock { font-size: 12px; color: var(--order-muted); }
+  .prd-price { font-size: 19px; font-weight: 700; color: var(--order-green); line-height: 1; }
+  .device-frame.phone .prd-price { font-size: 16px; }
+  .prd-ori { font-size: 12px; color: #7A7A7A; text-decoration: line-through; display: block; text-align: right; }
+  .prd-vip { font-size: 19px; font-weight: 700; color: var(--order-promo-red); line-height: 1.05; }
+  .device-frame.phone .prd-vip { font-size: 16px; }
+
+  /* Meal Bottom Workbench (newFootBar) */
+  .meal-foot {
+    background: var(--order-footer); border-top: 1px solid #C4CBD7;
+    padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    box-shadow: 0 -4px 8px rgba(0,0,0,0.06); flex-shrink: 0;
+  }
+  .device-frame.phone .meal-foot { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px; }
+  .mf-tabs { display: flex; gap: 6px; overflow-x: auto; }
+  .mf-tab {
+    position: relative; min-width: 78px; height: 48px; padding: 4px 10px;
+    background: #fff; border: 1px solid #C4CBD7; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 12.5px; font-weight: 600; color: var(--order-ink-2); cursor: pointer; flex-shrink: 0;
+  }
+  .device-frame.phone .mf-tab { flex: 1; min-width: 0; height: 42px; font-size: 11.5px; padding: 2px 4px; }
+  .mf-tab.active { border-color: var(--order-primary); color: var(--order-primary); background: #EDF3FF; }
+  .cart-dot {
+    position: absolute; top: -5px; right: 4px;
+    background: var(--order-promo-red); color: #fff;
+    border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 700;
+  }
+  .mf-summary {
+    display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--order-ink-2);
+    background: #fff; border: 1px solid #C4CBD7; border-radius: 8px; padding: 6px 10px;
+  }
+  .device-frame.phone .mf-summary { justify-content: space-between; gap: 6px; font-size: 11px; padding: 5px 8px; }
+
+  /* ================= P3 CART & P4 MY ORDER ================= */
+  .light-panel-outer { flex: 1; background: var(--order-header); padding: 14px; display: flex; flex-direction: column; overflow: hidden; }
+  .device-frame.phone .light-panel-outer { padding: 8px; }
+  .light-panel {
+    flex: 1; background: var(--order-canvas); border: 1px solid var(--order-subnav);
+    border-radius: 14px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .light-tbl-wrap { flex: 1; overflow: auto; }
+  .device-frame.phone .light-tbl-wrap { display: none; }
+  .light-cards { display: none; flex: 1; overflow-y: auto; padding: 8px; flex-direction: column; gap: 8px; }
+  .device-frame.phone .light-cards { display: flex; }
+
+  .ltable { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ltable th {
+    background: var(--order-footer); color: var(--order-ink); text-align: left;
+    padding: 11px 12px; font-weight: 700; border-bottom: 1px solid #C4CBD7; white-space: nowrap;
+  }
+  .ltable td { padding: 10px 12px; border-bottom: 1px solid rgba(152,159,175,0.3); color: var(--order-ink); }
+  .ltable tr:nth-child(even) td { background: var(--order-footer); }
+  .dot-tag {
+    display: inline-flex; width: 24px; height: 24px; border-radius: 50%;
+    align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700;
+  }
+  .stepper { display: inline-flex; align-items: center; gap: 6px; }
+  .step-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid #9FA8BC;
+    background: #fff; color: var(--order-ink); font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .step-val {
+    min-width: 38px; text-align: center; background: #FAFAFC; border: 1px solid #C4CBD7;
+    border-radius: 14px; padding: 2px 8px; font-weight: 700;
+  }
+  .m-ord-card {
+    background: #fff; border: 1px solid #C4CBD7; border-radius: 10px; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .m-ord-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mini-act {
+    border: 1px solid #C4CBD7; background: var(--order-footer); color: var(--order-ink-2);
+    border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .mini-act.danger { border-color: #E63122; color: #E63122; background: #FFF2F0; }
+  .mini-act.blue { border-color: var(--order-primary); color: var(--order-primary); background: #EDF3FF; }
+
+  .panel-foot {
+    background: var(--order-footer); border-top: 1px solid #C4CBD7;
+    padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+
+  /* ================= P2+ SET SELECTOR & P4 PAY QR ================= */
+  .modal-bg {
+    flex: 1; background: rgba(15, 21, 36, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto;
+  }
+  .qr-modal {
+    width: 420px; max-width: 100%; border-radius: 18px; overflow: hidden;
+    background: var(--order-canvas); box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .qr-hd { background: var(--order-header); padding: 12px 18px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; }
+  .qr-bd { padding: 20px; text-align: center; }
+  .qr-box {
+    width: 196px; height: 196px; margin: 14px auto; background: #fff; border-radius: 12px; padding: 14px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; border: 1px solid #C4CBD7;
+  }
+  .qr-ft { background: #FAFAFC; padding: 12px 18px; display: flex; justify-content: center; gap: 12px; }
+
+  .set-drawer {
+    width: 780px; max-width: 100%; max-height: 100%; background: var(--order-canvas);
+    border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .set-selected-zone {
+    background: var(--order-set-sel); border-radius: 10px; padding: 12px 14px;
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .set-chip {
+    background: #fff; border: 1px solid #9FA8BC; border-radius: 18px; padding: 6px 12px;
+    font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* ================= POPUPS, DRAWERS, MODALS (LIGHT SLATE) ================= */
+  .ord-overlay {
+    position: absolute; inset: 0; background: rgba(15, 21, 36, 0.42);
+    display: none; z-index: 60;
+  }
+  .ord-overlay.show { display: flex; }
+  .ord-pop {
+    position: absolute; bottom: 68px; right: 14px; width: 224px;
+    background: #FFFFFF; color: var(--order-ink);
+    border: 1px solid #9FA8BC; border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 21, 36, 0.28);
+    padding: 8px 10px;
+  }
+  .device-frame.phone .ord-pop {
+    left: 0; right: 0; bottom: 0; width: 100%;
+    border-radius: 16px 16px 0 0; border-left: none; border-right: none; border-bottom: none;
+    padding: 14px 16px 22px; background: var(--order-footer);
+  }
+  .ord-pop-hd {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 6px 8px; border-bottom: 1px solid #D4DAE5; margin-bottom: 4px;
+    font-size: 13.5px; font-weight: 700; color: var(--order-ink);
+  }
+  .ord-pop-item {
+    padding: 10px 8px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    color: var(--order-ink-2); cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  }
+  .ord-pop-item:hover { background: #EDF3FF; color: var(--order-primary); }
+  .ord-pop-item.danger { color: var(--order-promo-red); }
+  .ord-pop-item.danger:hover { background: #FFF2F0; }
+
+  .ord-drawer {
+    margin-left: auto; width: 680px; max-width: 100%; height: 100%;
+    background: var(--order-canvas); color: var(--order-ink);
+    border-left: 1px solid #9FA8BC; box-shadow: -8px 0 32px rgba(15,21,36,0.3);
+    display: flex; flex-direction: column;
+  }
+  .device-frame.phone .ord-drawer { width: 100%; border-left: none; }
+  .ord-modal {
+    margin: auto; width: 460px; max-width: calc(100% - 24px); max-height: calc(100% - 24px);
+    background: var(--order-canvas); color: var(--order-ink);
+    border: 1px solid #9FA8BC; border-radius: 14px;
+    box-shadow: 0 18px 46px rgba(15,21,36,0.42);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .ord-input {
+    width: 100%; height: 38px; border-radius: 8px; border: 1px solid #B5BECD;
+    background: #fff; color: var(--order-ink); padding: 0 12px; font-size: 13.5px; outline: none;
+  }
+  .ord-input:focus { border-color: var(--order-primary); }
+  .auth-tabs { display: flex; gap: 6px; background: #D0D7E3; padding: 4px; border-radius: 10px; }
+  .auth-tab {
+    flex: 1; height: 34px; border: none; border-radius: 8px; background: transparent;
+    color: var(--order-ink-2); font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .auth-tab.active { background: #fff; color: var(--order-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .ord-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+  .ord-kp {
+    height: 38px; border-radius: 8px; border: 1px solid #B5BECD; background: #fff;
+    color: var(--order-ink); font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .ord-kp:hover { background: #EDF3FF; border-color: var(--order-primary); }
+  .ord-toast {
+    position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
+    background: var(--order-slate); color: #fff; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; z-index: 95; box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    display: none; white-space: nowrap;
+  }
+  .ord-toast.show { display: block; }
+
+  /* Token Reference Strip */
+  .token-strip {
+    width: min(1360px, calc(100vw - 36px));
+    background: #0B1020; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .token-strip h3 { font-size: 13px; color: #BFD8FF; margin-bottom: 10px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sw {
+    display: flex; align-items: center; gap: 8px;
+    background: #131B33; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 5px 10px; font-size: 11.5px; color: #fff;
+  }
+  .sw-box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.28); }
+</style>
+</head>
+<body>
+  <header class="studio-bar">
+    <div class="studio-left">
+      <div class="sys-switch">
+        <a class="sys-link" href="index.html">S1 预订系统</a>
+        <a class="sys-link active" href="order.html">S2 点单系统</a>
+        <a class="sys-link" href="cashier.html">S3 收银系统</a>
+      </div>
+      <h1>点单系统（S2）全端视觉还原稿</h1>
+    </div>
+    <div class="studio-controls">
+      <div class="seg-group" id="pageTabs">
+        <button class="seg-btn active" data-page="p1">P1 点单卡台首页</button>
+        <button class="seg-btn" data-page="p2">P2 商品点单页</button>
+        <button class="seg-btn" data-page="p2set">P2+ 套餐选组</button>
+        <button class="seg-btn" data-page="p3">P3 购物车</button>
+        <button class="seg-btn" data-page="p4">P4 我的点单</button>
+        <button class="seg-btn" data-page="p4qr">P4+ 服务员买单码</button>
+      </div>
+      <div class="seg-group" id="deviceTabs">
+        <button class="seg-btn active" data-device="desktop">🖥 macOS / Windows</button>
+        <button class="seg-btn" data-device="tablet">📟 Android 平板</button>
+        <button class="seg-btn" data-device="phone">📱 Android 手机</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="device-meta" id="deviceMeta">
+      <span>当前视口：Desktop 宽屏（macOS / Windows · ≥1200dp）</span>
+      <span>·</span>
+      <span>提示：P1 可点「更多功能(3项) / 账户(3项) / 会员充值 / 存酒模式」；P2 底部可点「已选列表 / 核销卡券 / 更多(4项)」；P3/P4 支持双Tab授权与退单键盘</span>
+    </div>
+
+    <div class="device-frame desktop" id="deviceFrame">
+      <div class="mac-chrome">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="mac-title">收银桌面客户端 · 点单系统 (/orderCard · 浅灰蓝高可读主题)</span>
+      </div>
+      <div class="ord-toast" id="ordToast">操作成功</div>
+
+      <!-- ================= P1 ORDER CARD HOME ================= -->
+      <section class="screen active" id="screen-p1">
+        <div class="ord-top">
+          <div class="ord-regions" id="ordRegions">
+            <button class="ord-reg-btn active" data-reg="mine">我的卡台</button>
+            <button class="ord-reg-btn" data-reg="all">全部</button>
+            <button class="ord-reg-btn" data-reg="VIP">VIP区</button>
+            <button class="ord-reg-btn" data-reg="大厅">大厅卡座</button>
+            <button class="ord-reg-btn" data-reg="散台">散台区</button>
+          </div>
+          <div class="ord-pager">
+            <button title="向下翻页" onclick="scrollOrdGrid(220)">▾</button>
+            <button title="向上翻页" onclick="scrollOrdGrid(-220)">▴</button>
+          </div>
+        </div>
+        <div class="wine-mode-banner" id="wineBanner">
+          <span>🍷 当前处于「存酒模式」— 点击卡片内 存酒 / 取酒 / 充公 办理酒水业务</span>
+          <button class="btn-ord-white" style="height:28px;font-size:12px" onclick="toggleWineMode()">返回点单模式</button>
+        </div>
+        <div class="ord-grid-wrap" id="ordGridWrap">
+          <div class="ord-grid" id="ordCardGrid"></div>
+        </div>
+        <div class="ord-footer">
+          <div class="ord-legends" id="ordLegends">
+            <div class="ol-item" data-st="1"><span class="ol-sw" style="background:var(--st-empty)"></span><span>空台 2</span></div>
+            <div class="ol-item" data-st="8"><span class="ol-sw" style="background:var(--st-reserved)"></span><span>预订 1</span></div>
+            <div class="ol-item" data-st="4"><span class="ol-sw" style="background:var(--st-opened)"></span><span>开台 2</span></div>
+            <div class="ol-item" data-st="5"><span class="ol-sw" style="background:var(--st-ordered)"></span><span>点单 2</span></div>
+            <div class="ol-item" data-st="7"><span class="ol-sw" style="background:var(--st-paid)"></span><span>已结 1</span></div>
+            <div class="ol-item" data-st="20"><span style="font-weight:700;font-size:14px">11</span><span>抵达数</span></div>
+          </div>
+          <div class="ord-actions">
+            <button class="btn-ord-blue" onclick="openOrdDrawer('recharge')">💳 会员充值</button>
+            <button class="btn-ord-green" id="wineModeBtn" onclick="toggleWineMode()">🍷 存酒模式</button>
+            <button class="btn-ord-white" onclick="openOrdPopup('p1MorePop')">⊞ 更多功能</button>
+            <button class="btn-ord-white" onclick="openOrdPopup('p1AccPop')">👤 李服务员 ▴</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2 ORDER MEAL LIST ================= -->
+      <section class="screen" id="screen-p2">
+        <div class="meal-shell">
+          <div class="mobile-cat1-bar" id="mobileCat1"></div>
+          <div class="meal-body-row">
+            <aside class="nav-dual">
+              <div class="nav-col1" id="catCol1"></div>
+              <div class="nav-col2" id="catCol2"></div>
+            </aside>
+            <div class="meal-main">
+              <div class="meal-search-bar">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <strong style="font-size:18px;color:#08080A">卡台 A08</strong>
+                  <span style="background:#FFF6A5;border:1px solid #D9C455;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">开台 · 低消 96%</span>
+                  <button id="bindWaiterBtn" style="background:#374368;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer" onclick="openOrdModal('bindWaiter')">绑定服务员：李四</button>
+                  <button id="bindPhoneBtn" class="btn-ord-white" style="height:28px;font-size:12px;padding:0 10px" onclick="openOrdModal('bindPhone')">绑定客人手机</button>
+                </div>
+                <input id="prdSearch" placeholder="🔍 搜索商品名称 / 拼音首字母" />
+              </div>
+              <div class="prd-grid-wrap">
+                <div class="prd-grid" id="prdGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="meal-foot">
+          <div class="mf-tabs">
+            <button class="mf-tab" onclick="switchPage('p1')"><span>🏠</span><span>返回首页</span></button>
+            <button class="mf-tab active" onclick="switchPage('p2')"><span>🍾</span><span>点单</span></button>
+            <button class="mf-tab" onclick="switchPage('p3')">
+              <span class="cart-dot" id="cartBadge">3</span>
+              <span>🛒</span><span>购物车</span>
+            </button>
+            <button class="mf-tab" onclick="switchPage('p4')"><span>📋</span><span>我的点单</span></button>
+            <button class="mf-tab" onclick="openOrdDrawer('choosedList')"><span>✅</span><span>已选列表</span></button>
+          </div>
+          <div class="mf-summary">
+            <span>主营 <strong>¥4,976</strong></span>
+            <span>折前 <strong>¥5,164</strong></span>
+            <span>赠送 <strong style="color:#009370">¥188</strong></span>
+            <span>优惠 <strong>¥300</strong></span>
+            <span>未结 <strong style="color:#E63122">¥2,880</strong></span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:nowrap">
+            <button class="btn-ord-red" onclick="switchPage('p4qr')">买单</button>
+            <button class="btn-ord-red" style="background:#B83B32;padding:0 12px" title="从收银进入点单时可见" onclick="openOrdDrawer('coupon')">核销卡券</button>
+            <button class="btn-ord-slate" onclick="openOrdPopup('p2MorePop')">更多 ▴</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2+ SET SELECTOR ================= -->
+      <section class="screen" id="screen-p2set">
+        <div class="modal-bg">
+          <div class="set-drawer">
+            <div class="qr-hd">
+              <span>套餐选组 · 轩尼诗 VSOP 尊享套餐</span>
+              <span style="cursor:pointer" onclick="switchPage('p2')">✕</span>
+            </div>
+            <div style="padding:16px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;background:#FAFAFC;border-radius:10px;padding:12px 16px;border:1px solid #C4CBD7;flex-wrap:wrap;gap:10px">
+                <div>
+                  <strong style="font-size:19px">轩尼诗 VSOP 尊享套餐</strong>
+                  <div style="font-size:13px;color:#9B5911">Hennessy VSOP VIP Combo</div>
+                </div>
+                <div style="text-align:right">
+                  <span class="prd-ori">原价 ¥3,280.00</span>
+                  <span class="prd-vip">方案价 ¥2,880.00</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px">已选明细（必选组 1/1 · 软饮可选组 6/6）</div>
+                <div class="set-selected-zone">
+                  <span class="set-chip">🥃 轩尼诗 VSOP 700ml × 2（必选）</span>
+                  <span class="set-chip">🥤 绿茶 × 4</span>
+                  <span class="set-chip">🥤 脉动 × 2</span>
+                  <span class="set-chip">🍉 豪华果盘 × 1（必选）</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px">软饮可选组（需选 6 支，当前已选 6 / 6）</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <button class="btn-ord-blue" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：绿茶')">绿茶 × 4</button>
+                  <button class="btn-ord-blue" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：脉动')">脉动 × 2</button>
+                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：苏打水')">苏打水 × 0</button>
+                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：可乐')">可乐 × 0</button>
+                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：汤力水')">汤力水 × 0</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px">出品要求</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <button class="btn-ord-blue" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">加冰桶</button>
+                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">先上果盘</button>
+                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">少冰</button>
+                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">分杯</button>
+                </div>
+              </div>
+            </div>
+            <div class="qr-ft">
+              <button class="btn-ord-slate" style="height:40px" onclick="switchPage('p2')">取消</button>
+              <button class="btn-ord-blue" style="height:40px;padding:0 28px" onclick="addCart();switchPage('p3')">确认加入购物车</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P3 SHOPPING CART ================= -->
+      <section class="screen" id="screen-p3">
+        <div class="light-panel-outer">
+          <div class="light-panel">
+            <div style="background:#ECEFF4;padding:10px 16px;border-bottom:1px solid #C4CBD7;display:flex;justify-content:space-between;align-items:center">
+              <strong style="font-size:17px">🛒 购物车 · 卡台 A08</strong>
+              <div style="display:flex;gap:8px">
+                <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="openOrdModal('auth','批量转优惠2')">批量转优惠2</button>
+                <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="openOrdModal('mergeTable')">并台</button>
+              </div>
+            </div>
+            <div class="light-tbl-wrap">
+              <table class="ltable">
+                <thead>
+                  <tr><th>标</th><th>商品名称</th><th>数量</th><th>单价</th><th>小计</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#00C0B5">套</span></td>
+                    <td><strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#9B5911">Hennessy VSOP Combo</div><div style="font-size:12px;color:#125A9C">要求：加冰桶</div></td>
+                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
+                    <td><span class="prd-ori" style="text-align:left">¥3,280</span><strong style="color:#E63122">¥2,880</strong></td>
+                    <td><strong>¥2,880.00</strong></td>
+                    <td><div class="m-ord-actions"><button class="mini-act blue" onclick="switchPage('p2set')">改明细</button><button class="mini-act" onclick="openOrdModal('req','轩尼诗 VSOP 尊享套餐')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#9068FE">惠</span></td>
+                    <td><strong>豪华鲜果盘</strong><div style="font-size:12px;color:#9B5911">Fruit Platter</div></td>
+                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
+                    <td><strong style="color:#009370">¥0.00</strong></td>
+                    <td><strong>¥0.00</strong></td>
+                    <td><div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','豪华鲜果盘')">要求</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#1DC344">普</span></td>
+                    <td><strong>百威铝瓶 12支</strong><div style="font-size:12px;color:#9B5911">Budweiser Alu x12</div></td>
+                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
+                    <td><strong style="color:#009370">¥680.00</strong></td>
+                    <td><strong>¥680.00</strong></td>
+                    <td><div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','百威铝瓶 12支')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="light-cards">
+              <div class="m-ord-card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                  <div><span class="dot-tag" style="background:#00C0B5;width:20px;height:20px;font-size:11px">套</span> <strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#125A9C">要求：加冰桶</div></div>
+                  <div style="text-align:right"><span class="prd-ori">¥3,280</span><strong style="color:#E63122;font-size:16px">¥2,880</strong></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div>
+                  <div class="m-ord-actions"><button class="mini-act blue" onclick="switchPage('p2set')">改明细</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已删除商品')">删</button></div>
+                </div>
+              </div>
+              <div class="m-ord-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div><span class="dot-tag" style="background:#1DC344;width:20px;height:20px;font-size:11px">普</span> <strong>百威铝瓶 12支</strong></div>
+                  <strong style="color:#009370;font-size:16px">¥680</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div>
+                  <div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','百威铝瓶 12支')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已删除商品')">删</button></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel-foot">
+              <div style="font-size:15px">共 <strong>3</strong> 件 · 预计合计 <strong style="color:#009370;font-size:20px">¥3,560.00</strong></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn-ord-white" onclick="switchPage('p2')">继续点单</button>
+                <button class="btn-ord-blue" style="padding:0 24px" onclick="switchPage('p4')">确认下单</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P4 MY ORDER ================= -->
+      <section class="screen" id="screen-p4">
+        <div class="light-panel-outer">
+          <div class="light-panel">
+            <div style="background:#ECEFF4;padding:10px 14px;border-bottom:1px solid #C4CBD7;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <strong style="font-size:16px">📋 我的点单 · 卡台 A08</strong>
+              <div style="display:flex;gap:12px;font-size:13px;flex-wrap:wrap">
+                <span>折前 <strong>¥5,164.00</strong></span>
+                <span>赠送 <strong style="color:#009370">¥188.00</strong></span>
+                <span>优惠 <strong>¥300.00</strong></span>
+                <span>未结 <strong style="color:#E63122">¥2,880.00</strong></span>
+              </div>
+            </div>
+            <div class="light-tbl-wrap">
+              <table class="ltable">
+                <thead>
+                  <tr><th>态</th><th>商品名称</th><th>数量</th><th>金额</th><th>点单/时间</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#7D41F0">未</span></td>
+                    <td><strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#125A9C">要求：加冰桶 · 子项：VSOP×2、绿茶×4、果盘×1</div></td>
+                    <td><strong>1</strong></td>
+                    <td><strong style="color:#E63122">¥2,880.00</strong></td>
+                    <td>李四 · 21:18</td>
+                    <td><div class="m-ord-actions"><button class="mini-act danger" onclick="openOrdModal('refund','轩尼诗 VSOP 尊享套餐')">退单</button><button class="mini-act" onclick="openOrdModal('auth','转经营赠送')">赠送</button><button class="mini-act" onclick="openOrdModal('auth','转优惠2')">转优惠2</button><button class="mini-act blue" onclick="switchPage('p2set')">改套餐</button><button class="mini-act" onclick="showOrdToast('已补打出品单至酒水吧台打印机')">补打出品</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#0D9940">结</span></td>
+                    <td><strong>野格 700ml</strong><div style="font-size:12px;color:#9B5911">Jagermeister</div></td>
+                    <td><strong>2</strong></td>
+                    <td><strong style="color:#009370">¥1,360.00</strong></td>
+                    <td>李四 · 20:55</td>
+                    <td><div class="m-ord-actions"><button class="mini-act" onclick="showOrdToast('已补打出品单至酒水吧台打印机')">补打出品</button></div></td>
+                  </tr>
+                  <tr>
+                    <td><span class="dot-tag" style="background:#D2162D">退</span></td>
+                    <td><strong>百威铝瓶 12支</strong> <span style="color:#CE060C;font-size:12px;font-weight:700">[已退单]</span></td>
+                    <td>1</td>
+                    <td style="text-decoration:line-through;color:#7A7A7A">¥680.00</td>
+                    <td>李四 · 21:05</td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="light-cards">
+              <div class="m-ord-card">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                  <div>
+                    <span class="dot-tag" style="background:#7D41F0;width:20px;height:20px;font-size:11px">未</span>
+                    <strong>轩尼诗 VSOP 尊享套餐 ×1</strong>
+                    <div style="font-size:12px;color:#125A9C;margin-top:2px">要求：加冰桶 · 李四 21:18</div>
+                  </div>
+                  <strong style="color:#E63122;font-size:16px">¥2,880</strong>
+                </div>
+                <div class="m-ord-actions">
+                  <button class="mini-act danger" onclick="openOrdModal('refund','轩尼诗 VSOP 尊享套餐')">退单</button>
+                  <button class="mini-act" onclick="openOrdModal('auth','转经营赠送')">赠送</button>
+                  <button class="mini-act" onclick="openOrdModal('auth','转优惠2')">转优惠2</button>
+                  <button class="mini-act blue" onclick="switchPage('p2set')">改套餐</button>
+                  <button class="mini-act" onclick="showOrdToast('已补打出品单')">补打出品</button>
+                </div>
+              </div>
+              <div class="m-ord-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <span class="dot-tag" style="background:#0D9940;width:20px;height:20px;font-size:11px">结</span>
+                    <strong>野格 700ml ×2</strong>
+                    <div style="font-size:12px;color:#5C6475">已结账 · 李四 20:55</div>
+                  </div>
+                  <strong style="color:#009370;font-size:16px">¥1,360</strong>
+                </div>
+                <div class="m-ord-actions"><button class="mini-act" onclick="showOrdToast('已补打出品单')">补打出品</button></div>
+              </div>
+            </div>
+            <div class="panel-foot">
+              <div style="display:flex;gap:8px">
+                <button class="btn-ord-white" onclick="switchPage('p2')">← 返回点单</button>
+                <button class="btn-ord-white" onclick="showOrdToast('已下发打印 A08 消费明细单')">🖨 打印消费单</button>
+              </div>
+              <button class="btn-ord-red" onclick="switchPage('p4qr')">服务员买单 · ¥2,880</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P4+ WAITER PAY QR ================= -->
+      <section class="screen" id="screen-p4qr">
+        <div class="modal-bg">
+          <div class="qr-modal">
+            <div class="qr-hd">
+              <span>服务员买单二维码 · 卡台 A08</span>
+              <span style="cursor:pointer" onclick="switchPage('p4')">✕</span>
+            </div>
+            <div class="qr-bd">
+              <div style="font-size:15px;color:#1A1A21">本次扫码应收金额</div>
+              <div style="font-size:32px;font-weight:700;color:#009370;margin-top:4px">¥2,880.00</div>
+              <div class="qr-box" id="qrGrid"></div>
+              <div style="font-size:15px;font-weight:600;color:#D44F44">请客人使用微信 / 支付宝扫码支付</div>
+              <div style="font-size:12px;color:#5C6475;margin-top:4px">实时轮询支付结果中 · 剩余有效期 14:48</div>
+            </div>
+            <div class="qr-ft">
+              <button class="btn-ord-slate" style="height:40px" onclick="switchPage('p4')">取消支付</button>
+              <button class="btn-ord-blue" style="height:40px" onclick="showOrdToast('正在轮询支付结果…暂未检测到入账')">刷新结果</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= GLOBAL S2 POPUP MENUS, DRAWERS & MODALS ================= -->
+      <!-- P1 /orderCard 更多功能 (3 real items from newOrderCard.vue:234) -->
+      <div class="ord-overlay" id="p1MorePop" onclick="closeOrdOverlays()">
+        <div class="ord-pop" style="right:132px" onclick="event.stopPropagation()">
+          <div class="ord-pop-hd"><span>更多功能（3 项）</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
+          <div class="ord-pop-item" onclick="openOrdDrawer('minConsume')"><span>📊 低消进度统计表</span><span style="font-size:11px;color:#5C6475">12列</span></div>
+          <div class="ord-pop-item" onclick="openOrdDrawer('cocktail')"><span>🍸 鸡尾酒明细表</span><span style="font-size:11px;color:#5C6475">无导出</span></div>
+          <div class="ord-pop-item" onclick="openOrdDrawer('soldout')"><span>🚫 估清商品</span><span style="font-size:11px;color:#E63122">1项估清</span></div>
+        </div>
+      </div>
+
+      <!-- P1 /orderCard 账户菜单 (3 real items from newOrderCard.vue:254) -->
+      <div class="ord-overlay" id="p1AccPop" onclick="closeOrdOverlays()">
+        <div class="ord-pop" style="width:186px;right:14px" onclick="event.stopPropagation()">
+          <div class="ord-pop-hd"><span>李服务员 · 账户</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
+          <div class="ord-pop-item" onclick="openOrdModal('pwd')"><span>🔑 修改密码</span></div>
+          <div class="ord-pop-item" onclick="openOrdModal('authPwd')"><span>🛡 授权密码</span></div>
+          <div class="ord-pop-item danger" onclick="closeOrdOverlays();showOrdToast('已退出登录（演示保持在点单首页）')"><span>🚪 退出登录</span></div>
+        </div>
+      </div>
+
+      <!-- P2 /orderMeal newFootBar 更多功能 (4 real items from newFootBar.vue:67-70) -->
+      <div class="ord-overlay" id="p2MorePop" onclick="closeOrdOverlays()">
+        <div class="ord-pop" style="width:196px;right:14px" onclick="event.stopPropagation()">
+          <div class="ord-pop-hd"><span>点单页 · 更多（4 项）</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
+          <div class="ord-pop-item" onclick="openOrdDrawer('recharge')"><span>💳 充值</span><span style="font-size:11px;color:#5C6475">会员</span></div>
+          <div class="ord-pop-item" onclick="openOrdModal('lateDeposit')"><span>🏦 滞留金</span><span style="font-size:11px;color:#5C6475">A08</span></div>
+          <div class="ord-pop-item" onclick="openOrdModal('clearTable')"><span>🧹 清台</span></div>
+          <div class="ord-pop-item" onclick="openOrdModal('transferTable')"><span>🔄 转台</span></div>
+        </div>
+      </div>
+
+      <!-- Generic Light-Slate Drawer Container -->
+      <div class="ord-overlay" id="ordDrawerMask" onclick="closeOrdOverlays()">
+        <div class="ord-drawer" onclick="event.stopPropagation()">
+          <div class="qr-hd">
+            <span id="ordDrawerTitle">抽屉标题</span>
+            <span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span>
+          </div>
+          <div id="ordDrawerBody" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px"></div>
+          <div class="qr-ft" id="ordDrawerFoot">
+            <button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic Light-Slate Modal Container -->
+      <div class="ord-overlay" id="ordModalMask" onclick="closeOrdOverlays()">
+        <div class="ord-modal" onclick="event.stopPropagation()">
+          <div class="qr-hd">
+            <span id="ordModalTitle">弹窗标题</span>
+            <span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span>
+          </div>
+          <div id="ordModalBody" style="padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
+          <div class="qr-ft" id="ordModalFoot">
+            <button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button>
+            <button class="btn-ord-blue" style="height:38px;padding:0 22px" id="ordModalConfirm">确认</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-strip">
+      <h3>S2 点单系统核心色板 Token（100% 对齐 `newOrderCard.less` / `newCardBgc.less` / `productList.less` / `newFootBar.less`）</h3>
+      <div class="swatches">
+        <div class="sw"><span class="sw-box" style="background:#DCE1EA"></span>主画布 #DCE1EA</div>
+        <div class="sw"><span class="sw-box" style="background:#C4CBD7"></span>顶栏/外框 #C4CBD7</div>
+        <div class="sw"><span class="sw-box" style="background:#ECEFF4"></span>底栏/表头 #ECEFF4</div>
+        <div class="sw"><span class="sw-box" style="background:#989FAF"></span>二级分类底 #989FAF</div>
+        <div class="sw"><span class="sw-box" style="background:#FAFAFC"></span>空台/商品卡 #FAFAFC</div>
+        <div class="sw"><span class="sw-box" style="background:#A1E7C2"></span>预订 #A1E7C2</div>
+        <div class="sw"><span class="sw-box" style="background:#FFF6A5"></span>开台 #FFF6A5</div>
+        <div class="sw"><span class="sw-box" style="background:#F8A27A"></span>点单 #F8A27A</div>
+        <div class="sw"><span class="sw-box" style="background:#BAB9F7"></span>半结/已结 #BAB9F7</div>
+        <div class="sw"><span class="sw-box" style="background:#3373E8"></span>主按钮 #3373E8</div>
+        <div class="sw"><span class="sw-box" style="background:#009370"></span>常规价/存酒 #009370</div>
+        <div class="sw"><span class="sw-box" style="background:#E63122"></span>方案红价 #E63122</div>
+        <div class="sw"><span class="sw-box" style="background:#D44F44"></span>买单/角标 #D44F44</div>
+      </div>
+    </div>
+  </main>
+
+<script>
+  const ORD_SEATS = [
+    { name:'A08', area:'大厅', mine:true, status:5, mark:'A', time:'21:10', order:'4976.00', gift:'188.00', prog:'96%', sales:'李四 营销一部', remark:'靠舞台', turn:1 },
+    { name:'V02', area:'VIP', mine:true, status:5, mark:'V', time:'20:45', order:'6800.00', gift:'500.00', prog:'100%', sales:'林经理 营销一部', remark:'熟客', turn:1 },
+    { name:'V03', area:'VIP', mine:true, status:4, mark:'', time:'21:15', order:'1800.00', gift:'0.00', prog:'60%', sales:'赵丽 市场部', remark:'需冰桶', turn:0 },
+    { name:'V05', area:'VIP', mine:false, status:7, mark:'', time:'19:50', order:'4200.00', gift:'0.00', prog:'100%', sales:'林经理 营销一部', remark:'', turn:2 },
+    { name:'A01', area:'大厅', mine:false, status:1, mark:'', time:'', order:'', gift:'', prog:'', sales:'', remark:'', turn:0 },
+    { name:'A02', area:'大厅', mine:false, status:2, mark:'', time:'', order:'', gift:'', prog:'', sales:'', remark:'保留台', turn:0 },
+    { name:'A09', area:'大厅', mine:false, status:8, mark:'生', time:'22:00', order:'', gift:'', prog:'', sales:'王敏 市场部', remark:'', turn:0 },
+    { name:'S02', area:'散台', mine:true, status:4, mark:'', time:'21:30', order:'680.00', gift:'0.00', prog:'68%', sales:'赵丽 市场部', remark:'', turn:0 },
+  ];
+
+  const CATS = [
+    { name:'洋酒套餐', subs:['威士忌套餐','干邑套餐','香槟组合'] },
+    { name:'洋酒单支', subs:['轩尼诗','马爹利','麦卡伦'] },
+    { name:'啤酒软饮', subs:['精酿/瓶装','软饮矿水'] },
+    { name:'小吃果盘', subs:['果盘','热卤炸物'] },
+    { name:'花篮特饮', subs:['气氛特饮','花篮打赏'] },
+  ];
+
+  const PRDS = [
+    { name:'轩尼诗 VSOP 尊享套餐', en:'Hennessy VSOP VIP Combo', price:'2880.00', ori:'3280.00', stock:'充足', icon:'🥃', count:1, isSet:true, soldout:false },
+    { name:'马爹利蓝带 700ml', en:'Martell Cordon Bleu', price:'2680.00', ori:'', stock:'剩 12 支', icon:'🍾', count:0, isSet:false, soldout:false },
+    { name:'黑桃A 黄金香槟', en:'Armand de Brignac Gold', price:'6800.00', ori:'7200.00', stock:'剩 3 支', icon:'🥂', count:0, isSet:false, soldout:false },
+    { name:'百威铝瓶 12支', en:'Budweiser Aluminum x12', price:'680.00', ori:'', stock:'充足', icon:'🍺', count:1, isSet:false, soldout:false },
+    { name:'豪华鲜果盘（大）', en:'Deluxe Fresh Fruit Platter', price:'188.00', ori:'', stock:'充足', icon:'🍉', count:1, isSet:false, soldout:false },
+    { name:'麦卡伦 18年 单一麦芽', en:'Macallan 18YO Single Malt', price:'5600.00', ori:'', stock:'已售罄', icon:'🥃', count:0, isSet:false, soldout:true },
+  ];
+
+  let regFilter = 'mine';
+  let stFilter = null;
+  let wineMode = false;
+  let activeCat1 = 0;
+  let activeCat2 = 0;
+  let cartCount = 3;
+
+  function renderOrdCards() {
+    const grid = document.getElementById('ordCardGrid');
+    const items = ORD_SEATS.filter(s => {
+      if (regFilter === 'mine' && !s.mine) return false;
+      if (!['mine','all'].includes(regFilter) && s.area !== regFilter) return false;
+      if (stFilter !== null && stFilter !== 20) {
+        if (stFilter === 8 && ![3,8].includes(s.status)) return false;
+        else if (stFilter === 5 && ![5,6].includes(s.status)) return false;
+        else if (![8,5].includes(stFilter) && s.status !== stFilter) return false;
+      }
+      return true;
+    });
+    grid.innerHTML = items.map(s => `
+      <div class="ord-card s${s.status}" onclick="${wineMode ? '' : ([1,2,8].includes(s.status) ? "alert('空台/锁台/预定状态卡台不可点单！')" : "switchPage('p2')")}">
+        <div>
+          <div class="oc-r1">
+            <span>${s.area}</span>
+            <span style="display:flex;align-items:center;gap:4px">
+              ${s.mark ? `<span class="oc-mark">${s.mark}</span>` : ''}
+              <span>${s.time ? `(${s.time})` : ''}</span>
+            </span>
+          </div>
+          <div class="oc-name">${s.name}</div>
+          ${wineMode ? `
+            <div class="wine-btns">
+              ${[4,5,6,7].includes(s.status) ? `<button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineStore','${s.name}')">存酒</button><button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineTake','${s.name}')">取酒</button>` : ''}
+              <button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineConfiscate','${s.name}')">充公</button>
+            </div>
+          ` : `
+            ${s.order ? `<div class="oc-amt"><span>点:￥${s.order}</span><span>${s.prog}</span></div>` : ''}
+            ${s.gift ? `<div class="oc-gift">惠:￥${s.gift}</div>` : ''}
+          `}
+        </div>
+        ${wineMode ? '' : `
+          <div class="oc-foot">
+            <span>${s.status === 2 ? '<span class="lock-sq">锁</span> 锁定' : (s.sales || '空台')}</span>
+            <span>${s.turn > 0 ? `翻${s.turn}` : ''}</span>
+          </div>
+        `}
+      </div>
+    `).join('');
+  }
+
+  function renderCatsAndPrds() {
+    document.getElementById('catCol1').innerHTML = CATS.map((c, i) => `
+      <button class="cat-btn ${i===activeCat1?'active':''}" onclick="activeCat1=${i};activeCat2=0;renderCatsAndPrds()">${c.name}</button>
+    `).join('');
+    document.getElementById('mobileCat1').innerHTML = CATS.map((c, i) => `
+      <button class="ord-reg-btn ${i===activeCat1?'active':''}" style="height:32px;font-size:12.5px" onclick="activeCat1=${i};activeCat2=0;renderCatsAndPrds()">${c.name}</button>
+    `).join('');
+    document.getElementById('catCol2').innerHTML = CATS[activeCat1].subs.map((s, i) => `
+      <button class="cat-btn ${i===activeCat2?'active':''}" onclick="activeCat2=${i};renderCatsAndPrds()">${s}</button>
+    `).join('');
+    const kw = (document.getElementById('prdSearch').value || '').trim().toLowerCase();
+    document.getElementById('prdGrid').innerHTML = PRDS.filter(p => !kw || `${p.name} ${p.en}`.toLowerCase().includes(kw)).map((p, idx) => `
+      <div class="prd-card ${p.soldout?'soldout':''}" onclick="${p.soldout ? '' : (p.isSet ? "switchPage('p2set')" : `tapPrd(${idx})`)}">
+        <div class="prd-img">
+          <span>${p.icon}</span>
+          ${p.count > 0 ? `<span class="prd-cnt-badge">×${p.count}</span>` : ''}
+          ${p.soldout ? '<span class="soldout-stamp">已估清</span>' : ''}
+        </div>
+        <div class="prd-info">
+          <div>
+            <div class="prd-title">${p.name}</div>
+            <div class="prd-en">${p.en}</div>
+          </div>
+          <div class="prd-bottom">
+            <span class="prd-stock">${p.stock}</span>
+            <div>
+              ${p.ori ? `<span class="prd-ori">¥${p.ori}</span><span class="prd-vip">¥${p.price}</span>` : `<span class="prd-price">¥${p.price}</span>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function tapPrd(idx) {
+    PRDS[idx].count += 1;
+    addCart();
+    renderCatsAndPrds();
+  }
+  function addCart() {
+    cartCount += 1;
+    document.getElementById('cartBadge').textContent = cartCount;
+  }
+  function toggleWineMode() {
+    wineMode = !wineMode;
+    document.getElementById('wineBanner').classList.toggle('show', wineMode);
+    document.getElementById('wineModeBtn').textContent = wineMode ? '📋 点单模式' : '🍷 存酒模式';
+    renderOrdCards();
+  }
+  function switchPage(id) {
+    closeOrdOverlays();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  }
+
+  let ordToastTimer = null;
+  function showOrdToast(msg) {
+    const el = document.getElementById('ordToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(ordToastTimer);
+    ordToastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+  function scrollOrdGrid(dy) {
+    const wrap = document.getElementById('ordGridWrap');
+    if (wrap) wrap.scrollBy({ top: dy, behavior: 'smooth' });
+  }
+  function closeOrdOverlays() {
+    ['p1MorePop','p1AccPop','p2MorePop','ordDrawerMask','ordModalMask'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+  }
+  function openOrdPopup(id) {
+    closeOrdOverlays();
+    document.getElementById(id).classList.add('show');
+  }
+  function adjQty(btn, delta) {
+    const valEl = btn.parentElement.querySelector('.step-val');
+    const next = Math.max(1, Number(valEl.textContent) + delta);
+    valEl.textContent = next;
+    showOrdToast('数量已调整为 ' + next);
+  }
+  function toggleSoldoutItem(idx) {
+    PRDS[idx].soldout = !PRDS[idx].soldout;
+    PRDS[idx].stock = PRDS[idx].soldout ? '已售罄' : '充足';
+    renderCatsAndPrds();
+    openOrdDrawer('soldout');
+    showOrdToast(`${PRDS[idx].name} 已${PRDS[idx].soldout ? '设为估清' : '恢复可售'}`);
+  }
+  function openOrdDrawer(type, seatName) {
+    closeOrdOverlays();
+    const title = document.getElementById('ordDrawerTitle');
+    const body = document.getElementById('ordDrawerBody');
+    const foot = document.getElementById('ordDrawerFoot');
+    foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">关闭</button>`;
+
+    if (type === 'minConsume') {
+      title.textContent = '📊 低消进度统计表（12列 · 点单端无导出按钮）';
+      body.innerHTML = `
+        <div style="font-size:12.5px;color:#5C6475">对齐 Vue <code>newOrderCard.vue</code>：点单端仅实时查看 12 列低消进度，不显示导出按钮。</div>
+        <div style="overflow:auto;background:#fff;border:1px solid #C4CBD7;border-radius:10px">
+          <table class="ltable" style="font-size:12.5px">
+            <thead><tr><th>卡台</th><th>区域</th><th>状态</th><th>订位人</th><th>客人</th><th>人数</th><th>低消</th><th>主营</th><th>赠送</th><th>优惠</th><th>进度</th><th>翻台</th></tr></thead>
+            <tbody>
+              <tr><td><strong>V02</strong></td><td>VIP</td><td>点单</td><td>林经理</td><td>周总</td><td>8</td><td>¥5,800</td><td style="color:#009370">¥6,800</td><td>¥500</td><td>¥0</td><td><strong style="color:#009370">100%</strong></td><td>1</td></tr>
+              <tr><td><strong>A08</strong></td><td>大厅</td><td>点单</td><td>李四</td><td>陈先生</td><td>6</td><td>¥3,000</td><td style="color:#009370">¥2,880</td><td>¥188</td><td>¥300</td><td><strong style="color:#E63122">96%</strong></td><td>1</td></tr>
+              <tr><td><strong>V03</strong></td><td>VIP</td><td>开台</td><td>赵丽</td><td>孙女士</td><td>4</td><td>¥3,000</td><td>¥1,800</td><td>¥0</td><td>¥0</td><td><strong>60%</strong></td><td>0</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    } else if (type === 'cocktail') {
+      title.textContent = '🍸 鸡尾酒明细表（原价划线 + 方案价 · 点单端无导出）';
+      body.innerHTML = `
+        <div style="overflow:auto;background:#fff;border:1px solid #C4CBD7;border-radius:10px">
+          <table class="ltable" style="font-size:13px">
+            <thead><tr><th>卡台</th><th>鸡尾酒名称</th><th>数量</th><th>原价</th><th>成交/方案价</th><th>小计</th><th>出品时间</th></tr></thead>
+            <tbody>
+              <tr><td>A08</td><td><strong>莫吉托 Mojito</strong></td><td>2</td><td><span class="prd-ori" style="text-align:left">¥98.00</span></td><td style="color:#E63122;font-weight:700">¥78.00</td><td><strong>¥156.00</strong></td><td>21:16</td></tr>
+              <tr><td>V02</td><td><strong>长岛冰茶 Long Island</strong></td><td>4</td><td><span class="prd-ori" style="text-align:left">¥128.00</span></td><td style="color:#009370;font-weight:700">¥128.00</td><td><strong>¥512.00</strong></td><td>21:28</td></tr>
+              <tr style="font-weight:700"><td colspan="2">合计（6 杯）</td><td>6</td><td>¥708.00</td><td>—</td><td style="color:#009370">¥668.00</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+    } else if (type === 'soldout') {
+      title.textContent = '🚫 估清商品管理（点击按钮实时同步 P2 商品网格）';
+      body.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${PRDS.map((p, idx) => `
+            <div class="m-ord-card" style="flex-direction:row;align-items:center;justify-content:space-between">
+              <div><strong>${p.icon} ${p.name}</strong><div style="font-size:12px;color:#5C6475">${p.en} · ¥${p.price}</div></div>
+              <button class="${p.soldout ? 'btn-ord-green' : 'btn-ord-red'}" style="height:32px;font-size:12.5px;padding:0 12px" onclick="toggleSoldoutItem(${idx})">${p.soldout ? '恢复可售' : '设为估清'}</button>
+            </div>
+          `).join('')}
+        </div>`;
+    } else if (type === 'recharge') {
+      title.textContent = '💳 会员充值（含赠酒直达指定卡台）';
+      body.innerHTML = `
+        <div class="m-ord-card">
+          <div style="font-weight:700">1. 查找会员</div>
+          <div style="display:flex;gap:8px"><input class="ord-input" value="13800138888" placeholder="输入会员手机号 / 实体卡号" /><button class="btn-ord-blue" style="height:38px" onclick="showOrdToast('已匹配黑金会员：王先生（余额 ¥6,200）')">查询</button></div>
+          <div style="background:#EDF3FF;border:1px solid #B7CEFB;border-radius:8px;padding:8px 12px;font-size:13px">👑 <strong>王先生（黑金卡）</strong> · 当前余额 <strong style="color:#009370">¥6,200.00</strong> · 赠送余额 ¥800.00</div>
+        </div>
+        <div class="m-ord-card">
+          <div style="font-weight:700">2. 选择充值方案</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
+            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('已选充 ¥3,000 送 ¥300')">充 ¥3,000 送 ¥300</button>
+            <button class="btn-ord-blue" style="height:48px" onclick="showOrdToast('已选充 ¥5,000 送轩尼诗VSOP×1')">充 ¥5,000 送 VSOP×1</button>
+            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('已选充 ¥10,000 送 ¥1,500')">充 ¥10,000 送 ¥1,500</button>
+            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('自定义充值金额')">自定义金额</button>
+          </div>
+        </div>
+        <div class="m-ord-card">
+          <div style="font-weight:700">3. 充值赠酒下发卡台</div>
+          <input class="ord-input" value="A08（大厅卡座 · 陈先生）" />
+        </div>`;
+      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button><button class="btn-ord-blue" style="height:38px;padding:0 22px" onclick="closeOrdOverlays();showOrdToast('会员充值订单已生成，请客人扫码支付')">生成充值收款码</button>`;
+    } else if (type === 'choosedList') {
+      title.textContent = '✅ 已选列表（choosedList · 当前卡台 A08 跨分类汇总）';
+      body.innerHTML = `
+        <div style="font-size:12.5px;color:#5C6475">汇总本次点单流程中各分类下已勾选的商品，方便服务员快速核对后再进入购物车下单。</div>
+        ${PRDS.filter(p => p.count > 0).map(p => `
+          <div class="m-ord-card" style="flex-direction:row;justify-content:space-between;align-items:center">
+            <div><strong>${p.icon} ${p.name}</strong><div style="font-size:12px;color:#5C6475">单价 ¥${p.price}</div></div>
+            <strong style="color:#009370;font-size:16px">× ${p.count}</strong>
+          </div>
+        `).join('')}`;
+      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">继续点单</button><button class="btn-ord-blue" style="height:38px;padding:0 20px" onclick="switchPage('p3')">前往购物车</button>`;
+    } else if (type === 'coupon') {
+      title.textContent = '🎟 核销卡券（收银进入点单模式专属）';
+      body.innerHTML = `
+        <div class="m-ord-card">
+          <div style="font-weight:700">输入 / 扫描核销券码</div>
+          <div style="display:flex;gap:8px"><input class="ord-input" value="DY8829-1024-9901" placeholder="支持抖音 / 美团 / 小程序券码" /><button class="btn-ord-red" style="height:38px" onclick="showOrdToast('核销成功！套餐已自动入单 A08')">立即核销</button></div>
+        </div>
+        <div class="m-ord-card">
+          <div style="font-weight:700">本台已核销记录</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>抖音 2880 尊享微醺双人套餐券</span><strong style="color:#009370">已核销 · 21:06</strong></div>
+        </div>`;
+    } else if (type === 'wineStore' || type === 'wineTake' || type === 'wineConfiscate') {
+      const labelMap = { wineStore: '🍾 存酒登记', wineTake: '🥂 取酒出品', wineConfiscate: '⚠️ 酒水充公' };
+      title.textContent = `${labelMap[type]} · 卡台 ${seatName || 'A08'}`;
+      if (type === 'wineStore') {
+        body.innerHTML = `
+          <div class="m-ord-card"><div><label style="font-size:12px;color:#5C6475">客人手机号（存酒凭证）</label><input class="ord-input" value="135****4456" /></div>
+          <div><label style="font-size:12px;color:#5C6475">酒水名称</label><input class="ord-input" value="轩尼诗 VSOP 700ml" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div><label style="font-size:12px;color:#5C6475">剩余刻度</label><input class="ord-input" value="65%（半瓶以上）" /></div>
+            <div><label style="font-size:12px;color:#5C6475">有效期至</label><input class="ord-input" value="2026-09-18" /></div>
+          </div></div>`;
+      } else if (type === 'wineTake') {
+        body.innerHTML = `
+          <div class="m-ord-card">
+            <div style="display:flex;justify-content:space-between"><strong>轩尼诗 VSOP 700ml（余 65%）</strong><span style="color:#009370">有效期至 09-18</span></div>
+            <div style="font-size:12px;color:#5C6475">存酒卡号：W2026081209 · 客人：陈先生 135****4456</div>
+            <label style="font-size:13px;font-weight:600"><input type="checkbox" checked /> 勾选取出至当前卡台 ${seatName || 'A08'}</label>
+          </div>`;
+      } else {
+        body.innerHTML = `
+          <div class="m-ord-card">
+            <div style="font-size:13px;color:#E63122;font-weight:700">确认将该卡台遗留未存酒水做充公登记？</div>
+            <input class="ord-input" value="客人离场超2小时未联系存酒" placeholder="请填写充公原因" />
+          </div>`;
+      }
+      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button><button class="btn-ord-green" style="height:38px;padding:0 22px" onclick="closeOrdOverlays();showOrdToast('${labelMap[type]}已提交并打印酒标小票')">确认提交</button>`;
+    }
+    document.getElementById('ordDrawerMask').classList.add('show');
+  }
+
+  let refundQtyVal = '1';
+  function tapRefundKp(ch) {
+    refundQtyVal = ch === 'C' ? '' : (refundQtyVal === '0' ? ch : refundQtyVal + ch);
+    const el = document.getElementById('refundQtyInput');
+    if (el) el.value = refundQtyVal || '1';
+  }
+  function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('authSwipePane').style.display = tab === 'swipe' ? 'block' : 'none';
+    document.getElementById('authPwdPane').style.display = tab === 'pwd' ? 'flex' : 'none';
+  }
+  function openOrdModal(type, extra) {
+    closeOrdOverlays();
+    const title = document.getElementById('ordModalTitle');
+    const body = document.getElementById('ordModalBody');
+    const confirmBtn = document.getElementById('ordModalConfirm');
+    confirmBtn.onclick = () => { closeOrdOverlays(); showOrdToast('操作已确认提交'); };
+
+    if (type === 'pwd') {
+      title.textContent = '🔑 修改登录密码';
+      body.innerHTML = `
+        <div><label style="font-size:12px;color:#5C6475">原登录密码</label><input class="ord-input" type="password" placeholder="请输入原密码" /></div>
+        <div><label style="font-size:12px;color:#5C6475">新登录密码</label><input class="ord-input" type="password" placeholder="请输入新密码" /></div>
+        <div><label style="font-size:12px;color:#5C6475">确认新密码</label><input class="ord-input" type="password" placeholder="请再次输入" /></div>`;
+    } else if (type === 'authPwd') {
+      title.textContent = '🛡 设置 / 修改授权密码（点单端专属）';
+      body.innerHTML = `
+        <div style="font-size:12.5px;color:#5C6475">授权密码用于转优惠、赠送、退单等敏感操作的快速核验。</div>
+        <div><label style="font-size:12px;color:#5C6475">登录密码验证</label><input class="ord-input" type="password" placeholder="请输入当前登录密码" /></div>
+        <div><label style="font-size:12px;color:#5C6475">新 6 位授权密码</label><input class="ord-input" type="password" placeholder="6位数字授权码" /></div>`;
+    } else if (type === 'auth') {
+      title.textContent = `🛡 主管授权验证 · ${extra || '敏感操作'}`;
+      body.innerHTML = `
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="swipe" onclick="switchAuthTab('swipe')">💳 刷员工授权卡</button>
+          <button class="auth-tab" data-tab="pwd" onclick="switchAuthTab('pwd')">🔐 账号 + 授权密码</button>
+        </div>
+        <div id="authSwipePane" style="background:#fff;border:1px dashed #3373E8;border-radius:10px;padding:18px;text-align:center">
+          <div style="font-size:28px;margin-bottom:6px">📡</div>
+          <div style="font-size:14px;font-weight:700;color:#3373E8">请在读卡器感应区刷主管 IC/NFC 授权卡</div>
+          <div style="font-size:12px;color:#5C6475;margin-top:4px">当前剩余优惠额度：¥2,400.00</div>
+        </div>
+        <div id="authPwdPane" style="display:none;flex-direction:column;gap:8px">
+          <input class="ord-input" placeholder="授权人工号（如 1001）" value="1001" />
+          <input class="ord-input" type="password" placeholder="请输入 6 位授权密码" value="888888" />
+        </div>`;
+      confirmBtn.onclick = () => { closeOrdOverlays(); showOrdToast(`授权通过：已完成「${extra || '敏感操作'}」`); };
+    } else if (type === 'refund') {
+      refundQtyVal = '1';
+      title.textContent = `↩️ 退单确认 · ${extra || '商品'}`;
+      body.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:700">退单数量（可退上限 1）</span>
+          <input id="refundQtyInput" class="ord-input" style="width:110px;text-align:center;font-weight:700;font-size:16px" value="1" />
+        </div>
+        <div class="ord-keypad">
+          <button class="ord-kp" onclick="tapRefundKp('1')">1</button><button class="ord-kp" onclick="tapRefundKp('2')">2</button><button class="ord-kp" onclick="tapRefundKp('3')">3</button>
+          <button class="ord-kp" onclick="tapRefundKp('4')">4</button><button class="ord-kp" onclick="tapRefundKp('5')">5</button><button class="ord-kp" onclick="tapRefundKp('6')">6</button>
+          <button class="ord-kp" onclick="tapRefundKp('7')">7</button><button class="ord-kp" onclick="tapRefundKp('8')">8</button><button class="ord-kp" onclick="tapRefundKp('9')">9</button>
+          <button class="ord-kp" onclick="tapRefundKp('C')">清空</button><button class="ord-kp" onclick="tapRefundKp('0')">0</button><button class="ord-kp" onclick="tapRefundKp('1')">全退</button>
+        </div>
+        <div>
+          <div style="font-size:12.5px;font-weight:700;margin-bottom:6px">选择退单理由</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <label class="set-chip"><input type="radio" name="rReason" checked /> 客人换酒</label>
+            <label class="set-chip"><input type="radio" name="rReason" /> 点错商品</label>
+            <label class="set-chip"><input type="radio" name="rReason" /> 出品缺货</label>
+            <label class="set-chip"><input type="radio" name="rReason" /> 客人取消</label>
+          </div>
+        </div>`;
+      confirmBtn.onclick = () => { openOrdModal('auth', `退单：${extra} ×${refundQtyVal || 1}`); };
+    } else if (type === 'bindWaiter') {
+      title.textContent = '👤 绑定卡台服务员 · A08';
+      body.innerHTML = `<input class="ord-input" id="waiterInp" value="李四" placeholder="输入服务员姓名或工号" />`;
+      confirmBtn.onclick = () => {
+        const v = document.getElementById('waiterInp').value.trim() || '李四';
+        document.getElementById('bindWaiterBtn').textContent = '绑定服务员：' + v;
+        closeOrdOverlays();
+        showOrdToast('已更新绑定服务员：' + v);
+      };
+    } else if (type === 'bindPhone') {
+      title.textContent = '📱 绑定客人手机号 · A08';
+      body.innerHTML = `<input class="ord-input" id="phoneInp" value="13588884456" placeholder="绑定后自动同步会员权益与消费通知" />`;
+      confirmBtn.onclick = () => {
+        const v = document.getElementById('phoneInp').value.trim();
+        if (v) document.getElementById('bindPhoneBtn').textContent = '📱 ' + v.slice(-4);
+        closeOrdOverlays();
+        showOrdToast('已绑定客人手机：' + v);
+      };
+    } else if (type === 'req') {
+      title.textContent = `📝 出品要求 · ${extra || '商品'}`;
+      body.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="btn-ord-blue" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">加冰桶</button>
+          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">少冰</button>
+          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">先上果盘</button>
+          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">分杯出品</button>
+        </div>
+        <input class="ord-input" placeholder="自定义手写备注要求…" />`;
+    } else if (type === 'mergeTable') {
+      title.textContent = '🔗 购物车并台下单';
+      body.innerHTML = `<div style="font-size:13px;color:#5C6475">选择将当前购物车内商品一并下发至同客人关联卡台：</div><input class="ord-input" value="V02（VIP区 · 周总）" />`;
+    } else if (type === 'lateDeposit') {
+      title.textContent = '🏦 滞留金查询 / 登记 · 卡台 A08';
+      body.innerHTML = `<div class="m-ord-card"><div>当前卡台可用滞留金余额：<strong style="color:#009370;font-size:18px">¥800.00</strong></div><div style="font-size:12px;color:#5C6475">来源：线上单转滞留金（21:02）· 结账时可直接抵扣</div></div>`;
+    } else if (type === 'clearTable') {
+      title.textContent = '🧹 清台确认 · 卡台 A08';
+      body.innerHTML = `<div style="font-size:13.5px;line-height:1.6">当前卡台存在 <strong style="color:#E63122">¥2,880.00 未结金额</strong>，确认清台前需完成买单或由主管授权。</div>`;
+    } else if (type === 'transferTable') {
+      title.textContent = '🔄 点单页快捷转台 · 卡台 A08';
+      body.innerHTML = `<div><label style="font-size:12px;color:#5C6475">选择目标空台</label><select class="ord-input"><option>A01（大厅 · 6人空台）</option><option>V06（VIP区 · 8人空台）</option><option>S03（散台 · 4人空台）</option></select></div>`;
+    }
+    document.getElementById('ordModalMask').classList.add('show');
+  }
+
+  // Render decorative crisp QR pattern
+  const pattern = [1,1,1,0,1,1,1, 1,0,1,1,1,0,1, 1,1,1,0,1,1,1, 0,1,0,1,0,1,0, 1,1,1,1,0,1,1, 1,0,1,0,1,0,1, 1,1,1,0,1,1,0];
+  document.getElementById('qrGrid').innerHTML = pattern.map(v => `<div style="background:${v?'#08080A':'transparent'};border-radius:2px"></div>`).join('');
+
+  document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+  document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.addEventListener('click', () => {
+    const m = b.dataset.device;
+    document.getElementById('deviceFrame').className = 'device-frame ' + m;
+    document.querySelectorAll('#deviceTabs .seg-btn').forEach(x => x.classList.toggle('active', x === b));
+    const labels = {
+      desktop: 'Desktop 宽屏（macOS / Windows · ≥1200dp）',
+      tablet: 'Android 平板（1024×768 · 720–1199dp）',
+      phone: 'Android 手机（390×800 · <720dp，顶部一级分类+窄二级栏+手机卡片表）'
+    };
+    document.querySelector('#deviceMeta span').textContent = '当前视口：' + labels[m];
+  }));
+  document.querySelectorAll('#ordRegions .ord-reg-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#ordRegions .ord-reg-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    regFilter = b.dataset.reg;
+    renderOrdCards();
+  }));
+  document.querySelectorAll('#ordLegends .ol-item').forEach(el => el.addEventListener('click', () => {
+    const st = Number(el.dataset.st);
+    if (st === 20) return;
+    stFilter = stFilter === st ? null : st;
+    document.querySelectorAll('#ordLegends .ol-item').forEach(x => x.classList.toggle('active', Number(x.dataset.st) === stFilter));
+    renderOrdCards();
+  }));
+  document.getElementById('prdSearch').addEventListener('input', renderCatsAndPrds);
+
+  renderOrdCards();
+  renderCatsAndPrds();
+</script>
+</body>
+</html>

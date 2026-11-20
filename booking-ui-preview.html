@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>预订系统（S1）全端视觉还原稿预览 · macOS / Windows / Android平板 / Android手机</title>
+<style>
+  :root {
+    --canvas-primary: #202C4A;
+    --canvas-deep: #08080A;
+    --canvas-login: #080B16;
+    --surface-header: #222D47;
+    --surface-footer: #0D172D;
+    --surface-drawer: #202C42;
+    --surface-drawer-footer: #161D33;
+    --surface-panel-dark: #11182D;
+    --surface-login-card: #141D35;
+    --surface-dialog: #1B2742;
+    --surface-table-header: #182037;
+    --surface-table-stripe: #293449;
+    --surface-region-group: #2A3959;
+    --surface-input: rgba(0, 0, 0, 0.24);
+    --status-empty: #465675;
+    --status-locked: #7D6A33;
+    --status-reserved: #008F95;
+    --status-opened: #D08322;
+    --status-ordered: #C83758;
+    --status-paid: #5C3BC1;
+    --brand-primary: #455EFF;
+    --brand-primary-light: #4B89FF;
+    --brand-secondary: #374368;
+    --glow-border: #32B9FF;
+    --glow-shadow: rgba(26, 137, 255, 0.78);
+    --text-ice: #AED8FF;
+    --ice-white: #F8FEFF;
+    --ice-accent: #A9D1FA;
+    --divider-blue: rgba(39, 117, 186, 0.5);
+    --pill-highlight: #2775BA;
+    --badge-online: #2FD1FF;
+    --badge-mark: #F1FF00;
+    --badge-lock: #FFBD00;
+    --badge-green: #1DC344;
+    --progress-full: #7CF5B0;
+    --danger-red: #FF2F4B;
+    --success-green: #67C23A;
+    --warning-amber: #FFAD45;
+    --select-yellow: #FDFF5F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    background: #060913;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Preview Studio Top Bar */
+  .studio-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0B1020;
+    border-bottom: 1px solid rgba(50, 185, 255, 0.3);
+    padding: 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .studio-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .studio-badge {
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .sys-switch {
+    display: inline-flex;
+    background: #141D35;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 9px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .sys-link {
+    text-decoration: none;
+    color: rgba(255,255,255,0.74);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 7px;
+  }
+  .sys-link.active { background: var(--brand-primary); color: #fff; }
+  .studio-title h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .studio-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .seg-group {
+    display: flex;
+    background: #131B33;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+  .seg-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.72);
+    padding: 6px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .seg-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .seg-btn.active {
+    background: var(--brand-primary);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(69, 94, 255, 0.45);
+  }
+
+  /* Main Stage */
+  .stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 18px;
+  }
+  .device-meta {
+    font-size: 12px;
+    color: var(--text-ice);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .device-frame {
+    position: relative;
+    background: var(--canvas-primary);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(50, 185, 255, 0.35);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    transition: width .22s ease, height .22s ease;
+  }
+  .device-frame.desktop { width: min(1360px, calc(100vw - 40px)); height: 780px; }
+  .device-frame.tablet { width: min(1024px, calc(100vw - 40px)); height: 740px; border-radius: 20px; border-width: 6px; border-color: #1A2238; }
+  .device-frame.phone { width: 390px; height: 800px; border-radius: 30px; border-width: 8px; border-color: #1A2238; }
+
+  /* macOS window titlebar in desktop mode */
+  .mac-chrome {
+    height: 30px;
+    background: #141B2F;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+  .device-frame:not(.desktop) .mac-chrome { display: none; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #FF5F56; }
+  .dot.y { background: #FFBD2E; }
+  .dot.g { background: #27C93F; }
+  .mac-title {
+    margin-left: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+  }
+
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .screen.active { display: flex; }
+
+  /* ================= P0: LOGIN ================= */
+  .login-screen {
+    background: linear-gradient(135deg, var(--canvas-login) 0%, var(--surface-panel-dark) 50%, var(--canvas-primary) 100%);
+    padding: 28px;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-wrap {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    gap: 36px;
+    align-items: center;
+    justify-content: center;
+  }
+  .device-frame.phone .login-brand { display: none; }
+  .login-brand { flex: 1; }
+  .login-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(69, 94, 255, 0.22);
+    border: 1px solid var(--glow-border);
+    color: var(--text-ice);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .login-brand h2 { font-size: 30px; margin: 16px 0 10px; }
+  .login-brand p { color: rgba(255,255,255,0.62); font-size: 14px; line-height: 1.7; }
+  .login-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .login-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(13, 23, 45, 0.78);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+  }
+  .login-card {
+    width: 420px;
+    max-width: 100%;
+    background: var(--surface-login-card);
+    border: 1px solid rgba(50, 185, 255, 0.42);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 10px 32px rgba(26, 137, 255, 0.22);
+  }
+  .login-card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .login-card-hd h3 { font-size: 19px; }
+  .dark-input {
+    width: 100%;
+    height: 42px;
+    background: var(--surface-input);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 0 12px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .dark-input:focus { border-color: #5C9FFF; }
+  .field-lbl { font-size: 12px; color: rgba(255,255,255,0.75); margin-bottom: 6px; display: block; }
+  .btn-primary-pill {
+    background: var(--brand-primary);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.32);
+    border-radius: 22px;
+    height: 42px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-secondary-pill {
+    background: var(--brand-secondary);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 22px;
+    height: 40px;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 14px 0 18px;
+  }
+  .key-cap {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--surface-header);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .key-cap.ctrl { background: var(--brand-secondary); font-size: 13px; }
+
+  /* ================= P1: CARD MACHINE ================= */
+  .date-bar {
+    background: var(--surface-header);
+    border-bottom: 1px solid var(--divider-blue);
+    padding: 10px 14px 12px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+  .date-pill {
+    position: relative;
+    flex-shrink: 0;
+    height: 36px;
+    padding: 0 15px;
+    border-radius: 20px;
+    background: var(--surface-footer);
+    border: 1px solid var(--pill-highlight);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+  }
+  .date-pill.active {
+    background: var(--ice-white);
+    color: #08080A;
+    border-color: var(--ice-accent);
+  }
+  .date-pill.active::after {
+    content: "";
+    position: absolute;
+    bottom: -11px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--ice-accent);
+  }
+  .device-frame.phone .date-pill { height: 32px; font-size: 13px; padding: 0 12px; }
+
+  .filter-bar {
+    background: var(--surface-header);
+    border-bottom: 1px solid var(--divider-blue);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .device-frame.phone .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .region-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    align-items: center;
+  }
+  .region-pill {
+    flex-shrink: 0;
+    height: 34px;
+    min-width: 72px;
+    padding: 0 14px;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--pill-highlight);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .region-pill.active {
+    background: var(--brand-primary);
+    border-color: rgba(255,255,255,0.5);
+    box-shadow: 0 2px 10px rgba(69,94,255,0.45);
+  }
+  .device-frame.phone .region-pill { height: 30px; min-width: 58px; font-size: 13px; padding: 0 11px; }
+  .search-box {
+    width: 260px;
+    flex-shrink: 0;
+  }
+  .device-frame.phone .search-box { width: 100%; }
+  .search-box input {
+    width: 100%;
+    height: 34px;
+    background: var(--surface-input);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 8px;
+    padding: 0 12px;
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+  }
+  .search-box input:focus { border-color: #5C9FFF; }
+
+  .closed-banner {
+    background: var(--canvas-deep);
+    padding: 8px 14px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+  .closed-banner.show { display: flex; }
+  .closed-banner button {
+    flex: 1;
+    height: 38px;
+    border: none;
+    border-radius: 6px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .card-grid-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .device-frame.phone .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .seat-card {
+    position: relative;
+    min-height: 176px;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.42);
+    transition: transform .12s, box-shadow .12s;
+    font-variant-numeric: tabular-nums;
+  }
+  .seat-card:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 6px 16px rgba(0,0,0,0.35); }
+  .seat-card.s1 { background: var(--status-empty); }
+  .seat-card.s2 { background: var(--status-locked); }
+  .seat-card.s3, .seat-card.s8 { background: var(--status-reserved); }
+  .seat-card.s4 { background: var(--status-opened); }
+  .seat-card.s5 { background: var(--status-ordered); }
+  .seat-card.s6, .seat-card.s7 { background: var(--status-paid); }
+  .device-frame.phone .seat-card { min-height: 166px; padding: 7px 8px; }
+
+  .c-row1 { display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 4px; height: 18px; }
+  .c-area { display: flex; align-items: center; gap: 4px; min-width: 0; color: rgba(255,255,255,0.82); }
+  .badge-online {
+    background: var(--badge-online);
+    color: #08080A;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 16px;
+  }
+  .badge-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 3px;
+    background: var(--badge-mark);
+    color: #08080A;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .badge-partial {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px;
+    height: 16px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .c-name {
+    height: 32px;
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 32px;
+    margin: 3px 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  }
+  .c-name.long { font-size: 19px; }
+  .device-frame.phone .c-name { font-size: 21px; height: 28px; line-height: 28px; }
+  .device-frame.phone .c-name.long { font-size: 16px; }
+  .c-money-slot {
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 3px;
+  }
+  .c-amt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    line-height: 16px;
+    gap: 4px;
+  }
+  .c-amt-row .dim { color: rgba(255,255,255,0.74); }
+  .c-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.22);
+    margin-top: 3px;
+    overflow: hidden;
+  }
+  .c-bar i { display: block; height: 100%; background: #fff; border-radius: 2px; transition: width .2s; }
+  .c-bar i.full { background: var(--progress-full); }
+  .c-line {
+    height: 17px;
+    line-height: 17px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: rgba(255,255,255,0.9);
+  }
+  .c-bottom {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    padding-top: 3px;
+    gap: 4px;
+    min-height: 18px;
+  }
+  .c-tips { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; color: rgba(255,255,255,0.82); }
+  .tip-sq {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .tip-sq.lock { background: var(--badge-lock); color: #08080A; }
+  .tip-sq.green { background: var(--badge-green); color: #fff; }
+  .c-transfer {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.82);
+    border-top: 1px dashed rgba(255,255,255,0.28);
+    padding-top: 2px;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Footer Legend Bar */
+  .footer-bar {
+    background: var(--surface-footer);
+    border-top: 1px solid var(--divider-blue);
+    min-height: 60px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .device-frame.phone .footer-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+  }
+  .ice-switch {
+    background: var(--ice-white);
+    color: #08080A;
+    border: 1px solid var(--ice-accent);
+    border-radius: 12px;
+    min-width: 82px;
+    height: 48px;
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .device-frame.phone .ice-switch { height: 36px; flex-direction: row; gap: 4px; min-width: 76px; }
+  .legend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 8px;
+  }
+  .legend-swatch {
+    width: 38px;
+    height: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.22);
+  }
+  .legend-item.active .legend-swatch {
+    border: 2px solid #fff;
+    box-shadow: 0 0 12px rgba(69, 94, 255, 0.85);
+  }
+  .legend-lbl { font-size: 12px; color: #fff; font-variant-numeric: tabular-nums; }
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .device-frame.phone .footer-right { justify-content: space-between; }
+  .page-capsule {
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--pill-highlight);
+    background: rgba(0,0,0,0.4);
+  }
+  .device-frame.phone .page-capsule { display: none; }
+  .page-capsule button {
+    width: 42px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-ice);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .page-capsule button:first-child { border-right: 1px solid rgba(39,117,186,0.4); }
+  .foot-act {
+    background: transparent;
+    border: none;
+    color: var(--text-ice);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px;
+  }
+
+  /* Glow Floating Card Menu */
+  .overlay-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 8, 20, 0.45);
+    display: none;
+    z-index: 40;
+  }
+  .overlay-mask.show { display: flex; }
+  .card-menu-pop {
+    position: absolute;
+    top: 170px;
+    left: 220px;
+    width: 182px;
+    background: var(--canvas-deep);
+    border: 1px solid var(--glow-border);
+    box-shadow: 0 0 14px var(--glow-shadow);
+    border-radius: 8px;
+    padding: 6px 12px 10px;
+  }
+  .footer-pop {
+    position: absolute;
+    bottom: 66px;
+    right: 14px;
+    width: 230px;
+    max-height: 460px;
+    overflow-y: auto;
+    background: var(--canvas-deep);
+    border: 1px solid var(--glow-border);
+    box-shadow: 0 0 16px var(--glow-shadow);
+    border-radius: 10px;
+    padding: 8px 12px 10px;
+    z-index: 45;
+  }
+  .device-frame.phone .footer-pop {
+    left: 0; right: 0; bottom: 0; width: 100%;
+    border-radius: 16px 16px 0 0; border-left: none; border-right: none; border-bottom: none;
+    background: var(--surface-footer); padding: 14px 16px 22px;
+  }
+  .center-modal {
+    margin: auto;
+    width: 440px;
+    max-width: calc(100% - 24px);
+    background: var(--surface-dialog);
+    border: 1px solid var(--glow-border);
+    box-shadow: 0 0 24px rgba(26,137,255,0.45);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .other-region-pop {
+    position: absolute;
+    top: 108px;
+    left: 14px;
+    width: min(560px, calc(100% - 28px));
+    background: var(--surface-panel-dark);
+    border: 1px solid var(--glow-border);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.6), 0 0 14px rgba(26,137,255,0.45);
+    border-radius: 12px;
+    padding: 12px 14px;
+    z-index: 42;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .other-region-pop.show { display: flex; }
+  .other-region-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .toast-bar {
+    position: absolute;
+    top: 44px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13, 23, 45, 0.96);
+    border: 1px solid var(--glow-border);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 90;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    display: none;
+    white-space: nowrap;
+  }
+  .toast-bar.show { display: block; }
+  .device-frame.phone .card-menu-pop {
+    left: 0; right: 0; top: auto; bottom: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    border-left: none; border-right: none; border-bottom: none;
+    background: var(--surface-footer);
+    padding: 14px 16px 20px;
+  }
+  .menu-grid-phone {
+    display: flex;
+    flex-direction: column;
+  }
+  .device-frame.phone .menu-grid-phone {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .menu-opt {
+    color: var(--text-ice);
+    font-size: 14px;
+    padding: 10px 6px;
+    border-bottom: 1px solid rgba(174, 216, 255, 0.16);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .menu-opt:hover { background: rgba(50,185,255,0.16); border-radius: 6px; }
+  .menu-opt.disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    color: rgba(255,255,255,0.55);
+  }
+  .menu-opt.disabled:hover { background: transparent; }
+  .p1-report-drawer {
+    margin-left: auto;
+    width: 680px;
+    max-width: 100%;
+    height: 100%;
+    background: var(--surface-drawer);
+    border-left: 1px solid var(--glow-border);
+    box-shadow: -8px 0 32px rgba(26,137,255,0.35);
+    display: flex;
+    flex-direction: column;
+  }
+  .device-frame.phone .p1-report-drawer { width: 100%; border-left: none; }
+  .detail-kv {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 8px 12px;
+    font-size: 13px;
+    align-items: start;
+  }
+  .detail-kv dt { color: rgba(174,216,255,0.78); text-align: right; }
+  .detail-kv dd { color: #fff; font-weight: 600; margin: 0; }
+  .quick-times { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .qt-btn {
+    border: 1px solid rgba(50,185,255,0.45);
+    background: rgba(13,23,45,0.85);
+    color: var(--text-ice);
+    border-radius: 14px;
+    padding: 3px 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .qt-btn:hover, .qt-btn.active { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); }
+  .staff-wrap { position: relative; }
+  .staff-dd {
+    position: absolute;
+    left: 0; right: 0; top: 44px;
+    background: var(--surface-panel-dark);
+    border: 1px solid var(--glow-border);
+    border-radius: 10px;
+    max-height: 170px;
+    overflow-y: auto;
+    z-index: 30;
+    display: none;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+  }
+  .staff-dd.show { display: block; }
+  .staff-opt {
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .staff-opt:hover { background: rgba(69,94,255,0.28); }
+  .field-hint { font-size: 11.5px; color: #7CF5B0; margin-top: 4px; }
+  .device-frame.phone .menu-opt {
+    border: 1px solid rgba(50,185,255,0.28);
+    border-radius: 10px;
+    background: var(--surface-header);
+    padding: 11px 12px;
+    justify-content: center;
+  }
+
+  /* ================= P2: DRAWER & FULL TABLE PICKER ================= */
+  .split-demo {
+    flex: 1;
+    display: flex;
+    background: var(--canvas-primary);
+    overflow: hidden;
+  }
+  .device-frame.phone .split-left { display: none; }
+  .split-left {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    border-right: 1px solid var(--divider-blue);
+  }
+  .drawer-panel {
+    width: 540px;
+    max-width: 100%;
+    background: var(--surface-drawer);
+    border-left: 1px solid rgba(50,185,255,0.45);
+    box-shadow: -4px 0 24px rgba(26,137,255,0.32);
+    display: flex;
+    flex-direction: column;
+  }
+  .device-frame.phone .drawer-panel { width: 100%; border-left: none; }
+  .drawer-hd {
+    height: 52px;
+    background: var(--surface-header);
+    border-bottom: 1px solid var(--divider-blue);
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .drawer-bd {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    align-items: center;
+    gap: 12px;
+  }
+  .device-frame.phone .form-row { grid-template-columns: 1fr; gap: 6px; }
+  .form-row label { text-align: right; font-size: 13px; color: rgba(255,255,255,0.82); }
+  .device-frame.phone .form-row label { text-align: left; }
+  .drawer-ft {
+    height: 64px;
+    background: var(--surface-drawer-footer);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .picker-group {
+    background: var(--surface-region-group);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .picker-vert {
+    background: var(--brand-secondary);
+    border-radius: 8px;
+    padding: 10px 8px;
+    writing-mode: vertical-lr;
+    text-orientation: upright;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-align: center;
+  }
+  .picker-seats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .mini-seat {
+    width: 78px;
+    height: 64px;
+    border-radius: 8px;
+    padding: 6px;
+    background: var(--status-empty);
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .mini-seat.selected { border-color: var(--select-yellow); box-shadow: 0 0 10px rgba(253,255,95,0.5); }
+  .mini-seat.disabled { opacity: .32; cursor: not-allowed; }
+
+  /* ================= P3: CONSUMPTION / WINE DETAIL ================= */
+  .detail-wrap {
+    flex: 1;
+    background: rgba(4, 8, 20, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .detail-dialog {
+    width: 100%;
+    max-width: 920px;
+    max-height: 100%;
+    background: var(--surface-dialog);
+    border: 1px solid rgba(50,185,255,0.55);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .turnover-tabs { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 18px; }
+  .t-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: var(--surface-footer);
+    border: 1px solid var(--divider-blue);
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .t-tab.active { background: var(--brand-primary-light); color: #fff; border-color: var(--brand-primary-light); font-weight: 600; }
+  .dark-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dark-table th {
+    background: var(--surface-table-header);
+    color: rgba(255,255,255,0.62);
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .dark-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.9);
+  }
+  .dark-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  .pill-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .pill-badge.green { background: var(--success-green); }
+  .pill-badge.red { background: #F56C6C; }
+  .pill-badge.orange { background: #E6A23C; }
+
+  /* ================= P4: RESERVED PAGE ================= */
+  .reserved-screen { background: var(--canvas-deep); }
+  .res-tabs {
+    background: var(--surface-panel-dark);
+    border-bottom: 1px solid var(--pill-highlight);
+    padding: 10px 18px;
+    display: flex;
+    gap: 12px;
+  }
+  .res-op-bar {
+    background: rgba(255,255,255,0.04);
+    padding: 10px 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .outline-pill {
+    background: transparent;
+    border: 1px solid #2767BA;
+    color: #6A9EFF;
+    border-radius: 20px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .outline-pill.danger { border-color: var(--danger-red); color: var(--danger-red); }
+  .mobile-card-list { display: none; flex-direction: column; gap: 10px; padding: 12px; overflow-y: auto; flex: 1; }
+  .desktop-table-wrap { flex: 1; overflow: auto; padding: 0 18px 12px; }
+  .device-frame.phone .desktop-table-wrap { display: none; }
+  .device-frame.phone .mobile-card-list { display: flex; }
+  .m-card {
+    background: var(--surface-login-card);
+    border: 1px solid rgba(39,117,186,0.4);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  /* ================= P5: REPORTS & QUEUE ================= */
+  .r6-row {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 13px;
+  }
+  .r6-row.hd { background: var(--surface-table-header); color: rgba(255,255,255,0.6); font-weight: 600; }
+  .r6-row.l1 { background: rgba(75,137,255,0.18); border-left: 3px solid var(--brand-primary-light); font-weight: 700; }
+  .r6-row.total { color: var(--warning-amber); font-weight: 700; }
+
+  /* Color Token Reference Strip at bottom */
+  .token-strip {
+    width: min(1360px, calc(100vw - 40px));
+    background: #0B1020;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+  .token-strip h3 { font-size: 13px; color: var(--text-ice); margin-bottom: 10px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sw {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #131B33;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+  .sw-box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.25); }
+</style>
+</head>
+<body>
+  <header class="studio-bar">
+    <div class="studio-title">
+      <div class="sys-switch">
+        <a class="sys-link active" href="index.html">S1 预订系统</a>
+        <a class="sys-link" href="order.html">S2 点单系统</a>
+        <a class="sys-link" href="cashier.html">S3 收银系统</a>
+      </div>
+      <h1>预订系统（S1）全端视觉还原稿</h1>
+    </div>
+    <div class="studio-controls">
+      <div class="seg-group" id="pageTabs">
+        <button class="seg-btn active" data-page="p1">P1 卡台首页</button>
+        <button class="seg-btn" data-page="p0">P0 登录页</button>
+        <button class="seg-btn" data-page="p2">P2 预留抽屉 / 选台</button>
+        <button class="seg-btn" data-page="p3">P3 消费/存取酒明细</button>
+        <button class="seg-btn" data-page="p4">P4 预留管理页</button>
+        <button class="seg-btn" data-page="p5">P5 报表 &amp; 排队</button>
+      </div>
+      <div class="seg-group" id="deviceTabs">
+        <button class="seg-btn active" data-device="desktop">🖥 macOS / Windows</button>
+        <button class="seg-btn" data-device="tablet">📟 Android 平板</button>
+        <button class="seg-btn" data-device="phone">📱 Android 手机</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="device-meta" id="deviceMeta">
+      <span>当前视口：Desktop 宽屏（macOS / Windows · ≥1200dp）</span>
+      <span>·</span>
+      <span>已融合审核意见：固定行对齐卡面 + 低消进度条 + 置顶图钉排序 + 全字段拼音搜索 + 非当日/督查拦截 + 宽屏右侧报表抽屉(6表可导出)</span>
+      <button class="seg-btn" style="background:#222D47;color:#AED8FF;border:1px solid #2775BA" id="toggleClosedBtn">未开营业日横幅</button>
+      <button class="seg-btn" style="background:#222D47;color:#AED8FF;border:1px solid #2775BA" id="toggleAmtBtn">隐藏卡面金额 (showAmt)</button>
+      <button class="seg-btn" style="background:#222D47;color:#AED8FF;border:1px solid #2775BA" id="toggleNoPermBtn">模拟：督查无权限区</button>
+    </div>
+
+    <div class="device-frame desktop" id="deviceFrame">
+      <div class="mac-chrome">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="mac-title">收银桌面客户端 · 预订系统 (/cardMachine)</span>
+      </div>
+      <div class="toast-bar" id="bkToast">操作已完成</div>
+
+      <!-- ================= P0 LOGIN ================= -->
+      <section class="screen login-screen" id="screen-p0">
+        <div class="login-wrap">
+          <div class="login-brand">
+            <span class="login-tag">预订系统 · 门店运营终端</span>
+            <h2>员工工号登录</h2>
+            <p>统一夜场深蓝暗色视觉体系，支持实时房台同步、多营业日预留、开台管理与入客汇总。普通业务登录无需超级管理员密码。</p>
+            <div class="login-chips">
+              <span class="login-chip">● 实时房台同步</span>
+              <span class="login-chip">● 多日预留排班</span>
+              <span class="login-chip">● macOS / Windows / Android 全端适配</span>
+            </div>
+          </div>
+          <div class="login-card">
+            <div class="login-card-hd">
+              <h3>预订系统登录</h3>
+              <span style="font-size:12px;color:#AED8FF">切换系统 ▾</span>
+            </div>
+            <div style="margin-bottom:12px">
+              <label class="field-lbl">员工账号</label>
+              <input class="dark-input" value="1008" />
+            </div>
+            <div>
+              <label class="field-lbl">登录密码</label>
+              <input class="dark-input" type="password" value="123456" />
+            </div>
+            <div class="keypad">
+              <button class="key-cap">1</button><button class="key-cap">2</button><button class="key-cap">3</button>
+              <button class="key-cap">4</button><button class="key-cap">5</button><button class="key-cap">6</button>
+              <button class="key-cap">7</button><button class="key-cap">8</button><button class="key-cap">9</button>
+              <button class="key-cap ctrl">清空</button><button class="key-cap">0</button><button class="key-cap ctrl">回退</button>
+            </div>
+            <button class="btn-primary-pill" style="width:100%" onclick="switchPage('p1')">登录进入卡台总览</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P1 CARD MACHINE ================= -->
+      <section class="screen active" id="screen-p1">
+        <div class="date-bar" id="dateBar">
+          <button class="date-pill active" data-today="1">08-19 (今日)</button>
+          <button class="date-pill" data-today="0">08-20 (周四)</button>
+          <button class="date-pill" data-today="0">08-21 (周五)</button>
+          <button class="date-pill" data-today="0">08-22 (周六)</button>
+          <button class="date-pill" data-today="0">08-23 (周日)</button>
+        </div>
+        <div class="filter-bar">
+          <div class="region-list" id="regionBar">
+            <button class="region-pill active" data-region="all">全部</button>
+            <button class="region-pill" data-region="VIP">VIP区</button>
+            <button class="region-pill" data-region="大厅">大厅卡座</button>
+            <button class="region-pill" data-region="散台">散台区</button>
+            <button class="region-pill" data-region="包房">尊享包房</button>
+            <button class="region-pill" id="otherRegionBtn" data-region="__other__" onclick="toggleOtherRegion(event)">其它 ▾</button>
+          </div>
+          <div class="search-box">
+            <input id="searchInput" placeholder="🔍 卡台 / 客人 / 拼音 / 手机 / 订位人 / 工号 / 部门" />
+          </div>
+        </div>
+        <!-- 其它区域多行展开下拉面板 (#11182D) -->
+        <div class="other-region-pop" id="otherRegionPop">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#AED8FF">
+            <strong>其它区域选择（#11182D 多行展开面板）</strong>
+            <span style="cursor:pointer" onclick="toggleOtherRegion(event, false)">✕</span>
+          </div>
+          <div class="other-region-grid">
+            <button class="region-pill" onclick="pickOtherRegion('DJ台卡座')">DJ台卡座</button>
+            <button class="region-pill" onclick="pickOtherRegion('二楼露台')">二楼露台</button>
+            <button class="region-pill" onclick="pickOtherRegion('雪茄房')">雪茄房</button>
+            <button class="region-pill" onclick="pickOtherRegion('KTV包房')">KTV包房</button>
+            <button class="region-pill" onclick="pickOtherRegion('电音内场')">电音内场</button>
+            <button class="region-pill" onclick="pickOtherRegion('吧台高脚区')">吧台高脚区</button>
+          </div>
+        </div>
+        <div class="closed-banner" id="closedBanner">
+          <button onclick="document.getElementById('closedBanner').classList.remove('show');showBkToast('已开启当前营业日')">营业日未开启，点击开启营业日</button>
+        </div>
+        <div class="card-grid-wrap" id="seatGridWrap">
+          <div class="card-grid" id="seatGrid"></div>
+        </div>
+        <div class="footer-bar">
+          <div class="footer-left" id="legendBar">
+            <button class="ice-switch" onclick="switchPage('p4')">
+              <span>📋</span><span>预留管理</span>
+            </button>
+            <div class="legend-item" data-status="1">
+              <div class="legend-swatch" style="background:var(--status-empty)"></div>
+              <span class="legend-lbl">空台 3</span>
+            </div>
+            <div class="legend-item" data-status="2">
+              <div class="legend-swatch" style="background:var(--status-locked);color:#FFBD00">锁</div>
+              <span class="legend-lbl">锁定 1</span>
+            </div>
+            <div class="legend-item" data-status="8">
+              <div class="legend-swatch" style="background:var(--status-reserved)"></div>
+              <span class="legend-lbl">预订 2</span>
+            </div>
+            <div class="legend-item" data-status="4">
+              <div class="legend-swatch" style="background:var(--status-opened)"></div>
+              <span class="legend-lbl">开台 2</span>
+            </div>
+            <div class="legend-item" data-status="5">
+              <div class="legend-swatch" style="background:var(--status-ordered)"></div>
+              <span class="legend-lbl">点单 3</span>
+            </div>
+            <div class="legend-item" data-status="7">
+              <div class="legend-swatch" style="background:var(--status-paid)"></div>
+              <span class="legend-lbl">已结 1</span>
+            </div>
+            <div class="legend-item" data-status="20">
+              <div class="legend-swatch" style="background:transparent;border:none;font-size:15px">18</div>
+              <span class="legend-lbl">抵达数</span>
+            </div>
+          </div>
+          <div class="footer-right">
+            <div class="page-capsule">
+              <button title="向下翻页" onclick="document.getElementById('seatGridWrap').scrollBy({top:220,behavior:'smooth'})">▾</button>
+              <button title="向上翻页" onclick="document.getElementById('seatGridWrap').scrollBy({top:-220,behavior:'smooth'})">▴</button>
+            </div>
+            <button class="foot-act" onclick="showBkToast('已刷新实时房台状态')"><span>🔄</span><span>刷新</span></button>
+            <button class="foot-act" onclick="openBookingMoreMenu()"><span>⊞</span><span>更多功能</span></button>
+            <button class="foot-act" onclick="openBookingAccountMenu()"><span>👤</span><span>张咨客 ▴</span></button>
+          </div>
+        </div>
+
+        <!-- Bottom More Functions Popup Menu (7 real items from cardMachine.vue) -->
+        <div class="overlay-mask" id="moreMenuMask" onclick="closeBookingPopups()">
+          <div class="footer-pop" style="right:104px" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3);margin-bottom:4px">
+              <strong style="color:#fff;font-size:13.5px">更多功能（7 项）</strong>
+              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
+            </div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('开台记录')">📋 开台记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('转台记录')">🔄 转台记录</div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('预留记录')">🗓 预留记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('线上预订记录')">🌐 线上预订记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('入客数据实时汇总')">📈 入客数据实时汇总 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('部门实时订台/区域开台')">🏢 部门实时订台/区域开台 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" style="border-bottom:none" onclick="openBookingReportDrawer('排队详情')">📢 排队详情 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+          </div>
+        </div>
+
+        <!-- Right-Side Report Drawer (Wide screen keeps board visible; Phone full-screen) -->
+        <div class="overlay-mask" id="p1ReportDrawerMask" onclick="closeBookingPopups()">
+          <div class="p1-report-drawer" onclick="event.stopPropagation()">
+            <div class="drawer-hd">
+              <span id="p1ReportDrawerTitle">开台记录</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button class="btn-primary-pill" id="p1ReportExportBtn" style="height:30px;font-size:12px;padding:0 12px" onclick="exportCurrentReport()">导出 Excel</button>
+                <span style="cursor:pointer;color:#AED8FF;font-size:16px" onclick="closeBookingPopups()">✕</span>
+              </div>
+            </div>
+            <div id="p1ReportDrawerBody" style="flex:1;overflow:auto;padding:14px 16px"></div>
+            <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
+              <span style="font-size:12px;color:rgba(174,216,255,0.7)">宽屏保留左侧大盘可见 · Esc 关闭</span>
+              <button class="btn-secondary-pill" onclick="closeBookingPopups()">关闭</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Account Popup Menu (2 real items: no auth password in Booking) -->
+        <div class="overlay-mask" id="accountMenuMask" onclick="closeBookingPopups()">
+          <div class="footer-pop" style="width:170px;right:14px" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3);margin-bottom:4px">
+              <strong style="color:#fff;font-size:13px">张咨客 · 账户</strong>
+              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
+            </div>
+            <div class="menu-opt" onclick="openPwdModal()">🔑 修改密码</div>
+            <div class="menu-opt" style="border-bottom:none;color:#FF788B" onclick="closeBookingPopups();switchPage('p0')">🚪 退出登录</div>
+          </div>
+        </div>
+
+        <!-- Change Password / Generic Info Modal -->
+        <div class="overlay-mask" id="bookingModalMask" onclick="closeBookingPopups()">
+          <div class="center-modal" onclick="event.stopPropagation()">
+            <div class="drawer-hd"><span id="bkModalTitle">修改登录密码</span><span style="cursor:pointer;color:#AED8FF" onclick="closeBookingPopups()">✕</span></div>
+            <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px" id="bkModalBody"></div>
+            <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
+              <span style="font-size:11.5px;color:rgba(174,216,255,0.68)">Enter 提交 · Esc 关闭</span>
+              <div style="display:flex;gap:10px">
+                <button class="btn-secondary-pill" onclick="closeBookingPopups()">取消</button>
+                <button class="btn-primary-pill" id="bkModalConfirmBtn" onclick="confirmBookingModal()">确认</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Card Action Overlay (state × date × online × permission aware) -->
+        <div class="overlay-mask" id="cardMenuMask" onclick="closeCardMenu()">
+          <div class="card-menu-pop" style="width:230px;max-height:520px;overflow-y:auto" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3)">
+              <strong id="menuSeatTitle" style="color:#fff;font-size:14px">V01 · 卡台操作</strong>
+              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeCardMenu()">✕</span>
+            </div>
+            <div class="menu-grid-phone" id="cardMenuList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P2 DRAWER & FULL PICKER ================= -->
+      <section class="screen" id="screen-p2">
+        <div class="split-demo">
+          <div class="split-left">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <h3 style="font-size:15px">全屏选台面板（转台 / 多台预订加台）</h3>
+              <span style="font-size:12px;color:#FDFF5F">● 亮黄边框 = 已选中 · 灰显 = 不可选并标明原因</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+              <button class="region-pill active" style="height:28px;font-size:12px;min-width:54px" onclick="filterPickerReg(this,'all')">全部</button>
+              <button class="region-pill" style="height:28px;font-size:12px;min-width:54px" onclick="filterPickerReg(this,'VIP')">VIP区</button>
+              <button class="region-pill" style="height:28px;font-size:12px;min-width:54px" onclick="filterPickerReg(this,'大厅')">大厅卡座</button>
+              <button class="region-pill" style="height:28px;font-size:12px;min-width:54px" onclick="filterPickerReg(this,'散台')">散台区</button>
+              <input id="pickerSearch" class="dark-input" style="height:30px;flex:1;min-width:140px;font-size:12.5px" placeholder="🔍 搜索目标卡台号…" oninput="renderPickerGrid()" />
+            </div>
+            <div id="pickerGroupsWrap"></div>
+          </div>
+          <div class="drawer-panel">
+            <div class="drawer-hd">
+              <span id="p2DrawerTitle">预留 / 开台表单（支持多台预订）</span>
+              <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+            </div>
+            <div class="drawer-bd">
+              <div class="form-row"><label>已选卡台</label><div id="p2SelectedTags" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px">A01 ×</span><span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px">S01 ×</span></div></div>
+              <div class="form-row"><label>客人电话</label><input class="dark-input" value="13800138888" maxlength="11" placeholder="11 位手机号" /></div>
+              <div class="form-row"><label>客人姓名</label><input class="dark-input" value="王先生" /></div>
+              <div class="form-row"><label>是否发送短信</label><div style="display:flex;gap:18px;font-size:13px"><label style="text-align:left"><input type="radio" name="sms" /> 是</label><label style="text-align:left"><input type="radio" name="sms" checked /> 否（默认）</label></div></div>
+              <div class="form-row"><label>卡台标记</label><input class="dark-input" value="VIP" placeholder="如 VIP / 生 / 靠舞台" /></div>
+              <div class="form-row">
+                <label>预定到达时间</label>
+                <div>
+                  <input id="arriveTimeInp" class="dark-input" value="2026-08-19 21:00" />
+                  <div class="quick-times">
+                    <button type="button" class="qt-btn" onclick="pickQuickTime('20:00',this)">20:00</button>
+                    <button type="button" class="qt-btn active" onclick="pickQuickTime('21:00',this)">21:00</button>
+                    <button type="button" class="qt-btn" onclick="pickQuickTime('22:00',this)">22:00</button>
+                    <button type="button" class="qt-btn" onclick="pickQuickTime('23:00',this)">23:00</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label>订位人</label>
+                <div class="staff-wrap">
+                  <input id="salesSearchInp" class="dark-input" value="林经理 (1001 · 营销一部)" placeholder="输入工号 / 姓名 / 拼音搜索…" onfocus="renderStaffDd('sales')" oninput="renderStaffDd('sales')" />
+                  <div id="salesPhoneHint" class="field-hint">📞 订位人电话：13800131001</div>
+                  <div id="salesDd" class="staff-dd"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label>联合订位人</label>
+                <div class="staff-wrap">
+                  <input id="coSalesSearchInp" class="dark-input" value="陈主管 (1005 · 营销二部)" placeholder="输入工号 / 姓名 / 拼音搜索…" onfocus="renderStaffDd('coSales')" oninput="renderStaffDd('coSales')" />
+                  <div id="coSalesPhoneHint" class="field-hint">📞 联合订位人电话：13900131005</div>
+                  <div id="coSalesDd" class="staff-dd"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label>预定人数</label>
+                <div>
+                  <input class="dark-input" type="number" min="1" max="100" value="8" />
+                  <div style="font-size:11.5px;color:rgba(174,216,255,0.68);margin-top:3px">人数上限对齐原系统：1–100 人</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label>预期最低消费</label>
+                <div>
+                  <input class="dark-input" value="5800" />
+                  <div class="field-hint">卡台低消 ¥3,000（预订转开台参考值）</div>
+                </div>
+              </div>
+              <div class="form-row"><label>备注</label><input class="dark-input" value="靠舞台，准备生日牌" /></div>
+            </div>
+            <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
+              <span style="font-size:11.5px;color:rgba(174,216,255,0.68)">Enter 提交 · Esc 关闭</span>
+              <div style="display:flex;gap:10px">
+                <button class="btn-secondary-pill" onclick="switchPage('p1')">取消</button>
+                <button class="btn-primary-pill" onclick="submitP2Form()">确定提交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P3 CONSUMPTION / WINE DETAIL ================= -->
+      <section class="screen" id="screen-p3">
+        <div class="detail-wrap">
+          <div class="detail-dialog">
+            <div class="drawer-hd">
+              <span id="p3Title">查看消费明细 · A08</span>
+              <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+            </div>
+            <div class="turnover-tabs" style="justify-content:space-between;align-items:center">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="t-tab active" onclick="switchP3Turn(this,'cur')">A08（当前）</button>
+                <button class="t-tab" onclick="switchP3Turn(this,'prev')">A08（翻台 1）</button>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="openConsumptionView('consume')">消费明细</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="openConsumptionView('wine')">存取酒明细</button>
+              </div>
+            </div>
+            <div style="flex:1;overflow:auto;padding:0 18px 14px" id="p3TableWrap">
+              <table class="dark-table">
+                <thead>
+                  <tr><th>商品名称</th><th>状态</th><th>数量</th><th>单价</th><th>金额</th><th>点单人</th><th>时间</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>轩尼诗 VSOP 套餐</td><td><span class="pill-badge green">已结</span></td><td>1</td><td>¥2,880</td><td>¥2,880</td><td>李四</td><td>21:18</td></tr>
+                  <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+                  <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+                  <tr><td>果盘（大份）</td><td><span class="pill-badge orange">优惠</span></td><td>1</td><td>¥188</td><td>¥0</td><td>林经理</td><td>21:25</td></tr>
+                  <tr><td>百威铝瓶 12支</td><td><span class="pill-badge red">退单</span></td><td>1</td><td>¥680</td><td>¥0</td><td>李四</td><td>21:40</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="drawer-ft">
+              <button class="btn-secondary-pill" onclick="switchPage('p1')">关闭</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P4 RESERVED PAGE ================= -->
+      <section class="screen reserved-screen" id="screen-p4">
+        <div class="res-tabs">
+          <button class="region-pill active" onclick="switchResTab(this,'today')">当日预留</button>
+          <button class="region-pill" onclick="switchResTab(this,'other')">其它预留</button>
+        </div>
+        <div class="filter-bar" style="background:transparent;border-bottom:none">
+          <div class="search-box" style="width:320px;max-width:100%">
+            <input placeholder="订位人姓名 / 工号 / 客户姓名 / 电话" />
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-primary-pill" style="height:34px;padding:0 16px" onclick="showBkToast('已刷新预留查询结果')">查询</button>
+            <button class="btn-secondary-pill" style="height:34px;padding:0 16px" onclick="showBkToast('已重置筛选条件')">重置</button>
+          </div>
+        </div>
+        <div class="res-op-bar">
+          <button class="outline-pill" onclick="switchPage('p2')">＋ 新增预留</button>
+          <button class="outline-pill danger" onclick="showBkToast('已删除勾选的预留记录（演示）')">🗑 删除预留</button>
+          <button class="outline-pill" onclick="switchPage('p2')">⚡ 一键分配卡台</button>
+        </div>
+        <div class="desktop-table-wrap">
+          <table class="dark-table">
+            <thead>
+              <tr><th>选</th><th>部门</th><th>订位人</th><th>到达时间</th><th>低消(元)</th><th>人数</th><th>客人</th><th>电话</th><th>意向卡台</th><th>备注</th><th>操作</th></tr>
+            </thead>
+            <tbody id="resTbody">
+              <tr><td><input type="checkbox" checked /></td><td>营销一部</td><td>林经理</td><td>21:30</td><td>5800</td><td>8</td><td style="color:#5C9FFF">王先生</td><td>138****8888</td><td>VIP区 / V01</td><td>生日布置</td><td style="color:#5C9FFF;cursor:pointer" onclick="switchPage('p2')">编辑 · 分配卡台</td></tr>
+              <tr><td><input type="checkbox" /></td><td>市场部</td><td>陈主管</td><td>22:00</td><td>3000</td><td>6</td><td style="color:#5C9FFF">李总</td><td>139****2011</td><td>大厅 / A08</td><td>靠音响</td><td style="color:#5C9FFF;cursor:pointer" onclick="switchPage('p2')">编辑 · 分配卡台</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mobile-card-list">
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between"><strong>王先生 · 138****8888</strong><span style="color:#00D5CF">21:30 到达</span></div>
+            <div style="color:rgba(255,255,255,0.72)">意向：VIP区 / V01 · 低消 ¥5800 · 8人</div>
+            <div style="color:rgba(255,255,255,0.62)">订位人：林经理（营销一部）· 备注：生日布置</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+              <button class="outline-pill" style="height:28px;font-size:12px" onclick="switchPage('p2')">编辑</button>
+              <button class="outline-pill" style="height:28px;font-size:12px" onclick="switchPage('p2')">分配卡台</button>
+            </div>
+          </div>
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between"><strong>李总 · 139****2011</strong><span style="color:#00D5CF">22:00 到达</span></div>
+            <div style="color:rgba(255,255,255,0.72)">意向：大厅 / A08 · 低消 ¥3000 · 6人</div>
+            <div style="color:rgba(255,255,255,0.62)">订位人：陈主管（市场部）· 备注：靠音响</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+              <button class="outline-pill" style="height:28px;font-size:12px" onclick="switchPage('p2')">编辑</button>
+              <button class="outline-pill" style="height:28px;font-size:12px" onclick="switchPage('p2')">分配卡台</button>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bar">
+          <button class="ice-switch" onclick="switchPage('p1')"><span>🪑</span><span>预订管理</span></button>
+          <button class="foot-act" onclick="document.getElementById('p4AccMask').classList.add('show')"><span>👤</span><span>工号：1008 ▴</span></button>
+        </div>
+        <!-- P4 Account Popup -->
+        <div class="overlay-mask" id="p4AccMask" onclick="this.classList.remove('show')">
+          <div class="footer-pop" style="width:170px;right:14px" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3);margin-bottom:4px">
+              <strong style="color:#fff;font-size:13px">工号 1008 · 账户</strong>
+              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="document.getElementById('p4AccMask').classList.remove('show')">✕</span>
+            </div>
+            <div class="menu-opt" onclick="document.getElementById('p4AccMask').classList.remove('show');switchPage('p1');openPwdModal()">🔑 修改密码</div>
+            <div class="menu-opt" style="border-bottom:none;color:#FF788B" onclick="document.getElementById('p4AccMask').classList.remove('show');switchPage('p0')">🚪 退出登录</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= P5 REPORTS & QUEUE ================= -->
+      <section class="screen" id="screen-p5">
+        <div class="split-demo">
+          <div class="split-left" style="background:var(--surface-drawer)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+              <h3 style="font-size:15px" id="p5ReportTitle">R06 部门实时订台 / 区域开台表</h3>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('开台记录')">开台</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('转台记录')">转台</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('预留记录')">预留</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('线上预订记录')">线上</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('入客数据实时汇总')">入客</button>
+                <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('部门实时订台/区域开台')">部门</button>
+                <button class="btn-primary-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showBkToast('已导出 Excel 报表文件')">导出 Excel</button>
+              </div>
+            </div>
+            <div id="p5ReportBody" style="border:1px solid rgba(255,255,255,0.12);border-radius:8px;overflow:hidden">
+              <div class="r6-row hd"><span>部门名称</span><span style="text-align:center">实时订台数</span></div>
+              <div class="r6-row l1"><span>营销中心</span><span style="text-align:center">14</span></div>
+              <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销一部</span><span style="text-align:center">8</span></div>
+              <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销二部</span><span style="text-align:center">6</span></div>
+              <div class="r6-row l1"><span>市场拓展部</span><span style="text-align:center">5</span></div>
+              <div class="r6-row total"><span>合计</span><span style="text-align:center">19</span></div>
+            </div>
+          </div>
+          <div class="drawer-panel">
+              <div class="drawer-hd">
+                <span>R07 排队详情</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <button class="btn-primary-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showBkToast('已导出排队详情文件')">导出</button>
+                  <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+                </div>
+              </div>
+            <div class="drawer-bd">
+              <div style="display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px">
+                <span style="color:#5C9FFF;font-weight:700;border-bottom:3px solid #5C9FFF;padding-bottom:6px;cursor:pointer" onclick="showBkToast('当前视图：排队叫号')">排队叫号</span>
+                <span style="color:rgba(255,255,255,0.7);cursor:pointer" onclick="showBkToast('切换视图：全部排队列表')">排队列表</span>
+              </div>
+              <div class="m-card" style="background:var(--surface-table-header)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <strong style="font-size:20px;color:#00D5CF">A012</strong>
+                  <span class="pill-badge orange">等待叫号 · 4人</span>
+                </div>
+                <div style="color:rgba(255,255,255,0.72)">大卡座 · 136****5566 · 排队 18 分钟</div>
+                <div style="display:flex;gap:8px;margin-top:6px">
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;flex:1" onclick="showBkToast('已播报叫号：请 A012 客人入座')">叫号</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('A012 已确认到店并转开台')">到店</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('A012 已标记过号')">过号</button>
+                </div>
+              </div>
+              <div class="m-card" style="background:var(--surface-table-header)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <strong style="font-size:20px;color:#00D5CF">B007</strong>
+                  <span class="pill-badge green">已叫号 · 2人</span>
+                </div>
+                <div style="color:rgba(255,255,255,0.72)">散台区 · 188****9921 · 排队 6 分钟</div>
+                <div style="display:flex;gap:8px;margin-top:6px">
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;flex:1" onclick="showBkToast('已重呼：请 B007 客人入座')">重呼</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('B007 已确认到店')">到店</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('B007 已标记过号')">过号</button>
+                </div>
+              </div>
+            </div>
+            <div class="drawer-ft">
+              <button class="btn-secondary-pill" onclick="switchPage('p1')">关闭</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="token-strip">
+      <h3>核心色板 Token 速查（融合审核方案高对比暗色卡面 + 原系统语义色）</h3>
+      <div class="swatches">
+        <div class="sw"><span class="sw-box" style="background:#202C4A"></span>主画布 #202C4A</div>
+        <div class="sw"><span class="sw-box" style="background:#222D47"></span>顶栏/抽屉头 #222D47</div>
+        <div class="sw"><span class="sw-box" style="background:#0D172D"></span>底栏 #0D172D</div>
+        <div class="sw"><span class="sw-box" style="background:#465675"></span>空台 #465675</div>
+        <div class="sw"><span class="sw-box" style="background:#7D6A33"></span>锁定 #7D6A33</div>
+        <div class="sw"><span class="sw-box" style="background:#008F95"></span>预订 #008F95</div>
+        <div class="sw"><span class="sw-box" style="background:#D08322"></span>开台 #D08322</div>
+        <div class="sw"><span class="sw-box" style="background:#C83758"></span>点单 #C83758</div>
+        <div class="sw"><span class="sw-box" style="background:#5C3BC1"></span>半结/已结 #5C3BC1</div>
+        <div class="sw"><span class="sw-box" style="background:#2FD1FF"></span>线标 #2FD1FF</div>
+        <div class="sw"><span class="sw-box" style="background:#F1FF00"></span>台标 #F1FF00</div>
+        <div class="sw"><span class="sw-box" style="background:#7CF5B0"></span>满额进度条 #7CF5B0</div>
+      </div>
+    </div>
+  </main>
+
+<script>
+  const STAFF_LIST = [
+    { code:'1001', name:'林经理', py:'ljl', dept:'营销一部', phone:'13800131001' },
+    { code:'1005', name:'陈主管', py:'czg', dept:'营销二部', phone:'13900131005' },
+    { code:'1008', name:'张咨客', py:'zzk', dept:'咨客部', phone:'13700131008' },
+    { code:'1012', name:'王敏', py:'wm', dept:'市场部', phone:'15800131012' },
+    { code:'1016', name:'赵丽', py:'zl', dept:'市场部', phone:'13600131016' },
+    { code:'1022', name:'李四', py:'ls', dept:'营销一部', phone:'13500131022' },
+  ];
+
+  const SEATS = [
+    { name:'V12', area:'VIP', status:4, online:false, mark:'VIP', time:'20:15', gift:'0.00', main:'0.00', minConsume:3000, pct:0, sales:'张伟 营销二部', salesCode:'1009', salesPy:'zw', salesPhone:'13800131009', coSales:'陈主管 营销二部', coSalesPhone:'13900131005', customer:'陈女士 139****2201', custPy:'cns', phone:'13988882201', arrive:'2026-08-19 20:15', topNum:2, remark:'', turn:0, hasMustOrder:true },
+    { name:'V01', area:'VIP', status:8, online:true, mark:'生', time:'21:00', minConsume:5800, pct:0, sales:'林经理 营销一部', salesCode:'1001', salesPy:'ljl', salesPhone:'13800131001', coSales:'陈主管 营销二部', coSalesPhone:'13900131005', customer:'王先生 138****8888', custPy:'wxs', phone:'13800138888', arrive:'2026-08-19 21:00', topNum:1, remark:'生日布置需要花篮', turn:0, hasMustOrder:true },
+    { name:'V02', area:'VIP', status:5, online:false, mark:'V', time:'20:45', gift:'500.00', main:'6800.00', minConsume:5800, pct:100, sales:'陈主管 营销二部', salesCode:'1005', salesPy:'czg', salesPhone:'13900131005', coSales:'', coSalesPhone:'', customer:'周总 139****3321', custPy:'zz', phone:'13911113321', arrive:'2026-08-19 20:30', topNum:0, remark:'熟客', turn:1, transfer:'A02→V02', hasMustOrder:false },
+    { name:'V03', area:'VIP', status:4, online:false, mark:'', time:'21:15', gift:'200.00', main:'1800.00', minConsume:3000, pct:60, sales:'赵丽 市场部', salesCode:'1016', salesPy:'zl', salesPhone:'13600131016', coSales:'', coSalesPhone:'', customer:'孙女士 136****9081', custPy:'sns', phone:'13622229081', arrive:'2026-08-19 21:00', topNum:0, remark:'需冰桶', turn:0, hasMustOrder:true },
+    { name:'V05', area:'VIP', status:7, online:false, mark:'', time:'19:50', gift:'0.00', main:'4200.00', minConsume:3600, pct:100, sales:'林经理 营销一部', salesCode:'1001', salesPy:'ljl', salesPhone:'13800131001', coSales:'', coSalesPhone:'', customer:'吴总 186****1120', custPy:'wz', phone:'18633331120', arrive:'2026-08-19 19:45', topNum:0, remark:'', turn:2, hasMustOrder:false },
+    { name:'A01', area:'大厅', status:1, cap:6, online:true, mark:'', time:'', minConsume:1500, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'', turn:1, hasMustOrder:false },
+    { name:'A02', area:'大厅', status:2, cap:6, online:false, mark:'', time:'', minConsume:1500, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'设备维修', turn:0, hasMustOrder:false },
+    { name:'A08', area:'大厅', status:5, online:false, mark:'A', time:'21:10', gift:'188.00', main:'2880.00', minConsume:3000, pct:96, sales:'李四 营销一部', salesCode:'1022', salesPy:'ls', salesPhone:'13500131022', coSales:'林经理 营销一部', coSalesPhone:'13800131001', customer:'陈先生 135****4456', custPy:'cxs', phone:'13544444456', arrive:'2026-08-19 21:00', topNum:0, remark:'靠舞台', turn:1, transfer:'S02→A08', hasMustOrder:true },
+    { name:'A09', area:'大厅', status:3, online:false, mark:'', time:'22:00', minConsume:2000, pct:0, sales:'王敏 市场部', salesCode:'1012', salesPy:'wm', salesPhone:'15800131012', coSales:'', coSalesPhone:'', customer:'郑小姐 158****7789', custPy:'zxj', phone:'15855557789', arrive:'2026-08-19 22:00', topNum:0, remark:'', turn:0, hasMustOrder:false },
+    { name:'A12', area:'大厅', status:6, online:false, mark:'', time:'20:20', gift:'0.00', main:'3100.00', minConsume:3500, pct:88, sales:'', salesCode:'', salesPy:'', customer:'黄总 137****6612', custPy:'hz', phone:'13766666612', arrive:'2026-08-19 20:15', topNum:0, remark:'部分结清', turn:0, hasMustOrder:false },
+    { name:'S01', area:'散台', status:1, cap:4, online:false, mark:'', time:'', minConsume:800, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'', turn:0, hasMustOrder:false },
+    { name:'S02', area:'散台', status:5, online:false, mark:'', time:'21:30', gift:'120.00', main:'1280.00', minConsume:2000, pct:64, sales:'', salesCode:'', salesPy:'', customer:'赵先生 186****0912', custPy:'zxs', phone:'18677770912', arrive:'2026-08-19 21:20', topNum:0, remark:'靠舞台', turn:2, hasMustOrder:false },
+    { name:'B01-VIP总统套房', area:'包房', status:1, cap:12, online:false, mark:'', time:'', minConsume:8800, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'', turn:0, hasMustOrder:true },
+  ];
+
+  const AREA_ORDER = { VIP:1, 大厅:2, 散台:3, 包房:4 };
+  let activeRegion = 'all';
+  let activeStatus = null;
+  let searchText = '';
+  let isToday = true;
+  let showCardAmounts = true;
+  let simulateNoPerm = false;
+  let canClearSeat = true;
+  let maxTopNum = 2;
+  let currentReportName = '开台记录';
+  let pickerReg = 'all';
+  let pickerSelected = ['A01', 'S01'];
+
+  const PIN_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" aria-label="已置顶" style="flex-shrink:0"><path fill="rgba(255,255,255,.92)" d="M16 9V4h1V2H7v2h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+
+  function truncRemark(str) {
+    if (!str) return '';
+    return str.length > 6 ? str.slice(0, 6) + '…' : str;
+  }
+
+  function renderSeats() {
+    const grid = document.getElementById('seatGrid');
+    const list = SEATS.filter(s => {
+      if (activeRegion !== 'all' && s.area !== activeRegion) return false;
+      if (activeStatus !== null && activeStatus !== 20) {
+        if (activeStatus === 8 && ![3,8].includes(s.status)) return false;
+        else if (activeStatus === 5 && ![5,6].includes(s.status)) return false;
+        else if (![8,5].includes(activeStatus) && s.status !== activeStatus) return false;
+      }
+      if (searchText) {
+        const hay = `${s.name} ${s.area} ${s.sales} ${s.salesCode||''} ${s.salesPy||''} ${s.customer} ${s.custPy||''} ${s.phone||''}`.toLowerCase();
+        if (!hay.includes(searchText)) return false;
+      }
+      return true;
+    }).sort((a, b) => {
+      if ((b.topNum || 0) !== (a.topNum || 0)) return (b.topNum || 0) - (a.topNum || 0);
+      return (AREA_ORDER[a.area] || 9) - (AREA_ORDER[b.area] || 9);
+    });
+
+    grid.innerHTML = list.map(s => {
+      const isActiveTable = [4,5,6,7].includes(s.status);
+      const isLongName = s.name.length > 5;
+      const salesDisplay = s.sales ? s.sales : (isActiveTable ? '散客' : '');
+      const moneyHtml = isActiveTable && showCardAmounts ? `
+        <div class="c-money-slot" title="低消 ¥${(s.minConsume||0).toLocaleString()} · 当前主营 ¥${s.main||'0.00'}">
+          <div class="c-amt-row">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="dim">主</span> <strong>¥${s.main||'0.00'}</strong> <span class="dim">惠</span> <strong>¥${s.gift||'0.00'}</strong></span>
+            <strong>${s.pct||0}%</strong>
+          </div>
+          <div class="c-bar"><i class="${(s.pct||0)>=100?'full':''}" style="width:${Math.min(100,s.pct||0)}%"></i></div>
+        </div>` : `<div class="c-money-slot">${isActiveTable && !showCardAmounts ? '<div style="font-size:11px;opacity:.65">金额已隐藏 (showAmt)</div>' : ''}</div>`;
+
+      return `
+      <div class="seat-card s${s.status}" onclick="openCardMenu('${s.name}')">
+        <div class="c-row1">
+          <span class="c-area"><span>${s.area}</span>${s.online ? '<span class="badge-online">线</span>' : ''}${s.status===6 ? '<span class="badge-partial">部分结</span>' : ''}</span>
+          <span style="display:flex;align-items:center;gap:4px">
+            ${s.mark ? `<span class="badge-mark">${s.mark}</span>` : ''}
+            <span>${s.status === 1 ? `${s.cap}人` : (s.time || '')}</span>
+          </span>
+        </div>
+        <div class="c-name ${isLongName?'long':''}">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</span>
+          ${s.topNum > 0 ? PIN_SVG : ''}
+        </div>
+        ${moneyHtml}
+        <div class="c-line">${salesDisplay}</div>
+        <div class="c-line">${s.customer || ''}</div>
+        <div class="c-bottom">
+          <span class="c-tips">
+            ${s.status === 2 ? '<span class="tip-sq lock">锁</span>' : ''}
+            <span>${truncRemark(s.remark)}</span>
+          </span>
+          <span>${s.turn > 0 ? `翻${s.turn}` : ''}</span>
+        </div>
+        ${s.transfer ? `<div class="c-transfer" title="完整转台链路：${s.transfer}">转台记录：${s.transfer}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function switchPage(pageId) {
+    closeBookingPopups();
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('screen-' + pageId).classList.add('active');
+    document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+    if (pageId === 'p2') renderPickerGrid();
+  }
+  let currentSeatName = 'V01';
+  let toastTimer = null;
+  function showBkToast(msg) {
+    const el = document.getElementById('bkToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+  }
+  function openCardMenu(seatName) {
+    const s = SEATS.find(x => x.name === seatName);
+    if (!s) return;
+    if (simulateNoPerm && s.area === 'VIP') {
+      showBkToast('您没有权限查看该区域的卡台！');
+      return;
+    }
+    if (!isToday && s.online) {
+      showBkToast('非营业日栏所在线上卡台，线下不可操作！');
+      return;
+    }
+    if (!isToday && s.status === 2) {
+      showBkToast('未来日期无法解锁卡台！');
+      return;
+    }
+    currentSeatName = seatName;
+    document.getElementById('menuSeatTitle').textContent = `${seatName} · ${s.area} (status=${s.status})`;
+
+    const opts = [];
+    if (s.status === 1) {
+      opts.push({ label:'📝 预留', act:"closeCardMenu();switchPage('p2')" });
+      if (isToday) opts.push({ label:'🔓 开台', act:"openSeatActionModal('open')" });
+      opts.push({ label:'🔒 锁定卡台', act:'toggleSeatLock()' });
+      if (s.turn > 0 && canClearSeat) {
+        opts.push({ label:'👤 修改翻台订位人（清台权）', act:"openSeatActionModal('sales')" });
+        opts.push({ label:'🔁 复台（清台权）', act:"openSeatActionModal('reopen')" });
+      }
+    } else if (s.status === 2) {
+      opts.push({ label:'🔓 取消锁定', act:'toggleSeatLock()' });
+    } else if ([3,8].includes(s.status)) {
+      opts.push({ label:'📝 修改预留', act:"closeCardMenu();switchPage('p2')" });
+      if (isToday) opts.push({ label:'🔓 预定开台', act:"openSeatActionModal('open')" });
+      opts.push({ label:'🔄 转台（全屏选台）', act:"closeCardMenu();switchPage('p2')" });
+      opts.push({ label:'❌ 取消预留', act:"openSeatActionModal('reopen')" });
+      opts.push({ label:'🏷 修改卡台标记', act:"openSeatActionModal('mark')" });
+      opts.push({ label:'✏️ 修改备注', act:"openSeatActionModal('remark')" });
+      opts.push({ label:s.topNum > 0 ? '📌 取消置顶' : '📌 置顶卡台', act:'toggleSeatPin()' });
+      opts.push({ label:'ℹ️ 查看卡台详情', act:"openSeatActionModal('detail')" });
+    } else {
+      opts.push({ label:'🔄 转台（全屏选台）', act:"closeCardMenu();switchPage('p2')" });
+      opts.push({ label:'💰 修改低消', act:"openSeatActionModal('minConsume')" });
+      opts.push({ label:'👤 修改订位人 / 服务员', act:"openSeatActionModal('sales')" });
+      opts.push({ label:'🏷 修改卡台标记', act:"openSeatActionModal('mark')" });
+      opts.push({ label:'✏️ 修改备注', act:"openSeatActionModal('remark')" });
+      opts.push({
+        label: s.hasMustOrder ? '🚫 取消必点商品' : '🚫 取消必点商品（无必点）',
+        disabled: !s.hasMustOrder,
+        act: s.hasMustOrder ? "sMustOrderCancel()" : ""
+      });
+      opts.push({ label:s.topNum > 0 ? '📌 取消置顶' : '📌 置顶卡台', act:'toggleSeatPin()' });
+      opts.push({ label:'ℹ️ 查看卡台详情', act:"openSeatActionModal('detail')" });
+      // 按终端规则紧跟「查看卡台详情」之后
+      if (showCardAmounts) opts.push({ label:'🧾 查看消费明细（终端允许）', act:"openConsumptionView('consume')" });
+      opts.push({ label:'🍾 查看存取酒明细（终端允许）', act:"openConsumptionView('wine')" });
+      if (canClearSeat) opts.push({ label:'🧹 清台 / 撤台（清台权）', act:"openSeatActionModal('reopen')" });
+    }
+
+    document.getElementById('cardMenuList').innerHTML = opts.map(o =>
+      o.disabled
+        ? `<div class="menu-opt disabled" title="已取消或该区域无必点商品">${o.label}</div>`
+        : `<div class="menu-opt" onclick="${o.act}">${o.label}</div>`
+    ).join('');
+    document.getElementById('cardMenuMask').classList.add('show');
+  }
+  function sMustOrderCancel() {
+    closeCardMenu();
+    const s = SEATS.find(x => x.name === currentSeatName);
+    if (s) s.hasMustOrder = false;
+    showBkToast(`已取消 ${currentSeatName} 必点商品，再次打开菜单将置灰禁用`);
+  }
+  function closeCardMenu() {
+    document.getElementById('cardMenuMask').classList.remove('show');
+  }
+  function closeBookingPopups() {
+    ['cardMenuMask','moreMenuMask','accountMenuMask','bookingModalMask','p1ReportDrawerMask'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    const op = document.getElementById('otherRegionPop');
+    if (op) op.classList.remove('show');
+    document.querySelectorAll('.staff-dd').forEach(d => d.classList.remove('show'));
+  }
+  function toggleOtherRegion(ev, force) {
+    if (ev) ev.stopPropagation();
+    const pop = document.getElementById('otherRegionPop');
+    const show = typeof force === 'boolean' ? force : !pop.classList.contains('show');
+    pop.classList.toggle('show', show);
+  }
+  function pickOtherRegion(name) {
+    document.getElementById('otherRegionPop').classList.remove('show');
+    document.querySelectorAll('#regionBar .region-pill').forEach(p => p.classList.remove('active'));
+    const btn = document.getElementById('otherRegionBtn');
+    btn.classList.add('active');
+    btn.textContent = name + ' ▾';
+    showBkToast('已切换其它区域：' + name + '（展示全部演示卡台）');
+  }
+  function openBookingMoreMenu() {
+    closeBookingPopups();
+    document.getElementById('moreMenuMask').classList.add('show');
+  }
+  function openBookingAccountMenu() {
+    closeBookingPopups();
+    document.getElementById('accountMenuMask').classList.add('show');
+  }
+  function buildReportHtml(name) {
+    const reports = {
+      '开台记录': `<table class="dark-table"><thead><tr><th>卡台</th><th>客人</th><th>订位人</th><th>开台时间</th><th>状态</th></tr></thead><tbody>
+        <tr><td>V12</td><td>陈女士</td><td>张伟(营销二部)</td><td>20:15</td><td><span class="pill-badge green">已开台</span></td></tr>
+        <tr><td>V02</td><td>周总</td><td>陈主管(营销二部)</td><td>20:45</td><td><span class="pill-badge green">消费中</span></td></tr>
+        <tr><td>A08</td><td>陈先生</td><td>李四(营销一部)</td><td>21:10</td><td><span class="pill-badge orange">已点单</span></td></tr>
+        <tr><td>V03</td><td>孙女士</td><td>赵丽(市场部)</td><td>21:15</td><td><span class="pill-badge green">已开台</span></td></tr>
+      </tbody></table>`,
+      '转台记录': `<table class="dark-table"><thead><tr><th>原卡台</th><th>目标卡台</th><th>操作人</th><th>转台时间</th><th>备注</th></tr></thead><tbody>
+        <tr><td>A02</td><td>V02</td><td>张咨客</td><td>20:52</td><td>升级 VIP 卡座</td></tr>
+        <tr><td>S02</td><td>A08</td><td>张咨客</td><td>21:14</td><td>客人加人数换大台</td></tr>
+      </tbody></table>`,
+      '预留记录': `<table class="dark-table"><thead><tr><th>卡台</th><th>客人</th><th>电话</th><th>订位人</th><th>到达时间</th><th>低消</th></tr></thead><tbody>
+        <tr><td>V01</td><td>王先生</td><td>138****8888</td><td>林经理</td><td>21:00</td><td>¥5,800</td></tr>
+        <tr><td>A09</td><td>郑小姐</td><td>158****7789</td><td>王敏</td><td>22:00</td><td>¥3,000</td></tr>
+      </tbody></table>`,
+      '线上预订记录': `<table class="dark-table"><thead><tr><th>订单号</th><th>卡台</th><th>渠道</th><th>预订金</th><th>核销态</th></tr></thead><tbody>
+        <tr><td>OL2026081901</td><td>V01</td><td>小程序预订</td><td>¥1,000.00</td><td><span class="pill-badge green">待到店</span></td></tr>
+        <tr><td>OL2026081902</td><td>A01</td><td>抖音团购</td><td>¥500.00</td><td><span class="pill-badge orange">已关联</span></td></tr>
+      </tbody></table>`,
+      '入客数据实时汇总': `<table class="dark-table"><thead><tr><th>指标项</th><th>VIP区</th><th>大厅卡座</th><th>散台区</th><th>合计</th></tr></thead><tbody>
+        <tr><td>已开台数</td><td>4</td><td>6</td><td>3</td><td style="color:#FFAD45;font-weight:700">13</td></tr>
+        <tr><td>实时抵达人数</td><td>32</td><td>44</td><td>12</td><td style="color:#00D5CF;font-weight:700">88 人</td></tr>
+        <tr><td>实时主营点单</td><td>¥12,800</td><td>¥6,168</td><td>¥1,280</td><td style="color:#67C23A;font-weight:700">¥20,248</td></tr>
+      </tbody></table>`,
+      '部门实时订台/区域开台': `
+        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:8px;overflow:hidden">
+          <div class="r6-row hd"><span>部门名称</span><span style="text-align:center">实时订台数</span></div>
+          <div class="r6-row l1"><span>营销中心</span><span style="text-align:center">14</span></div>
+          <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销一部</span><span style="text-align:center">8</span></div>
+          <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销二部</span><span style="text-align:center">6</span></div>
+          <div class="r6-row l1"><span>市场拓展部</span><span style="text-align:center">5</span></div>
+          <div class="r6-row total"><span>合计</span><span style="text-align:center">19</span></div>
+        </div>`,
+      '排队详情': `
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="m-card" style="background:var(--surface-table-header)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:#00D5CF">A012</strong><span class="pill-badge orange">等待叫号 · 4人</span></div>
+            <div style="color:rgba(255,255,255,0.72)">大卡座 · 136****5566 · 排队 18 分钟</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已叫号 A012')">叫号</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('A012 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('A012 已过号')">过号</button></div>
+          </div>
+          <div class="m-card" style="background:var(--surface-table-header)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:#00D5CF">B007</strong><span class="pill-badge green">已叫号 · 2人</span></div>
+            <div style="color:rgba(255,255,255,0.72)">散台区 · 188****9921 · 排队 6 分钟</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已重呼 B007')">重呼</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('B007 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('B007 已过号')">过号</button></div>
+          </div>
+        </div>`
+    };
+    return reports[name] || reports['部门实时订台/区域开台'];
+  }
+  function openBookingReportDrawer(name) {
+    closeBookingPopups();
+    currentReportName = name;
+    document.getElementById('p1ReportDrawerTitle').textContent = name + '（右侧面板 · 大盘保持可见）';
+    document.getElementById('p1ReportDrawerBody').innerHTML = buildReportHtml(name);
+    const expBtn = document.getElementById('p1ReportExportBtn');
+    if (name === '转台记录') {
+      expBtn.style.display = 'none';
+    } else {
+      expBtn.style.display = 'inline-block';
+      expBtn.textContent = name === '排队详情' ? '导出' : '导出 Excel';
+    }
+    document.getElementById('p1ReportDrawerMask').classList.add('show');
+  }
+  function exportCurrentReport() {
+    showBkToast(`已调用导出接口保存「${currentReportName}」(.xlsx)`);
+  }
+  function renderBookingReport(name) {
+    const titleEl = document.getElementById('p5ReportTitle');
+    const bodyEl = document.getElementById('p5ReportBody');
+    if (!titleEl || !bodyEl) return;
+    titleEl.textContent = name + '（来自「更多功能」弹窗菜单）';
+    bodyEl.innerHTML = buildReportHtml(name);
+  }
+  function openConsumptionView(mode) {
+    closeBookingPopups();
+    const t = document.getElementById('p3Title');
+    const w = document.getElementById('p3TableWrap');
+    if (mode === 'wine') {
+      t.textContent = `查看存取酒明细 · ${currentSeatName}`;
+      w.innerHTML = `<table class="dark-table"><thead><tr><th>酒水名称</th><th>动作</th><th>数量/刻度</th><th>到期日</th><th>经办人</th><th>时间</th></tr></thead><tbody>
+        <tr><td>轩尼诗 VSOP 700ml</td><td><span class="pill-badge green">存酒</span></td><td>1 瓶（余 65%）</td><td>2026-09-18</td><td>李四</td><td>21:35</td></tr>
+        <tr><td>马爹利蓝带 700ml</td><td><span class="pill-badge orange">取酒</span></td><td>1 瓶（整瓶）</td><td>—</td><td>李四</td><td>20:48</td></tr>
+      </tbody></table>`;
+    } else {
+      t.textContent = `查看消费明细 · ${currentSeatName}`;
+      w.innerHTML = `<table class="dark-table"><thead><tr><th>商品名称</th><th>状态</th><th>数量</th><th>单价</th><th>金额</th><th>点单人</th><th>时间</th></tr></thead><tbody>
+        <tr><td>轩尼诗 VSOP 套餐</td><td><span class="pill-badge green">已结</span></td><td>1</td><td>¥2,880</td><td>¥2,880</td><td>李四</td><td>21:18</td></tr>
+        <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>果盘（大份）</td><td><span class="pill-badge orange">优惠</span></td><td>1</td><td>¥188</td><td>¥0</td><td>林经理</td><td>21:25</td></tr>
+        <tr><td>百威铝瓶 12支</td><td><span class="pill-badge red">退单</span></td><td>1</td><td>¥680</td><td>¥0</td><td>李四</td><td>21:40</td></tr>
+      </tbody></table>`;
+    }
+    switchPage('p3');
+  }
+  function switchP3Turn(btn, which) {
+    document.querySelectorAll('#screen-p3 .t-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showBkToast(which === 'cur' ? '查看当前台次明细' : '查看翻台 1 历史明细');
+  }
+  function switchResTab(btn, which) {
+    document.querySelectorAll('#screen-p4 .res-tabs .region-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showBkToast(which === 'today' ? '当前：当日预留列表' : '当前：其它日期预留列表');
+  }
+  function confirmBookingModal() {
+    closeBookingPopups();
+    showBkToast('已提交表单（支持 Enter 快捷提交）');
+  }
+  function openSeatActionModal(kind) {
+    closeBookingPopups();
+    const seat = SEATS.find(s => s.name === currentSeatName) || SEATS[0];
+    const title = document.getElementById('bkModalTitle');
+    const body = document.getElementById('bkModalBody');
+    const map = {
+      open: [`${seat.name} · 开台确认`, `
+        <div><label class="field-lbl">实际到店人数（上限 100）</label><input class="dark-input" type="number" max="100" value="6" /></div>
+        <div><label class="field-lbl">预定到达时间</label><input class="dark-input" value="${seat.arrive || '2026-08-19 21:00'}" /></div>
+        <div><label class="field-lbl">订位人（工号/姓名/拼音）</label><input class="dark-input" value="${seat.sales || '林经理 (1001 · 营销一部)'}" /><div class="field-hint">📞 订位人电话：${seat.salesPhone || '13800131001'}</div></div>
+        <div><label class="field-lbl">最低消费 (元)</label><input class="dark-input" value="${seat.minConsume || 3000}" /><div class="field-hint">卡台低消 ¥${(seat.minConsume || 3000).toLocaleString()}</div></div>`],
+      minConsume: [`${seat.name} · 修改最低消费`, `<div><label class="field-lbl">当前低消进度</label><div style="color:#7CF5B0;font-size:13px">${seat.pct || 0}%（主营 ¥${seat.main || '0.00'} / 低消 ¥${(seat.minConsume||0).toLocaleString()}）</div></div><div><label class="field-lbl">新预期最低消费 (元)</label><input class="dark-input" value="${seat.minConsume || 5800}" /></div>`],
+      mark: [`${seat.name} · 修改卡台标记`, `<div><label class="field-lbl">卡台标记（#F1FF00 荧光黄底黑字）</label><input class="dark-input" value="${seat.mark || 'VIP'}" placeholder="如：VIP / 生 / A" /></div>`],
+      sales: [`${seat.name} · 修改订位人 / 服务员`, `<div><label class="field-lbl">订位人（支持工号/姓名/拼音）</label><input class="dark-input" value="${seat.sales || '林经理 营销一部'}" /><div class="field-hint">📞 电话：${seat.salesPhone || '13800131001'}</div></div><div><label class="field-lbl">绑定服务员</label><input class="dark-input" value="李四 (1022 · 营销一部) · 13500131022" /></div>`],
+      remark: [`${seat.name} · 修改备注`, `<div><label class="field-lbl">卡台备注（卡面显示前 6 字）</label><input class="dark-input" value="${seat.remark || '生日布置，靠舞台'}" /></div>`],
+      detail: [`${seat.name} · 卡台详情（两列全字段）`, `
+        <dl class="detail-kv">
+          <dt>转台信息</dt><dd>${seat.transfer || '无转台记录'}</dd>
+          <dt>订位人及电话</dt><dd>${seat.sales ? `${seat.sales} · ${seat.salesPhone || '13800131001'}` : '散客'}</dd>
+          <dt>预订到达时间</dt><dd>${seat.arrive || '—'}</dd>
+          <dt>最低消费</dt><dd>¥${(seat.minConsume || 0).toLocaleString()}.00（进度 ${seat.pct || 0}%）</dd>
+          <dt>人数</dt><dd>${seat.cap || 8} 人</dd>
+          <dt>客人及电话</dt><dd>${seat.customer || '—'}</dd>
+          <dt>联合订位人及电话</dt><dd>${seat.coSales ? `${seat.coSales} · ${seat.coSalesPhone}` : '—'}</dd>
+          <dt>备注</dt><dd>${seat.remark || '—'}</dd>
+        </dl>`],
+      reopen: [`${seat.name} · 复台 / 清台 / 撤台`, `<div style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85)">请确认对卡台 <strong style="color:#FFAD45">${seat.name}</strong> 执行清台/复台操作（已校验 <code>canClearSeat</code> 权限）。</div>`]
+    };
+    const item = map[kind] || map.detail;
+    title.textContent = item[0];
+    body.innerHTML = item[1];
+    document.getElementById('bookingModalMask').classList.add('show');
+  }
+  function toggleSeatPin() {
+    closeBookingPopups();
+    const seat = SEATS.find(s => s.name === currentSeatName);
+    if (!seat) return;
+    if (seat.topNum > 0) {
+      seat.topNum = 0;
+      showBkToast(`已取消置顶 ${seat.name}，已恢复原区域排序`);
+    } else {
+      maxTopNum += 1;
+      seat.topNum = maxTopNum;
+      showBkToast(`已置顶 ${seat.name}（seq_id=${seat.topNum}），已排至大盘最前`);
+    }
+    renderSeats();
+  }
+  function toggleSeatLock() {
+    closeBookingPopups();
+    const seat = SEATS.find(s => s.name === currentSeatName);
+    if (!seat) return;
+    if (seat.status === 2) {
+      seat.status = 1;
+      showBkToast(`已取消锁定卡台 ${seat.name}`);
+    } else {
+      seat.status = 2;
+      showBkToast(`已锁定卡台 ${seat.name}`);
+    }
+    renderSeats();
+  }
+  function openPwdModal() {
+    closeBookingPopups();
+    document.getElementById('bkModalTitle').textContent = '修改登录密码';
+    document.getElementById('bkModalBody').innerHTML = `
+      <div><label class="field-lbl">原密码</label><input class="dark-input" type="password" placeholder="请输入当前密码" /></div>
+      <div><label class="field-lbl">新密码</label><input class="dark-input" type="password" placeholder="请输入新密码" /></div>
+      <div><label class="field-lbl">确认新密码</label><input class="dark-input" type="password" placeholder="请再次输入新密码" /></div>
+    `;
+    document.getElementById('bookingModalMask').classList.add('show');
+  }
+
+  /* P2 Full Table Picker + Searchable Staff Picker */
+  function filterPickerReg(btn, reg) {
+    btn.parentElement.querySelectorAll('.region-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    pickerReg = reg;
+    renderPickerGrid();
+  }
+  function togglePickSeat(name, reason) {
+    if (reason) { showBkToast(`${name} 不可选：${reason}`); return; }
+    if (pickerSelected.includes(name)) pickerSelected = pickerSelected.filter(x => x !== name);
+    else pickerSelected.push(name);
+    renderPickerGrid();
+    document.getElementById('p2SelectedTags').innerHTML = pickerSelected.map(n =>
+      `<span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px;cursor:pointer" onclick="togglePickSeat('${n}','')">${n} ×</span>`
+    ).join('') || '<span style="font-size:12px;color:rgba(255,255,255,0.55)">请在左侧点选空台</span>';
+  }
+  function renderPickerGrid() {
+    const wrap = document.getElementById('pickerGroupsWrap');
+    if (!wrap) return;
+    const kw = (document.getElementById('pickerSearch')?.value || '').trim().toLowerCase();
+    const areas = ['VIP', '大厅', '散台', '包房'].filter(a => pickerReg === 'all' || a === pickerReg);
+    const reasonOf = s => s.status === 1 ? '' : (s.status === 2 ? '已锁定' : (s.status === 4 ? '已开台' : (s.status === 5 ? '点单中' : (s.status === 6 ? '部分结' : (s.status === 7 ? '已结' : '已预订')))));
+    wrap.innerHTML = areas.map(area => {
+      const seats = SEATS.filter(s => s.area === area && (!kw || s.name.toLowerCase().includes(kw)));
+      if (!seats.length) return '';
+      return `<div class="picker-group">
+        <div class="picker-vert">${area}</div>
+        <div class="picker-seats">
+          ${seats.map(s => {
+            const reason = reasonOf(s);
+            const sel = pickerSelected.includes(s.name);
+            return `<div class="mini-seat s${s.status} ${sel?'selected':''} ${reason?'disabled':''}" style="background:var(--status-${s.status===1?'empty':s.status===2?'locked':[3,8].includes(s.status)?'reserved':s.status===4?'opened':s.status===5?'ordered':'paid'})" onclick="togglePickSeat('${s.name}','${reason}')">
+              <span>${s.area}</span>
+              <strong style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</strong>
+              <span style="font-size:10.5px">${reason || `${s.cap}人·可选`}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  function pickQuickTime(t, btn) {
+    document.getElementById('arriveTimeInp').value = '2026-08-19 ' + t;
+    btn.parentElement.querySelectorAll('.qt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function renderStaffDd(which) {
+    const inp = document.getElementById(which + 'SearchInp');
+    const dd = document.getElementById(which + 'Dd');
+    const kw = (inp.value || '').trim().toLowerCase();
+    const matches = STAFF_LIST.filter(st => !kw || `${st.code} ${st.name} ${st.py} ${st.dept}`.toLowerCase().includes(kw));
+    dd.innerHTML = matches.map(st =>
+      `<div class="staff-opt" onclick="selectStaff('${which}','${st.code}')"><span><strong>${st.name}</strong> (${st.code} · ${st.dept})</span><span style="color:#7CF5B0">${st.phone}</span></div>`
+    ).join('') || '<div style="padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.5)">无匹配员工</div>';
+    dd.classList.add('show');
+  }
+  function selectStaff(which, code) {
+    const st = STAFF_LIST.find(x => x.code === code);
+    if (!st) return;
+    document.getElementById(which + 'SearchInp').value = `${st.name} (${st.code} · ${st.dept})`;
+    document.getElementById(which + 'PhoneHint').textContent = `📞 ${which==='sales'?'订位人':'联合订位人'}电话：${st.phone}`;
+    document.getElementById(which + 'Dd').classList.remove('show');
+  }
+  function submitP2Form() {
+    showBkToast('已提交预留/开台表单（Enter 快捷提交已生效）');
+    switchPage('p1');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeBookingPopups();
+    } else if (e.key === 'Enter') {
+      if (document.getElementById('bookingModalMask').classList.contains('show')) {
+        e.preventDefault();
+        confirmBookingModal();
+      } else if (document.getElementById('screen-p2').classList.contains('active') && document.activeElement?.tagName === 'INPUT') {
+        e.preventDefault();
+        submitP2Form();
+      }
+    }
+  });
+
+  document.querySelectorAll('#pageTabs .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchPage(btn.dataset.page));
+  });
+  document.querySelectorAll('#deviceTabs .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.device;
+      const frame = document.getElementById('deviceFrame');
+      frame.className = 'device-frame ' + mode;
+      document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.classList.toggle('active', b === btn));
+      const labels = {
+        desktop: 'Desktop 宽屏（macOS / Windows · ≥1200dp）',
+        tablet: 'Android 平板（1024×768 · 720–1199dp）',
+        phone: 'Android 手机（390×800 · <720dp，2列完整卡 + 底部ActionSheet + 全屏报表）'
+      };
+      document.querySelector('#deviceMeta span').textContent = '当前视口：' + labels[mode];
+    });
+  });
+  document.querySelectorAll('#dateBar .date-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('#dateBar .date-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      isToday = pill.dataset.today === '1';
+      showBkToast(isToday ? '已切换：今日营业日（全部操作可用）' : '已切换：未来日期（线上台与锁台将按原规则拦截）');
+    });
+  });
+  document.querySelectorAll('#regionBar .region-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      if (pill.dataset.region === '__other__') return;
+      document.getElementById('otherRegionPop').classList.remove('show');
+      document.getElementById('otherRegionBtn').textContent = '其它 ▾';
+      document.querySelectorAll('#regionBar .region-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeRegion = pill.dataset.region;
+      renderSeats();
+    });
+  });
+  document.querySelectorAll('#legendBar .legend-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const st = Number(item.dataset.status);
+      if (st === 20) return;
+      activeStatus = activeStatus === st ? null : st;
+      document.querySelectorAll('#legendBar .legend-item').forEach(i => i.classList.toggle('active', Number(i.dataset.status) === activeStatus));
+      renderSeats();
+    });
+  });
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchText = e.target.value.trim().toLowerCase();
+    renderSeats();
+  });
+  document.getElementById('toggleClosedBtn').addEventListener('click', () => {
+    document.getElementById('closedBanner').classList.toggle('show');
+  });
+  document.getElementById('toggleAmtBtn').addEventListener('click', e => {
+    showCardAmounts = !showCardAmounts;
+    e.target.classList.toggle('active', !showCardAmounts);
+    renderSeats();
+    showBkToast(showCardAmounts ? '已恢复显示卡面金额 (showAmt=开)' : '已隐藏卡面金额与消费明细入口 (安全模式/showAmt=关)');
+  });
+  document.getElementById('toggleNoPermBtn').addEventListener('click', e => {
+    simulateNoPerm = !simulateNoPerm;
+    e.target.classList.toggle('active', simulateNoPerm);
+    showBkToast(simulateNoPerm ? '已开启督查无权限模拟：点击 VIP 区卡台将提示无权限' : '已关闭督查无权限模拟');
+  });
+
+  renderSeats();
+  renderPickerGrid();
+</script>
+</body>
+</html>
