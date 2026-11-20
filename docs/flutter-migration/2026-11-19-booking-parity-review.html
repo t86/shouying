@@ -1,0 +1,355 @@
+<title>预订系统迁移审核</title>
+<meta charset="utf-8">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; the mock board is the only full-bleed dark object. */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --fg:#17202e; --muted:#5c6779; --line:#dde1e8;
+  --accent:#1f5fd1; --p0:#c8324f; --p0-bg:#fbe9ed; --p1:#b06a0a; --p1-bg:#fbf1e1;
+  --p2:#2f6f53; --p2-bg:#e6f3ec; --ok:#2f6f53;
+  --board:#14233f; --board-bar:#0d172d; --board-top:#1e3152; --board-fg:#ffffff;
+  --s1:#465675; --s2:#7d6a33; --s8:#008f95; --s4:#d08322; --s5:#c83758; --s7:#5c3bc1;
+  --font:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141c; --surface:#171e29; --fg:#e6e9ef; --muted:#9aa4b5; --line:#2a3342;
+  --accent:#7aa7ff; --p0:#ff7a93; --p0-bg:#3a1c25; --p1:#f0b45a; --p1-bg:#3a2c16;
+  --p2:#7fd3a8; --p2-bg:#173327; --ok:#7fd3a8; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --surface:#171e29; --fg:#e6e9ef; --muted:#9aa4b5; --line:#2a3342;
+  --accent:#7aa7ff; --p0:#ff7a93; --p0-bg:#3a1c25; --p1:#f0b45a; --p1-bg:#3a2c16;
+  --p2:#7fd3a8; --p2-bg:#173327; --ok:#7fd3a8; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.65;font-size:15px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:28px;line-height:1.3;margin:0 0 6px;text-wrap:balance}
+h2{font-size:20px;margin:48px 0 12px;text-wrap:balance}
+h3{font-size:16px;margin:28px 0 10px}
+p{margin:0 0 12px;max-width:68ch}
+.lede{color:var(--muted);margin-bottom:20px}
+code{font-family:var(--mono);font-size:.86em;background:var(--surface);border:1px solid var(--line);padding:0 4px;border-radius:4px;word-break:break-all}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{color:var(--muted);font-size:13px}
+.stat.p0 b{color:var(--p0)} .stat.p1 b{color:var(--p1)} .stat.ok b{color:var(--ok)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+.pill.p0{background:var(--p0-bg);color:var(--p0)} .pill.p1{background:var(--p1-bg);color:var(--p1)} .pill.p2{background:var(--p2-bg);color:var(--p2)}
+.pill.done{background:var(--p2-bg);color:var(--p2)}
+.issues{display:grid;gap:10px}
+.issue{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:8px}
+.issue-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.issue-head strong{font-size:15px}
+.cmp{display:grid;grid-template-columns:88px 1fr;gap:4px 12px;font-size:14px}
+.cmp dt{color:var(--muted)} .cmp dd{margin:0;min-width:0}
+@media (max-width:520px){.cmp{grid-template-columns:1fr}.cmp dt{margin-top:4px}}
+.ref{font-size:12.5px;color:var(--muted)}
+/* Mock board: a deliberate single dark look, same in both page themes. */
+.board{background:var(--board);color:var(--board-fg);border-radius:10px;overflow:hidden;margin:16px 0;border:1px solid #0b1323}
+.board-top{background:var(--board-top);padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;background:#2b4166;color:#cfd8e8}
+.chip.on{background:#ffffff;color:#14233f;font-weight:700}
+.search{margin-left:auto;font-size:12px;color:#8e9bb3;border:1px solid #33496f;border-radius:6px;padding:4px 10px;min-width:180px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px;padding:10px}
+.card{border-radius:7px;border:1px solid rgba(255,255,255,.18);padding:8px 10px;display:flex;flex-direction:column;min-height:170px;font-size:12px;position:relative}
+.c1{background:var(--s1)} .c2{background:var(--s2)} .c8{background:var(--s8)} .c4{background:var(--s4)} .c5{background:var(--s5)} .c7{background:var(--s7)}
+.row{display:flex;align-items:center;gap:4px;min-height:16px}
+.dim{color:rgba(255,255,255,.78)}
+.grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:11px;font-weight:700;line-height:16px;padding:0 4px;border-radius:3px;color:#08080a}
+.t-line{background:#2fd1ff} .t-mark{background:#f1ff00} .t-lock{background:#ffbd00}
+.name{font-size:26px;font-weight:700;line-height:32px;height:32px;display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.money{height:28px;display:flex;flex-direction:column;justify-content:center}
+.money .row b{font-variant-numeric:tabular-nums;font-size:12px}
+.bar{height:3px;border-radius:2px;background:rgba(255,255,255,.2);margin-top:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:#fff}
+.bar i.full{background:#7cf5b0}
+.line16{height:16px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.86)}
+.foot{margin-top:auto}
+.board-bar{background:var(--board-bar);display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:8px 12px;font-size:12px}
+.lg{display:flex;flex-direction:column;align-items:center;gap:3px}
+.lg i{width:26px;height:10px;border-radius:4px;border:1px solid #939bad;display:block}
+.lg.new{outline:1px dashed #7cf5b0;outline-offset:3px;border-radius:4px}
+.bar-actions{margin-left:auto;display:flex;gap:16px;color:#cfd8e8}
+.caption{font-size:13px;color:var(--muted)}
+.before-after{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:start}
+.ba{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px}
+.ba h4{margin:0 0 8px;font-size:14px}
+.ba .card{max-width:200px}
+ul.plain{padding-left:20px;margin:0 0 12px} ul.plain li{margin:4px 0;max-width:68ch}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0}
+.phase h3{margin:0 0 6px}
+table.ok{width:100%;border-collapse:collapse;font-size:14px}
+table.ok td,table.ok th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.ok th{color:var(--muted);font-weight:500}
+.tbl{overflow-x:auto}
+</style>
+
+<div class="wrap">
+  <h1>预订系统迁移审核</h1>
+  <p class="lede">对比对象：原 Vue 预订系统（<code>src/views/Book/cardMachine.vue</code> 及其抽屉组件，dev 分支）与 Flutter 预订系统（<code>feature/flutter-foundation</code> worktree，<code>packages/card_table</code>）。原则：视觉可以重做，功能一项都不能少。2026-11-19</p>
+
+  <div class="stats">
+    <div class="stat p0"><b>8</b><span>P0 功能缺失或越权</span></div>
+    <div class="stat p1"><b>7</b><span>P1 体验降级</span></div>
+    <div class="stat"><b>4</b><span>P2 改进建议</span></div>
+    <div class="stat ok"><b>2</b><span>本次已修复并改入 Flutter</span></div>
+  </div>
+
+  <p>卡台操作菜单、7 个"更多功能"入口、排队叫号、营业日开启、多台预订都已经接上，主体流程能走通。问题集中在四处：<strong>卡面信息几乎全丢</strong>、<strong>权限和日期判断比原系统宽</strong>、<strong>预留表单少字段</strong>、<strong>报表全部不能导出</strong>。</p>
+
+  <h2>一、卡台视觉方案（已改入 Flutter）</h2>
+  <p>保留 Flutter 现有的深色底和状态色，不追原系统的图片素材。卡面按原系统字段逐项补回，排成固定高度的行，同一排卡片的金额、订位人、客人都对齐在同一条线上。新增两处体验改进：低消进度从纯百分比改为进度条（满额变绿），置顶卡台显示图钉。</p>
+
+  <div class="board" role="img" aria-label="新版预订系统卡台大盘示意">
+    <div class="board-top">
+      <span class="chip on">今天</span><span class="chip">11-20</span><span class="chip">11-21</span>
+      <span class="chip on">全部</span><span class="chip">大厅</span><span class="chip">包厢</span><span class="chip">卡座</span>
+      <span class="search">卡台名称/客人/手机/订位人</span>
+    </div>
+    <div class="grid">
+      <div class="card c1">
+        <div class="row"><span class="grow dim">大厅</span><span class="dim">6人</span></div>
+        <div class="name">A01</div>
+        <div class="money"></div><div class="line16"></div><div class="line16"></div>
+        <div class="row foot"><span class="grow dim"></span>翻1</div>
+      </div>
+      <div class="card c2">
+        <div class="row"><span class="grow dim">大厅</span></div>
+        <div class="name">A02</div>
+        <div class="money"></div><div class="line16"></div><div class="line16"></div>
+        <div class="row foot"><span class="tag t-lock">锁</span><span class="grow dim">维修</span></div>
+      </div>
+      <div class="card c8">
+        <div class="row"><span class="grow dim">包厢</span><span class="tag t-line">线</span></div>
+        <div class="name">V08</div>
+        <div class="money"></div>
+        <div class="line16">王敏 营销一部</div>
+        <div class="line16">李先生 138****5678</div>
+        <div class="row foot"><span class="grow dim">生日布置需要…</span></div>
+      </div>
+      <div class="card c4">
+        <div class="row"><span class="grow dim">包厢</span><span class="tag t-mark">VIP</span><span class="dim">20:15</span></div>
+        <div class="name">V12 <svg width="14" height="14" viewBox="0 0 24 24" aria-label="已置顶"><path fill="rgba(255,255,255,.85)" d="M16 9V4h1V2H7v2h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg></div>
+        <div class="money"><div class="row"><span class="grow"><span class="dim">主</span> <b>¥0.00</b>&nbsp;&nbsp;<span class="dim">惠</span> <b>¥0.00</b></span><b>0%</b></div><div class="bar"><i style="width:0"></i></div></div>
+        <div class="line16">张伟 营销二部</div>
+        <div class="line16">陈女士 139****2201</div>
+        <div class="row foot"><span class="grow dim"></span></div>
+      </div>
+      <div class="card c5">
+        <div class="row"><span class="grow dim">卡座</span><span class="dim">21:02</span></div>
+        <div class="name">K03</div>
+        <div class="money"><div class="row"><span class="grow"><span class="dim">主</span> <b>¥1,280.00</b>&nbsp;&nbsp;<span class="dim">惠</span> <b>¥120.00</b></span><b>64%</b></div><div class="bar"><i style="width:64%"></i></div></div>
+        <div class="line16">散客</div>
+        <div class="line16">赵先生 186****0912</div>
+        <div class="row foot"><span class="grow dim">靠舞台</span>翻2</div>
+      </div>
+      <div class="card c7">
+        <div class="row"><span class="grow dim">卡座</span><span class="dim">19:40</span></div>
+        <div class="name">K07</div>
+        <div class="money"><div class="row"><span class="grow"><span class="dim">主</span> <b>¥3,600.00</b>&nbsp;&nbsp;<span class="dim">惠</span> <b>¥0.00</b></span><b>100%</b></div><div class="bar"><i class="full" style="width:100%"></i></div></div>
+        <div class="line16">刘洋 营销一部</div>
+        <div class="line16">周先生 135****7730</div>
+        <div class="row foot"><span class="grow dim"></span></div>
+      </div>
+    </div>
+    <div class="board-bar">
+      <span class="lg"><i style="background:var(--s1)"></i>空台 18</span>
+      <span class="lg new"><i style="background:var(--s2)"></i>锁定 1</span>
+      <span class="lg"><i style="background:var(--s8)"></i>预订 6</span>
+      <span class="lg"><i style="background:var(--s4)"></i>开台 9</span>
+      <span class="lg"><i style="background:var(--s5)"></i>点单 7</span>
+      <span class="lg"><i style="background:var(--s7)"></i>已结 4</span>
+      <span class="lg"><i style="border:none"></i>抵达数 23</span>
+      <span class="bar-actions"><span>刷新</span><span>更多功能</span><span>王敏 ▾</span></span>
+    </div>
+  </div>
+  <p class="caption">示意数据。虚线框为新增的"锁定"图例（原系统有，Flutter 漏了）。</p>
+
+  <h3>卡面字段对照</h3>
+  <div class="before-after">
+    <div class="ba">
+      <h4>改前 Flutter 卡面</h4>
+      <div class="card c5" style="min-height:150px">
+        <div class="row"><span class="grow dim">卡座</span><span class="dim">8人</span></div>
+        <div class="name">K03</div>
+        <div class="foot">点单</div>
+        <div>赵先生</div>
+      </div>
+      <p class="caption" style="margin-top:8px">只有区域、人数（所有状态都显示）、台名（过长截断）、状态字、客人姓名。</p>
+    </div>
+    <div class="ba">
+      <h4>改后补回的字段</h4>
+      <ul class="plain">
+        <li>"线"标记（线上卡台/线上预订）</li>
+        <li>卡台标记、开台时间；人数只在空台显示</li>
+        <li>台名自适应缩小，不再截断</li>
+        <li>主营金额 / 惠（优惠+优惠2），受安全模式和 showAmt id=3 控制</li>
+        <li>低消进度（进度条 + 百分比，悬停显示低消金额）</li>
+        <li>订位人 + 部门，无订位人显示"散客"</li>
+        <li>客人姓名 + 脱敏手机号</li>
+        <li>"锁"标签、备注前 6 字、翻台数、置顶图钉</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>二、审核意见</h2>
+
+  <h3>A. 卡台大盘</h3>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-head"><span class="pill done">已修复</span><strong>卡面信息缺失</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>卡面 11 项信息，见上方对照。</dd><dt>Flutter</dt><dd>只有 5 项，营运人员看不到金额、低消、订位人、客人电话。</dd><dt>处理</dt><dd>已按新视觉方案补齐。唯一没补的是"转台历史"小字（<code>chgSeatInfo</code>），Flutter 数据层还没解析这个字段，放到第二批。</dd></dl>
+      <div class="ref">cardMachine.vue:84-205 · card_table_screen.dart <code>_bookingCardBody</code> · booking_card_display.dart</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill done">已修复</span><strong>底部图例缺"锁定"</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>图例：空台、锁定、预订、开台、点单、已结、抵达数，每项可点击筛选。</dd><dt>Flutter</dt><dd>少了锁定。</dd><dt>处理</dt><dd>已补，可点击筛选。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>置顶卡台没有排到最前</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>按置顶序号 <code>topNum</code> 倒序，多个置顶按置顶先后排。</dd><dt>Flutter</dt><dd>只存了"是否置顶"，排序只看区域和 dsp，置顶后位置不变，等于置顶没效果。</dd><dt>方案</dt><dd>数据层保留 <code>seq_id</code>，大盘先按序号倒序再按区域排序。</dd></dl>
+      <div class="ref">cardMachine.vue:1046 · legacy_card_table_store.dart:1012</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>搜索范围缩小</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>匹配卡台名、订位人（工号/姓名/拼音）、订位人部门、客人姓名、客人姓名拼音、客人手机（任意片段）。</dd><dt>Flutter</dt><dd>只匹配卡台名和客人姓名。提示文字写着"客人/手机/订位人"，实际搜不到。</dd><dt>方案</dt><dd>按原规则补齐；员工已有 <code>code</code>、<code>namePy</code>，客人拼音需要从业务数据里补解析。</dd></dl>
+      <div class="ref">cardMachine.vue:1062-1089 · card_table_screen.dart <code>_tableGrid</code></div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>点卡台时没有提示原因</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>未来日期点锁定台提示"未来日期无法解锁卡台！"；督查点无权限区域提示"您没有权限查看该区域的卡台！"。</dd><dt>Flutter</dt><dd>相应菜单为空，只提示"当前卡台没有可用操作"，营运人员不知道为什么。</dd><dt>方案</dt><dd>按原文案逐条给出原因。</dd></dl>
+    </div>
+  </div>
+
+  <h3>B. 卡台操作菜单</h3>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>线上卡台在非当日可以被线下操作</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>线上卡台（显示"线"）在非当日日期栏直接拦截："非营业日栏所在线上卡台，线下不可操作！"</dd><dt>Flutter</dt><dd>非当日空台照样给"预留"，线上预留照样给"修改预留/取消预留"，可能和小程序的线上预订冲突。</dd><dt>方案</dt><dd>点卡台时先判断 <code>showOnlineText</code> 加非当日，直接拦截。</dd></dl>
+      <div class="ref">cardMachine.vue:1520-1530 · card_table_screen.dart <code>_bookingCardActions</code></div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>空台的"修改翻台订位人""复台"没有权限判断</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>翻过台并且有清台权限（showAmt id=5 param1=2）才显示。</dd><dt>Flutter</dt><dd>只要翻过台就显示。</dd><dt>方案</dt><dd>改用 <code>snapshot.canClearSeat</code> 判断。</dd></dl>
+      <div class="ref">cardMachine.vue:1237 · card_table_screen.dart:3299</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>"查看消费明细""查看存取酒明细"没有按终端规则控制</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>按终端规则 consumptionEnabled / wineEnabled / amountsRestricted 决定显示与否（dev 最近的 booking-detail-access 改动）。</dd><dt>Flutter</dt><dd>开台、点单、已结台都无条件显示。</dd><dt>方案</dt><dd>移植 <code>getBookingDetailOptionIds</code>，插到"查看卡台详情"之后。</dd></dl>
+      <div class="ref">utils/bookingDetailAccess.js:51</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>转台改成了下拉框选台</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>全屏卡台图，按区域分组，带状态色，不可选的台置灰，点一下选中。</dd><dt>Flutter</dt><dd>一个"目标卡台"下拉框，几十上百个台很难找。</dd><dt>方案</dt><dd>做一个全屏选台面板：区域页签、状态色、搜索框，不可选的台置灰并说明原因。选中后再进低消确认。</dd></dl>
+      <div class="ref">components/book/machine/fullPageTable.vue</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>"查看卡台详情"少字段</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>转台信息、订位人及电话、预订到达时间、最低消费、人数、客人及电话、联合订位人及电话、备注。</dd><dt>Flutter</dt><dd>缺转台信息、预订到达时间、联合订位人电话。</dd><dt>方案</dt><dd>补齐，改成两列的标签/值布局。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p2">P2</span><strong>"取消必点商品"不可用时没有置灰</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>已取消或区域没有必点商品时置灰显示。</dd><dt>Flutter</dt><dd>照常显示，点了没反应。</dd><dt>方案</dt><dd>置灰，并补上区域必点商品的判断。</dd></dl>
+    </div>
+  </div>
+
+  <h3>C. 开台 / 预留表单</h3>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>预留表单缺"是否发送短信"</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>新建/修改预留都可以选择是否给客人发短信。</dd><dt>Flutter</dt><dd>没有选项，新建预留固定为"不发"，修改时只能沿用旧值。</dd><dt>方案</dt><dd>加开关，默认"否"，和原系统一致。</dd></dl>
+      <div class="ref">drawerReserved.vue:61 · card_table_screen.dart:4647</div>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>开台和预留都缺"预定到达时间"</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>时间选择器，开台、新建预留、修改预留都有。</dd><dt>Flutter</dt><dd>没有输入项，新建时为空，修改时只能沿用旧值。</dd><dt>方案</dt><dd>加时间选择，提供常用时段的快捷选项（如 20:00、21:00、22:00）。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>订位人、联合订位人、服务员只能从全员下拉框里选</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>输入姓名/工号/拼音实时搜索，选中后自动带出订位人电话。</dd><dt>Flutter</dt><dd>上百名员工的长下拉框，没有搜索，也不显示电话。</dd><dt>方案</dt><dd>做一个可搜索的员工选择器（工号/姓名/拼音），三处共用；选中后显示电话。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>预订转开台时看不到卡台最低消费</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>从预订开台时，显示卡台自带低消作为参考。</dd><dt>Flutter</dt><dd>没有。</dd><dt>方案</dt><dd>在最低消费输入框下显示"卡台低消 ¥xxx"。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p2">P2</span><strong>人数上限不一致</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>最多 100 人。</dd><dt>Flutter</dt><dd>最多 999 人。</dd><dt>方案</dt><dd>对齐为 100 人。</dd></dl>
+    </div>
+  </div>
+
+  <h3>D. 更多功能里的报表</h3>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-head"><span class="pill p0">P0</span><strong>6 个报表全部不能导出</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>开台记录、预留记录、线上预订记录、入客数据实时汇总、部门实时订台/区域开台都有"导出Excel"，排队详情有"导出"。</dd><dt>Flutter</dt><dd>都没有导出按钮。列、筛选、排序、刷新时间已对齐。</dd><dt>方案</dt><dd>调用原有的后端导出接口（如 <code>reqExportOpenCardExcel</code>），保存文件时复用存酒模块已有的 <code>wine_export_saver</code>（Web 下载、桌面/安卓存文件）。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p2">P2</span><strong>报表是整页打开的</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>右侧抽屉，打开报表时还能看到卡台大盘。</dd><dt>Flutter</dt><dd>全屏页。</dd><dt>方案</dt><dd>宽屏改用右侧面板，手机保留全屏。</dd></dl>
+    </div>
+  </div>
+
+  <h3>E. 其他</h3>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>回车不能提交</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>预留、开台、转台、修改密码窗口里按回车直接提交，前台常用。</dd><dt>Flutter</dt><dd>不支持。</dd><dt>方案</dt><dd>所有预订表单支持回车提交，Esc 关闭。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p1">P1</span><strong>卡面缺转台历史</strong></div>
+      <dl class="cmp"><dt>原系统</dt><dd>卡面底部显示"转台记录：A01→A03"。</dd><dt>Flutter</dt><dd>数据层没有解析 <code>chgSeatInfo</code>。</dd><dt>方案</dt><dd>解析后放在卡面底行，悬停显示完整链路。</dd></dl>
+    </div>
+    <div class="issue">
+      <div class="issue-head"><span class="pill p2">P2</span><strong>状态色区分度</strong></div>
+      <dl class="cmp"><dt>说明</dt><dd>部分结账（6）和点单未结（5）用了同一种红色。原系统里部分结账是紫色，跟已结同色。建议保留"点单"合并计数，在卡面上加"部分结"标签区分，不再新增颜色。</dd></dl>
+    </div>
+  </div>
+
+  <h2>三、已对齐，不用再改</h2>
+  <div class="tbl">
+  <table class="ok">
+    <tr><th>模块</th><th>内容</th></tr>
+    <tr><td>日期与营业日</td><td>今天及未来日期页签、营业日未开启时的提示和"开启营业日"</td></tr>
+    <tr><td>区域</td><td>区域页签、"全部"、安全模式下隐藏特饮区域、终端区域/卡台范围限制、督查区域限制</td></tr>
+    <tr><td>卡台操作</td><td>预留、开台、锁定/取消锁定、修改低消、修改订位人、转台、撤台、查看卡台详情、修改翻台订位人、修改卡台标记、修改备注、修改服务员、取消必点商品、清台（需权限）、转为线下卡台、修改/取消预留、复台、置顶/取消置顶；各状态下的显示规则与原系统一致（"修改开台类型""多台预留"原系统已下线）</td></tr>
+    <tr><td>表单</td><td>客人电话 11 位校验、多台预订、联合订位人、卡台标记、备注</td></tr>
+    <tr><td>更多功能</td><td>7 个入口全部可打开；排队详情的叫号、进店、过号</td></tr>
+    <tr><td>账号</td><td>修改密码、退出登录</td></tr>
+  </table>
+  </div>
+
+  <h2>四、改进路线</h2>
+  <div class="phase">
+    <h3><span class="pill done">已完成</span> 第一批：卡台视觉</h3>
+    <ul class="plain">
+      <li>卡面按新方案重做，补回 10 项信息，加低消进度条和置顶图钉</li>
+      <li>补"锁定"图例</li>
+      <li>新增卡面金额显示开关（showAmt id=3），和原系统一致</li>
+      <li>新增 <code>booking_card_display_test.dart</code>，6 个用例覆盖卡面规则</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <h3><span class="pill p0">P0</span> 第二批：功能补齐（建议下一步）</h3>
+    <ul class="plain">
+      <li>权限与日期：线上卡台非当日拦截、复台/修改翻台订位人加清台权限、消费/存取酒明细按终端规则</li>
+      <li>预留表单：发送短信、预定到达时间</li>
+      <li>搜索按原规则补齐；置顶排序</li>
+      <li>6 个报表的导出</li>
+      <li>验收方式：把原系统 <code>getCardOptions</code> 的"状态 × 日期 × 线上 × 权限"组合列成对照表，逐项写测试，避免以后再漏</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <h3><span class="pill p1">P1</span> 第三批：体验</h3>
+    <ul class="plain">
+      <li>全屏选台面板（转台）</li>
+      <li>可搜索的员工选择器</li>
+      <li>卡台详情补字段、卡面转台历史、拦截原因提示</li>
+      <li>回车提交、Esc 关闭；宽屏报表改右侧面板</li>
+    </ul>
+  </div>
+</div>

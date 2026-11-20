@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flutter 移植看板</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #12151c;
+      --panel-2: #181c26;
+      --line: #2a3140;
+      --text: #e8eef8;
+      --muted: #8b96ab;
+      --accent: #32b9ff;
+      --ok: #3dd68c;
+      --warn: #f5c14a;
+      --wait: #7aa2ff;
+      --idle: #6b7385;
+      --skip: #9aa3b5;
+      --danger: #ff6b7a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; }
+    button, select, input { font: inherit; color: inherit; }
+    a { color: var(--accent); }
+    .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100%; }
+    aside { border-right: 1px solid var(--line); background: var(--panel); padding: 16px 12px; position: sticky; top: 0; height: 100vh; overflow: auto; }
+    .brand { padding: 4px 8px 16px; }
+    .brand h1 { margin: 0; font-size: 16px; letter-spacing: .02em; }
+    .brand p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .sys { width: 100%; text-align: left; background: transparent; border: 0; border-radius: 8px; padding: 8px 10px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
+    .sys:hover, .sys.active { background: var(--panel-2); }
+    .sys .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+    main { padding: 18px 22px 48px; min-width: 0; }
+    .top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+    .search { flex: 1; min-width: 220px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 4px 10px; cursor: pointer; color: var(--muted); }
+    .chip.on { border-color: var(--accent); color: var(--text); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+    .btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+    .btn:hover { border-color: var(--accent); }
+    .btn.primary { background: #12344a; border-color: #1d6f99; color: var(--accent); }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 10px 0 18px; }
+    .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .bar { height: 8px; background: #1c2230; border-radius: 99px; overflow: hidden; display: flex; margin: 4px 0 16px; }
+    .bar i { display: block; height: 100%; }
+    .page { margin: 0 0 22px; }
+    .page h2 { margin: 0 0 8px; font-size: 15px; font-weight: 650; }
+    .page h2 span { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 8px; }
+    .task { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin: 0 0 8px; overflow: hidden; }
+    .row { display: grid; grid-template-columns: 28px minmax(88px, 140px) 1fr 210px; gap: 8px; align-items: center; padding: 8px 10px; cursor: pointer; }
+    .row:hover { background: var(--panel-2); }
+    .id { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .title { min-width: 0; }
+    .title small { display: block; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    select.status { width: 100%; background: #0f131a; border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; }
+    .s-未开始 { color: var(--idle); }
+    .s-入口已列·待接入 { color: var(--wait); }
+    .s-已编码·未确认 { color: var(--warn); }
+    .s-Web已接线·Android待接线 { color: #c58cff; }
+    .s-已确认 { color: var(--ok); }
+    .s-不移植 { color: var(--skip); }
+    .detail { display: none; padding: 0 12px 12px 46px; color: var(--muted); font-size: 13px; }
+    .task.open .detail { display: block; }
+    .detail p { margin: 4px 0; }
+    .detail b { color: #c9d4e8; font-weight: 600; }
+    .hint { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+    .dirty { color: var(--warn); }
+    .empty { color: var(--muted); padding: 24px; text-align: center; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      aside { height: auto; position: relative; }
+      .row { grid-template-columns: 24px 1fr; }
+      .id, select.status { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <h1>Flutter 移植看板</h1>
+        <p id="brandHint">正在连接写盘服务…</p>
+      </div>
+      <button class="sys active" data-sys="" type="button">全部 <span class="n" id="allCount">0</span></button>
+      <div id="sysNav"></div>
+    </aside>
+    <main>
+      <div class="top">
+        <input class="search" id="q" placeholder="搜索 ID、标题、Vue、接口…" />
+        <div class="chips" id="statusChips"></div>
+        <div class="actions">
+          <button class="btn" id="btnCopy" type="button">复制进度摘要</button>
+          <button class="btn" id="btnExportJson" type="button">导出 JSON</button>
+          <button class="btn" id="btnExportMd" type="button">导出 Markdown</button>
+        </div>
+      </div>
+      <p class="hint" id="hint">对照计划：<code>docs/superpowers/plans/2026-09-14-flutter-migration-task-breakdown.md</code>。勾选「已确认」只应由验收人操作。</p>
+      <div class="stats" id="stats"></div>
+      <div class="bar" id="bar"></div>
+      <div id="list"></div>
+    </main>
+  </div>
+  <script>
+    let DATA = __TASKS_JSON__;
+    const LIVE = location.protocol === 'http:' || location.protocol === 'https:';
+    const STATUSES = DATA.statuses;
+    const COLORS = {
+      '未开始': '#6b7385',
+      '入口已列·待接入': '#7aa2ff',
+      '已编码·未确认': '#f5c14a',
+      'Web已接线·Android待接线': '#c58cff',
+      '已确认': '#3dd68c',
+      '不移植': '#5c6578'
+    };
+
+    let systemFilter = '';
+    let statusFilter = '';
+    let query = '';
+    let saving = false;
+
+    function tasks() {
+      return DATA.tasks;
+    }
+
+    function dirty() {
+      return !LIVE;
+    }
+
+    function counts(list) {
+      const c = Object.fromEntries(STATUSES.map((s) => [s, 0]));
+      for (const t of list) c[t.status] = (c[t.status] || 0) + 1;
+      return c;
+    }
+
+    async function setStatus(id, status) {
+      const prev = DATA.tasks.find((t) => t.id === id);
+      if (!prev || prev.status === status) return;
+      if (status === '已确认') {
+        const ok = window.confirm('将「' + id + '」标为已确认？这应由实际验收的人操作，代理人不要代标。');
+        if (!ok) {
+          render();
+          return;
+        }
+      }
+      if (!LIVE) {
+        window.alert('当前不是看板服务。请打开 http://127.0.0.1:8791/ ，改动才会写入仓库。');
+        render();
+        return;
+      }
+      saving = true;
+      render();
+      try {
+        const res = await fetch('/api/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status, confirmByUser: status === '已确认' }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || res.statusText);
+        if (body.board) DATA = body.board;
+      } catch (err) {
+        window.alert('写入失败：' + err.message);
+      } finally {
+        saving = false;
+        render();
+      }
+    }
+
+    function toMarkdown(list) {
+      const lines = ['# Flutter 移植看板', '', '> 由看板页导出 ' + new Date().toISOString().slice(0, 10), ''];
+      let sys = '';
+      let page = '';
+      for (const t of list) {
+        if (t.system !== sys) {
+          sys = t.system;
+          const meta = DATA.systems.find((s) => s.id === sys);
+          lines.push('## ' + sys + ' ' + (meta ? meta.name : ''));
+          lines.push('');
+        }
+        if (t.page !== page) {
+          page = t.page;
+          lines.push('### ' + t.page + ' ' + (t.pageName || ''));
+          lines.push('');
+        }
+        const box = t.status === '已确认' || t.status === '不移植' ? '[x]' : '[ ]';
+        lines.push('- ' + box + ' **' + t.id + ' ' + t.title + '** `' + t.status + '`');
+        if (t.vue) lines.push('  - Vue: ' + t.vue);
+        if (t.flutter) lines.push('  - Flutter: ' + t.flutter);
+        if (t.api) lines.push('  - API: ' + t.api);
+        if (t.done) lines.push('  - 完成: ' + t.done);
+        if (t.note) lines.push('  - 备注: ' + t.note);
+      }
+      return lines.join('\n') + '\n';
+    }
+
+    function download(name, text, type) {
+      const blob = new Blob([text], { type: type || 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function filtered() {
+      const q = query.trim().toLowerCase();
+      return tasks().filter((t) => {
+        if (systemFilter && t.system !== systemFilter) return false;
+        if (statusFilter && t.status !== statusFilter) return false;
+        if (!q) return true;
+        return [t.id, t.title, t.vue, t.flutter, t.api, t.done, t.note, t.pageName]
+          .join(' ')
+          .toLowerCase()
+          .includes(q);
+      });
+    }
+
+    function renderNav() {
+      const all = tasks();
+      document.getElementById('allCount').textContent = all.length;
+      document.getElementById('sysNav').innerHTML = DATA.systems.map((s) => {
+        const n = all.filter((t) => t.system === s.id).length;
+        const active = systemFilter === s.id ? ' active' : '';
+        return '<button class="sys' + active + '" data-sys="' + s.id + '" type="button">' +
+          s.id + ' ' + s.name + '<span class="n">' + n + '</span></button>';
+      }).join('');
+      document.querySelectorAll('.sys').forEach((el) => {
+        el.classList.toggle('active', el.getAttribute('data-sys') === systemFilter);
+        el.onclick = () => { systemFilter = el.getAttribute('data-sys'); render(); };
+      });
+    }
+
+    function renderChips() {
+      const c = counts(tasks());
+      document.getElementById('statusChips').innerHTML = ['', ...STATUSES].map((s) => {
+        const label = s || '全部状态';
+        const on = statusFilter === s ? ' on' : '';
+        const n = s ? ' ' + c[s] : '';
+        return '<button class="chip' + on + '" data-st="' + s + '" type="button">' + label + n + '</button>';
+      }).join('');
+      document.querySelectorAll('#statusChips .chip').forEach((el) => {
+        el.onclick = () => { statusFilter = el.getAttribute('data-st'); render(); };
+      });
+    }
+
+    function renderStats(list) {
+      const c = counts(list);
+      const total = list.length;
+      const work = total - (c['不移植'] || 0);
+      const done = c['已确认'] || 0;
+      document.getElementById('stats').innerHTML = [
+        ['当前筛选', total],
+        ['已确认', c['已确认'] || 0],
+        ['已编码未确认', c['已编码·未确认'] || 0],
+        ['待接入', c['入口已列·待接入'] || 0],
+        ['Android 待接线', c['Web已接线·Android待接线'] || 0],
+        ['未开始', c['未开始'] || 0],
+      ].map(([k, v]) => '<div class="stat"><b>' + v + '</b><span>' + k + '</span></div>').join('');
+      const parts = STATUSES.map((s) => {
+        const w = work ? ((c[s] || 0) / Math.max(work, 1)) * 100 : 0;
+        return '<i style="width:' + w + '%;background:' + COLORS[s] + '" title="' + s + '"></i>';
+      }).join('');
+      document.getElementById('bar').innerHTML = parts;
+      document.title = (saving ? '写入中 · ' : '') + 'Flutter 移植看板 · 已确认 ' + done + '/' + work;
+    }
+
+    function renderList(list) {
+      const root = document.getElementById('list');
+      if (!list.length) {
+        root.innerHTML = '<div class="empty">没有匹配的任务</div>';
+        return;
+      }
+      const groups = [];
+      for (const t of list) {
+        const key = t.page + ' ' + (t.pageName || '');
+        if (!groups.length || groups[groups.length - 1].key !== key) {
+          groups.push({ key, items: [] });
+        }
+        groups[groups.length - 1].items.push(t);
+      }
+      root.innerHTML = groups.map((g) => {
+        const rows = g.items.map((t) => {
+          const opts = STATUSES.map((s) => '<option' + (s === t.status ? ' selected' : '') + '>' + s + '</option>').join('');
+          const api = t.api ? t.api.replace(/</g, '&lt;') : '';
+          return '<article class="task" data-id="' + t.id + '">' +
+            '<div class="row">' +
+              '<input type="checkbox" ' + (t.status === '已确认' || t.status === '不移植' ? 'checked' : '') + ' />' +
+              '<div class="id">' + t.id + '</div>' +
+              '<div class="title">' + t.title +
+                (t.group ? '<small>' + t.group + '</small>' : '') +
+              '</div>' +
+              '<select class="status s-' + t.status + '">' + opts + '</select>' +
+            '</div>' +
+            '<div class="detail">' +
+              (t.vue ? '<p><b>Vue</b> ' + t.vue + '</p>' : '') +
+              (t.flutter ? '<p><b>Flutter</b> ' + t.flutter + '</p>' : '') +
+              (api ? '<p><b>API</b> ' + api + '</p>' : '') +
+              (t.done ? '<p><b>完成</b> ' + t.done + '</p>' : '') +
+              (t.note ? '<p><b>备注</b> ' + t.note + '</p>' : '') +
+            '</div></article>';
+        }).join('');
+        return '<section class="page"><h2>' + g.key + ' <span>' + g.items.length + ' 项</span></h2>' + rows + '</section>';
+      }).join('');
+
+      root.querySelectorAll('.task').forEach((el) => {
+        const id = el.getAttribute('data-id');
+        el.querySelector('.row').addEventListener('click', (ev) => {
+          if (ev.target.tagName === 'SELECT' || ev.target.tagName === 'INPUT') return;
+          el.classList.toggle('open');
+        });
+        el.querySelector('select').addEventListener('change', (ev) => {
+          setStatus(id, ev.target.value);
+        });
+        el.querySelector('input[type=checkbox]').addEventListener('change', (ev) => {
+          setStatus(id, ev.target.checked ? '已确认' : '未开始');
+        });
+      });
+    }
+
+    function render() {
+      renderNav();
+      renderChips();
+      const list = filtered();
+      renderStats(list);
+      renderList(list);
+      document.getElementById('brandHint').textContent = LIVE
+        ? ((saving ? '正在写入仓库… ' : '已接写盘服务，改状态会立刻更新 tasks.json / BOARD.md。') +
+          ' 更新于 ' + (DATA.updated || ''))
+        : '未接服务。请打开 http://127.0.0.1:8791/ ，否则改动不会进仓库。';
+    }
+
+    document.getElementById('q').addEventListener('input', (e) => { query = e.target.value; render(); });
+    document.getElementById('btnExportJson').onclick = () => {
+      const next = { ...DATA, updated: new Date().toISOString().slice(0, 10), tasks: tasks() };
+      download('tasks.json', JSON.stringify(next, null, 2) + '\n', 'application/json');
+    };
+    document.getElementById('btnExportMd').onclick = () => {
+      download('BOARD.md', toMarkdown(tasks()), 'text/markdown;charset=utf-8');
+    };
+    document.getElementById('btnCopy').onclick = async () => {
+      const c = counts(tasks());
+      const text = STATUSES.map((s) => s + ' ' + (c[s] || 0)).join('\n');
+      await navigator.clipboard.writeText('Flutter 移植进度\n' + text);
+    };
+
+    if (LIVE) {
+      fetch('/api/board').then((r) => r.json()).then((board) => {
+        DATA = board;
+        render();
+      }).catch(() => render());
+      try {
+        const es = new EventSource('/api/events');
+        es.onmessage = (e) => {
+          const msg = JSON.parse(e.data);
+          if (msg && msg.board) {
+            DATA = msg.board;
+            render();
+          }
+        };
+      } catch (err) {}
+    }
+    render();
+  </script>
+</body>
+</html>

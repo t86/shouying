@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:foundation/foundation.dart';
@@ -11,6 +12,18 @@ import 'package:protocol/src/header_policy.dart';
 import 'package:protocol/src/limited_response_adapter.dart';
 import 'package:protocol/src/protocol_adapter.dart';
 import 'package:protocol/src/request_gate.dart';
+
+final class ProtocolBinaryFile {
+  ProtocolBinaryFile({
+    required List<int> bytes,
+    required this.fileName,
+    this.mimeType =
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  }) : bytes = Uint8List.fromList(bytes).asUnmodifiableView();
+  final Uint8List bytes;
+  final String fileName;
+  final String mimeType;
+}
 
 /// Application-level response budgets.
 ///
@@ -117,12 +130,141 @@ class ProtocolClient {
     String path, {
     Map<String, Object?> body = const <String, Object?>{},
     required ClientKind client,
-  }) => _request(method: 'POST', path: path, body: body, client: client);
+    bool Function()? canDispatch,
+  }) => _request(
+    method: 'POST',
+    path: path,
+    body: body,
+    client: client,
+    canDispatch: canDispatch,
+  );
 
   Future<Result<Map<String, Object?>>> postWithoutBody(
     String path, {
     required ClientKind client,
-  }) => _request(method: 'POST', path: path, client: client);
+    bool Function()? canDispatch,
+  }) => _request(
+    method: 'POST',
+    path: path,
+    client: client,
+    canDispatch: canDispatch,
+  );
+
+  /// Spreadsheet response with the same origin, rate, credential and byte guards
+  /// as JSON requests. JSON errors must never become downloaded spreadsheets.
+  Future<Result<ProtocolBinaryFile>> postBinary(
+    String path, {
+    Map<String, Object?>? body = const {},
+    required ClientKind client,
+    String fallbackFileName = 'export.xlsx',
+    bool Function()? canDispatch,
+  }) async {
+    bool allowed() {
+      try {
+        return canDispatch?.call() ?? true;
+      } on Object {
+        return false;
+      }
+    }
+
+    if (!allowed()) return const FailureResult(_dispatchInvalidatedFailure);
+    final target = _targetFor(path, const {});
+    if (target == null) return const FailureResult(_invalidPathFailure);
+    if (!_requestGate.allow(target)) {
+      return const FailureResult(_requestThrottledFailure);
+    }
+    final HeaderSelection selection;
+    try {
+      selection = await _headerPolicy.selectionFor(
+        target: target,
+        client: client,
+      );
+    } on Object {
+      return const FailureResult(_credentialsUnavailableFailure);
+    }
+    try {
+      if (!allowed()) return const FailureResult(_dispatchInvalidatedFailure);
+      final response = await _dio.requestUri<List<int>>(
+        target,
+        data: body,
+        options: Options(
+          method: 'POST',
+          connectTimeout: _requestTimeout,
+          sendTimeout: _requestTimeout,
+          receiveTimeout: _requestTimeout,
+          responseType: ResponseType.bytes,
+          extra: {if (canDispatch != null) dispatchGuardKey: canDispatch},
+          headers: {
+            ...selection.headers,
+            Headers.acceptHeader: 'application/octet-stream, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json',
+          },
+        ),
+      );
+      if (!allowed()) return const FailureResult(_dispatchInvalidatedFailure);
+      final bytes = response.data ?? const <int>[];
+      if (_contentLengthExceedsLimit(response.headers) ||
+          bytes.length > _responseLimits.maxRawResponseBytes) {
+        return const FailureResult(_responseTooLargeFailure);
+      }
+      // XLSX is a ZIP container. Parse non-files as JSON to preserve auth invalidation.
+      if (bytes.length < 4 ||
+          bytes[0] != 80 ||
+          bytes[1] != 75 ||
+          bytes[2] != 3 ||
+          bytes[3] != 4) {
+        final parsed = await _handleResponse(
+          utf8.decode(bytes, allowMalformed: true),
+          response.headers,
+          selection.snapshot,
+        );
+        return FailureResult(
+          parsed.failureOrNull ??
+              const AppFailure(
+                kind: FailureKind.protocol,
+                code: 'protocol.export_rejected',
+                safeMessage: '导出失败，服务未返回有效表格',
+              ),
+        );
+      }
+      final disposition = response.headers.value('content-disposition') ?? '';
+      final match = RegExp(
+        r'''filename\*\s*=\s*(?:UTF-8'')?([^;]+)|filename\s*=\s*("[^"]*"|[^;]+)''',
+        caseSensitive: false,
+      ).firstMatch(disposition);
+      final headerName = match?.group(1) ?? match?.group(2);
+      var name = (headerName ?? fallbackFileName).trim().replaceAll('"', '');
+      // Fallback names and raw Unicode filenames are already decoded text.
+      if (headerName != null && name.contains('%')) {
+        try {
+          name = Uri.decodeComponent(name);
+        } on FormatException {
+          name = fallbackFileName;
+        } on ArgumentError {
+          name = fallbackFileName;
+        }
+      }
+      name = name
+          .split(RegExp(r'[/\\]'))
+          .last
+          .replaceAll(RegExp(r'[\x00-\x1f<>:"|?*]'), '_');
+      if (name.isEmpty || name == '.' || name == '..') name = fallbackFileName;
+      return Success(ProtocolBinaryFile(bytes: bytes, fileName: name));
+    } on DispatchInvalidatedException {
+      return const FailureResult(_dispatchInvalidatedFailure);
+    } on ResponseTooLargeException {
+      return const FailureResult(_responseTooLargeFailure);
+    } on DioException catch (error) {
+      if (error.error is DispatchInvalidatedException) {
+        return const FailureResult(_dispatchInvalidatedFailure);
+      }
+      if (error.error is ResponseTooLargeException) {
+        return const FailureResult(_responseTooLargeFailure);
+      }
+      return FailureResult(_mapDioFailure(error.type));
+    } on Object {
+      return const FailureResult(_unknownFailure);
+    }
+  }
 
   Future<Result<Map<String, Object?>>> _request({
     required String method,
@@ -130,6 +272,7 @@ class ProtocolClient {
     required ClientKind client,
     Map<String, Object?> query = const <String, Object?>{},
     Map<String, Object?>? body,
+    bool Function()? canDispatch,
   }) async {
     final target = _targetFor(path, query);
     if (target == null) return const FailureResult(_invalidPathFailure);
@@ -147,6 +290,14 @@ class ProtocolClient {
       return const FailureResult(_credentialsUnavailableFailure);
     }
 
+    if (canDispatch != null) {
+      try {
+        if (!canDispatch())
+          return const FailureResult(_dispatchInvalidatedFailure);
+      } on Object {
+        return const FailureResult(_dispatchInvalidatedFailure);
+      }
+    }
     final options = Options(
       method: method,
       connectTimeout: _requestTimeout,
@@ -154,6 +305,7 @@ class ProtocolClient {
       receiveTimeout: _requestTimeout,
       responseType: ResponseType.plain,
       headers: headerSelection.headers,
+      extra: {if (canDispatch != null) dispatchGuardKey: canDispatch},
     );
 
     try {
@@ -167,9 +319,14 @@ class ProtocolClient {
         response.headers,
         headerSelection.snapshot,
       );
+    } on DispatchInvalidatedException {
+      return const FailureResult(_dispatchInvalidatedFailure);
     } on ResponseTooLargeException {
       return const FailureResult(_responseTooLargeFailure);
     } on DioException catch (error) {
+      if (error.error is DispatchInvalidatedException) {
+        return const FailureResult(_dispatchInvalidatedFailure);
+      }
       if (error.error is ResponseTooLargeException) {
         return const FailureResult(_responseTooLargeFailure);
       }
@@ -178,6 +335,12 @@ class ProtocolClient {
       return const FailureResult(_unknownFailure);
     }
   }
+
+  static const _dispatchInvalidatedFailure = AppFailure(
+    kind: FailureKind.authentication,
+    code: 'protocol.dispatch_invalidated',
+    safeMessage: '操作上下文已改变，请重新打开页面',
+  );
 
   Uri? _targetFor(String path, Map<String, Object?> query) {
     final requestSegments = CanonicalUri.decodeRequestPath(path);

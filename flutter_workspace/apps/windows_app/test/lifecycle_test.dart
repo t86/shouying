@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:card_table/card_table.dart';
 import 'package:design_system/design_system.dart';
 import 'package:device_bridge_windows/device_bridge_windows.dart';
 import 'package:dio/dio.dart';
@@ -11,10 +12,179 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:foundation/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protocol/protocol.dart';
+import 'package:realtime_sync/realtime_sync.dart';
 import 'package:session/session.dart';
 import 'package:shouyin_windows/main.dart';
 
 void main() {
+  for (final system in [
+    BusinessSystem.booking,
+    BusinessSystem.order,
+    BusinessSystem.cashier,
+  ]) {
+    testWidgets(
+      'Windows ${system.label} uses its own system and full shared callbacks',
+      (tester) async {
+        final factory = _LifecycleFactory(clientKind: system.client);
+        await tester.pumpWidget(
+          ShouyinWindowsApp(
+            environment: _validEnvironment,
+            dependenciesFactory: factory,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.runAsync(factory.dependencies.authenticate);
+        await tester.pumpAndSettle();
+        final card = tester.widget<CardTableScreen>(
+          find.byType(CardTableScreen),
+        );
+        expect(card.system, system);
+        expect(card.onLoadPayOrders, isNotNull);
+        expect(card.onSubmitPayOrder, isNotNull);
+        expect(card.onAddOrderProduct, isNotNull);
+        expect(card.onPlaceOrder, isNotNull);
+        expect(card.onBookingCardWrite, isNotNull);
+        expect(card.onOpenReserved, isNotNull);
+        expect(
+          card.onCloseBusinessDay != null,
+          system == BusinessSystem.cashier,
+        );
+        expect(card.businessRouteObserver, isNotNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() => factory.dependencies.disposed.future);
+      },
+    );
+  }
+  testWidgets('Windows cashier wires real business entry callbacks', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    await tester.pumpWidget(
+      ShouyinWindowsApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.runAsync(factory.dependencies.authenticate);
+    await tester.pumpAndSettle();
+    final card = tester.widget<CardTableScreen>(find.byType(CardTableScreen));
+    expect(card.onAddOrderProduct, isNotNull);
+    expect(card.onLoadPayOrders, isNotNull);
+    expect(card.onBookingCardWrite, isNotNull);
+    expect(card.onLoadCashierReport, isNotNull);
+    expect(card.onLoadProfitLoss, isNotNull);
+    expect(card.onLoadVouchers, isNotNull);
+    expect(card.onCancelVoucher, isNotNull);
+    expect(card.onExportVouchers, isNotNull);
+    expect(card.onPrintCashierReportQuery, isNotNull);
+    expect(card.onSubmitProfitLoss, isNotNull);
+    expect(card.onSwitchSystem, isNotNull);
+    await card.onAddOrderProduct!(
+      seatId: '7',
+      productId: '9',
+      count: 2,
+      price: '12.50',
+    );
+    expect(factory.dependencies.addedProduct, ('7', '9', 2, '12.50'));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
+  testWidgets('delayed same-user restart cannot replace the newest login', (
+    tester,
+  ) async {
+    final factory = _LifecycleFactory();
+    await tester.pumpWidget(
+      ShouyinWindowsApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final dependencies = factory.dependencies;
+    await tester.runAsync(dependencies.authenticate);
+    await tester.pumpAndSettle();
+    Future<void> relogin() async {
+      await dependencies.sessionRepository.login(
+        account: 'employee',
+        password: 'synthetic-password',
+        type: EmployeeLoginType.account,
+      );
+    }
+
+    dependencies.gateNextStop();
+    await tester.runAsync(relogin);
+    await tester.pump();
+    await tester.runAsync(() => dependencies.stopStarted.future);
+    await tester.runAsync(relogin);
+    await tester.pumpAndSettle();
+    final latest = tester.state(find.byType(CardTableScreen));
+    unawaited(
+      showDialog<void>(
+        context: tester.element(find.byType(CardTableScreen)),
+        builder: (_) => const AlertDialog(title: Text('新会话确认')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    dependencies.releaseStoppedGeneration();
+    await tester.runAsync(() => dependencies.stopFinished.future);
+    await tester.pumpAndSettle();
+    expect(dependencies.startCalls, 2);
+    expect(dependencies.currentGeneration, 2);
+    expect(dependencies.connectionPhase, ConnectionPhase.online);
+    expect(find.text('新会话确认'), findsOneWidget);
+    expect(
+      identical(
+        latest,
+        tester.state(find.byType(CardTableScreen, skipOffstage: false)),
+      ),
+      isTrue,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => dependencies.disposed.future);
+  });
+  testWidgets(
+    'same employee re-login replaces card owner and closes old dialogs',
+    (tester) async {
+      final factory = _LifecycleFactory();
+      await tester.pumpWidget(
+        ShouyinWindowsApp(
+          environment: _validEnvironment,
+          dependenciesFactory: factory,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final dependencies = factory.dependencies;
+      await tester.runAsync(dependencies.authenticate);
+      await tester.pumpAndSettle();
+      final before = tester.state(find.byType(CardTableScreen));
+      final context = tester.element(find.byType(CardTableScreen));
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => const AlertDialog(title: Text('旧营业日确认')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await dependencies.sessionRepository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+      });
+      await tester.pumpAndSettle();
+      expect(find.text('旧营业日确认'), findsNothing);
+      expect(
+        identical(before, tester.state(find.byType(CardTableScreen))),
+        isFalse,
+      );
+      expect(dependencies.startCalls, 2);
+      expect(dependencies.stopCalls, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() => dependencies.disposed.future);
+    },
+  );
   testWidgets('invalid config creates no shell or secure/network dependency', (
     tester,
   ) async {
@@ -64,10 +234,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(dependencies.startCalls, 1);
     expect(dependencies.realtimeCreated, isTrue);
-    expect(find.byKey(DiagnosticPanel.wideLayoutKey), findsOneWidget);
-    expect(find.text('收银 Windows 客户端'), findsOneWidget);
+    expect(find.byType(CardTableScreen), findsOneWidget);
 
-    GoRouter.of(tester.element(find.text('收银 Windows 客户端')))
+    GoRouter.of(tester.element(find.byType(CardTableScreen)))
         .go('/diagnostics/devices');
     await tester.pumpAndSettle();
     expect(find.byType(DeviceDiagnosticsScreen), findsOneWidget);
@@ -145,7 +314,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(factory.dependencies.startCalls, 1);
-    expect(find.text('收银 Windows 客户端'), findsOneWidget);
+    expect(find.byType(CardTableScreen), findsOneWidget);
     await tester.pump();
     expect(factory.dependencies.startCalls, 1);
 
@@ -233,7 +402,8 @@ final AppRuntimeConfiguration _validEnvironment =
     );
 
 final class _LifecycleFactory implements ShellDependenciesFactory {
-  _LifecycleFactory();
+  _LifecycleFactory({this.clientKind = ClientKind.cashier});
+  final ClientKind clientKind;
 
   static Future<_LifecycleFactory> authenticated(ApiConfig config) async {
     final factory = _LifecycleFactory();
@@ -252,7 +422,8 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
   @override
   ShellDependencies create(ApiConfig config) {
     createCalls += 1;
-    dependencies = _prepared ?? _LifecycleDependencies(config);
+    dependencies =
+        _prepared ?? _LifecycleDependencies(config, clientKind: clientKind);
     return dependencies;
   }
 
@@ -263,11 +434,101 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
   void onRouterDisposed() => routerDisposeCalls += 1;
 }
 
+final class _StubOrderLateDepositLoader implements OrderLateDepositLoader {
+  const _StubOrderLateDepositLoader();
+  @override
+  bool get needsVerification => false;
+  @override
+  Future<Result<OrderLateDepositPayment>> create({
+    required String seatId,
+    required int payType,
+    required String amountYuan,
+    String? authCode,
+    required bool Function() canDispatch,
+  }) async => throw UnimplementedError();
+  @override
+  Future<Result<int>> status(
+    String payDetailId, {
+    required bool Function() canDispatch,
+  }) async => throw UnimplementedError();
+}
+
 final class _LifecycleDependencies implements ShellDependencies {
-  _LifecycleDependencies(ApiConfig config)
-    : _store = _MemoryCredentialStore(),
-      _dio = Dio() {
-    _dio.httpClientAdapter = _AuthAdapter();
+  @override
+  CashierCreditAccountsLoader get creditAccountsLoader =>
+      throw UnsupportedError(
+        'Credit management is not used by this lifecycle fixture',
+      );
+  @override
+  CashierMerchantManagementLoader get merchantManagementLoader =>
+      throw UnsupportedError(
+        'Merchant management is not used by this lifecycle fixture',
+      );
+  @override
+  OrderLateDepositLoader get orderLateDepositLoader =>
+      const _StubOrderLateDepositLoader();
+  @override
+  Future<Result<void>> printCashierReportQuery(
+    CashierReportQuery query,
+  ) async => const Success(null);
+  @override
+  Future<Result<List<CashierVoucherRecord>>> loadVouchers(
+    CashierVoucherQuery query,
+  ) async => const Success([]);
+  @override
+  Future<Result<void>> cancelVoucher(
+    String recordId,
+    bool Function() canDispatch,
+  ) async => const Success(null);
+  @override
+  Future<Result<String>> exportVouchers(
+    CashierVoucherQuery query,
+    bool Function() canDispatch,
+  ) async => const Success('test.xlsx');
+  @override
+  Future<Result<List<CashierProfitLossRecord>>> loadProfitLoss() async =>
+      const Success([]);
+  @override
+  Future<Result<void>> submitProfitLoss(
+    CashierProfitLossDraft draft,
+    bool Function() canDispatch,
+  ) async => const Success(null);
+  // Unused business callbacks deliberately fail instead of pretending success.
+  @override
+  Future<Result<BookingDetailConfig>> loadBookingDetailConfig() async =>
+      const Success(BookingDetailConfig.unrestrictedAll);
+
+  @override
+  Set<String> paidTransfersNeedingVerification(String seatId) => {};
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw StateError(
+    'Unexpected lifecycle test callback: ${invocation.memberName}',
+  );
+
+  final ManagementPermissionFeed _managementFeed = ManagementPermissionFeed();
+  @override
+  ManagementPermissionFeed get managementAccess => _managementFeed;
+  @override
+  VipPages vipPages() => const VipPages();
+  (String, String, int, String)? addedProduct;
+  @override
+  Future<Result<void>> addOrderProduct({
+    required String seatId,
+    required String productId,
+    required int count,
+    required String price,
+    String amount = '',
+  }) async {
+    addedProduct = (seatId, productId, count, price);
+    return const Success(null);
+  }
+
+  _LifecycleDependencies(
+    ApiConfig config, {
+    ClientKind clientKind = ClientKind.cashier,
+  }) : _store = _MemoryCredentialStore(),
+       _dio = Dio() {
+    _dio.httpClientAdapter = _AuthAdapter(clientKind);
     final client = ProtocolClient(
       dio: _dio,
       config: config,
@@ -316,6 +577,27 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   @override
   late final Stream<AppFailure> realtimeFailures = _failures.stream;
+
+  @override
+  late final Stream<SyncEnvelope> cardTableEvents =
+      const Stream<SyncEnvelope>.empty();
+
+  @override
+  Future<Result<void>> closeBusinessDay() async => const Success(null);
+
+  @override
+  Future<Result<void>> printShiftBill() async => const Success(null);
+
+  @override
+  Future<Result<AutoCloseConfig>> loadAutoClose() async =>
+      const Success(AutoCloseConfig(enabled: false, hour: 0, minute: 0));
+
+  @override
+  Future<Result<void>> saveAutoClose({
+    required bool enabled,
+    required int hour,
+    required int minute,
+  }) async => const Success(null);
 
   void emitFailure(AppFailure failure) => _failures.add(failure);
 
@@ -373,6 +655,7 @@ final class _LifecycleDependencies implements ShellDependencies {
     disposeCalls += 1;
     await stopRealtime();
     await sessionRepository.close();
+    _managementFeed.dispose();
     await _phases.close();
     await _failures.close();
     _dio.close(force: true);
@@ -382,6 +665,8 @@ final class _LifecycleDependencies implements ShellDependencies {
 }
 
 final class _AuthAdapter implements HttpClientAdapter {
+  _AuthAdapter(this.clientKind);
+  final ClientKind clientKind;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -394,7 +679,7 @@ final class _AuthAdapter implements HttpClientAdapter {
             'code': 1,
             'data': <String, Object?>{
               'tk': 'synthetic-tk',
-              'am': 8,
+              'am': clientKind.termType,
               'id': 'machine-1',
               'n': 'Front Counter',
             },

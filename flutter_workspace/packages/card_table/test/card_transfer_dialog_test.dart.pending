@@ -1,0 +1,219 @@
+import 'package:card_table/src/card_table_models.dart';
+import 'package:card_table/src/card_transfer_dialog.dart';
+import 'package:card_table/src/legacy_card_table_store.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:realtime_sync/realtime_sync.dart';
+
+void main() {
+  test('dataset14 preserves consumption id and base vs assigned minimum as separate fields', () {
+    final data = List<Object?>.filled(57, const <Object?>[]);
+    data[0] = [
+      [1, '大厅', 1, 1],
+    ];
+    data[1] = [
+      [101, 'A01', 1, 1, 3, 1, 4, 1],
+    ];
+    final row = List<Object?>.filled(38, null);
+    row[0] = 101;
+    row[3] = 7001;
+    row[6] = 0;
+    row[8] = 0;
+    row[9] = '188.50';
+    row[10] = 288;
+    row[18] = 0;
+    row[19] = 4;
+    data[14] = [row];
+    data[18] = [
+      [9, '', '测试门店'],
+    ];
+    final store = LegacyCardTableStore();
+    final loaded = store.applyEnvelope(
+      SyncEnvelope.fromValidatedReconciliation(
+        cursor: '20260923010000',
+        data: data,
+      ),
+    );
+    expect(loaded.failureOrNull, isNull);
+    final table = loaded.valueOrNull!.tables.single;
+    expect(table.consumptionId, '7001');
+    expect(table.baseMinConsumeAmount, 188.5);
+    expect(table.assignedMinConsumeAmount, 288);
+    row[3] = null;
+    row[9] = null;
+    final empty = store
+        .applyEnvelope(
+          SyncEnvelope.fromValidatedReconciliation(
+            cursor: '20260923010001',
+            data: data,
+          ),
+        )
+        .valueOrNull!
+        .tables
+        .single;
+    expect(empty.consumptionId, '');
+    expect(empty.baseMinConsumeAmount, 0);
+  });
+  testWidgets(
+    '390 dialog defaults and destination changes use base minimum not assigned',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      Map<String, Object?>? result;
+      await _open(
+        tester,
+        candidates: [
+          _table('2', base: 88.5, assigned: 999),
+          _table('3', base: 120, assigned: 777),
+        ],
+        onResult: (value) => result = value,
+      );
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(CardTransferDialog.minimumKey),
+                matching: find.byType(TextField),
+              ),
+            )
+            .controller!
+            .text,
+        '88.5',
+      );
+      tester
+          .widget<DropdownButtonFormField<String>>(
+            find.byKey(CardTransferDialog.destinationKey),
+          )
+          .onChanged!('3');
+      await tester.pump();
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: find.byKey(CardTransferDialog.minimumKey),
+                matching: find.byType(TextField),
+              ),
+            )
+            .controller!
+            .text,
+        '120',
+      );
+      await tester.tap(find.text('确认转台'));
+      await tester.pumpAndSettle();
+      expect(result, {'dest_seat_id': '3', 'new_min_csm_amt': 120});
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'invalid number never silently submits zero; empty input intentionally means zero',
+    (tester) async {
+      Map<String, Object?>? result;
+      await _open(tester, onResult: (value) => result = value);
+      for (final value in ['abc', 'NaN', 'Infinity', '-1']) {
+        await tester.enterText(
+          find.byKey(CardTransferDialog.minimumKey),
+          value,
+        );
+        await tester.tap(find.text('确认转台'));
+        await tester.pump();
+        expect(result, isNull);
+        expect(find.textContaining('有效的非负'), findsOneWidget);
+      }
+      await tester.enterText(find.byKey(CardTransferDialog.minimumKey), '');
+      await tester.tap(find.text('确认转台'));
+      await tester.pumpAndSettle();
+      expect(result, {'dest_seat_id': '2', 'new_min_csm_amt': 0});
+    },
+  );
+  testWidgets(
+    'expired canSubmit prevents confirmation while cancel remains available',
+    (tester) async {
+      var allowed = true, completed = false;
+      Map<String, Object?>? result;
+      await _open(
+        tester,
+        canSubmit: () => allowed,
+        onResult: (value) {
+          completed = true;
+          result = value;
+        },
+      );
+      allowed = false;
+      await tester.tap(find.text('确认转台'));
+      await tester.pump();
+      expect(completed, false);
+      expect(find.textContaining('已失效'), findsOneWidget);
+      await tester.tap(find.text('取消'));
+      await tester.pumpAndSettle();
+      expect(completed, true);
+      expect(result, isNull);
+    },
+  );
+  testWidgets('empty candidate list is safe and cannot submit', (tester) async {
+    await _open(tester, candidates: []);
+    expect(find.text('当前暂无可转入的空卡台'), findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, '确认转台'))
+          .onPressed,
+      isNull,
+    );
+    expect(tester.takeException(), isNull);
+  });
+}
+
+Future<void> _open(
+  WidgetTester tester, {
+  List<CardTable>? candidates,
+  bool Function()? canSubmit,
+  void Function(Map<String, Object?>?)? onResult,
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Builder(
+        builder: (context) => Scaffold(
+          body: TextButton(
+            onPressed: () async {
+              final result = await showDialog<Map<String, Object?>>(
+                context: context,
+                builder: (_) => CardTransferDialog(
+                  table: _table('1', assigned: 200),
+                  candidateTables:
+                      candidates ?? [_table('2', base: 88, assigned: 999)],
+                  canSubmit: canSubmit,
+                ),
+              );
+              onResult?.call(result);
+            },
+            child: const Text('打开'),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.tap(find.text('打开'));
+  await tester.pumpAndSettle();
+}
+
+CardTable _table(String id, {num base = 0, num assigned = 0}) => CardTable(
+  id: id,
+  name: '卡台$id',
+  regionId: '1',
+  seatType: 3,
+  businessType: 1,
+  capacity: 4,
+  displayOrder: 1,
+  businessStatus: 1,
+  orderAmount: 0,
+  paidAmount: 0,
+  customerName: '',
+  customerCount: 0,
+  reservationTime: '',
+  openTime: '',
+  remark: '',
+  mark: '',
+  baseMinConsumeAmount: base,
+  assignedMinConsumeAmount: assigned,
+);

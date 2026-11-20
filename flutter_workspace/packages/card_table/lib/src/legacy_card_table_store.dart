@@ -1,12 +1,24 @@
+import 'package:card_table/src/booking_queue.dart';
 import 'package:card_table/src/card_table_models.dart';
+import 'package:card_table/src/fc_price.dart';
+import 'package:card_table/src/product_pricing.dart';
+import 'package:card_table/src/order_set_catalog.dart';
+import 'package:card_table/src/order_meal.dart';
+import 'package:card_table/src/sold_out_products.dart';
+import 'package:card_table/src/vip_recharge.dart';
 import 'package:foundation/foundation.dart';
+import 'package:permissions/permissions.dart';
 import 'package:realtime_sync/realtime_sync.dart';
 
 final class LegacyCardTableStore {
-  factory LegacyCardTableStore({String? machineId, String? stationId}) =>
-      LegacyCardTableStore._(machineId, stationId);
+  factory LegacyCardTableStore({
+    String? machineId,
+    String? stationId,
+    bool padDevice = true,
+  }) => LegacyCardTableStore._(machineId, stationId, padDevice);
 
-  LegacyCardTableStore._(this._machineId, this._stationId);
+  LegacyCardTableStore._(this._machineId, this._stationId, this._padDevice);
+  final bool _padDevice;
 
   static const Set<int> _requiredDatasets = <int>{0, 1, 14, 18};
 
@@ -20,28 +32,226 @@ final class LegacyCardTableStore {
   Map<String, List<Object?>> _statusCounts = <String, List<Object?>>{};
   Map<String, List<Object?>> _machineAccess = <String, List<Object?>>{};
   Map<String, List<Object?>> _roles = <String, List<Object?>>{};
+  Map<String, List<Object?>> _modules = <String, List<Object?>>{};
+  Map<String, List<Object?>> _safeModes = <String, List<Object?>>{};
+  bool _rolesKnown = false;
+  bool _modulesKnown = false;
+  bool _safeModeKnown = false;
+  bool _permissionsInvalidated = false;
   Map<String, List<Object?>> _supervisorRegions = <String, List<Object?>>{};
+  Map<String, List<Object?>> _firstCategories = <String, List<Object?>>{};
+  Map<String, List<Object?>> _secondCategories = <String, List<Object?>>{};
+  Map<String, List<Object?>> _goods = <String, List<Object?>>{};
+  bool _productTypesKnown = false;
+  bool _businessPricingKnown = false;
+  final Map<String, int> _businessPriceEmployees = {};
+
+  ProductPriceQuote? productQuoteFor(String seatId, String productId) {
+    if (!_businessPricingKnown || !_productTypesKnown) return null;
+    final table = _currentSnapshot?.tables
+        .where((row) => row.id == seatId)
+        .firstOrNull;
+    if (table == null) return null;
+    final product = catalogForRegion(table.regionId).products
+        .where((row) => row.id == productId)
+        .firstOrNull;
+    if (product == null) return null;
+    return quoteProductPrice(
+      product,
+      context: ProductPricingContext(
+        isMember: table.customerPhone.trim().isNotEmpty,
+        isBox: table.seatType == 4,
+        isBusiness: _businessPriceEmployees[table.salesEmployeeId] == 1,
+      ),
+    );
+  }
+
+  void _applyBusinessPricing(Map<int, Object?> datasets, bool full) {
+    if (full) {
+      _businessPricingKnown = false;
+      _businessPriceEmployees.clear();
+    }
+    if (!datasets.containsKey(57)) return;
+    try {
+      final rows = _rows(datasets[57], minimumLength: 2);
+      final next = Map<String, int>.of(_businessPriceEmployees);
+      for (final row in rows) {
+        final id = _permissionInteger(row[0], positive: true);
+        next['$id'] = _permissionInteger(row[1], positive: false);
+      }
+      if (next.length > 10000) throw const FormatException();
+      _businessPriceEmployees
+        ..clear()
+        ..addAll(next);
+      if (full) _businessPricingKnown = true;
+    } on Object {
+      _businessPricingKnown = false;
+      _businessPriceEmployees.clear();
+    }
+  }
+
+  Map<String, List<Object?>> _setDetails = <String, List<Object?>>{};
+  Map<String, List<Object?>> _reasons = <String, List<Object?>>{};
+  Map<String, List<Object?>> _areaProducts = <String, List<Object?>>{};
+  Map<String, List<Object?>> _employees = <String, List<Object?>>{};
+  Map<String, List<Object?>> _departments = <String, List<Object?>>{};
+  Map<String, List<Object?>> _showAmt = <String, List<Object?>>{};
+  Map<String, List<Object?>> _topCards = <String, List<Object?>>{};
+  Map<String, List<Object?>> _seatMarks = <String, List<Object?>>{};
+  Map<String, List<Object?>> _onlineSeats = <String, List<Object?>>{};
+  Map<String, List<Object?>> _offlineConverted = <String, List<Object?>>{};
+  Map<String, List<Object?>> _queueTypes = <String, List<Object?>>{};
+  Map<String, List<Object?>> _queueRecords = <String, List<Object?>>{};
+  Map<String, List<Object?>> _queueCurNumbers = <String, List<Object?>>{};
+  List<Object?>? _queueConfig;
+  SoldOutProductCatalog _soldOutCatalog = SoldOutProductCatalog.empty;
   List<Object?>? _businessDay;
   CardTableSnapshot? _currentSnapshot;
 
   CardTableSnapshot? get currentSnapshot => _currentSnapshot;
+
+  SoldOutProductCatalog get soldOutCatalog => _soldOutCatalog;
+
+  FcPriceCatalog _fcPriceCatalog = FcPriceCatalog.unknown;
+  FcPriceCatalog get fcPriceCatalog => _fcPriceCatalog;
+  OrderSetCatalog _orderSetCatalog = OrderSetCatalog.unknown;
+  OrderSetCatalog get orderSetCatalog => _orderSetCatalog;
+
+  List<OrderSetDetail> get setDetails {
+    try {
+      return <OrderSetDetail>[
+        for (final row in _setDetails.values)
+          if (_integer(row[1]) == 1)
+            OrderSetDetail(
+              productId: _id(row[0]),
+              groupId: _id(row[2]),
+              detailProductId: _id(row[4]),
+              detailCount: _integer(row[5]),
+              groupSelectCount: _integer(row[6]),
+              name: _goodsName(_id(row[4])),
+              typeId: _integer(row[7]).toString(),
+              seqId: _integer(row[3]),
+            ),
+      ];
+    } on Object {
+      return const <OrderSetDetail>[];
+    }
+  }
+
+  List<String> get yhReasons => _reasonNames(1);
+
+  List<String> get refundReasons => _reasonNames(2);
+  String? productNameFor(String id) {
+    final name = _goodsName(id);
+    return name.isEmpty ? null : name;
+  }
+
+  /// Historical refunds must not infer product type from the region-filtered
+  /// sale menu. Inactive products remain useful; deleted/unknown products do not.
+  int? productTypeFor(String productId) {
+    if (!_productTypesKnown) return null;
+    final row = _goods[productId];
+    if (row == null || row.length < 10) return null;
+    try {
+      final type = _integer(row[9]);
+      return type > 0 ? type : null;
+    } on Object {
+      return null;
+    }
+  }
+
+  SoldOutProductCatalog catalogForRegion(String regionId) {
+    try {
+      return SoldOutProductCatalog.forRegion(
+        regionId: regionId,
+        firstCategories: _firstCategories.values,
+        secondCategories: _secondCategories.values,
+        products: _goods.values,
+        areaProducts: _areaProducts.values,
+        padDevice: _padDevice,
+      );
+    } on Object {
+      return SoldOutProductCatalog.empty;
+    }
+  }
+
+  List<VipRechargeEmployee> get employees =>
+      List<VipRechargeEmployee>.unmodifiable([
+        for (final row in _employees.values)
+          VipRechargeEmployee(
+            id: _id(row[0]),
+            name: _text(row[1]),
+            code: row.length > 8 ? _employeeCode(row[8]) : '',
+          ),
+      ]);
+
+  /// Cashier KPI drawer searches all synced employees by name, code and pinyin.
+  Map<int, String> get cashierReportSalesOptions => Map.unmodifiable({
+    for (final row in _employees.values) _integer(row[0]): _text(row[1]),
+  });
+  Map<int, String> get cashierReportSalesSearchTerms => Map.unmodifiable({
+    for (final row in _employees.values)
+      _integer(row[0]): '${_text(row[7])} ${_employeeCode(row[8])}',
+  });
+
+  /// Unlike the card grid, the source revenue report includes active empty
+  /// regions and regions outside this terminal's visible-seat selection.
+  Map<int, String> get cashierReportRegionOptions {
+    final rows = _regions.values.where((row) => _integer(row[2]) == 1).toList()
+      ..sort((a, b) => _integer(a[3]).compareTo(_integer(b[3])));
+    return Map.unmodifiable({
+      for (final row in rows) _integer(row[0]): _text(row[1]),
+    });
+  }
 
   /// Reconstructs only the datasets consumed by this card-table store.
   /// This is not a general-purpose replay of all business domains.
   SyncEnvelope? get replayEnvelope {
     final snapshot = _currentSnapshot;
     if (snapshot == null) return null;
-    final data = List<Object?>.filled(57, const <Object?>[]);
+    final data = List<Object?>.filled(60, const <Object?>[]);
+    data[58] = _fcPriceCatalog.priceRows;
+    data[59] = _fcPriceCatalog.employeeRows;
     data[0] = _regions.values.toList(growable: false);
     data[1] = _seats.values.toList(growable: false);
-    data[13] = _roles.values.toList(growable: false);
+    data[13] = _rolesKnown && !_permissionsInvalidated
+        ? _roles.values.toList(growable: false)
+        : null;
     data[14] = _business.values.toList(growable: false);
     data[18] = <Object?>[_businessDay];
     data[24] = _businessDates.values.toList(growable: false);
     data[25] = _futureBookings.values.toList(growable: false);
     data[39] = _statusCounts.values.toList(growable: false);
     data[40] = _machineAccess.values.toList(growable: false);
+    // Null preserves unknown/invalid authority data; an empty list is known.
+    data[41] = _modulesKnown && !_permissionsInvalidated
+        ? _modules.values.toList(growable: false)
+        : null;
+    data[54] = _safeModeKnown
+        ? _safeModes.values.toList(growable: false)
+        : null;
     data[56] = _supervisorRegions.values.toList(growable: false);
+    data[57] = _businessPricingKnown
+        ? [
+            for (final row in _businessPriceEmployees.entries)
+              [row.key, row.value],
+          ]
+        : null;
+    data[2] = _firstCategories.values.toList(growable: false);
+    data[3] = _secondCategories.values.toList(growable: false);
+    data[4] = _productTypesKnown ? _goods.values.toList(growable: false) : null;
+    for (final dataset in [8, 9, 19, 20, 21, 52]) {
+      data[dataset] = _orderSetCatalog.rowsForReplay(dataset);
+    }
+    data[32] = _reasons.values.toList(growable: false);
+    data[5] = _employees.values.toList(growable: false);
+    data[6] = _departments.values.toList(growable: false);
+    data[16] = _areaProducts.values.toList(growable: false);
+    data[35] = _showAmt.values.toList(growable: false);
+    data[29] = _topCards.values.toList(growable: false);
+    data[31] = _seatMarks.values.toList(growable: false);
+    data[26] = _onlineSeats.values.toList(growable: false);
+    data[28] = _offlineConverted.values.toList(growable: false);
     return SyncEnvelope.fromValidatedReconciliation(
       cursor: snapshot.cursor,
       data: data,
@@ -57,9 +267,35 @@ final class LegacyCardTableStore {
     }
 
     final datasets = _datasets(envelope.data);
-    if (datasets == null) return const FailureResult(_shapeFailure);
+    if (datasets == null) {
+      _businessPricingKnown = false;
+      _orderSetCatalog = OrderSetCatalog.unknown;
+      _productTypesKnown = false;
+      _fcPriceCatalog = FcPriceCatalog.unknown;
+      final data = envelope.data;
+      if (data is Map) {
+        final touchedMetadata = <int, Object?>{};
+        for (final key in data.keys) {
+          final index = switch (key) {
+            int() => key,
+            String() => int.tryParse(key),
+            _ => null,
+          };
+          if (index == 13 || index == 41 || index == 54) {
+            touchedMetadata[index!] = null;
+          }
+        }
+        _invalidatePageMetadata(touchedMetadata, isFull: false);
+      }
+      return const FailureResult(_shapeFailure);
+    }
     final isFull = envelope.data is List || _currentSnapshot == null;
     if (isFull && !_requiredDatasets.every(datasets.containsKey)) {
+      _businessPricingKnown = false;
+      _orderSetCatalog = OrderSetCatalog.unknown;
+      _productTypesKnown = false;
+      _fcPriceCatalog = FcPriceCatalog.unknown;
+      _invalidatePageMetadata(datasets, isFull: true);
       return const FailureResult(_snapshotRequiredFailure);
     }
 
@@ -83,9 +319,72 @@ final class LegacyCardTableStore {
         ? <String, List<Object?>>{}
         : _copyRows(_machineAccess);
     final nextRoles = isFull ? <String, List<Object?>>{} : _copyRows(_roles);
+    final nextModules = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_modules);
+    final nextSafeModes = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_safeModes);
+    var nextRolesKnown = isFull ? false : _rolesKnown;
+    var nextModulesKnown = isFull ? false : _modulesKnown;
+    var nextSafeModeKnown = isFull ? false : _safeModeKnown;
     final nextSupervisorRegions = isFull
         ? <String, List<Object?>>{}
         : _copyRows(_supervisorRegions);
+    final nextFirstCategories = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_firstCategories);
+    final nextSecondCategories = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_secondCategories);
+    final nextGoods = isFull ? <String, List<Object?>>{} : _copyRows(_goods);
+    var nextProductTypesKnown = isFull
+        ? datasets.containsKey(4)
+        : _productTypesKnown;
+    final nextSetDetails = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_setDetails);
+    final nextReasons = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_reasons);
+    final nextAreaProducts = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_areaProducts);
+    final nextEmployees = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_employees);
+    final nextDepartments = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_departments);
+    final nextShowAmt = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_showAmt);
+    final nextTopCards = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_topCards);
+    final nextSeatMarks = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_seatMarks);
+    final nextOnlineSeats = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_onlineSeats);
+    final nextOfflineConverted = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_offlineConverted);
+    final nextQueueTypes = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_queueTypes);
+    final nextQueueRecords = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_queueRecords);
+    final nextQueueCurNumbers = isFull
+        ? <String, List<Object?>>{}
+        : _copyRows(_queueCurNumbers);
+    var nextQueueConfig = isFull
+        ? null
+        : _queueConfig == null
+        ? null
+        : List<Object?>.of(_queueConfig!);
     var nextBusinessDay = isFull
         ? null
         : _businessDay == null
@@ -100,11 +399,16 @@ final class LegacyCardTableStore {
         _mergeRows(nextSeats, _rows(datasets[1], minimumLength: 8), 2);
       }
       if (datasets.containsKey(13)) {
-        _mergeRowsByKey(
-          nextRoles,
-          _rows(datasets[13], minimumLength: 3),
-          (row) => '${_id(row[0])}|${_integer(row[1])}',
-        );
+        if (datasets[13] == null) {
+          nextRolesKnown = false;
+        } else {
+          _mergeRowsByKey(
+            nextRoles,
+            _permissionRows(datasets[13]),
+            (row) => '${_id(row[0])}|${_integer(row[1])}',
+          );
+          if (isFull) nextRolesKnown = true;
+        }
       }
       if (datasets.containsKey(14)) {
         _mergeRows(
@@ -147,6 +451,33 @@ final class LegacyCardTableStore {
           (row) => '${_id(row[0])}|${_integer(row[1])}|${_id(row[3])}',
         );
       }
+      if (datasets.containsKey(41)) {
+        if (datasets[41] == null) {
+          nextModulesKnown = false;
+        } else {
+          _mergeRowsByKey(
+            nextModules,
+            _permissionRows(datasets[41]),
+            (row) => '${_id(row[0])}|${_integer(row[1])}',
+          );
+          if (isFull) nextModulesKnown = true;
+        }
+      }
+      if (datasets.containsKey(54)) {
+        if (datasets[54] == null) {
+          nextSafeModeKnown = false;
+        } else {
+          final rows = _rows(datasets[54], minimumLength: 2);
+          for (final row in rows) {
+            _permissionInteger(row[0], positive: true);
+            _permissionInteger(row[1], positive: false);
+          }
+          _mergeRowsByKey(nextSafeModes, rows, (row) => _id(row[0]));
+          if (isFull || rows.any((row) => _integer(row[0]) == 1)) {
+            nextSafeModeKnown = true;
+          }
+        }
+      }
       if (datasets.containsKey(56)) {
         _mergeRowsByKey(
           nextSupervisorRegions,
@@ -154,7 +485,186 @@ final class LegacyCardTableStore {
           (row) => '${_id(row[0])}|${_id(row[1])}',
         );
       }
+      try {
+        if (datasets.containsKey(2)) {
+          _mergeRows(
+            nextFirstCategories,
+            _rows(datasets[2], minimumLength: 4),
+            2,
+          );
+        }
+        if (datasets.containsKey(3)) {
+          _mergeRows(
+            nextSecondCategories,
+            _rows(datasets[3], minimumLength: 5),
+            2,
+          );
+        }
+        if (datasets.containsKey(4)) {
+          _mergeRows(nextGoods, _rows(datasets[4], minimumLength: 10), 2);
+        }
+        if (datasets.containsKey(9)) {
+          // Unknown/bad package configuration must not erase otherwise valid
+          // product types used by non-package operations. Catalog tracks its
+          // own dataset readiness, including null in session replays.
+          try {
+            if (datasets[9] == null) {
+              nextSetDetails.clear();
+            } else {
+              _mergeSetDetails(
+                nextSetDetails,
+                _rows(datasets[9], minimumLength: 8),
+              );
+            }
+          } on Object {
+            nextSetDetails.clear();
+          }
+        }
+        if (datasets.containsKey(32)) {
+          _mergeRows(nextReasons, _rows(datasets[32], minimumLength: 4), 2);
+        }
+        if (datasets.containsKey(16)) {
+          _mergeRowsByKey(
+            nextAreaProducts,
+            _rows(datasets[16], minimumLength: 3),
+            (row) => '${_id(row[0])}|${_id(row[2])}',
+          );
+          for (final entry in [...nextAreaProducts.entries]) {
+            if (_integer(entry.value[1]) == 3) {
+              nextAreaProducts.remove(entry.key);
+            }
+          }
+        }
+      } on Object {
+        nextProductTypesKnown = false;
+        if (isFull) {
+          nextFirstCategories.clear();
+          nextSecondCategories.clear();
+          nextGoods.clear();
+          nextSetDetails.clear();
+          nextReasons.clear();
+          nextAreaProducts.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(5)) {
+          _mergeRows(nextEmployees, _rows(datasets[5], minimumLength: 9), 2);
+        }
+      } on Object {
+        if (isFull) {
+          nextEmployees.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(6)) {
+          _mergeRows(nextDepartments, _rows(datasets[6], minimumLength: 4), 2);
+        }
+      } on Object {
+        if (isFull) {
+          nextDepartments.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(35)) {
+          _mergeRowsByKey(
+            nextShowAmt,
+            _rows(datasets[35], minimumLength: 2),
+            (row) => _id(row[0]),
+          );
+        }
+      } on Object {
+        if (isFull) {
+          nextShowAmt.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(29)) {
+          _mergeRows(nextTopCards, _rows(datasets[29], minimumLength: 3), 2);
+        }
+      } on Object {
+        if (isFull) {
+          nextTopCards.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(31)) {
+          _mergeRows(nextSeatMarks, _rows(datasets[31], minimumLength: 3), 2);
+        }
+      } on Object {
+        if (isFull) {
+          nextSeatMarks.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(26)) {
+          _mergeRowsByKey(
+            nextOnlineSeats,
+            _rows(datasets[26], minimumLength: 2),
+            (row) => _id(row[0]),
+          );
+        }
+      } on Object {
+        if (isFull) {
+          nextOnlineSeats.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(28)) {
+          _mergeRows(
+            nextOfflineConverted,
+            _rows(datasets[28], minimumLength: 2),
+            1,
+          );
+        }
+      } on Object {
+        if (isFull) {
+          nextOfflineConverted.clear();
+        }
+      }
+      try {
+        if (datasets.containsKey(46)) {
+          final rows = _rows(datasets[46], minimumLength: 5);
+          if (rows.isNotEmpty) nextQueueConfig = rows.first;
+        }
+      } on Object {
+        if (isFull) nextQueueConfig = null;
+      }
+      try {
+        if (datasets.containsKey(47)) {
+          _mergeRows(nextQueueTypes, _rows(datasets[47], minimumLength: 4), 1);
+        }
+      } on Object {
+        if (isFull) nextQueueTypes.clear();
+      }
+      try {
+        if (datasets.containsKey(48)) {
+          _mergeRowsByKey(
+            nextQueueRecords,
+            _rows(datasets[48], minimumLength: 6),
+            (row) => '${_id(row[3])}|${_integer(row[4])}',
+          );
+        }
+      } on Object {
+        if (isFull) nextQueueRecords.clear();
+      }
+      try {
+        if (datasets.containsKey(49)) {
+          _mergeRowsByKey(
+            nextQueueCurNumbers,
+            _rows(datasets[49], minimumLength: 6),
+            (row) => _id(row[1]),
+          );
+        }
+      } on Object {
+        if (isFull) nextQueueCurNumbers.clear();
+      }
       if (nextBusinessDay == null) throw const FormatException();
+      // Unknown authority is also fail-closed. Only a complete, valid role
+      // and module snapshot can clear a prior invalidation, including replay.
+      final nextPermissionsInvalidated =
+          !nextRolesKnown ||
+          !nextModulesKnown ||
+          (!isFull && _permissionsInvalidated);
       final snapshot = _buildSnapshot(
         cursor: envelope.cursor!,
         regions: nextRegions,
@@ -168,7 +678,26 @@ final class LegacyCardTableStore {
         machineAccess: nextMachineAccess,
         stationId: _stationId,
         roles: nextRoles,
+        rolesKnown: nextRolesKnown && !nextPermissionsInvalidated,
         supervisorRegions: nextSupervisorRegions,
+        pagePermissions: _pagePermissions(
+          nextRoles,
+          nextModules,
+          available:
+              nextRolesKnown && nextModulesKnown && !nextPermissionsInvalidated,
+        ),
+        safeModeEnabled: !nextSafeModeKnown || _safeModeEnabled(nextSafeModes),
+        employees: nextEmployees,
+        departments: nextDepartments,
+        showAmt: nextShowAmt,
+        topCards: nextTopCards,
+        seatMarks: nextSeatMarks,
+        onlineSeats: nextOnlineSeats,
+        offlineConverted: nextOfflineConverted,
+        queueConfig: nextQueueConfig,
+        queueTypes: nextQueueTypes,
+        queueRecords: nextQueueRecords,
+        queueCurNumbers: nextQueueCurNumbers,
       );
       _regions = nextRegions;
       _seats = nextSeats;
@@ -178,13 +707,154 @@ final class LegacyCardTableStore {
       _statusCounts = nextStatusCounts;
       _machineAccess = nextMachineAccess;
       _roles = nextRoles;
+      _modules = nextModules;
+      _safeModes = nextSafeModes;
+      _rolesKnown = nextRolesKnown;
+      _modulesKnown = nextModulesKnown;
+      _safeModeKnown = nextSafeModeKnown;
+      _permissionsInvalidated = nextPermissionsInvalidated;
       _supervisorRegions = nextSupervisorRegions;
+      _firstCategories = nextFirstCategories;
+      _secondCategories = nextSecondCategories;
+      _goods = nextGoods;
+      _productTypesKnown = nextProductTypesKnown;
+      _setDetails = nextSetDetails;
+      _reasons = nextReasons;
+      _areaProducts = nextAreaProducts;
+      _employees = nextEmployees;
+      _departments = nextDepartments;
+      _showAmt = nextShowAmt;
+      _topCards = nextTopCards;
+      _seatMarks = nextSeatMarks;
+      _onlineSeats = nextOnlineSeats;
+      _offlineConverted = nextOfflineConverted;
+      _queueTypes = nextQueueTypes;
+      _queueRecords = nextQueueRecords;
+      _queueCurNumbers = nextQueueCurNumbers;
+      _queueConfig = nextQueueConfig;
+      _soldOutCatalog = _catalogFrom(
+        firstCategories: nextFirstCategories,
+        secondCategories: nextSecondCategories,
+        goods: nextGoods,
+        areaProducts: nextAreaProducts,
+      );
       _businessDay = nextBusinessDay;
       _currentSnapshot = snapshot;
+      _applyBusinessPricing(datasets, isFull);
+      _fcPriceCatalog = _fcPriceCatalog.apply(envelope.data, isFull: isFull);
+      _orderSetCatalog = _orderSetCatalog.apply(envelope.data, isFull: isFull);
       return Success(snapshot);
     } on Object {
+      if (isFull || [1, 4, 14, 57].any(datasets.containsKey)) {
+        _businessPricingKnown = false;
+      }
+      if (isFull || [4, 8, 9, 19, 20, 21, 52].any(datasets.containsKey)) {
+        _orderSetCatalog = OrderSetCatalog.unknown;
+      }
+      if (isFull || datasets.containsKey(4)) _productTypesKnown = false;
+      if (isFull || datasets.containsKey(58) || datasets.containsKey(59)) {
+        _fcPriceCatalog = FcPriceCatalog.unknown;
+      }
+      _invalidatePageMetadata(datasets, isFull: isFull);
       return const FailureResult(_shapeFailure);
     }
+  }
+
+  PermissionSnapshot _pagePermissions(
+    Map<String, List<Object?>> roles,
+    Map<String, List<Object?>> modules, {
+    required bool available,
+  }) => PermissionNormalizer.normalize(
+    stationId: _stationId,
+    sysRole: available
+        ? <Map<String, Object?>>[
+            for (final row in roles.values)
+              <String, Object?>{
+                'station_id': row[0],
+                'sys_role_id': row[1],
+                'status': row[2],
+              },
+          ]
+        : null,
+    sysRoleDetail: available
+        ? <Map<String, Object?>>[
+            for (final row in modules.values)
+              <String, Object?>{
+                'station_id': row[0],
+                'sys_module_id': row[1],
+                'status': row[2],
+              },
+          ]
+        : null,
+  );
+
+  void _invalidatePageMetadata(
+    Map<int, Object?> datasets, {
+    required bool isFull,
+  }) {
+    final permissionsTouched =
+        isFull || datasets.containsKey(13) || datasets.containsKey(41);
+    final safetyTouched = isFull || datasets.containsKey(54);
+    if (!permissionsTouched && !safetyTouched) return;
+    if (permissionsTouched) _permissionsInvalidated = true;
+    if (safetyTouched) _safeModeKnown = false;
+    final previous = _currentSnapshot;
+    if (previous == null || _businessDay == null) return;
+    // Card rows remain atomic on rejection, but authority cannot keep stale
+    // grants. The invalidated flag survives unrelated events and heartbeats.
+    _currentSnapshot = _buildSnapshot(
+      cursor: previous.cursor,
+      regions: _regions,
+      seats: _seats,
+      business: _business,
+      businessDay: _businessDay!,
+      businessDates: _businessDates,
+      futureBookings: _futureBookings,
+      statusCountRows: _statusCounts,
+      machineId: _machineId,
+      machineAccess: _machineAccess,
+      stationId: _stationId,
+      roles: _roles,
+      rolesKnown: _rolesKnown && !_permissionsInvalidated,
+      supervisorRegions: _supervisorRegions,
+      pagePermissions: _pagePermissions(
+        _roles,
+        _modules,
+        available: _rolesKnown && _modulesKnown && !_permissionsInvalidated,
+      ),
+      safeModeEnabled: !_safeModeKnown || _safeModeEnabled(_safeModes),
+      employees: _employees,
+      departments: _departments,
+      showAmt: _showAmt,
+      topCards: _topCards,
+      seatMarks: _seatMarks,
+      onlineSeats: _onlineSeats,
+      offlineConverted: _offlineConverted,
+    );
+  }
+
+  static bool _safeModeEnabled(Map<String, List<Object?>> rows) =>
+      rows.values.any((row) => _integer(row[0]) == 1 && _integer(row[1]) == 1);
+
+  static List<List<Object?>> _permissionRows(Object? value) {
+    final rows = _rows(value, minimumLength: 3);
+    if (rows.length > 10000) throw const FormatException();
+    for (final row in rows) {
+      _permissionInteger(row[0], positive: true);
+      _permissionInteger(row[1], positive: true);
+      _permissionInteger(row[2], positive: false);
+    }
+    return rows;
+  }
+
+  static int _permissionInteger(Object? value, {required bool positive}) {
+    if (value is String &&
+        (value.length > 32 || !RegExp(r'^(0|[1-9][0-9]*)$').hasMatch(value))) {
+      throw const FormatException();
+    }
+    final result = _integer(value);
+    if (positive ? result <= 0 : result < 0) throw const FormatException();
+    return result;
   }
 
   static Map<int, Object?>? _datasets(Object? value) {
@@ -222,6 +892,20 @@ final class LegacyCardTableStore {
         else
           throw const FormatException(),
     ];
+  }
+
+  static void _mergeSetDetails(
+    Map<String, List<Object?>> target,
+    List<List<Object?>> rows,
+  ) {
+    for (final row in rows) {
+      final key = '${_id(row[0])}|${_id(row[2])}|${_integer(row[3])}';
+      if (_integer(row[1]) == 3) {
+        target.remove(key);
+      } else {
+        target[key] = List<Object?>.unmodifiable(row);
+      }
+    }
   }
 
   static void _mergeRows(
@@ -264,8 +948,26 @@ final class LegacyCardTableStore {
     required Map<String, List<Object?>> machineAccess,
     required String? stationId,
     required Map<String, List<Object?>> roles,
+    required bool rolesKnown,
     required Map<String, List<Object?>> supervisorRegions,
+    required PermissionSnapshot pagePermissions,
+    required bool safeModeEnabled,
+    required Map<String, List<Object?>> employees,
+    required Map<String, List<Object?>> departments,
+    required Map<String, List<Object?>> showAmt,
+    required Map<String, List<Object?>> topCards,
+    required Map<String, List<Object?>> seatMarks,
+    required Map<String, List<Object?>> onlineSeats,
+    required Map<String, List<Object?>> offlineConverted,
+    Map<String, List<Object?>> queueTypes = const {},
+    Map<String, List<Object?>> queueRecords = const {},
+    Map<String, List<Object?>> queueCurNumbers = const {},
+    List<Object?>? queueConfig,
   }) {
+    // The session-owned feed has no station and only preserves raw data.
+    // A user-scoped store must not interpret unknown or invalidated role
+    // authority as "not supervisor", including after subsequent valid deltas.
+    final roleScopeKnown = stationId == null || rolesKnown;
     final normalizedRegions =
         <CardRegion>[
           for (final row in regions.values)
@@ -285,7 +987,8 @@ final class LegacyCardTableStore {
     final normalizedTables =
         <CardTable>[
           for (final row in seats.values)
-            if (_integer(row[2]) == 1 &&
+            if (roleScopeKnown &&
+                _integer(row[2]) == 1 &&
                 activeRegionIds.contains(_id(row[3])) &&
                 _isSeatPermitted(row, machineId, machineAccess) &&
                 _isSupervisorRegionPermitted(
@@ -294,8 +997,21 @@ final class LegacyCardTableStore {
                   roles,
                   supervisorRegions,
                 ))
-              _table(row, business[_id(row[0])]),
+              _table(
+                row,
+                business[_id(row[0])],
+                region: regions[_id(row[3])],
+                pinOrder: _pinOrder(topCards, _id(row[0])),
+                showOnlineText: _showOnlineText(
+                  seatId: _id(row[0]),
+                  business: business[_id(row[0])],
+                  onlineSeats: onlineSeats,
+                  offlineConverted: offlineConverted,
+                ),
+              ),
         ]..sort((left, right) {
+          final pin = right.pinOrder.compareTo(left.pinOrder);
+          if (pin != 0) return pin;
           final region = normalizedRegions
               .indexWhere((value) => value.id == left.regionId)
               .compareTo(
@@ -316,7 +1032,8 @@ final class LegacyCardTableStore {
       tablesByDate[date.id] =
           <CardTable>[
             for (final seat in seats.values)
-              if (_integer(seat[2]) == 1 &&
+              if (roleScopeKnown &&
+                  _integer(seat[2]) == 1 &&
                   activeRegionIds.contains(_id(seat[3])) &&
                   _isSeatPermitted(seat, machineId, machineAccess) &&
                   _isSupervisorRegionPermitted(
@@ -329,8 +1046,13 @@ final class LegacyCardTableStore {
                   seat,
                   business[_id(seat[0])],
                   futureBookings['${date.id}|${_id(seat[0])}'],
+                  pinOrder: _pinOrder(topCards, _id(seat[0])),
+                  onlineSeats: onlineSeats,
+                  offlineConverted: offlineConverted,
                 ),
           ]..sort((left, right) {
+            final pin = right.pinOrder.compareTo(left.pinOrder);
+            if (pin != 0) return pin;
             final region = normalizedRegions
                 .indexWhere((value) => value.id == left.regionId)
                 .compareTo(
@@ -343,13 +1065,20 @@ final class LegacyCardTableStore {
             return order != 0 ? order : left.name.compareTo(right.name);
           });
     }
+    final supervisorScope = _supervisorRegionScope(
+      stationId,
+      roles,
+      supervisorRegions,
+    );
     final visibleRegionIds = normalizedTables
         .map((table) => table.regionId)
         .toSet();
     normalizedRegions.removeWhere(
       (region) => !visibleRegionIds.contains(region.id),
     );
-    final normalizedStatusCounts = _normalizeStatusCounts(statusCountRows);
+    final normalizedStatusCounts = _normalizeStatusCounts(
+      roleScopeKnown ? statusCountRows : const <String, List<Object?>>{},
+    );
     return CardTableSnapshot(
       cursor: cursor,
       businessDayId: _id(businessDay[0]),
@@ -360,34 +1089,201 @@ final class LegacyCardTableStore {
       tablesByDate: tablesByDate,
       statusCounts: normalizedStatusCounts.totals,
       statusCountsByRegion: normalizedStatusCounts.byRegion,
+      pagePermissions: pagePermissions,
+      safeModeEnabled: safeModeEnabled,
+      bindGuestEnabled: showAmt.values.any(
+        (row) => _id(row[0]) == '13' && _optionalNumber(row[1]) == 1,
+      ),
+      canClearSeat: showAmt.values.any(
+        (row) => _id(row[0]) == '5' && _optionalNumber(row[1]) == 2,
+      ),
+      cardAmountsVisible: !showAmt.values.any(
+        (row) => _id(row[0]) == '3' && _optionalNumber(row[1]) != 2,
+      ),
+      supervisorRegionRestricted: supervisorScope.restricted,
+      supervisorAllowedRegionIds: supervisorScope.allowedRegionIds,
+      seatMarks: [
+        for (final row in seatMarks.values)
+          if (_integer(row[2]) == 1) _optionalText(row[1]),
+      ],
+      employees: [
+        for (final row in employees.values)
+          CardEmployee(
+            id: _id(row[0]),
+            name: _optionalText(row[1]),
+            namePy: _optionalText(row[7]),
+            status: _integer(row[2]),
+            deptId: row.length > 3 ? _optionalId(row[3]) : '',
+            upperEmpId: row.length > 9 ? _optionalId(row[9]) : '',
+            phone: row.length > 6 ? _optionalLooseText(row[6]) : '',
+            code: row.length > 8 ? _employeeCode(row[8]) : '',
+          ),
+      ],
+      departments: [
+        for (final row in departments.values)
+          if (_integer(row[2]) == 1)
+            CardDepartment(id: _id(row[0]), name: _optionalText(row[1])),
+      ],
+      queue: CardTableQueueSnapshot(
+        config: queueConfig != null
+            ? QueueConfig.fromWire(queueConfig)
+            : const QueueConfig(),
+        types: [for (final row in queueTypes.values) QueueType.fromWire(row)],
+        records: [
+          for (final row in queueRecords.values) QueueRecord.fromWire(row),
+        ],
+        curNumbers: [
+          for (final row in queueCurNumbers.values)
+            QueueCurNumber.fromWire(row),
+        ],
+      ),
     );
   }
 
-  static CardTable _table(List<Object?> seat, List<Object?>? business) =>
-      CardTable(
-        id: _id(seat[0]),
-        name: _text(seat[1]),
-        regionId: _id(seat[3]),
-        seatType: _integer(seat[4]),
-        businessType: _integer(seat[5]),
-        capacity: _integer(seat[6]),
-        displayOrder: _integer(seat[7]),
-        businessStatus: business == null ? 1 : _integer(business[19]),
-        orderAmount: business == null ? 0 : _number(business[6]),
-        paidAmount: business == null ? 0 : _number(business[8]),
-        customerName: business == null ? '' : _optionalText(business[16]),
-        customerCount: business == null ? 0 : _integer(business[18]),
-        reservationTime: business == null ? '' : _optionalText(business[2]),
-        openTime: business == null ? '' : _optionalText(business[5]),
-        remark: business == null ? '' : _optionalText(business[24]),
-        mark: business == null ? '' : _optionalText(business[25]),
-      );
+  static bool _mustOrderDisabled({
+    required List<Object?>? region,
+    required List<Object?>? business,
+  }) {
+    final hasMust =
+        region != null &&
+        (_optionalNumber(region.length > 4 ? region[4] : null) > 0 ||
+            _optionalNumber(region.length > 5 ? region[5] : null) > 0 ||
+            _optionalNumber(region.length > 6 ? region[6] : null) > 0);
+    if (!hasMust) return true;
+    return business != null &&
+        business.length > 37 &&
+        _optionalNumber(business[37]) == 1;
+  }
+
+  static bool _showOnlineText({
+    required String seatId,
+    required List<Object?>? business,
+    required Map<String, List<Object?>> onlineSeats,
+    required Map<String, List<Object?>> offlineConverted,
+  }) {
+    final converted = offlineConverted[seatId];
+    if (converted != null && _integer(converted[1]) == 1) return false;
+    final status = business == null ? 1 : _integer(business[19]);
+    if (status > 2) {
+      return business != null &&
+          business.length > 22 &&
+          _optionalNumber(business[22]) == 1;
+    }
+    final online = onlineSeats[seatId];
+    return online != null && _optionalNumber(online[1]) == 1;
+  }
+
+  static int _pinOrder(Map<String, List<Object?>> topCards, String seatId) {
+    final row = topCards[seatId];
+    if (row == null) return 0;
+    if (_integer(row[2]) != 1) return 0;
+    final seq = _optionalNumber(row[1]).toInt();
+    return seq > 0 ? seq : 0;
+  }
+
+  static CardTable _table(
+    List<Object?> seat,
+    List<Object?>? business, {
+    List<Object?>? region,
+    int pinOrder = 0,
+    bool showOnlineText = false,
+  }) => CardTable(
+    id: _id(seat[0]),
+    name: _text(seat[1]),
+    regionId: _id(seat[3]),
+    seatType: _integer(seat[4]),
+    businessType: _integer(seat[5]),
+    capacity: _integer(seat[6]),
+    displayOrder: _integer(seat[7]),
+    businessStatus: business == null ? 1 : _integer(business[19]),
+    orderAmount: business == null ? 0 : _number(business[6]),
+    discountAmount: business == null
+        ? 0
+        : _optionalNumber(business.length > 38 ? business[38] : null),
+    paidAmount: business == null ? 0 : _number(business[8]),
+    customerName: business == null ? '' : _optionalText(business[16]),
+    customerCount: business == null ? 0 : _integer(business[18]),
+    reservationTime: business == null ? '' : _optionalText(business[2]),
+    expectedArriveTime: business == null ? '' : _optionalLooseText(business[4]),
+    openTime: business == null ? '' : _optionalText(business[5]),
+    remark: business == null ? '' : _optionalText(business[24]),
+    mark: business == null ? '' : _optionalText(business[25]),
+    salesEmployeeId:
+        business == null || business[14] == null || business[14] == ''
+        ? ''
+        : _id(business[14]),
+    waiterEmployeeIds: business == null || business[20] == null
+        ? const <String>{}
+        : _waiterEmployeeIds(business[20]),
+    turnoverCount: business == null || business[13] == null
+        ? 0
+        : _integer(business[13]),
+    giftAmount: business == null
+        ? 0
+        : _optionalNumber(business[11]) + _optionalNumber(business[12]),
+    groupMinConsumeAmount: business == null ? 0 : _optionalNumber(business[9]),
+    assignedMinConsumeAmount: business == null
+        ? 0
+        : _optionalNumber(business[10]),
+    mainOrderAmount: business == null
+        ? 0
+        : _optionalNumber(business.length > 31 ? business[31] : null),
+    paidMainFreeAmount: business == null
+        ? 0
+        : _optionalNumber(business.length > 30 ? business[30] : null),
+    paidValAmount: business == null
+        ? 0
+        : _optionalNumber(business.length > 27 ? business[27] : null),
+    waiterEmployeeId: business == null || business.length <= 34
+        ? ''
+        : _optionalId(business[34]),
+    customerPhone: business == null || business.length <= 35
+        ? ''
+        : _optionalLooseText(business[35]),
+    bookingCustomerPhone: business == null
+        ? ''
+        : _optionalLooseText(business[17]),
+    customerNamePy: business == null || business.length <= 23
+        ? ''
+        : _optionalLooseText(business[23]),
+    transferHistory: business == null || business.length <= 32
+        ? ''
+        : _optionalLooseText(business[32]),
+    boundCustomerName: business == null || business.length <= 36
+        ? ''
+        : _optionalLooseText(business[36]),
+    bookId: business == null || business[1] == null || business[1] == ''
+        ? ''
+        : _id(business[1]),
+    platformId: business == null || business.length <= 22
+        ? 0
+        : _optionalNumber(business[22]).toInt(),
+    secondSalesEmployeeId: business == null || business.length <= 15
+        ? ''
+        : _optionalId(business[15]),
+    pinned: pinOrder > 0,
+    pinOrder: pinOrder,
+    mustOrderDisabled: _mustOrderDisabled(region: region, business: business),
+    showOnlineText: showOnlineText,
+  );
+
+  static Set<String> _waiterEmployeeIds(Object? value) {
+    if (value is! String || value.length > 65536) throw const FormatException();
+    return <String>{
+      for (final id in value.split(';'))
+        if (id.isNotEmpty) _id(id),
+    };
+  }
 
   static CardTable _futureTable(
     List<Object?> seat,
     List<Object?>? currentBusiness,
-    List<Object?>? booking,
-  ) {
+    List<Object?>? booking, {
+    int pinOrder = 0,
+    Map<String, List<Object?>> onlineSeats = const <String, List<Object?>>{},
+    Map<String, List<Object?>> offlineConverted =
+        const <String, List<Object?>>{},
+  }) {
     final currentStatus = currentBusiness == null
         ? 1
         : _integer(currentBusiness[19]);
@@ -404,11 +1300,37 @@ final class LegacyCardTableStore {
       orderAmount: 0,
       paidAmount: 0,
       customerName: activeBooking ? _optionalText(booking[6]) : '',
+      bookingCustomerPhone: activeBooking ? _optionalLooseText(booking[7]) : '',
+      customerNamePy: activeBooking && booking.length > 13
+          ? _optionalLooseText(booking[13])
+          : '',
       customerCount: activeBooking ? _integer(booking[8]) : 0,
       reservationTime: activeBooking ? _optionalText(booking[3]) : '',
+      expectedArriveTime: activeBooking ? _optionalLooseText(booking[4]) : '',
+      salesEmployeeId: activeBooking ? _optionalId(booking[5]) : '',
+      secondSalesEmployeeId: activeBooking && booking.length > 11
+          ? _optionalId(booking[11])
+          : '',
+      groupMinConsumeAmount: currentBusiness == null
+          ? 0
+          : _optionalNumber(currentBusiness[9]),
       openTime: '',
       remark: activeBooking ? _optionalText(booking[12]) : '',
       mark: '',
+      bookId: activeBooking ? _id(booking[2]) : '',
+      platformId: activeBooking && booking.length > 10
+          ? _optionalNumber(booking[10]).toInt()
+          : 0,
+      pinned: pinOrder > 0,
+      pinOrder: pinOrder,
+      showOnlineText: activeBooking
+          ? booking.length > 10 && _optionalNumber(booking[10]) == 1
+          : _showOnlineText(
+              seatId: _id(seat[0]),
+              business: currentBusiness,
+              onlineSeats: onlineSeats,
+              offlineConverted: offlineConverted,
+            ),
     );
   }
 
@@ -439,13 +1361,15 @@ final class LegacyCardTableStore {
     return allowedSeats.isEmpty || allowedSeats.contains(seatId);
   }
 
-  static bool _isSupervisorRegionPermitted(
-    List<Object?> seat,
+  static ({bool restricted, Set<String> allowedRegionIds})
+  _supervisorRegionScope(
     String? stationId,
     Map<String, List<Object?>> roleRows,
     Map<String, List<Object?>> supervisorRegionRows,
   ) {
-    if (stationId == null) return true;
+    if (stationId == null) {
+      return (restricted: false, allowedRegionIds: const <String>{});
+    }
     final normalizedStationId = _id(stationId);
     final isSupervisor = roleRows.values.any(
       (row) =>
@@ -453,13 +1377,34 @@ final class LegacyCardTableStore {
           _integer(row[1]) == 11 &&
           _integer(row[2]) == 1,
     );
-    if (!isSupervisor) return true;
+    if (!isSupervisor) {
+      return (restricted: false, allowedRegionIds: const <String>{});
+    }
     final rows = supervisorRegionRows.values.where(
       (row) => _id(row[0]) == normalizedStationId && _integer(row[2]) == 1,
     );
-    if (rows.any((row) => _id(row[1]) == '0')) return true;
-    final allowedRegions = rows.map((row) => _id(row[1])).toSet();
-    return allowedRegions.contains(_id(seat[3]));
+    if (rows.any((row) => _id(row[1]) == '0')) {
+      return (restricted: false, allowedRegionIds: const <String>{});
+    }
+    return (
+      restricted: true,
+      allowedRegionIds: rows.map((row) => _id(row[1])).toSet(),
+    );
+  }
+
+  static bool _isSupervisorRegionPermitted(
+    List<Object?> seat,
+    String? stationId,
+    Map<String, List<Object?>> roleRows,
+    Map<String, List<Object?>> supervisorRegionRows,
+  ) {
+    final scope = _supervisorRegionScope(
+      stationId,
+      roleRows,
+      supervisorRegionRows,
+    );
+    if (!scope.restricted) return true;
+    return scope.allowedRegionIds.contains(_id(seat[3]));
   }
 
   static ({Map<int, int> totals, Map<String, Map<int, int>> byRegion})
@@ -495,6 +1440,25 @@ final class LegacyCardTableStore {
     for (final entry in source.entries)
       entry.key: List<Object?>.unmodifiable(entry.value),
   };
+
+  SoldOutProductCatalog _catalogFrom({
+    required Map<String, List<Object?>> firstCategories,
+    required Map<String, List<Object?>> secondCategories,
+    required Map<String, List<Object?>> goods,
+    required Map<String, List<Object?>> areaProducts,
+  }) {
+    try {
+      return SoldOutProductCatalog.fromWire(
+        firstCategories: firstCategories.values,
+        secondCategories: secondCategories.values,
+        products: goods.values,
+        areaProducts: areaProducts.values,
+        padDevice: _padDevice,
+      );
+    } on Object {
+      return SoldOutProductCatalog.empty;
+    }
+  }
 
   static String _id(Object? value) {
     if (value is String &&
@@ -542,6 +1506,46 @@ final class LegacyCardTableStore {
       throw const FormatException();
     }
     return value;
+  }
+
+  static num _optionalNumber(Object? value) {
+    if (value == null || value == '') return 0;
+    return _number(value);
+  }
+
+  static String _optionalId(Object? value) {
+    if (value == null || value == '' || value == 0) return '';
+    return _id(value);
+  }
+
+  static String _optionalLooseText(Object? value) {
+    if (value == null || value == '') return '';
+    if (value is num && value.isFinite) return value.toString();
+    return _optionalText(value);
+  }
+
+  static String _employeeCode(Object? value) {
+    if (value == null || value == '') return '';
+    if (value is num && value.isFinite) return value.toString();
+    return _optionalText(value);
+  }
+
+  String _goodsName(String id) {
+    final row = _goods[id];
+    if (row == null || row.length < 2) return '';
+    return _optionalLooseText(row[1]);
+  }
+
+  List<String> _reasonNames(int typeId) {
+    try {
+      return <String>[
+        for (final row in _reasons.values)
+          if (_integer(row[2]) == 1 && _integer(row[3]) == typeId)
+            _text(row[1]),
+      ];
+    } on Object {
+      return const <String>[];
+    }
   }
 
   static const AppFailure _shapeFailure = AppFailure(

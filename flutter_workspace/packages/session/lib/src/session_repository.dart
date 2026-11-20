@@ -91,8 +91,16 @@ final class SessionRepository {
       );
       if (_closed) return const FailureResult(_repositoryClosedFailure);
       final user = result.valueOrNull;
-      if (user != null) _setUser(user);
-      return result;
+      if (user == null) return result;
+      // A successful authentication creates a new session even if the public
+      // employee fields match. Do not reuse an API/fake's cached value object.
+      final authenticated = UserSession(
+        employeeId: user.employeeId,
+        name: user.name,
+        stationId: user.stationId,
+      );
+      _setUser(authenticated, newSession: true);
+      return Success(authenticated);
     } finally {
       _operationInProgress = false;
     }
@@ -171,8 +179,8 @@ final class SessionRepository {
     if (!_machineController.isClosed) _machineController.add(value);
   }
 
-  void _setUser(UserSession? value) {
-    if (_user == value) return;
+  void _setUser(UserSession? value, {bool newSession = false}) {
+    if (!newSession && _user == value) return;
     _user = value;
     if (!_userController.isClosed) _userController.add(value);
   }

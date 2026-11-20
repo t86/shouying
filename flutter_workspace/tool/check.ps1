@@ -68,7 +68,12 @@ Invoke-Checked -Command 'node' -Arguments @('--test', $BoundaryTest) -WorkingDir
 Invoke-Checked -Command 'node' -Arguments @($BoundaryCli, $WorkspaceRoot) -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'format', '--output=none', '--set-exit-if-changed', '.') -WorkingDirectory $WorkspaceRoot
 Invoke-Checked -Command 'fvm' -Arguments @('dart', 'analyze') -WorkingDirectory $WorkspaceRoot
-Invoke-Checked -Command 'fvm' -Arguments (@('flutter', 'test') + $FlutterMembers) -WorkingDirectory $WorkspaceRoot
+foreach ($Member in $FlutterMembers) {
+    # Package assets are bundled relative to each member's pubspec.
+    if (Test-Path (Join-Path $Member 'test') -PathType Container) {
+        Invoke-Checked -Command 'fvm' -Arguments @('flutter', 'test', '--no-pub') -WorkingDirectory $Member
+    }
+}
 $BuildStateBefore = Get-MigrationStateSnapshot
 Invoke-Checked -Command 'fvm' -Arguments @('flutter', 'build', 'windows', '--release') -WorkingDirectory (Join-Path $WorkspaceRoot 'apps/windows_app')
 $BuildStateAfter = Get-MigrationStateSnapshot

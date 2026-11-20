@@ -37,7 +37,11 @@ REPO_ROOT=$(CDPATH= cd -- "$WORKSPACE_ROOT/.." && pwd)
   node "$WORKSPACE_ROOT/tool/verify_boundaries.js" "$WORKSPACE_ROOT"
   fvm dart format --output=none --set-exit-if-changed .
   fvm dart analyze
-  fvm flutter test packages/* apps/*
+  # Package assets are bundled relative to each member's pubspec.
+  for member in packages/* apps/*; do
+    [ -d "$member/test" ] || continue
+    (cd "$member" && fvm flutter test --no-pub)
+  done
 )
 
 BUILD_STATE_BEFORE=$(

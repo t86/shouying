@@ -15,12 +15,15 @@ abstract interface class SecureCredentialBackend {
 
 final class FlutterSecureStorageBackend implements SecureCredentialBackend {
   const FlutterSecureStorageBackend({
-    this._storage = const FlutterSecureStorage(),
-  });
+    FlutterSecureStorage storage = const FlutterSecureStorage(),
+  }) : _storage = storage;
 
   static const WebOptions _persistentWebOptions = WebOptions();
   static const WebOptions _sessionWebOptions = WebOptions(
     useSessionStorage: true,
+  );
+  static const MacOsOptions _macOsOptions = MacOsOptions(
+    usesDataProtectionKeychain: false,
   );
 
   final FlutterSecureStorage _storage;
@@ -30,6 +33,7 @@ final class FlutterSecureStorageBackend implements SecureCredentialBackend {
       _storage.read(
         key: key,
         webOptions: sessionScoped ? _sessionWebOptions : _persistentWebOptions,
+        mOptions: _macOsOptions,
       );
 
   @override
@@ -41,6 +45,7 @@ final class FlutterSecureStorageBackend implements SecureCredentialBackend {
     key: key,
     value: value,
     webOptions: sessionScoped ? _sessionWebOptions : _persistentWebOptions,
+    mOptions: _macOsOptions,
   );
 }
 

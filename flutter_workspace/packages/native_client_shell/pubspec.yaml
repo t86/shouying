@@ -1,0 +1,28 @@
+name: native_client_shell
+description: Shared authenticated business shell for Android and Windows.
+publish_to: none
+resolution: workspace
+environment:
+  sdk: ">=3.13.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.11.0
+  flutter_riverpod: ^3.4.2
+  go_router: ^17.1.0
+  foundation:
+    path: ../foundation
+  protocol:
+    path: ../protocol
+  session:
+    path: ../session
+  realtime_sync:
+    path: ../realtime_sync
+  permissions:
+    path: ../permissions
+  design_system:
+    path: ../design_system
+  device_bridge_platform_interface:
+    path: ../device_bridge_platform_interface
+  card_table:
+    path: ../card_table

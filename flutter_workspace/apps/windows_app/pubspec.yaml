@@ -29,6 +29,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  native_client_shell:
+    path: ../../packages/native_client_shell
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
@@ -49,6 +51,8 @@ dependencies:
     path: ../../packages/design_system
   device_bridge_windows:
     path: ../../packages/device_bridge_windows
+  card_table:
+    path: ../../packages/card_table
 
 dev_dependencies:
   flutter_test:

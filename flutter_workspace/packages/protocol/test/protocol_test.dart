@@ -8,6 +8,111 @@ import 'package:foundation/foundation.dart';
 import 'package:protocol/protocol.dart';
 
 void main() {
+  test(
+    'no-body write guard rejects changed scope after awaited credentials',
+    () async {
+      var valid = true, sent = 0;
+      final entered = Completer<void>(), release = Completer<void>();
+      final store = _MemoryCredentialStore()
+        ..beforeSnapshot = () async {
+          entered.complete();
+          await release.future;
+        };
+      final dio = Dio()
+        ..httpClientAdapter = _StubAdapter((options) {
+          sent++;
+          expect(options.data, isNull);
+          return ResponseBody.fromString('{"code":1}', 200);
+        });
+      final pending = _client(dio: dio, credentialStore: store).postWithoutBody(
+        '/sel/cancel_wkday_cnl_switch',
+        client: ClientKind.cashier,
+        canDispatch: () => valid,
+      );
+      await entered.future;
+      valid = false;
+      release.complete();
+      expect((await pending).failureOrNull, isNotNull);
+      expect(sent, 0);
+    },
+  );
+  for (final during in ['credentials', 'interceptor']) {
+    test(
+      'dispatch guard blocks changes during $during before transport',
+      () async {
+        var valid = true;
+        var sent = 0;
+        final release = Completer<void>();
+        final entered = Completer<void>();
+        final store = _MemoryCredentialStore();
+        if (during == 'credentials') {
+          store.beforeSnapshot = () async {
+            entered.complete();
+            await release.future;
+          };
+        }
+        final dio = Dio()
+          ..httpClientAdapter = _StubAdapter((_) {
+            sent++;
+            return ResponseBody.fromString('{"code":1}', 200);
+          });
+        if (during == 'interceptor') {
+          dio.interceptors.add(
+            InterceptorsWrapper(
+              onRequest: (options, handler) async {
+                entered.complete();
+                await release.future;
+                handler.next(options);
+              },
+            ),
+          );
+        }
+        final pending = _client(dio: dio, credentialStore: store).post(
+          '/wkd/close',
+          client: ClientKind.cashier,
+          canDispatch: () => valid,
+        );
+        await entered.future;
+        valid = false;
+        release.complete();
+        expect((await pending).failureOrNull, isNotNull);
+        expect(sent, 0);
+      },
+    );
+  }
+  group('binary export filename decoding', () {
+    for (final example in <(String?, String)>[
+      (null, '区域实时营收.xlsx'),
+      ("attachment; filename*=UTF-8''%E5%8C%BA%E5%9F%9F.xlsx", '区域.xlsx'),
+      ('attachment; filename=%ZZ.xlsx', '区域实时营收.xlsx'),
+      ('attachment; filename=%FF.xlsx', '区域实时营收.xlsx'),
+      ('attachment; filename=区域.xlsx', '区域.xlsx'),
+    ]) {
+      test(
+        '${example.$1 ?? 'no disposition'} preserves a usable Unicode filename',
+        () async {
+          final adapter = _StubAdapter(
+            (_) => ResponseBody.fromBytes(
+              [80, 75, 3, 4, 1],
+              200,
+              headers: {
+                if (example.$1 != null) 'content-disposition': [example.$1!],
+              },
+            ),
+          );
+          final result = await _client(dio: Dio()..httpClientAdapter = adapter)
+              .postBinary(
+                '/wine/export',
+                client: ClientKind.wine,
+                fallbackFileName: '区域实时营收.xlsx',
+              );
+          expect(result.failureOrNull, isNull);
+          expect(result.valueOrNull!.fileName, example.$2);
+          expect(result.valueOrNull!.bytes, [80, 75, 3, 4, 1]);
+        },
+      );
+    }
+  });
   group('ClientKind', () {
     test('has the exact client order, names, and terminal values', () {
       expect(ClientKind.values, <ClientKind>[
@@ -1365,6 +1470,7 @@ final class _StubAdapter implements HttpClientAdapter {
 enum _CredentialFailure { none, readTk, readStk, clearTk, clearStk }
 
 final class _MemoryCredentialStore implements CredentialStore {
+  Future<void> Function()? beforeSnapshot;
   _MemoryCredentialStore({
     this.tk,
     this.stk,
@@ -1441,6 +1547,7 @@ final class _MemoryCredentialStore implements CredentialStore {
   @override
   Future<CredentialSnapshot> readSnapshot() async {
     readSnapshotCalls += 1;
+    await beforeSnapshot?.call();
     if (readDelay case final delay?) await Future<void>.delayed(delay);
     if (failure == _CredentialFailure.readTk ||
         failure == _CredentialFailure.readStk) {

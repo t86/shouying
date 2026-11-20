@@ -25,6 +25,10 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+  product_images_ = std::make_unique<ProductImagePicker>(
+      flutter_controller_->engine()->messenger(), GetHandle());
+  terminal_identity_ = std::make_unique<TerminalIdentity>(
+      flutter_controller_->engine()->messenger());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -40,6 +44,8 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  terminal_identity_.reset();
+  product_images_.reset();
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }

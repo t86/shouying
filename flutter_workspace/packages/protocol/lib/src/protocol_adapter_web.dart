@@ -47,6 +47,7 @@ final class FetchHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    checkDispatch(options);
     final abortTrigger = Completer<void>();
 
     void abort() {
@@ -58,6 +59,7 @@ final class FetchHttpClientAdapter implements HttpClientAdapter {
     }
 
     final bodyBytes = await _collectBody(requestStream, options, abort);
+    checkDispatch(options);
     final request =
         http.AbortableRequest(
             options.method,

@@ -145,8 +145,15 @@ final class IoCredentialTransactionCoordinator
       try {
         await guard.create(exclusive: true);
         return;
-      } on FileSystemException {
-        if (!await guard.exists()) {
+      } on FileSystemException catch (error) {
+        // Exclusive-create collisions are retryable even if the owner has
+        // already removed its guard. An exists() check races that release.
+        final code = error.osError?.errorCode;
+        // Windows: ERROR_FILE_EXISTS / ERROR_ALREADY_EXISTS; POSIX: EEXIST.
+        final collision = Platform.isWindows
+            ? code == 80 || code == 183
+            : code == 17;
+        if (!collision) {
           throw const CredentialTransactionUnavailableException();
         }
         await Future<void>.delayed(const Duration(milliseconds: 5));

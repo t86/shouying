@@ -141,9 +141,11 @@ async function proxyDevelopmentAuthorization(
     const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
     const placeholder = payload?.code;
     const match = typeof placeholder === 'string'
-      ? placeholder.match(/^loopback-development-(book|order|money)$/)
+      ? placeholder.match(/^loopback-development-([A-Za-z_]+)$/)
       : null;
-    if (match == null) throw constProxyInputError;
+    if (match == null || !developmentClients.includes(match[1])) {
+      throw constProxyInputError;
+    }
     const machineCode = developmentMachineCodes[match[1]];
     proxyHttp(request, response, target, {
       body: Buffer.from(JSON.stringify({ code: machineCode })),
@@ -175,7 +177,7 @@ function createDevelopmentProxy({
   if (!Number.isInteger(listenPort) || listenPort < 0 || listenPort > 65535) {
     throw new TypeError('development proxy port is invalid');
   }
-  const requiredClients = ['book', 'order', 'money'];
+  const requiredClients = developmentClients;
   if (
     developmentMachineCodes == null ||
     typeof developmentMachineCodes !== 'object' ||
@@ -332,4 +334,8 @@ function createDevelopmentProxy({
   };
 }
 
-module.exports = { createDevelopmentProxy };
+const developmentClients = Object.freeze([
+  'org_mgr', 'book', 'order', 'money', 'vip', 'erp', 'erpAdmin', 'wine', 'queuedsp',
+]);
+
+module.exports = { createDevelopmentProxy, developmentClients };

@@ -4,7 +4,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 
-const { createDevelopmentProxy } = require('./web_dev_proxy');
+const { createDevelopmentProxy, developmentClients } = require('./web_dev_proxy');
 
 const developmentTargets = Object.freeze({
   apiOrigin: 'http://nls-dev.xmsjznwl.com',
@@ -16,6 +16,7 @@ function buildFlutterArguments({ proxyPort, flutterPort }) {
   const localOrigin = `127.0.0.1:${proxyPort}`;
   return [
     'run',
+    '--no-pub',
     '-d',
     'web-server',
     '--debug',
@@ -33,7 +34,7 @@ function buildFlutterArguments({ proxyPort, flutterPort }) {
 
 function extractDevelopmentMachineCodes(source) {
   const result = {};
-  for (const client of ['book', 'order', 'money']) {
+  for (const client of developmentClients) {
     const match = source.match(
       new RegExp(
         `client\\s*:\\s*['"]${client}['"][\\s\\S]{0,256}?` +

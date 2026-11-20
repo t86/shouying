@@ -12,11 +12,36 @@ typedef WebSystemPrint = Future<bool> Function({
   required TestReceiptRenderModel model,
 });
 
-final class WebPrinterService implements PrinterService {
-  WebPrinterService({WebSystemPrint? systemPrint})
-    : _systemPrint = systemPrint ?? _layoutPdf;
+final class WebPrinterService implements PrinterService, PdfDocumentPrinter {
+  WebPrinterService({
+    WebSystemPrint? systemPrint,
+    SystemPdfPrint? documentPrint,
+  }) : _documentPrint = documentPrint ?? _layoutDocumentPdf,
+       _systemPrint = systemPrint ?? _layoutPdf;
 
   final WebSystemPrint _systemPrint;
+  final SystemPdfPrint _documentPrint;
+
+  @override
+  Future<Result<void>> printPdfDocument(
+    Uint8List bytes, {
+    required String name,
+    required bool Function() canDispatch,
+  }) => dispatchPdfDocument(bytes, name, canDispatch, _documentPrint);
+
+  static Future<bool> _layoutDocumentPdf(
+    Uint8List bytes,
+    String name,
+    bool Function() current,
+  ) => Printing.layoutPdf(
+    name: name,
+    format: PdfPageFormat.a4.landscape,
+    dynamicLayout: false,
+    onLayout: (_) async {
+      if (!current()) throw StateError('Printing context changed');
+      return bytes;
+    },
+  );
 
   @override
   Future<Result<void>> printTestReceipt(

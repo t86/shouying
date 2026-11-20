@@ -7,6 +7,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:protocol/protocol.dart';
 
 void main() {
+  test(
+    'automatic close accepts numeric string fields from the legacy service',
+    () async {
+      final adapter = _StubAdapter([
+        {
+          'code': '1',
+          'data': {'on_off': '2', 'hour': '10', 'minute': '30'},
+        },
+      ]);
+      final result = await ProtocolBusinessDayApi(client: _client(adapter))
+          .loadAutoClose(ClientKind.cashier);
+      expect(result.failureOrNull, isNull);
+      expect(result.valueOrNull!.enabled, false);
+      expect(result.valueOrNull!.hour, 10);
+      expect(result.valueOrNull!.minute, 30);
+    },
+  );
   test('uses the legacy booking business-day start contract', () async {
     final adapter = _StubAdapter(<Map<String, Object?>>[
       <String, Object?>{'code': 1},
@@ -29,6 +46,50 @@ void main() {
       everyElement('/server/wkd/start'),
     );
     expect(adapter.requests, everyElement(isA<RequestOptions>()));
+  });
+
+  test('closes the business day and prints the shift bill', () async {
+    final adapter = _StubAdapter(<Map<String, Object?>>[
+      <String, Object?>{'code': 1},
+      <String, Object?>{'code': 1},
+    ]);
+    final api = ProtocolBusinessDayApi(client: _client(adapter));
+    expect((await api.close(ClientKind.cashier)).failureOrNull, isNull);
+    expect((await api.printShift(ClientKind.cashier)).failureOrNull, isNull);
+    expect(adapter.requests[0].uri.path, '/server/wkd/close');
+    expect(adapter.requests[0].data, <String, Object?>{});
+    expect(adapter.requests[1].uri.path, '/server/wkd/prt_bj');
+    expect(adapter.requests[1].data, {
+      'region_ids': [-1],
+      'cashier_ids': [-1],
+    });
+  });
+
+  test('loads and saves automatic close time', () async {
+    final adapter = _StubAdapter(<Map<String, Object?>>[
+      <String, Object?>{
+        'code': 1,
+        'data': {'on_off': 1, 'hour': 10, 'minute': 30},
+      },
+      <String, Object?>{'code': 1},
+    ]);
+    final api = ProtocolBusinessDayApi(client: _client(adapter));
+    final config = (await api.loadAutoClose(ClientKind.cashier)).valueOrNull!;
+    expect(config.enabled, isTrue);
+    expect(config.hour, 10);
+    expect(config.minute, 30);
+    expect(
+      (await api.saveAutoClose(
+        ClientKind.cashier,
+        enabled: false,
+        hour: 10,
+        minute: 30,
+      )).failureOrNull,
+      isNull,
+    );
+    expect(adapter.requests[0].uri.path, '/server/wkd/auto_close_cfg');
+    expect(adapter.requests[1].uri.path, '/server/wkd/save_auto_close');
+    expect(adapter.requests[1].data, {'on_off': 2, 'hour': 0, 'minute': 0});
   });
 }
 

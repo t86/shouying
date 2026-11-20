@@ -83,7 +83,7 @@ function makeShellFixture(t) {
     'apps/android_app',
     'apps/web_app',
     'apps/windows_app',
-  ]) fs.mkdirSync(path.join(workspace, member), { recursive: true });
+  ]) fs.mkdirSync(path.join(workspace, member, 'test'), { recursive: true });
   fs.mkdirSync(path.join(root, 'tests'), { recursive: true });
   fs.mkdirSync(bin, { recursive: true });
   fs.copyFileSync(shellCheck, path.join(tool, 'check.sh'));
@@ -185,7 +185,7 @@ function makePowerShellFixture(t) {
     'apps/android_app',
     'apps/web_app',
     'apps/windows_app',
-  ]) fs.mkdirSync(path.join(workspace, member), { recursive: true });
+  ]) fs.mkdirSync(path.join(workspace, member, 'test'), { recursive: true });
   fs.mkdirSync(path.join(root, 'tests'), { recursive: true });
   fs.mkdirSync(bin, { recursive: true });
   fs.copyFileSync(powershellCheck, path.join(tool, 'check.ps1'));
@@ -480,7 +480,7 @@ test('check.sh resolves roots from itself and runs the complete gate in order', 
     `node|${workspace}|${workspace}/tool/verify_boundaries.js ${workspace}`,
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
-    `fvm|${workspace}|flutter test packages/card_table packages/design_system packages/device_bridge_android packages/device_bridge_platform_interface packages/device_bridge_web packages/device_bridge_windows packages/foundation packages/permissions packages/protocol packages/realtime_sync packages/session apps/android_app apps/web_app apps/windows_app`,
+    ...["packages/card_table","packages/design_system","packages/device_bridge_android","packages/device_bridge_platform_interface","packages/device_bridge_web","packages/device_bridge_windows","packages/foundation","packages/permissions","packages/protocol","packages/realtime_sync","packages/session","apps/android_app","apps/web_app","apps/windows_app"].map(member => `fvm|${workspace}/${member}|flutter test --no-pub`),
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/web_app|flutter build web --release`,
     `fvm|${workspace}/apps/android_app|flutter build apk --release`,
@@ -507,6 +507,18 @@ test('check.sh fails when a build changes a tracked migration file', {
   assert.equal(result.status, 1);
   assert.match(result.commands.at(-1), /node\|.*\|.*snapshot_migration_state\.js$/);
   assert.equal(read(fixture.trackedFile), 'clean\ndirty\ndirty\n');
+});
+
+test('member tests use their own package assets and stop the gate on failure', {
+  skip: process.platform === 'win32',
+}, (t) => {
+  const fixture = makeShellFixture(t);
+  fs.mkdirSync(path.join(fixture.workspace, 'packages/aaa_no_tests'));
+  const result = runFixture(fixture, { failPattern: 'packages/card_table|flutter test' });
+  assert.equal(result.status, 42);
+  assert.equal(result.commands.at(-1), `fvm|${fixture.workspace}/packages/card_table|flutter test --no-pub`);
+  assert.equal(result.commands.some(command => command.includes('aaa_no_tests')), false);
+  assert.equal(result.commands.some(command => command.includes('flutter build')), false);
 });
 
 test('check.sh permits unchanged pre-existing staged, unstaged, and untracked state', {
@@ -551,11 +563,20 @@ test('PowerShell check uses checked native calls in the same required order', ()
     "@($BoundaryCli, $WorkspaceRoot)",
     "@('dart', 'format', '--output=none', '--set-exit-if-changed', '.')",
     "@('dart', 'analyze')",
-    "@('flutter', 'test') + $FlutterMembers",
+    "foreach ($Member in $FlutterMembers)",
+    "@('flutter', 'test', '--no-pub') -WorkingDirectory $Member",
     '$BuildStateBefore = Get-MigrationStateSnapshot',
     "@('flutter', 'build', 'windows', '--release')",
     '$BuildStateAfter = Get-MigrationStateSnapshot',
   ]);
+});
+
+test('Linux CI also runs tests in each package asset context', () => {
+  const source = parseYaml(pipeline)['flutter-test'].script.join('\n');
+  assert.doesNotMatch(source, /flutter test packages\/\*/);
+  assert.match(source, /for member in packages\/\* apps\/\*/);
+  assert.match(source, /cd "\$member" && fvm flutter test --no-pub/);
+  assert.match(source, /\|\| exit/);
 });
 
 test('Windows hosts provide pwsh for the PowerShell behavior gate', {
@@ -584,7 +605,7 @@ test('check.ps1 resolves roots and runs every checked command in order', {
     `node|${workspace}|${workspace}/tool/verify_boundaries.js ${workspace}`,
     `fvm|${workspace}|dart format --output=none --set-exit-if-changed .`,
     `fvm|${workspace}|dart analyze`,
-    `fvm|${workspace}|flutter test ${workspace}/packages/card_table ${workspace}/packages/design_system ${workspace}/packages/device_bridge_android ${workspace}/packages/device_bridge_platform_interface ${workspace}/packages/device_bridge_web ${workspace}/packages/device_bridge_windows ${workspace}/packages/foundation ${workspace}/packages/permissions ${workspace}/packages/protocol ${workspace}/packages/realtime_sync ${workspace}/packages/session ${workspace}/apps/android_app ${workspace}/apps/web_app ${workspace}/apps/windows_app`,
+    ...["packages/card_table","packages/design_system","packages/device_bridge_android","packages/device_bridge_platform_interface","packages/device_bridge_web","packages/device_bridge_windows","packages/foundation","packages/permissions","packages/protocol","packages/realtime_sync","packages/session","apps/android_app","apps/web_app","apps/windows_app"].map(member => `fvm|${workspace}/${member}|flutter test --no-pub`),
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,
     `fvm|${workspace}/apps/windows_app|flutter build windows --release`,
     `node|${root}|${workspace}/tool/snapshot_migration_state.js`,

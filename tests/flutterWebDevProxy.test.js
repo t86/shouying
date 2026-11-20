@@ -15,6 +15,39 @@ const {
   extractDevelopmentMachineCodes,
 } = require('../flutter_workspace/tool/web_dev_runner');
 
+const originalClients = ['org_mgr', 'book', 'order', 'money', 'vip', 'erp', 'erpAdmin', 'wine', 'queuedsp'];
+const allDevelopmentCodes = Object.fromEntries(originalClients.map(client => [client, `${client}-test-code`]));
+
+test('development runner extracts all nine original system codes', () => {
+  const source = originalClients.map(client => `{client:"${client}",code:"${client}-test-code"}`).join(',');
+  assert.deepEqual(extractDevelopmentMachineCodes(source), allDevelopmentCodes);
+});
+
+test('all original clients authorize through a constrained local proxy', async (t) => {
+  const received = [];
+  const upstream = http.createServer((req, res) => {
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => { received.push(JSON.parse(Buffer.concat(chunks))); res.end('ok'); });
+  });
+  const origin = await listen(upstream);
+  t.after(() => close(upstream));
+  const proxy = createDevelopmentProxy({listenHost:'127.0.0.1',listenPort:0,
+    flutterOrigin:origin, apiOrigin:origin, onlineOrigin:origin,
+    websocketOrigin:origin.replace('http:', 'ws:'), developmentMachineCodes:allDevelopmentCodes});
+  await proxy.listen();
+  t.after(() => proxy.close());
+  for (const client of originalClients) {
+    const result = await request(proxy.origin, '/dev-api/server/term/auth', {
+      method:'POST', body:JSON.stringify({code:`loopback-development-${client}`})});
+    assert.equal(result.statusCode,200,client);
+  }
+  const invalid = await request(proxy.origin, '/dev-api/server/term/auth', {
+    method:'POST', body:JSON.stringify({code:'loopback-development-appinfo'})});
+  assert.equal(invalid.statusCode,400);
+  assert.deepEqual(received, originalClients.map(client => ({code:allDevelopmentCodes[client]})));
+});
+
 function listen(server) {
   return new Promise((resolve, reject) => {
     server.once('error', reject);
@@ -134,6 +167,7 @@ test('loopback development proxy preserves original service paths', async (t) =>
     onlineOrigin,
     websocketOrigin,
     developmentMachineCodes: {
+      ...allDevelopmentCodes,
       book: 'book-code-for-test',
       order: 'order-code-for-test',
       money: 'money-code-for-test',
@@ -269,6 +303,7 @@ test('development proxy binds only explicit loopback hosts', () => {
 test('local runner enables only the loopback debug configuration', () => {
   assert.deepEqual(buildFlutterArguments({ proxyPort: 8183, flutterPort: 8184 }), [
     'run',
+    '--no-pub',
     '-d',
     'web-server',
     '--debug',
@@ -288,18 +323,6 @@ test('local runner enables only the loopback debug configuration', () => {
     websocketOrigin: 'ws://nls-dev.xmsjznwl.com',
   });
   assert.doesNotMatch(JSON.stringify(developmentTargets), /password|credential|token/i);
-  assert.deepEqual(
-    extractDevelopmentMachineCodes(`
-      { name: "Order", client: "order", code: "order-code" },
-      { name: "Cashier", client: "money", code: "cashier-code" },
-      { name: "Booking", client: "book", code: "booking-code" },
-    `),
-    {
-      book: 'booking-code',
-      order: 'order-code',
-      money: 'cashier-code',
-    },
-  );
   assert.throws(
     () => extractDevelopmentMachineCodes(
       '{ client: "money", code: "cashier-code" }',

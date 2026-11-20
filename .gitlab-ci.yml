@@ -46,7 +46,7 @@ flutter-test:
     - node tool/verify_boundaries.js .
     - fvm dart format --output=none --set-exit-if-changed .
     - fvm dart analyze
-    - fvm flutter test packages/* apps/*
+    - 'for member in packages/* apps/*; do [ -d "$member/test" ] || continue; (cd "$member" && fvm flutter test --no-pub) || exit $?; done'
 
 flutter-web-android:
   extends: .linux-flutter

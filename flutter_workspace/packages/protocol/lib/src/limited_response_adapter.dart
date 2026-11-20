@@ -2,6 +2,23 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+const dispatchGuardKey = 'shouyin.canDispatch';
+
+final class DispatchInvalidatedException implements Exception {
+  const DispatchInvalidatedException();
+}
+
+void checkDispatch(RequestOptions options) {
+  final guard = options.extra[dispatchGuardKey];
+  if (guard is! bool Function()) return;
+  try {
+    if (guard()) return;
+  } on Object {
+    // A failed authority check is never permission to send.
+  }
+  throw const DispatchInvalidatedException();
+}
+
 final class ResponseTooLargeException implements Exception {
   const ResponseTooLargeException();
 }
@@ -50,6 +67,7 @@ final class LimitedResponseAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    checkDispatch(options);
     final response = await _delegate.fetch(
       options,
       requestStream,

@@ -24,6 +24,8 @@ export 'src/login_view_model.dart'
         loginViewModelProvider,
         sessionRepositoryProvider;
 export 'src/session_api.dart' show SessionApi;
+export 'src/terminal_registration_settings.dart'
+    show RegisteredTerminal, TerminalRegistrationSettings;
 export 'src/session_models.dart'
     show EmployeeLoginType, MachineAccessMode, MachineSession, UserSession;
 export 'src/session_repository.dart' show SessionRepository;

@@ -21,15 +21,40 @@ typedef AndroidSocketConnector = Future<Socket> Function(
   Duration timeout,
 );
 
-final class AndroidPrinterService implements PrinterService {
+final class AndroidPrinterService
+    implements PrinterService, PdfDocumentPrinter {
   AndroidPrinterService({
     AndroidSystemPrint? systemPrint,
+    SystemPdfPrint? documentPrint,
     AndroidSocketConnector? socketConnector,
     this.connectTimeout = const Duration(seconds: 3),
-  }) : _systemPrint = systemPrint ?? _layoutPdf,
+  }) : _documentPrint = documentPrint ?? _layoutDocumentPdf,
+       _systemPrint = systemPrint ?? _layoutPdf,
        _socketConnector = socketConnector ?? _connectSocket;
 
   final AndroidSystemPrint _systemPrint;
+  final SystemPdfPrint _documentPrint;
+
+  @override
+  Future<Result<void>> printPdfDocument(
+    Uint8List bytes, {
+    required String name,
+    required bool Function() canDispatch,
+  }) => dispatchPdfDocument(bytes, name, canDispatch, _documentPrint);
+
+  static Future<bool> _layoutDocumentPdf(
+    Uint8List bytes,
+    String name,
+    bool Function() current,
+  ) => Printing.layoutPdf(
+    name: name,
+    format: PdfPageFormat.a4.landscape,
+    dynamicLayout: false,
+    onLayout: (_) async {
+      if (!current()) throw StateError('Printing context changed');
+      return bytes;
+    },
+  );
   final AndroidSocketConnector _socketConnector;
   final Duration connectTimeout;
 

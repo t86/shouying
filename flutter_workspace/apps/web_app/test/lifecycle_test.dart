@@ -18,6 +18,362 @@ import 'package:session/session.dart';
 import 'package:shouyin_web/main.dart';
 
 void main() {
+  for (final system in [BusinessSystem.cashier, BusinessSystem.order]) {
+    for (final nextStation in ['2', '1']) {
+      testWidgets(
+        '${system.name} owned routes close on ${nextStation == '1' ? 'same-account relogin' : 'actor replacement'}',
+        (tester) async {
+          await tester.binding.setSurfaceSize(const Size(1500, 1000));
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+          final factory = _LifecycleFactory();
+          await tester.pumpWidget(
+            ShouyinWebApp(
+              environment: _validEnvironment,
+              dependenciesFactory: factory,
+            ),
+          );
+          await tester.pumpAndSettle();
+          final d = factory.dependencies;
+          d.adapter.stationId = '1';
+          await tester.runAsync(() async {
+            await d.sessionRepository.authorizeMachine(
+              'loopback-development-${system.client.clientName}',
+            );
+            await d.sessionRepository.login(
+              account: 'actor-a',
+              password: 'synthetic-password',
+              type: EmployeeLoginType.account,
+            );
+          });
+          await tester.pumpAndSettle();
+          final actorA = d.sessionRepository.currentUser;
+          final raw = List<Object?>.filled(60, const <Object?>[]);
+          raw[0] = [
+            [1, '大厅', 1, 1],
+          ];
+          raw[1] = [
+            [100, '旧卡台A01', 1, 1, 1, 1, 4, 1],
+          ];
+          final row = List<Object?>.filled(38, null);
+          row[0] = 100;
+          row[2] = '';
+          row[5] = '';
+          for (final i in [6, 7, 8, 9, 10, 11, 12]) {
+            row[i] = 0;
+          }
+          row[13] = 1;
+          row[16] = '';
+          row[17] = '';
+          row[18] = 1;
+          row[19] = 4;
+          row[20] = '';
+          row[24] = '';
+          row[25] = '';
+          raw[14] = [row];
+          raw[18] = [
+            [9, '', '门店'],
+          ];
+          raw[13] = [
+            [1, system == BusinessSystem.cashier ? 5 : 2, 1],
+          ];
+          raw[41] = [
+            [1, 1, 1],
+          ];
+          raw[54] = [
+            [1, 0],
+          ];
+          d.emitEvent(
+            SyncEnvelope.fromValidatedReconciliation(
+              cursor: '20260920100000',
+              data: raw,
+            ),
+          );
+          await tester.pumpAndSettle();
+          if (system == BusinessSystem.order) {
+            await tester.tap(find.widgetWithText(ChoiceChip, '全部'));
+            await tester.pumpAndSettle();
+          }
+          await tester.tap(find.byKey(CardTableScreen.cardKey('100')));
+          await tester.pumpAndSettle();
+          final page = system == BusinessSystem.cashier
+              ? find.byType(PayOrderScreen)
+              : find.byType(OrderMealScreen);
+          expect(page, findsOneWidget);
+          final oldState = tester.state(page);
+          if (system == BusinessSystem.cashier) {
+            final pay = tester.widget<PayOrderScreen>(page);
+            expect(pay.moveOrder, isNotNull);
+            expect(pay.movePayedOrder, isNotNull);
+            expect(pay.verifyPaidTransfer, isNotNull);
+            expect(pay.paidTransfersNeedingVerification, isNotNull);
+            expect(pay.batchUpdateOrderWaiter, isNotNull);
+            expect(pay.batchUpdateOrderAuther, isNotNull);
+            await tester.tap(find.byKey(PayOrderScreen.cleanKey));
+            await tester.pumpAndSettle();
+            expect(find.text('确定要对卡台 旧卡台A01 清台吗？'), findsOneWidget);
+          }
+          d.adapter.stationId = nextStation;
+          await tester.runAsync(
+            () => d.sessionRepository.login(
+              account: nextStation == '1' ? 'actor-a' : 'actor-b',
+              password: 'synthetic-password',
+              type: EmployeeLoginType.account,
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(identical(actorA, d.sessionRepository.currentUser), false);
+          expect(d.stopCalls, 1);
+          expect(d.startCalls, 2);
+          expect(find.byType(PayOrderScreen), findsNothing);
+          expect(find.byType(OrderMealScreen), findsNothing);
+          expect(find.text('确定要对卡台 旧卡台A01 清台吗？'), findsNothing);
+          expect(oldState.mounted, false);
+          expect(d.auditedBusinessWrites, 0);
+        },
+      );
+    }
+  }
+
+  testWidgets(
+    'management metadata reaches navigation and revokes personnel live',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final factory = _LifecycleFactory();
+      await tester.pumpWidget(
+        ShouyinWebApp(
+          environment: _validEnvironment,
+          dependenciesFactory: factory,
+        ),
+      );
+      await tester.pumpAndSettle();
+      factory.dependencies.adapter.stationId = '1';
+      await tester.runAsync(() async {
+        await factory.dependencies.sessionRepository.authorizeMachine(
+          'loopback-development-org_mgr',
+        );
+        await factory.dependencies.sessionRepository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+      });
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<BmsNavScreen>(find.byType(BmsNavScreen))
+            .permissions!
+            .available,
+        false,
+      );
+      final data = List<Object?>.filled(55, null);
+      data[13] = [
+        [1, 6, 1],
+      ];
+      data[41] = <Object?>[];
+      data[54] = [
+        [1, 0],
+      ];
+      factory.dependencies.emitEvent(
+        SyncEnvelope.parse({'p': 1, 't': '20260920100000', 'd': data})
+            .valueOrNull!,
+      );
+      await tester.pumpAndSettle();
+      final page = tester.widget<BmsNavScreen>(find.byType(BmsNavScreen));
+      expect(page.permissions!.available, true);
+      expect(page.onChangePassword, isNotNull);
+      expect(page.routeObserver, isNotNull);
+      expect(find.text('人员管理'), findsOneWidget);
+      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('修改密码'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ChangePasswordScreen), findsOneWidget);
+      factory.dependencies.adapter.stationId = '2';
+      await tester.runAsync(
+        () => factory.dependencies.sessionRepository.login(
+          account: 'second-employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(factory.dependencies.stopCalls, 1);
+      expect(factory.dependencies.startCalls, 2);
+      expect(find.byType(ChangePasswordScreen), findsNothing);
+      final changedPage = tester.widget<BmsNavScreen>(
+        find.byType(BmsNavScreen),
+      );
+      expect(changedPage.permissions!.available, false);
+      expect(changedPage.key, isNot(page.key));
+      data[13] = [
+        [2, 6, 1],
+      ];
+      factory.dependencies.emitEvent(
+        SyncEnvelope.parse({'p': 1, 't': '20260920100002', 'd': data})
+            .valueOrNull!,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<BmsNavScreen>(find.byType(BmsNavScreen))
+            .permissions!
+            .stationId,
+        2,
+      );
+      factory.dependencies.emitEvent(
+        SyncEnvelope.parse({
+          'p': 1,
+          't': '20260920100001',
+          'd': {
+            '54': [
+              [1, 1],
+            ],
+          },
+        }).valueOrNull!,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('人员管理'), findsNothing);
+      factory.dependencies.managementFeed.setPhase(ConnectionPhase.blocked);
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<BmsNavScreen>(find.byType(BmsNavScreen))
+            .permissions!
+            .available,
+        false,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() => factory.dependencies.disposed.future);
+    },
+  );
+  for (final client in [ClientKind.erp, ClientKind.erpAdmin]) {
+    testWidgets('ERP ${client.name} keeps terminal role and can visit home', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final factory = _LifecycleFactory();
+      await tester.pumpWidget(
+        ShouyinWebApp(
+          environment: _validEnvironment,
+          dependenciesFactory: factory,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await factory.dependencies.sessionRepository.authorizeMachine(
+          'loopback-development-${client.clientName}',
+        );
+        await factory.dependencies.sessionRepository.login(
+          account: 'employee',
+          password: 'synthetic-password',
+          type: EmployeeLoginType.account,
+        );
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(ErpNavScreen), findsOneWidget);
+      final screen = tester.widget<ErpNavScreen>(find.byType(ErpNavScreen));
+      expect((screen.loader as ProtocolErpLoader).api.clientKind, client);
+      expect(screen.onPrintDocument, isNotNull);
+      var documentCalls = 0;
+      final scope = tester.widget<ProviderScope>(
+        find.byType(ProviderScope).last,
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ErpNavScreen)),
+      );
+      container.updateOverrides([
+        for (final override in scope.overrides)
+          if (override.origin == printerServiceProvider)
+            printerServiceProvider.overrideWith(
+              (_) => WebPrinterService(
+                documentPrint: (bytes, name, canDispatch) async {
+                  documentCalls++;
+                  expect(name, 'ERP测试单据.pdf');
+                  expect(canDispatch(), isTrue);
+                  return true;
+                },
+              ),
+            )
+          else
+            override,
+      ]);
+      final printed = await screen.onPrintDocument!(
+        Uint8List.fromList('%PDF-1.7 test'.codeUnits),
+        'ERP测试单据.pdf',
+        () => true,
+      );
+      expect(printed.failureOrNull, isNull);
+      expect(documentCalls, 1);
+      expect(
+        (await screen.onPrintDocument!(
+          Uint8List.fromList('%PDF-1.7 test'.codeUnits),
+          'ERP测试单据.pdf',
+          () => false,
+        )).failureOrNull,
+        isNotNull,
+      );
+      expect(documentCalls, 1);
+      expect(
+        GoRouterState.of(tester.element(find.byType(ErpNavScreen))).uri.path,
+        client == ClientKind.erp ? '/ERP/anotherInLib' : '/ERP/home',
+      );
+      GoRouter.of(tester.element(find.byType(ErpNavScreen))).go('/ERP/home');
+      await tester.pumpAndSettle();
+      expect(
+        GoRouterState.of(tester.element(find.byType(ErpNavScreen))).uri.path,
+        '/ERP/home',
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.runAsync(() => factory.dependencies.disposed.future);
+    });
+  }
+  testWidgets('VIP terminal login opens the real member workspace', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(1400, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final factory = _LifecycleFactory();
+    await tester.pumpWidget(
+      ShouyinWebApp(
+        environment: _validEnvironment,
+        dependenciesFactory: factory,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await factory.dependencies.sessionRepository.authorizeMachine(
+        'loopback-development-vip',
+      );
+      await factory.dependencies.sessionRepository.login(
+        account: 'employee',
+        password: 'synthetic-password',
+        type: EmployeeLoginType.account,
+      );
+    });
+    await tester.pumpAndSettle();
+    expect(find.byType(VipNavScreen), findsOneWidget);
+    expect(find.byType(CardTableScreen), findsNothing);
+    expect(find.byType(DiagnosticPanel), findsNothing);
+    final page = tester.element(find.byType(VipNavScreen));
+    expect(GoRouterState.of(page).uri.path, '/vipManager');
+    final workspace = tester.widget<VipNavScreen>(find.byType(VipNavScreen));
+    expect(workspace.newCardParams, isNotNull);
+    expect(workspace.createCard, isNotNull);
+    expect(workspace.makeCardBegin, isNotNull);
+    expect(workspace.makeCardEnd, isNotNull);
+    for (final path in ['/BMS/stationConfig', '/wine/saveLib', '/ERP/mats']) {
+      GoRouter.of(tester.element(find.byType(VipNavScreen))).go(path);
+      await tester.pumpAndSettle();
+      expect(find.byType(VipNavScreen), findsOneWidget);
+      expect(find.byType(BmsNavScreen), findsNothing);
+      expect(find.byType(WineNavScreen), findsNothing);
+      expect(find.byType(ErpNavScreen), findsNothing);
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => factory.dependencies.disposed.future);
+  });
   test('web security accepts secure same-origin endpoint subtrees', () {
     final environment = AppRuntimeConfiguration.fromValues(
       apiBase: 'https://pos.example.test/api',
@@ -126,6 +482,11 @@ void main() {
     expect(find.byKey(LoginScreen.machineCodeFieldKey), findsNothing);
     expect(find.byKey(LoginScreen.accountFieldKey), findsOneWidget);
     expect(find.byKey(LoginScreen.passwordFieldKey), findsOneWidget);
+    expect(find.text('切换系统'), findsOneWidget);
+    await tester.tap(find.text('切换系统'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
+    expect(factory.dependencies.sessionRepository.currentMachine, isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(() => factory.dependencies.disposed.future);
@@ -192,12 +553,71 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(expectedTitle), findsOneWidget);
+      final cardPage = find.byKey(ValueKey<String>(expectedTitle));
+      expect(cardPage, findsOneWidget);
+      if (system == BusinessSystem.cashier) {
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onLoadCashierReport,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onLoadProfitLoss,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onLoadVouchers,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onCancelVoucher,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onExportVouchers,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onPrintCashierReportQuery,
+          isNotNull,
+        );
+        expect(
+          tester
+              .widget<CardTableScreen>(find.byType(CardTableScreen))
+              .onSubmitProfitLoss,
+          isNotNull,
+        );
+        final router = GoRouter.of(tester.element(cardPage));
+        unawaited(router.push<void>('/payOrder'));
+        await tester.pumpAndSettle();
+        final pay = tester.widget<PayOrderScreen>(find.byType(PayOrderScreen));
+        expect(pay.moveOrder, isNotNull);
+        expect(pay.movePayedOrder, isNotNull);
+        expect(pay.verifyPaidTransfer, isNotNull);
+        expect(pay.paidTransfersNeedingVerification, isNotNull);
+        expect(pay.batchUpdateOrderWaiter, isNotNull);
+        expect(pay.batchUpdateOrderAuther, isNotNull);
+        router.pop();
+        await tester.pumpAndSettle();
+      }
       expect(
-        GoRouterState.of(tester.element(find.text(expectedTitle))).uri.path,
+        GoRouterState.of(tester.element(cardPage)).uri.path,
         system.landingPath,
       );
 
+      await tester.tap(find.byKey(CardTableScreen.accountMenuKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(CardTableScreen.switchSystemKey));
       await tester.pumpAndSettle();
       expect(find.byType(BusinessSystemSelectionScreen), findsOneWidget);
@@ -284,10 +704,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(dependencies.startCalls, 1);
     expect(dependencies.realtimeCreated, isTrue);
-    expect(find.text('收银 · 卡台列表'), findsOneWidget);
+    final cardPage = find.byKey(const ValueKey<String>('收银 · 卡台列表'));
+    expect(cardPage, findsOneWidget);
     expect(find.text('正在等待完整卡台数据'), findsOneWidget);
 
-    final businessContext = tester.element(find.text('收银 · 卡台列表'));
+    final businessContext = tester.element(cardPage);
     GoRouter.of(businessContext).go('/diagnostics');
     await tester.pumpAndSettle();
     expect(find.byKey(DiagnosticPanel.wideLayoutKey), findsOneWidget);
@@ -371,7 +792,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(factory.dependencies.startCalls, 1);
-    expect(find.text('收银 · 卡台列表'), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('收银 · 卡台列表')), findsOneWidget);
     await tester.pump();
     expect(factory.dependencies.startCalls, 1);
 
@@ -496,7 +917,102 @@ final class _LifecycleFactory implements ShellDependenciesFactory {
   void onRouterDisposed() => routerDisposeCalls += 1;
 }
 
+final class _StubOrderLateDepositLoader implements OrderLateDepositLoader {
+  const _StubOrderLateDepositLoader();
+  @override
+  bool get needsVerification => false;
+  @override
+  Future<Result<OrderLateDepositPayment>> create({
+    required String seatId,
+    required int payType,
+    required String amountYuan,
+    String? authCode,
+    required bool Function() canDispatch,
+  }) async => throw UnimplementedError();
+  @override
+  Future<Result<int>> status(
+    String payDetailId, {
+    required bool Function() canDispatch,
+  }) async => throw UnimplementedError();
+}
+
 final class _LifecycleDependencies implements ShellDependencies {
+  @override
+  CashierCreditAccountsLoader get creditAccountsLoader =>
+      throw UnsupportedError(
+        'Credit management is not used by this lifecycle fixture',
+      );
+  @override
+  CashierMerchantManagementLoader get merchantManagementLoader =>
+      throw UnsupportedError(
+        'Merchant management is not used by this lifecycle fixture',
+      );
+  @override
+  OrderLateDepositLoader get orderLateDepositLoader =>
+      const _StubOrderLateDepositLoader();
+  @override
+  Future<Result<void>> printCashierReportQuery(
+    CashierReportQuery query,
+  ) async => const Success(null);
+  @override
+  Future<Result<List<CashierVoucherRecord>>> loadVouchers(
+    CashierVoucherQuery query,
+  ) async => const Success([]);
+  @override
+  Future<Result<void>> cancelVoucher(
+    String recordId,
+    bool Function() canDispatch,
+  ) async => const Success(null);
+  @override
+  Future<Result<String>> exportVouchers(
+    CashierVoucherQuery query,
+    bool Function() canDispatch,
+  ) async => const Success('test.xlsx');
+  @override
+  Future<Result<List<CashierProfitLossRecord>>> loadProfitLoss() async =>
+      const Success([]);
+  @override
+  Future<Result<void>> submitProfitLoss(
+    CashierProfitLossDraft draft,
+    bool Function() canDispatch,
+  ) async => const Success(null);
+  int auditedBusinessWrites = 0;
+  @override
+  Future<Result<CashierReportPage>> loadCashierReportPage(
+    CashierReportQuery query,
+  ) async => const Success(CashierReportPage());
+  @override
+  Future<Result<Map<int, String>>> loadCashierDepartments() async =>
+      const Success({});
+  @override
+  Future<Result<String>> exportCashierReport(CashierReportQuery query) async =>
+      const Success('test-export.xlsx');
+  @override
+  Future<Result<void>> printCashierReport(String title) async =>
+      const Success(null);
+  @override
+  Future<Result<CashierPaymentCustomer?>> findCashierPaymentCustomer(
+    String phone,
+  ) async => const Success(null);
+  @override
+  Future<Result<void>> changeCashierPaymentCustomer(
+    String paymentId,
+    String phone,
+  ) async => const Success(null);
+  final managementFeed = ManagementPermissionFeed();
+  @override
+  ManagementPermissionFeed get managementAccess => managementFeed;
+  late final ProtocolClient _protocolClient;
+  @override
+  ErpLoader get erpLoader => ProtocolErpLoader(
+    session: sessionRepository,
+    isOnline: () => _phase == ConnectionPhase.online,
+    generation: () => currentGeneration,
+    api: ProtocolErpApi(
+      client: _protocolClient,
+      clientKind: sessionRepository.currentMachine!.client,
+    ),
+  );
   _LifecycleDependencies(ApiConfig config)
     : _store = _MemoryCredentialStore(),
       _dio = Dio(),
@@ -508,6 +1024,7 @@ final class _LifecycleDependencies implements ShellDependencies {
       credentialStore: _store,
       requestGate: RequestGate(clock: DateTime.now),
     );
+    _protocolClient = client;
     sessionRepository = SessionRepository(
       api: SessionApi(client: client),
       credentialStore: _store,
@@ -536,6 +1053,657 @@ final class _LifecycleDependencies implements ShellDependencies {
   int dioCloseCalls = 0;
   int currentGeneration = 0;
   int openBusinessDayCalls = 0;
+  @override
+  Future<Result<List<MinimumConsumptionReportRow>>>
+  loadMinimumConsumptionReport() async => const Success([]);
+
+  @override
+  Future<Result<List<CashierReportRow>>> loadCashierReport(
+    String title,
+    String startDate,
+    String endDate,
+    String keyword,
+  ) async => const Success([]);
+
+  @override
+  Future<Result<void>> movePayOrder({
+    required String seatId,
+    required String destSeatId,
+    required List<String> orderIds,
+    List<int> counts = const [],
+    int? totalAmtFen,
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<void>> batchUpdateOrderWaiter({
+    required String seatId,
+    required List<String> orderIds,
+    required String waiterEmpId,
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Set<String> paidTransfersNeedingVerification(String seatId) => {};
+  @override
+  Future<Result<void>> verifyPaidTransfer({
+    required String seatId,
+    required String payId,
+    required int turnoverCount,
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<void>> movePaidPayOrder({
+    required String seatId,
+    required String destSeatId,
+    required String payId,
+    required int totalAmtFen,
+    required int turnoverCount,
+    required String receiptFingerprint,
+    List<String> selectedUnpaidIds = const [],
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<void>> batchUpdateOrderAuther({
+    required String seatId,
+    required List<String> orderIds,
+    required String authEmpId,
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<List<CocktailDetailReportRow>>> loadCocktailDetailReport(
+    String keyword,
+  ) async => const Success([]);
+  @override
+  Future<Result<List<SoldOutItem>>> listSoldOutProducts() async =>
+      const Success([]);
+  @override
+  Future<Result<void>> setSoldOutProduct({
+    required String productId,
+    required int count,
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<void>> deleteSoldOutProduct(
+    String productId, {
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+  @override
+  Future<Result<List<VipCardHit>>> searchVipCards(String keyword) async =>
+      const Success([]);
+  @override
+  Future<Result<VipMemberCard>> loadVipMember(String cardId) async =>
+      const FailureResult(
+        AppFailure(
+          kind: FailureKind.unknown,
+          code: 'vip_recharge.test',
+          safeMessage: '测试未提供会员详情',
+        ),
+      );
+  @override
+  Future<Result<List<VipDepositRule>>> loadVipRules(String cardId) async =>
+      const Success([]);
+  @override
+  Future<Result<VipRechargeOrder>> createVipOrder(
+    Map<String, Object?> body, {
+    bool Function()? canDispatch,
+  }) async => const Success(VipRechargeOrder(orderId: 'o', payId: 'p'));
+  @override
+  Future<Result<VipRechargePay>> createVipPay({
+    required String payId,
+    required int payAmtFen,
+    required int payType,
+    String authCode = '',
+    bool Function()? canDispatch,
+  }) async => const Success(VipRechargePay(scanUrl: '', payResult: 0));
+
+  @override
+  Future<Result<VipLastSales?>> loadVipLastSales(String cardId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<VipOrderStatus>> pollVipOrderStatus(String orderId) async =>
+      const Success(VipOrderStatus(payResult: 0));
+
+  @override
+  Future<Result<void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<bool>> authPasswordEnabled() async => const Success(false);
+
+  @override
+  Future<Result<void>> changeAuthPassword({
+    required bool enabled,
+    required String loginPassword,
+    required String authPassword,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addOrderProduct({
+    required String seatId,
+    required String productId,
+    required int count,
+    required String price,
+    String amount = '',
+  }) async => const Success(null);
+
+  @override
+  Future<Result<int>> orderCartCount(String seatId) async => const Success(0);
+
+  @override
+  Future<Result<List<OrderCartItem>>> orderCartItems(String seatId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<void>> setOrderCartCount({
+    required String seatId,
+    required String itemId,
+    required int count,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> bindOrderWaiter(String seatId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<List<OrderGuestHit>>> searchOrderGuests(String phone) async =>
+      const Success([]);
+
+  @override
+  Future<Result<void>> bindOrderGuest({
+    required String seatId,
+    required String phone,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<List<OrderPlacedItem>>> loadOrderItems({
+    required String seatId,
+    required int turnoverCount,
+  }) async => const Success([]);
+
+  @override
+  Future<Result<bool>> checkOrderAmounts(String seatId) async =>
+      const Success(true);
+
+  @override
+  Future<Result<OrderPlacedData>> loadOrderDetails({
+    required String seatId,
+    required int turnoverCount,
+  }) async => const Success(OrderPlacedData());
+
+  @override
+  Future<Result<void>> placeOrder({
+    required String seatId,
+    required List<String> cartItemIds,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addTimedProduct({
+    required String seatId,
+    required String productId,
+    required int count,
+    required String amount,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addSet({
+    required String seatId,
+    required String productId,
+    required int count,
+    required int priceFen,
+    required List<String> groupIds,
+    required List<String> detailProductIds,
+    required List<int> detailCounts,
+    required List<int> selectCounts,
+    List<String> requirements = const [],
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> refundOrder({
+    required String seatId,
+    required String orderId,
+    required int count,
+    required String amount,
+    required String remark,
+    required bool online,
+    String authEmpCode = '',
+    String authEmpPasswd = '',
+    int passType = 1,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> convertCartToYh({
+    required String seatId,
+    required List<String> cartItemIds,
+    required List<int> counts,
+    required String reason,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addYh({
+    required String seatId,
+    required String productId,
+    required int count,
+    required String amount,
+    required String price,
+    required String reason,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addYh2({
+    required String seatId,
+    required String productId,
+    required int count,
+    required String salesEmpId,
+    required String yh2SeatId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addRequirement({
+    required String seatId,
+    required String itemId,
+    required String requirement,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> changeSetDetail({
+    required String seatId,
+    required String itemId,
+    required String groupId,
+    required String detailProductId,
+    required List<String> destDetailProductIds,
+    required List<int> destSelectCounts,
+    required String requirement,
+    required List<String> destRequirements,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> convertCartToYh2({
+    required String seatId,
+    required List<String> cartItemIds,
+    required List<int> counts,
+    required String salesEmpId,
+    required String yh2SeatId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> giftOrdered({
+    required String seatId,
+    required List<String> orderIds,
+    required List<int> counts,
+    required String reason,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> changeOrderedSet({
+    required String seatId,
+    required String orderId,
+    required String orderDetailId,
+    required List<String> destDetailProductIds,
+    required List<int> destSelectCounts,
+    required List<String> destRequirements,
+    String authEmpCode = '',
+    String authEmpPasswd = '',
+    int passType = 1,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> convertOrderToYh2({
+    required String seatId,
+    required List<String> orderIds,
+    required List<int> counts,
+    required String salesEmpId,
+    required String yh2SeatId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> reprintKitchen(String orderId) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void>> printBill({
+    required String seatId,
+    required bool unpaid,
+    required bool includeHl,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> cleanSeat(String seatId) async => const Success(null);
+
+  @override
+  Future<Result<void>> mergeYh2({
+    required String seatId,
+    required List<String> orderIds,
+    required String destSeatId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<List<OrderPlacedItem>>> waiterTodoOrders(String seatId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<WaiterPayQr>> createWaiterPay({
+    required String seatId,
+    required int payType,
+    required List<String> orderIds,
+  }) async => const Success(WaiterPayQr(payId: '1', amountFen: 0, payUrl: 'x'));
+
+  @override
+  Future<Result<void>> redeemCoupon(String authCode) async =>
+      const Success(null);
+
+  @override
+  Future<Result<List<WineSaveCsm>>> listWineCsms(String seatId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<void>> submitSaveWine({
+    required List<String> cartIds,
+    required String phone,
+    required String name,
+    required String authCode,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> submitTakeWine({
+    required String seatId,
+    required List<String> inventoryIds,
+    required List<int> counts,
+    required String phone,
+    required String authCode,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> submitConfiscateWine({
+    required String seatId,
+    required String date,
+    required String salesEmpId,
+    required List<String> productIds,
+    required List<String> unitTypes,
+    required List<int> counts,
+    required List<int> grams,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<PayOrderData>> loadPayOrders({
+    required String seatId,
+    required int turnoverCount,
+  }) async =>
+      Success(PayOrderData(seatId: seatId, turnoverCount: turnoverCount));
+
+  @override
+  Future<Result<List<PayCartItem>>> payCartItems(String seatId) async =>
+      const Success([]);
+
+  @override
+  Future<Result<void>> refundPaidOrder({
+    required String seatId,
+    required String payId,
+    required List<String> orderIds,
+    required List<int> counts,
+    required List<String> amounts,
+    required String remark,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> addPayChannel({
+    required String seatId,
+    required String channelId,
+    required String amount,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> deletePayChannel({
+    required String seatId,
+    required String itemId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> submitPayOrder({
+    required String seatId,
+    required List<String> orderIds,
+    required List<int> counts,
+    required String totalAmount,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> payCleanSeat(String seatId) async {
+    auditedBusinessWrites++;
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> paySettleMode({
+    required String seatId,
+    required int settleMode,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> payPrintBill(String seatId) async => const Success(null);
+
+  @override
+  Future<Result<void>> payAuthChannel({
+    required String seatId,
+    required String amount,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> payLateChannel({
+    required String seatId,
+    required String lateId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> payMemberChannel({
+    required String seatId,
+    required String cardId,
+    required int amountFen,
+    required String phone,
+    required String authCode,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> payPrepayChannel({
+    required String seatId,
+    required String prepayId,
+    required String amount,
+    required String authCode,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<VipCardPage>> listVipCards({
+    required int pageNum,
+    required int pageSize,
+    String keyword = '',
+    bool init = false,
+  }) async => const Success(VipCardPage(total: 0));
+
+  @override
+  Future<Result<VipNewCardParams>> vipNewCardParams() async =>
+      const Success(VipNewCardParams());
+
+  @override
+  Future<Result<String>> createVipCard({
+    required String cardNo,
+    required String typeId,
+    required String levelId,
+    required String name,
+    String bindPhone = '',
+    String bindAuthCode = '',
+    String contactPhone = '',
+  }) async => const Success('0');
+
+  @override
+  Future<Result<List<VipCardRow>>> vipPhoneCards(String phone) async =>
+      const Success([]);
+
+  @override
+  Future<Result<VipMakeCardBegin>> vipMakeCardBegin({
+    required String cardNo,
+    required String memberCardId,
+  }) async => const Success(VipMakeCardBegin(cardPass: '', verifyData: ''));
+
+  @override
+  Future<Result<void>> vipMakeCardEnd({
+    required String cardNo,
+    required String memberCardId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> vipSendSms({
+    required String phone,
+    required int typeId,
+  }) async => const Success(null);
+
+  @override
+  VipPages vipPages() => const VipPages();
+
+  @override
+  Future<Result<void>> writeBookingCard({
+    required BookingCardWriteAction action,
+    required String seatId,
+    String bookId = '',
+    Map<String, Object?> fields = const <String, Object?>{},
+    bool Function()? canDispatch,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<BookingBookDetail>> loadBookingBookDetail(
+    String bookId,
+  ) async => const Success(BookingBookDetail());
+
+  @override
+  Future<Result<BookingDetailConfig>> loadBookingDetailConfig() async =>
+      const Success(BookingDetailConfig.unrestrictedAll);
+
+  @override
+  Future<Result<List<SeatOpenLogRow>>> loadSeatOpenLog({
+    String key = '',
+    int deptId = 0,
+    int typeId = 1,
+  }) async => const Success(<SeatOpenLogRow>[]);
+
+  @override
+  Future<Result<String>> exportSeatOpenLog({
+    String key = '',
+    int typeId = 1,
+  }) async => const Success('开台记录.xlsx');
+
+  @override
+  Future<Result<List<SeatChangeLogRow>>> loadSeatChangeLog() async =>
+      const Success(<SeatChangeLogRow>[]);
+
+  @override
+  Future<Result<List<BookListRow>>> loadBookList() async =>
+      const Success(<BookListRow>[]);
+
+  @override
+  Future<Result<String>> exportBookList() async => const Success('预留记录.xlsx');
+
+  @override
+  Future<Result<List<OnlineBookListRow>>> loadOnlineBookList() async =>
+      const Success(<OnlineBookListRow>[]);
+
+  @override
+  Future<Result<String>> exportOnlineBookList() async =>
+      const Success('线上预订记录.xlsx');
+
+  @override
+  Future<Result<List<SeatOpeningRow>>> loadSeatOpeningList() async =>
+      const Success(<SeatOpeningRow>[]);
+
+  @override
+  Future<Result<String>> exportSeatOpeningList() async =>
+      const Success('入客数据实时汇总.xlsx');
+
+  @override
+  Future<Result<DeptRegionSeatOpenData>> loadDeptRegionSeatOpenList() async =>
+      const Success(
+        DeptRegionSeatOpenData(
+          nowTime: '',
+          deptList: <DeptRegionItem>[],
+          regionList: <DeptRegionItem>[],
+        ),
+      );
+
+  @override
+  Future<Result<String>> exportDeptRegionSeatOpenList() async =>
+      const Success('部门实时订台区域开台.xlsx');
+
+  @override
+  Future<Result<void>> queueCall({
+    required int queueTypeId,
+    required int queueNo,
+  }) async => const Success<void>(null);
+
+  @override
+  Future<Result<void>> queueArrive({
+    required int queueTypeId,
+    required int queueNo,
+  }) async => const Success<void>(null);
+
+  @override
+  Future<Result<String>> exportQueueList({
+    int queueTypeId = 0,
+    int status = 0,
+  }) async => const Success('排队列表.xlsx');
+
+  @override
+  Future<Result<void>> queueExpired({
+    required int queueTypeId,
+    required int queueNo,
+  }) async => const Success<void>(null);
+
+  @override
+  Future<Result<List<TurnoverSaleHistoryItem>>> loadTurnoverSales(
+    String seatId,
+  ) async => const Success(<TurnoverSaleHistoryItem>[]);
+
+  @override
+  Future<Result<void>> changeTurnoverSales({
+    required String seatId,
+    required String csmId,
+    required String salesEmpId,
+    String secondSalesEmpId = '',
+    required String reason,
+  }) async => const Success<void>(null);
+
+  @override
+  Future<Result<List<SeatTurnbackItem>>> loadTurnbackList(
+    String seatId,
+  ) async => const Success(<SeatTurnbackItem>[]);
+
+  @override
+  Future<Result<void>> confirmTurnback(String csmId) async =>
+      const Success<void>(null);
+
+  @override
+  Future<Result<BookingOrderDetailData>> loadOrderDetail({
+    required String seatId,
+    required int turnoverCount,
+  }) async => const Success(BookingOrderDetailData());
+
+  @override
+  Future<Result<List<BookingReservedItem>>> loadReservedList({
+    required bool isToday,
+    int futureType = 1,
+  }) async => const Success(<BookingReservedItem>[]);
+
+  @override
+  Future<Result<void>> cancelReservedInfo(List<String> bookIds) async =>
+      const Success<void>(null);
+
+  @override
+  Future<Result<void>> singleAllocation({
+    required String id,
+    required String seatId,
+  }) async => const Success<void>(null);
+
+  @override
+  Future<Result<void>> manyAllocation(List<String> bookIds) async =>
+      const Success<void>(null);
+
   int refreshRealtimeCalls = 0;
   final List<int> disposedGenerations = <int>[];
   Completer<void> stopStarted = Completer<void>();
@@ -562,13 +1730,33 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   void emitFailure(AppFailure failure) => _failures.add(failure);
 
-  void emitEvent(SyncEnvelope event) => _events.add(event);
+  void emitEvent(SyncEnvelope event) {
+    managementFeed.add(event);
+    _events.add(event);
+  }
 
   @override
   Future<Result<void>> openBusinessDay() async {
     openBusinessDayCalls += 1;
     return const Success<void>(null);
   }
+
+  @override
+  Future<Result<void>> closeBusinessDay() async => const Success(null);
+
+  @override
+  Future<Result<void>> printShiftBill() async => const Success(null);
+
+  @override
+  Future<Result<AutoCloseConfig>> loadAutoClose() async =>
+      const Success(AutoCloseConfig(enabled: false, hour: 0, minute: 0));
+
+  @override
+  Future<Result<void>> saveAutoClose({
+    required bool enabled,
+    required int hour,
+    required int minute,
+  }) async => const Success(null);
 
   @override
   Future<Result<void>> refreshRealtime() async {
@@ -599,6 +1787,9 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   @override
   Future<void> startRealtime() async {
+    final user = sessionRepository.currentUser;
+    if (user != null) managementFeed.start(user.stationId);
+    managementFeed.setPhase(ConnectionPhase.online);
     startCalls += 1;
     currentGeneration += 1;
     realtimeCreated = true;
@@ -609,6 +1800,7 @@ final class _LifecycleDependencies implements ShellDependencies {
 
   @override
   Future<void> stopRealtime() async {
+    managementFeed.reset();
     if (!_active) return;
     final stoppedGeneration = currentGeneration;
     stopCalls += 1;
@@ -630,6 +1822,7 @@ final class _LifecycleDependencies implements ShellDependencies {
     disposeCalls += 1;
     await stopRealtime();
     await sessionRepository.close();
+    managementFeed.dispose();
     await _phases.close();
     await _failures.close();
     await _events.close();
@@ -640,6 +1833,7 @@ final class _LifecycleDependencies implements ShellDependencies {
 }
 
 final class _AuthAdapter implements HttpClientAdapter {
+  String stationId = 'station-1';
   int termAuthCalls = 0;
 
   @override
@@ -662,6 +1856,12 @@ final class _AuthAdapter implements HttpClientAdapter {
     final accessMode = switch (requestBody['code']) {
       'loopback-development-book' => 2,
       'loopback-development-order' => 4,
+      'loopback-development-vip' => 16,
+      'loopback-development-erp' => 32,
+      'loopback-development-erpAdmin' => 64,
+      'loopback-development-org_mgr' => 1,
+      'loopback-development-wine' => 256,
+      'loopback-development-queuedsp' => 512,
       _ => 8,
     };
     final body = isTermAuth
@@ -679,7 +1879,7 @@ final class _AuthAdapter implements HttpClientAdapter {
             'data': <String, Object?>{
               'emp_id': 'employee-1',
               'name': 'Synthetic Employee',
-              'station_id': 'station-1',
+              'station_id': stationId,
             },
           };
     return ResponseBody.fromString(

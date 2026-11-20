@@ -12,6 +12,32 @@ import 'package:session/src/session_api.dart'
     show MachineAuthorization, SessionRemoteApi;
 
 void main() {
+  test('successful equal-field relogin publishes fresh identity but rejected login preserves it', () async {
+    final api = _FakeSessionApi();
+    final repository = SessionRepository(api: api, credentialStore: _AtomicCredentialStore());
+    addTearDown(repository.close);
+    api.authorizeResult = _authorized(const MachineSession(machineId:'m',machineName:'Counter',client:ClientKind.cashier),tk:'synthetic-tk');
+    await repository.authorizeMachine('TERM');
+    final users = <UserSession?>[];
+    final subscription = repository.userSessions.listen(users.add);
+    addTearDown(subscription.cancel);
+    api.loginResult = const Success(UserSession(employeeId:'7',name:'Employee',stationId:'9'));
+    Future<Result<UserSession>> login() => repository.login(account:'employee',password:'synthetic-password',type:EmployeeLoginType.account);
+    final first = (await login()).valueOrNull!;
+    final second = (await login()).valueOrNull!;
+    await Future<void>.delayed(Duration.zero);
+    expect(first, second); // Preserve the public value-equality contract.
+    expect(identical(first, second), false);
+    expect(identical(second, repository.currentUser), true);
+    expect(users.whereType<UserSession>().length, 2);
+    for (final code in ['business.login_rejected', 'authentication.credentials_unavailable']) {
+      api.loginResult = FailureResult(AppFailure(kind:FailureKind.authentication,code:code,safeMessage:'登录失败'));
+      expect((await login()).failureOrNull, isNotNull);
+      await Future<void>.delayed(Duration.zero);
+      expect(identical(second, repository.currentUser),true);
+      expect(users.whereType<UserSession>().length,2);
+    }
+  });
   group('session models', () {
     test('maps only exact terminal access modes', () {
       expect(

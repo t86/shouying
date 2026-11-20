@@ -21,12 +21,15 @@ typedef SocketConnector = Future<Socket> Function(
   Duration timeout,
 );
 
-final class WindowsPrinterService implements PrinterService {
+final class WindowsPrinterService
+    implements PrinterService, PdfDocumentPrinter {
   WindowsPrinterService({
     SystemPrint? systemPrint,
+    SystemPdfPrint? documentPrint,
     SocketConnector? socketConnector,
     this.connectTimeout = const Duration(seconds: 3),
-  }) : _systemPrint = systemPrint ?? _layoutPdf,
+  }) : _documentPrint = documentPrint ?? _layoutDocumentPdf,
+       _systemPrint = systemPrint ?? _layoutPdf,
        _socketConnector = socketConnector ?? _connectSocket {
     if (connectTimeout <= Duration.zero ||
         connectTimeout > const Duration(seconds: 10)) {
@@ -39,6 +42,28 @@ final class WindowsPrinterService implements PrinterService {
   }
 
   final SystemPrint _systemPrint;
+  final SystemPdfPrint _documentPrint;
+
+  @override
+  Future<Result<void>> printPdfDocument(
+    Uint8List bytes, {
+    required String name,
+    required bool Function() canDispatch,
+  }) => dispatchPdfDocument(bytes, name, canDispatch, _documentPrint);
+
+  static Future<bool> _layoutDocumentPdf(
+    Uint8List bytes,
+    String name,
+    bool Function() current,
+  ) => Printing.layoutPdf(
+    name: name,
+    format: PdfPageFormat.a4.landscape,
+    dynamicLayout: false,
+    onLayout: (_) async {
+      if (!current()) throw StateError('Printing context changed');
+      return bytes;
+    },
+  );
   final SocketConnector _socketConnector;
   final Duration connectTimeout;
 

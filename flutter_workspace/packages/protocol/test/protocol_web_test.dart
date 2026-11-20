@@ -11,8 +11,35 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:protocol/protocol.dart';
 import 'package:protocol/src/protocol_adapter_web.dart';
+import 'package:protocol/src/limited_response_adapter.dart';
 
 void main() {
+  test(
+    'Fetch guard rechecks after asynchronous request body collection',
+    () async {
+      var valid = true;
+      var sends = 0;
+      final adapter = FetchHttpClientAdapter(
+        maxRawResponseBytes: 1024,
+        client: _FakeHttpClient((request) async {
+          sends++;
+          return http.StreamedResponse(const Stream<List<int>>.empty(), 200);
+        }),
+      );
+      final options = _requestOptions(method: 'POST');
+      options.extra[dispatchGuardKey] = () => valid;
+      final body = StreamController<Uint8List>();
+      final pending = adapter.fetch(options, body.stream, null);
+      final rejection = expectLater(
+        pending,
+        throwsA(isA<DispatchInvalidatedException>()),
+      );
+      valid = false;
+      await body.close();
+      await rejection;
+      expect(sends, 0);
+    },
+  );
   test('production Web factory replaces Dio XHR with Fetch', () {
     final dio = Dio();
     expect(dio.httpClientAdapter, isA<BrowserHttpClientAdapter>());
