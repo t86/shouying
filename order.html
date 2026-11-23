@@ -3,52 +3,120 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>点单系统（S2）全端视觉还原稿预览 · macOS / Windows / Android平板 / Android手机</title>
+<title>点单系统（S2）全端视觉还原 & 酒吧极速点单预览 · 深浅主题 / Desktop / 平板 / 手机</title>
 <style>
   :root {
-    --order-canvas: #DCE1EA;
-    --order-header: #C4CBD7;
-    --order-footer: #ECEFF4;
-    --order-subnav: #989FAF;
-    --order-card: #FAFAFC;
-    --order-white: #FFFFFF;
-    --order-ink: #08080A;
-    --order-ink-2: #1A1A21;
-    --order-muted: #5C6475;
-    --order-primary: #3373E8;
-    --order-green: #009370;
-    --order-promo-red: #E63122;
-    --order-action-red: #D44F44;
-    --order-slate: #2A3355;
-    --order-slate-2: #374368;
-    --order-brown: #9B5911;
-    --order-req-blue: #125A9C;
-    --order-mark: #F1FF00;
-    --order-set-sel: #D8C9D0;
-    --st-empty: #FAFAFC;
-    --st-reserved: #A1E7C2;
-    --st-opened: #FFF6A5;
-    --st-ordered: #F8A27A;
-    --st-paid: #BAB9F7;
+    --brand-studio: #455EFF;
+    --glow-border: #32B9FF;
+  }
+
+  /* ================= OrderPalette.dark() — Default (order_theme.dart) ================= */
+  .device-frame {
+    --ord-canvas: #151E34;
+    --ord-header: #1C2742;
+    --ord-toolbar: #1A2540;
+    --ord-panel: #18223A;
+    --ord-card: #212E4D;
+    --ord-card-elev: #28375B;
+    --ord-footer: #0E1629;
+    --ord-dialog: #1B2742;
+    --ord-input: #10182B;
+    --ord-chip: #1A2642;
+    --ord-chip-sel: #3A6EF5;
+    --ord-cart-bar: #111B33;
+    --ord-tbl-hd: #182037;
+    --ord-tbl-alt: #24314D;
+    --ord-brand: #4B89FF;
+    --ord-brand-sec: #334770;
+    --ord-glow: #32B9FF;
+    --ord-cta-green: #1CC96C;
+    --ord-discount: #FFAB2E;
+    --ord-yh2: #9B6DFF;
+    --ord-wine: #1AC8D4;
+    --ord-danger: #FF4757;
+    --ord-warn: #FFB03A;
+    --ord-ink: #FFFFFF;
+    --ord-ink-2: #CBD6EE;
+    --ord-muted: #8A9BBC;
+    --ord-on-brand: #FFFFFF;
+    --ord-border: #2C3D63;
+    --ord-border-strong: #3D5486;
+    --ord-divider: rgba(59, 89, 152, 0.4);
+    /* Status colors aligned with BookingTokens */
+    --st-empty: #465675;
+    --st-lock: #7D6A33;
+    --st-reserved: #008F95;
+    --st-opened: #D08322;
+    --st-ordered: #C83758;
+    --st-partial: #6E3AC7;
+    --st-paid: #5C3BC1;
+    --st-card-ink: #FFFFFF;
+    --st-card-sub: rgba(255,255,255,0.84);
+    --price-normal: #1EDAAD;
+    --price-promo: #FF6B7A;
+    --wine-banner-bg: rgba(26, 200, 212, 0.16);
+    --wine-banner-bd: rgba(26, 200, 212, 0.55);
+  }
+
+  /* ================= OrderPalette.light() — 1-Tap Light Theme ================= */
+  .device-frame.theme-light {
+    --ord-canvas: #DCE1EA;
+    --ord-header: #FFFFFF;
+    --ord-toolbar: #ECEFF4;
+    --ord-panel: #F3F6FA;
+    --ord-card: #FFFFFF;
+    --ord-card-elev: #F5F8FC;
+    --ord-footer: #FFFFFF;
+    --ord-dialog: #FFFFFF;
+    --ord-input: #F4F6FA;
+    --ord-chip: #E5EAF2;
+    --ord-chip-sel: #2563EB;
+    --ord-cart-bar: #1E293B;
+    --ord-tbl-hd: #E5EAF2;
+    --ord-tbl-alt: #F6F8FB;
+    --ord-brand: #2563EB;
+    --ord-brand-sec: #E2E8F0;
+    --ord-glow: #1D4ED8;
+    --ord-cta-green: #16A34A;
+    --ord-discount: #D97706;
+    --ord-yh2: #7C3AED;
+    --ord-wine: #0891B2;
+    --ord-danger: #DC2626;
+    --ord-warn: #D97706;
+    --ord-ink: #121A2C;
+    --ord-ink-2: #475569;
+    --ord-muted: #64748B;
+    --ord-on-brand: #FFFFFF;
+    --ord-border: #C4CBD7;
+    --ord-border-strong: #94A3B8;
+    --ord-divider: #D0D7E2;
+    --st-empty: #64748B;
+    --st-lock: #9A7B2C;
+    --st-reserved: #0E8F96;
+    --st-opened: #D97706;
+    --st-ordered: #CC2D52;
+    --st-partial: #7C3AED;
+    --st-paid: #5B3CC4;
+    --st-card-ink: #FFFFFF;
+    --st-card-sub: rgba(255,255,255,0.9);
+    --price-normal: #008A68;
+    --price-promo: #DC2626;
+    --wine-banner-bg: #E0F7FA;
+    --wine-banner-bd: #0891B2;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-    background: #0F1524;
-    color: #fff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    background: #060913; color: #fff; min-height: 100vh; display: flex; flex-direction: column;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Studio Bar */
+  /* ================= Studio Bar ================= */
   .studio-bar {
-    position: sticky; top: 0; z-index: 100;
-    background: #0B1020;
-    border-bottom: 1px solid rgba(51, 115, 232, 0.45);
-    padding: 10px 18px;
-    display: flex; flex-wrap: wrap; gap: 10px;
+    position: sticky; top: 0; z-index: 200; background: #0B1020;
+    border-bottom: 1px solid rgba(50,185,255,0.35);
+    padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 10px;
     align-items: center; justify-content: space-between;
   }
   .studio-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -57,444 +125,469 @@
     border: 1px solid rgba(255,255,255,0.14); border-radius: 9px; padding: 2px; gap: 2px;
   }
   .sys-link {
-    text-decoration: none; color: rgba(255,255,255,0.72);
-    font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px;
+    text-decoration: none; color: rgba(255,255,255,0.74);
+    font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 7px; transition: all .14s;
   }
-  .sys-link.active { background: var(--order-primary); color: #fff; }
-  .studio-left h1 { font-size: 15px; font-weight: 700; }
-  .studio-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sys-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .sys-link.active { background: #455EFF; color: #fff; }
+  .studio-left h1 { font-size: 13.5px; font-weight: 700; color: #E2ECFF; }
+  .studio-controls { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
   .seg-group {
     display: flex; background: #131B33;
-    border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 3px; gap: 3px;
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 9px; padding: 2px; gap: 2px;
   }
   .seg-btn {
-    border: none; background: transparent; color: rgba(255,255,255,0.74);
-    padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+    border: none; background: transparent; color: rgba(255,255,255,0.72);
+    padding: 5px 9px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all .14s; white-space: nowrap;
   }
   .seg-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
-  .seg-btn.active { background: var(--order-primary); color: #fff; }
-
-  /* Stage */
-  .stage {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    padding: 18px; gap: 16px;
+  .seg-btn.active { background: #455EFF; color: #fff; }
+  .toggle-chip {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #AED8FF;
+    background: #131B33; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px;
+    padding: 5px 10px; cursor: pointer; user-select: none; font-weight: 600;
   }
+  .toggle-chip.on { border-color: #FFB03A; color: #FFB03A; background: rgba(255,176,58,0.14); }
+  .toggle-chip.light-on { border-color: #32B9FF; color: #FFF; background: #2563EB; }
+
+  /* ================= Stage & Device Frame ================= */
+  .stage { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 14px; gap: 10px; }
   .device-meta {
-    font-size: 12px; color: #BFD8FF;
-    display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
+    font-size: 12px; color: #AED8FF; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
   }
+  .device-meta b { color: #1EDAAD; }
+
   .device-frame {
-    position: relative;
-    background: var(--order-canvas);
-    color: var(--order-ink);
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid rgba(51,115,232,0.45);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.55);
-    display: flex; flex-direction: column;
-    transition: width .22s ease, height .22s ease;
-    font-variant-numeric: tabular-nums;
+    position: relative; background: var(--ord-canvas); color: var(--ord-ink);
+    border: 2px solid rgba(50,185,255,0.45); border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.65), 0 0 24px rgba(26,137,255,0.22);
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: width .22s, height .22s, background .18s, color .18s;
   }
-  .device-frame.desktop { width: min(1360px, calc(100vw - 36px)); height: 780px; }
-  .device-frame.tablet { width: min(1024px, calc(100vw - 36px)); height: 740px; border-radius: 20px; border: 6px solid #1E2840; }
-  .device-frame.phone { width: 390px; height: 800px; border-radius: 30px; border: 8px solid #1E2840; }
+  .device-frame.desktop { width: 1366px; max-width: calc(100vw - 28px); height: 790px; }
+  .device-frame.tablet  { width: 1024px; max-width: calc(100vw - 28px); height: 740px; }
+  .device-frame.phone   { width: 393px; max-width: calc(100vw - 24px); height: 810px; border-radius: 28px; }
 
-  .mac-chrome {
-    height: 30px; background: #B8C0CE; border-bottom: 1px solid #9FA8BC;
-    display: flex; align-items: center; padding: 0 12px; gap: 7px; flex-shrink: 0;
-  }
-  .device-frame:not(.desktop) .mac-chrome { display: none; }
-  .dot { width: 11px; height: 11px; border-radius: 50%; }
-  .dot.r { background: #FF5F56; } .dot.y { background: #FFBD2E; } .dot.g { background: #27C93F; }
-  .mac-title { margin-left: 8px; font-size: 12px; color: #1A1A21; font-weight: 600; }
-
-  .screen { flex: 1; display: none; flex-direction: column; overflow: hidden; position: relative; }
+  .screen { display: none; flex-direction: column; flex: 1; min-height: 0; position: relative; }
   .screen.active { display: flex; }
 
-  /* ================= P1 ORDER CARD HOME ================= */
-  .ord-top {
-    background: var(--order-header);
-    padding: 10px 12px;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  /* ================= Shared UI Primitives ================= */
+  .ord-input {
+    background: var(--ord-input); border: 1px solid var(--ord-border);
+    color: var(--ord-ink); border-radius: 9px; padding: 0 11px; height: 34px; font-size: 13px; outline: none;
+  }
+  .ord-input:focus { border-color: var(--ord-brand); box-shadow: 0 0 0 2px rgba(75,137,255,0.22); }
+  .ord-input::placeholder { color: var(--ord-muted); }
+
+  .btn {
+    border: none; border-radius: 9px; padding: 0 12px; height: 34px; font-size: 12.5px;
+    font-weight: 700; color: #fff; cursor: pointer; display: inline-flex; align-items: center;
+    justify-content: center; gap: 5px; white-space: nowrap; transition: filter .12s, transform .08s;
+  }
+  .btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn:active:not(:disabled) { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-brand { background: var(--ord-brand); color: #fff; }
+  .btn-green { background: var(--ord-cta-green); color: #fff; }
+  .btn-wine { background: var(--ord-wine); color: #fff; }
+  .btn-amber { background: var(--ord-discount); color: #121A2C; }
+  .btn-yh2 { background: var(--ord-yh2); color: #fff; }
+  .btn-danger { background: var(--ord-danger); color: #fff; }
+  .btn-danger-soft {
+    background: rgba(255,71,87,0.14); border: 1px solid rgba(255,71,87,0.55); color: var(--ord-danger);
+  }
+  .btn-chip {
+    background: var(--ord-chip); border: 1px solid var(--ord-border-strong); color: var(--ord-ink);
+  }
+  .btn-sm { height: 29px; padding: 0 10px; font-size: 12px; border-radius: 7px; }
+  .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 6px; }
+  .btn-lg-touch { height: 40px; padding: 0 14px; font-size: 13px; border-radius: 10px; }
+
+  .theme-pill-inapp {
+    height: 32px; padding: 0 10px; border-radius: 16px; cursor: pointer;
+    background: var(--ord-chip); border: 1px solid var(--ord-border-strong); color: var(--ord-ink);
+    font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+  }
+
+  /* Centered high-contrast showBookingToast */
+  .ord-toast {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.94);
+    z-index: 180; padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 700;
+    color: #fff; background: rgba(14, 22, 41, 0.96); border: 1.5px solid #32B9FF;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.55), 0 0 20px rgba(50,185,255,0.3);
+    pointer-events: none; opacity: 0; transition: opacity .16s, transform .16s;
+    text-align: center; max-width: 82%;
+  }
+  .ord-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .ord-toast.success { border-color: #1CC96C; background: rgba(10, 42, 30, 0.96); }
+  .ord-toast.warn { border-color: #FFB03A; background: rgba(54, 34, 8, 0.96); }
+  .ord-toast.danger { border-color: #FF4757; background: rgba(62, 14, 22, 0.96); }
+
+  /* ================= P1: /orderCard Home ================= */
+  .p1-top {
+    background: var(--ord-header); border-bottom: 1px solid var(--ord-border);
+    padding: 8px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .phone .p1-top { flex-direction: column; align-items: stretch; padding: 8px 10px; gap: 7px; }
+  .reg-strip { display: flex; align-items: center; gap: 6px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .reg-strip::-webkit-scrollbar { display: none; }
+  .reg-pill {
+    border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink-2);
+    border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all .12s;
+  }
+  .reg-pill.active {
+    background: var(--ord-chip-sel); color: #fff; border-color: var(--ord-chip-sel);
+  }
+  .reg-pill.opened-fast {
+    border-color: rgba(208,131,34,0.65); color: #FFB03A; background: rgba(208,131,34,0.14);
+  }
+  .theme-light .reg-pill.opened-fast { color: #B45309; background: #FEF3C7; border-color: #F59E0B; }
+  .reg-pill.opened-fast.active { background: #D08322; color: #fff; border-color: #D08322; }
+
+  .p1-top-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .phone .p1-top-right { width: 100%; }
+  .search-wrap { position: relative; width: 255px; flex-shrink: 0; }
+  .phone .search-wrap { flex: 1; width: auto; }
+  .search-wrap input { width: 100%; padding-right: 28px; }
+  .search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 50%; border: none; background: var(--ord-border);
+    color: var(--ord-ink); font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center;
+  }
+  .search-clear.show { display: flex; }
+
+  /* Prominent Wine Mode Status Banner */
+  .wine-banner {
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 14px; background: var(--wine-banner-bg);
+    border-bottom: 1.5px solid var(--wine-banner-bd); color: var(--ord-ink); font-size: 13px; font-weight: 700;
     flex-shrink: 0;
   }
-  .ord-regions { display: flex; gap: 8px; overflow-x: auto; align-items: center; }
-  .ord-reg-btn {
-    flex-shrink: 0; height: 42px; min-width: 82px; padding: 0 14px;
-    background: #fff; color: var(--order-ink);
-    border: none; border-radius: 8px; font-size: 16px; font-weight: 600;
-    cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-  }
-  .ord-reg-btn.active { background: var(--order-primary); color: #fff; }
-  .device-frame.phone .ord-reg-btn { height: 34px; min-width: 66px; font-size: 13px; padding: 0 10px; }
-  .ord-pager { display: flex; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-shrink: 0; }
-  .device-frame.phone .ord-pager { display: none; }
-  .ord-pager button { width: 42px; height: 40px; border: none; background: #fff; color: var(--order-ink); font-size: 15px; cursor: pointer; }
-  .ord-pager button:first-child { border-right: 1px solid #C4CBD7; }
+  .wine-banner.show { display: flex; }
+  .phone .wine-banner { flex-wrap: wrap; font-size: 12px; padding: 7px 10px; }
 
-  .wine-mode-banner {
-    display: none; background: var(--order-green); color: #fff;
-    padding: 6px 14px; font-size: 13px; font-weight: 600;
-    justify-content: space-between; align-items: center; flex-shrink: 0;
-  }
-  .wine-mode-banner.show { display: flex; }
+  .p1-grid-wrap { flex: 1; overflow-y: auto; padding: 12px 14px; }
+  .phone .p1-grid-wrap { padding: 8px 10px; }
+  .p1-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+  .tablet .p1-grid { grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); }
+  .phone .p1-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
-  .ord-grid-wrap { flex: 1; overflow-y: auto; padding: 10px; }
-  .ord-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 10px;
-  }
-  .device-frame.phone .ord-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-
-  .ord-card {
-    border-radius: 8px; padding: 10px 12px; min-height: 176px;
-    color: var(--order-ink); border: 1px solid #9FA8BC;
+  .seat-card {
+    border-radius: 12px; padding: 9px 10px; min-height: 174px;
     display: flex; flex-direction: column; justify-content: space-between;
-    cursor: pointer; transition: transform .12s, box-shadow .12s;
+    cursor: pointer; position: relative; color: var(--st-card-ink);
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.22); transition: transform .12s, box-shadow .12s;
   }
-  .ord-card:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,35,64,0.18); border-color: var(--order-primary); }
-  .device-frame.phone .ord-card { min-height: 154px; padding: 8px 9px; }
-  .ord-card.s1, .ord-card.s2 { background: var(--st-empty); }
-  .ord-card.s3, .ord-card.s8 { background: var(--st-reserved); }
-  .ord-card.s4 { background: var(--st-opened); }
-  .ord-card.s5 { background: var(--st-ordered); }
-  .ord-card.s6, .ord-card.s7 { background: var(--st-paid); }
+  .seat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.34); }
+  .phone .seat-card { min-height: 158px; padding: 8px 9px; }
+  .sc-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 11.5px; color: var(--st-card-sub); }
+  .sc-badges { display: flex; align-items: center; gap: 4px; }
+  .mini-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 5px; height: 18px; border-radius: 4px; font-size: 10.5px; font-weight: 800; line-height: 1;
+  }
+  .mb-mark { background: #F1FF00; color: #08080A; }
+  .mb-lock { background: #FFBD00; color: #08080A; }
+  .mb-turn { background: rgba(0,0,0,0.32); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+  .mb-partial { background: #6E3AC7; color: #fff; border: 1px solid rgba(255,255,255,0.35); }
+  .sc-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; margin: 2px 0; }
+  .sc-name { font-size: 22px; font-weight: 900; letter-spacing: .3px; line-height: 1.15; }
+  .sc-name.long { font-size: 17px; }
+  .sc-status-txt { font-size: 11px; font-weight: 700; opacity: 0.9; }
+  .sc-amt { font-size: 12.5px; font-weight: 800; display: flex; flex-direction: column; gap: 2px; }
+  .sc-amt .yh { color: #FFE18C; font-size: 11.5px; }
+  .min-bar { height: 5px; border-radius: 3px; background: rgba(0,0,0,0.28); overflow: hidden; margin-top: 2px; }
+  .min-bar > i { display: block; height: 100%; background: #7CFCE0; border-radius: 3px; }
+  .sc-meta { font-size: 11.5px; color: var(--st-card-sub); display: flex; justify-content: space-between; gap: 4px; }
+  .sc-remark { font-size: 11px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .oc-r1 { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-  .device-frame.phone .oc-r1 { font-size: 12px; }
-  .oc-mark {
-    display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center;
-    background: var(--order-mark); color: var(--order-ink); border-radius: 4px; font-weight: 700; font-size: 12px;
+  .wine-card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 6px; }
+  .wine-card-btn {
+    border: 1px solid rgba(255,255,255,0.45); background: rgba(14,22,41,0.72); color: #fff;
+    border-radius: 8px; height: 34px; font-size: 12px; font-weight: 800; cursor: pointer;
   }
-  .oc-name { font-size: 32px; font-weight: 700; line-height: 1.15; margin: 2px 0; }
-  .device-frame.phone .oc-name { font-size: 24px; }
-  .oc-amt { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; }
-  .device-frame.phone .oc-amt { font-size: 12.5px; }
-  .oc-gift { font-size: 13.5px; color: #262A36; }
-  .device-frame.phone .oc-gift { font-size: 12px; }
-  .oc-foot { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #2B3040; margin-top: 4px; gap: 4px; }
-  .device-frame.phone .oc-foot { font-size: 11.5px; }
-  .lock-sq {
-    display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center;
-    border-radius: 3px; background: #FFBD00; color: #08080A; font-size: 11px; font-weight: 700;
-  }
-  .wine-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
-  .wine-btn {
-    border: 1px solid rgba(8,8,10,0.16); background: rgba(255,255,255,0.72);
-    border-radius: 8px; padding: 8px 2px; text-align: center; font-size: 13px; font-weight: 600;
-    color: var(--order-ink); cursor: pointer;
-  }
-  .wine-btn:hover { background: var(--order-green); color: #fff; border-color: var(--order-green); }
+  .wine-card-btn:hover { background: #1AC8D4; color: #08080A; border-color: #1AC8D4; }
 
-  /* Light Footer */
-  .ord-footer {
-    background: var(--order-footer); border-top: 1px solid #C4CBD7;
-    min-height: 60px; padding: 6px 12px;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+  .p1-footer {
+    background: var(--ord-footer); border-top: 1px solid var(--ord-border);
+    padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap; flex-shrink: 0;
   }
-  .device-frame.phone .ord-footer { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px; }
-  .ord-legends { display: flex; align-items: center; gap: 10px; overflow-x: auto; }
-  .ol-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; flex-shrink: 0; font-size: 12px; }
-  .ol-sw { width: 32px; height: 14px; border-radius: 5px; border: 1px solid #939BAD; }
-  .ol-item.active .ol-sw { border: 2px solid var(--order-primary); box-shadow: 0 0 8px rgba(51,115,232,0.5); }
-  .ord-actions { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
-  .btn-ord-blue {
-    background: var(--order-primary); color: #fff; border: none; border-radius: 8px;
-    height: 40px; padding: 0 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  .phone .p1-footer { padding: 8px 10px; gap: 7px; }
+  .legend-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .leg-chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; cursor: pointer; user-select: none;
+    background: var(--ord-chip); border: 1.5px solid var(--ord-border); color: var(--ord-ink);
+    transition: all .12s;
   }
-  .btn-ord-green {
-    background: var(--order-green); color: #fff; border: none; border-radius: 8px;
-    height: 40px; padding: 0 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  .leg-chip.active {
+    background: var(--ord-chip-sel); border-color: var(--ord-chip-sel); color: #fff;
+    box-shadow: 0 0 0 2px rgba(75,137,255,0.28);
   }
-  .btn-ord-red {
-    background: var(--order-action-red); color: #fff; border: none; border-radius: 8px;
-    height: 42px; padding: 0 16px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
-  }
-  .btn-ord-slate {
-    background: var(--order-slate); color: #fff; border: none; border-radius: 8px;
-    height: 42px; padding: 0 14px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
-  .btn-ord-white {
-    background: #fff; color: var(--order-ink); border: 1px solid #C4CBD7; border-radius: 8px;
-    height: 38px; padding: 0 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .p1-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .phone .p1-actions { width: 100%; justify-content: space-between; }
 
-  /* ================= P2 ORDER MEAL LIST ================= */
-  .meal-shell { flex: 1; display: flex; overflow: hidden; }
-  .device-frame.phone .meal-shell { flex-direction: column; }
+  /* ================= P2: /orderMeal 3-Column & Sticky Cart ================= */
+  .meal-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .meal-top {
+    background: var(--ord-header); border-bottom: 1px solid var(--ord-border);
+    padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap; flex-shrink: 0;
+  }
+  .meal-seat-info { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .meal-seat-no { font-size: 18px; font-weight: 900; color: var(--ord-ink); }
+  .min-pill {
+    padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700;
+    background: rgba(208,131,34,0.2); border: 1px solid rgba(208,131,34,0.6); color: var(--ord-warn);
+  }
+  .meal-search-box { position: relative; width: 290px; }
+  .phone .meal-search-box { width: 100%; }
+  .meal-search-box input { width: 100%; padding-right: 28px; }
 
-  .mobile-cat1-bar {
-    display: none; background: var(--order-footer); border-bottom: 1px solid #C4CBD7;
-    padding: 6px 8px; gap: 6px; overflow-x: auto; flex-shrink: 0;
-  }
-  .device-frame.phone .mobile-cat1-bar { display: flex; }
+  .phone-cats { display: none; flex-direction: column; background: var(--ord-toolbar); border-bottom: 1px solid var(--ord-border); flex-shrink: 0; }
+  .phone .phone-cats { display: flex; }
+  .cat-hstrip { display: flex; gap: 6px; overflow-x: auto; padding: 6px 10px; scrollbar-width: none; }
+  .cat-hstrip::-webkit-scrollbar { display: none; }
 
-  .meal-body-row { flex: 1; display: flex; overflow: hidden; }
-  .nav-dual { display: flex; width: 200px; flex-shrink: 0; border-right: 1px solid #C4CBD7; }
-  .device-frame.tablet .nav-dual { width: 176px; }
-  .device-frame.phone .nav-dual { width: 78px; }
-  .nav-col1 {
-    width: 50%; background: var(--order-footer); padding: 8px 5px;
-    display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
+  .meal-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+  .cat-sidebar {
+    display: flex; width: 214px; flex-shrink: 0;
+    background: var(--ord-panel); border-right: 1px solid var(--ord-border);
   }
-  .device-frame.phone .nav-col1 { display: none; }
-  .nav-col2 {
-    width: 50%; background: var(--order-subnav); padding: 8px 5px;
-    display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
-  }
-  .device-frame.phone .nav-col2 { width: 100%; }
+  .tablet .cat-sidebar { width: 192px; }
+  .phone .cat-sidebar { display: none; }
+  .cat-col { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .cat-col.col1 { border-right: 1px solid var(--ord-border); background: var(--ord-toolbar); }
   .cat-btn {
-    min-height: 52px; border: none; border-radius: 8px; padding: 6px 4px;
-    background: var(--order-card); color: var(--order-ink);
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    border: 1px solid transparent; background: transparent; color: var(--ord-ink-2);
+    border-radius: 8px; padding: 8px 7px; font-size: 12.5px; font-weight: 600;
+    text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
   }
-  .device-frame.phone .cat-btn { min-height: 44px; font-size: 12px; }
-  .nav-col1 .cat-btn.active { background: var(--order-subnav); color: #fff; }
-  .nav-col2 .cat-btn.active { background: var(--order-primary); color: #fff; box-shadow: none; }
+  .cat-btn:hover { background: var(--ord-chip); color: var(--ord-ink); }
+  .cat-btn.active { background: var(--ord-chip-sel); color: #fff; font-weight: 800; }
+  .cat-time-tag { font-size: 9.5px; opacity: 0.85; color: #FFB03A; }
+  .cat-btn.active .cat-time-tag { color: #FFE8A3; }
 
-  .meal-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--order-canvas); }
-  .meal-search-bar {
-    background: var(--order-canvas); border-bottom: 1px solid rgba(0,0,0,0.12);
-    padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-    flex-shrink: 0;
+  .prd-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .prd-filter-hint {
+    padding: 6px 12px; font-size: 11.5px; color: var(--ord-muted);
+    background: var(--ord-toolbar); border-bottom: 1px solid var(--ord-border);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0;
   }
-  .meal-search-bar input {
-    width: 280px; max-width: 100%; height: 34px; border-radius: 20px;
-    border: 1px solid #C4CBD7; background: #fff; padding: 0 14px; color: var(--order-ink); font-size: 13px; outline: none;
-  }
-  .meal-search-bar input:focus { border-color: var(--order-primary); }
-  .device-frame.phone .meal-search-bar input { width: 100%; }
-
-  .prd-grid-wrap { flex: 1; overflow-y: auto; padding: 10px; }
+  .prd-grid-scroll { flex: 1; overflow-y: auto; padding: 10px 12px; }
+  .phone .prd-grid-scroll { padding: 8px 10px 76px; }
   .prd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
-  .device-frame.phone .prd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tablet .prd-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 8px; }
+  .phone .prd-grid { grid-template-columns: 1fr; gap: 8px; }
 
   .prd-card {
-    background: var(--order-card); border-radius: 8px; overflow: hidden;
-    border: 1px solid #C4CBD7; display: flex; flex-direction: column; cursor: pointer;
-    position: relative; transition: transform .12s, border-color .12s;
+    background: var(--ord-card); border: 1px solid var(--ord-border); border-radius: 12px;
+    padding: 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+    cursor: pointer; position: relative; transition: border-color .14s, transform .1s;
   }
-  .prd-card:hover { transform: translateY(-1px); border-color: var(--order-primary); }
-  .prd-card.soldout { opacity: .42; cursor: not-allowed; }
-  .prd-img {
-    height: 118px; position: relative; display: flex; align-items: center; justify-content: center;
-    font-size: 42px; background: linear-gradient(135deg, #212C45 0%, #37496E 100%);
+  .prd-card:hover { border-color: var(--ord-brand); }
+  .prd-card.soldout { opacity: 0.56; }
+  .prd-head { display: flex; gap: 9px; align-items: flex-start; }
+  .prd-thumb {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    background: var(--ord-chip); border: 1px solid var(--ord-border);
   }
-  .device-frame.phone .prd-img { height: 82px; font-size: 32px; }
-  .prd-cnt-badge {
-    position: absolute; bottom: 6px; right: 6px;
-    background: var(--order-action-red); color: #fff;
-    border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 700;
-  }
-  .soldout-stamp {
-    position: absolute; background: rgba(212,79,68,0.92); color: #fff;
-    padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; transform: rotate(-10deg);
-  }
-  .prd-info { padding: 8px 10px 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; }
-  .prd-title { font-size: 15px; font-weight: 600; color: var(--order-ink); line-height: 1.25; }
-  .device-frame.phone .prd-title { font-size: 13px; }
-  .prd-en { font-size: 12px; color: var(--order-brown); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .prd-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
-  .prd-stock { font-size: 12px; color: var(--order-muted); }
-  .prd-price { font-size: 19px; font-weight: 700; color: var(--order-green); line-height: 1; }
-  .device-frame.phone .prd-price { font-size: 16px; }
-  .prd-ori { font-size: 12px; color: #7A7A7A; text-decoration: line-through; display: block; text-align: right; }
-  .prd-vip { font-size: 19px; font-weight: 700; color: var(--order-promo-red); line-height: 1.05; }
-  .device-frame.phone .prd-vip { font-size: 16px; }
+  .prd-info { flex: 1; min-width: 0; }
+  .prd-title { font-size: 14px; font-weight: 800; color: var(--ord-ink); line-height: 1.25; }
+  .prd-en { font-size: 11.5px; color: var(--ord-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prd-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .ptag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 5px; }
+  .ptag-set { background: rgba(26,200,212,0.18); color: var(--ord-wine); border: 1px solid rgba(26,200,212,0.4); }
+  .ptag-stock { background: rgba(255,176,58,0.18); color: var(--ord-warn); border: 1px solid rgba(255,176,58,0.45); }
+  .ptag-out { background: rgba(255,71,87,0.18); color: var(--ord-danger); border: 1px solid rgba(255,71,87,0.45); }
+  .ptag-ordered { background: rgba(75,137,255,0.18); color: var(--ord-brand); border: 1px solid rgba(75,137,255,0.45); }
+  .ptag-fc { background: rgba(155,109,255,0.18); color: var(--ord-yh2); border: 1px solid rgba(155,109,255,0.45); }
 
-  /* Meal Bottom Workbench (newFootBar) */
-  .meal-foot {
-    background: var(--order-footer); border-top: 1px solid #C4CBD7;
-    padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    box-shadow: 0 -4px 8px rgba(0,0,0,0.06); flex-shrink: 0;
-  }
-  .device-frame.phone .meal-foot { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 8px; }
-  .mf-tabs { display: flex; gap: 6px; overflow-x: auto; }
-  .mf-tab {
-    position: relative; min-width: 78px; height: 48px; padding: 4px 10px;
-    background: #fff; border: 1px solid #C4CBD7; border-radius: 8px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: 12.5px; font-weight: 600; color: var(--order-ink-2); cursor: pointer; flex-shrink: 0;
-  }
-  .device-frame.phone .mf-tab { flex: 1; min-width: 0; height: 42px; font-size: 11.5px; padding: 2px 4px; }
-  .mf-tab.active { border-color: var(--order-primary); color: var(--order-primary); background: #EDF3FF; }
-  .cart-dot {
-    position: absolute; top: -5px; right: 4px;
-    background: var(--order-promo-red); color: #fff;
-    border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 700;
-  }
-  .mf-summary {
-    display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--order-ink-2);
-    background: #fff; border: 1px solid #C4CBD7; border-radius: 8px; padding: 6px 10px;
-  }
-  .device-frame.phone .mf-summary { justify-content: space-between; gap: 6px; font-size: 11px; padding: 5px 8px; }
+  .prd-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; }
+  .price-box { display: flex; flex-direction: column; }
+  .price-orig { font-size: 11px; color: var(--ord-muted); text-decoration: line-through; }
+  .price-now { font-size: 17px; font-weight: 900; color: var(--price-normal); line-height: 1.1; }
+  .price-now.promo { color: var(--price-promo); }
 
-  /* ================= P3 CART & P4 MY ORDER ================= */
-  .light-panel-outer { flex: 1; background: var(--order-header); padding: 14px; display: flex; flex-direction: column; overflow: hidden; }
-  .device-frame.phone .light-panel-outer { padding: 8px; }
-  .light-panel {
-    flex: 1; background: var(--order-canvas); border: 1px solid var(--order-subnav);
-    border-radius: 14px; display: flex; flex-direction: column; overflow: hidden;
-  }
-  .light-tbl-wrap { flex: 1; overflow: auto; }
-  .device-frame.phone .light-tbl-wrap { display: none; }
-  .light-cards { display: none; flex: 1; overflow-y: auto; padding: 8px; flex-direction: column; gap: 8px; }
-  .device-frame.phone .light-cards { display: flex; }
-
-  .ltable { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .ltable th {
-    background: var(--order-footer); color: var(--order-ink); text-align: left;
-    padding: 11px 12px; font-weight: 700; border-bottom: 1px solid #C4CBD7; white-space: nowrap;
-  }
-  .ltable td { padding: 10px 12px; border-bottom: 1px solid rgba(152,159,175,0.3); color: var(--order-ink); }
-  .ltable tr:nth-child(even) td { background: var(--order-footer); }
-  .dot-tag {
-    display: inline-flex; width: 24px; height: 24px; border-radius: 50%;
-    align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700;
-  }
-  .stepper { display: inline-flex; align-items: center; gap: 6px; }
+  /* 1-Tap Inline Stepper */
+  .stepper { display: inline-flex; align-items: center; gap: 5px; }
   .step-btn {
-    width: 28px; height: 28px; border-radius: 50%; border: 1px solid #9FA8BC;
-    background: #fff; color: var(--order-ink); font-size: 16px; font-weight: 700; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--ord-border-strong);
+    background: var(--ord-chip); color: var(--ord-ink); font-size: 16px; font-weight: 900;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
-  .step-val {
-    min-width: 38px; text-align: center; background: #FAFAFC; border: 1px solid #C4CBD7;
-    border-radius: 14px; padding: 2px 8px; font-weight: 700;
+  .step-btn.plus { background: var(--ord-brand); color: #fff; border-color: var(--ord-brand); }
+  .step-qty { min-width: 22px; text-align: center; font-size: 14px; font-weight: 900; color: var(--ord-ink); }
+  .prd-perm-row { display: flex; gap: 4px; border-top: 1px dashed var(--ord-divider); padding-top: 6px; }
+
+  /* Desktop / Tablet Right Live Cart Panel (3rd Column) */
+  .live-cart-pane {
+    width: 310px; flex-shrink: 0; background: var(--ord-panel);
+    border-left: 1px solid var(--ord-border); display: flex; flex-direction: column;
   }
-  .m-ord-card {
-    background: #fff; border: 1px solid #C4CBD7; border-radius: 10px; padding: 10px 12px;
+  .tablet .live-cart-pane { width: 270px; }
+  .phone .live-cart-pane { display: none; }
+  .lc-head {
+    padding: 10px 12px; background: var(--ord-header); border-bottom: 1px solid var(--ord-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .lc-list { flex: 1; overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 7px; }
+  .lc-item {
+    background: var(--ord-card); border: 1px solid var(--ord-border); border-radius: 10px;
+    padding: 8px 9px; display: flex; flex-direction: column; gap: 5px;
+  }
+  .lc-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+  .lc-foot {
+    padding: 10px 12px; background: var(--ord-header); border-top: 1px solid var(--ord-border);
     display: flex; flex-direction: column; gap: 8px;
   }
-  .m-ord-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-  .mini-act {
-    border: 1px solid #C4CBD7; background: var(--order-footer); color: var(--order-ink-2);
-    border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
-  }
-  .mini-act.danger { border-color: #E63122; color: #E63122; background: #FFF2F0; }
-  .mini-act.blue { border-color: var(--order-primary); color: var(--order-primary); background: #EDF3FF; }
 
-  .panel-foot {
-    background: var(--order-footer); border-top: 1px solid #C4CBD7;
-    padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  /* Phone Sticky Bottom Cart Capsule Bar */
+  .phone-sticky-cart {
+    display: none; position: absolute; left: 10px; right: 10px; bottom: 54px; z-index: 30;
+    background: var(--ord-cart-bar); color: #fff; border: 1.5px solid var(--ord-glow);
+    border-radius: 999px; padding: 6px 8px 6px 14px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+    align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .phone .phone-sticky-cart { display: flex; }
+
+  /* Bottom Table Workbench Bar (newFootBar) */
+  .meal-footbar {
+    background: var(--ord-footer); border-top: 1px solid var(--ord-border);
+    padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; flex-shrink: 0; overflow-x: auto;
+  }
+  .phone .meal-footbar { padding: 5px 8px; gap: 5px; }
+  .foot-tabs { display: flex; align-items: center; gap: 6px; }
+  .foot-tab {
+    position: relative; border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink);
+    border-radius: 8px; padding: 6px 11px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .foot-tab.active { background: var(--ord-brand); border-color: var(--ord-brand); color: #fff; }
+  .badge-cnt {
+    background: #FF4757; color: #fff; font-size: 10.5px; font-weight: 900;
+    padding: 1px 6px; border-radius: 999px; margin-left: 4px;
   }
 
-  /* ================= P2+ SET SELECTOR & P4 PAY QR ================= */
-  .modal-bg {
-    flex: 1; background: rgba(15, 21, 36, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto;
+  /* ================= P2+ Set Selection / P3 Cart / P4 MyOrder / P5 Wine ================= */
+  .page-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .phone .page-scroll { padding: 10px; gap: 10px; }
+  .panel-card {
+    background: var(--ord-card); border: 1px solid var(--ord-border); border-radius: 12px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
   }
-  .qr-modal {
-    width: 420px; max-width: 100%; border-radius: 18px; overflow: hidden;
-    background: var(--order-canvas); box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  .panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .prog-track { height: 7px; border-radius: 4px; background: var(--ord-input); overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; background: var(--ord-cta-green); transition: width .16s; }
+  .set-opt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .phone .set-opt-grid { grid-template-columns: 1fr; }
+  .set-opt-card {
+    background: var(--ord-panel); border: 1px solid var(--ord-border); border-radius: 10px;
+    padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
   }
-  .qr-hd { background: var(--order-header); padding: 12px 18px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; }
-  .qr-bd { padding: 20px; text-align: center; }
+  .set-opt-card.picked { border-color: var(--ord-cta-green); background: rgba(28,201,108,0.1); }
+  .set-opt-card.out { opacity: 0.48; }
+
+  /* Row Badges */
+  .rbadge {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 2px 6px; border-radius: 5px; font-size: 10.5px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .rb-norm { background: #1DC344; }
+  .rb-set { background: #00A8B5; }
+  .rb-yh { background: #FF9F1A; color: #121A2C; }
+  .rb-yh2 { background: #9B6DFF; }
+  .rb-paid { background: #16A34A; }
+  .rb-unpaid { background: #7C3AED; }
+  .rb-refund { background: #DC2626; }
+  .rb-lock { background: #2563EB; }
+  .rb-add { background: #0891B2; }
+
+  /* 5-item pay_info KPI Strip */
+  .kpi-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .phone .kpi-5 { grid-template-columns: repeat(2, 1fr); }
+  .kpi-box {
+    background: var(--ord-panel); border: 1px solid var(--ord-border); border-radius: 10px;
+    padding: 8px 10px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .kpi-lbl { font-size: 11px; color: var(--ord-muted); font-weight: 600; }
+  .kpi-val { font-size: 17px; font-weight: 900; color: var(--ord-ink); }
+  .kpi-val.mint { color: var(--price-normal); }
+  .kpi-val.red { color: var(--ord-danger); }
+  .kpi-val.amber { color: var(--ord-warn); }
+
+  .order-row-card {
+    background: var(--ord-card); border: 1px solid var(--ord-border); border-radius: 11px;
+    padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  .phone .order-row-card { flex-direction: column; align-items: stretch; }
+  .req-chip {
+    display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
+    background: rgba(75,137,255,0.16); color: var(--ord-brand); border: 1px solid rgba(75,137,255,0.35);
+  }
+
+  /* Wine 3-Tab Workbench */
+  .wine-split { display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; }
+  .phone .wine-split { grid-template-columns: 1fr; }
+
+  /* ================= Overlays & Modals ================= */
+  .overlay-bg {
+    position: absolute; inset: 0; background: rgba(5, 10, 22, 0.72); z-index: 120;
+    display: none; align-items: center; justify-content: center; padding: 14px;
+    backdrop-filter: blur(3px);
+  }
+  .overlay-bg.open { display: flex; }
+  .phone .overlay-bg.sheet-mode { align-items: flex-end; padding: 0; }
+  .modal-card {
+    width: 560px; max-width: 100%; max-height: 92%;
+    background: var(--ord-dialog); color: var(--ord-ink);
+    border: 1.5px solid var(--ord-border-strong); border-radius: 16px;
+    box-shadow: 0 22px 54px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .phone .overlay-bg.sheet-mode .modal-card { width: 100%; border-radius: 18px 18px 0 0; }
+  .modal-hd {
+    padding: 11px 14px; background: var(--ord-header); border-bottom: 1px solid var(--ord-border);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .modal-bd { padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .modal-ft {
+    padding: 10px 14px; background: var(--ord-header); border-top: 1px solid var(--ord-border);
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pick-chip {
+    padding: 6px 12px; border-radius: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+    background: var(--ord-chip); border: 1.5px solid var(--ord-border); color: var(--ord-ink);
+  }
+  .pick-chip.active { background: var(--ord-brand); border-color: var(--ord-brand); color: #fff; }
+  .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .num-key {
+    height: 40px; border-radius: 9px; border: 1px solid var(--ord-border);
+    background: var(--ord-chip); color: var(--ord-ink); font-size: 16px; font-weight: 800; cursor: pointer;
+  }
+  .num-key:hover { border-color: var(--ord-brand); }
   .qr-box {
-    width: 196px; height: 196px; margin: 14px auto; background: #fff; border-radius: 12px; padding: 14px;
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; border: 1px solid #C4CBD7;
+    width: 176px; height: 176px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 12px;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
   }
-  .qr-ft { background: #FAFAFC; padding: 12px 18px; display: flex; justify-content: center; gap: 12px; }
-
-  .set-drawer {
-    width: 780px; max-width: 100%; max-height: 100%; background: var(--order-canvas);
-    border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-  }
-  .set-selected-zone {
-    background: var(--order-set-sel); border-radius: 10px; padding: 12px 14px;
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .set-chip {
-    background: #fff; border: 1px solid #9FA8BC; border-radius: 18px; padding: 6px 12px;
-    font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
-  }
-
-  /* ================= POPUPS, DRAWERS, MODALS (LIGHT SLATE) ================= */
-  .ord-overlay {
-    position: absolute; inset: 0; background: rgba(15, 21, 36, 0.42);
-    display: none; z-index: 60;
-  }
-  .ord-overlay.show { display: flex; }
-  .ord-pop {
-    position: absolute; bottom: 68px; right: 14px; width: 224px;
-    background: #FFFFFF; color: var(--order-ink);
-    border: 1px solid #9FA8BC; border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(15, 21, 36, 0.28);
-    padding: 8px 10px;
-  }
-  .device-frame.phone .ord-pop {
-    left: 0; right: 0; bottom: 0; width: 100%;
-    border-radius: 16px 16px 0 0; border-left: none; border-right: none; border-bottom: none;
-    padding: 14px 16px 22px; background: var(--order-footer);
-  }
-  .ord-pop-hd {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 4px 6px 8px; border-bottom: 1px solid #D4DAE5; margin-bottom: 4px;
-    font-size: 13.5px; font-weight: 700; color: var(--order-ink);
-  }
-  .ord-pop-item {
-    padding: 10px 8px; border-radius: 8px; font-size: 14px; font-weight: 600;
-    color: var(--order-ink-2); cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-  }
-  .ord-pop-item:hover { background: #EDF3FF; color: var(--order-primary); }
-  .ord-pop-item.danger { color: var(--order-promo-red); }
-  .ord-pop-item.danger:hover { background: #FFF2F0; }
-
-  .ord-drawer {
-    margin-left: auto; width: 680px; max-width: 100%; height: 100%;
-    background: var(--order-canvas); color: var(--order-ink);
-    border-left: 1px solid #9FA8BC; box-shadow: -8px 0 32px rgba(15,21,36,0.3);
-    display: flex; flex-direction: column;
-  }
-  .device-frame.phone .ord-drawer { width: 100%; border-left: none; }
-  .ord-modal {
-    margin: auto; width: 460px; max-width: calc(100% - 24px); max-height: calc(100% - 24px);
-    background: var(--order-canvas); color: var(--order-ink);
-    border: 1px solid #9FA8BC; border-radius: 14px;
-    box-shadow: 0 18px 46px rgba(15,21,36,0.42);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-  .ord-input {
-    width: 100%; height: 38px; border-radius: 8px; border: 1px solid #B5BECD;
-    background: #fff; color: var(--order-ink); padding: 0 12px; font-size: 13.5px; outline: none;
-  }
-  .ord-input:focus { border-color: var(--order-primary); }
-  .auth-tabs { display: flex; gap: 6px; background: #D0D7E3; padding: 4px; border-radius: 10px; }
-  .auth-tab {
-    flex: 1; height: 34px; border: none; border-radius: 8px; background: transparent;
-    color: var(--order-ink-2); font-size: 13px; font-weight: 700; cursor: pointer;
-  }
-  .auth-tab.active { background: #fff; color: var(--order-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-  .ord-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
-  .ord-kp {
-    height: 38px; border-radius: 8px; border: 1px solid #B5BECD; background: #fff;
-    color: var(--order-ink); font-size: 15px; font-weight: 700; cursor: pointer;
-  }
-  .ord-kp:hover { background: #EDF3FF; border-color: var(--order-primary); }
-  .ord-toast {
-    position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
-    background: var(--order-slate); color: #fff; padding: 8px 16px; border-radius: 999px;
-    font-size: 13px; font-weight: 600; z-index: 95; box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-    display: none; white-space: nowrap;
-  }
-  .ord-toast.show { display: block; }
-
-  /* Token Reference Strip */
-  .token-strip {
-    width: min(1360px, calc(100vw - 36px));
-    background: #0B1020; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 14px 18px;
-  }
-  .token-strip h3 { font-size: 13px; color: #BFD8FF; margin-bottom: 10px; }
-  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
-  .sw {
-    display: flex; align-items: center; gap: 8px;
-    background: #131B33; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; padding: 5px 10px; font-size: 11.5px; color: #fff;
-  }
-  .sw-box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.28); }
+  .qr-cell { background: #111; border-radius: 2px; }
+  .qr-cell.w { background: #fff; }
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--ord-border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: var(--ord-tbl-hd); color: var(--ord-ink-2); text-align: left; padding: 8px 9px; white-space: nowrap; }
+  td { padding: 8px 9px; border-top: 1px solid var(--ord-divider); color: var(--ord-ink); }
+  tr:nth-child(even) td { background: var(--ord-tbl-alt); }
 </style>
 </head>
 <body>
+  <!-- ==================== STUDIO BAR ==================== -->
   <header class="studio-bar">
     <div class="studio-left">
       <div class="sys-switch">
@@ -502,893 +595,1472 @@
         <a class="sys-link active" href="order.html">S2 点单系统</a>
         <a class="sys-link" href="cashier.html">S3 收银系统</a>
       </div>
-      <h1>点单系统（S2）全端视觉还原稿</h1>
+      <h1>点单系统（S2）深浅双主题 × 酒吧「1 步直达」极速点单预览</h1>
     </div>
     <div class="studio-controls">
       <div class="seg-group" id="pageTabs">
-        <button class="seg-btn active" data-page="p1">P1 点单卡台首页</button>
-        <button class="seg-btn" data-page="p2">P2 商品点单页</button>
+        <button class="seg-btn active" data-page="p1">P1 卡台首页</button>
+        <button class="seg-btn" data-page="p2">P2 极速点单</button>
         <button class="seg-btn" data-page="p2set">P2+ 套餐选组</button>
-        <button class="seg-btn" data-page="p3">P3 购物车</button>
-        <button class="seg-btn" data-page="p4">P4 我的点单</button>
-        <button class="seg-btn" data-page="p4qr">P4+ 服务员买单码</button>
+        <button class="seg-btn" data-page="p3">P3 购物车/授权</button>
+        <button class="seg-btn" data-page="p4">P4 我的点单/买单</button>
+        <button class="seg-btn" data-page="p5">P5 存/取/充公</button>
       </div>
       <div class="seg-group" id="deviceTabs">
-        <button class="seg-btn active" data-device="desktop">🖥 macOS / Windows</button>
-        <button class="seg-btn" data-device="tablet">📟 Android 平板</button>
-        <button class="seg-btn" data-device="phone">📱 Android 手机</button>
+        <button class="seg-btn active" data-device="desktop">Desktop 1366</button>
+        <button class="seg-btn" data-device="tablet">平板 1024</button>
+        <button class="seg-btn" data-device="phone">手机 393</button>
       </div>
+      <div class="toggle-chip" id="themeToggleTop" onclick="toggleOrderTheme()">🌙 默认深色 → 切浅色</div>
+      <div class="toggle-chip" id="safeModeBtn" onclick="toggleSafeMode()">🔒 安全模式：<span id="safeTxt">关</span></div>
     </div>
   </header>
 
   <main class="stage">
     <div class="device-meta" id="deviceMeta">
-      <span>当前视口：Desktop 宽屏（macOS / Windows · ≥1200dp）</span>
-      <span>·</span>
-      <span>提示：P1 可点「更多功能(3项) / 账户(3项) / 会员充值 / 存酒模式」；P2 底部可点「已选列表 / 核销卡券 / 更多(4项)」；P3/P4 支持双Tab授权与退单键盘</span>
+      <span>视口：<b>Desktop 宽屏 (≥1200dp · 三栏实时购物车)</b></span>
+      <span>主题：<b id="themeMetaTxt">深色护眼模式（OrderPalette.dark · 默认）</b></span>
+      <span>体验：单品卡 <b>1 键原地 +1</b> · 点卡弹 <b>1/2/6/12+要求</b> · 全部分类 <b>1 步全局搜</b></span>
     </div>
 
     <div class="device-frame desktop" id="deviceFrame">
-      <div class="mac-chrome">
-        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-        <span class="mac-title">收银桌面客户端 · 点单系统 (/orderCard · 浅灰蓝高可读主题)</span>
-      </div>
       <div class="ord-toast" id="ordToast">操作成功</div>
 
-      <!-- ================= P1 ORDER CARD HOME ================= -->
+      <!-- ==================== P1: /orderCard ==================== -->
       <section class="screen active" id="screen-p1">
-        <div class="ord-top">
-          <div class="ord-regions" id="ordRegions">
-            <button class="ord-reg-btn active" data-reg="mine">我的卡台</button>
-            <button class="ord-reg-btn" data-reg="all">全部</button>
-            <button class="ord-reg-btn" data-reg="VIP">VIP区</button>
-            <button class="ord-reg-btn" data-reg="大厅">大厅卡座</button>
-            <button class="ord-reg-btn" data-reg="散台">散台区</button>
+        <div class="p1-top">
+          <div class="reg-strip" id="regStrip">
+            <button class="reg-pill active" data-reg="MINE">我的卡台 (5)</button>
+            <button class="reg-pill opened-fast" data-reg="OPENED">⚡ 已开台 (6)</button>
+            <button class="reg-pill" data-reg="ALL">全部 (9)</button>
+            <button class="reg-pill" data-reg="VIP">VIP 包厢</button>
+            <button class="reg-pill" data-reg="HALL">大厅卡座</button>
+            <button class="reg-pill" data-reg="BAR">吧台/散台</button>
           </div>
-          <div class="ord-pager">
-            <button title="向下翻页" onclick="scrollOrdGrid(220)">▾</button>
-            <button title="向上翻页" onclick="scrollOrdGrid(-220)">▴</button>
+          <div class="p1-top-right">
+            <div class="search-wrap">
+              <input class="ord-input" id="seatSearch" placeholder="🔍 快搜台号 / 字母 / 订位人 (回车直进)" />
+              <button class="search-clear" id="seatSearchClear" onclick="clearSeatSearch()">×</button>
+            </div>
+            <button class="theme-pill-inapp" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
           </div>
         </div>
-        <div class="wine-mode-banner" id="wineBanner">
-          <span>🍷 当前处于「存酒模式」— 点击卡片内 存酒 / 取酒 / 充公 办理酒水业务</span>
-          <button class="btn-ord-white" style="height:28px;font-size:12px" onclick="toggleWineMode()">返回点单模式</button>
+
+        <div class="wine-banner" id="wineBanner">
+          <span>🍷 当前处于「存酒模式」— 卡面保留 mark 标记，直接点击 存酒 / 取酒 / 充公 进入可视化操作</span>
+          <button class="btn btn-chip btn-sm" onclick="toggleWineMode()">返回点单模式</button>
         </div>
-        <div class="ord-grid-wrap" id="ordGridWrap">
-          <div class="ord-grid" id="ordCardGrid"></div>
+
+        <div class="p1-grid-wrap">
+          <div class="p1-grid" id="seatGrid"></div>
         </div>
-        <div class="ord-footer">
-          <div class="ord-legends" id="ordLegends">
-            <div class="ol-item" data-st="1"><span class="ol-sw" style="background:var(--st-empty)"></span><span>空台 2</span></div>
-            <div class="ol-item" data-st="8"><span class="ol-sw" style="background:var(--st-reserved)"></span><span>预订 1</span></div>
-            <div class="ol-item" data-st="4"><span class="ol-sw" style="background:var(--st-opened)"></span><span>开台 2</span></div>
-            <div class="ol-item" data-st="5"><span class="ol-sw" style="background:var(--st-ordered)"></span><span>点单 2</span></div>
-            <div class="ol-item" data-st="7"><span class="ol-sw" style="background:var(--st-paid)"></span><span>已结 1</span></div>
-            <div class="ol-item" data-st="20"><span style="font-weight:700;font-size:14px">11</span><span>抵达数</span></div>
-          </div>
-          <div class="ord-actions">
-            <button class="btn-ord-blue" onclick="openOrdDrawer('recharge')">💳 会员充值</button>
-            <button class="btn-ord-green" id="wineModeBtn" onclick="toggleWineMode()">🍷 存酒模式</button>
-            <button class="btn-ord-white" onclick="openOrdPopup('p1MorePop')">⊞ 更多功能</button>
-            <button class="btn-ord-white" onclick="openOrdPopup('p1AccPop')">👤 李服务员 ▴</button>
+
+        <div class="p1-footer">
+          <div class="legend-row" id="legendRow"></div>
+          <div class="p1-actions">
+            <button class="btn btn-brand btn-lg-touch" id="p1RechargeBtn" onclick="openRechargeModal()">💳 会员充值</button>
+            <button class="btn btn-wine btn-lg-touch" id="p1WineBtn" onclick="toggleWineMode()">🍷 存酒模式</button>
+            <button class="btn btn-chip btn-lg-touch" id="p1MoreBtn" onclick="openP1MoreModal()">⊞ 更多功能 (3)</button>
+            <button class="btn btn-chip btn-lg-touch" onclick="openAccountModal()">👤 李服务员 ▾</button>
           </div>
         </div>
       </section>
 
-      <!-- ================= P2 ORDER MEAL LIST ================= -->
+      <!-- ==================== P2: /orderMeal ==================== -->
       <section class="screen" id="screen-p2">
         <div class="meal-shell">
-          <div class="mobile-cat1-bar" id="mobileCat1"></div>
-          <div class="meal-body-row">
-            <aside class="nav-dual">
-              <div class="nav-col1" id="catCol1"></div>
-              <div class="nav-col2" id="catCol2"></div>
+          <div class="meal-top">
+            <div class="meal-seat-info">
+              <button class="btn btn-chip btn-sm" onclick="switchPage('p1')">← 卡台</button>
+              <span class="meal-seat-no" id="mealSeatTitle">V02</span>
+              <span class="min-pill" id="mealMinPill">点单 · 低消 ¥3,280 / ¥3,000 (109%)</span>
+              <button class="btn btn-chip btn-xs" id="waiterBindBtn" onclick="openBindWaiter()">服务员：李四 ✎</button>
+              <button class="btn btn-chip btn-xs" id="guestBindBtn" onclick="openBindGuest()">绑定客人手机</button>
+              <button class="theme-pill-inapp" style="height:26px;font-size:11px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
+            </div>
+            <div class="meal-search-box">
+              <input class="ord-input" id="prdSearch" placeholder="🔍 跨全部分类全局搜：中文 / 拼音首字母 / 英文名" />
+              <button class="search-clear" id="prdSearchClear" onclick="clearPrdSearch()">×</button>
+            </div>
+          </div>
+
+          <!-- Phone Horizontal Categories -->
+          <div class="phone-cats">
+            <div class="cat-hstrip" id="phoneCat1"></div>
+            <div class="cat-hstrip" id="phoneCat2" style="padding-top:0"></div>
+          </div>
+
+          <div class="meal-body">
+            <!-- Desktop/Tablet Dual-Column Categories -->
+            <aside class="cat-sidebar">
+              <div class="cat-col col1" id="catCol1"></div>
+              <div class="cat-col col2" id="catCol2"></div>
             </aside>
-            <div class="meal-main">
-              <div class="meal-search-bar">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                  <strong style="font-size:18px;color:#08080A">卡台 A08</strong>
-                  <span style="background:#FFF6A5;border:1px solid #D9C455;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">开台 · 低消 96%</span>
-                  <button id="bindWaiterBtn" style="background:#374368;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer" onclick="openOrdModal('bindWaiter')">绑定服务员：李四</button>
-                  <button id="bindPhoneBtn" class="btn-ord-white" style="height:28px;font-size:12px;padding:0 10px" onclick="openOrdModal('bindPhone')">绑定客人手机</button>
-                </div>
-                <input id="prdSearch" placeholder="🔍 搜索商品名称 / 拼音首字母" />
+
+            <!-- Product Grid -->
+            <div class="prd-pane">
+              <div class="prd-filter-hint">
+                <span id="prdScopeTxt">当前分类：洋酒 → 威士忌 · 按岗位权限(11/12/27/36/37/42/44)仅展示有权操作</span>
+                <span>点 <b>+</b> 1步入车 · 点卡片选 <b>1/2/6/12 + 要求</b></span>
               </div>
-              <div class="prd-grid-wrap">
+              <div class="prd-grid-scroll">
                 <div class="prd-grid" id="prdGrid"></div>
               </div>
             </div>
+
+            <!-- Desktop/Tablet 3rd Column: Live Real-Time Cart -->
+            <aside class="live-cart-pane">
+              <div class="lc-head">
+                <strong style="font-size:13.5px">🛒 实时购物车 (<span id="lcCount">0</span>)</strong>
+                <button class="btn btn-chip btn-xs" onclick="switchPage('p3')">完整购物车 / 优惠 →</button>
+              </div>
+              <div class="lc-list" id="lcList"></div>
+              <div class="lc-foot">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12px;color:var(--ord-muted)">合计应付（含方案/会员价）</span>
+                  <strong style="font-size:19px;color:var(--price-normal)" id="lcTotal">¥0</strong>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:6px">
+                  <button class="btn btn-yh2 btn-sm" onclick="openYhModal('cart')">优惠 / 优惠2</button>
+                  <button class="btn btn-green" onclick="submitCartOrder()">⚡ 立即下单</button>
+                </div>
+              </div>
+            </aside>
           </div>
-        </div>
-        <div class="meal-foot">
-          <div class="mf-tabs">
-            <button class="mf-tab" onclick="switchPage('p1')"><span>🏠</span><span>返回首页</span></button>
-            <button class="mf-tab active" onclick="switchPage('p2')"><span>🍾</span><span>点单</span></button>
-            <button class="mf-tab" onclick="switchPage('p3')">
-              <span class="cart-dot" id="cartBadge">3</span>
-              <span>🛒</span><span>购物车</span>
-            </button>
-            <button class="mf-tab" onclick="switchPage('p4')"><span>📋</span><span>我的点单</span></button>
-            <button class="mf-tab" onclick="openOrdDrawer('choosedList')"><span>✅</span><span>已选列表</span></button>
+
+          <!-- Phone Sticky Bottom Cart Capsule -->
+          <div class="phone-sticky-cart">
+            <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchPage('p3')">
+              <span style="font-size:16px">🛒</span>
+              <div>
+                <div style="font-size:13px;font-weight:800" id="phoneCartSummary">共 0 件 · ¥0</div>
+                <div style="font-size:10.5px;color:#93C5FD">点此展开微调 / 改要求 / 优惠</div>
+              </div>
+            </div>
+            <button class="btn btn-green btn-sm" style="border-radius:999px;padding:0 14px" onclick="submitCartOrder()">⚡ 立即下单</button>
           </div>
-          <div class="mf-summary">
-            <span>主营 <strong>¥4,976</strong></span>
-            <span>折前 <strong>¥5,164</strong></span>
-            <span>赠送 <strong style="color:#009370">¥188</strong></span>
-            <span>优惠 <strong>¥300</strong></span>
-            <span>未结 <strong style="color:#E63122">¥2,880</strong></span>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:nowrap">
-            <button class="btn-ord-red" onclick="switchPage('p4qr')">买单</button>
-            <button class="btn-ord-red" style="background:#B83B32;padding:0 12px" title="从收银进入点单时可见" onclick="openOrdDrawer('coupon')">核销卡券</button>
-            <button class="btn-ord-slate" onclick="openOrdPopup('p2MorePop')">更多 ▴</button>
+
+          <!-- Bottom Table Workbench Bar -->
+          <div class="meal-footbar">
+            <div class="foot-tabs">
+              <button class="foot-tab" onclick="switchPage('p1')">首页</button>
+              <button class="foot-tab active" onclick="switchPage('p2')">点单</button>
+              <button class="foot-tab" onclick="switchPage('p3')">购物车<span class="badge-cnt" id="footCartBadge">0</span></button>
+              <button class="foot-tab" onclick="switchPage('p4')">我的点单</button>
+              <button class="foot-tab" onclick="switchPage('p5')">🍷 存取酒</button>
+            </div>
+            <div class="foot-tabs">
+              <button class="btn btn-danger btn-sm" onclick="openWaiterPayModal()">💳 服务员买单</button>
+              <button class="btn btn-amber btn-sm" onclick="openCouponV2Modal()">🎟 核销卡券 V2</button>
+              <button class="btn btn-chip btn-sm" onclick="openMealMoreModal()">更多 ▴</button>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ================= P2+ SET SELECTOR ================= -->
+      <!-- ==================== P2+: Set Selection ==================== -->
       <section class="screen" id="screen-p2set">
-        <div class="modal-bg">
-          <div class="set-drawer">
-            <div class="qr-hd">
-              <span>套餐选组 · 轩尼诗 VSOP 尊享套餐</span>
-              <span style="cursor:pointer" onclick="switchPage('p2')">✕</span>
-            </div>
-            <div style="padding:16px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px">
-              <div style="display:flex;justify-content:space-between;align-items:center;background:#FAFAFC;border-radius:10px;padding:12px 16px;border:1px solid #C4CBD7;flex-wrap:wrap;gap:10px">
-                <div>
-                  <strong style="font-size:19px">轩尼诗 VSOP 尊享套餐</strong>
-                  <div style="font-size:13px;color:#9B5911">Hennessy VSOP VIP Combo</div>
-                </div>
-                <div style="text-align:right">
-                  <span class="prd-ori">原价 ¥3,280.00</span>
-                  <span class="prd-vip">方案价 ¥2,880.00</span>
-                </div>
-              </div>
-              <div>
-                <div style="font-size:14px;font-weight:700;margin-bottom:8px">已选明细（必选组 1/1 · 软饮可选组 6/6）</div>
-                <div class="set-selected-zone">
-                  <span class="set-chip">🥃 轩尼诗 VSOP 700ml × 2（必选）</span>
-                  <span class="set-chip">🥤 绿茶 × 4</span>
-                  <span class="set-chip">🥤 脉动 × 2</span>
-                  <span class="set-chip">🍉 豪华果盘 × 1（必选）</span>
-                </div>
-              </div>
-              <div>
-                <div style="font-size:14px;font-weight:700;margin-bottom:8px">软饮可选组（需选 6 支，当前已选 6 / 6）</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px">
-                  <button class="btn-ord-blue" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：绿茶')">绿茶 × 4</button>
-                  <button class="btn-ord-blue" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：脉动')">脉动 × 2</button>
-                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：苏打水')">苏打水 × 0</button>
-                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：可乐')">可乐 × 0</button>
-                  <button class="btn-ord-white" style="height:36px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white');showOrdToast('已调整软饮：汤力水')">汤力水 × 0</button>
-                </div>
-              </div>
-              <div>
-                <div style="font-size:14px;font-weight:700;margin-bottom:8px">出品要求</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px">
-                  <button class="btn-ord-blue" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">加冰桶</button>
-                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">先上果盘</button>
-                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">少冰</button>
-                  <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">分杯</button>
-                </div>
-              </div>
-            </div>
-            <div class="qr-ft">
-              <button class="btn-ord-slate" style="height:40px" onclick="switchPage('p2')">取消</button>
-              <button class="btn-ord-blue" style="height:40px;padding:0 28px" onclick="addCart();switchPage('p3')">确认加入购物车</button>
-            </div>
+        <div class="meal-top">
+          <div class="meal-seat-info">
+            <button class="btn btn-chip btn-sm" onclick="switchPage('p2')">← 返回点单</button>
+            <strong style="font-size:15px">套餐选组：轩尼诗 V.S.O.P 尊享畅饮套餐（¥2,680）</strong>
+            <span class="ptag ptag-set">数据集 9 + 52 展开</span>
+          </div>
+          <button class="theme-pill-inapp" style="height:28px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
+        </div>
+        <div class="page-scroll" id="setPageBody"></div>
+        <div class="p1-footer">
+          <div style="font-size:13px;font-weight:700" id="setFooterHint">请完成所有必选/可选组</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-amber" onclick="openYhModal('set')">作为优惠套餐加入</button>
+            <button class="btn btn-green" id="setConfirmBtn" onclick="confirmAddSet()">✓ 确认加入购物车（¥2,680）</button>
           </div>
         </div>
       </section>
 
-      <!-- ================= P3 SHOPPING CART ================= -->
+      <!-- ==================== P3: Cart & Auth ==================== -->
       <section class="screen" id="screen-p3">
-        <div class="light-panel-outer">
-          <div class="light-panel">
-            <div style="background:#ECEFF4;padding:10px 16px;border-bottom:1px solid #C4CBD7;display:flex;justify-content:space-between;align-items:center">
-              <strong style="font-size:17px">🛒 购物车 · 卡台 A08</strong>
-              <div style="display:flex;gap:8px">
-                <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="openOrdModal('auth','批量转优惠2')">批量转优惠2</button>
-                <button class="btn-ord-white" style="height:32px;font-size:12.5px" onclick="openOrdModal('mergeTable')">并台</button>
-              </div>
-            </div>
-            <div class="light-tbl-wrap">
-              <table class="ltable">
-                <thead>
-                  <tr><th>标</th><th>商品名称</th><th>数量</th><th>单价</th><th>小计</th><th>操作</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#00C0B5">套</span></td>
-                    <td><strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#9B5911">Hennessy VSOP Combo</div><div style="font-size:12px;color:#125A9C">要求：加冰桶</div></td>
-                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
-                    <td><span class="prd-ori" style="text-align:left">¥3,280</span><strong style="color:#E63122">¥2,880</strong></td>
-                    <td><strong>¥2,880.00</strong></td>
-                    <td><div class="m-ord-actions"><button class="mini-act blue" onclick="switchPage('p2set')">改明细</button><button class="mini-act" onclick="openOrdModal('req','轩尼诗 VSOP 尊享套餐')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
-                  </tr>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#9068FE">惠</span></td>
-                    <td><strong>豪华鲜果盘</strong><div style="font-size:12px;color:#9B5911">Fruit Platter</div></td>
-                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
-                    <td><strong style="color:#009370">¥0.00</strong></td>
-                    <td><strong>¥0.00</strong></td>
-                    <td><div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','豪华鲜果盘')">要求</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
-                  </tr>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#1DC344">普</span></td>
-                    <td><strong>百威铝瓶 12支</strong><div style="font-size:12px;color:#9B5911">Budweiser Alu x12</div></td>
-                    <td><div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div></td>
-                    <td><strong style="color:#009370">¥680.00</strong></td>
-                    <td><strong>¥680.00</strong></td>
-                    <td><div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','百威铝瓶 12支')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已从购物车移除该商品')">删除</button></div></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="light-cards">
-              <div class="m-ord-card">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                  <div><span class="dot-tag" style="background:#00C0B5;width:20px;height:20px;font-size:11px">套</span> <strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#125A9C">要求：加冰桶</div></div>
-                  <div style="text-align:right"><span class="prd-ori">¥3,280</span><strong style="color:#E63122;font-size:16px">¥2,880</strong></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div>
-                  <div class="m-ord-actions"><button class="mini-act blue" onclick="switchPage('p2set')">改明细</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已删除商品')">删</button></div>
-                </div>
-              </div>
-              <div class="m-ord-card">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div><span class="dot-tag" style="background:#1DC344;width:20px;height:20px;font-size:11px">普</span> <strong>百威铝瓶 12支</strong></div>
-                  <strong style="color:#009370;font-size:16px">¥680</strong>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div class="stepper"><button class="step-btn" onclick="adjQty(this,-1)">−</button><span class="step-val">1</span><button class="step-btn" onclick="adjQty(this,1)">+</button></div>
-                  <div class="m-ord-actions"><button class="mini-act" onclick="openOrdModal('req','百威铝瓶 12支')">要求</button><button class="mini-act" onclick="openOrdModal('auth','单品转优惠')">转优惠</button><button class="mini-act danger" onclick="showOrdToast('已删除商品')">删</button></div>
-                </div>
-              </div>
-            </div>
-            <div class="panel-foot">
-              <div style="font-size:15px">共 <strong>3</strong> 件 · 预计合计 <strong style="color:#009370;font-size:20px">¥3,560.00</strong></div>
-              <div style="display:flex;gap:8px">
-                <button class="btn-ord-white" onclick="switchPage('p2')">继续点单</button>
-                <button class="btn-ord-blue" style="padding:0 24px" onclick="switchPage('p4')">确认下单</button>
-              </div>
-            </div>
+        <div class="meal-top">
+          <div class="meal-seat-info">
+            <button class="btn btn-chip btn-sm" onclick="switchPage('p2')">← 继续点单</button>
+            <strong style="font-size:15px">购物车 · 卡台 <span id="p3SeatName">V02</span></strong>
+            <span class="ptag ptag-ordered">支持非授权人改量锁 · 套餐子项展开 · 刷卡/密码授权</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-yh2 btn-sm" onclick="openYhModal('cart')">批量优惠 / 优惠2</button>
+            <button class="btn btn-chip btn-sm" onclick="openAuthModal('演示主管授权（刷卡/密码双Tab）', () => showToast('主管授权校验通过！', 'success'))">🔐 预览授权弹窗</button>
+          </div>
+        </div>
+        <div class="page-scroll" id="p3Body"></div>
+        <div class="p1-footer">
+          <div>
+            <div style="font-size:12px;color:var(--ord-muted)">已选 <b id="p3Cnt">0</b> 件 · 优惠/赠饮自动校验岗位限额(36/37/55)</div>
+            <div style="font-size:18px;font-weight:900;color:var(--price-normal)">实付合计：<span id="p3Total">¥0</span></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-chip" onclick="showToast('已模拟 /wsc/order code=2：本台尚有必点商品未点，已自动定位至必点分类', 'warn')">测试 code=2 必点拦截</button>
+            <button class="btn btn-green btn-lg-touch" onclick="submitCartOrder()">⚡ 确认下单 (/wsc/order)</button>
           </div>
         </div>
       </section>
 
-      <!-- ================= P4 MY ORDER ================= -->
+      <!-- ==================== P4: My Order & Waiter Pay ==================== -->
       <section class="screen" id="screen-p4">
-        <div class="light-panel-outer">
-          <div class="light-panel">
-            <div style="background:#ECEFF4;padding:10px 14px;border-bottom:1px solid #C4CBD7;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-              <strong style="font-size:16px">📋 我的点单 · 卡台 A08</strong>
-              <div style="display:flex;gap:12px;font-size:13px;flex-wrap:wrap">
-                <span>折前 <strong>¥5,164.00</strong></span>
-                <span>赠送 <strong style="color:#009370">¥188.00</strong></span>
-                <span>优惠 <strong>¥300.00</strong></span>
-                <span>未结 <strong style="color:#E63122">¥2,880.00</strong></span>
-              </div>
-            </div>
-            <div class="light-tbl-wrap">
-              <table class="ltable">
-                <thead>
-                  <tr><th>态</th><th>商品名称</th><th>数量</th><th>金额</th><th>点单/时间</th><th>操作</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#7D41F0">未</span></td>
-                    <td><strong>轩尼诗 VSOP 尊享套餐</strong><div style="font-size:12px;color:#125A9C">要求：加冰桶 · 子项：VSOP×2、绿茶×4、果盘×1</div></td>
-                    <td><strong>1</strong></td>
-                    <td><strong style="color:#E63122">¥2,880.00</strong></td>
-                    <td>李四 · 21:18</td>
-                    <td><div class="m-ord-actions"><button class="mini-act danger" onclick="openOrdModal('refund','轩尼诗 VSOP 尊享套餐')">退单</button><button class="mini-act" onclick="openOrdModal('auth','转经营赠送')">赠送</button><button class="mini-act" onclick="openOrdModal('auth','转优惠2')">转优惠2</button><button class="mini-act blue" onclick="switchPage('p2set')">改套餐</button><button class="mini-act" onclick="showOrdToast('已补打出品单至酒水吧台打印机')">补打出品</button></div></td>
-                  </tr>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#0D9940">结</span></td>
-                    <td><strong>野格 700ml</strong><div style="font-size:12px;color:#9B5911">Jagermeister</div></td>
-                    <td><strong>2</strong></td>
-                    <td><strong style="color:#009370">¥1,360.00</strong></td>
-                    <td>李四 · 20:55</td>
-                    <td><div class="m-ord-actions"><button class="mini-act" onclick="showOrdToast('已补打出品单至酒水吧台打印机')">补打出品</button></div></td>
-                  </tr>
-                  <tr>
-                    <td><span class="dot-tag" style="background:#D2162D">退</span></td>
-                    <td><strong>百威铝瓶 12支</strong> <span style="color:#CE060C;font-size:12px;font-weight:700">[已退单]</span></td>
-                    <td>1</td>
-                    <td style="text-decoration:line-through;color:#7A7A7A">¥680.00</td>
-                    <td>李四 · 21:05</td>
-                    <td>—</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="light-cards">
-              <div class="m-ord-card">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                  <div>
-                    <span class="dot-tag" style="background:#7D41F0;width:20px;height:20px;font-size:11px">未</span>
-                    <strong>轩尼诗 VSOP 尊享套餐 ×1</strong>
-                    <div style="font-size:12px;color:#125A9C;margin-top:2px">要求：加冰桶 · 李四 21:18</div>
-                  </div>
-                  <strong style="color:#E63122;font-size:16px">¥2,880</strong>
-                </div>
-                <div class="m-ord-actions">
-                  <button class="mini-act danger" onclick="openOrdModal('refund','轩尼诗 VSOP 尊享套餐')">退单</button>
-                  <button class="mini-act" onclick="openOrdModal('auth','转经营赠送')">赠送</button>
-                  <button class="mini-act" onclick="openOrdModal('auth','转优惠2')">转优惠2</button>
-                  <button class="mini-act blue" onclick="switchPage('p2set')">改套餐</button>
-                  <button class="mini-act" onclick="showOrdToast('已补打出品单')">补打出品</button>
-                </div>
-              </div>
-              <div class="m-ord-card">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div>
-                    <span class="dot-tag" style="background:#0D9940;width:20px;height:20px;font-size:11px">结</span>
-                    <strong>野格 700ml ×2</strong>
-                    <div style="font-size:12px;color:#5C6475">已结账 · 李四 20:55</div>
-                  </div>
-                  <strong style="color:#009370;font-size:16px">¥1,360</strong>
-                </div>
-                <div class="m-ord-actions"><button class="mini-act" onclick="showOrdToast('已补打出品单')">补打出品</button></div>
-              </div>
-            </div>
-            <div class="panel-foot">
-              <div style="display:flex;gap:8px">
-                <button class="btn-ord-white" onclick="switchPage('p2')">← 返回点单</button>
-                <button class="btn-ord-white" onclick="showOrdToast('已下发打印 A08 消费明细单')">🖨 打印消费单</button>
-              </div>
-              <button class="btn-ord-red" onclick="switchPage('p4qr')">服务员买单 · ¥2,880</button>
+        <div class="meal-top">
+          <div class="meal-seat-info">
+            <button class="btn btn-chip btn-sm" onclick="switchPage('p2')">← 点单</button>
+            <strong style="font-size:15px">我的点单 · 卡台 <span id="p4SeatName">V02</span></strong>
+            <div class="seg-group" style="background:var(--ord-chip);border-color:var(--ord-border)">
+              <button class="seg-btn active" id="p4TabOrders" onclick="switchP4Tab('orders')">点单明细 (5)</button>
+              <button class="seg-btn" id="p4TabWine" onclick="switchP4Tab('wine')">存取酒记录 wine_ops (2)</button>
             </div>
           </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-chip btn-sm" onclick="showToast('已下发打印总消费单 (/wo/prt_csm_bill · total_type=1)', 'success')">🖨 打印消费单</button>
+            <button class="btn btn-danger btn-sm" onclick="openWaiterPayModal()">💳 服务员买单 (os/oos)</button>
+          </div>
+        </div>
+        <div class="page-scroll">
+          <!-- 5-item pay_info summary -->
+          <div class="kpi-5">
+            <div class="kpi-box"><span class="kpi-lbl">折前总额</span><span class="kpi-val">¥4,580.00</span></div>
+            <div class="kpi-box"><span class="kpi-lbl">赠送金额</span><span class="kpi-val amber">¥380.00</span></div>
+            <div class="kpi-box"><span class="kpi-lbl">优惠金额</span><span class="kpi-val amber">¥220.00</span></div>
+            <div class="kpi-box"><span class="kpi-lbl">当前未结</span><span class="kpi-val red">¥2,480.00</span></div>
+            <div class="kpi-box"><span class="kpi-lbl">主营实收 (第5项)</span><span class="kpi-val mint">¥1,500.00</span></div>
+          </div>
+          <div id="p4ListBody" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div class="p1-footer">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-chip btn-sm" onclick="openYhModal('myorder')">批量优惠 / 优惠2</button>
+            <button class="btn btn-danger-soft btn-sm" onclick="openRefundModal('麦卡伦 12 年双桶', 2)">批量退单</button>
+            <button class="btn btn-chip btn-sm" onclick="openReprintModal()">补打单据 (type 1/2/3)</button>
+          </div>
+          <button class="btn btn-danger" onclick="openWaiterPayModal()">💳 勾选未结单 · 去买单</button>
         </div>
       </section>
 
-      <!-- ================= P4+ WAITER PAY QR ================= -->
-      <section class="screen" id="screen-p4qr">
-        <div class="modal-bg">
-          <div class="qr-modal">
-            <div class="qr-hd">
-              <span>服务员买单二维码 · 卡台 A08</span>
-              <span style="cursor:pointer" onclick="switchPage('p4')">✕</span>
-            </div>
-            <div class="qr-bd">
-              <div style="font-size:15px;color:#1A1A21">本次扫码应收金额</div>
-              <div style="font-size:32px;font-weight:700;color:#009370;margin-top:4px">¥2,880.00</div>
-              <div class="qr-box" id="qrGrid"></div>
-              <div style="font-size:15px;font-weight:600;color:#D44F44">请客人使用微信 / 支付宝扫码支付</div>
-              <div style="font-size:12px;color:#5C6475;margin-top:4px">实时轮询支付结果中 · 剩余有效期 14:48</div>
-            </div>
-            <div class="qr-ft">
-              <button class="btn-ord-slate" style="height:40px" onclick="switchPage('p4')">取消支付</button>
-              <button class="btn-ord-blue" style="height:40px" onclick="showOrdToast('正在轮询支付结果…暂未检测到入账')">刷新结果</button>
+      <!-- ==================== P5: Wine Mode (Save / Get / Confiscate) ==================== -->
+      <section class="screen" id="screen-p5">
+        <div class="meal-top">
+          <div class="meal-seat-info">
+            <button class="btn btn-chip btn-sm" onclick="switchPage('p1')">← 卡台首页</button>
+            <strong style="font-size:15px">🍷 存酒业务可视化工作台 · 卡台 V02</strong>
+            <div class="seg-group" style="background:var(--ord-chip);border-color:var(--ord-border)">
+              <button class="seg-btn active" id="wTabSave" onclick="switchWineTab('save')">存酒 (Save)</button>
+              <button class="seg-btn" id="wTabGet" onclick="switchWineTab('get')">取酒 (Get)</button>
+              <button class="seg-btn" id="wTabConf" onclick="switchWineTab('conf')">充公 (Confiscate)</button>
             </div>
           </div>
+          <button class="theme-pill-inapp" style="height:28px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
         </div>
+        <div class="page-scroll" id="wineBody"></div>
       </section>
 
-      <!-- ================= GLOBAL S2 POPUP MENUS, DRAWERS & MODALS ================= -->
-      <!-- P1 /orderCard 更多功能 (3 real items from newOrderCard.vue:234) -->
-      <div class="ord-overlay" id="p1MorePop" onclick="closeOrdOverlays()">
-        <div class="ord-pop" style="right:132px" onclick="event.stopPropagation()">
-          <div class="ord-pop-hd"><span>更多功能（3 项）</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
-          <div class="ord-pop-item" onclick="openOrdDrawer('minConsume')"><span>📊 低消进度统计表</span><span style="font-size:11px;color:#5C6475">12列</span></div>
-          <div class="ord-pop-item" onclick="openOrdDrawer('cocktail')"><span>🍸 鸡尾酒明细表</span><span style="font-size:11px;color:#5C6475">无导出</span></div>
-          <div class="ord-pop-item" onclick="openOrdDrawer('soldout')"><span>🚫 估清商品</span><span style="font-size:11px;color:#E63122">1项估清</span></div>
-        </div>
-      </div>
-
-      <!-- P1 /orderCard 账户菜单 (3 real items from newOrderCard.vue:254) -->
-      <div class="ord-overlay" id="p1AccPop" onclick="closeOrdOverlays()">
-        <div class="ord-pop" style="width:186px;right:14px" onclick="event.stopPropagation()">
-          <div class="ord-pop-hd"><span>李服务员 · 账户</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
-          <div class="ord-pop-item" onclick="openOrdModal('pwd')"><span>🔑 修改密码</span></div>
-          <div class="ord-pop-item" onclick="openOrdModal('authPwd')"><span>🛡 授权密码</span></div>
-          <div class="ord-pop-item danger" onclick="closeOrdOverlays();showOrdToast('已退出登录（演示保持在点单首页）')"><span>🚪 退出登录</span></div>
-        </div>
-      </div>
-
-      <!-- P2 /orderMeal newFootBar 更多功能 (4 real items from newFootBar.vue:67-70) -->
-      <div class="ord-overlay" id="p2MorePop" onclick="closeOrdOverlays()">
-        <div class="ord-pop" style="width:196px;right:14px" onclick="event.stopPropagation()">
-          <div class="ord-pop-hd"><span>点单页 · 更多（4 项）</span><span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span></div>
-          <div class="ord-pop-item" onclick="openOrdDrawer('recharge')"><span>💳 充值</span><span style="font-size:11px;color:#5C6475">会员</span></div>
-          <div class="ord-pop-item" onclick="openOrdModal('lateDeposit')"><span>🏦 滞留金</span><span style="font-size:11px;color:#5C6475">A08</span></div>
-          <div class="ord-pop-item" onclick="openOrdModal('clearTable')"><span>🧹 清台</span></div>
-          <div class="ord-pop-item" onclick="openOrdModal('transferTable')"><span>🔄 转台</span></div>
-        </div>
-      </div>
-
-      <!-- Generic Light-Slate Drawer Container -->
-      <div class="ord-overlay" id="ordDrawerMask" onclick="closeOrdOverlays()">
-        <div class="ord-drawer" onclick="event.stopPropagation()">
-          <div class="qr-hd">
-            <span id="ordDrawerTitle">抽屉标题</span>
-            <span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span>
+      <!-- ==================== MODAL 1: 1-Page Quick Add (1/2/6/12 + Requirements 19/20/21) ==================== -->
+      <div class="overlay-bg sheet-mode" id="quickAddOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card">
+          <div class="modal-hd">
+            <div>
+              <strong id="qaTitle" style="font-size:15px">轩尼诗 V.S.O.P</strong>
+              <div id="qaSub" style="font-size:11.5px;color:var(--ord-muted)">Hennessy V.S.O.P · 实时余量 18 瓶</div>
+            </div>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
           </div>
-          <div id="ordDrawerBody" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px"></div>
-          <div class="qr-ft" id="ordDrawerFoot">
-            <button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">关闭</button>
+          <div class="modal-bd">
+            <div>
+              <div style="font-size:12px;color:var(--ord-muted);margin-bottom:6px;font-weight:700">快捷数量（1 键直选 · 实时校验 8 号估清上限）</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                <div class="chip-row" id="qaQtyChips">
+                  <button class="pick-chip active" onclick="setQaQty(1)">1 瓶</button>
+                  <button class="pick-chip" onclick="setQaQty(2)">2 瓶</button>
+                  <button class="pick-chip" onclick="setQaQty(6)">6 瓶</button>
+                  <button class="pick-chip" onclick="setQaQty(12)">12 瓶</button>
+                </div>
+                <div class="stepper">
+                  <button class="step-btn" onclick="setQaQty(qaQty - 1)">−</button>
+                  <span class="step-qty" id="qaQtyVal">1</span>
+                  <button class="step-btn plus" onclick="setQaQty(qaQty + 1)">+</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--ord-muted);margin-bottom:6px;font-weight:700">出品要求（数据集 19/20/21 · 多选直点）</div>
+              <div class="chip-row" id="qaReqChips"></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--ord-muted);margin-bottom:6px;font-weight:700">关联功能台补交（bizType == 3 自动带出，常规台无需填）</div>
+              <input class="ord-input" style="width:100%" id="qaCustomNote" placeholder="可选补充备注（如：稍后上、配 6 个冰杯）" />
+            </div>
+          </div>
+          <div class="modal-ft">
+            <button class="btn btn-amber" onclick="confirmQuickAdd('yh')">优惠加入</button>
+            <button class="btn btn-green" onclick="confirmQuickAdd('normal')" id="qaConfirmBtn">⚡ 确认加购</button>
           </div>
         </div>
       </div>
 
-      <!-- Generic Light-Slate Modal Container -->
-      <div class="ord-overlay" id="ordModalMask" onclick="closeOrdOverlays()">
-        <div class="ord-modal" onclick="event.stopPropagation()">
-          <div class="qr-hd">
-            <span id="ordModalTitle">弹窗标题</span>
-            <span style="cursor:pointer" onclick="closeOrdOverlays()">✕</span>
+      <!-- ==================== MODAL 2: Dual-Tab Auth Dialog (order_auth_dialog.dart) ==================== -->
+      <div class="overlay-bg" id="authOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card" style="width:440px">
+          <div class="modal-hd">
+            <strong id="authTitle">主管授权</strong>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
           </div>
-          <div id="ordModalBody" style="padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px"></div>
-          <div class="qr-ft" id="ordModalFoot">
-            <button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button>
-            <button class="btn-ord-blue" style="height:38px;padding:0 22px" id="ordModalConfirm">确认</button>
+          <div class="modal-bd">
+            <div class="seg-group" style="background:var(--ord-chip);border-color:var(--ord-border);width:100%">
+              <button class="seg-btn active" style="flex:1" id="authTab0" onclick="setAuthMode(0)">本人授权</button>
+              <button class="seg-btn" style="flex:1" id="authTab1" onclick="setAuthMode(1)">账号密码</button>
+              <button class="seg-btn" style="flex:1" id="authTab2" onclick="setAuthMode(2)">刷员工卡</button>
+            </div>
+            <div id="authModeBody"></div>
+          </div>
+          <div class="modal-ft">
+            <button class="btn btn-chip" onclick="closeAllModals()">取消</button>
+            <button class="btn btn-brand" onclick="submitAuthDialog()">确认授权</button>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="token-strip">
-      <h3>S2 点单系统核心色板 Token（100% 对齐 `newOrderCard.less` / `newCardBgc.less` / `productList.less` / `newFootBar.less`）</h3>
-      <div class="swatches">
-        <div class="sw"><span class="sw-box" style="background:#DCE1EA"></span>主画布 #DCE1EA</div>
-        <div class="sw"><span class="sw-box" style="background:#C4CBD7"></span>顶栏/外框 #C4CBD7</div>
-        <div class="sw"><span class="sw-box" style="background:#ECEFF4"></span>底栏/表头 #ECEFF4</div>
-        <div class="sw"><span class="sw-box" style="background:#989FAF"></span>二级分类底 #989FAF</div>
-        <div class="sw"><span class="sw-box" style="background:#FAFAFC"></span>空台/商品卡 #FAFAFC</div>
-        <div class="sw"><span class="sw-box" style="background:#A1E7C2"></span>预订 #A1E7C2</div>
-        <div class="sw"><span class="sw-box" style="background:#FFF6A5"></span>开台 #FFF6A5</div>
-        <div class="sw"><span class="sw-box" style="background:#F8A27A"></span>点单 #F8A27A</div>
-        <div class="sw"><span class="sw-box" style="background:#BAB9F7"></span>半结/已结 #BAB9F7</div>
-        <div class="sw"><span class="sw-box" style="background:#3373E8"></span>主按钮 #3373E8</div>
-        <div class="sw"><span class="sw-box" style="background:#009370"></span>常规价/存酒 #009370</div>
-        <div class="sw"><span class="sw-box" style="background:#E63122"></span>方案红价 #E63122</div>
-        <div class="sw"><span class="sw-box" style="background:#D44F44"></span>买单/角标 #D44F44</div>
+      <!-- ==================== MODAL 3: YH / YH2 Single-Page Sheet (NO raw IDs!) ==================== -->
+      <div class="overlay-bg sheet-mode" id="yhOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card">
+          <div class="modal-hd">
+            <strong>优惠 / 优惠 2 单页办理（告别手填数据库 ID）</strong>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
+          </div>
+          <div class="modal-bd">
+            <div class="chip-row">
+              <button class="pick-chip active" id="yhType1" onclick="setYhKind(1)">常规优惠 / 赠送</button>
+              <button class="pick-chip" id="yhType2" onclick="setYhKind(2)">优惠 2（跨台/订位人）</button>
+              <button class="pick-chip" id="yhType3" onclick="setYhKind(3)">内招 / 外招 / 自用</button>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--ord-muted);margin-bottom:5px;font-weight:700">优惠理由（数据集 32 · 1 键点选）</div>
+              <div class="chip-row" id="yhReasonChips">
+                <button class="pick-chip active" onclick="pickChipSingle(this)">VIP 客情赠送</button>
+                <button class="pick-chip" onclick="pickChipSingle(this)">经理权限招待</button>
+                <button class="pick-chip" onclick="pickChipSingle(this)">生日/包厢活动</button>
+                <button class="pick-chip" onclick="pickChipSingle(this)">酒水补偿</button>
+              </div>
+            </div>
+            <div id="yh2Pickers" style="display:none;flex-direction:column;gap:8px;padding:10px;border-radius:10px;background:var(--ord-panel);border:1px solid var(--ord-border)">
+              <div style="font-size:12px;font-weight:700;color:var(--ord-yh2)">🔍 模糊搜索选择订位人 & 目标卡台（自动填 ID）</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <select class="ord-input"><option>林经理 · 营销一部 (#1028)</option><option>陈主管 · VIP组 (#1035)</option><option>周总监 · 商务部 (#1006)</option></select>
+                <select class="ord-input"><option>V02 · VIP包厢（当前台）</option><option>V01 · VIP包厢</option><option>A08 · 大厅卡座</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-ft">
+            <button class="btn btn-chip" onclick="closeAllModals()">取消</button>
+            <button class="btn btn-yh2" onclick="closeAllModals();openAuthModal('确认优惠授权', () => showToast('✓ 优惠/优惠2 已提交并计入员工限额！', 'success'))">下一步：主管授权 →</button>
+          </div>
+        </div>
       </div>
+
+      <!-- ==================== MODAL 4: Waiter Pay Sheet (order_pay_sheet.dart) ==================== -->
+      <div class="overlay-bg sheet-mode" id="waiterPayOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card" style="width:620px">
+          <div class="modal-hd">
+            <strong>💳 服务员买单 · 卡台 V02（/wo/get_waiter_olpay_todo_orders）</strong>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
+          </div>
+          <div class="modal-bd" id="waiterPayBody"></div>
+          <div class="modal-ft" id="waiterPayFoot"></div>
+        </div>
+      </div>
+
+      <!-- ==================== MODAL 5: Refund with Numeric Keypad ==================== -->
+      <div class="overlay-bg" id="refundOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card" style="width:430px">
+          <div class="modal-hd">
+            <strong id="refundTitle">退单办理</strong>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
+          </div>
+          <div class="modal-bd">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:var(--ord-panel);padding:10px 12px;border-radius:10px;border:1px solid var(--ord-border)">
+              <span style="font-size:12.5px;color:var(--ord-muted)">退单数量（触屏数字键盘）</span>
+              <strong style="font-size:22px;color:var(--ord-danger)" id="refundQtyDisp">1</strong>
+            </div>
+            <div class="numpad-grid">
+              <button class="num-key" onclick="tapRefundNum('1')">1</button><button class="num-key" onclick="tapRefundNum('2')">2</button><button class="num-key" onclick="tapRefundNum('3')">3</button>
+              <button class="num-key" onclick="tapRefundNum('4')">4</button><button class="num-key" onclick="tapRefundNum('5')">5</button><button class="num-key" onclick="tapRefundNum('6')">6</button>
+              <button class="num-key" onclick="tapRefundNum('7')">7</button><button class="num-key" onclick="tapRefundNum('8')">8</button><button class="num-key" onclick="tapRefundNum('9')">9</button>
+              <button class="num-key" onclick="tapRefundNum('C')">清空</button><button class="num-key" onclick="tapRefundNum('0')">0</button><button class="num-key" onclick="tapRefundNum('B')">⌫</button>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--ord-muted);margin-bottom:5px;font-weight:700">退单理由（数据集 32）</div>
+              <div class="chip-row">
+                <button class="pick-chip active" onclick="pickChipSingle(this)">点错酒水</button>
+                <button class="pick-chip" onclick="pickChipSingle(this)">客人更换</button>
+                <button class="pick-chip" onclick="pickChipSingle(this)">缺货估清</button>
+              </div>
+            </div>
+          </div>
+          <div class="modal-ft">
+            <button class="btn btn-chip" onclick="closeAllModals()">取消</button>
+            <button class="btn btn-danger" onclick="closeAllModals();openAuthModal('退单主管二次授权 (code==2)', () => showToast('✓ 退单成功并已释放估清库存', 'success'))">确认退单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MODAL 6: Generic Drawer / Reports / Recharge / More / Account ==================== -->
+      <div class="overlay-bg sheet-mode" id="genericOverlay" onclick="if(event.target===this)closeAllModals()">
+        <div class="modal-card" style="width:700px">
+          <div class="modal-hd">
+            <strong id="genTitle">功能抽屉</strong>
+            <button class="btn btn-chip btn-xs" onclick="closeAllModals()">✕</button>
+          </div>
+          <div class="modal-bd" id="genBody"></div>
+          <div class="modal-ft" id="genFoot"></div>
+        </div>
+      </div>
+
     </div>
   </main>
 
 <script>
-  const ORD_SEATS = [
-    { name:'A08', area:'大厅', mine:true, status:5, mark:'A', time:'21:10', order:'4976.00', gift:'188.00', prog:'96%', sales:'李四 营销一部', remark:'靠舞台', turn:1 },
-    { name:'V02', area:'VIP', mine:true, status:5, mark:'V', time:'20:45', order:'6800.00', gift:'500.00', prog:'100%', sales:'林经理 营销一部', remark:'熟客', turn:1 },
-    { name:'V03', area:'VIP', mine:true, status:4, mark:'', time:'21:15', order:'1800.00', gift:'0.00', prog:'60%', sales:'赵丽 市场部', remark:'需冰桶', turn:0 },
-    { name:'V05', area:'VIP', mine:false, status:7, mark:'', time:'19:50', order:'4200.00', gift:'0.00', prog:'100%', sales:'林经理 营销一部', remark:'', turn:2 },
-    { name:'A01', area:'大厅', mine:false, status:1, mark:'', time:'', order:'', gift:'', prog:'', sales:'', remark:'', turn:0 },
-    { name:'A02', area:'大厅', mine:false, status:2, mark:'', time:'', order:'', gift:'', prog:'', sales:'', remark:'保留台', turn:0 },
-    { name:'A09', area:'大厅', mine:false, status:8, mark:'生', time:'22:00', order:'', gift:'', prog:'', sales:'王敏 市场部', remark:'', turn:0 },
-    { name:'S02', area:'散台', mine:true, status:4, mark:'', time:'21:30', order:'680.00', gift:'0.00', prog:'68%', sales:'赵丽 市场部', remark:'', turn:0 },
+  /* ==================== Mock Data (Source-Aligned with Vue dev & Flutter) ==================== */
+  const SEATS = [
+    { id:'V02', reg:'VIP', regName:'VIP包厢', st:5, stTxt:'点单', mine:true, time:'21:15', mark:'生', lock:false, ord:3280, min:3000, yh:380, sales:'林经理', dept:'营销一部', turn:1, remark:'要冰桶加柠檬', wineOk:true },
+    { id:'V01', reg:'VIP', regName:'VIP包厢', st:6, stTxt:'部分结', mine:true, time:'20:40', mark:'V', lock:false, ord:6800, min:5000, yh:600, sales:'陈主管', dept:'VIP组', turn:0, remark:'先结首轮洋酒', wineOk:true },
+    { id:'A08', reg:'HALL', regName:'大厅卡座', st:4, stTxt:'开台', mine:true, time:'22:05', mark:'', lock:false, ord:1920, min:2000, yh:0, sales:'林经理', dept:'营销一部', turn:0, remark:'待上鸡尾酒', wineOk:true },
+    { id:'A03', reg:'HALL', regName:'大厅卡座', st:5, stTxt:'点单', mine:true, time:'21:30', mark:'必', lock:false, ord:2450, min:2000, yh:200, sales:'周总监', dept:'商务部', turn:2, remark:'常客老王', wineOk:true },
+    { id:'B12', reg:'BAR', regName:'吧台/散台', st:7, stTxt:'已结', mine:true, time:'20:10', mark:'', lock:false, ord:980, min:0, yh:0, sales:'散客', dept:'', turn:1, remark:'已结待存酒', wineOk:true },
+    { id:'V05', reg:'VIP', regName:'VIP包厢', st:4, stTxt:'开台', mine:false, time:'22:18', mark:'企', lock:false, ord:0, min:4000, yh:0, sales:'王经理', dept:'营销二部', turn:0, remark:'刚入座准备点单', wineOk:true },
+    { id:'A06', reg:'HALL', regName:'大厅卡座', st:8, stTxt:'预订', mine:false, time:'22:30', mark:'', lock:false, ord:0, min:1500, yh:0, sales:'李经理', dept:'营销一部', turn:0, remark:'预留到23点', wineOk:false },
+    { id:'B05-EXTEND', reg:'BAR', regName:'吧台/散台', st:1, stTxt:'空台', mine:false, time:'', mark:'', lock:false, ord:0, min:0, yh:0, sales:'', dept:'', turn:1, remark:'翻台可查上轮存酒', wineOk:true },
+    { id:'A11', reg:'HALL', regName:'大厅卡座', st:2, stTxt:'锁定', mine:false, time:'', mark:'', lock:true, ord:0, min:0, yh:0, sales:'督查锁定', dept:'', turn:0, remark:'设备检修', wineOk:false },
   ];
 
   const CATS = [
-    { name:'洋酒套餐', subs:['威士忌套餐','干邑套餐','香槟组合'] },
-    { name:'洋酒单支', subs:['轩尼诗','马爹利','麦卡伦'] },
-    { name:'啤酒软饮', subs:['精酿/瓶装','软饮矿水'] },
-    { name:'小吃果盘', subs:['果盘','热卤炸物'] },
-    { name:'花篮特饮', subs:['气氛特饮','花篮打赏'] },
+    { id:'c1', name:'🥃 洋酒', subs:[
+      { id:'s1', name:'威士忌', time:'' },
+      { id:'s2', name:'干邑白兰地', time:'' },
+      { id:'s3', name:'伏特加/金酒', time:'' },
+    ]},
+    { id:'c2', name:'🍸 鸡尾酒', subs:[
+      { id:'s4', name:'招牌特调', time:'21:00-02:00' },
+      { id:'s5', name:'经典鸡尾酒', time:'' },
+    ]},
+    { id:'c3', name:'🍾 套餐', subs:[
+      { id:'s6', name:'尊享畅饮套餐', time:'' },
+      { id:'s7', name:'香槟仪式套餐', time:'22:00-03:00' },
+    ]},
+    { id:'c4', name:'🍺 啤酒/软饮', subs:[
+      { id:'s8', name:'精酿啤酒', time:'' },
+      { id:'s9', name:'配饮/小吃', time:'' },
+    ]},
   ];
 
-  const PRDS = [
-    { name:'轩尼诗 VSOP 尊享套餐', en:'Hennessy VSOP VIP Combo', price:'2880.00', ori:'3280.00', stock:'充足', icon:'🥃', count:1, isSet:true, soldout:false },
-    { name:'马爹利蓝带 700ml', en:'Martell Cordon Bleu', price:'2680.00', ori:'', stock:'剩 12 支', icon:'🍾', count:0, isSet:false, soldout:false },
-    { name:'黑桃A 黄金香槟', en:'Armand de Brignac Gold', price:'6800.00', ori:'7200.00', stock:'剩 3 支', icon:'🥂', count:0, isSet:false, soldout:false },
-    { name:'百威铝瓶 12支', en:'Budweiser Aluminum x12', price:'680.00', ori:'', stock:'充足', icon:'🍺', count:1, isSet:false, soldout:false },
-    { name:'豪华鲜果盘（大）', en:'Deluxe Fresh Fruit Platter', price:'188.00', ori:'', stock:'充足', icon:'🍉', count:1, isSet:false, soldout:false },
-    { name:'麦卡伦 18年 单一麦芽', en:'Macallan 18YO Single Malt', price:'5600.00', ori:'', stock:'已售罄', icon:'🥃', count:0, isSet:false, soldout:true },
+  const PRODUCTS = [
+    { id:'p1', c1:'c1', s:'s1', icon:'🥃', name:'麦卡伦 12 年双桶', en:'Macallan 12Y Double Cask', py:'mkl12', orig:1680, price:1480, fc:true, stock:18, ordered:1, isSet:false, canYh:true, canYh2:true },
+    { id:'p2', c1:'c1', s:'s1', icon:'🥃', name:'皇家礼炮 21 年', en:'Royal Salute 21Y', py:'hjlp21', orig:2680, price:2680, fc:false, stock:2, ordered:0, isSet:false, canYh:true, canYh2:false },
+    { id:'p3', c1:'c1', s:'s2', icon:'🥃', name:'轩尼诗 V.S.O.P', en:'Hennessy V.S.O.P', py:'xnsvsop', orig:1380, price:1180, fc:true, stock:14, ordered:2, isSet:false, canYh:true, canYh2:true },
+    { id:'p4', c1:'c1', s:'s2', icon:'🥃', name:'马爹利蓝带', en:'Martell Cordon Bleu', py:'mdlld', orig:2980, price:2780, fc:false, stock:0, ordered:0, isSet:false, canYh:false, canYh2:false },
+    { id:'p5', c1:'c2', s:'s4', icon:'🍸', name:'暗夜霓虹特调', en:'Neon Night Signature', py:'aynh', orig:128, price:98, fc:true, stock:25, ordered:3, isSet:false, canYh:true, canYh2:true },
+    { id:'p6', c1:'c2', s:'s5', icon:'🍸', name:'莫吉托 Mojito', en:'Classic Mint Mojito', py:'mjt', orig:88, price:88, fc:false, stock:99, ordered:0, isSet:false, canYh:true, canYh2:false },
+    { id:'p7', c1:'c3', s:'s6', icon:'🍾', name:'轩尼诗 V.S.O.P 尊享套餐', en:'Hennessy Party Set', py:'xnstc', orig:3180, price:2680, fc:false, stock:6, ordered:0, isSet:true, canYh:true, canYh2:true },
+    { id:'p8', c1:'c4', s:'s8', icon:'🍺', name:'科罗娜冰啤（半打）', en:'Corona Extra 6-Pack', py:'kln', orig:360, price:320, fc:false, stock:40, ordered:1, isSet:false, canYh:true, canYh2:false },
+    { id:'p9', c1:'c4', s:'s9', icon:'🍋', name:'苏打水 / 绿茶配饮组合', en:'Mixer Bundle', py:'sds', orig:120, price:120, fc:false, stock:99, ordered:0, isSet:false, canYh:false, canYh2:false },
   ];
 
-  let regFilter = 'mine';
-  let stFilter = null;
+  const REQUIREMENTS = ['加冰', '少冰', '去冰', '配大冰球', '加柠檬片', '少糖', '分杯', '稍后上'];
+
+  const SET_GROUPS = [
+    { title:'必选固定项（默认自动带出）', fixed:true, need:2, items:[
+      { id:'sg0', name:'轩尼诗 V.S.O.P 700ml', qty:1, fixed:true, stock:14 },
+      { id:'sg1', name:'豪华时令果盘（大份）', qty:1, fixed:true, stock:10 },
+    ]},
+    { title:'可选配饮组（任选 6 瓶）', fixed:false, need:6, items:[
+      { id:'sg2', name:'康师傅冰红茶', qty:3, stock:50 },
+      { id:'sg3', name:'屈臣氏苏打水', qty:2, stock:40 },
+      { id:'sg4', name:'脉动青柠味', qty:1, stock:22 },
+      { id:'sg5', name:'红牛能量饮（估清）', qty:0, stock:0 },
+    ]},
+    { title:'可选小吃组（任选 2 份）', fixed:false, need:2, items:[
+      { id:'sg6', name:'黑椒牛肉粒', qty:1, stock:12 },
+      { id:'sg7', name:'香辣脆骨', qty:1, stock:15 },
+      { id:'sg8', name:'松露薯条', qty:0, stock:8 },
+    ]},
+  ];
+
+  const MY_ORDERS = [
+    { id:'o1', name:'麦卡伦 12 年双桶', badge:'unpaid', badgeTxt:'未结', extra:['锁'], waiter:'李四', qty:1, price:1480, req:'配大冰球 · 柠檬片', time:'21:18', isSet:false },
+    { id:'o2', name:'轩尼诗 V.S.O.P 尊享套餐', badge:'paid', badgeTxt:'已结', extra:['套'], waiter:'李四', qty:1, price:2680, req:'分杯', time:'21:20', isSet:true, subs:['轩尼诗 V.S.O.P ×1','冰红茶 ×4','苏打水 ×2','果盘 ×1'] },
+    { id:'o3', name:'暗夜霓虹特调', badge:'yh', badgeTxt:'优惠', extra:['补单'], waiter:'林经理授权', qty:3, price:294, req:'少冰 · 少糖', time:'21:42', isSet:false },
+    { id:'o4', name:'科罗娜冰啤（半打）', badge:'unpaid', badgeTxt:'未结', extra:[], waiter:'李四', qty:2, price:640, req:'加青柠', time:'22:02', isSet:false },
+    { id:'o5', name:'莫吉托 Mojito', badge:'refund', badgeTxt:'退单', extra:['退单中'], waiter:'李四', qty:1, price:88, req:'理由：客人更换', time:'22:10', isSet:false },
+  ];
+
+  const WINE_OPS = [
+    { id:'w1', type:'存酒', wine:'轩尼诗 V.S.O.P', qty:'0.6 瓶 (420g)', phone:'138****8821', expiry:'30 天', time:'21:55', op:'李四' },
+    { id:'w2', type:'取酒', wine:'麦卡伦 12 年双桶', qty:'1 瓶', phone:'138****8821', expiry:'有效', time:'21:16', op:'李四' },
+  ];
+
+  /* ==================== Reactive State ==================== */
+  let isDark = true;
+  let safeMode = false;
   let wineMode = false;
-  let activeCat1 = 0;
-  let activeCat2 = 0;
-  let cartCount = 3;
+  let activeReg = 'MINE';
+  let activeLegendSt = null;
+  let activeSeatId = 'V02';
+  let activeCat1 = 'c1';
+  let activeCat2 = 's1';
+  let p4Tab = 'orders';
+  let wineTab = 'save';
+  let cart = [
+    { id:'p1', name:'麦卡伦 12 年双桶', en:'Macallan 12Y', price:1480, qty:1, req:['配大冰球'], kind:'norm' },
+    { id:'p5', name:'暗夜霓虹特调', en:'Neon Night', price:98, qty:2, req:['少冰'], kind:'yh' },
+  ];
+  let qaProduct = null;
+  let qaQty = 1;
+  let qaReqs = new Set(['加冰']);
+  let authMode = 0;
+  let authCode = '';
+  let authPwd = '';
+  let authFocus = 0;
+  let authCallback = null;
+  let refundQty = '1';
+  let waiterPaySel = new Set(['o1', 'o4']);
+  let waiterPayChannel = 2;
+  let waiterPayStep = 'select'; // 'select' | 'qr'
 
-  function renderOrdCards() {
-    const grid = document.getElementById('ordCardGrid');
-    const items = ORD_SEATS.filter(s => {
-      if (regFilter === 'mine' && !s.mine) return false;
-      if (!['mine','all'].includes(regFilter) && s.area !== regFilter) return false;
-      if (stFilter !== null && stFilter !== 20) {
-        if (stFilter === 8 && ![3,8].includes(s.status)) return false;
-        else if (stFilter === 5 && ![5,6].includes(s.status)) return false;
-        else if (![8,5].includes(stFilter) && s.status !== stFilter) return false;
-      }
-      return true;
+  /* ==================== Toast ==================== */
+  let toastTimer = null;
+  function showToast(msg, tone = '') {
+    const el = document.getElementById('ordToast');
+    el.className = 'ord-toast show ' + tone;
+    el.textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ==================== Theme & Safe Mode ==================== */
+  function toggleOrderTheme() {
+    isDark = !isDark;
+    const frame = document.getElementById('deviceFrame');
+    frame.classList.toggle('theme-light', !isDark);
+    const topChip = document.getElementById('themeToggleTop');
+    topChip.textContent = isDark ? '🌙 默认深色 → 切浅色' : '☀ 当前浅色 → 切深色';
+    topChip.classList.toggle('light-on', !isDark);
+    document.getElementById('themeMetaTxt').textContent = isDark
+      ? '深色护眼模式（OrderPalette.dark · 默认）'
+      : '浅灰蓝高可读模式（OrderPalette.light）';
+    document.querySelectorAll('[data-theme-pill]').forEach(el => {
+      el.textContent = isDark ? '☀ 浅色' : '🌙 深色';
     });
-    grid.innerHTML = items.map(s => `
-      <div class="ord-card s${s.status}" onclick="${wineMode ? '' : ([1,2,8].includes(s.status) ? "alert('空台/锁台/预定状态卡台不可点单！')" : "switchPage('p2')")}">
-        <div>
-          <div class="oc-r1">
-            <span>${s.area}</span>
-            <span style="display:flex;align-items:center;gap:4px">
-              ${s.mark ? `<span class="oc-mark">${s.mark}</span>` : ''}
-              <span>${s.time ? `(${s.time})` : ''}</span>
-            </span>
-          </div>
-          <div class="oc-name">${s.name}</div>
-          ${wineMode ? `
-            <div class="wine-btns">
-              ${[4,5,6,7].includes(s.status) ? `<button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineStore','${s.name}')">存酒</button><button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineTake','${s.name}')">取酒</button>` : ''}
-              <button class="wine-btn" onclick="event.stopPropagation();openOrdDrawer('wineConfiscate','${s.name}')">充公</button>
-            </div>
-          ` : `
-            ${s.order ? `<div class="oc-amt"><span>点:￥${s.order}</span><span>${s.prog}</span></div>` : ''}
-            ${s.gift ? `<div class="oc-gift">惠:￥${s.gift}</div>` : ''}
-          `}
-        </div>
-        ${wineMode ? '' : `
-          <div class="oc-foot">
-            <span>${s.status === 2 ? '<span class="lock-sq">锁</span> 锁定' : (s.sales || '空台')}</span>
-            <span>${s.turn > 0 ? `翻${s.turn}` : ''}</span>
-          </div>
-        `}
-      </div>
-    `).join('');
+    showToast(isDark ? '已切换为深色护眼主题（酒吧默认）' : '已切换为浅灰蓝浅色主题', 'success');
   }
 
-  function renderCatsAndPrds() {
-    document.getElementById('catCol1').innerHTML = CATS.map((c, i) => `
-      <button class="cat-btn ${i===activeCat1?'active':''}" onclick="activeCat1=${i};activeCat2=0;renderCatsAndPrds()">${c.name}</button>
-    `).join('');
-    document.getElementById('mobileCat1').innerHTML = CATS.map((c, i) => `
-      <button class="ord-reg-btn ${i===activeCat1?'active':''}" style="height:32px;font-size:12.5px" onclick="activeCat1=${i};activeCat2=0;renderCatsAndPrds()">${c.name}</button>
-    `).join('');
-    document.getElementById('catCol2').innerHTML = CATS[activeCat1].subs.map((s, i) => `
-      <button class="cat-btn ${i===activeCat2?'active':''}" onclick="activeCat2=${i};renderCatsAndPrds()">${s}</button>
-    `).join('');
-    const kw = (document.getElementById('prdSearch').value || '').trim().toLowerCase();
-    document.getElementById('prdGrid').innerHTML = PRDS.filter(p => !kw || `${p.name} ${p.en}`.toLowerCase().includes(kw)).map((p, idx) => `
-      <div class="prd-card ${p.soldout?'soldout':''}" onclick="${p.soldout ? '' : (p.isSet ? "switchPage('p2set')" : `tapPrd(${idx})`)}">
-        <div class="prd-img">
-          <span>${p.icon}</span>
-          ${p.count > 0 ? `<span class="prd-cnt-badge">×${p.count}</span>` : ''}
-          ${p.soldout ? '<span class="soldout-stamp">已估清</span>' : ''}
-        </div>
-        <div class="prd-info">
-          <div>
-            <div class="prd-title">${p.name}</div>
-            <div class="prd-en">${p.en}</div>
-          </div>
-          <div class="prd-bottom">
-            <span class="prd-stock">${p.stock}</span>
-            <div>
-              ${p.ori ? `<span class="prd-ori">¥${p.ori}</span><span class="prd-vip">¥${p.price}</span>` : `<span class="prd-price">¥${p.price}</span>`}
-            </div>
-          </div>
-        </div>
-      </div>
-    `).join('');
+  function toggleSafeMode() {
+    safeMode = !safeMode;
+    document.getElementById('safeModeBtn').classList.toggle('on', safeMode);
+    document.getElementById('safeTxt').textContent = safeMode ? '开' : '关';
+    document.getElementById('p1MoreBtn').style.display = safeMode ? 'none' : '';
+    renderSeats();
+    renderProducts();
+    showToast(safeMode ? '安全模式已开启：隐藏高额商品(≥2000)与更多功能菜单' : '安全模式已关闭', safeMode ? 'warn' : '');
   }
 
-  function tapPrd(idx) {
-    PRDS[idx].count += 1;
-    addCart();
-    renderCatsAndPrds();
-  }
-  function addCart() {
-    cartCount += 1;
-    document.getElementById('cartBadge').textContent = cartCount;
-  }
   function toggleWineMode() {
     wineMode = !wineMode;
     document.getElementById('wineBanner').classList.toggle('show', wineMode);
-    document.getElementById('wineModeBtn').textContent = wineMode ? '📋 点单模式' : '🍷 存酒模式';
-    renderOrdCards();
+    document.getElementById('p1WineBtn').textContent = wineMode ? '🍸 返回点单模式' : '🍷 存酒模式';
+    renderSeats();
+    showToast(wineMode ? '已切入存酒模式（保留 mark 标，大按钮直达存/取/充公）' : '已返回点单模式');
   }
+
+  /* ==================== P1 Seats & Legends ==================== */
+  const ST_BG = { 1:'var(--st-empty)', 2:'var(--st-lock)', 8:'var(--st-reserved)', 4:'var(--st-opened)', 5:'var(--st-ordered)', 6:'var(--st-partial)', 7:'var(--st-paid)' };
+
+  function renderLegends() {
+    const counts = { 1:0, 2:0, 8:0, 4:0, 5:0, 6:0, 7:0 };
+    SEATS.forEach(s => counts[s.st] = (counts[s.st]||0) + 1);
+    const items = [
+      { st:1, lbl:'空台', bg:'var(--st-empty)', n:counts[1] },
+      { st:2, lbl:'锁定', bg:'var(--st-lock)', n:counts[2] },
+      { st:8, lbl:'预订', bg:'var(--st-reserved)', n:counts[8] },
+      { st:4, lbl:'开台', bg:'var(--st-opened)', n:counts[4] },
+      { st:5, lbl:'点单', bg:'var(--st-ordered)', n:counts[5] + counts[6] },
+      { st:7, lbl:'已结', bg:'var(--st-paid)', n:counts[7] },
+    ];
+    document.getElementById('legendRow').innerHTML = items.map(it =>
+      `<div class="leg-chip ${activeLegendSt===it.st?'active':''}" onclick="toggleLegend(${it.st})">
+        <span class="leg-dot" style="background:${it.bg}"></span>${it.lbl} ${it.n}
+      </div>`
+    ).join('') + `<div class="leg-chip" style="cursor:default">抵达数 <b>11</b></div>`;
+  }
+
+  function toggleLegend(st) {
+    activeLegendSt = activeLegendSt === st ? null : st;
+    renderLegends();
+    renderSeats();
+  }
+
+  function clearSeatSearch() {
+    document.getElementById('seatSearch').value = '';
+    renderSeats();
+  }
+
+  function getFilteredSeats() {
+    const kw = document.getElementById('seatSearch').value.trim().toLowerCase();
+    document.getElementById('seatSearchClear').classList.toggle('show', kw.length > 0);
+    return SEATS.filter(s => {
+      if (activeReg === 'MINE' && !s.mine) return false;
+      if (activeReg === 'OPENED' && ![4,5,6,7].includes(s.st)) return false;
+      if (['VIP','HALL','BAR'].includes(activeReg) && s.reg !== activeReg) return false;
+      if (activeLegendSt !== null) {
+        if (activeLegendSt === 5) { if (![5,6].includes(s.st)) return false; }
+        else if (s.st !== activeLegendSt) return false;
+      }
+      if (kw && !`${s.id} ${s.regName} ${s.sales} ${s.dept}`.toLowerCase().includes(kw)) return false;
+      return true;
+    });
+  }
+
+  function renderSeats() {
+    const list = getFilteredSeats();
+    document.getElementById('seatGrid').innerHTML = list.map(s => {
+      const pct = s.min > 0 ? Math.round((s.ord / s.min) * 100) : 0;
+      const longCls = s.id.length > 6 ? 'long' : '';
+      return `<div class="seat-card" style="background:${ST_BG[s.st]}" onclick="onTapSeat('${s.id}')">
+        <div>
+          <div class="sc-top">
+            <span>${s.regName} ${s.time ? '· ' + s.time : ''}</span>
+            <div class="sc-badges">
+              ${s.mark ? `<span class="mini-badge mb-mark">${s.mark}</span>` : ''}
+              ${s.lock ? `<span class="mini-badge mb-lock">锁</span>` : ''}
+              ${s.turn > 0 ? `<span class="mini-badge mb-turn">翻${s.turn}</span>` : ''}
+              ${s.st === 6 ? `<span class="mini-badge mb-partial">部分结</span>` : ''}
+            </div>
+          </div>
+          <div class="sc-name-row">
+            <span class="sc-name ${longCls}">${s.id}</span>
+            <span class="sc-status-txt">${s.stTxt}</span>
+          </div>
+          ${!wineMode && [4,5,6,7].includes(s.st) ? `
+            <div class="sc-amt">
+              <span>点：¥${s.ord.toLocaleString()} ${s.min > 0 ? `<small style="opacity:.85">(${pct}%)</small>` : ''}</span>
+              ${s.yh > 0 ? `<span class="yh">惠：¥${s.yh.toLocaleString()}</span>` : ''}
+              ${s.min > 0 ? `<div class="min-bar"><i style="width:${Math.min(100, pct)}%"></i></div>` : ''}
+            </div>` : ''}
+        </div>
+        <div>
+          ${wineMode && s.wineOk ? `
+            <div class="wine-card-actions" onclick="event.stopPropagation()">
+              <button class="wine-card-btn" onclick="openWineFor('${s.id}','save')">存酒</button>
+              <button class="wine-card-btn" onclick="openWineFor('${s.id}','get')">取酒</button>
+              <button class="wine-card-btn" onclick="openWineFor('${s.id}','conf')">充公</button>
+            </div>` : `
+            <div class="sc-meta">
+              <span>${s.sales || '空台'} ${s.dept ? '· '+s.dept : ''}</span>
+            </div>
+            <div class="sc-remark">${s.remark || '&nbsp;'}</div>`}
+        </div>
+      </div>`;
+    }).join('') || `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ord-muted)">暂无匹配卡台 · 可点击顶部「⚡ 已开台」一键查看</div>`;
+  }
+
+  function onTapSeat(id) {
+    const s = SEATS.find(x => x.id === id);
+    if (!s) return;
+    if (s.st === 2) { showToast(`卡台 ${id} 已锁定，不可点单`, 'warn'); return; }
+    if (s.st === 1 || s.st === 8) { showToast(`卡台 ${id} 尚未开台（模块 70/未开台门禁）`, 'warn'); return; }
+    activeSeatId = id;
+    document.getElementById('mealSeatTitle').textContent = id;
+    document.getElementById('p3SeatName').textContent = id;
+    document.getElementById('p4SeatName').textContent = id;
+    const pct = s.min > 0 ? Math.round((s.ord / s.min) * 100) : 100;
+    document.getElementById('mealMinPill').textContent = `${s.stTxt} · 低消 ¥${s.ord.toLocaleString()} / ¥${s.min.toLocaleString()} (${pct}%)`;
+    switchPage('p2');
+    showToast(`已进入卡台 ${id} 极速点单`, 'success');
+  }
+
+  function openWineFor(id, tab) {
+    activeSeatId = id;
+    switchPage('p5');
+    switchWineTab(tab);
+  }
+
+  /* ==================== P2: Categories, Global Search, 1-Tap Stepper & Live Cart ==================== */
+  function renderCats() {
+    document.getElementById('catCol1').innerHTML = CATS.map(c =>
+      `<button class="cat-btn ${c.id===activeCat1?'active':''}" onclick="pickCat1('${c.id}')">${c.name}</button>`
+    ).join('');
+    const c1 = CATS.find(c => c.id === activeCat1) || CATS[0];
+    document.getElementById('catCol2').innerHTML = c1.subs.map(s =>
+      `<button class="cat-btn ${s.id===activeCat2?'active':''}" onclick="pickCat2('${s.id}')">
+        <span>${s.name}</span>${s.time ? `<span class="cat-time-tag">⏱ ${s.time}</span>` : ''}
+      </button>`
+    ).join('');
+    document.getElementById('phoneCat1').innerHTML = CATS.map(c =>
+      `<button class="reg-pill ${c.id===activeCat1?'active':''}" onclick="pickCat1('${c.id}')">${c.name}</button>`
+    ).join('');
+    document.getElementById('phoneCat2').innerHTML = c1.subs.map(s =>
+      `<button class="reg-pill ${s.id===activeCat2?'active':''}" onclick="pickCat2('${s.id}')">${s.name}${s.time?' ⏱':''}</button>`
+    ).join('');
+  }
+
+  function pickCat1(id) {
+    activeCat1 = id;
+    const c1 = CATS.find(c => c.id === id);
+    activeCat2 = c1.subs[0].id;
+    document.getElementById('prdSearch').value = '';
+    renderCats();
+    renderProducts();
+  }
+  function pickCat2(id) {
+    activeCat2 = id;
+    document.getElementById('prdSearch').value = '';
+    renderCats();
+    renderProducts();
+  }
+  function clearPrdSearch() {
+    document.getElementById('prdSearch').value = '';
+    renderProducts();
+  }
+
+  function cartQtyOf(pid) {
+    return cart.filter(x => x.id === pid).reduce((a, b) => a + b.qty, 0);
+  }
+
+  function renderProducts() {
+    const kw = document.getElementById('prdSearch').value.trim().toLowerCase();
+    document.getElementById('prdSearchClear').classList.toggle('show', kw.length > 0);
+    const list = PRODUCTS.filter(p => {
+      if (safeMode && p.price >= 2000) return false;
+      if (kw) {
+        return `${p.name} ${p.en} ${p.py}`.toLowerCase().includes(kw);
+      }
+      return p.c1 === activeCat1 && p.s === activeCat2;
+    });
+    const c1 = CATS.find(c => c.id === activeCat1);
+    const s2 = c1.subs.find(x => x.id === activeCat2);
+    document.getElementById('prdScopeTxt').textContent = kw
+      ? `🔍 跨全部分类全局搜索「${kw}」命中 ${list.length} 件（自动校验 limit_pad / 估清）`
+      : `当前分类：${c1.name} → ${s2.name}${s2.time ? '（时段限制 '+s2.time+'）' : ''} · 权限矩阵已生效`;
+
+    document.getElementById('prdGrid').innerHTML = list.map(p => {
+      const q = cartQtyOf(p.id);
+      const isOut = p.stock <= 0;
+      const isPromo = p.price < p.orig;
+      return `<div class="prd-card ${isOut?'soldout':''}" onclick="onTapProduct('${p.id}')">
+        <div class="prd-head">
+          <div class="prd-thumb">${p.icon}</div>
+          <div class="prd-info">
+            <div class="prd-title">${p.name}</div>
+            <div class="prd-en">${p.en}</div>
+            <div class="prd-tags">
+              ${p.isSet ? `<span class="ptag ptag-set">套餐选组</span>` : ''}
+              ${p.fc ? `<span class="ptag ptag-fc">方案/会员价</span>` : ''}
+              ${isOut ? `<span class="ptag ptag-out">已估清</span>` : (p.stock <= 5 ? `<span class="ptag ptag-stock">仅剩 ${p.stock}</span>` : '')}
+              ${p.ordered > 0 ? `<span class="ptag ptag-ordered">本台已点 ${p.ordered}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="prd-bottom">
+          <div class="price-box">
+            ${isPromo ? `<span class="price-orig">¥${p.orig}</span>` : ''}
+            <span class="price-now ${isPromo?'promo':''}">¥${p.price}</span>
+          </div>
+          <div onclick="event.stopPropagation()">
+            ${isOut ? `<button class="btn btn-chip btn-xs" disabled>估清</button>` : (
+              p.isSet ? `<button class="btn btn-wine btn-sm" onclick="switchPage('p2set')">选组 →</button>` : `
+                <div class="stepper">
+                  ${q > 0 ? `<button class="step-btn" onclick="quickStep('${p.id}', -1)">−</button><span class="step-qty">${q}</span>` : ''}
+                  <button class="step-btn plus" onclick="quickStep('${p.id}', 1)" title="1步直加 +1">+</button>
+                </div>`
+            )}
+          </div>
+        </div>
+        ${!isOut && (p.canYh || p.canYh2) ? `
+          <div class="prd-perm-row" onclick="event.stopPropagation()">
+            ${p.canYh ? `<button class="btn btn-chip btn-xs" style="flex:1" onclick="openQuickAdd('${p.id}')">要求 / 快捷量</button>` : ''}
+            ${p.canYh ? `<button class="btn btn-amber btn-xs" onclick="openYhModal('prd')">优惠</button>` : ''}
+            ${p.canYh2 ? `<button class="btn btn-yh2 btn-xs" onclick="openYhModal('yh2')">优惠2</button>` : ''}
+          </div>` : ''}
+      </div>`;
+    }).join('') || `<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--ord-muted)">未找到匹配酒水</div>`;
+  }
+
+  function onTapProduct(pid) {
+    const p = PRODUCTS.find(x => x.id === pid);
+    if (!p) return;
+    if (p.stock <= 0) { showToast(`「${p.name}」已估清（数据集 8 实时拦截）`, 'danger'); return; }
+    if (p.isSet) { switchPage('p2set'); return; }
+    openQuickAdd(pid);
+  }
+
+  function quickStep(pid, delta) {
+    const p = PRODUCTS.find(x => x.id === pid);
+    if (!p) return;
+    const cur = cartQtyOf(pid);
+    if (delta > 0 && cur + delta > p.stock) {
+      showToast(`超出 8 号实时估清上限：仅剩 ${p.stock} 份`, 'danger');
+      return;
+    }
+    const idx = cart.findIndex(x => x.id === pid && x.kind === 'norm');
+    if (idx >= 0) {
+      cart[idx].qty += delta;
+      if (cart[idx].qty <= 0) cart.splice(idx, 1);
+    } else if (delta > 0) {
+      cart.push({ id:p.id, name:p.name, en:p.en, price:p.price, qty:delta, req:[], kind:'norm' });
+    }
+    renderProducts();
+    renderCartViews();
+    if (delta > 0) showToast(`+1 ${p.name} 已入车（乐观更新 · 0 阻断）`, 'success');
+  }
+
+  function openQuickAdd(pid) {
+    qaProduct = PRODUCTS.find(x => x.id === pid);
+    qaQty = 1;
+    qaReqs = new Set(['加冰']);
+    document.getElementById('qaTitle').textContent = qaProduct.name;
+    document.getElementById('qaSub').textContent = `${qaProduct.en} · 现价 ¥${qaProduct.price} · 实时余量 ${qaProduct.stock}`;
+    document.getElementById('qaCustomNote').value = '';
+    syncQaUi();
+    document.getElementById('quickAddOverlay').classList.add('open');
+  }
+
+  function setQaQty(n) {
+    if (!qaProduct) return;
+    if (n < 1) n = 1;
+    if (n > qaProduct.stock) {
+      showToast(`库存仅剩 ${qaProduct.stock}，不可超售`, 'warn');
+      n = qaProduct.stock;
+    }
+    qaQty = n;
+    syncQaUi();
+  }
+
+  function syncQaUi() {
+    document.getElementById('qaQtyVal').textContent = qaQty;
+    document.querySelectorAll('#qaQtyChips .pick-chip').forEach(b => {
+      b.classList.toggle('active', parseInt(b.textContent) === qaQty);
+    });
+    document.getElementById('qaReqChips').innerHTML = REQUIREMENTS.map(r =>
+      `<button class="pick-chip ${qaReqs.has(r)?'active':''}" onclick="toggleQaReq('${r}')">${r}</button>`
+    ).join('');
+    document.getElementById('qaConfirmBtn').textContent = `⚡ 确认加购 ×${qaQty}（¥${(qaProduct.price * qaQty).toLocaleString()}）`;
+  }
+
+  function toggleQaReq(r) {
+    if (qaReqs.has(r)) qaReqs.delete(r); else qaReqs.add(r);
+    syncQaUi();
+  }
+
+  function confirmQuickAdd(kind) {
+    if (!qaProduct) return;
+    const note = document.getElementById('qaCustomNote').value.trim();
+    const reqs = [...qaReqs, ...(note ? [note] : [])];
+    cart.push({ id:qaProduct.id, name:qaProduct.name, en:qaProduct.en, price:qaProduct.price, qty:qaQty, req:reqs, kind:kind==='yh'?'yh':'norm' });
+    closeAllModals();
+    renderProducts();
+    renderCartViews();
+    showToast(`✓ 已加购 ${qaProduct.name} ×${qaQty}${reqs.length ? ' ['+reqs.join('·')+']' : ''}`, 'success');
+  }
+
+  function renderCartViews() {
+    const totalCnt = cart.reduce((a, b) => a + b.qty, 0);
+    const totalAmt = cart.reduce((a, b) => a + b.qty * b.price, 0);
+    document.getElementById('lcCount').textContent = totalCnt;
+    document.getElementById('lcTotal').textContent = '¥' + totalAmt.toLocaleString();
+    document.getElementById('footCartBadge').textContent = totalCnt;
+    document.getElementById('phoneCartSummary').textContent = `共 ${totalCnt} 件 · ¥${totalAmt.toLocaleString()}`;
+    document.getElementById('p3Cnt').textContent = totalCnt;
+    document.getElementById('p3Total').textContent = '¥' + totalAmt.toLocaleString();
+
+    const kindBadge = { norm:['rb-norm','普'], set:['rb-set','套'], yh:['rb-yh','惠'], yh2:['rb-yh2','惠2'] };
+    document.getElementById('lcList').innerHTML = cart.map((c, idx) => {
+      const [cls, lbl] = kindBadge[c.kind] || kindBadge.norm;
+      return `<div class="lc-item">
+        <div class="lc-item-top">
+          <div style="display:flex;gap:5px;align-items:flex-start">
+            <span class="rbadge ${cls}">${lbl}</span>
+            <div>
+              <div style="font-size:12.5px;font-weight:800">${c.name}</div>
+              ${c.req.length ? `<div style="font-size:10.5px;color:var(--ord-brand)">${c.req.join(' · ')}</div>` : ''}
+            </div>
+          </div>
+          <strong style="font-size:13px;color:var(--price-normal)">¥${(c.price * c.qty).toLocaleString()}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn btn-chip btn-xs" onclick="cartRemove(${idx})">删</button>
+          <div class="stepper">
+            <button class="step-btn" style="width:24px;height:24px;font-size:14px" onclick="cartStep(${idx},-1)">−</button>
+            <span class="step-qty" style="font-size:12.5px">${c.qty}</span>
+            <button class="step-btn plus" style="width:24px;height:24px;font-size:14px" onclick="cartStep(${idx},1)">+</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('') || `<div style="text-align:center;padding:30px 10px;color:var(--ord-muted);font-size:12.5px">购物车为空<br/>直接点左侧商品「+」1 步加购</div>`;
+
+    document.getElementById('p3Body').innerHTML = cart.map((c, idx) => {
+      const [cls, lbl] = kindBadge[c.kind] || kindBadge.norm;
+      return `<div class="order-row-card">
+        <div style="display:flex;align-items:flex-start;gap:8px;flex:1">
+          <span class="rbadge ${cls}">${lbl}</span>
+          <div>
+            <div style="font-size:14px;font-weight:800">${c.name} <small style="color:var(--ord-muted);font-weight:500">${c.en||''}</small></div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+              ${c.req.map(r => `<span class="req-chip">${r}</span>`).join('') || `<span style="font-size:11.5px;color:var(--ord-muted)">无特殊出品要求</span>`}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="stepper">
+            <button class="step-btn" onclick="cartStep(${idx},-1)">−</button>
+            <span class="step-qty">${c.qty}</span>
+            <button class="step-btn plus" onclick="cartStep(${idx},1)">+</button>
+          </div>
+          <strong style="min-width:74px;text-align:right;font-size:15px;color:var(--price-normal)">¥${(c.price*c.qty).toLocaleString()}</strong>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-chip btn-xs" onclick="openYhModal('cart')">转优惠/优惠2</button>
+            <button class="btn btn-danger-soft btn-xs" onclick="cartRemove(${idx})">删除</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('') || `<div class="panel-card" style="text-align:center;color:var(--ord-muted)">购物车暂无商品，请返回点单页加入</div>`;
+  }
+
+  function cartStep(idx, d) {
+    cart[idx].qty += d;
+    if (cart[idx].qty <= 0) cart.splice(idx, 1);
+    renderProducts();
+    renderCartViews();
+  }
+  function cartRemove(idx) {
+    cart.splice(idx, 1);
+    renderProducts();
+    renderCartViews();
+  }
+  function submitCartOrder() {
+    if (!cart.length) { showToast('购物车为空，请先加购酒水', 'warn'); return; }
+    const cnt = cart.reduce((a, b) => a + b.qty, 0);
+    cart = [];
+    renderProducts();
+    renderCartViews();
+    showToast(`✓ 已下单 ${cnt} 件酒水至卡台 ${activeSeatId}（自动通知吧台出品打印）`, 'success');
+  }
+
+  /* ==================== P2+ Set Selection ==================== */
+  function renderSetPage() {
+    let allReady = true;
+    document.getElementById('setPageBody').innerHTML = SET_GROUPS.map((g, gi) => {
+      const picked = g.items.reduce((a, b) => a + b.qty, 0);
+      const pct = Math.min(100, Math.round((picked / g.need) * 100));
+      if (!g.fixed && picked < g.need) allReady = false;
+      return `<div class="panel-card">
+        <div class="panel-title-row">
+          <strong style="font-size:14px">${g.title}</strong>
+          <span style="font-size:12.5px;font-weight:800;color:${picked===g.need?'var(--ord-cta-green)':'var(--ord-warn)'}">已选 ${picked} / 须选 ${g.need}</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${picked===g.need?'var(--ord-cta-green)':'var(--ord-brand)'}"></div></div>
+        <div class="set-opt-grid">
+          ${g.items.map((it, ii) => `
+            <div class="set-opt-card ${it.qty>0?'picked':''} ${it.stock===0?'out':''}">
+              <div>
+                <div style="font-size:13px;font-weight:700">${it.name}</div>
+                <div style="font-size:11px;color:var(--ord-muted)">${it.stock===0?'已估清（不可选）':`实时库存 ${it.stock}`}</div>
+              </div>
+              ${g.fixed ? `<span class="ptag ptag-set">固定 ×${it.qty}</span>` : (
+                it.stock===0 ? `<span class="ptag ptag-out">估清</span>` : `
+                  <div class="stepper">
+                    <button class="step-btn" style="width:26px;height:26px" onclick="stepSetItem(${gi},${ii},-1)">−</button>
+                    <span class="step-qty">${it.qty}</span>
+                    <button class="step-btn plus" style="width:26px;height:26px" onclick="stepSetItem(${gi},${ii},1)">+</button>
+                  </div>`
+              )}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('setConfirmBtn').disabled = !allReady;
+    document.getElementById('setFooterHint').textContent = allReady ? '✓ 所有分组已选满，可立即加入购物车' : '⚠ 请先完成所有可选组数量配置';
+  }
+
+  function stepSetItem(gi, ii, d) {
+    const g = SET_GROUPS[gi];
+    const it = g.items[ii];
+    const picked = g.items.reduce((a, b) => a + b.qty, 0);
+    if (d > 0 && picked >= g.need) { showToast(`本组限选 ${g.need} 份，请先减少其他项`, 'warn'); return; }
+    if (d < 0 && it.qty <= 0) return;
+    it.qty += d;
+    renderSetPage();
+  }
+
+  function confirmAddSet() {
+    cart.push({ id:'p7', name:'轩尼诗 V.S.O.P 尊享套餐', en:'Hennessy Party Set', price:2680, qty:1, req:['冰红茶×3·苏打水×2·脉动×1'], kind:'set' });
+    renderCartViews();
+    switchPage('p2');
+    showToast('✓ 套餐已加入购物车 (/wsc/add_set)', 'success');
+  }
+
+  /* ==================== P4: My Order + wine_ops ==================== */
+  function switchP4Tab(tab) {
+    p4Tab = tab;
+    document.getElementById('p4TabOrders').classList.toggle('active', tab==='orders');
+    document.getElementById('p4TabWine').classList.toggle('active', tab==='wine');
+    renderP4();
+  }
+
+  function renderP4() {
+    const body = document.getElementById('p4ListBody');
+    if (p4Tab === 'wine') {
+      body.innerHTML = WINE_OPS.map(w => `
+        <div class="order-row-card">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="rbadge ${w.type==='存酒'?'rb-add':'rb-norm'}">${w.type}</span>
+            <div>
+              <div style="font-size:14px;font-weight:800">${w.wine} · ${w.qty}</div>
+              <div style="font-size:12px;color:var(--ord-muted)">客人：${w.phone} · 有效期：${w.expiry} · 操作人：${w.op} (${w.time})</div>
+            </div>
+          </div>
+          <button class="btn btn-chip btn-xs" onclick="showToast('已补打存/取酒凭证小票', 'success')">🖨 补打凭证</button>
+        </div>
+      `).join('');
+      return;
+    }
+    const bCls = { unpaid:'rb-unpaid', paid:'rb-paid', yh:'rb-yh', refund:'rb-refund' };
+    body.innerHTML = MY_ORDERS.map(o => `
+      <div class="order-row-card">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span class="rbadge ${bCls[o.badge]}">${o.badgeTxt}</span>
+            ${o.extra.map(e => `<span class="rbadge ${e==='锁'?'rb-lock':e==='退单中'?'rb-refund':'rb-set'}">${e}</span>`).join('')}
+            <strong style="font-size:14px">${o.name}</strong>
+            <span style="font-size:12px;color:var(--ord-muted)">×${o.qty}</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:11.5px;color:var(--ord-muted)">
+            <span>服务员：${o.waiter}</span><span>· ${o.time}</span>
+            ${o.req ? `<span class="req-chip">${o.req}</span>` : ''}
+          </div>
+          ${o.subs ? `<div style="margin-top:5px;padding-left:10px;border-left:2px solid var(--ord-border);font-size:11.5px;color:var(--ord-ink-2)">套餐子项：${o.subs.join(' / ')}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong style="font-size:15px;color:${o.badge==='refund'?'var(--ord-danger)':'var(--price-normal)'}">¥${o.price.toLocaleString()}</strong>
+          ${o.badge !== 'refund' ? `
+            <button class="btn btn-danger-soft btn-xs" onclick="openRefundModal('${o.name}', ${o.qty})">退单</button>
+            <button class="btn btn-chip btn-xs" onclick="openYhModal('myorder')">优惠/赠</button>
+            ${o.isSet ? `<button class="btn btn-chip btn-xs" onclick="switchPage('p2set')">改明细</button>` : ''}
+            <button class="btn btn-chip btn-xs" onclick="openReprintModal()">补打</button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ==================== P5: Complete Visual Wine Workbench ==================== */
+  function switchWineTab(tab) {
+    wineTab = tab;
+    ['save','get','conf'].forEach(t => {
+      document.getElementById('wTab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    renderWineTab();
+  }
+
+  function renderWineTab() {
+    const el = document.getElementById('wineBody');
+    if (wineTab === 'save') {
+      el.innerHTML = `<div class="wine-split">
+        <div class="panel-card">
+          <div class="panel-title-row"><strong>① 本台可存酒水清单（自动带出 · 无需手输 ID）</strong><span class="ptag ptag-set">支持瓶/小数/克数</span></div>
+          ${[
+            { n:'轩尼诗 V.S.O.P 700ml', avail:'1 瓶', val:'0.6 瓶 (420g)' },
+            { n:'麦卡伦 12 年双桶', avail:'1 瓶', val:'0.8 瓶 (560g)' },
+          ].map(w => `
+            <div class="set-opt-card picked">
+              <div><div style="font-weight:800;font-size:13.5px">${w.n}</div><div style="font-size:11.5px;color:var(--ord-muted)">本台已点 ${w.avail} · 存量：${w.val}</div></div>
+              <button class="btn btn-wine btn-sm" onclick="showToast('已加入存酒车：${w.n}', 'success')">＋ 选存</button>
+            </div>`).join('')}
+          <div>
+            <div style="font-size:12px;color:var(--ord-muted);margin-bottom:5px;font-weight:700">有效期天数</div>
+            <div class="chip-row">
+              <button class="pick-chip" onclick="pickChipSingle(this)">7 天</button>
+              <button class="pick-chip" onclick="pickChipSingle(this)">15 天</button>
+              <button class="pick-chip active" onclick="pickChipSingle(this)">30 天</button>
+              <button class="pick-chip" onclick="pickChipSingle(this)">60 天</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <strong>② 客人手机 & 黑名单校验 & 核验方式</strong>
+          <div style="display:flex;gap:6px"><input class="ord-input" style="flex:1" value="13800138821" placeholder="输入客人手机号" /><button class="btn btn-brand btn-sm" onclick="showToast('黑名单校验通过 · 客人：王先生 (VIP)', 'success')">查客/黑名单</button></div>
+          <input class="ord-input" value="王先生" placeholder="客人姓名（可编辑）" />
+          <div style="display:flex;gap:6px"><input class="ord-input" style="flex:1" placeholder="短信验证码 / 授权码" /><button class="btn btn-chip btn-sm" onclick="showToast('已发送存酒短信验证码', 'success')">发验证码</button></div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-chip" style="flex:1" onclick="openAuthModal('主管刷卡授权存酒', () => showToast('✓ 授权存酒成功并打印存酒单！', 'success'))">🔐 授权存酒</button>
+            <button class="btn btn-green" style="flex:1.4" onclick="showToast('✓ 存酒成功！已打印双联存酒凭证', 'success')">✓ 确认存酒</button>
+          </div>
+        </div>
+      </div>`;
+    } else if (wineTab === 'get') {
+      el.innerHTML = `<div class="panel-card">
+        <div class="panel-title-row">
+          <strong>🔍 手机尾号 4 位模糊查存酒库存（/wine/get_wine_cust_by_phone4）</strong>
+          <div style="display:flex;gap:6px"><input class="ord-input" value="8821" placeholder="输入手机尾号 4 位" /><button class="btn btn-brand btn-sm" onclick="showToast('已刷新尾号 8821 存酒库存（2 笔有效）')">查询</button></div>
+        </div>
+        <div class="set-opt-card picked">
+          <div><div style="font-weight:800">轩尼诗 V.S.O.P · 剩余 0.6 瓶 (420g)</div><div style="font-size:11.5px;color:var(--ord-muted)">王先生 (138****8821) · 到期：2026-12-20 · 正常客户</div></div>
+          <button class="btn btn-green btn-sm" onclick="showToast('✓ 取酒出库成功（已核验 SMS/服务码）并打印取酒单', 'success')">选择取出 ×1</button>
+        </div>
+        <div class="set-opt-card" style="border-color:rgba(255,71,87,0.6);background:rgba(255,71,87,0.08)">
+          <div><div style="font-weight:800;color:var(--ord-danger)">⚠ 皇家礼炮 21 年 · 剩余 0.4 瓶（黑名单客户警示）</div><div style="font-size:11.5px;color:var(--ord-danger)">张某某 (139****8821) · 黑名单标红拦截，需超级授权码</div></div>
+          <button class="btn btn-danger-soft btn-sm" onclick="openAuthModal('黑名单取酒超级授权', () => showToast('超级授权取酒已放行', 'warn'))">超级授权</button>
+        </div>
+        <div class="chip-row">
+          <button class="pick-chip active" onclick="pickChipSingle(this)">核验方式：手机号 + SMS</button>
+          <button class="pick-chip" onclick="pickChipSingle(this)">核验方式：客人服务码</button>
+          <button class="pick-chip" onclick="pickChipSingle(this)">核验方式：主管超级授权码</button>
+        </div>
+      </div>`;
+    } else {
+      el.innerHTML = `<div class="panel-card">
+        <strong>充公（Confiscate / Pay to Store）— 可视化日期/员工/酒水选择器</strong>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+          <div><div style="font-size:11.5px;color:var(--ord-muted);margin-bottom:4px">营业日期</div><input class="ord-input" style="width:100%" type="date" value="2026-11-22" /></div>
+          <div><div style="font-size:11.5px;color:var(--ord-muted);margin-bottom:4px">责任订位人（选填 · 搜索选择）</div><select class="ord-input" style="width:100%"><option>不指定订位人</option><option>林经理 · 营销一部</option><option>陈主管 · VIP组</option></select></div>
+          <div><div style="font-size:11.5px;color:var(--ord-muted);margin-bottom:4px">可存酒水分类选择</div><select class="ord-input" style="width:100%"><option>轩尼诗 V.S.O.P (700ml)</option><option>麦卡伦 12 年双桶</option><option>马爹利名士</option></select></div>
+          <div><div style="font-size:11.5px;color:var(--ord-muted);margin-bottom:4px">计量单位 / 克数</div><input class="ord-input" style="width:100%" value="0.5 瓶 / 350g" /></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end"><button class="btn btn-danger" onclick="showToast('✓ 已提交充公记录并同步库存', 'success')">确认提交充公</button></div>
+      </div>`;
+    }
+  }
+
+  /* ==================== Modals: Auth, Waiter Pay, YH, Refund, Recharge, More, Account ==================== */
+  function openAuthModal(title, onOk) {
+    authCallback = onOk;
+    authMode = 0;
+    authCode = '';
+    authPwd = '';
+    authFocus = 0;
+    document.getElementById('authTitle').textContent = title;
+    setAuthMode(0);
+    document.getElementById('authOverlay').classList.add('open');
+  }
+
+  function setAuthMode(m) {
+    authMode = m;
+    [0,1,2].forEach(i => document.getElementById('authTab'+i).classList.toggle('active', i===m));
+    const bd = document.getElementById('authModeBody');
+    if (m === 0) {
+      bd.innerHTML = `<div style="padding:14px;border-radius:10px;background:var(--ord-panel);border:1px solid var(--ord-border);font-size:13px;line-height:1.6">
+        使用当前登录员工 <b>李服务员 (#1042)</b> 本人权限直接授权。<br/>
+        <span style="color:var(--ord-muted)">如当前岗位额度不足，点击上方切至「账号密码」或「刷员工卡」由主管授权。</span>
+      </div>`;
+    } else {
+      const codeLbl = m === 1 ? '授权工号' : '员工卡码（支持刷卡器直扫）';
+      bd.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">
+        <input class="ord-input" id="authCodeInp" value="${authCode}" placeholder="${codeLbl}" onfocus="authFocus=0" oninput="authCode=this.value" />
+        <input class="ord-input" id="authPwdInp" type="password" value="${authPwd}" placeholder="授权密码" onfocus="authFocus=1" oninput="authPwd=this.value" />
+        <div class="numpad-grid">
+          ${['1','2','3','4','5','6','7','8','9','清空','0','⌫'].map(k =>
+            `<button class="num-key" onclick="tapAuthKey('${k}')">${k}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+  }
+
+  function tapAuthKey(k) {
+    let val = authFocus === 0 ? authCode : authPwd;
+    if (k === '清空') val = '';
+    else if (k === '⌫') val = val.slice(0, -1);
+    else val += k;
+    if (authFocus === 0) { authCode = val; document.getElementById('authCodeInp').value = val; }
+    else { authPwd = val; document.getElementById('authPwdInp').value = val; }
+  }
+
+  function submitAuthDialog() {
+    if (authMode !== 0 && (!authCode || !authPwd)) {
+      showToast('请输入授权工号/卡码与密码', 'warn'); return;
+    }
+    closeAllModals();
+    if (authCallback) authCallback();
+  }
+
+  function openYhModal(src) {
+    setYhKind(src === 'yh2' ? 2 : 1);
+    document.getElementById('yhOverlay').classList.add('open');
+  }
+
+  function setYhKind(k) {
+    [1,2,3].forEach(i => document.getElementById('yhType'+i).classList.toggle('active', i===k));
+    document.getElementById('yh2Pickers').style.display = k === 2 ? 'flex' : 'none';
+  }
+
+  function openWaiterPayModal() {
+    waiterPayStep = 'select';
+    renderWaiterPay();
+    document.getElementById('waiterPayOverlay').classList.add('open');
+  }
+
+  function renderWaiterPay() {
+    const bd = document.getElementById('waiterPayBody');
+    const ft = document.getElementById('waiterPayFoot');
+    const osList = [
+      { id:'o1', name:'麦卡伦 12 年双桶 ×1', amt:1480 },
+      { id:'o4', name:'科罗娜冰啤（半打）×2', amt:640 },
+    ];
+    const selAmt = osList.filter(x => waiterPaySel.has(x.id)).reduce((a,b)=>a+b.amt, 0);
+    const channels = [
+      { id:2, name:'微信扫我 (2)' }, { id:1, name:'支付宝扫我 (1)' },
+      { id:3, name:'小程序自助 (3)' }, { id:6, name:'📷 扫客人微信码 (6)' }, { id:5, name:'📷 扫客人支付宝码 (5)' }
+    ];
+    if (waiterPayStep === 'select') {
+      bd.innerHTML = `
+        <div>
+          <div style="font-size:12px;color:var(--ord-muted);margin-bottom:6px;font-weight:700">① 勾选待付线下单（os · 精确修复旧版只读 oos 漏洞）</div>
+          ${osList.map(x => `
+            <label style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;background:var(--ord-panel);border:1px solid var(--ord-border);margin-bottom:6px;cursor:pointer">
+              <span style="display:flex;align-items:center;gap:8px"><input type="checkbox" ${waiterPaySel.has(x.id)?'checked':''} onchange="toggleWpOrder('${x.id}')" /> <b>${x.name}</b></span>
+              <strong style="color:var(--price-normal)">¥${x.amt.toLocaleString()}</strong>
+            </label>`).join('')}
+          <div style="padding:7px 10px;border-radius:8px;background:rgba(255,71,87,0.1);border:1px dashed rgba(255,71,87,0.45);font-size:11.5px;color:var(--ord-danger)">
+            线上排斥单 (oos · 只读展示)：暂无待处理线上单
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--ord-muted);margin-bottom:6px;font-weight:700">② 选择支付渠道（1 / 2 / 3 / 5 / 6 全渠道）</div>
+          <div class="chip-row">
+            ${channels.map(c => `<button class="pick-chip ${waiterPayChannel===c.id?'active':''}" onclick="waiterPayChannel=${c.id};renderWaiterPay()">${c.name}</button>`).join('')}
+          </div>
+        </div>`;
+      ft.innerHTML = `<div style="margin-right:auto;font-weight:800;color:var(--price-normal)">本次应收：¥${selAmt.toLocaleString()}</div>
+        <button class="btn btn-chip" onclick="closeAllModals()">取消</button>
+        <button class="btn btn-green" ${selAmt<=0?'disabled':''} onclick="waiterPayStep='qr';renderWaiterPay()">生成买单二维码 / 扫码 →</button>`;
+    } else {
+      const cells = Array.from({length:49}, (_,i) => `<div class="qr-cell ${(i*7+3)%5===0?'w':''}"></div>`).join('');
+      const ch = channels.find(c => c.id === waiterPayChannel);
+      bd.innerHTML = `
+        <div style="text-align:center;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12.5px;color:var(--ord-muted)">${ch.name} · 1s 自动轮询 /wo/get_waiter_olpay_status</div>
+          <div style="font-size:28px;font-weight:900;color:var(--price-normal)">¥${selAmt.toLocaleString()}.00</div>
+          <div class="qr-box">${cells}</div>
+          <div style="font-size:12.5px;color:var(--ord-warn);font-weight:700">⏳ 等待客人扫码支付 · 剩余 02:58（支持续付与取消）</div>
+        </div>`;
+      ft.innerHTML = `
+        <button class="btn btn-danger-soft" onclick="waiterPayStep='select';renderWaiterPay();showToast('已调用 /wo/cancel_waiter_olpay 取消支付')">取消订单</button>
+        <button class="btn btn-green" onclick="closeAllModals();showToast('✓ 模拟扫码支付成功！已实时更新卡台未结金额', 'success')">模拟支付成功 ✓</button>`;
+    }
+  }
+
+  function toggleWpOrder(id) {
+    if (waiterPaySel.has(id)) waiterPaySel.delete(id); else waiterPaySel.add(id);
+    renderWaiterPay();
+  }
+
+  function openRefundModal(name, maxQty) {
+    refundQty = '1';
+    document.getElementById('refundTitle').textContent = `退单：${name}（最多 ${maxQty}）`;
+    document.getElementById('refundQtyDisp').textContent = refundQty;
+    document.getElementById('refundOverlay').classList.add('open');
+  }
+  function tapRefundNum(k) {
+    if (k === 'C') refundQty = '0';
+    else if (k === 'B') refundQty = refundQty.length > 1 ? refundQty.slice(0,-1) : '0';
+    else refundQty = refundQty === '0' ? k : refundQty + k;
+    document.getElementById('refundQtyDisp').textContent = refundQty;
+  }
+
+  function openGeneric(title, bodyHtml, footHtml) {
+    document.getElementById('genTitle').textContent = title;
+    document.getElementById('genBody').innerHTML = bodyHtml;
+    document.getElementById('genFoot').innerHTML = footHtml || `<button class="btn btn-chip" onclick="closeAllModals()">关闭</button>`;
+    document.getElementById('genericOverlay').classList.add('open');
+  }
+
+  function openRechargeModal() {
+    openGeneric('💳 会员充值 & 注册开卡（含自定义赠酒直达开台）', `
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="ord-input" style="flex:1" value="13800138821" placeholder="搜会员手机号 / 卡号" />
+        <button class="btn btn-brand btn-sm" onclick="showToast('已命中会员：王先生 · 储值余额 ¥12,800', 'success')">查询会员</button>
+        <button class="btn btn-green btn-sm" onclick="showToast('打开「注册开卡」真表单（已修复旧版假按钮）', 'success')">＋ 注册开卡</button>
+      </div>
+      <div class="chip-row">
+        <button class="pick-chip active" onclick="pickChipSingle(this)">充 ¥5,000 赠 ¥800</button>
+        <button class="pick-chip" onclick="pickChipSingle(this)">充 ¥10,000 赠 ¥2,000</button>
+        <button class="pick-chip" onclick="pickChipSingle(this)">充 ¥30,000 赠 ¥8,000</button>
+        <button class="pick-chip" onclick="pickChipSingle(this)">自定义金额</button>
+      </div>
+      <div style="padding:10px;border-radius:10px;background:var(--ord-panel);border:1px solid var(--ord-border);font-size:12.5px">
+        🎁 <b>直达赠酒到开台</b>（对齐 dev edd1a857）：<select class="ord-input" style="margin-left:6px"><option>V02 · VIP包厢（自动赠轩尼诗 V.S.O.P ×1）</option><option>不赠酒</option></select>
+      </div>
+      <div style="font-size:11.5px;color:var(--ord-muted)">已修复：取消二维码清 pendingOrder 防死锁 · WS 脉冲不再强关扫码窗 · 接入扫码枪 payType 5/6</div>`,
+      `<button class="btn btn-chip" onclick="closeAllModals()">关闭</button><button class="btn btn-green" onclick="closeAllModals();showToast('✓ 已生成充值二维码（含微信/支付宝/扫码枪）', 'success')">拉起充值支付</button>`);
+  }
+
+  function openP1MoreModal() {
+    openGeneric('⊞ 更多功能（点单首页 · 共 3 项，安全模式自动隐藏）', `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">
+        <button class="btn btn-chip btn-lg-touch" onclick="openMinReport()">📊 低消进度统计表 (12列·无导出)</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="openCocktailReport()">🍸 鸡尾酒明细表 (双价·无导出)</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="openSoldOutModal()">📦 估清商品管理 (模块 5)</button>
+      </div>`);
+  }
+
+  function openMinReport() {
+    openGeneric('📊 低消进度统计表（12 列完整对齐 · 点单端无导出）', `
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>台号</th><th>区域</th><th>订位人</th><th>低消</th><th>已点主营</th><th>达成率</th><th>差额</th></tr></thead>
+        <tbody>
+          <tr><td><b>V02</b></td><td>VIP包厢</td><td>林经理</td><td>¥3,000</td><td>¥3,280</td><td style="color:var(--ord-cta-green);font-weight:800">109%</td><td>¥0</td></tr>
+          <tr><td><b>A08</b></td><td>大厅卡座</td><td>林经理</td><td>¥2,000</td><td>¥1,920</td><td style="color:var(--ord-warn);font-weight:800">96%</td><td>¥80</td></tr>
+          <tr><td><b>V05</b></td><td>VIP包厢</td><td>王经理</td><td>¥4,000</td><td>¥0</td><td style="color:var(--ord-danger);font-weight:800">0%</td><td>¥4,000</td></tr>
+        </tbody>
+      </table></div>`);
+  }
+
+  function openCocktailReport() {
+    openGeneric('🍸 鸡尾酒明细表（对齐新版 dev：首列固定 + 原价划线 + 方案价）', `
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>商品名称</th><th>台号</th><th>数量</th><th>原价</th><th>方案实收</th><th>调酒师</th></tr></thead>
+        <tbody>
+          <tr><td><b>暗夜霓虹特调</b></td><td>V02</td><td>3</td><td style="text-decoration:line-through;color:var(--ord-muted)">¥384</td><td style="color:var(--price-normal);font-weight:800">¥294</td><td>阿杰</td></tr>
+          <tr><td><b>烟熏古典</b></td><td>V01</td><td>2</td><td style="text-decoration:line-through;color:var(--ord-muted)">¥276</td><td style="color:var(--price-normal);font-weight:800">¥236</td><td>阿杰</td></tr>
+        </tbody>
+      </table></div>`);
+  }
+
+  function openSoldOutModal() {
+    openGeneric('📦 估清商品管理（数据集 8 实时同步 · 手机端单列优化 · 负数拦截）', `
+      ${PRODUCTS.slice(0,4).map(p => `
+        <div class="set-opt-card">
+          <div><b>${p.name}</b><div style="font-size:11.5px;color:var(--ord-muted)">当前剩余：${p.stock === 0 ? '已估清' : p.stock + ' 瓶'}</div></div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-chip btn-xs" onclick="showToast('已调整「${p.name}」限量为 5 瓶', 'success')">设限量</button>
+            <button class="btn ${p.stock===0?'btn-green':'btn-danger-soft'} btn-xs" onclick="showToast('已更新「${p.name}」估清状态并实时广播', 'success')">${p.stock===0?'恢复可点':'一键估清'}</button>
+          </div>
+        </div>`).join('')}`);
+  }
+
+  function openAccountModal() {
+    openGeneric('👤 员工账户：李服务员（3 项）', `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('打开「修改密码」（大写 MD5 + 1s 自动登出 · 浅色键盘防溢出）')">🔑 修改密码</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();openAuthModal('授权密码设置（兼容 enabled=2 关闭态 + 触屏键盘）', () => showToast('授权密码已更新', 'success'))">🔐 授权密码（含触屏数字键盘）</button>
+        <button class="btn btn-danger btn-lg-touch" onclick="openConfirmLogout()">🚪 退出登录（二次确认）</button>
+      </div>`);
+  }
+
+  function openConfirmLogout() {
+    openGeneric('确认退出登录？', `<div style="font-size:13.5px">退出后将返回登录页，未提交的本地草稿不会影响已下单数据。</div>`,
+      `<button class="btn btn-chip" onclick="closeAllModals()">取消</button><button class="btn btn-danger" onclick="closeAllModals();showToast('已安全退出登录', 'warn')">确认退出</button>`);
+  }
+
+  function openMealMoreModal() {
+    openGeneric('桌内更多操作（共 4 项 · 含模块 71/72 权限门控）', `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-brand btn-lg-touch" onclick="openRechargeModal()">💳 会员充值</button>
+        <button class="btn btn-yh2 btn-lg-touch" onclick="closeAllModals();showToast('打开滞留金收取（支持 payType=3 小程序 + 扫码枪 + 防死锁）', 'success')">🏦 滞留金收取</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('模块 71 校验通过：可办理清台', 'warn')">🧹 清台</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('模块 72 校验通过：打开全屏选台转台')">⇄ 转台</button>
+      </div>`);
+  }
+
+  function openCouponV2Modal() {
+    openGeneric('🎟 核销卡券 V2（/wo/csm_coupon_prepare_v2 + /wo/csm_coupon_v2）', `
+      <div style="display:flex;gap:8px">
+        <input class="ord-input" style="flex:1" value="CPN-2026-88912" placeholder="扫码或输入核销券码" />
+        <button class="btn btn-amber btn-sm" onclick="showToast('已预检卡券：百威冰啤 1 打兑换券（含 seat_id 与商品明细）', 'success')">预检券码</button>
+      </div>
+      <div class="set-opt-card picked"><div><b>百威冰啤 1 打兑换券</b><div style="font-size:11.5px;color:var(--ord-muted)">自动绑定当前卡台 ${activeSeatId} · 已补齐 V2 完整载荷</div></div><span class="ptag ptag-set">可核销</span></div>`,
+      `<button class="btn btn-chip" onclick="closeAllModals()">取消</button><button class="btn btn-green" onclick="closeAllModals();showToast('✓ 卡券 V2 核销成功并下单出品！', 'success')">确认核销</button>`);
+  }
+
+  function openBindWaiter() {
+    openGeneric('绑定卡台服务员（/csm/set_csm_waiter）', `
+      <div class="chip-row">
+        <button class="pick-chip active" onclick="pickChipSingle(this);document.getElementById('waiterBindBtn').textContent='服务员：李四 ✎'">李四 (#1042)</button>
+        <button class="pick-chip" onclick="pickChipSingle(this);document.getElementById('waiterBindBtn').textContent='服务员：阿强 ✎'">阿强 (#1051)</button>
+        <button class="pick-chip" onclick="pickChipSingle(this);document.getElementById('waiterBindBtn').textContent='服务员：小美 ✎'">小美 (#1063)</button>
+      </div>`,
+      `<button class="btn btn-green" onclick="closeAllModals();showToast('✓ 已更新当台服务员', 'success')">确认绑定</button>`);
+  }
+
+  function openBindGuest() {
+    openGeneric('绑定 / 解绑客人手机（脱敏显示 + 自动刷新会员价）', `
+      <div style="display:flex;gap:8px">
+        <input class="ord-input" style="flex:1" value="13800138821" placeholder="输入客人手机号" />
+        <button class="btn btn-danger-soft btn-sm" onclick="document.getElementById('guestBindBtn').textContent='绑定客人手机';closeAllModals();showToast('已解绑客人并恢复原价')">解绑</button>
+      </div>`,
+      `<button class="btn btn-chip" onclick="closeAllModals()">取消</button><button class="btn btn-green" onclick="document.getElementById('guestBindBtn').textContent='会员：138****8821 ✓';closeAllModals();showToast('✓ 已绑定脱敏会员并刷新 8 档会员价', 'success')">绑定并刷新价格</button>`);
+  }
+
+  function openReprintModal() {
+    openGeneric('补打单据（支持 type 1/2/3 单据类型选择）', `
+      <div class="chip-row">
+        <button class="pick-chip active" onclick="pickChipSingle(this)">type=1 出品总单</button>
+        <button class="pick-chip" onclick="pickChipSingle(this)">type=2 出品分单</button>
+        <button class="pick-chip" onclick="pickChipSingle(this)">type=3 客用消费单</button>
+      </div>`,
+      `<button class="btn btn-green" onclick="closeAllModals();showToast('✓ 已下发补打任务至吧台打印机', 'success')">立即补打</button>`);
+  }
+
+  function pickChipSingle(btn) {
+    btn.parentElement.querySelectorAll('.pick-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function closeAllModals() {
+    document.querySelectorAll('.overlay-bg').forEach(o => o.classList.remove('open'));
+  }
+
+  /* ==================== Navigation & Viewport Switching ==================== */
   function switchPage(id) {
-    closeOrdOverlays();
+    closeAllModals();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
     document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+    if (id === 'p2set') renderSetPage();
+    if (id === 'p4') renderP4();
+    if (id === 'p5') renderWineTab();
   }
-
-  let ordToastTimer = null;
-  function showOrdToast(msg) {
-    const el = document.getElementById('ordToast');
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(ordToastTimer);
-    ordToastTimer = setTimeout(() => el.classList.remove('show'), 2400);
-  }
-  function scrollOrdGrid(dy) {
-    const wrap = document.getElementById('ordGridWrap');
-    if (wrap) wrap.scrollBy({ top: dy, behavior: 'smooth' });
-  }
-  function closeOrdOverlays() {
-    ['p1MorePop','p1AccPop','p2MorePop','ordDrawerMask','ordModalMask'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('show');
-    });
-  }
-  function openOrdPopup(id) {
-    closeOrdOverlays();
-    document.getElementById(id).classList.add('show');
-  }
-  function adjQty(btn, delta) {
-    const valEl = btn.parentElement.querySelector('.step-val');
-    const next = Math.max(1, Number(valEl.textContent) + delta);
-    valEl.textContent = next;
-    showOrdToast('数量已调整为 ' + next);
-  }
-  function toggleSoldoutItem(idx) {
-    PRDS[idx].soldout = !PRDS[idx].soldout;
-    PRDS[idx].stock = PRDS[idx].soldout ? '已售罄' : '充足';
-    renderCatsAndPrds();
-    openOrdDrawer('soldout');
-    showOrdToast(`${PRDS[idx].name} 已${PRDS[idx].soldout ? '设为估清' : '恢复可售'}`);
-  }
-  function openOrdDrawer(type, seatName) {
-    closeOrdOverlays();
-    const title = document.getElementById('ordDrawerTitle');
-    const body = document.getElementById('ordDrawerBody');
-    const foot = document.getElementById('ordDrawerFoot');
-    foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">关闭</button>`;
-
-    if (type === 'minConsume') {
-      title.textContent = '📊 低消进度统计表（12列 · 点单端无导出按钮）';
-      body.innerHTML = `
-        <div style="font-size:12.5px;color:#5C6475">对齐 Vue <code>newOrderCard.vue</code>：点单端仅实时查看 12 列低消进度，不显示导出按钮。</div>
-        <div style="overflow:auto;background:#fff;border:1px solid #C4CBD7;border-radius:10px">
-          <table class="ltable" style="font-size:12.5px">
-            <thead><tr><th>卡台</th><th>区域</th><th>状态</th><th>订位人</th><th>客人</th><th>人数</th><th>低消</th><th>主营</th><th>赠送</th><th>优惠</th><th>进度</th><th>翻台</th></tr></thead>
-            <tbody>
-              <tr><td><strong>V02</strong></td><td>VIP</td><td>点单</td><td>林经理</td><td>周总</td><td>8</td><td>¥5,800</td><td style="color:#009370">¥6,800</td><td>¥500</td><td>¥0</td><td><strong style="color:#009370">100%</strong></td><td>1</td></tr>
-              <tr><td><strong>A08</strong></td><td>大厅</td><td>点单</td><td>李四</td><td>陈先生</td><td>6</td><td>¥3,000</td><td style="color:#009370">¥2,880</td><td>¥188</td><td>¥300</td><td><strong style="color:#E63122">96%</strong></td><td>1</td></tr>
-              <tr><td><strong>V03</strong></td><td>VIP</td><td>开台</td><td>赵丽</td><td>孙女士</td><td>4</td><td>¥3,000</td><td>¥1,800</td><td>¥0</td><td>¥0</td><td><strong>60%</strong></td><td>0</td></tr>
-            </tbody>
-          </table>
-        </div>`;
-    } else if (type === 'cocktail') {
-      title.textContent = '🍸 鸡尾酒明细表（原价划线 + 方案价 · 点单端无导出）';
-      body.innerHTML = `
-        <div style="overflow:auto;background:#fff;border:1px solid #C4CBD7;border-radius:10px">
-          <table class="ltable" style="font-size:13px">
-            <thead><tr><th>卡台</th><th>鸡尾酒名称</th><th>数量</th><th>原价</th><th>成交/方案价</th><th>小计</th><th>出品时间</th></tr></thead>
-            <tbody>
-              <tr><td>A08</td><td><strong>莫吉托 Mojito</strong></td><td>2</td><td><span class="prd-ori" style="text-align:left">¥98.00</span></td><td style="color:#E63122;font-weight:700">¥78.00</td><td><strong>¥156.00</strong></td><td>21:16</td></tr>
-              <tr><td>V02</td><td><strong>长岛冰茶 Long Island</strong></td><td>4</td><td><span class="prd-ori" style="text-align:left">¥128.00</span></td><td style="color:#009370;font-weight:700">¥128.00</td><td><strong>¥512.00</strong></td><td>21:28</td></tr>
-              <tr style="font-weight:700"><td colspan="2">合计（6 杯）</td><td>6</td><td>¥708.00</td><td>—</td><td style="color:#009370">¥668.00</td><td>—</td></tr>
-            </tbody>
-          </table>
-        </div>`;
-    } else if (type === 'soldout') {
-      title.textContent = '🚫 估清商品管理（点击按钮实时同步 P2 商品网格）';
-      body.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${PRDS.map((p, idx) => `
-            <div class="m-ord-card" style="flex-direction:row;align-items:center;justify-content:space-between">
-              <div><strong>${p.icon} ${p.name}</strong><div style="font-size:12px;color:#5C6475">${p.en} · ¥${p.price}</div></div>
-              <button class="${p.soldout ? 'btn-ord-green' : 'btn-ord-red'}" style="height:32px;font-size:12.5px;padding:0 12px" onclick="toggleSoldoutItem(${idx})">${p.soldout ? '恢复可售' : '设为估清'}</button>
-            </div>
-          `).join('')}
-        </div>`;
-    } else if (type === 'recharge') {
-      title.textContent = '💳 会员充值（含赠酒直达指定卡台）';
-      body.innerHTML = `
-        <div class="m-ord-card">
-          <div style="font-weight:700">1. 查找会员</div>
-          <div style="display:flex;gap:8px"><input class="ord-input" value="13800138888" placeholder="输入会员手机号 / 实体卡号" /><button class="btn-ord-blue" style="height:38px" onclick="showOrdToast('已匹配黑金会员：王先生（余额 ¥6,200）')">查询</button></div>
-          <div style="background:#EDF3FF;border:1px solid #B7CEFB;border-radius:8px;padding:8px 12px;font-size:13px">👑 <strong>王先生（黑金卡）</strong> · 当前余额 <strong style="color:#009370">¥6,200.00</strong> · 赠送余额 ¥800.00</div>
-        </div>
-        <div class="m-ord-card">
-          <div style="font-weight:700">2. 选择充值方案</div>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">
-            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('已选充 ¥3,000 送 ¥300')">充 ¥3,000 送 ¥300</button>
-            <button class="btn-ord-blue" style="height:48px" onclick="showOrdToast('已选充 ¥5,000 送轩尼诗VSOP×1')">充 ¥5,000 送 VSOP×1</button>
-            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('已选充 ¥10,000 送 ¥1,500')">充 ¥10,000 送 ¥1,500</button>
-            <button class="btn-ord-white" style="height:48px" onclick="showOrdToast('自定义充值金额')">自定义金额</button>
-          </div>
-        </div>
-        <div class="m-ord-card">
-          <div style="font-weight:700">3. 充值赠酒下发卡台</div>
-          <input class="ord-input" value="A08（大厅卡座 · 陈先生）" />
-        </div>`;
-      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button><button class="btn-ord-blue" style="height:38px;padding:0 22px" onclick="closeOrdOverlays();showOrdToast('会员充值订单已生成，请客人扫码支付')">生成充值收款码</button>`;
-    } else if (type === 'choosedList') {
-      title.textContent = '✅ 已选列表（choosedList · 当前卡台 A08 跨分类汇总）';
-      body.innerHTML = `
-        <div style="font-size:12.5px;color:#5C6475">汇总本次点单流程中各分类下已勾选的商品，方便服务员快速核对后再进入购物车下单。</div>
-        ${PRDS.filter(p => p.count > 0).map(p => `
-          <div class="m-ord-card" style="flex-direction:row;justify-content:space-between;align-items:center">
-            <div><strong>${p.icon} ${p.name}</strong><div style="font-size:12px;color:#5C6475">单价 ¥${p.price}</div></div>
-            <strong style="color:#009370;font-size:16px">× ${p.count}</strong>
-          </div>
-        `).join('')}`;
-      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">继续点单</button><button class="btn-ord-blue" style="height:38px;padding:0 20px" onclick="switchPage('p3')">前往购物车</button>`;
-    } else if (type === 'coupon') {
-      title.textContent = '🎟 核销卡券（收银进入点单模式专属）';
-      body.innerHTML = `
-        <div class="m-ord-card">
-          <div style="font-weight:700">输入 / 扫描核销券码</div>
-          <div style="display:flex;gap:8px"><input class="ord-input" value="DY8829-1024-9901" placeholder="支持抖音 / 美团 / 小程序券码" /><button class="btn-ord-red" style="height:38px" onclick="showOrdToast('核销成功！套餐已自动入单 A08')">立即核销</button></div>
-        </div>
-        <div class="m-ord-card">
-          <div style="font-weight:700">本台已核销记录</div>
-          <div style="display:flex;justify-content:space-between;font-size:13px"><span>抖音 2880 尊享微醺双人套餐券</span><strong style="color:#009370">已核销 · 21:06</strong></div>
-        </div>`;
-    } else if (type === 'wineStore' || type === 'wineTake' || type === 'wineConfiscate') {
-      const labelMap = { wineStore: '🍾 存酒登记', wineTake: '🥂 取酒出品', wineConfiscate: '⚠️ 酒水充公' };
-      title.textContent = `${labelMap[type]} · 卡台 ${seatName || 'A08'}`;
-      if (type === 'wineStore') {
-        body.innerHTML = `
-          <div class="m-ord-card"><div><label style="font-size:12px;color:#5C6475">客人手机号（存酒凭证）</label><input class="ord-input" value="135****4456" /></div>
-          <div><label style="font-size:12px;color:#5C6475">酒水名称</label><input class="ord-input" value="轩尼诗 VSOP 700ml" /></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div><label style="font-size:12px;color:#5C6475">剩余刻度</label><input class="ord-input" value="65%（半瓶以上）" /></div>
-            <div><label style="font-size:12px;color:#5C6475">有效期至</label><input class="ord-input" value="2026-09-18" /></div>
-          </div></div>`;
-      } else if (type === 'wineTake') {
-        body.innerHTML = `
-          <div class="m-ord-card">
-            <div style="display:flex;justify-content:space-between"><strong>轩尼诗 VSOP 700ml（余 65%）</strong><span style="color:#009370">有效期至 09-18</span></div>
-            <div style="font-size:12px;color:#5C6475">存酒卡号：W2026081209 · 客人：陈先生 135****4456</div>
-            <label style="font-size:13px;font-weight:600"><input type="checkbox" checked /> 勾选取出至当前卡台 ${seatName || 'A08'}</label>
-          </div>`;
-      } else {
-        body.innerHTML = `
-          <div class="m-ord-card">
-            <div style="font-size:13px;color:#E63122;font-weight:700">确认将该卡台遗留未存酒水做充公登记？</div>
-            <input class="ord-input" value="客人离场超2小时未联系存酒" placeholder="请填写充公原因" />
-          </div>`;
-      }
-      foot.innerHTML = `<button class="btn-ord-slate" style="height:38px" onclick="closeOrdOverlays()">取消</button><button class="btn-ord-green" style="height:38px;padding:0 22px" onclick="closeOrdOverlays();showOrdToast('${labelMap[type]}已提交并打印酒标小票')">确认提交</button>`;
-    }
-    document.getElementById('ordDrawerMask').classList.add('show');
-  }
-
-  let refundQtyVal = '1';
-  function tapRefundKp(ch) {
-    refundQtyVal = ch === 'C' ? '' : (refundQtyVal === '0' ? ch : refundQtyVal + ch);
-    const el = document.getElementById('refundQtyInput');
-    if (el) el.value = refundQtyVal || '1';
-  }
-  function switchAuthTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-    document.getElementById('authSwipePane').style.display = tab === 'swipe' ? 'block' : 'none';
-    document.getElementById('authPwdPane').style.display = tab === 'pwd' ? 'flex' : 'none';
-  }
-  function openOrdModal(type, extra) {
-    closeOrdOverlays();
-    const title = document.getElementById('ordModalTitle');
-    const body = document.getElementById('ordModalBody');
-    const confirmBtn = document.getElementById('ordModalConfirm');
-    confirmBtn.onclick = () => { closeOrdOverlays(); showOrdToast('操作已确认提交'); };
-
-    if (type === 'pwd') {
-      title.textContent = '🔑 修改登录密码';
-      body.innerHTML = `
-        <div><label style="font-size:12px;color:#5C6475">原登录密码</label><input class="ord-input" type="password" placeholder="请输入原密码" /></div>
-        <div><label style="font-size:12px;color:#5C6475">新登录密码</label><input class="ord-input" type="password" placeholder="请输入新密码" /></div>
-        <div><label style="font-size:12px;color:#5C6475">确认新密码</label><input class="ord-input" type="password" placeholder="请再次输入" /></div>`;
-    } else if (type === 'authPwd') {
-      title.textContent = '🛡 设置 / 修改授权密码（点单端专属）';
-      body.innerHTML = `
-        <div style="font-size:12.5px;color:#5C6475">授权密码用于转优惠、赠送、退单等敏感操作的快速核验。</div>
-        <div><label style="font-size:12px;color:#5C6475">登录密码验证</label><input class="ord-input" type="password" placeholder="请输入当前登录密码" /></div>
-        <div><label style="font-size:12px;color:#5C6475">新 6 位授权密码</label><input class="ord-input" type="password" placeholder="6位数字授权码" /></div>`;
-    } else if (type === 'auth') {
-      title.textContent = `🛡 主管授权验证 · ${extra || '敏感操作'}`;
-      body.innerHTML = `
-        <div class="auth-tabs">
-          <button class="auth-tab active" data-tab="swipe" onclick="switchAuthTab('swipe')">💳 刷员工授权卡</button>
-          <button class="auth-tab" data-tab="pwd" onclick="switchAuthTab('pwd')">🔐 账号 + 授权密码</button>
-        </div>
-        <div id="authSwipePane" style="background:#fff;border:1px dashed #3373E8;border-radius:10px;padding:18px;text-align:center">
-          <div style="font-size:28px;margin-bottom:6px">📡</div>
-          <div style="font-size:14px;font-weight:700;color:#3373E8">请在读卡器感应区刷主管 IC/NFC 授权卡</div>
-          <div style="font-size:12px;color:#5C6475;margin-top:4px">当前剩余优惠额度：¥2,400.00</div>
-        </div>
-        <div id="authPwdPane" style="display:none;flex-direction:column;gap:8px">
-          <input class="ord-input" placeholder="授权人工号（如 1001）" value="1001" />
-          <input class="ord-input" type="password" placeholder="请输入 6 位授权密码" value="888888" />
-        </div>`;
-      confirmBtn.onclick = () => { closeOrdOverlays(); showOrdToast(`授权通过：已完成「${extra || '敏感操作'}」`); };
-    } else if (type === 'refund') {
-      refundQtyVal = '1';
-      title.textContent = `↩️ 退单确认 · ${extra || '商品'}`;
-      body.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px;font-weight:700">退单数量（可退上限 1）</span>
-          <input id="refundQtyInput" class="ord-input" style="width:110px;text-align:center;font-weight:700;font-size:16px" value="1" />
-        </div>
-        <div class="ord-keypad">
-          <button class="ord-kp" onclick="tapRefundKp('1')">1</button><button class="ord-kp" onclick="tapRefundKp('2')">2</button><button class="ord-kp" onclick="tapRefundKp('3')">3</button>
-          <button class="ord-kp" onclick="tapRefundKp('4')">4</button><button class="ord-kp" onclick="tapRefundKp('5')">5</button><button class="ord-kp" onclick="tapRefundKp('6')">6</button>
-          <button class="ord-kp" onclick="tapRefundKp('7')">7</button><button class="ord-kp" onclick="tapRefundKp('8')">8</button><button class="ord-kp" onclick="tapRefundKp('9')">9</button>
-          <button class="ord-kp" onclick="tapRefundKp('C')">清空</button><button class="ord-kp" onclick="tapRefundKp('0')">0</button><button class="ord-kp" onclick="tapRefundKp('1')">全退</button>
-        </div>
-        <div>
-          <div style="font-size:12.5px;font-weight:700;margin-bottom:6px">选择退单理由</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            <label class="set-chip"><input type="radio" name="rReason" checked /> 客人换酒</label>
-            <label class="set-chip"><input type="radio" name="rReason" /> 点错商品</label>
-            <label class="set-chip"><input type="radio" name="rReason" /> 出品缺货</label>
-            <label class="set-chip"><input type="radio" name="rReason" /> 客人取消</label>
-          </div>
-        </div>`;
-      confirmBtn.onclick = () => { openOrdModal('auth', `退单：${extra} ×${refundQtyVal || 1}`); };
-    } else if (type === 'bindWaiter') {
-      title.textContent = '👤 绑定卡台服务员 · A08';
-      body.innerHTML = `<input class="ord-input" id="waiterInp" value="李四" placeholder="输入服务员姓名或工号" />`;
-      confirmBtn.onclick = () => {
-        const v = document.getElementById('waiterInp').value.trim() || '李四';
-        document.getElementById('bindWaiterBtn').textContent = '绑定服务员：' + v;
-        closeOrdOverlays();
-        showOrdToast('已更新绑定服务员：' + v);
-      };
-    } else if (type === 'bindPhone') {
-      title.textContent = '📱 绑定客人手机号 · A08';
-      body.innerHTML = `<input class="ord-input" id="phoneInp" value="13588884456" placeholder="绑定后自动同步会员权益与消费通知" />`;
-      confirmBtn.onclick = () => {
-        const v = document.getElementById('phoneInp').value.trim();
-        if (v) document.getElementById('bindPhoneBtn').textContent = '📱 ' + v.slice(-4);
-        closeOrdOverlays();
-        showOrdToast('已绑定客人手机：' + v);
-      };
-    } else if (type === 'req') {
-      title.textContent = `📝 出品要求 · ${extra || '商品'}`;
-      body.innerHTML = `
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <button class="btn-ord-blue" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">加冰桶</button>
-          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">少冰</button>
-          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">先上果盘</button>
-          <button class="btn-ord-white" style="height:34px" onclick="this.classList.toggle('btn-ord-blue');this.classList.toggle('btn-ord-white')">分杯出品</button>
-        </div>
-        <input class="ord-input" placeholder="自定义手写备注要求…" />`;
-    } else if (type === 'mergeTable') {
-      title.textContent = '🔗 购物车并台下单';
-      body.innerHTML = `<div style="font-size:13px;color:#5C6475">选择将当前购物车内商品一并下发至同客人关联卡台：</div><input class="ord-input" value="V02（VIP区 · 周总）" />`;
-    } else if (type === 'lateDeposit') {
-      title.textContent = '🏦 滞留金查询 / 登记 · 卡台 A08';
-      body.innerHTML = `<div class="m-ord-card"><div>当前卡台可用滞留金余额：<strong style="color:#009370;font-size:18px">¥800.00</strong></div><div style="font-size:12px;color:#5C6475">来源：线上单转滞留金（21:02）· 结账时可直接抵扣</div></div>`;
-    } else if (type === 'clearTable') {
-      title.textContent = '🧹 清台确认 · 卡台 A08';
-      body.innerHTML = `<div style="font-size:13.5px;line-height:1.6">当前卡台存在 <strong style="color:#E63122">¥2,880.00 未结金额</strong>，确认清台前需完成买单或由主管授权。</div>`;
-    } else if (type === 'transferTable') {
-      title.textContent = '🔄 点单页快捷转台 · 卡台 A08';
-      body.innerHTML = `<div><label style="font-size:12px;color:#5C6475">选择目标空台</label><select class="ord-input"><option>A01（大厅 · 6人空台）</option><option>V06（VIP区 · 8人空台）</option><option>S03（散台 · 4人空台）</option></select></div>`;
-    }
-    document.getElementById('ordModalMask').classList.add('show');
-  }
-
-  // Render decorative crisp QR pattern
-  const pattern = [1,1,1,0,1,1,1, 1,0,1,1,1,0,1, 1,1,1,0,1,1,1, 0,1,0,1,0,1,0, 1,1,1,1,0,1,1, 1,0,1,0,1,0,1, 1,1,1,0,1,1,0];
-  document.getElementById('qrGrid').innerHTML = pattern.map(v => `<div style="background:${v?'#08080A':'transparent'};border-radius:2px"></div>`).join('');
 
   document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
   document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.addEventListener('click', () => {
     const m = b.dataset.device;
-    document.getElementById('deviceFrame').className = 'device-frame ' + m;
+    const frame = document.getElementById('deviceFrame');
+    frame.className = 'device-frame ' + m + (isDark ? '' : ' theme-light');
     document.querySelectorAll('#deviceTabs .seg-btn').forEach(x => x.classList.toggle('active', x === b));
-    const labels = {
-      desktop: 'Desktop 宽屏（macOS / Windows · ≥1200dp）',
-      tablet: 'Android 平板（1024×768 · 720–1199dp）',
-      phone: 'Android 手机（390×800 · <720dp，顶部一级分类+窄二级栏+手机卡片表）'
+    const names = {
+      desktop: 'Desktop 宽屏 (≥1200dp · 三栏实时购物车)',
+      tablet: 'Android 平板 (720–1199dp · 三栏同屏高效点单)',
+      phone: 'Android 手机 (393×810 · 2列卡台 + 吸底购物车胶囊条)'
     };
-    document.querySelector('#deviceMeta span').textContent = '当前视口：' + labels[m];
+    document.querySelector('#deviceMeta span b').textContent = names[m];
   }));
-  document.querySelectorAll('#ordRegions .ord-reg-btn').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('#ordRegions .ord-reg-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    regFilter = b.dataset.reg;
-    renderOrdCards();
-  }));
-  document.querySelectorAll('#ordLegends .ol-item').forEach(el => el.addEventListener('click', () => {
-    const st = Number(el.dataset.st);
-    if (st === 20) return;
-    stFilter = stFilter === st ? null : st;
-    document.querySelectorAll('#ordLegends .ol-item').forEach(x => x.classList.toggle('active', Number(x.dataset.st) === stFilter));
-    renderOrdCards();
-  }));
-  document.getElementById('prdSearch').addEventListener('input', renderCatsAndPrds);
 
-  renderOrdCards();
-  renderCatsAndPrds();
+  document.querySelectorAll('#regStrip .reg-pill').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#regStrip .reg-pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    activeReg = b.dataset.reg;
+    renderSeats();
+  }));
+
+  document.getElementById('seatSearch').addEventListener('input', renderSeats);
+  document.getElementById('seatSearch').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const hits = getFilteredSeats().filter(s => [4,5,6,7].includes(s.st));
+      if (hits.length === 1) onTapSeat(hits[0].id);
+    }
+  });
+  document.getElementById('prdSearch').addEventListener('input', renderProducts);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+
+  /* Initial Render */
+  renderLegends();
+  renderSeats();
+  renderCats();
+  renderProducts();
+  renderCartViews();
+  renderSetPage();
+  renderP4();
+  renderWineTab();
 </script>
 </body>
 </html>
