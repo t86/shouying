@@ -542,6 +542,25 @@
   }
   .more-item:hover { border-color: var(--glow-border); background: rgba(50,185,255,0.12); }
 
+
+  /* Synced 11-22 Landed Implementation Styles */
+  .obj-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+  .obj-tab {
+    border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.78); border-radius: 6px; padding: 3px 9px; font-size: 11.5px;
+    font-weight: 700; cursor: pointer;
+  }
+  .obj-tab.active { background: var(--brand-primary); color: #fff; border-color: var(--glow-border); }
+  .lookup-phone-cards { display: none; flex-direction: column; gap: 8px; padding: 10px; }
+  .phone .lookup-desktop-tbl { display: none; }
+  .phone .lookup-phone-cards { display: flex; }
+  .lookup-card {
+    background: #17213B; border: 1px solid rgba(50,185,255,0.28); border-radius: 9px;
+    padding: 9px 10px; display: flex; flex-direction: column; gap: 5px; font-size: 12px;
+  }
+  .lookup-kv { display: flex; justify-content: space-between; gap: 8px; color: rgba(255,255,255,0.78); }
+  .lookup-kv b { color: #fff; }
+
   /* Center Toast */
   .toast {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -561,7 +580,7 @@
         <a class="sys-link" href="order.html">S2 点单系统</a>
         <a class="sys-link active" href="cashier.html">S3 收银系统</a>
       </div>
-      <h1>收银系统（S3）100% 功能还原 × 酒吧「能点1下绝不点2下」交互预览</h1>
+      <h1>收银系统（S3）全端视觉还原 × 酒吧极速交互预览（已同步 11-22 Flutter 落地实现）</h1>
     </div>
     <div class="studio-controls">
       <div class="seg-group" id="pageTabs">
@@ -775,55 +794,24 @@
         </div>
         <div class="two-col">
           <div class="sub-panel">
-            <div class="sub-hd">
-              <span>⚠ 异议单列表 (/yy/list · 3s自动刷新)</span>
-              <span style="font-size:11.5px;color:#FF8C9C">待退款 1 · 已失败 1</span>
-            </div>
-            <div class="sub-bd">
-              <div class="inline-card" style="border-color:rgba(255,47,75,0.5)">
-                <div>
-                  <strong>V06 · 微信扫码退单失败</strong> <span class="ob ob-back">已失败</span>
-                  <div style="font-size:11.5px;color:rgba(255,255,255,0.7)">单号 YY20261122091 · ¥680.00 · 原因：商户可用余额不足</div>
-                </div>
-                <button class="btn btn-danger btn-xs" onclick="showToast('已确认发起重试退款 (/yy/process)，按钮已锁定防重复点击')">重试退款</button>
-              </div>
-              <div class="inline-card" style="border-color:rgba(255,173,69,0.5)">
-                <div>
-                  <strong>A04 · 滞留金自动退还待处理</strong> <span class="ob" style="background:#D08322">待退款</span>
-                  <div style="font-size:11.5px;color:rgba(255,255,255,0.7)">单号 YY20261122094 · ¥500.00 · 客人：林先生</div>
-                </div>
-                <button class="btn btn-primary btn-xs" onclick="showToast('已确认发起退款 (/yy/process)')">发起退款</button>
+            <div class="sub-hd" style="flex-wrap:wrap">
+              <span>⚠ 异议单列表 (/yy/list · 3s轮询+跨轮询防重锁)</span>
+              <div class="obj-tabs" id="objTabs">
+                <button class="obj-tab active" onclick="setObjTab('all',this)">全部(3)</button>
+                <button class="obj-tab" onclick="setObjTab('pending',this)">待退款(1)</button>
+                <button class="obj-tab" onclick="setObjTab('processing',this)">退款中(1)</button>
+                <button class="obj-tab" onclick="setObjTab('failed',this)">已失败(1)</button>
               </div>
             </div>
+            <div class="sub-bd" id="objListBody"></div>
           </div>
 
           <div class="sub-panel">
             <div class="sub-hd">
-              <span>🏦 滞留金管理 (/sel/get_seat_late_cnls_for_mgr)</span>
-              <button class="btn btn-primary btn-xs" onclick="showToast('打开新增线下滞留金 (/sel/new_late_cnl)')">＋ 新增滞留金</button>
+              <span>🏦 滞留金管理 (CashierLateDepositDrawer)</span>
+              <button class="btn btn-primary btn-xs" onclick="openAddLateModal()">＋ 新增滞留金</button>
             </div>
-            <div class="sub-bd">
-              <div class="inline-card">
-                <div>
-                  <strong>V02 · 微信线上滞留金</strong> <span style="color:var(--mint-amt);font-weight:800">¥800.00</span>
-                  <div style="font-size:11.5px;color:rgba(255,255,255,0.68)">21:14 · 线上单转入（清台时自动退还，不可删除）</div>
-                </div>
-                <div style="display:flex;gap:5px">
-                  <button class="btn btn-outline btn-xs" onclick="showToast('打开全屏选台面板转移滞留金 (/sel/chg_late_cnl_seat，含二次确认)')">转台</button>
-                  <button class="btn btn-danger btn-xs" onclick="showToast('确认退款？退款结果请在异议单列表查看 (/sel/refund_late_cnl)')">退款</button>
-                </div>
-              </div>
-              <div class="inline-card">
-                <div>
-                  <strong>V05 · 银行卡POS滞留金</strong> <span style="color:var(--mint-amt);font-weight:800">¥2,000.00</span>
-                  <div style="font-size:11.5px;color:rgba(255,255,255,0.68)">20:15 · 线下录入（未核销/未删除前禁止清台）</div>
-                </div>
-                <div style="display:flex;gap:5px">
-                  <button class="btn btn-outline btn-xs" onclick="showToast('打开全屏选台面板转移滞留金')">转台</button>
-                  <button class="btn btn-danger btn-xs" onclick="showToast('确认删除线下滞留金？(/sel/del_late_cnl)')">删除</button>
-                </div>
-              </div>
-            </div>
+            <div class="sub-bd" id="lateMgrListBody"></div>
           </div>
 
           <div class="sub-panel" style="grid-column: 1 / -1">
@@ -873,50 +861,41 @@
           </div>
 
           <div class="sub-panel">
-            <div class="sub-hd">
-              <span>🎁 查询优惠额度 (dev 新版免密全员列表)</span>
-              <input class="input-dark" style="height:27px;width:155px;font-size:12px" placeholder="搜工号/姓名/简拼" />
+            <div class="sub-hd" style="flex-wrap:wrap">
+              <span>🎁 查询优惠额度 (免密全员分页 + 点击查适用商品)</span>
+              <input class="input-dark" id="quotaSearchInp" style="height:27px;width:165px;font-size:12px" placeholder="搜工号/姓名/简拼" oninput="renderQuotaRows()" />
             </div>
             <div class="sub-bd" style="padding:0">
               <table class="otbl">
-                <thead><tr><th>员工</th><th>部门/岗位</th><th>方案 (点查商品)</th><th>日余/月余(元)</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td><b>林经理</b> (1001)</td>
-                    <td>营销一部 · 总监</td>
-                    <td><a href="javascript:void(0)" style="color:#6A9EFF;font-weight:700" onclick="showToast('弹出适用商品明细 (/station/get_fl_act_prds)：轩尼诗VSOP、黑桃A、科罗娜...')">高管赠酒额度</a></td>
-                    <td style="color:var(--mint-amt)">¥2,400 / ¥18,600</td>
-                  </tr>
-                  <tr>
-                    <td><b>张主管</b> (1018)</td>
-                    <td>营运部 · 楼面</td>
-                    <td><a href="javascript:void(0)" style="color:#6A9EFF;font-weight:700" onclick="showToast('弹出适用商品明细 (/station/get_fl_act_prds)')">楼面特饮额度</a></td>
-                    <td style="color:var(--mint-amt)">¥800 / ¥6,200</td>
-                  </tr>
-                </tbody>
+                <thead><tr><th>员工</th><th>部门/岗位</th><th>限额方案 (点查适用商品)</th><th>日余/月余(元)</th></tr></thead>
+                <tbody id="quotaTbody"></tbody>
               </table>
             </div>
           </div>
 
           <div class="sub-panel" style="grid-column: 1 / -1">
-            <div class="sub-hd">
-              <span>🔎 订单查询 (/sel/get_ol_pay_order_info · dev 新增第38项)</span>
-              <div style="display:flex;gap:6px">
-                <input class="input-dark" style="height:27px;width:210px;font-size:12px" value="OL20261122221409821" />
-                <button class="btn btn-primary btn-xs" onclick="showToast('按完整订单号查询线上支付明细 (/sel/get_ol_pay_order_info)')">查询</button>
+            <div class="sub-hd" style="flex-wrap:wrap">
+              <span>🔎 订单查询 (/sel/get_ol_pay_order_info · 全量 12 列 + 手机卡片)</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <input class="input-dark" id="lookupOrderInp" style="height:27px;width:210px;font-size:12px" value="OL20261122221409821" placeholder="输入完整线上订单号" />
+                <button class="btn btn-primary btn-xs" onclick="renderLookupOrders()">查询</button>
+                <button class="btn btn-secondary btn-xs" onclick="document.getElementById('lookupOrderInp').value='';renderLookupOrders();showToast('已重置订单查询条件')">重置</button>
               </div>
             </div>
             <div class="sub-bd" style="padding:0">
-              <table class="otbl">
-                <thead><tr><th>营业日</th><th>订单号</th><th>区域/卡台</th><th>支付金额</th><th>订位人</th><th>支付状态</th><th>商品信息</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td>2026-11-22</td><td>OL20261122221409821</td><td>VIP · V02</td>
-                    <td style="color:var(--mint-amt);font-weight:700">¥1,680.00</td><td>林经理 (营销一部)</td>
-                    <td><span class="ob ob-yh">已支付</span></td><td>黑桃A香槟×1、果盘×1</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="lookup-desktop-tbl" style="overflow-x:auto">
+                <table class="otbl">
+                  <thead>
+                    <tr>
+                      <th>营业日</th><th>订单号</th><th>区域</th><th>卡台</th><th>开台时间</th>
+                      <th>支付金额</th><th>订位人</th><th>订位部门</th><th>支付完成时间</th>
+                      <th>支付状态</th><th>商品信息</th><th>服务员信息</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lookupTbody"></tbody>
+                </table>
+              </div>
+              <div class="lookup-phone-cards" id="lookupPhoneCards"></div>
             </div>
           </div>
         </div>
@@ -980,6 +959,18 @@
             <button class="btn btn-primary" style="height:40px" onclick="closeOverlays();showToast('打开复台选择弹窗 (/sel/get_seat_turnback_list -> /sel/seat_turn_back)')">♻ 复台（恢复上一轮消费）</button>
             <button class="btn btn-secondary" style="height:40px" onclick="closeOverlays();switchPage('p2');setPoTab('paid1')">🧾 查看卡台历史记录</button>
           </div>
+        </div>
+      </div>
+
+            <!-- Dynamic Cashier Dialog (Late Deposit Add/Transfer Confirm, Quota Products, Online->Late Confirm) -->
+      <div class="overlay-bg" id="cashierActionOverlay" onclick="if(event.target===this)closeOverlays()">
+        <div class="modal-card">
+          <div class="modal-hd">
+            <span id="caModalTitle">操作确认</span>
+            <button class="btn btn-secondary btn-xs" onclick="closeOverlays()">关闭</button>
+          </div>
+          <div class="modal-bd" id="caModalBody"></div>
+          <div class="modal-ft" id="caModalFoot"></div>
         </div>
       </div>
 
@@ -1442,11 +1433,14 @@
       sp.innerHTML = '';
     }
 
-    // Dynamic smart quick chips
+    // Dynamic smart quick chips (synced with pay_money_drawer.dart E5)
     const tail = remain % 100;
     const chips = [
       { lbl:`全额 ¥${remain}`, v:remain, primary:true },
-      ...(tail > 0 ? [{ lbl:`去零头 ¥${remain - tail}`, v:remain - tail }] : []),
+      ...(tail > 0 ? [
+        { lbl:`去零 ¥${remain - tail}`, v:remain - tail },
+        { lbl:`抹零头 ¥${tail}`, v:tail, primary:true }
+      ] : []),
       { lbl:'¥500', v:500 }, { lbl:'¥1000', v:1000 }, { lbl:'¥2000', v:2000 },
     ];
     document.getElementById('quickChips').innerHTML = chips.map(c =>
@@ -1644,6 +1638,191 @@
   renderPayOrder();
   renderNumpad();
   renderCombo();
+
+  /* ==================== 11-22 Synced Landed S3 Interactive Modules ==================== */
+  let activeObjTab = 'all';
+  const OBJECTIONS = [
+    { id:'YY20261122091', seat:'V06', title:'微信扫码退单失败', st:'failed', stTxt:'已失败', amt:680, desc:'原因：商户可用余额不足', act:'重试退款', locked:false },
+    { id:'YY20261122094', seat:'A04', title:'滞留金自动退还待处理', st:'pending', stTxt:'待退款', amt:500, desc:'客人：林先生 · 清台触发自动退还', act:'发起退款', locked:false },
+    { id:'YY20261122088', seat:'V01', title:'支付宝部分退款处理中', st:'processing', stTxt:'退款中', amt:320, desc:'已提交渠道处理，3s 轮询等待结果', act:'同步状态', locked:false },
+  ];
+  let LATE_DEPOSITS = [
+    { id:'L01', seat:'V02', cnl:'微信线上滞留金', amt:800, time:'21:14', online:true, desc:'线上单转入（清台时自动退还，不可删除）' },
+    { id:'L02', seat:'V05', cnl:'银行卡POS滞留金', amt:2000, time:'20:15', online:false, desc:'线下录入（未核销/未删除前禁止清台）' },
+  ];
+  const QUOTAS = [
+    { emp:'林经理', code:'1001', py:'ljl', dept:'营销一部 · 总监', scheme:'高管赠酒额度', day:'¥2,400', mon:'¥18,600', prds:['轩尼诗 V.S.O.P (700ml)','黑桃A香槟 (金瓶)','麦卡伦 12 年双桶','科罗娜冰啤（半打）'] },
+    { emp:'张主管', code:'1018', py:'zzg', dept:'营运部 · 楼面', scheme:'楼面特饮额度', day:'¥800', mon:'¥6,200', prds:['暗夜霓虹特调','经典莫吉托','长岛冰茶','豪华时令果盘'] },
+    { emp:'陈总监', code:'1005', py:'czj', dept:'VIP组 · 负责人', scheme:'VIP 客情专属额度', day:'¥5,000', mon:'¥36,000', prds:['马爹利蓝带','皇家礼炮 21 年','黑桃A香槟 (粉瓶)','轩尼诗 X.O'] },
+  ];
+  const LOOKUP_ORDERS = [
+    { bizDay:'2026-11-22', no:'OL20261122221409821', reg:'VIP包厢', seat:'V02', openTime:'20:15', amt:1680, booker:'林经理', dept:'营销一部', payTime:'22:14:09', status:'已支付', prds:'黑桃A香槟×1、果盘×1', waiter:'小周 (1042)' },
+    { bizDay:'2026-11-22', no:'OL20261122214803312', reg:'大厅卡座', seat:'A08', openTime:'21:10', amt:980, booker:'李四', dept:'营销一部', payTime:'21:48:03', status:'已支付', prds:'轩尼诗VSOP×1、冰红茶×6', waiter:'阿强 (1051)' },
+  ];
+
+  function openCashierModal(title, bodyHtml, footHtml) {
+    document.getElementById('caModalTitle').textContent = title;
+    document.getElementById('caModalBody').innerHTML = bodyHtml;
+    document.getElementById('caModalFoot').innerHTML = footHtml || '<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">关闭</button>';
+    document.getElementById('cashierActionOverlay').classList.add('open');
+  }
+
+  function setObjTab(tab, btn) {
+    activeObjTab = tab;
+    document.querySelectorAll('#objTabs .obj-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderObjections();
+  }
+  function renderObjections() {
+    const el = document.getElementById('objListBody');
+    if (!el) return;
+    const rows = OBJECTIONS.filter(o => activeObjTab === 'all' || o.st === activeObjTab);
+    el.innerHTML = rows.map(o => {
+      const bdCol = o.st === 'failed' ? 'rgba(255,47,75,0.5)' : (o.st === 'pending' ? 'rgba(255,173,69,0.5)' : 'rgba(50,185,255,0.45)');
+      const badgeSty = o.st === 'failed' ? 'background:var(--badge-red)' : (o.st === 'pending' ? 'background:#D08322' : 'background:#0079FF');
+      return `<div class="inline-card" style="border-color:${bdCol}">
+        <div>
+          <strong>${o.seat} · ${o.title}</strong> <span class="ob" style="${badgeSty}">${o.stTxt}</span>
+          <div style="font-size:11.5px;color:rgba(255,255,255,0.72)">单号 ${o.id} · ¥${o.amt.toFixed(2)} · ${o.desc}</div>
+        </div>
+        <button class="btn ${o.st==='failed'?'btn-danger':'btn-primary'} btn-xs" ${o.locked?'disabled':''} onclick="runObjectionCmd('${o.id}')">${o.locked?'处理中…':o.act}</button>
+      </div>`;
+    }).join('') || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.45)">当前分类暂无异议单</div>';
+  }
+  function runObjectionCmd(id) {
+    const o = OBJECTIONS.find(x => x.id === id);
+    if (!o || o.locked) return;
+    o.locked = true;
+    renderObjections();
+    showToast(`已提交 /yy/process (${o.act}) · 跨轮询防重锁已激活`);
+    setTimeout(() => { o.locked = false; renderObjections(); }, 1800);
+  }
+
+  function renderLateMgrList() {
+    const el = document.getElementById('lateMgrListBody');
+    if (!el) return;
+    el.innerHTML = LATE_DEPOSITS.map(r => `
+      <div class="inline-card">
+        <div>
+          <strong>${r.seat} · ${r.cnl}</strong> <span style="color:var(--mint-amt);font-weight:800">¥${r.amt.toLocaleString()}.00</span>
+          <div style="font-size:11.5px;color:rgba(255,255,255,0.68)">${r.time} · ${r.desc}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="btn btn-outline btn-xs" onclick="openTransferLateModal('${r.id}')">转滞留金</button>
+          ${r.online
+            ? `<button class="btn btn-danger btn-xs" onclick="confirmLateDanger('${r.id}','refund')">退还</button>`
+            : `<button class="btn btn-danger btn-xs" onclick="confirmLateDanger('${r.id}','delete')">删除</button>`}
+        </div>
+      </div>`).join('') || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.45)">暂无滞留金记录</div>';
+  }
+  function openAddLateModal() {
+    openCashierModal('＋ 新增线下滞留金 (/sel/new_late_cnl)', `
+      <div><label style="font-size:12px;color:var(--text-ice)">目标卡台</label><select id="addLateSeat" class="input-dark" style="width:100%;margin-top:4px"><option>V02</option><option>V05</option><option>A08</option><option>V01</option></select></div>
+      <div><label style="font-size:12px;color:var(--text-ice)">收款渠道</label><select id="addLateCnl" class="input-dark" style="width:100%;margin-top:4px"><option>现金滞留金</option><option>银行卡POS滞留金</option><option>微信离线滞留金</option></select></div>
+      <div><label style="font-size:12px;color:var(--text-ice)">滞留金额 (元)</label><input id="addLateAmt" class="input-dark" style="width:100%;margin-top:4px" type="number" value="1000" /></div>
+    `, `<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">取消</button><button class="btn btn-primary btn-sm" onclick="submitAddLate()">确认新增</button>`);
+  }
+  function submitAddLate() {
+    const seat = document.getElementById('addLateSeat').value;
+    const cnl = document.getElementById('addLateCnl').value;
+    const amt = Number(document.getElementById('addLateAmt').value) || 0;
+    if (amt <= 0) { showToast('请输入大于 0 的滞留金额'); return; }
+    LATE_DEPOSITS.unshift({ id:'L'+Date.now(), seat, cnl, amt, time:'刚刚', online:false, desc:'线下录入（未核销/未删除前禁止清台）' });
+    closeOverlays();
+    renderLateMgrList();
+    showToast(`✓ 已新增 ${seat} ${cnl} ¥${amt.toLocaleString()}`);
+  }
+  function openTransferLateModal(id) {
+    const r = LATE_DEPOSITS.find(x => x.id === id);
+    if (!r) return;
+    openCashierModal(`将 ¥${r.amt} 滞留金转至其他卡台`, `
+      <div style="font-size:12.5px;color:rgba(255,255,255,0.8)">当前滞留金：<b>${r.seat} · ${r.cnl} (¥${r.amt})</b></div>
+      <div><label style="font-size:12px;color:var(--text-ice)">选择目标卡台</label><select id="xferDestSeat" class="input-dark" style="width:100%;margin-top:4px"><option>V01</option><option>A08</option><option>V06</option><option>V02</option></select></div>
+    `, `<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">取消</button><button class="btn btn-primary btn-sm" onclick="confirmTransferLate('${id}')">下一步：二次确认</button>`);
+  }
+  function confirmTransferLate(id) {
+    const r = LATE_DEPOSITS.find(x => x.id === id);
+    const dest = document.getElementById('xferDestSeat').value;
+    openCashierModal('二次确认转移滞留金', `
+      <div style="font-size:13.5px;line-height:1.6">确认将「<b>${r.cnl}</b>」<strong style="color:var(--mint-amt)">¥${r.amt}</strong> 从 <b>${r.seat}</b> 转移至卡台 <b>${dest}</b>？</div>
+    `, `<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">取消</button><button class="btn btn-pink btn-sm" onclick="execTransferLate('${id}','${dest}')">确认转移</button>`);
+  }
+  function execTransferLate(id, dest) {
+    const r = LATE_DEPOSITS.find(x => x.id === id);
+    if (r) r.seat = dest;
+    closeOverlays();
+    renderLateMgrList();
+    showToast(`✓ 滞留金已转移至卡台 ${dest} (/sel/chg_late_cnl_seat)`);
+  }
+  function confirmLateDanger(id, kind) {
+    const r = LATE_DEPOSITS.find(x => x.id === id);
+    if (!r) return;
+    const isRef = kind === 'refund';
+    openCashierModal(isRef ? '确认退还线上滞留金' : '确认删除线下滞留金', `
+      <div style="font-size:13.5px;line-height:1.6">确认${isRef?'退还':'删除'} ${r.seat}「<b>${r.cnl}</b>」¥${r.amt}？${isRef?'退款结果将在异议单列表同步。':'删除后不可恢复。'}</div>
+    `, `<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">取消</button><button class="btn btn-danger btn-sm" onclick="execLateDanger('${id}','${kind}')">${isRef?'确认退还':'确认删除'}</button>`);
+  }
+  function execLateDanger(id, kind) {
+    LATE_DEPOSITS = LATE_DEPOSITS.filter(x => x.id !== id);
+    closeOverlays();
+    renderLateMgrList();
+    showToast(kind === 'refund' ? '✓ 已发起滞留金退款 (/sel/refund_late_cnl)' : '✓ 已删除线下滞留金 (/sel/del_late_cnl)');
+  }
+
+  function renderQuotaRows() {
+    const tbody = document.getElementById('quotaTbody');
+    if (!tbody) return;
+    const kw = (document.getElementById('quotaSearchInp')?.value || '').trim().toLowerCase();
+    const list = QUOTAS.filter(q => !kw || `${q.emp} ${q.code} ${q.py} ${q.dept} ${q.scheme}`.toLowerCase().includes(kw));
+    tbody.innerHTML = list.map((q, idx) => `
+      <tr>
+        <td><b>${q.emp}</b> (${q.code})</td>
+        <td>${q.dept}</td>
+        <td><a href="javascript:void(0)" style="color:#6A9EFF;font-weight:700" onclick="openQuotaProducts(${idx})">${q.scheme} ↗</a></td>
+        <td style="color:var(--mint-amt)">${q.day} / ${q.mon}</td>
+      </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.45)">无匹配员工限额</td></tr>';
+  }
+  function openQuotaProducts(idx) {
+    const q = QUOTAS[idx];
+    openCashierModal(`适用商品明细：${q.scheme} (/station/get_fl_act_prds)`, `
+      <div style="font-size:12px;color:var(--text-ice)">员工：${q.emp} (${q.code}) · 日余 ${q.day} / 月余 ${q.mon}</div>
+      ${q.prds.map(p => `<div class="inline-card"><b>${p}</b><span class="ob ob-yh">适用</span></div>`).join('')}
+    `);
+  }
+
+  function renderLookupOrders() {
+    const kw = (document.getElementById('lookupOrderInp')?.value || '').trim().toLowerCase();
+    const rows = LOOKUP_ORDERS.filter(o => !kw || o.no.toLowerCase().includes(kw));
+    const tbody = document.getElementById('lookupTbody');
+    const pCards = document.getElementById('lookupPhoneCards');
+    if (tbody) {
+      tbody.innerHTML = rows.map(o => `
+        <tr>
+          <td>${o.bizDay}</td><td style="font-family:monospace">${o.no}</td><td>${o.reg}</td><td><b>${o.seat}</b></td><td>${o.openTime}</td>
+          <td style="color:var(--mint-amt);font-weight:700">¥${o.amt.toFixed(2)}</td><td>${o.booker}</td><td>${o.dept}</td><td>${o.payTime}</td>
+          <td><span class="ob ob-yh">${o.status}</span></td><td>${o.prds}</td><td>${o.waiter}</td>
+        </tr>`).join('') || '<tr><td colspan="12" style="text-align:center;color:rgba(255,255,255,0.45)">未查到该订单号</td></tr>';
+    }
+    if (pCards) {
+      pCards.innerHTML = rows.map(o => `
+        <div class="lookup-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong style="color:#fff">${o.reg} · ${o.seat}</strong>
+            <span class="ob ob-yh">${o.status}</span>
+          </div>
+          <div class="lookup-kv"><span>订单号</span><b style="font-family:monospace;font-size:11.5px">${o.no}</b></div>
+          <div class="lookup-kv"><span>支付金额</span><b style="color:var(--mint-amt)">¥${o.amt.toFixed(2)}</b></div>
+          <div class="lookup-kv"><span>订位人 / 部门</span><b>${o.booker} (${o.dept})</b></div>
+          <div class="lookup-kv"><span>营业日 / 完成时间</span><b>${o.bizDay} ${o.payTime}</b></div>
+          <div class="lookup-kv"><span>商品 / 服务员</span><b>${o.prds} · ${o.waiter}</b></div>
+        </div>`).join('') || '<div style="text-align:center;padding:18px;color:rgba(255,255,255,0.45)">未查到该订单号</div>';
+    }
+  }
+
+  renderObjections();
+  renderLateMgrList();
+  renderQuotaRows();
+  renderLookupOrders();
 </script>
 </body>
 </html>

@@ -165,3 +165,19 @@ flowchart LR
 1. **「一键全额收款」与「自动识别微信/支付宝扫码」**（E1 / E2）：是否同意在常规渠道全额收款时 1 键直接完成入车+结账，以及在 `/payOrder` 底栏直出自动识别条码前缀的付款码入口？
 2. **结账后自动打印结算单开关**（E7）：默认开启（`[✓] 结账后自动打结算单`，记忆收银员上次选择），还是默认关闭由收银员手动勾选？
 3. **实施分支与工作树**：确认继续在 `feature/flutter-foundation` 工作树（``feature/flutter-foundation` 工作树`）实施 Flutter 改造，并同步更新预览稿文档？
+
+---
+
+## 八、2026-11-22 实机与代码落地同步记录（Batch 1–5 全部完成）
+
+> **实现分支**：`feature/flutter-foundation`（静态分析 `fvm dart analyze` **0 errors / 0 warnings**，全量跨端回归 **450 / 450 全部通过**）
+>
+> **在线交互预览**：https://t86.github.io/shouying/cashier.html
+
+| 模块 | 落地文件与实测同步项 | 回归结果 |
+| :--- | :--- | :---: |
+| **实时同步与数据层** | `card_table_models.dart` / `legacy_card_table_store.dart` / `card_page_menus.dart` / `cashier_extra_api.dart`：补齐 WS 数据集 `17/22/33/34/53` 与卡台 `14` 缺失字段、38 项更多功能含「订单查询」、全量 `CashierExtra` 接口与会话守卫。 | ✅ |
+| **`/moneyCard` 收银卡台大盘** | `cashier_card_display.dart` / `card_table_screen.dart`：精准排序权重、`后`/`超`/`mark`/`部分结` 渐变卡面、全字段搜索+回车直进、`超时待付` 胶囊、底部图例 1 键筛选、异议单红点角标、38 项分组可搜菜单。 | ✅ |
+| **`/payOrder` & `PayMoneyDrawer`** | `pay_order_screen.dart` / `pay_money_drawer.dart` / `payment_code_scan_screen.dart`：`⚡ 一键全额收款`（E1）、`自动识微信/支付宝付款码`（E2）、`首键覆写 + 去零/抹零头/500/1000/2000 快捷筹码`（E5）、`[✓] 结账后自动打印结算单` 默认开启（E7）、全渠道内联与 `393px` 手机无溢出流式布局（E8）。 | ✅ |
+| **新抽屉与全量报表** | `cashier_order_lookup_screen.dart`（12 列全量订单查询 + 手机卡片）、`cashier_late_deposit_drawer.dart`（新增/二次确认转台/退款/删除）、`cashier_quota_screen.dart`（免密全员搜 + 适用商品弹窗）、`cashier_objection_drawer.dart`（4 页签 + 跨轮询防重锁）、售出日报打印与 3 表 Excel 导出及全部 17 个收银子页暗夜适配。 | ✅ |
+| **自动化验证** | `cashier_parity_test` 10/10 · `card_table` 334/334 · `booking` 36/36 · `design_system` 21/21 · `web_app` 24/24 · `android_app` 23/23 · `windows_app` 12/12。 | **450 / 450** |
