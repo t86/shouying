@@ -5,8 +5,8 @@
 > **目标终端**：macOS 桌面端 · Windows 桌面端 · Android 平板（横/竖屏）· Android 手机（竖屏为主）。
 >
 > **源码基准**：
-> - 原 Vue 视觉基线：[cardBgc.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/cardBgc.less)、[cardMachine.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/machine/cardMachine.less)、[cardMachine.vue](file:///Volumes/WORK/xuzheng/shouyin/src/views/Book/cardMachine.vue)、[reserved.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/reserved/reserved.less)、[tabContent.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/reserved/tabContent.less)、[elementDrawer.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/common/elementDrawer.less)、[elementConfirm.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/common/elementConfirm.less)、[bookingDetailDialog.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/machine/bookingDetailDialog.less)
-> - 当前 Flutter 实现：[native_client_shell.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/native_client_shell/lib/native_client_shell.dart)、[card_table_screen.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/card_table_screen.dart)、[card_region_selector.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/card_region_selector.dart)、[booking_reserved_screen.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/booking_reserved_screen.dart)、[booking_report_screens.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/booking_report_screens.dart)、[booking_queue_screen.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/booking_queue_screen.dart)
+> - 原 Vue 视觉基线：`src/style/book/cardBgc.less`、`src/style/book/machine/cardMachine.less`、`src/views/Book/cardMachine.vue`、`src/style/book/reserved/reserved.less`、`src/style/book/reserved/tabContent.less`、`src/style/common/elementDrawer.less`、`src/style/common/elementConfirm.less`、`src/style/book/machine/bookingDetailDialog.less`
+> - 当前 Flutter 实现：`flutter_workspace/packages/native_client_shell/lib/native_client_shell.dart`、`flutter_workspace/packages/card_table/lib/src/card_table_screen.dart`、`flutter_workspace/packages/card_table/lib/src/card_region_selector.dart`、`flutter_workspace/packages/card_table/lib/src/booking_reserved_screen.dart`、`flutter_workspace/packages/card_table/lib/src/booking_report_screens.dart`、`flutter_workspace/packages/card_table/lib/src/booking_queue_screen.dart`
 
 ---
 
@@ -109,7 +109,7 @@
 
 ### P0. 预订系统登录页（`/login`）与系统选择入口
 
-- **对应源码**：[Thelogin.vue](file:///Volumes/WORK/xuzheng/shouyin/src/views/Thelogin/Thelogin.vue) · [login_screen.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/session/lib/src/login_screen.dart)
+- **对应源码**：`src/views/Thelogin/Thelogin.vue` · `flutter_workspace/packages/session/lib/src/login_screen.dart`
 - **当前问题**：浅灰/白底 Material 3 卡片，与夜场预订系统风格完全脱节；系统选择页把「超级账号」直接混在业务系统里。
 - **视觉还原方案**：
   - **背景**：深夜蓝底 `#080B16` 过渡 `#11182D`（支持复用原版登录视觉图或深蓝科技光晕背景）。
@@ -232,7 +232,7 @@
 
 ### P4. 预留信息管理页（`/reserved`）
 
-- **对应源码**：[reserved.vue](file:///Volumes/WORK/xuzheng/shouyin/src/views/Book/reserved.vue) · [tabContent.vue](file:///Volumes/WORK/xuzheng/shouyin/src/components/book/reserved/tabContent.vue) · [booking_reserved_screen.dart](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/flutter_workspace/packages/card_table/lib/src/booking_reserved_screen.dart)
+- **对应源码**：`src/views/Book/reserved.vue` · `src/components/book/reserved/tabContent.vue` · `flutter_workspace/packages/card_table/lib/src/booking_reserved_screen.dart`
 - **配色统一纠偏**：废弃当前自造的 `#132247`/`#2C7DFE`/`#10B981` 杂色，统一采用：
   - 页面画布 `#08080A`（顶部 Tab 栏 `#11182D` + 底边 `1px #2775BA`）。
   - 顶部双 Tab：「当日预留」「其它预留」还原为 `40dp` 高胶囊按钮（未选 `rgba(0,0,0,0.4)` + `#2775BA` 顶高光；选中 `#455EFF`）。
@@ -259,7 +259,7 @@
 | R03 | **预留记录** | 13 列宽表（状态列使用彩色文字/微胶囊区分已开台/已取消/预留中）+ 导出 | 折叠筛选 + 预留状态卡片 |
 | R04 | **线上预订记录** | 与 R03 同风格，突出线上订单来源与状态标识 | 摘要卡片列表 |
 | R05 | **入客数据实时汇总** | 顶部汇总统计卡片（总台数/总人数/开台率等关键数字高亮）+ 明细表 + 导出 | 顶部 2×2 关键指标卡 + 紧凑列表 |
-| R06 | **部门实时订台/区域开台** | 严格还原 [drawerDeptRegionSeatOpen.less](file:///Volumes/WORK/xuzheng/shouyin/src/style/book/machine/drawerDeptRegionSeatOpen.less)：双表由虚线 `rgba(255,255,255,0.28)` 分隔；一级部门行左侧 `3px` `#4B89FF` 竖条 + `rgba(75,137,255,0.18)` 底色加粗；三级部门 `rgba(255,255,255,0.67)`；**合计行 `#FFAD45` 亮橙加粗** | 保持 2 列宽比自适应，无需折卡即可原生一屏可读 |
+| R06 | **部门实时订台/区域开台** | 严格还原 `src/style/book/machine/drawerDeptRegionSeatOpen.less`：双表由虚线 `rgba(255,255,255,0.28)` 分隔；一级部门行左侧 `3px` `#4B89FF` 竖条 + `rgba(75,137,255,0.18)` 底色加粗；三级部门 `rgba(255,255,255,0.67)`；**合计行 `#FFAD45` 亮橙加粗** | 保持 2 列宽比自适应，无需折卡即可原生一屏可读 |
 | R07 | **排队详情** | 双 Tab（「排队叫号」/「排队列表」，激活态 `#5C9FFF` 文字 + `3px` 下划线）；排队类型与状态采用圆角描边筛选胶囊（选中 `#5C9FFF` 边框）；叫号/到店/过号操作按钮配色统一（叫号 `#455EFF`、到店 `#67C23A`、过号 `#E03755`） | Tab 置顶 + 筛选横滑 + 排队单大号号码卡片（一键叫号/到店/过号大热区按钮） |
 
 ---
@@ -318,7 +318,7 @@
 
 ## 八、融合 2026-11-19 预订系统迁移审核意见调整记录
 
-依据审核报告 [2026-11-19-booking-parity-review.md](file:///Users/tl/.config/superpowers/worktrees/shouyin/feature-flutter-foundation/docs/flutter-migration/2026-11-19-booking-parity-review.md) 与配套视觉稿，对 S1 视觉还原稿已完成以下全面调整：
+依据审核报告 `docs/flutter-migration/2026-11-19-booking-parity-review.md` 与配套视觉稿，对 S1 视觉还原稿已完成以下全面调整：
 
 1. **卡面固定行高对齐 & 高对比状态色板**：
    - 采用审核视觉稿高对比卡面状态色：空台 `#465675`、锁定 `#7D6A33`（底部「锁定」图例同步）、预订 `#008F95`、开台 `#D08322`、点单 `#C83758`、部分结/已结 `#5C3BC1`（部分结账卡面附加 **`部分结`** 标签区分，同时保留「点单」图例合并计数）。
@@ -335,3 +335,19 @@
 4. **P0 / P2 报表抽屉与导出**：
    - 宽屏端点击底部「更多功能」7 项时改为 **右侧滑出面板**（保留左侧卡台大盘可见，手机端保留全屏），并补齐 **6 个可导出报表的导出按钮**（开台/预留/线上预订/入客汇总/部门区域开台显示「导出 Excel」，排队详情显示「导出」，转台记录按原系统无导出）。
    - 底部操作栏补齐 **「刷新」** 按钮。
+
+---
+
+## 九、2026-11-20 ~ 11-22 实机交付与 QA 同步更新（对齐 `feature/flutter-foundation`）
+
+> 对应 Flutter 提交：`f64ec337`、`6f7326f5`、`a8f82629`；全量 `dev` 分支对账结果 **51 / 52 项一致通过**（剩余 1 项为 Flutter 显式安全阻断架构设计），并已同步更新至在线交互预览稿 https://t86.github.io/shouying/。
+
+| 序号 | 变更项 | 最终实现与预览稿同步口径 | 对应提交 |
+| :-: | :--- | :--- | :---: |
+| 1 | **移除独立「预留管理」页** | 删除底栏「预留管理」冰白入口与独立 `/reserved` 页面（原 `booking_reserved_screen.dart`），全部预留操作在卡台大盘与抽屉完成。 | `f64ec337` |
+| 2 | **手机端顶栏集成 + 单行底栏** | 手机视口（`<720dp`）将紧凑版「更多功能」与「账户」上移至顶部 `52px` 日期栏右侧（以细蓝竖线分隔）；底部压缩为单行 `52px` 状态图例 + 抵达数 + 刷新按钮，省出一整行纵向空间给 2 列卡台网格。 | `f64ec337` |
+| 3 | **修改密码触屏数字键盘 & 退出二次确认** | 预订端账户菜单严格保持 2 项（修改密码 / 退出登录）；修改密码弹窗内置可切换触屏虚拟数字键盘（`_TouchNumericKeypad`）；退出登录弹出 `"是否退出登录？"` 二次确认框。 | `f64ec337` |
+| 4 | **底部图例选中高亮 + 动态已结计数** | 选中某状态图例时，激活项增加青蓝描边、浅蓝高亮底与底部 `#32B9FF` 指示条，其余非激活状态自动降暗（`opacity: 0.45`）；各状态计数（含 `已结 7`）实时随区域/状态联动。 | `6f7326f5` |
+| 5 | **居中高对比 `showBookingToast`** | 全局提示由边缘条升级为可视区居中浮层（`border-radius: 12px`，`1.5px` 语义高亮边框，自动避让已弹出的软键盘）。 | `6f7326f5` |
+| 6 | **树形部门筛选 & 避让软键盘搜索选择器** | 开台记录/部门报表采用层级缩进树形部门选择弹窗；订位人/员工搜索选择器按 `viewInsets.bottom` 动态计算弹窗高度并提供一键「收起键盘」按钮，防止平板/手机软键盘遮挡列表。 | `6f7326f5` |
+| 7 | **转台记录手机端全宽卡片布局** | `SeatChangeLogScreen`（转台记录）桌面/平板采用 3 列宽表（`序号 / 开台时间 / 转台记录`），手机端自动切换为全宽卡片列表（`#N` 蓝徽章 + 开台时间头 + 青蓝圆点多步转台明细），彻底消除窄屏列挤压。 | `a8f82629` |
