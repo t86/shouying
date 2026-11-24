@@ -616,7 +616,7 @@
       <div class="cmp-kpis">
         <span class="cmp-kpi">7 列标准状态流</span>
         <span class="cmp-kpi amber">状态 6 = 玫红语义 + 2px 琥珀粗边 + 右上角标 + 部分结标签 + 高亮未付</span>
-        <span class="cmp-kpi mint">7 套新皮肤全量通过 WCAG 2.1 AA (≥ 4.5:1)</span>
+        <span class="cmp-kpi mint">★ 含默认午夜深蓝（Phase 5 提前修正）全部 8 套皮肤卡台 7 态均达 WCAG 2.1 AA (≥ 4.5:1)</span>
       </div>
     </div>
 
@@ -815,6 +815,12 @@
     const groupBadge = s.group === 'core'
       ? `<span class="skin-pill core">首发核心 · 本期开发</span>`
       : `<span class="skin-pill">拓展风格 · 仅作选型参考</span>`;
+    const p5Notice = s.id === 'midnightBlue'
+      ? `<div style="padding:7px 14px;background:rgba(56,189,248,0.12);border-bottom:1px solid rgba(56,189,248,0.3);font-size:12px;color:#E0F2FE;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+           <span><strong>★ Phase 5 提前修正方案（默认皮肤卡台文字 AA）：</strong>为解决默认午夜深蓝开台/预订/点单卡 12px 姓名·电话·时间对比度不足（原最低 2.63:1），已提前将锁定(#6C5B28)、预订(#007379)、开台(#9E5606)、点单/部分结(#B02345)卡底加深并提亮次字至 94% 透明白，全 7 态卡内文字实测 ≥ 4.95:1（过 WCAG AA），随 Phase 5 同步上线。</span>
+           <span style="background:rgba(16,185,129,0.22);color:#6EE7B7;border:1px solid rgba(16,185,129,0.45);border-radius:999px;padding:2px 9px;font-weight:800;white-space:nowrap">Phase 5 提前 AA 达标</span>
+         </div>`
+      : '';
     return `
       <div class="skin-row skin-scope" data-skin="${s.id}" id="row-${s.id}">
         <div class="skin-row-hd">
@@ -843,6 +849,7 @@
             </div>
           </div>
         </div>
+        ${p5Notice}
         <div class="skin-cards-grid">
           ${STATES.map((d) => {
             const isFocus = [5, 6, 7].includes(d.st);
@@ -862,7 +869,7 @@
     let html = `
       <div class="scope-divider">
         <span>★ 首发 3 套核心皮肤（本期开发范围）</span>
-        <small>午夜深蓝（1:1 实色基线） · 曜石暗黑（炭黑左条无发光） · 晴空灰蓝（加深浅彩底 + 6px 顶带）</small>
+        <small>午夜深蓝（实色满铺 · Phase 5 提前卡台 AA 修正：锁定 #6C5B28 / 预订 #007379 / 开台 #9E5606 / 点单 #B02345，次字 94% 透明白） · 曜石暗黑（炭黑左条无发光） · 晴空灰蓝（加深浅彩底 + 6px 顶带）</small>
       </div>
       ${coreSkins.map(renderSkinRowHtml).join('')}
     `;
@@ -1043,9 +1050,11 @@
         contrastRatio(amtFgRgb, amtBgRgb),
       ];
       const minCr = Math.min(...ratios);
-      const isBaseline = recipeSkinId === 'midnightBlue';
+      const isMidnight = recipeSkinId === 'midnightBlue';
       const badgeCls = minCr >= 4.5 ? 'aa-pass' : 'aa-base';
-      const badgeTxt = minCr >= 4.5 ? `✓ AA ${minCr.toFixed(2)}:1` : (isBaseline ? `基线 ${minCr.toFixed(2)}:1` : `⚠ ${minCr.toFixed(2)}:1`);
+      const badgeTxt = minCr >= 4.5
+        ? (isMidnight ? `✓ P5 AA ${minCr.toFixed(2)}:1` : `✓ AA ${minCr.toFixed(2)}:1`)
+        : `⚠ ${minCr.toFixed(2)}:1`;
 
       const fillDisplay = fillRaw.startsWith('linear-gradient') ? `渐变(${rgbToHex(fillRgb)})` : rgbToHex(fillRgb);
       const fgHex = rgbToHex(fgRgb);

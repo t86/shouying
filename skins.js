@@ -13,10 +13,10 @@
       isLight: false,
       name: '午夜深蓝',
       shortLabel: '🌙 午夜深蓝',
-      modeTag: '深色 · 默认',
-      cardStyleTag: '经典实色满铺 · 发光边',
+      modeTag: '深色 · 默认 · Phase 5 卡台 AA',
+      cardStyleTag: '经典实色满铺 · 发光边 · 卡台全 7 态 AA',
       dot: '#202C4A',
-      desc: '原 Shouyin 夜场深蓝 1:1 基线，实色状态满铺配白字与顶缘高光，酒吧主吧台老员工零切换成本。',
+      desc: '原 Shouyin 夜场深蓝实色满铺配白字与顶缘高光；已提前应用 Phase 5 卡台 AA 修正（加深开台/预订/点单/锁定卡底并提亮 12px 次字至 ≥4.5:1），老员工零切换成本且小字清晰可读。',
       thumb: {
         canvas: '#202C4A',
         header: '#222D47',
@@ -25,12 +25,12 @@
         text: '#FFFFFF',
         style: 'solid',
         cards: [
-          { id: 'V01', fill: '#008F95', accent: '#008F95', bd: 'rgba(255,255,255,0.28)', fg: '#FFFFFF', chip: 'rgba(8,12,26,0.4)' },
-          { id: 'A08', fill: '#D08322', accent: '#D08322', bd: 'rgba(255,255,255,0.28)', fg: '#FFFFFF', chip: 'rgba(8,12,26,0.4)' },
-          { id: 'A12', fill: '#C83758', accent: '#C83758', bd: '#FFAD45', fg: '#FFFFFF', chip: '#FFBD00', partial: true },
+          { id: 'V01', fill: '#007379', accent: '#007379', bd: 'rgba(255,255,255,0.28)', fg: '#FFFFFF', chip: 'rgba(8,12,26,0.48)' },
+          { id: 'A08', fill: '#9E5606', accent: '#9E5606', bd: 'rgba(255,255,255,0.28)', fg: '#FFFFFF', chip: 'rgba(8,12,26,0.48)' },
+          { id: 'A12', fill: '#B02345', accent: '#B02345', bd: '#FFAD45', fg: '#FFFFFF', chip: '#FFBD00', partial: true },
         ],
       },
-      swatches: ['#202C4A', '#455EFF', '#008F95', '#D08322', '#C83758', '#5C3BC1'],
+      swatches: ['#202C4A', '#455EFF', '#007379', '#9E5606', '#B02345', '#5C3BC1'],
       tokens: [
         ['主画布', '#202C4A'],
         ['顶栏', '#222D47'],
@@ -38,18 +38,18 @@
         ['主按钮', '#455EFF'],
         ['微光描边', '#32B9FF'],
         ['空台(1)', '#465675'],
-        ['锁定(2)', '#7D6A33'],
-        ['预订(8)', '#008F95'],
-        ['开台(4)', '#D08322'],
-        ['点单(5)', '#C83758'],
+        ['锁定(2·P5AA)', '#6C5B28'],
+        ['预订(8·P5AA)', '#007379'],
+        ['开台(4·P5AA)', '#9E5606'],
+        ['点单(5·P5AA)', '#B02345'],
         ['部分结(6)', '#FFAD45'],
         ['已结(7)', '#5C3BC1'],
         ['金额绿', '#1EDAAD'],
       ],
       recipeSummary: {
-        fillStyle: '实色满铺（1:1 原色）',
+        fillStyle: '实色满铺（Phase 5 提前 AA 修正：锁定/预订/开台/点单加深）',
         accentStyle: '整卡实色 + 顶缘高光',
-        textStyle: '纯白 #FFFFFF',
+        textStyle: '纯白 #FFFFFF + 次字 94% 透明白（全态 ≥ 5.11:1）',
         partialStyle: '玫红底 + 2px 琥珀粗边 + 角标 + 亮黄部分结标',
       },
     },
@@ -693,6 +693,25 @@
     if (overlay) overlay.classList.remove('open');
   }
 
+  function updateOneScrollFade(wrap) {
+    const scroller = wrap.querySelector('[data-scroll-inner]') || wrap.firstElementChild;
+    if (!scroller) return;
+    const hasMore = scroller.scrollWidth > scroller.clientWidth + 3 &&
+      (scroller.scrollLeft + scroller.clientWidth) < (scroller.scrollWidth - 3);
+    wrap.classList.toggle('has-more', hasMore);
+  }
+
+  function refreshScrollFades() {
+    document.querySelectorAll('.scroll-fade-wrap').forEach((wrap) => {
+      const scroller = wrap.querySelector('[data-scroll-inner]') || wrap.firstElementChild;
+      if (scroller && !scroller.dataset.fadeBound) {
+        scroller.dataset.fadeBound = '1';
+        scroller.addEventListener('scroll', () => updateOneScrollFade(wrap), { passive: true });
+      }
+      updateOneScrollFade(wrap);
+    });
+  }
+
   window.ShouyinSkin = {
     skins: SKINS,
     coreSkins: CORE_SKINS,
@@ -705,6 +724,7 @@
     setReducedMotion: (flag) => applyReducedMotion(flag),
     toggleReducedMotion: () => applyReducedMotion(!reducedMotion),
     flashStateChange,
+    refreshScrollFades,
     openPicker,
     closePicker,
     renderThumbHtml,
@@ -729,6 +749,9 @@
     injectPickerOverlay();
     applySkin(currentSkin, { silent: true });
     applyReducedMotion(reducedMotion, { persist: false, silent: true });
+    setTimeout(refreshScrollFades, 120);
+    window.addEventListener('resize', () => setTimeout(refreshScrollFades, 80));
+    document.addEventListener('click', () => setTimeout(refreshScrollFades, 180));
   }
 
   if (document.readyState === 'loading') {

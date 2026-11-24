@@ -186,7 +186,7 @@
   .ord-input::placeholder { color: var(--ord-muted); }
 
   .btn {
-    border: none; border-radius: 9px; padding: 0 12px; height: 34px; font-size: 12.5px;
+    border: none; border-radius: 9px; padding: 0 13px; min-height: 36px; height: auto; font-size: 13px;
     font-weight: 700; color: #fff; cursor: pointer; display: inline-flex; align-items: center;
     justify-content: center; gap: 5px; white-space: nowrap; transition: filter .12s, transform .08s;
   }
@@ -205,15 +205,49 @@
   .btn-chip {
     background: var(--ord-chip); border: 1px solid var(--ord-border-strong); color: var(--ord-ink);
   }
-  .btn-sm { height: 29px; padding: 0 10px; font-size: 12px; border-radius: 7px; }
-  .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 6px; }
-  .btn-lg-touch { height: 40px; padding: 0 14px; font-size: 13px; border-radius: 10px; }
+  .btn-sm { min-height: 34px; padding: 0 11px; font-size: 12.5px; border-radius: 8px; }
+  .btn-xs { min-height: 32px; padding: 0 10px; font-size: 12px; border-radius: 7px; }
+  .btn-lg-touch { min-height: 42px; padding: 0 15px; font-size: 13.5px; border-radius: 10px; }
 
   .theme-pill-inapp {
-    height: 32px; padding: 0 10px; border-radius: 16px; cursor: pointer;
+    min-height: 34px; padding: 0 11px; border-radius: 17px; cursor: pointer;
     background: var(--ord-chip); border: 1px solid var(--ord-border-strong); color: var(--ord-ink);
-    font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0;
   }
+
+  /* Tablet >= 40px & Phone >= 44px ergonomic touch targets across all S2 controls */
+  .device-frame .seg-btn { min-height: 34px; padding: 5px 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .device-frame.tablet .btn,
+  .device-frame.tablet .btn-sm,
+  .device-frame.tablet .btn-xs,
+  .device-frame.tablet .btn-lg-touch,
+  .device-frame.tablet .theme-pill-inapp,
+  .device-frame.tablet .reg-pill,
+  .device-frame.tablet .foot-tab,
+  .device-frame.tablet .seg-btn,
+  .device-frame.tablet .leg-chip,
+  .device-frame.tablet .cat-btn,
+  .device-frame.tablet .wine-card-btn,
+  .device-frame.tablet .pick-chip { min-height: 40px; min-width: 40px; }
+  .device-frame.tablet .step-btn { width: 40px; height: 40px; min-width: 40px; min-height: 40px; font-size: 18px; }
+  .device-frame.tablet .ord-input { height: 40px; }
+  .device-frame.tablet .search-clear { width: 40px; height: 40px; right: 0; }
+
+  .device-frame.phone .btn,
+  .device-frame.phone .btn-sm,
+  .device-frame.phone .btn-xs,
+  .device-frame.phone .btn-lg-touch,
+  .device-frame.phone .theme-pill-inapp,
+  .device-frame.phone .reg-pill,
+  .device-frame.phone .foot-tab,
+  .device-frame.phone .seg-btn,
+  .device-frame.phone .leg-chip,
+  .device-frame.phone .cat-btn,
+  .device-frame.phone .wine-card-btn,
+  .device-frame.phone .pick-chip { min-height: 44px; min-width: 44px; }
+  .device-frame.phone .step-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; font-size: 19px; }
+  .device-frame.phone .ord-input { height: 44px; }
+  .device-frame.phone .search-clear { width: 44px; height: 44px; right: 0; }
 
   /* Centered high-contrast showBookingToast */
   .ord-toast {
@@ -239,8 +273,8 @@
   .reg-strip::-webkit-scrollbar { display: none; }
   .reg-pill {
     border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink-2);
-    border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 700;
-    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    border-radius: 999px; padding: 5px 13px; min-height: 34px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
   }
   .reg-pill.active {
     background: var(--ord-chip-sel); color: var(--ord-on-brand); border-color: var(--ord-chip-sel);
@@ -325,7 +359,7 @@
   .phone .p1-footer { padding: 8px 10px; gap: 7px; }
   .legend-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .leg-chip {
-    display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; min-height: 32px; border-radius: 8px;
     font-size: 12px; font-weight: 700; cursor: pointer; user-select: none;
     background: var(--ord-chip); border: 1.5px solid var(--ord-border); color: var(--ord-ink);
   }
@@ -385,7 +419,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-shrink: 0;
   }
   .prd-grid-scroll { flex: 1; overflow-y: auto; padding: 10px 12px; }
-  .phone .prd-grid-scroll { padding: 8px 10px 76px; }
+  .phone .prd-grid-scroll { padding: 8px 10px 124px; }
   .prd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
   .tablet .prd-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 8px; }
   .phone .prd-grid { grid-template-columns: 1fr; gap: 8px; }
@@ -421,15 +455,15 @@
   .price-now.promo { color: var(--price-promo); }
 
   /* 1-Tap Inline Stepper */
-  .stepper { display: inline-flex; align-items: center; gap: 5px; }
+  .stepper { display: inline-flex; align-items: center; gap: 6px; }
   .step-btn {
-    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--ord-border-strong);
+    width: 34px; height: 34px; min-width: 34px; min-height: 34px; border-radius: 8px; border: 1px solid var(--ord-border-strong);
     background: var(--ord-chip); color: var(--ord-ink); font-size: 16px; font-weight: 900;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
   .step-btn.plus { background: var(--ord-brand); color: var(--ord-on-brand); border-color: var(--ord-brand); }
-  .step-qty { min-width: 22px; text-align: center; font-size: 14px; font-weight: 900; color: var(--ord-ink); }
-  .prd-perm-row { display: flex; gap: 4px; border-top: 1px dashed var(--ord-divider); padding-top: 6px; }
+  .step-qty { min-width: 24px; text-align: center; font-size: 14px; font-weight: 900; color: var(--ord-ink); }
+  .prd-perm-row { display: flex; gap: 6px; border-top: 1px dashed var(--ord-divider); padding-top: 7px; }
 
   /* Desktop / Tablet Right Live Cart Panel (3rd Column) */
   .live-cart-pane {
@@ -455,7 +489,7 @@
 
   /* Phone Sticky Bottom Cart Capsule Bar */
   .phone-sticky-cart {
-    display: none; position: absolute; left: 10px; right: 10px; bottom: 54px; z-index: 30;
+    display: none; position: absolute; left: 10px; right: 10px; bottom: 64px; z-index: 30;
     background: var(--ord-cart-bar); color: #fff; border: 1.5px solid var(--ord-glow);
     border-radius: 999px; padding: 6px 8px 6px 14px;
     box-shadow: 0 10px 28px rgba(0,0,0,0.45);
@@ -469,13 +503,21 @@
     padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
     gap: 8px; flex-shrink: 0; overflow-x: auto;
   }
-  .phone .meal-footbar { padding: 5px 8px; gap: 5px; }
   .foot-tabs { display: flex; align-items: center; gap: 6px; }
   .foot-tab {
     position: relative; border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink);
-    border-radius: 8px; padding: 6px 11px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    border-radius: 8px; padding: 6px 12px; min-height: 36px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .foot-tab.active { background: var(--ord-brand); border-color: var(--ord-brand); color: var(--ord-on-brand); }
+  /* Phone: 5-tab full-width bottom bar with zero horizontal clipping (extras moved to 更多 sheet) */
+  .phone .meal-footbar { padding: 6px; gap: 5px; overflow: hidden; }
+  .phone .meal-footbar .foot-tabs { display: contents; }
+  .phone .meal-footbar .phone-hide-in-more { display: none !important; }
+  .phone .meal-footbar .foot-tab,
+  .phone .meal-footbar .meal-more-btn {
+    flex: 1 1 0; min-width: 0; padding: 4px 4px; font-size: 12px; min-height: 44px;
+  }
   .badge-cnt {
     background: var(--ord-danger-btn, #C81E3A); color: #fff; font-size: 10.5px; font-weight: 900;
     padding: 1px 6px; border-radius: 999px; margin-left: 4px;
@@ -650,13 +692,15 @@
       <!-- ==================== P1: /orderCard ==================== -->
       <section class="screen active" id="screen-p1">
         <div class="p1-top">
-          <div class="reg-strip" id="regStrip">
-            <button class="reg-pill active" data-reg="MINE">我的卡台 (5)</button>
-            <button class="reg-pill opened-fast" data-reg="OPENED">⚡ 已开台 (6)</button>
-            <button class="reg-pill" data-reg="ALL">全部 (9)</button>
-            <button class="reg-pill" data-reg="VIP">VIP 包厢</button>
-            <button class="reg-pill" data-reg="HALL">大厅卡座</button>
-            <button class="reg-pill" data-reg="BAR">吧台/散台</button>
+          <div class="scroll-fade-wrap header-fade">
+            <div class="reg-strip" id="regStrip" data-scroll-inner="1">
+              <button class="reg-pill active" data-reg="MINE">我的卡台 (5)</button>
+              <button class="reg-pill opened-fast" data-reg="OPENED">⚡ 已开台 (6)</button>
+              <button class="reg-pill" data-reg="ALL">全部 (9)</button>
+              <button class="reg-pill" data-reg="VIP">VIP 包厢</button>
+              <button class="reg-pill" data-reg="HALL">大厅卡座</button>
+              <button class="reg-pill" data-reg="BAR">吧台/散台</button>
+            </div>
           </div>
           <div class="p1-top-right">
             <div class="search-wrap">
@@ -697,7 +741,7 @@
               <span class="min-pill" id="mealMinPill">点单 · 低消 ¥3,280 / ¥3,000 (109%)</span>
               <button class="btn btn-chip btn-xs" id="waiterBindBtn" onclick="openBindWaiter()">服务员：李四 ✎</button>
               <button class="btn btn-chip btn-xs" id="guestBindBtn" onclick="openBindGuest()">绑定客人手机</button>
-              <button class="theme-pill-inapp" style="height:26px;font-size:11px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
+              <button class="theme-pill-inapp" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
             </div>
             <div class="meal-search-box">
               <input class="ord-input" id="prdSearch" placeholder="🔍 跨全部分类全局搜：中文 / 拼音首字母 / 英文名" />
@@ -705,10 +749,10 @@
             </div>
           </div>
 
-          <!-- Phone Horizontal Categories -->
+          <!-- Phone Horizontal Categories (with right-edge fade cue) -->
           <div class="phone-cats">
-            <div class="cat-hstrip" id="phoneCat1"></div>
-            <div class="cat-hstrip" id="phoneCat2" style="padding-top:0"></div>
+            <div class="scroll-fade-wrap toolbar-fade"><div class="cat-hstrip" id="phoneCat1" data-scroll-inner="1"></div></div>
+            <div class="scroll-fade-wrap toolbar-fade"><div class="cat-hstrip" id="phoneCat2" data-scroll-inner="1" style="padding-top:0"></div></div>
           </div>
 
           <div class="meal-body">
@@ -751,7 +795,7 @@
 
           <!-- Phone Sticky Bottom Cart Capsule -->
           <div class="phone-sticky-cart">
-            <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchPage('p3')">
+            <div style="display:flex;align-items:center;gap:8px;cursor:pointer;min-height:44px;flex:1" onclick="switchPage('p3')">
               <span style="font-size:16px">🛒</span>
               <div>
                 <div style="font-size:13px;font-weight:800" id="phoneCartSummary">共 0 件 · ¥0</div>
@@ -761,19 +805,19 @@
             <button class="btn btn-green btn-sm" style="border-radius:999px;padding:0 14px" onclick="submitCartOrder()">⚡ 立即下单</button>
           </div>
 
-          <!-- Bottom Table Workbench Bar -->
+          <!-- Bottom Table Workbench Bar (Phone: 5 evenly-spaced tabs, zero clipping) -->
           <div class="meal-footbar">
             <div class="foot-tabs">
               <button class="foot-tab" onclick="switchPage('p1')">首页</button>
               <button class="foot-tab active" onclick="switchPage('p2')">点单</button>
               <button class="foot-tab" onclick="switchPage('p3')">购物车<span class="badge-cnt" id="footCartBadge">0</span></button>
               <button class="foot-tab" onclick="switchPage('p4')">我的点单</button>
-              <button class="foot-tab" onclick="switchPage('p5')">🍷 存取酒</button>
+              <button class="foot-tab phone-hide-in-more" onclick="switchPage('p5')">🍷 存取酒</button>
             </div>
             <div class="foot-tabs">
-              <button class="btn btn-danger btn-sm" onclick="openWaiterPayModal()">💳 服务员买单</button>
-              <button class="btn btn-amber btn-sm" onclick="openCouponV2Modal()">🎟 核销卡券 V2</button>
-              <button class="btn btn-chip btn-sm" onclick="openMealMoreModal()">更多 ▴</button>
+              <button class="btn btn-danger btn-sm phone-hide-in-more" onclick="openWaiterPayModal()">💳 服务员买单</button>
+              <button class="btn btn-amber btn-sm phone-hide-in-more" onclick="openCouponV2Modal()">🎟 核销卡券 V2</button>
+              <button class="btn btn-chip btn-sm meal-more-btn" onclick="openMealMoreModal()">更多 ▴</button>
             </div>
           </div>
         </div>
@@ -787,7 +831,7 @@
             <strong style="font-size:15px">套餐选组：轩尼诗 V.S.O.P 尊享畅饮套餐（¥2,680）</strong>
             <span class="ptag ptag-set">数据集 9 + 52 展开</span>
           </div>
-          <button class="theme-pill-inapp" style="height:28px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
+          <button class="theme-pill-inapp" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
         </div>
         <div class="page-scroll" id="setPageBody"></div>
         <div class="p1-footer">
@@ -853,10 +897,11 @@
           <div id="p4ListBody" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
         <div class="p1-footer">
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <button class="btn btn-chip btn-sm" onclick="openYhModal('myorder')">批量优惠 / 优惠2</button>
-            <button class="btn btn-danger-soft btn-sm" onclick="openRefundModal('麦卡伦 12 年双桶', 2)">批量退单</button>
-            <button class="btn btn-chip btn-sm" onclick="openReprintModal()">补打单据 (type 1/2/3)</button>
+            <button class="btn btn-chip btn-sm" onclick="openReprintModal()">🖨 补打单据 (type 1/2/3)</button>
+            <span class="danger-sep" aria-hidden="true"></span>
+            <button class="btn btn-danger-soft btn-sm" onclick="openRefundModal('麦卡伦 12 年双桶', 2)">⚠ 批量退单</button>
           </div>
           <button class="btn btn-danger" onclick="openWaiterPayModal()">💳 勾选未结单 · 去买单</button>
         </div>
@@ -874,7 +919,7 @@
               <button class="seg-btn" id="wTabConf" onclick="switchWineTab('conf')">充公 (Confiscate)</button>
             </div>
           </div>
-          <button class="theme-pill-inapp" style="height:28px" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
+          <button class="theme-pill-inapp" onclick="toggleOrderTheme()" data-theme-pill>☀ 浅色</button>
         </div>
         <div class="page-scroll" id="wineBody"></div>
       </section>
@@ -1511,9 +1556,9 @@
         <div style="display:flex;justify-content:space-between;align-items:center">
           <button class="btn btn-chip btn-xs" onclick="cartRemove(${idx})">删</button>
           <div class="stepper">
-            <button class="step-btn" style="width:24px;height:24px;font-size:14px" onclick="cartStep(${idx},-1)">−</button>
-            <span class="step-qty" style="font-size:12.5px">${c.qty}</span>
-            <button class="step-btn plus" style="width:24px;height:24px;font-size:14px" onclick="cartStep(${idx},1)">+</button>
+            <button class="step-btn" onclick="cartStep(${idx},-1)">−</button>
+            <span class="step-qty" style="font-size:13px">${c.qty}</span>
+            <button class="step-btn plus" onclick="cartStep(${idx},1)">+</button>
           </div>
         </div>
       </div>`;
@@ -1602,9 +1647,9 @@
               ${g.fixed ? `<span class="ptag ptag-set">固定 ×${it.qty}</span>` : (
                 it.stock===0 ? `<span class="ptag ptag-out">估清</span>` : `
                   <div class="stepper">
-                    <button class="step-btn" style="width:26px;height:26px" onclick="stepSetItem(${gi},${ii},-1)">−</button>
+                    <button class="step-btn" onclick="stepSetItem(${gi},${ii},-1)">−</button>
                     <span class="step-qty">${it.qty}</span>
-                    <button class="step-btn plus" style="width:26px;height:26px" onclick="stepSetItem(${gi},${ii},1)">+</button>
+                    <button class="step-btn plus" onclick="stepSetItem(${gi},${ii},1)">+</button>
                   </div>`
               )}
             </div>
@@ -1677,10 +1722,11 @@
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <strong style="font-size:15px;color:${o.badge==='refund'?'var(--ord-danger)':'var(--price-normal)'}">¥${o.price.toLocaleString()}</strong>
           ${o.badge !== 'refund' ? `
-            <button class="btn btn-danger-soft btn-xs" onclick="openRefundModal('${o.name}', ${o.qty})">退单</button>
             <button class="btn btn-chip btn-xs" onclick="openYhModal('myorder')">优惠/赠</button>
             ${o.isSet ? `<button class="btn btn-chip btn-xs" onclick="switchPage('p2set')">改明细</button>` : ''}
-            <button class="btn btn-chip btn-xs" onclick="openReprintModal()">补打</button>
+            <button class="btn btn-chip btn-xs" onclick="openReprintModal()">🖨 补打</button>
+            <span class="danger-sep" aria-hidden="true"></span>
+            <button class="btn btn-chip btn-xs" onclick="openOrderRowMoreModal('${o.name}', ${o.qty})" title="更多操作（含退单，防误触隔离）">⋯ 更多</button>
           ` : ''}
         </div>
       </div>
@@ -2007,13 +2053,30 @@
       `<button class="btn btn-chip" onclick="closeAllModals()">取消</button><button class="btn btn-danger" onclick="closeAllModals();showToast('已安全退出登录', 'warn')">确认退出</button>`);
   }
 
+  function openOrderRowMoreModal(name, qty) {
+    openGeneric(`菜品操作 · ${name} (×${qty})`, `
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();openReprintModal()">🖨 补打出品小票</button>
+          <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();openYhModal('myorder')">🎁 优惠 / 赠饮</button>
+        </div>
+        <div style="border-top:1px dashed var(--ord-divider);padding-top:10px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11.5px;color:var(--ord-muted);font-weight:700">⚠ 危险操作（已与「补打」隔离防误触）</span>
+          <button class="btn btn-danger-soft btn-lg-touch" onclick="closeAllModals();openRefundModal('${name}', ${qty})">⚠ 申请退单：${name}</button>
+        </div>
+      </div>`);
+  }
+
   function openMealMoreModal() {
-    openGeneric('桌内更多操作（共 4 项 · 含模块 71/72 权限门控）', `
+    openGeneric('桌内更多操作（含手机底栏收纳项与模块 71/72 门控）', `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-danger btn-lg-touch" onclick="closeAllModals();openWaiterPayModal()">💳 服务员买单</button>
+        <button class="btn btn-amber btn-lg-touch" onclick="closeAllModals();openCouponV2Modal()">🎟 核销卡券 V2</button>
+        <button class="btn btn-wine btn-lg-touch" onclick="closeAllModals();switchPage('p5')">🍷 存取酒工作台</button>
         <button class="btn btn-brand btn-lg-touch" onclick="openRechargeModal()">💳 会员充值</button>
         <button class="btn btn-yh2 btn-lg-touch" onclick="closeAllModals();showToast('打开滞留金收取（支持 payType=3 小程序 + 扫码枪 + 防死锁）', 'success')">🏦 滞留金收取</button>
-        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('模块 71 校验通过：可办理清台', 'warn')">🧹 清台</button>
         <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('模块 72 校验通过：打开全屏选台转台')">⇄ 转台</button>
+        <button class="btn btn-danger-soft btn-lg-touch" style="grid-column:1/-1" onclick="closeAllModals();showToast('模块 71 校验通过：可办理清台', 'warn')">🧹 清台（高危操作）</button>
       </div>`);
   }
 

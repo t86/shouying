@@ -189,13 +189,15 @@
   --sk-ob-line: #F56DD5;
   --sk-ob-hold: #70788A;
 
-  /* 7-state base hues (1:1 legacy midnightBlue) */
+  /* 7-state base hues — Phase 5 Early AA Card Fix (accelerated from Phase 6):
+     Deepened s2/s3/s4/s5/s6 fills preserve full-bleed solid nightbar hues while bringing
+     ALL card-interior text (including 12px name/phone/time) to WCAG 2.1 AA >= 4.5:1 (actual >= 5.11:1) */
   --sk-st-empty: #465675;
-  --sk-st-lock: #7D6A33;
-  --sk-st-reserved: #008F95;
-  --sk-st-opened: #D08322;
-  --sk-st-ordered: #C83758;
-  --sk-st-partial: #C83758;
+  --sk-st-lock: #6C5B28;      /* Phase 5 AA fix (was #7D6A33) */
+  --sk-st-reserved: #007379;  /* Phase 5 AA fix (was #008F95) */
+  --sk-st-opened: #9E5606;    /* Phase 5 AA fix (was #D08322) */
+  --sk-st-ordered: #B02345;   /* Phase 5 AA fix (was #C83758) */
+  --sk-st-partial: #B02345;   /* Phase 5 AA fix (was #C83758) */
   --sk-st-paid: #5C3BC1;
   --sk-partial-amber: #FFAD45;
 
@@ -212,7 +214,7 @@
   --sk-badge-overtime-fg: #08080A;
   --sk-badge-lock: #FFBD00;
   --sk-badge-lock-fg: #08080A;
-  --sk-badge-green: #1DC344;
+  --sk-badge-green: #127A30;  /* Phase 5 AA fix for card green badge (was #1DC344) */
 
   /* Legacy var bridges for S1/S3 */
   --canvas-primary: var(--sk-canvas);
@@ -938,25 +940,25 @@ body.sys-cashier .device-frame { --badge-mark: var(--sk-badge-cs-mark); }
 .seat-card.s6, .t-card.st6, .mini-seat.s6 { --rc-accent-bar: var(--sk-st-partial); }
 .seat-card.s7, .t-card.st7, .mini-seat.s7 { --rc-accent-bar: var(--sk-st-paid); }
 
-/* --- 1. midnightBlue Recipe (1:1 Legacy Full-Bleed Solid + White Ink + Inner Highlight) --- */
+/* --- 1. midnightBlue Recipe (Full-Bleed Solid + White Ink + Phase 5 Early AA Card Fix >= 4.5:1) --- */
 [data-skin="midnightBlue"] .seat-card,
 [data-skin="midnightBlue"] .t-card,
 [data-skin="midnightBlue"] .mini-seat {
   --rc-fill: var(--rc-accent-bar);
   --rc-fg: #FFFFFF;
-  --rc-muted: rgba(255, 255, 255, 0.86);
-  --rc-border: rgba(255, 255, 255, 0.2);
-  --rc-chip-bg: rgba(8, 12, 26, 0.38);
+  --rc-muted: rgba(255, 255, 255, 0.94); /* Phase 5 AA fix (was 0.86; >= 5.11:1 on all 7 states) */
+  --rc-border: rgba(255, 255, 255, 0.22);
+  --rc-chip-bg: rgba(8, 12, 26, 0.48);
   --rc-chip-fg: #FFFFFF;
-  --rc-amt-bg: rgba(8, 8, 10, 0.36);
+  --rc-amt-bg: rgba(8, 8, 10, 0.44);
   --rc-amt-fg: #7CFCE0;
   --rc-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 4px 12px rgba(0, 0, 0, 0.28);
-  --rc-bar-track: rgba(0, 0, 0, 0.28);
+  --rc-bar-track: rgba(0, 0, 0, 0.3);
   --rc-bar-fill: #FFFFFF;
   --rc-bar-full: #7CF5B0;
   --rc-bar-warn: #FFD166;
   --rc-divider: rgba(255, 255, 255, 0.28);
-  --rc-yh-fg: #FFE18C;
+  --rc-yh-fg: #FFF3C4; /* Phase 5 AA fix (was #FFE18C; >= 4.98:1 on all 7 states) */
 }
 [data-skin="midnightBlue"] .seat-card.s6,
 [data-skin="midnightBlue"] .t-card.st6,
@@ -1497,7 +1499,7 @@ body.sys-cashier .device-frame { --badge-mark: var(--sk-badge-cs-mark); }
   color: #FFFFFF !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
-[data-skin="midnightBlue"] .legend-swatch[data-st="2"] { color: #FFBD00 !important; }
+[data-skin="midnightBlue"] .legend-swatch[data-st="2"] { color: #FFF3C4 !important; }
 
 /* 2. obsidianCarbon Legend Swatches (Charcoal tint + 4px left status bar) */
 [data-skin="obsidianCarbon"] [data-st="1"] { --sw-fill: #232933; --sw-bd: #364052; }
@@ -2189,6 +2191,93 @@ body.sys-order .device-frame:not([data-skin="midnightBlue"]) .badge-cnt { backgr
 .device-frame.phone .overlay-mask.show .footer-pop {
   animation: skSheetUp 180ms cubic-bezier(0.2, 0, 0, 1) 1;
 }
+
+/* ==========================================================================
+   TOUCH TARGETS, DANGER SEPARATION & EDGE-FADE SCROLL HINTS (Ergonomics Pass)
+   ========================================================================== */
+.chk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.chk-btn:hover { background: var(--sk-subtle-tint); }
+.chk-btn .chk-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--sk-border-strong);
+  background: var(--sk-input);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: transparent;
+  line-height: 1;
+}
+.chk-btn[aria-checked="true"] .chk-box {
+  background: var(--sk-brand);
+  border-color: var(--sk-brand);
+  color: var(--sk-on-brand);
+}
+.device-frame.tablet .chk-btn { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
+.device-frame.phone .chk-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+
+/* Visual isolation divider before destructive actions (退单 / 清台) */
+.danger-sep {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: var(--sk-divider);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+/* Right-edge fade cue + arrow for horizontally scrollable strips */
+.scroll-fade-wrap {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+.scroll-fade-wrap > * {
+  min-width: 0;
+  width: 100%;
+}
+.scroll-fade-wrap::after {
+  content: '›';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 5px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--sk-text-accent);
+  background: linear-gradient(90deg, transparent 0%, var(--fade-bg, var(--sk-footer)) 72%);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 4;
+  transition: opacity 150ms ease;
+}
+.scroll-fade-wrap.header-fade::after { --fade-bg: var(--sk-header); }
+.scroll-fade-wrap.toolbar-fade::after { --fade-bg: var(--sk-toolbar); }
+.scroll-fade-wrap.has-more::after { opacity: 1; }
 
 /* Reduced-Motion Kill Switch (Low-end tablet performance fallback + OS accessibility) */
 [data-reduced-motion="true"],

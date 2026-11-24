@@ -124,7 +124,7 @@
   .input-dark::placeholder { color: rgba(255,255,255,0.42); }
 
   .btn {
-    border: none; border-radius: 8px; padding: 0 12px; height: 34px; font-size: 12.5px;
+    border: none; border-radius: 8px; padding: 0 13px; min-height: 38px; height: auto; font-size: 13px;
     font-weight: 700; color: #fff; cursor: pointer; display: inline-flex; align-items: center;
     justify-content: center; gap: 5px; white-space: nowrap; transition: filter .12s, transform .08s;
   }
@@ -138,8 +138,47 @@
   .btn-outline { background: rgba(75,137,255,0.1); border: 1px solid #3C7EFF; color: #90BCFF; }
   .btn-danger { background: rgba(255,47,75,0.18); border: 1px solid rgba(255,47,75,0.6); color: #FF8C9C; }
   .btn-late { background: var(--late-purple); border: 1px solid rgba(209,153,255,0.35); }
-  .btn-sm { height: 27px; padding: 0 9px; font-size: 11.5px; border-radius: 6px; }
-  .btn-xs { height: 24px; padding: 0 7px; font-size: 11px; border-radius: 5px; }
+  .btn-sm { min-height: 34px; padding: 0 11px; font-size: 12.5px; border-radius: 7px; }
+  .btn-xs { min-height: 34px; padding: 0 11px; font-size: 12px; border-radius: 7px; }
+  .btn-inline-edit { min-height: 32px; padding: 0 10px; font-size: 12px; border-radius: 6px; margin-left: 4px; }
+  .btn-pay-sec { min-height: 40px; padding: 0 14px; font-size: 13px; border-radius: 8px; }
+  .btn-pay-scan { min-height: 46px; padding: 0 18px; font-size: 14px; font-weight: 800; border-radius: 10px; }
+  .btn-pay-hero { min-height: 46px; padding: 0 24px; font-size: 15.5px; font-weight: 900; min-width: 178px; border-radius: 10px; }
+
+  /* Tablet >= 40px & Phone >= 44px ergonomic touch targets across all S3 controls */
+  .device-frame.tablet .btn,
+  .device-frame.tablet .btn-sm,
+  .device-frame.tablet .btn-xs,
+  .device-frame.tablet .btn-inline-edit,
+  .device-frame.tablet .btn-pay-sec,
+  .device-frame.tablet .reg-pill,
+  .device-frame.tablet .overtime-pill,
+  .device-frame.tablet .t-tab,
+  .device-frame.tablet .p-tab,
+  .device-frame.tablet .obj-tab,
+  .device-frame.tablet .merchant-chip,
+  .device-frame.tablet .lg-item,
+  .device-frame.tablet .split-btn .split-caret { min-height: 40px; min-width: 40px; }
+  .device-frame.tablet .stepper button { width: 40px; height: 40px; min-width: 40px; min-height: 40px; font-size: 18px; }
+  .device-frame.tablet .input-dark { height: 40px; }
+  .device-frame.tablet .search-clear { width: 40px; height: 40px; right: 0; }
+
+  .device-frame.phone .btn,
+  .device-frame.phone .btn-sm,
+  .device-frame.phone .btn-xs,
+  .device-frame.phone .btn-inline-edit,
+  .device-frame.phone .btn-pay-sec,
+  .device-frame.phone .reg-pill,
+  .device-frame.phone .overtime-pill,
+  .device-frame.phone .t-tab,
+  .device-frame.phone .p-tab,
+  .device-frame.phone .obj-tab,
+  .device-frame.phone .merchant-chip,
+  .device-frame.phone .lg-item,
+  .device-frame.phone .split-btn .split-caret { min-height: 44px; min-width: 44px; }
+  .device-frame.phone .stepper button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; font-size: 19px; }
+  .device-frame.phone .input-dark { height: 44px; }
+  .device-frame.phone .search-clear { width: 44px; height: 44px; right: 0; }
 
   /* ==================== P1: /moneyCard ==================== */
   .top-bar {
@@ -153,26 +192,27 @@
   .region-strip::-webkit-scrollbar { display: none; }
   .reg-pill {
     border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.82); border-radius: 999px; padding: 5px 13px;
+    color: rgba(255,255,255,0.82); border-radius: 999px; padding: 5px 13px; min-height: 34px;
     font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .reg-pill.active {
     background: #fff; color: #14233F; border-color: #fff; font-weight: 800;
   }
   .overtime-pill {
     border: 1px solid rgba(241,255,0,0.65); background: rgba(241,255,0,0.14);
-    color: var(--badge-overtime); border-radius: 999px; padding: 5px 11px;
+    color: var(--badge-overtime); border-radius: 999px; padding: 5px 11px; min-height: 34px;
     font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0;
-    display: inline-flex; align-items: center; gap: 5px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   }
   .overtime-pill.active { background: var(--badge-overtime); color: #08080A; }
   .search-wrap { position: relative; width: 290px; flex-shrink: 0; }
   .phone .search-wrap { width: 100%; }
-  .search-wrap input { width: 100%; padding-right: 30px; }
+  .search-wrap input { width: 100%; padding-right: 34px; }
   .search-clear {
-    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
-    background: rgba(255,255,255,0.16); color: #fff; border: none; width: 20px; height: 20px;
-    border-radius: 50%; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center;
+    position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.16); color: #fff; border: none; width: 32px; height: 32px;
+    border-radius: 50%; font-size: 13px; cursor: pointer; display: none; align-items: center; justify-content: center;
   }
   .search-clear.show { display: inline-flex; }
 
@@ -249,13 +289,20 @@
   .legend-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; }
   .tablet .legend-row { gap: 4px; }
   .tablet .lg-item { padding: 3px 4px; }
-  .tablet .footer-actions { max-width: 53%; }
+  .footer-actions-wrap { flex: 0 1 56%; max-width: 56%; }
+  .tablet .footer-actions-wrap { flex: 0 1 52%; max-width: 52%; }
+  .phone .footer-actions-wrap { flex: none; max-width: 100%; width: 100%; }
   .legend-row::-webkit-scrollbar { display: none; }
   .lg-item {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     padding: 3px 7px; border-radius: 8px; cursor: pointer; border: 1.5px solid transparent;
-    flex-shrink: 0;
+    flex-shrink: 0; min-height: 36px;
   }
+  /* Phone: 4x2 grid so all 8 status legends (incl. 已结 & 抵达数) fit 100% with zero clipping */
+  .phone .legend-row {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; overflow: visible;
+  }
+  .phone .lg-item { padding: 3px 2px; min-height: 44px; min-width: 0; }
   .lg-item:hover { background: rgba(255,255,255,0.06); }
   .lg-item.active {
     border-color: var(--glow-border); background: rgba(69,94,255,0.25);
@@ -264,8 +311,14 @@
   .lg-swatch { width: 28px; height: 12px; border-radius: 4px; }
   .lg-lbl { font-size: 11px; color: rgba(255,255,255,0.88); white-space: nowrap; }
 
-  .footer-actions { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; max-width: 56%; }
-  .phone .footer-actions { max-width: 100%; width: 100%; }
+  .footer-actions { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; width: 100%; justify-content: flex-end; }
+  .tablet .footer-actions { justify-content: flex-start; padding-right: 24px; }
+  .phone .footer-actions {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px;
+    overflow: visible; width: 100%; padding-right: 0;
+  }
+  .phone .footer-actions .phone-in-more { display: none !important; }
+  .phone .footer-actions .btn { padding: 0 4px; font-size: 11.5px; min-width: 0; width: 100%; }
   .footer-actions > * { flex-shrink: 0; }
   .footer-actions::-webkit-scrollbar { display: none; }
   .merchant-chip {
@@ -299,8 +352,8 @@
   .turnover-tabs { display: flex; gap: 5px; align-items: center; }
   .t-tab {
     border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.75); border-radius: 7px; padding: 4px 10px; font-size: 12px;
-    font-weight: 700; cursor: pointer;
+    color: rgba(255,255,255,0.75); border-radius: 7px; padding: 6px 12px; min-height: 36px; font-size: 12.5px;
+    font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
   .t-tab.active { background: var(--brand-primary); color: #fff; border-color: var(--glow-border); }
 
@@ -310,15 +363,15 @@
     box-shadow: 0 0 12px rgba(26,137,255,0.45); border-radius: 10px; overflow: hidden;
   }
   .pay-tab-bar {
-    background: var(--surface-tbl-hd); padding: 7px 12px;
+    background: var(--surface-tbl-hd); padding: 9px 14px;
     display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
-  .pay-tabs { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pay-tabs { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
   .p-tab {
     border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.75); border-radius: 7px; padding: 5px 12px; font-size: 12.5px;
-    font-weight: 700; cursor: pointer;
+    color: rgba(255,255,255,0.75); border-radius: 8px; padding: 6px 14px; min-height: 36px; font-size: 13px;
+    font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
   .p-tab.active { background: var(--brand-primary); color: #fff; border-color: #7FA7FF; }
   .p-tab.all-tab { border-color: rgba(30,218,173,0.5); color: var(--mint-amt); }
@@ -337,32 +390,33 @@
   }
 
   .order-table-wrap { flex: 1; min-height: 0; overflow: auto; }
-  table.otbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.otbl { width: 100%; border-collapse: collapse; font-size: 14px; }
   table.otbl thead th {
     position: sticky; top: 0; z-index: 2; background: var(--surface-tbl-hd);
-    color: var(--text-ice); font-weight: 700; text-align: left; padding: 8px 8px;
+    color: var(--text-ice); font-weight: 700; text-align: left; padding: 12px 11px; font-size: 13px;
     border-bottom: 1px solid rgba(255,255,255,0.12); white-space: nowrap;
   }
-  table.otbl tbody tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+  table.otbl tbody tr { border-bottom: 1px solid rgba(255,255,255,0.08); }
   table.otbl tbody tr:nth-child(even) { background: rgba(255,255,255,0.025); }
   table.otbl tbody tr.online-row { background: rgba(255,47,100,0.11); border-bottom-color: rgba(237,127,155,0.35); }
   table.otbl tbody tr.refunded-row { opacity: 0.48; }
-  table.otbl tbody td { padding: 7px 8px; vertical-align: middle; }
+  table.otbl tbody td { padding: 15px 11px; vertical-align: middle; line-height: 1.35; }
+  .tablet table.otbl tbody td { padding: 12px 8px; font-size: 13px; }
   .phone .desktop-table { display: none; }
-  .phone-cards { display: none; padding: 8px; flex-direction: column; gap: 8px; }
+  .phone-cards { display: none; padding: 8px; flex-direction: column; gap: 9px; }
   .phone .phone-cards { display: flex; }
 
   .p-order-card {
-    background: #17213B; border: 1px solid rgba(255,255,255,0.12); border-radius: 9px;
-    padding: 9px 10px; display: flex; flex-direction: column; gap: 6px;
+    background: #17213B; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+    padding: 10px 11px; display: flex; flex-direction: column; gap: 8px;
   }
   .p-order-card.online-row { background: rgba(255,47,100,0.12); border-color: rgba(255,90,130,0.45); }
 
   /* Exact Vue Badges */
   .ob {
     display: inline-flex; align-items: center; justify-content: center;
-    min-width: 21px; height: 21px; padding: 0 5px; border-radius: 5px;
-    font-size: 11px; font-weight: 800; color: #fff; margin-right: 3px;
+    min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px;
+    font-size: 12px; font-weight: 800; color: #fff; margin-right: 4px;
   }
   .ob-paid { background: var(--badge-purple); }
   .ob-back { background: var(--badge-red); }
@@ -371,30 +425,32 @@
   .ob-line { background: var(--badge-pink); }
   .ob-hold { background: #70788A; }
 
-  .stepper { display: inline-flex; align-items: center; gap: 4px; }
+  .stepper { display: inline-flex; align-items: center; gap: 6px; }
   .stepper button {
-    width: 24px; height: 24px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.08); color: #fff; font-weight: 800; cursor: pointer;
+    width: 36px; height: 36px; min-width: 36px; min-height: 36px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08); color: #fff; font-size: 17px; font-weight: 800; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .stepper button:disabled { opacity: 0.3; cursor: not-allowed; }
-  .stepper span { min-width: 22px; text-align: center; font-weight: 700; }
+  .stepper span { min-width: 26px; text-align: center; font-weight: 800; font-size: 15px; }
 
-  /* PayOrder Footer */
+  /* PayOrder Footer — Spacious Primary Checkout Area */
   .pay-footer {
     background: var(--surface-tbl-hd); border-top: 1px solid rgba(50,185,255,0.3);
-    padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; flex-wrap: wrap; flex-shrink: 0;
+    padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; flex-shrink: 0;
   }
-  .pay-summary-grid { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .sum-kv { display: flex; flex-direction: column; font-size: 11px; color: rgba(255,255,255,0.68); }
-  .sum-kv b { font-size: 13.5px; color: #fff; }
+  .phone .pay-footer { padding: 10px; gap: 10px; }
+  .pay-summary-grid { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .sum-kv { display: flex; flex-direction: column; font-size: 11.5px; color: rgba(255,255,255,0.68); }
+  .sum-kv b { font-size: 15px; color: #fff; }
   .due-box {
     background: rgba(30,218,173,0.14); border: 1px solid rgba(30,218,173,0.55);
-    border-radius: 9px; padding: 4px 12px; display: flex; flex-direction: column;
+    border-radius: 10px; padding: 6px 14px; display: flex; flex-direction: column;
   }
-  .due-box span { font-size: 10.5px; color: #9CF5DF; font-weight: 700; }
-  .due-box strong { font-size: 20px; color: var(--mint-amt); line-height: 1.15; }
-  .pay-btn-group { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .due-box span { font-size: 11px; color: #9CF5DF; font-weight: 700; }
+  .due-box strong { font-size: 24px; color: var(--mint-amt); line-height: 1.15; }
+  .pay-btn-group { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 
   /* Split button */
   .split-btn { display: inline-flex; border-radius: 8px; overflow: hidden; }
@@ -402,7 +458,8 @@
   .split-btn .split-caret {
     background: #2C395B; border-left: 1px solid rgba(255,255,255,0.16);
     color: #fff; border-top: none; border-right: none; border-bottom: none;
-    padding: 0 7px; cursor: pointer; font-size: 11px;
+    min-width: 34px; min-height: 40px; padding: 0 9px; cursor: pointer; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
   }
 
   /* ==================== P2+: PayMoneyDrawer ==================== */
@@ -636,12 +693,14 @@
       <!-- ==================== P1: /moneyCard ==================== -->
       <section class="screen active" id="screen-p1">
         <div class="top-bar">
-          <div class="region-strip" id="regionStrip">
-            <button class="reg-pill active" data-reg="ALL">全部</button>
-            <button class="reg-pill" data-reg="VIP">VIP 包厢</button>
-            <button class="reg-pill" data-reg="HALL">大厅卡座</button>
-            <button class="reg-pill" data-reg="BAR">吧台/散台</button>
-            <button class="overtime-pill" id="overtimeBtn" onclick="toggleOvertimeFilter()">⚡ 超时待付 <span id="overtimeCnt">2</span></button>
+          <div class="scroll-fade-wrap header-fade">
+            <div class="region-strip" id="regionStrip" data-scroll-inner="1">
+              <button class="reg-pill active" data-reg="ALL">全部</button>
+              <button class="reg-pill" data-reg="VIP">VIP 包厢</button>
+              <button class="reg-pill" data-reg="HALL">大厅卡座</button>
+              <button class="reg-pill" data-reg="BAR">吧台/散台</button>
+              <button class="overtime-pill" id="overtimeBtn" onclick="toggleOvertimeFilter()">⚡ 超时待付 <span id="overtimeCnt">2</span></button>
+            </div>
           </div>
           <div class="search-wrap">
             <input class="input-dark" id="cardSearch" placeholder="搜台号 / 客人 / 手机 / 订位人 / 部门 (回车直进)" />
@@ -655,17 +714,19 @@
 
         <div class="footer-bar">
           <div class="legend-row" id="legendRow"></div>
-          <div class="footer-actions" id="footerActions">
-            <button class="btn btn-primary btn-sm" id="vipEntryBtn" onclick="showToast('进入会员系统 (/vipManager)')">💳 会员系统</button>
-            <div class="merchant-chip" id="merchantAmtBtn" onclick="switchPage('p3')" title="点击查看每小时收款与一键切换商户号">
-              <span>商户A 12.8万 (G 4.2)</span>
-              <span>商户B 6.4万 (G 1.5)</span>
+          <div class="scroll-fade-wrap footer-actions-wrap">
+            <div class="footer-actions" id="footerActions" data-scroll-inner="1">
+              <button class="btn btn-primary btn-sm phone-in-more" id="vipEntryBtn" onclick="showToast('进入会员系统 (/vipManager)')">💳 会员系统</button>
+              <div class="merchant-chip phone-in-more" id="merchantAmtBtn" onclick="switchPage('p3')" title="点击查看每小时收款与一键切换商户号">
+                <span>商户A 12.8万 (G 4.2)</span>
+                <span>商户B 6.4万 (G 1.5)</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="switchPage('p3')">⚠ 异议单 <span class="badge-dot">2</span></button>
+              <button class="btn btn-late btn-sm" onclick="switchPage('p3')">🏦 滞留金</button>
+              <button class="btn btn-outline btn-sm" id="moreMenuBtn" onclick="openMore38()">⊞ 更多 (38)</button>
+              <button class="btn btn-secondary btn-sm" data-skin-pill onclick="ShouyinSkin.openPicker()">🌙 午夜深蓝 ▾</button>
+              <button class="btn btn-secondary btn-sm phone-in-more" onclick="openAccountMenu()">👤 王收银 ▾</button>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="switchPage('p3')">⚠ 异议单 <span class="badge-dot">2</span></button>
-            <button class="btn btn-late btn-sm" onclick="switchPage('p3')">🏦 滞留金</button>
-            <button class="btn btn-outline btn-sm" id="moreMenuBtn" onclick="openMore38()">⊞ 更多功能 (38)</button>
-            <button class="btn btn-secondary btn-sm" data-skin-pill onclick="ShouyinSkin.openPicker()">🌙 午夜深蓝 ▾</button>
-            <button class="btn btn-secondary btn-sm" onclick="openAccountMenu()">👤 王收银 ▾</button>
           </div>
         </div>
       </section>
@@ -680,7 +741,8 @@
               <span class="pay-seat-title" id="poSeatName">V02</span>
               <span class="meta-pill">订位：<b>林经理 / 营销一部</b></span>
               <span class="meta-pill">低消：<b>¥3,000</b> (86%)</span>
-              <span class="meta-pill">客人：陈先生 (138****8821) · 服务员：小周 <a href="javascript:void(0)" style="color:var(--sk-outline-text);margin-left:4px" onclick="showToast('弹窗修改本台服务员 (/sel/chg_csm_waiter)')">改</a></span>
+              <span class="meta-pill">客人：陈先生 (138****8821) · 服务员：小周</span>
+              <button type="button" class="btn btn-outline btn-inline-edit" onclick="showToast('弹窗修改本台服务员 (/sel/chg_csm_waiter)')">✎ 改服务员</button>
               <span class="meta-pill" id="poSettleTag">买单：<b id="poSettleVal">后买单</b></span>
             </div>
             <div class="turnover-tabs">
@@ -698,13 +760,14 @@
                 <button class="p-tab" data-potab="paid1" onclick="setPoTab('paid1')">第1次结账 (¥1,200)</button>
                 <button class="p-tab all-tab" data-potab="all" onclick="setPoTab('all')">全部消费</button>
               </div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap" id="poQuickTools">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap" id="poQuickTools">
                 <button class="btn btn-secondary btn-xs" onclick="toggleSettleMode()">切换先/后买单</button>
                 <button class="btn btn-secondary btn-xs" onclick="showToast('批量修改下单人（未结/已结均可直接操作，免切Tab）')">批量改服务员</button>
                 <button class="btn btn-secondary btn-xs" onclick="showToast('批量修改特饮授权人（仅在职员工）')">批量改授权人</button>
                 <button class="btn btn-late btn-xs" onclick="switchPage('p3')">滞留金管理</button>
                 <button class="btn btn-outline btn-xs" onclick="showToast('跳转本台点单页 (/orderMeal)')">＋ 去点单</button>
-                <button class="btn btn-danger btn-xs" onclick="showToast('确认清台？(/sel/seat_clean)')">清台</button>
+                <span class="danger-sep" aria-hidden="true"></span>
+                <button class="btn btn-danger btn-xs" onclick="showToast('确认清台？(/sel/seat_clean)')">🧹 清台</button>
               </div>
             </div>
 
@@ -1067,7 +1130,7 @@
     { title:'🍸 鸡尾酒与专项报表', items:['鸡尾酒明细表','鸡尾酒汇总表','非鸡尾酒类补交报表','现抽明细表','现抽汇总表','商品卡台销售表','套餐统计表'] },
     { title:'📦 库存、挂账、预订金与商户', items:['估清商品','商品出库表','盘盈盘亏','挂账账户','挂账还款记录表','预订金流水表','预订金余额表','商户号管理'] },
   ];
-  const PINNED_MORE = ['班结表','订单查询','支付记录','查询优惠额度','估清商品','商户号管理'];
+  const PINNED_MORE = ['💳 会员系统','商户号管理','👤 账号/班次','班结表','订单查询','支付记录','查询优惠额度','估清商品'];
 
   function showToast(msg) {
     const t = document.getElementById('toastBox');
@@ -1243,78 +1306,86 @@
     document.getElementById('cartTargetTxt').textContent = '¥' + due.toLocaleString('zh-CN', {minimumFractionDigits:2});
     document.getElementById('scanDueTxt').textContent = '¥' + due.toLocaleString('zh-CN', {minimumFractionDigits:2});
 
-    // Desktop table
+    // Desktop table (Accessible touch checkboxes + spacious rows + danger-isolated row menu)
+    const allUnpaidChecked = UNPAID_ITEMS.filter(x=>!x.online).every(x=>x.checked);
     document.getElementById('poThead').innerHTML = isUnpaid
-      ? `<tr><th><input type="checkbox" ${UNPAID_ITEMS.filter(x=>!x.online).every(x=>x.checked)?'checked':''} onchange="toggleAllUnpaid(this.checked)" /> 全选</th><th>状态</th><th>商品名称</th><th>本次结数</th><th>待结</th><th>单价</th><th>小计</th><th>服务员/授权人</th><th>快捷操作 (1点直达)</th></tr>`
+      ? `<tr><th><div style="display:inline-flex;align-items:center;gap:4px"><button type="button" role="checkbox" aria-checked="${allUnpaidChecked}" aria-label="全选" class="chk-btn" onclick="toggleAllUnpaid(${!allUnpaidChecked})"><span class="chk-box">${allUnpaidChecked?'✓':''}</span></button><span>全选</span></div></th><th>状态</th><th>商品名称</th><th>本次结数</th><th>待结</th><th>单价</th><th>小计</th><th>服务员/授权人</th><th>快捷操作（退单已隔离至更多）</th></tr>`
       : `<tr><th>状态</th><th>商品名称</th><th>数量</th><th>单价</th><th>小计</th><th>服务员</th><th>优惠/授权人</th><th>点单时间</th><th>操作</th></tr>`;
 
     document.getElementById('poTbody').innerHTML = rows.map(r => {
       const qty = isUnpaid ? r.qty : r.pc;
       const sub = (r.at===2||r.at===3) ? 0 : (qty===r.pc ? r.pa : r.p2 * qty);
-      const priceHtml = r.p2 !== r.pp && r.at !== 2 ? `<del style="color:var(--sk-text-muted);font-size:11px">¥${r.pp}</del> <b>¥${r.p2}</b>` : `¥${r.pp}`;
+      const priceHtml = r.p2 !== r.pp && r.at !== 2 ? `<del style="color:var(--sk-text-muted);font-size:12px">¥${r.pp}</del> <b>¥${r.p2}</b>` : `¥${r.pp}`;
       if (isUnpaid) {
         return `<tr class="${r.online?'online-row':''}">
-          <td><input type="checkbox" ${r.checked?'checked':''} onchange="toggleItem('${r.id}')" /></td>
+          <td><button type="button" role="checkbox" aria-checked="${r.checked}" aria-label="勾选 ${r.name}" class="chk-btn" onclick="toggleItem('${r.id}')"><span class="chk-box">${r.checked?'✓':''}</span></button></td>
           <td>${badgesHtml(r.badges)}</td>
-          <td><b>${r.name}</b>${r.pkg?`<div style="font-size:11px;color:var(--text-ice)">↳ ${r.pkgDetail}</div>`:''}</td>
+          <td><b style="font-size:15px">${r.name}</b>${r.pkg?`<div style="font-size:12px;color:var(--text-ice);margin-top:2px">↳ ${r.pkgDetail}</div>`:''}</td>
           <td>
             <div class="stepper">
-              <button ${r.online||r.at===2||r.qty<=1?'disabled':''} onclick="chgQty('${r.id}',-1)">-</button>
+              <button ${r.online||r.at===2||r.qty<=1?'disabled':''} onclick="chgQty('${r.id}',-1)">−</button>
               <span>${r.qty}</span>
               <button ${r.online||r.at===2||r.qty>=r.pc?'disabled':''} onclick="chgQty('${r.id}',1)">+</button>
             </div>
           </td>
-          <td>${r.pc}</td>
+          <td><b>${r.pc}</b></td>
           <td>${priceHtml}</td>
-          <td style="color:var(--mint-amt);font-weight:700">¥${sub.toLocaleString()}</td>
+          <td style="color:var(--mint-amt);font-weight:800;font-size:15.5px">¥${sub.toLocaleString()}</td>
           <td>${r.waiter}${r.auther?` / <span style="color:var(--warning-amber)">${r.auther}</span>`:''}</td>
           <td>
-            <div style="display:flex;gap:4px">
-              ${r.online ? `<button class="btn btn-primary btn-xs" onclick="showToast('线上单立即出品 (/sel/ol_order_do_cp)')">立即出品</button>` : ''}
-              ${r.pkg ? `<button class="btn btn-outline btn-xs" onclick="showToast('更改套餐明细 (/sel/chg_prd_set_dtl)')">改套餐</button>` : ''}
-              <button class="btn btn-danger btn-xs" onclick="showToast('退单：${r.name} (/wo/back)')">退单</button>
-              <button class="btn btn-secondary btn-xs" onclick="showToast('补打出品小票 (/wo/reprt_cp)')">补打</button>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              ${r.online ? `<button class="btn btn-primary btn-sm" onclick="showToast('线上单立即出品 (/sel/ol_order_do_cp)')">⚡ 立即出品</button>` : ''}
+              ${r.pkg ? `<button class="btn btn-outline btn-sm" onclick="showToast('更改套餐明细 (/sel/chg_prd_set_dtl)')">改套餐</button>` : ''}
+              <button class="btn btn-secondary btn-sm" onclick="showToast('补打出品小票 (/wo/reprt_cp)')">🖨 补打</button>
+              <span class="danger-sep" aria-hidden="true"></span>
+              <button class="btn btn-outline btn-sm" onclick="openRowMoreMenu('${r.id}', true)" title="更多操作（含退单，与补打隔离防误触）">⋯ 更多</button>
             </div>
           </td>
         </tr>`;
       }
       return `<tr class="${r.online?'online-row':''}">
         <td>${badgesHtml(r.badges)}</td>
-        <td><b>${r.name}</b></td>
-        <td>${r.pc}</td>
+        <td><b style="font-size:15px">${r.name}</b></td>
+        <td><b>${r.pc}</b></td>
         <td>${priceHtml}</td>
-        <td style="color:var(--mint-amt);font-weight:700">¥${sub.toLocaleString()}</td>
+        <td style="color:var(--mint-amt);font-weight:800;font-size:15.5px">¥${sub.toLocaleString()}</td>
         <td>${r.waiter}</td>
         <td>${r.auther || '-'}</td>
         <td>${r.time}</td>
         <td>
-          <div style="display:flex;gap:4px">
-            <button class="btn btn-secondary btn-xs" onclick="showToast('补打出品小票')">补打</button>
-            ${r.at===2?`<button class="btn btn-danger btn-xs" onclick="showToast('取消优惠 (/sel/cancel_yh)')">取消惠</button>`:''}
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="showToast('补打出品小票')">🖨 补打</button>
+            ${r.at===2?`<span class="danger-sep" aria-hidden="true"></span><button class="btn btn-outline btn-sm" onclick="openRowMoreMenu('${r.id}', false)" title="更多操作（含取消优惠）">⋯ 更多</button>`:''}
           </div>
         </td>
       </tr>`;
     }).join('');
 
-    // Phone stacked cards
+    // Phone stacked cards (44px touch targets + isolated 更多/退单 action)
     document.getElementById('poPhoneCards').innerHTML = rows.map(r => {
       const qty = isUnpaid ? r.qty : r.pc;
       const sub = (r.at===2||r.at===3) ? 0 : (qty===r.pc ? r.pa : r.p2 * qty);
       return `<div class="p-order-card ${r.online?'online-row':''}">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
-          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px">
-            ${isUnpaid ? `<input type="checkbox" ${r.checked?'checked':''} onchange="toggleItem('${r.id}')" />` : ''}
-            ${badgesHtml(r.badges)} ${r.name}
-          </label>
-          <strong style="color:var(--mint-amt);font-size:14px">¥${sub.toLocaleString()}</strong>
+          <div style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:13.5px;min-width:0">
+            ${isUnpaid ? `<button type="button" role="checkbox" aria-checked="${r.checked}" aria-label="勾选 ${r.name}" class="chk-btn" onclick="toggleItem('${r.id}')"><span class="chk-box">${r.checked?'✓':''}</span></button>` : ''}
+            ${badgesHtml(r.badges)} <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</span>
+          </div>
+          <strong style="color:var(--mint-amt);font-size:15px;flex-shrink:0">¥${sub.toLocaleString()}</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--sk-text-secondary)">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sk-text-secondary);gap:8px;flex-wrap:wrap">
           <span>${r.waiter}${r.auther?' · 授:'+r.auther:''} · ${r.time}</span>
           ${isUnpaid ? `<div class="stepper">
-            <button ${r.online||r.at===2||r.qty<=1?'disabled':''} onclick="chgQty('${r.id}',-1)">-</button>
+            <button ${r.online||r.at===2||r.qty<=1?'disabled':''} onclick="chgQty('${r.id}',-1)">−</button>
             <span>${r.qty}/${r.pc}</span>
             <button ${r.online||r.at===2||r.qty>=r.pc?'disabled':''} onclick="chgQty('${r.id}',1)">+</button>
           </div>` : `<span>×${r.pc}</span>`}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;border-top:1px dashed var(--sk-divider);padding-top:6px">
+          ${isUnpaid && r.online ? `<button class="btn btn-primary btn-xs" onclick="showToast('线上单立即出品 (/sel/ol_order_do_cp)')">⚡ 出品</button>` : ''}
+          <button class="btn btn-secondary btn-xs" onclick="showToast('补打出品小票 (/wo/reprt_cp)')">🖨 补打</button>
+          <span class="danger-sep" aria-hidden="true"></span>
+          <button class="btn btn-outline btn-xs" onclick="openRowMoreMenu('${r.id}', ${isUnpaid})">⋯ 更多</button>
         </div>
       </div>`;
     }).join('');
@@ -1333,21 +1404,42 @@
            <div class="sum-kv"><span>折扣</span><b>¥0</b></div>
            <div class="sum-kv"><span>主营实收</span><b style="color:var(--mint-amt)">¥1,200</b></div>`;
 
-    // Footer Actions
+    // Footer Actions — Enlarged Desktop/Tablet/Phone Checkout Controls
     document.getElementById('poFooterBtns').innerHTML = isUnpaid
-      ? `<button class="btn btn-secondary btn-sm" onclick="showToast('全屏选台面板转单 (/sel/move_wk_order)')">转单</button>
-         <button class="btn btn-secondary btn-sm" onclick="showToast('线上支付转滞留金 (/sel/conv_ol_pay_to_late)')">转线下</button>
-         <button class="btn btn-secondary btn-sm" onclick="showToast('批量优惠 (/wo/yh_prd)')">批量惠</button>
+      ? `<button class="btn btn-secondary btn-pay-sec" onclick="showToast('全屏选台面板转单 (/sel/move_wk_order)')">转单</button>
+         <button class="btn btn-secondary btn-pay-sec" onclick="showToast('线上支付转滞留金 (/sel/conv_ol_pay_to_late)')">转线下</button>
+         <button class="btn btn-secondary btn-pay-sec" onclick="showToast('批量优惠 (/wo/yh_prd)')">批量惠</button>
          <div class="split-btn">
-           <button class="btn btn-secondary btn-sm" onclick="showToast('1 键直打未结消费单 (${printIncludeCocktail?'含':'不含'}鸡尾酒)')">🖨 打未结单</button>
+           <button class="btn btn-secondary btn-pay-sec" onclick="showToast('1 键直打未结消费单 (${printIncludeCocktail?'含':'不含'}鸡尾酒)')">🖨 打未结单</button>
            <button class="split-caret" onclick="printIncludeCocktail=!printIncludeCocktail;renderPayOrder();showToast('打印偏好已切为：'+(printIncludeCocktail?'包含鸡尾酒':'不包含鸡尾酒'))" title="切换含/不含鸡尾酒">▾</button>
          </div>
-         <button class="btn btn-mint btn-sm" onclick="openScanPayModal()">📷 付款码</button>
-         <button class="btn btn-pink" onclick="openComboFromPo()">⚡ 去收款 ¥${due.toLocaleString()}</button>`
-      : `<button class="btn btn-secondary btn-sm" onclick="showToast('已结整笔转单：全屏选台 (/sel/move_payed_wk_order)')">整笔转单</button>
-         <button class="btn btn-secondary btn-sm" onclick="showToast('1 键打印消费单 (/sel/sy_prt_csm_bill)')">🖨 消费单</button>
-         <button class="btn btn-primary btn-sm" onclick="showToast('打印结算单 (/sel/prt_sel_bill)')">🖨 结算单</button>
-         ${poTab==='paid1' ? `<button class="btn btn-danger btn-sm" onclick="showToast('打开已结退单抽屉 (/sel/pay_order_back)')">已结退单</button>` : ''}`;
+         <button class="btn btn-mint btn-pay-scan" onclick="openScanPayModal()">📷 付款码</button>
+         <button class="btn btn-pink btn-pay-hero" onclick="openComboFromPo()">⚡ 去收款 ¥${due.toLocaleString()}</button>`
+      : `<button class="btn btn-secondary btn-pay-sec" onclick="showToast('已结整笔转单：全屏选台 (/sel/move_payed_wk_order)')">整笔转单</button>
+         <button class="btn btn-secondary btn-pay-sec" onclick="showToast('1 键打印消费单 (/sel/sy_prt_csm_bill)')">🖨 消费单</button>
+         <button class="btn btn-primary btn-pay-scan" onclick="showToast('打印结算单 (/sel/prt_sel_bill)')">🖨 结算单</button>
+         ${poTab==='paid1' ? `<span class="danger-sep" aria-hidden="true"></span><button class="btn btn-danger btn-pay-sec" onclick="showToast('打开已结退单抽屉 (/sel/pay_order_back)')">⚠ 已结退单</button>` : ''}`;
+  }
+
+  function openRowMoreMenu(id, isUnpaid) {
+    const src = isUnpaid ? UNPAID_ITEMS : PAID1_ITEMS;
+    const r = src.find(x => x.id === id) || UNPAID_ITEMS[0];
+    if (!r) return;
+    openCashierModal(`商品操作 · ${r.name}`, `
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12.5px;color:var(--sk-text-secondary)">当前数量：<b>${isUnpaid ? r.qty + '/' + r.pc : r.pc}</b> · 下单人：${r.waiter}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn btn-secondary" onclick="closeOverlays();showToast('补打出品小票 (/wo/reprt_cp)')">🖨 补打出品小票</button>
+          ${isUnpaid && r.pkg ? `<button class="btn btn-outline" onclick="closeOverlays();showToast('更改套餐明细 (/sel/chg_prd_set_dtl)')">📦 更改套餐明细</button>` : `<button class="btn btn-outline" onclick="closeOverlays();showToast('修改本行服务员')">👤 改服务员</button>`}
+        </div>
+        <div style="border-top:1px dashed var(--sk-divider);padding-top:10px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;color:var(--warning-amber);font-weight:700">⚠ 高危操作区（已与「补打」隔离防误触）</div>
+          ${isUnpaid
+            ? `<button class="btn btn-danger" onclick="closeOverlays();showToast('⚠ 发起退单申请：${r.name} (/wo/back)')">⚠ 申请退单：${r.name}</button>`
+            : `<button class="btn btn-danger" onclick="closeOverlays();showToast('⚠ 取消优惠：${r.name} (/sel/cancel_yh)')">⚠ 取消本项优惠</button>`}
+        </div>
+      </div>`,
+      `<button class="btn btn-secondary" onclick="closeOverlays()">关闭</button>`);
   }
 
   function toggleAllUnpaid(v) {
@@ -1643,6 +1735,8 @@
     closeOverlays();
     if (['班结表','订单查询','查询优惠额度'].includes(name)) switchPage('p4');
     else if (name === '商户号管理') switchPage('p3');
+    else if (name === '💳 会员系统') showToast('进入会员系统 (/vipManager)');
+    else if (name === '👤 账号/班次') openAccountMenu();
     else showToast(`打开「${name}」（统一暗色抽屉壳 + 手机卡片适配 + 导出/打印）`);
   }
   function openScanPayModal() {
