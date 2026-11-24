@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23455EFF'/%3E%3Ctext x='16' y='21.5' text-anchor='middle' font-size='15' font-weight='800' fill='%23fff' font-family='sans-serif'%3ES1%3C/text%3E%3C/svg%3E" />
 <title>预订系统（S1）全端视觉还原稿预览 · macOS / Windows / Android平板 / Android手机</title>
 <style>
   :root {
@@ -25,6 +26,7 @@
     --status-reserved: #008F95;
     --status-opened: #D08322;
     --status-ordered: #C83758;
+    --status-partial: #C83758;
     --status-paid: #5C3BC1;
     --brand-primary: #455EFF;
     --brand-primary-light: #4B89FF;
@@ -422,7 +424,7 @@
     border: none;
     border-radius: 6px;
     background: var(--brand-primary);
-    color: #fff;
+    color: var(--sk-on-brand, #fff);
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -453,16 +455,18 @@
     flex-direction: column;
     border: 1px solid rgba(255,255,255,0.18);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.42);
-    transition: transform .12s, box-shadow .12s;
+    transition: transform 100ms ease-out;
     font-variant-numeric: tabular-nums;
   }
-  .seat-card:hover { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 6px 16px rgba(0,0,0,0.35); }
+  .seat-card:hover { transform: translateY(-1px); }
+  .seat-card:active { transform: scale(0.97); }
   .seat-card.s1 { background: var(--status-empty); }
   .seat-card.s2 { background: var(--status-locked); }
   .seat-card.s3, .seat-card.s8 { background: var(--status-reserved); }
   .seat-card.s4 { background: var(--status-opened); }
   .seat-card.s5 { background: var(--status-ordered); }
-  .seat-card.s6, .seat-card.s7 { background: var(--status-paid); }
+  .seat-card.s6 { background: var(--status-partial); }
+  .seat-card.s7 { background: var(--status-paid); }
   .device-frame.phone .seat-card { min-height: 166px; padding: 7px 8px; }
 
   .c-row1 { display: flex; justify-content: space-between; align-items: center; font-size: 12px; gap: 4px; height: 18px; }
@@ -502,10 +506,10 @@
     font-weight: 700;
   }
   .c-name {
-    height: 32px;
-    font-size: 25px;
+    min-height: 30px;
+    font-size: 23px;
     font-weight: 700;
-    line-height: 32px;
+    line-height: 1.2;
     margin: 3px 0 2px;
     display: flex;
     align-items: center;
@@ -513,11 +517,12 @@
     gap: 4px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.18);
   }
-  .c-name.long { font-size: 19px; }
-  .device-frame.phone .c-name { font-size: 21px; height: 28px; line-height: 28px; }
-  .device-frame.phone .c-name.long { font-size: 16px; }
+  .c-name.long { font-size: 17px; }
+  .c-name-right { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .device-frame.phone .c-name { font-size: 20px; min-height: 26px; }
+  .device-frame.phone .c-name.long { font-size: 15px; }
   .c-money-slot {
-    height: 30px;
+    min-height: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -641,7 +646,7 @@
   .legend-swatch {
     width: 38px;
     height: 20px;
-    border-radius: 12px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -698,6 +703,8 @@
     position: absolute;
     inset: 0;
     background: rgba(4, 8, 20, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     display: none;
     z-index: 40;
   }
@@ -847,7 +854,7 @@
     font-size: 12px;
     cursor: pointer;
   }
-  .qt-btn:hover, .qt-btn.active { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); }
+  .qt-btn:hover, .qt-btn.active { background: var(--brand-primary); color: var(--sk-on-brand, #fff); border-color: var(--brand-primary); }
   .staff-wrap { position: relative; }
   .staff-dd {
     position: absolute;
@@ -873,9 +880,9 @@
   .staff-opt:hover { background: rgba(69,94,255,0.28); }
   .field-hint { font-size: 11.5px; color: #7CF5B0; margin-top: 4px; }
   .device-frame.phone .menu-opt {
-    border: 1px solid rgba(50,185,255,0.28);
+    border: 1px solid var(--sk-border, rgba(50,185,255,0.28));
     border-radius: 10px;
-    background: var(--surface-header);
+    background: var(--sk-card, var(--surface-header));
     padding: 11px 12px;
     justify-content: center;
   }
@@ -974,8 +981,9 @@
     justify-content: space-between;
     font-size: 12px;
   }
-  .mini-seat.selected { border-color: var(--select-yellow); box-shadow: 0 0 10px rgba(253,255,95,0.5); }
-  .mini-seat.disabled { opacity: .32; cursor: not-allowed; }
+  .mini-seat.selected { border-color: var(--select-yellow) !important; box-shadow: 0 0 0 2px var(--select-yellow), 0 0 10px rgba(253,255,95,0.4) !important; }
+  .device-frame.theme-light .mini-seat.selected { border-color: var(--sk-brand) !important; box-shadow: 0 0 0 2px var(--sk-brand) !important; }
+  .mini-seat.disabled { opacity: .45; cursor: not-allowed; }
 
   /* ================= P3: CONSUMPTION / WINE DETAIL ================= */
   .detail-wrap {
@@ -1031,9 +1039,9 @@
     font-weight: 600;
     color: #fff;
   }
-  .pill-badge.green { background: var(--success-green); }
-  .pill-badge.red { background: #F56C6C; }
-  .pill-badge.orange { background: #E6A23C; }
+  .pill-badge.green { background: #15803D; }
+  .pill-badge.red { background: #C81E3A; }
+  .pill-badge.orange { background: #B45309; }
 
   /* ================= P4: RESERVED PAGE ================= */
   .reserved-screen { background: var(--canvas-deep); }
@@ -1169,10 +1177,13 @@
   }
   .device-frame.phone .footer-left {
     width: 100%;
-    justify-content: space-between;
-    gap: 2px;
-    overflow-x: hidden;
+    justify-content: flex-start;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 2px;
   }
+  .device-frame.phone .footer-left::-webkit-scrollbar { display: none; }
   .device-frame.phone .footer-right { display: none; }
   .phone-inline-refresh { display: none; }
   .device-frame.phone .phone-inline-refresh {
@@ -1181,7 +1192,8 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-    flex: 1;
+    flex: 0 0 auto;
+    min-width: 40px;
     background: transparent;
     border: none;
     color: var(--text-ice);
@@ -1191,12 +1203,13 @@
     padding: 2px;
   }
   .device-frame.phone .legend-item {
-    flex: 1;
-    padding: 3px 2px;
+    flex: 0 0 auto;
+    min-width: 44px;
+    padding: 3px 3px;
     gap: 2px;
   }
   .device-frame.phone .legend-swatch {
-    width: 26px;
+    width: 28px;
     height: 16px;
     font-size: 10px;
     border-radius: 4px;
@@ -1210,7 +1223,7 @@
   .legend-item {
     position: relative;
     border: 1px solid transparent;
-    transition: opacity .15s, background .15s, border-color .15s;
+    transition: opacity .12s;
   }
   .legend-item.active {
     background: rgba(50, 185, 255, 0.16);
@@ -1294,9 +1307,34 @@
   }
   .pwd-key:hover { border-color: var(--glow-border); background: rgba(50,185,255,0.16); }
 
+  /* Permitted Lightweight Motion #3: 180ms pure transform/opacity drawer & modal slide-in */
+  @keyframes bkPopIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bkDrawerIn { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes bkSheetUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .overlay-mask.show .center-modal,
+  .overlay-mask.show .card-menu-pop,
+  .overlay-mask.show .footer-pop,
+  .other-region-pop.show { animation: bkPopIn 180ms ease-out both; }
+  .overlay-mask.show .p1-report-drawer { animation: bkDrawerIn 180ms ease-out both; }
+  .device-frame.phone .overlay-mask.show .card-menu-pop,
+  .device-frame.phone .overlay-mask.show .footer-pop { animation: bkSheetUp 180ms ease-out both; }
+  [data-reduced-motion="true"] *,
+  [data-reduced-motion="true"] *::before,
+  [data-reduced-motion="true"] *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+  [data-reduced-motion="true"] .overlay-mask,
+  [data-reduced-motion="true"] .detail-wrap {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
 </style>
+<link rel="stylesheet" href="skins.css" />
 </head>
-<body>
+<body class="sys-booking">
   <header class="studio-bar">
     <div class="studio-title">
       <div class="sys-switch">
@@ -1345,7 +1383,7 @@
           <div class="login-brand">
             <span class="login-tag">预订系统 · 门店运营终端</span>
             <h2>员工工号登录</h2>
-            <p>统一夜场深蓝暗色视觉体系，支持实时房台同步、多营业日预留、开台管理与入客汇总。普通业务登录无需超级管理员密码。</p>
+            <p>支持 8 套多场景皮肤自由切换，提供实时房台同步、多营业日预留、开台管理与入客汇总。普通业务登录无需超级管理员密码。</p>
             <div class="login-chips">
               <span class="login-chip">● 实时房台同步</span>
               <span class="login-chip">● 多日预留排班</span>
@@ -1355,7 +1393,10 @@
           <div class="login-card">
             <div class="login-card-hd">
               <h3>预订系统登录</h3>
-              <span style="font-size:12px;color:#AED8FF">切换系统 ▾</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button type="button" class="inapp-skin-btn" data-skin-pill onclick="ShouyinSkin.openPicker()">🌙 午夜深蓝 ▾</button>
+                <span style="font-size:12px;color:var(--sk-text-accent)">切换系统 ▾</span>
+              </div>
             </div>
             <div style="margin-bottom:12px">
               <label class="field-lbl">员工账号</label>
@@ -1406,8 +1447,8 @@
         </div>
         <!-- 其它区域多行展开下拉面板 (#11182D) -->
         <div class="other-region-pop" id="otherRegionPop">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#AED8FF">
-            <strong>其它区域选择（#11182D 多行展开面板）</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--sk-text-accent)">
+            <strong>其它区域选择（多行展开面板）</strong>
             <span style="cursor:pointer" onclick="toggleOtherRegion(event, false)">✕</span>
           </div>
           <div class="other-region-grid">
@@ -1428,27 +1469,31 @@
         <div class="footer-bar">
           <div class="footer-left" id="legendBar">
             <div class="legend-item" data-status="1">
-              <div class="legend-swatch" style="background:var(--status-empty)"></div>
+              <div class="legend-swatch" data-st="1"></div>
               <span class="legend-lbl" id="legCnt1">空台 3</span>
             </div>
             <div class="legend-item" data-status="2">
-              <div class="legend-swatch" style="background:var(--status-locked);color:#FFBD00">锁</div>
+              <div class="legend-swatch" data-st="2">锁</div>
               <span class="legend-lbl" id="legCnt2">锁定 1</span>
             </div>
             <div class="legend-item" data-status="8">
-              <div class="legend-swatch" style="background:var(--status-reserved)"></div>
+              <div class="legend-swatch" data-st="8"></div>
               <span class="legend-lbl" id="legCnt8">预订 2</span>
             </div>
             <div class="legend-item" data-status="4">
-              <div class="legend-swatch" style="background:var(--status-opened)"></div>
+              <div class="legend-swatch" data-st="4"></div>
               <span class="legend-lbl" id="legCnt4">开台 2</span>
             </div>
             <div class="legend-item" data-status="5">
-              <div class="legend-swatch" style="background:var(--status-ordered)"></div>
-              <span class="legend-lbl" id="legCnt5">点单 4</span>
+              <div class="legend-swatch" data-st="5"></div>
+              <span class="legend-lbl" id="legCnt5">点单 3</span>
+            </div>
+            <div class="legend-item" data-status="6">
+              <div class="legend-swatch sw-partial" data-st="6"></div>
+              <span class="legend-lbl" id="legCnt6">部分结 1</span>
             </div>
             <div class="legend-item" data-status="7">
-              <div class="legend-swatch" style="background:var(--status-paid)"></div>
+              <div class="legend-swatch" data-st="7"></div>
               <span class="legend-lbl" id="legCnt7">已结 1</span>
             </div>
             <div class="legend-item" data-status="20">
@@ -1473,17 +1518,17 @@
         <!-- Bottom More Functions Popup Menu (7 real items from cardMachine.vue) -->
         <div class="overlay-mask" id="moreMenuMask" onclick="closeBookingPopups()">
           <div class="footer-pop" style="right:104px" onclick="event.stopPropagation()">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3);margin-bottom:4px">
-              <strong style="color:#fff;font-size:13.5px">更多功能（7 项）</strong>
-              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--sk-divider);margin-bottom:4px">
+              <strong style="color:var(--sk-text-primary);font-size:13.5px">更多功能（7 项）</strong>
+              <span style="color:var(--sk-text-accent);font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
             </div>
-            <div class="menu-opt" onclick="openBookingReportDrawer('开台记录')">📋 开台记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('开台记录')">📋 开台记录 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
             <div class="menu-opt" onclick="openBookingReportDrawer('转台记录')">🔄 转台记录</div>
-            <div class="menu-opt" onclick="openBookingReportDrawer('预留记录')">🗓 预留记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
-            <div class="menu-opt" onclick="openBookingReportDrawer('线上预订记录')">🌐 线上预订记录 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
-            <div class="menu-opt" onclick="openBookingReportDrawer('入客数据实时汇总')">📈 入客数据实时汇总 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
-            <div class="menu-opt" onclick="openBookingReportDrawer('部门实时订台/区域开台')">🏢 部门实时订台/区域开台 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
-            <div class="menu-opt" style="border-bottom:none" onclick="openBookingReportDrawer('排队详情')">📢 排队详情 <span style="margin-left:auto;font-size:11px;color:#7CF5B0">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('预留记录')">🗓 预留记录 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('线上预订记录')">🌐 线上预订记录 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('入客数据实时汇总')">📈 入客数据实时汇总 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
+            <div class="menu-opt" onclick="openBookingReportDrawer('部门实时订台/区域开台')">🏢 部门实时订台/区域开台 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
+            <div class="menu-opt" style="border-bottom:none" onclick="openBookingReportDrawer('排队详情')">📢 排队详情 <span style="margin-left:auto;font-size:11px;color:var(--sk-progress-full)">可导出</span></div>
           </div>
         </div>
 
@@ -1494,12 +1539,12 @@
               <span id="p1ReportDrawerTitle">开台记录</span>
               <div style="display:flex;align-items:center;gap:8px">
                 <button class="btn-primary-pill" id="p1ReportExportBtn" style="height:30px;font-size:12px;padding:0 12px" onclick="exportCurrentReport()">导出 Excel</button>
-                <span style="cursor:pointer;color:#AED8FF;font-size:16px" onclick="closeBookingPopups()">✕</span>
+                <span style="cursor:pointer;color:var(--sk-text-accent);font-size:16px" onclick="closeBookingPopups()">✕</span>
               </div>
             </div>
             <div id="p1ReportDrawerBody" style="flex:1;overflow:auto;padding:14px 16px"></div>
             <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
-              <span style="font-size:12px;color:rgba(174,216,255,0.7)">宽屏保留左侧大盘可见 · Esc 关闭</span>
+              <span style="font-size:12px;color:var(--sk-text-muted)">宽屏保留左侧大盘可见 · Esc 关闭</span>
               <button class="btn-secondary-pill" onclick="closeBookingPopups()">关闭</button>
             </div>
           </div>
@@ -1508,22 +1553,23 @@
         <!-- Bottom Account Popup Menu (2 real items: no auth password in Booking) -->
         <div class="overlay-mask" id="accountMenuMask" onclick="closeBookingPopups()">
           <div class="footer-pop" style="width:170px;right:14px" onclick="event.stopPropagation()">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3);margin-bottom:4px">
-              <strong style="color:#fff;font-size:13px">张咨客 · 账户</strong>
-              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--sk-divider);margin-bottom:4px">
+              <strong style="color:var(--sk-text-primary);font-size:13px">张咨客 · 账户</strong>
+              <span style="color:var(--sk-text-accent);font-size:12px;cursor:pointer" onclick="closeBookingPopups()">✕</span>
             </div>
             <div class="menu-opt" onclick="openPwdModal()">🔑 修改密码</div>
-            <div class="menu-opt" style="border-bottom:none;color:#FF788B" onclick="openLogoutConfirmModal()">🚪 退出登录</div>
+            <div class="menu-opt" onclick="closeBookingPopups();ShouyinSkin.openPicker()">🎨 界面皮肤</div>
+            <div class="menu-opt" style="border-bottom:none;color:var(--sk-danger-text)" onclick="openLogoutConfirmModal()">🚪 退出登录</div>
           </div>
         </div>
 
         <!-- Change Password / Generic Info Modal -->
         <div class="overlay-mask" id="bookingModalMask" onclick="closeBookingPopups()">
           <div class="center-modal" onclick="event.stopPropagation()">
-            <div class="drawer-hd"><span id="bkModalTitle">修改登录密码</span><span style="cursor:pointer;color:#AED8FF" onclick="closeBookingPopups()">✕</span></div>
+            <div class="drawer-hd"><span id="bkModalTitle">修改登录密码</span><span style="cursor:pointer;color:var(--sk-text-accent)" onclick="closeBookingPopups()">✕</span></div>
             <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px" id="bkModalBody"></div>
             <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
-              <span style="font-size:11.5px;color:rgba(174,216,255,0.68)">Enter 提交 · Esc 关闭</span>
+              <span style="font-size:11.5px;color:var(--sk-text-muted)">Enter 提交 · Esc 关闭</span>
               <div style="display:flex;gap:10px">
                 <button class="btn-secondary-pill" onclick="closeBookingPopups()">取消</button>
                 <button class="btn-primary-pill" id="bkModalConfirmBtn" onclick="confirmBookingModal()">确认</button>
@@ -1535,9 +1581,9 @@
         <!-- Dynamic Card Action Overlay (state × date × online × permission aware) -->
         <div class="overlay-mask" id="cardMenuMask" onclick="closeCardMenu()">
           <div class="card-menu-pop" style="width:230px;max-height:520px;overflow-y:auto" onclick="event.stopPropagation()">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid rgba(50,185,255,0.3)">
-              <strong id="menuSeatTitle" style="color:#fff;font-size:14px">V01 · 卡台操作</strong>
-              <span style="color:#AED8FF;font-size:12px;cursor:pointer" onclick="closeCardMenu()">✕</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--sk-divider)">
+              <strong id="menuSeatTitle" style="color:var(--sk-text-primary);font-size:14px">V01 · 卡台操作</strong>
+              <span style="color:var(--sk-text-accent);font-size:12px;cursor:pointer" onclick="closeCardMenu()">✕</span>
             </div>
             <div class="menu-grid-phone" id="cardMenuList"></div>
           </div>
@@ -1550,7 +1596,7 @@
           <div class="split-left">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
               <h3 style="font-size:15px">全屏选台面板（转台 / 多台预订加台）</h3>
-              <span style="font-size:12px;color:#FDFF5F">● 亮黄边框 = 已选中 · 灰显 = 不可选并标明原因</span>
+              <span style="font-size:12px;color:var(--sk-select-yellow)">● 高亮边框 = 已选中 · 灰显 = 不可选并标明原因</span>
             </div>
             <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
               <button class="region-pill active" style="height:28px;font-size:12px;min-width:54px" onclick="filterPickerReg(this,'all')">全部</button>
@@ -1564,10 +1610,10 @@
           <div class="drawer-panel">
             <div class="drawer-hd">
               <span id="p2DrawerTitle">预留 / 开台表单（支持多台预订）</span>
-              <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+              <span style="cursor:pointer;color:var(--sk-text-accent)" onclick="switchPage('p1')">✕</span>
             </div>
             <div class="drawer-bd">
-              <div class="form-row"><label>已选卡台</label><div id="p2SelectedTags" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px">A01 ×</span><span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px">S01 ×</span></div></div>
+              <div class="form-row"><label>已选卡台</label><div id="p2SelectedTags" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="background:var(--sk-brand);color:var(--sk-on-brand);padding:4px 10px;border-radius:14px;font-size:12px">A01 ×</span><span style="background:var(--sk-brand);color:var(--sk-on-brand);padding:4px 10px;border-radius:14px;font-size:12px">S01 ×</span></div></div>
               <div class="form-row"><label>客人电话</label><input class="dark-input" value="13800138888" maxlength="11" placeholder="11 位手机号" /></div>
               <div class="form-row"><label>客人姓名</label><input class="dark-input" value="王先生" /></div>
               <div class="form-row"><label>是否发送短信</label><div style="display:flex;gap:18px;font-size:13px"><label style="text-align:left"><input type="radio" name="sms" /> 是</label><label style="text-align:left"><input type="radio" name="sms" checked /> 否（默认）</label></div></div>
@@ -1607,7 +1653,7 @@
                 <label>预定人数</label>
                 <div>
                   <input class="dark-input" type="number" min="1" max="100" value="8" />
-                  <div style="font-size:11.5px;color:rgba(174,216,255,0.68);margin-top:3px">人数上限对齐原系统：1–100 人</div>
+                  <div style="font-size:11.5px;color:var(--sk-text-muted);margin-top:3px">人数上限对齐原系统：1–100 人</div>
                 </div>
               </div>
               <div class="form-row">
@@ -1620,7 +1666,7 @@
               <div class="form-row"><label>备注</label><input class="dark-input" value="靠舞台，准备生日牌" /></div>
             </div>
             <div class="drawer-ft" style="justify-content:space-between;padding:0 18px">
-              <span style="font-size:11.5px;color:rgba(174,216,255,0.68)">Enter 提交 · Esc 关闭</span>
+              <span style="font-size:11.5px;color:var(--sk-text-muted)">Enter 提交 · Esc 关闭</span>
               <div style="display:flex;gap:10px">
                 <button class="btn-secondary-pill" onclick="switchPage('p1')">取消</button>
                 <button class="btn-primary-pill" onclick="submitP2Form()">确定提交</button>
@@ -1636,7 +1682,7 @@
           <div class="detail-dialog">
             <div class="drawer-hd">
               <span id="p3Title">查看消费明细 · A08</span>
-              <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+              <span style="cursor:pointer;color:var(--sk-text-accent)" onclick="switchPage('p1')">✕</span>
             </div>
             <div class="turnover-tabs" style="justify-content:space-between;align-items:center">
               <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1655,8 +1701,8 @@
                 </thead>
                 <tbody>
                   <tr><td>轩尼诗 VSOP 套餐</td><td><span class="pill-badge green">已结</span></td><td>1</td><td>¥2,880</td><td>¥2,880</td><td>李四</td><td>21:18</td></tr>
-                  <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-                  <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+                  <tr style="color:var(--sk-text-muted)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+                  <tr style="color:var(--sk-text-muted)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
                   <tr><td>果盘（大份）</td><td><span class="pill-badge orange">优惠</span></td><td>1</td><td>¥188</td><td>¥0</td><td>林经理</td><td>21:25</td></tr>
                   <tr><td>百威铝瓶 12支</td><td><span class="pill-badge red">退单</span></td><td>1</td><td>¥680</td><td>¥0</td><td>李四</td><td>21:40</td></tr>
                 </tbody>
@@ -1682,15 +1728,15 @@
                 <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('线上预订记录')">线上</button>
                 <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('入客数据实时汇总')">入客</button>
                 <button class="outline-pill" style="height:28px;font-size:12px" onclick="renderBookingReport('部门实时订台/区域开台')">部门</button>
-                <button class="outline-pill" style="height:28px;font-size:12px;border-color:#32B9FF" onclick="openDeptTreeModal()">🌳 树形部门筛选</button>
+                <button class="outline-pill" style="height:28px;font-size:12px;border-color:var(--sk-outline-border)" onclick="openDeptTreeModal()">🌳 树形部门筛选</button>
                 <button class="btn-primary-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showBkToast('已导出 Excel 报表文件', 'success')">导出 Excel</button>
               </div>
             </div>
-            <div id="p5ReportBody" style="border:1px solid rgba(255,255,255,0.12);border-radius:8px;overflow:hidden">
+            <div id="p5ReportBody" style="border:1px solid var(--sk-border);border-radius:8px;overflow:hidden">
               <div class="r6-row hd"><span>部门名称</span><span style="text-align:center">实时订台数</span></div>
               <div class="r6-row l1"><span>营销中心</span><span style="text-align:center">14</span></div>
-              <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销一部</span><span style="text-align:center">8</span></div>
-              <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销二部</span><span style="text-align:center">6</span></div>
+              <div class="r6-row" style="padding-left:28px;color:var(--sk-text-secondary)"><span>营销一部</span><span style="text-align:center">8</span></div>
+              <div class="r6-row" style="padding-left:28px;color:var(--sk-text-secondary)"><span>营销二部</span><span style="text-align:center">6</span></div>
               <div class="r6-row l1"><span>市场拓展部</span><span style="text-align:center">5</span></div>
               <div class="r6-row total"><span>合计</span><span style="text-align:center">19</span></div>
             </div>
@@ -1700,36 +1746,36 @@
                 <span>R07 排队详情</span>
                 <div style="display:flex;align-items:center;gap:8px">
                   <button class="btn-primary-pill" style="height:28px;font-size:12px;padding:0 12px" onclick="showBkToast('已导出排队详情文件')">导出</button>
-                  <span style="cursor:pointer;color:#AED8FF" onclick="switchPage('p1')">✕</span>
+                  <span style="cursor:pointer;color:var(--sk-text-accent)" onclick="switchPage('p1')">✕</span>
                 </div>
               </div>
             <div class="drawer-bd">
-              <div style="display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px">
-                <span style="color:#5C9FFF;font-weight:700;border-bottom:3px solid #5C9FFF;padding-bottom:6px;cursor:pointer" onclick="showBkToast('当前视图：排队叫号')">排队叫号</span>
-                <span style="color:rgba(255,255,255,0.7);cursor:pointer" onclick="showBkToast('切换视图：全部排队列表')">排队列表</span>
+              <div style="display:flex;gap:16px;border-bottom:1px solid var(--sk-border);padding-bottom:8px">
+                <span style="color:var(--sk-text-accent);font-weight:700;border-bottom:3px solid var(--sk-brand);padding-bottom:6px;cursor:pointer" onclick="showBkToast('当前视图：排队叫号')">排队叫号</span>
+                <span style="color:var(--sk-text-secondary);cursor:pointer" onclick="showBkToast('切换视图：全部排队列表')">排队列表</span>
               </div>
-              <div class="m-card" style="background:var(--surface-table-header)">
+              <div class="m-card">
                 <div style="display:flex;justify-content:space-between;align-items:center">
-                  <strong style="font-size:20px;color:#00D5CF">A012</strong>
+                  <strong style="font-size:20px;color:var(--sk-cyan-accent)">A012</strong>
                   <span class="pill-badge orange">等待叫号 · 4人</span>
                 </div>
-                <div style="color:rgba(255,255,255,0.72)">大卡座 · 136****5566 · 排队 18 分钟</div>
+                <div style="color:var(--sk-text-secondary)">大卡座 · 136****5566 · 排队 18 分钟</div>
                 <div style="display:flex;gap:8px;margin-top:6px">
                   <button class="btn-primary-pill" style="height:32px;font-size:12px;flex:1" onclick="showBkToast('已播报叫号：请 A012 客人入座')">叫号</button>
-                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('A012 已确认到店并转开台')">到店</button>
-                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('A012 已标记过号')">过号</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#15803D;color:#fff;flex:1" onclick="showBkToast('A012 已确认到店并转开台')">到店</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:var(--sk-danger);color:#fff;flex:1" onclick="showBkToast('A012 已标记过号')">过号</button>
                 </div>
               </div>
-              <div class="m-card" style="background:var(--surface-table-header)">
+              <div class="m-card">
                 <div style="display:flex;justify-content:space-between;align-items:center">
-                  <strong style="font-size:20px;color:#00D5CF">B007</strong>
+                  <strong style="font-size:20px;color:var(--sk-cyan-accent)">B007</strong>
                   <span class="pill-badge green">已叫号 · 2人</span>
                 </div>
-                <div style="color:rgba(255,255,255,0.72)">散台区 · 188****9921 · 排队 6 分钟</div>
+                <div style="color:var(--sk-text-secondary)">散台区 · 188****9921 · 排队 6 分钟</div>
                 <div style="display:flex;gap:8px;margin-top:6px">
                   <button class="btn-primary-pill" style="height:32px;font-size:12px;flex:1" onclick="showBkToast('已重呼：请 B007 客人入座')">重呼</button>
-                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('B007 已确认到店')">到店</button>
-                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('B007 已标记过号')">过号</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:#15803D;color:#fff;flex:1" onclick="showBkToast('B007 已确认到店')">到店</button>
+                  <button class="btn-primary-pill" style="height:32px;font-size:12px;background:var(--sk-danger);color:#fff;flex:1" onclick="showBkToast('B007 已标记过号')">过号</button>
                 </div>
               </div>
             </div>
@@ -1742,8 +1788,8 @@
     </div>
 
     <div class="token-strip">
-      <h3>核心色板 Token 速查（融合审核方案高对比暗色卡面 + 原系统语义色）</h3>
-      <div class="swatches">
+      <h3 id="tokenStripTitle">当前皮肤核心色板：午夜深蓝（midnightBlue · 深色 · 默认）</h3>
+      <div class="swatches" id="tokenSwatches">
         <div class="sw"><span class="sw-box" style="background:#202C4A"></span>主画布 #202C4A</div>
         <div class="sw"><span class="sw-box" style="background:#222D47"></span>顶栏/抽屉头 #222D47</div>
         <div class="sw"><span class="sw-box" style="background:#0D172D"></span>底栏 #0D172D</div>
@@ -1780,7 +1826,7 @@
     { name:'A02', area:'大厅', status:2, cap:6, online:false, mark:'', time:'', minConsume:1500, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'设备维修', turn:0, hasMustOrder:false },
     { name:'A08', area:'大厅', status:5, online:false, mark:'A', time:'21:10', gift:'188.00', main:'2880.00', minConsume:3000, pct:96, sales:'李四 营销一部', salesCode:'1022', salesPy:'ls', salesPhone:'13500131022', coSales:'林经理 营销一部', coSalesPhone:'13800131001', customer:'陈先生 135****4456', custPy:'cxs', phone:'13544444456', arrive:'2026-08-19 21:00', topNum:0, remark:'靠舞台', turn:1, transfer:'S02→A08', hasMustOrder:true },
     { name:'A09', area:'大厅', status:3, online:false, mark:'', time:'22:00', minConsume:2000, pct:0, sales:'王敏 市场部', salesCode:'1012', salesPy:'wm', salesPhone:'15800131012', coSales:'', coSalesPhone:'', customer:'郑小姐 158****7789', custPy:'zxj', phone:'15855557789', arrive:'2026-08-19 22:00', topNum:0, remark:'', turn:0, hasMustOrder:false },
-    { name:'A12', area:'大厅', status:6, online:false, mark:'', time:'20:20', gift:'0.00', main:'3100.00', minConsume:3500, pct:88, sales:'', salesCode:'', salesPy:'', customer:'黄总 137****6612', custPy:'hz', phone:'13766666612', arrive:'2026-08-19 20:15', topNum:0, remark:'部分结清', turn:0, hasMustOrder:false },
+    { name:'A12', area:'大厅', status:6, online:false, mark:'', time:'20:20', gift:'0.00', main:'3100.00', paid:'1900.00', unpaid:'1200.00', minConsume:3500, pct:88, sales:'', salesCode:'', salesPy:'', customer:'黄总 137****6612', custPy:'hz', phone:'13766666612', arrive:'2026-08-19 20:15', topNum:0, remark:'部分结清', turn:0, hasMustOrder:false },
     { name:'S01', area:'散台', status:1, cap:4, online:false, mark:'', time:'', minConsume:800, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'', turn:0, hasMustOrder:false },
     { name:'S02', area:'散台', status:5, online:false, mark:'', time:'21:30', gift:'120.00', main:'1280.00', minConsume:2000, pct:64, sales:'', salesCode:'', salesPy:'', customer:'赵先生 186****0912', custPy:'zxs', phone:'18677770912', arrive:'2026-08-19 21:20', topNum:0, remark:'靠舞台', turn:2, hasMustOrder:false },
     { name:'B01-VIP总统套房', area:'包房', status:1, cap:12, online:false, mark:'', time:'', minConsume:8800, pct:0, sales:'', salesCode:'', salesPy:'', customer:'', custPy:'', phone:'', arrive:'', topNum:0, remark:'', turn:0, hasMustOrder:true },
@@ -1799,7 +1845,8 @@
   let pickerReg = 'all';
   let pickerSelected = ['A01', 'S01'];
 
-  const PIN_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" aria-label="已置顶" style="flex-shrink:0"><path fill="rgba(255,255,255,.92)" d="M16 9V4h1V2H7v2h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+  const PIN_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" aria-label="已置顶" style="flex-shrink:0"><path fill="currentColor" d="M16 9V4h1V2H7v2h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`;
+  const STATUS_LABEL = { 1:'空台', 2:'锁定', 3:'预订', 8:'预订', 4:'开台', 5:'点单', 6:'部分结', 7:'已结' };
 
   function truncRemark(str) {
     if (!str) return '';
@@ -1813,8 +1860,7 @@
       if (activeRegion !== 'all' && s.area !== activeRegion) return false;
       if (activeStatus !== null && activeStatus !== 20) {
         if (activeStatus === 8 && ![3,8].includes(s.status)) return false;
-        else if (activeStatus === 5 && ![5,6].includes(s.status)) return false;
-        else if (![8,5].includes(activeStatus) && s.status !== activeStatus) return false;
+        else if (activeStatus !== 8 && s.status !== activeStatus) return false;
       }
       if (searchText) {
         const hay = `${s.name} ${s.area} ${s.sales} ${s.salesCode||''} ${s.salesPy||''} ${s.customer} ${s.custPy||''} ${s.phone||''}`.toLowerCase();
@@ -1830,6 +1876,10 @@
       const isActiveTable = [4,5,6,7].includes(s.status);
       const isLongName = s.name.length > 5;
       const salesDisplay = s.sales ? s.sales : (isActiveTable ? '散客' : '');
+      const stLabel = STATUS_LABEL[s.status] || '';
+      const unpaidHtml = s.status === 6 && showCardAmounts
+        ? `<div class="rc-amt-box"><span>未付</span><b>¥${s.unpaid || '1200.00'}</b></div>`
+        : '';
       const moneyHtml = isActiveTable && showCardAmounts ? `
         <div class="c-money-slot" title="低消 ¥${(s.minConsume||0).toLocaleString()} · 当前主营 ¥${s.main||'0.00'}">
           <div class="c-amt-row">
@@ -1837,12 +1887,13 @@
             <strong>${s.pct||0}%</strong>
           </div>
           <div class="c-bar"><i class="${(s.pct||0)>=100?'full':''}" style="width:${Math.min(100,s.pct||0)}%"></i></div>
-        </div>` : `<div class="c-money-slot">${isActiveTable && !showCardAmounts ? '<div style="font-size:11px;opacity:.65">金额已隐藏 (showAmt)</div>' : ''}</div>`;
+          ${unpaidHtml}
+        </div>` : `<div class="c-money-slot">${isActiveTable && !showCardAmounts ? '<div style="font-size:11px;color:var(--rc-muted)">金额已隐藏 (showAmt)</div>' : ''}</div>`;
 
       return `
-      <div class="seat-card s${s.status}" onclick="openCardMenu('${s.name}')">
+      <div class="seat-card s${s.status}" data-st="${s.status}" data-seat-id="${s.name}" onclick="openCardMenu('${s.name}')">
         <div class="c-row1">
-          <span class="c-area"><span>${s.area}</span>${s.online ? '<span class="badge-online">线</span>' : ''}${s.status===6 ? '<span class="badge-partial">部分结</span>' : ''}</span>
+          <span class="c-area"><span>${s.area}</span>${s.online ? '<span class="badge-online">线</span>' : ''}</span>
           <span style="display:flex;align-items:center;gap:4px">
             ${s.mark ? `<span class="badge-mark">${s.mark}</span>` : ''}
             <span>${s.status === 1 ? `${s.cap}人` : (s.time || '')}</span>
@@ -1850,7 +1901,7 @@
         </div>
         <div class="c-name ${isLongName?'long':''}">
           <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</span>
-          ${s.topNum > 0 ? PIN_SVG : ''}
+          <span class="c-name-right">${s.topNum > 0 ? PIN_SVG : ''}<span class="rc-status-chip">${stLabel}</span></span>
         </div>
         ${moneyHtml}
         <div class="c-line">${salesDisplay}</div>
@@ -1886,13 +1937,14 @@
   }
   function updateLegendCounts() {
     const scoped = SEATS.filter(s => activeRegion === 'all' || s.area === activeRegion);
-    const c = { 1:0, 2:0, 8:0, 4:0, 5:0, 7:0 };
+    const c = { 1:0, 2:0, 8:0, 4:0, 5:0, 6:0, 7:0 };
     scoped.forEach(s => {
       if (s.status === 1) c[1]++;
       else if (s.status === 2) c[2]++;
       else if (s.status === 3 || s.status === 8) c[8]++;
       else if (s.status === 4) c[4]++;
-      else if (s.status === 5 || s.status === 6) c[5]++;
+      else if (s.status === 5) c[5]++;
+      else if (s.status === 6) c[6]++;
       else if (s.status === 7) c[7]++;
     });
     const setTxt = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
@@ -1901,6 +1953,7 @@
     setTxt('legCnt8', '预订 ' + c[8]);
     setTxt('legCnt4', '开台 ' + c[4]);
     setTxt('legCnt5', '点单 ' + c[5]);
+    setTxt('legCnt6', '部分结 ' + c[6]);
     setTxt('legCnt7', '已结 ' + c[7]);
     const bar = document.getElementById('legendBar');
     if (bar) bar.classList.toggle('has-filter', activeStatus !== null && activeStatus !== 20);
@@ -2011,7 +2064,7 @@
   }
   function buildReportHtml(name) {
     const reports = {
-      '开台记录': `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap"><span style="font-size:12.5px;color:#AED8FF">当前筛选部门：<strong id="openLogDeptLbl">全部部门</strong></span><button class="outline-pill" style="height:28px;font-size:12px" onclick="openDeptTreeModal()">🌳 选择部门（树形）</button></div><table class="dark-table"><thead><tr><th>卡台</th><th>客人</th><th>订位人</th><th>开台时间</th><th>状态</th></tr></thead><tbody>
+      '开台记录': `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap"><span style="font-size:12.5px;color:var(--sk-text-accent)">当前筛选部门：<strong id="openLogDeptLbl">全部部门</strong></span><button class="outline-pill" style="height:28px;font-size:12px" onclick="openDeptTreeModal()">🌳 选择部门（树形）</button></div><table class="dark-table"><thead><tr><th>卡台</th><th>客人</th><th>订位人</th><th>开台时间</th><th>状态</th></tr></thead><tbody>
         <tr><td>V12</td><td>陈女士</td><td>张伟(营销二部)</td><td>20:15</td><td><span class="pill-badge green">已开台</span></td></tr>
         <tr><td>V02</td><td>周总</td><td>陈主管(营销二部)</td><td>20:45</td><td><span class="pill-badge green">消费中</span></td></tr>
         <tr><td>A08</td><td>陈先生</td><td>李四(营销一部)</td><td>21:10</td><td><span class="pill-badge orange">已点单</span></td></tr>
@@ -2031,7 +2084,7 @@
           <div class="tx-card">
             <div class="tx-card-hd">
               <span class="tx-idx-pill">#1</span>
-              <span style="color:rgba(255,255,255,0.62)">开台时间：</span>
+              <span style="color:var(--sk-text-muted)">开台时间：</span>
               <strong>2026-08-19 20:45</strong>
             </div>
             <div class="tx-card-bd">
@@ -2041,7 +2094,7 @@
           <div class="tx-card">
             <div class="tx-card-hd">
               <span class="tx-idx-pill">#2</span>
-              <span style="color:rgba(255,255,255,0.62)">开台时间：</span>
+              <span style="color:var(--sk-text-muted)">开台时间：</span>
               <strong>2026-08-19 21:00</strong>
             </div>
             <div class="tx-card-bd">
@@ -2059,30 +2112,30 @@
         <tr><td>OL2026081902</td><td>A01</td><td>抖音团购</td><td>¥500.00</td><td><span class="pill-badge orange">已关联</span></td></tr>
       </tbody></table>`,
       '入客数据实时汇总': `<table class="dark-table"><thead><tr><th>指标项</th><th>VIP区</th><th>大厅卡座</th><th>散台区</th><th>合计</th></tr></thead><tbody>
-        <tr><td>已开台数</td><td>4</td><td>6</td><td>3</td><td style="color:#FFAD45;font-weight:700">13</td></tr>
-        <tr><td>实时抵达人数</td><td>32</td><td>44</td><td>12</td><td style="color:#00D5CF;font-weight:700">88 人</td></tr>
-        <tr><td>实时主营点单</td><td>¥12,800</td><td>¥6,168</td><td>¥1,280</td><td style="color:#67C23A;font-weight:700">¥20,248</td></tr>
+        <tr><td>已开台数</td><td>4</td><td>6</td><td>3</td><td style="color:var(--sk-warning);font-weight:700">13</td></tr>
+        <tr><td>实时抵达人数</td><td>32</td><td>44</td><td>12</td><td style="color:var(--sk-cyan-accent);font-weight:700">88 人</td></tr>
+        <tr><td>实时主营点单</td><td>¥12,800</td><td>¥6,168</td><td>¥1,280</td><td style="color:var(--sk-success-text);font-weight:700">¥20,248</td></tr>
       </tbody></table>`,
       '部门实时订台/区域开台': `
-        <div style="border:1px solid rgba(255,255,255,0.12);border-radius:8px;overflow:hidden">
+        <div style="border:1px solid var(--sk-border);border-radius:8px;overflow:hidden">
           <div class="r6-row hd"><span>部门名称</span><span style="text-align:center">实时订台数</span></div>
           <div class="r6-row l1"><span>营销中心</span><span style="text-align:center">14</span></div>
-          <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销一部</span><span style="text-align:center">8</span></div>
-          <div class="r6-row" style="padding-left:28px;color:rgba(255,255,255,0.75)"><span>营销二部</span><span style="text-align:center">6</span></div>
+          <div class="r6-row" style="padding-left:28px;color:var(--sk-text-secondary)"><span>营销一部</span><span style="text-align:center">8</span></div>
+          <div class="r6-row" style="padding-left:28px;color:var(--sk-text-secondary)"><span>营销二部</span><span style="text-align:center">6</span></div>
           <div class="r6-row l1"><span>市场拓展部</span><span style="text-align:center">5</span></div>
           <div class="r6-row total"><span>合计</span><span style="text-align:center">19</span></div>
         </div>`,
       '排队详情': `
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="m-card" style="background:var(--surface-table-header)">
-            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:#00D5CF">A012</strong><span class="pill-badge orange">等待叫号 · 4人</span></div>
-            <div style="color:rgba(255,255,255,0.72)">大卡座 · 136****5566 · 排队 18 分钟</div>
-            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已叫号 A012')">叫号</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('A012 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('A012 已过号')">过号</button></div>
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:var(--sk-cyan-accent)">A012</strong><span class="pill-badge orange">等待叫号 · 4人</span></div>
+            <div style="color:var(--sk-text-secondary)">大卡座 · 136****5566 · 排队 18 分钟</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已叫号 A012')">叫号</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#15803D;color:#fff;flex:1" onclick="showBkToast('A012 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:var(--sk-danger);color:#fff;flex:1" onclick="showBkToast('A012 已过号')">过号</button></div>
           </div>
-          <div class="m-card" style="background:var(--surface-table-header)">
-            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:#00D5CF">B007</strong><span class="pill-badge green">已叫号 · 2人</span></div>
-            <div style="color:rgba(255,255,255,0.72)">散台区 · 188****9921 · 排队 6 分钟</div>
-            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已重呼 B007')">重呼</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#67C23A;flex:1" onclick="showBkToast('B007 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#E03755;flex:1" onclick="showBkToast('B007 已过号')">过号</button></div>
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:20px;color:var(--sk-cyan-accent)">B007</strong><span class="pill-badge green">已叫号 · 2人</span></div>
+            <div style="color:var(--sk-text-secondary)">散台区 · 188****9921 · 排队 6 分钟</div>
+            <div style="display:flex;gap:8px;margin-top:4px"><button class="btn-primary-pill" style="height:30px;font-size:12px;flex:1" onclick="showBkToast('已重呼 B007')">重呼</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:#15803D;color:#fff;flex:1" onclick="showBkToast('B007 已到店')">到店</button><button class="btn-primary-pill" style="height:30px;font-size:12px;background:var(--sk-danger);color:#fff;flex:1" onclick="showBkToast('B007 已过号')">过号</button></div>
           </div>
         </div>`
     };
@@ -2126,8 +2179,8 @@
       t.textContent = `查看消费明细 · ${currentSeatName}`;
       w.innerHTML = `<table class="dark-table"><thead><tr><th>商品名称</th><th>状态</th><th>数量</th><th>单价</th><th>金额</th><th>点单人</th><th>时间</th></tr></thead><tbody>
         <tr><td>轩尼诗 VSOP 套餐</td><td><span class="pill-badge green">已结</span></td><td>1</td><td>¥2,880</td><td>¥2,880</td><td>李四</td><td>21:18</td></tr>
-        <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr style="color:rgba(255,255,255,0.6)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr style="color:var(--sk-text-muted)"><td style="padding-left:28px">└ 轩尼诗 VSOP 700ml</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr style="color:var(--sk-text-muted)"><td style="padding-left:28px">└ 软饮绿茶</td><td>—</td><td>6</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
         <tr><td>果盘（大份）</td><td><span class="pill-badge orange">优惠</span></td><td>1</td><td>¥188</td><td>¥0</td><td>林经理</td><td>21:25</td></tr>
         <tr><td>百威铝瓶 12支</td><td><span class="pill-badge red">退单</span></td><td>1</td><td>¥680</td><td>¥0</td><td>李四</td><td>21:40</td></tr>
       </tbody></table>`;
@@ -2160,7 +2213,7 @@
         <div><label class="field-lbl">预定到达时间</label><input class="dark-input" value="${seat.arrive || '2026-08-19 21:00'}" /></div>
         <div><label class="field-lbl">订位人（工号/姓名/拼音）</label><input class="dark-input" value="${seat.sales || '林经理 (1001 · 营销一部)'}" /><div class="field-hint">📞 订位人电话：${seat.salesPhone || '13800131001'}</div></div>
         <div><label class="field-lbl">最低消费 (元)</label><input class="dark-input" value="${seat.minConsume || 3000}" /><div class="field-hint">卡台低消 ¥${(seat.minConsume || 3000).toLocaleString()}</div></div>`],
-      minConsume: [`${seat.name} · 修改最低消费`, `<div><label class="field-lbl">当前低消进度</label><div style="color:#7CF5B0;font-size:13px">${seat.pct || 0}%（主营 ¥${seat.main || '0.00'} / 低消 ¥${(seat.minConsume||0).toLocaleString()}）</div></div><div><label class="field-lbl">新预期最低消费 (元)</label><input class="dark-input" value="${seat.minConsume || 5800}" /></div>`],
+      minConsume: [`${seat.name} · 修改最低消费`, `<div><label class="field-lbl">当前低消进度</label><div style="color:var(--sk-progress-full);font-size:13px">${seat.pct || 0}%（主营 ¥${seat.main || '0.00'} / 低消 ¥${(seat.minConsume||0).toLocaleString()}）</div></div><div><label class="field-lbl">新预期最低消费 (元)</label><input class="dark-input" value="${seat.minConsume || 5800}" /></div>`],
       mark: [`${seat.name} · 修改卡台标记`, `<div><label class="field-lbl">卡台标记（#F1FF00 荧光黄底黑字）</label><input class="dark-input" value="${seat.mark || 'VIP'}" placeholder="如：VIP / 生 / A" /></div>`],
       sales: [`${seat.name} · 修改订位人 / 服务员`, `<div><label class="field-lbl">订位人（支持工号/姓名/拼音）</label><input class="dark-input" value="${seat.sales || '林经理 营销一部'}" /><div class="field-hint">📞 电话：${seat.salesPhone || '13800131001'}</div></div><div><label class="field-lbl">绑定服务员</label><input class="dark-input" value="李四 (1022 · 营销一部) · 13500131022" /></div>`],
       remark: [`${seat.name} · 修改备注`, `<div><label class="field-lbl">卡台备注（卡面显示前 6 字）</label><input class="dark-input" value="${seat.remark || '生日布置，靠舞台'}" /></div>`],
@@ -2175,9 +2228,27 @@
           <dt>联合订位人及电话</dt><dd>${seat.coSales ? `${seat.coSales} · ${seat.coSalesPhone}` : '—'}</dd>
           <dt>备注</dt><dd>${seat.remark || '—'}</dd>
         </dl>`],
-      reopen: [`${seat.name} · 复台 / 清台 / 撤台`, `<div style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85)">请确认对卡台 <strong style="color:#FFAD45">${seat.name}</strong> 执行清台/复台操作（已校验 <code>canClearSeat</code> 权限）。</div>`]
+      reopen: [`${seat.name} · 复台 / 清台 / 撤台`, `<div style="font-size:13.5px;line-height:1.6;color:var(--sk-text-primary)">请确认对卡台 <strong style="color:var(--sk-warning)">${seat.name}</strong> 执行清台/复台操作（已校验 <code>canClearSeat</code> 权限）。</div>`]
     };
     modalConfirmAction = null;
+    if (kind === 'open') {
+      modalConfirmAction = () => {
+        closeBookingPopups();
+        seat.status = 4;
+        if (!seat.time) seat.time = '22:30';
+        renderSeats();
+        flashCardStateChange(seat.name);
+        showBkToast(`✓ 卡台 ${seat.name} 已开台`, 'success');
+      };
+    } else if (kind === 'reopen') {
+      modalConfirmAction = () => {
+        closeBookingPopups();
+        seat.status = seat.status === 1 ? 4 : 1;
+        renderSeats();
+        flashCardStateChange(seat.name);
+        showBkToast(seat.status === 4 ? `✓ 卡台 ${seat.name} 已复台开台` : `✓ 卡台 ${seat.name} 已清台归位`, 'success');
+      };
+    }
     document.getElementById('bkModalConfirmBtn').textContent = '确认';
     const item = map[kind] || map.detail;
     title.textContent = item[0];
@@ -2198,6 +2269,15 @@
     }
     renderSeats();
   }
+  function flashCardStateChange(seatName) {
+    const card = document.querySelector(`#seatGrid .seat-card[data-seat-id="${seatName}"]`);
+    if (!card) return;
+    card.classList.remove('rc-state-changed');
+    void card.offsetWidth;
+    card.classList.add('rc-state-changed');
+    clearTimeout(card._rcFlashTimer);
+    card._rcFlashTimer = setTimeout(() => card.classList.remove('rc-state-changed'), 680);
+  }
   function toggleSeatLock() {
     closeBookingPopups();
     const seat = SEATS.find(s => s.name === currentSeatName);
@@ -2210,6 +2290,7 @@
       showBkToast(`已锁定卡台 ${seat.name}`);
     }
     renderSeats();
+    flashCardStateChange(seat.name);
   }
   let modalConfirmAction = null;
   let activePwdFieldId = 'pwdOld';
@@ -2236,7 +2317,7 @@
       <div><label class="field-lbl">确认新密码</label><input id="pwdRep" class="dark-input" type="password" placeholder="请再次输入新密码" onfocus="activePwdFieldId='pwdRep'" /></div>
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:11.5px;color:#AED8FF">⌨ 触屏虚拟数字键盘（_TouchNumericKeypad）</span>
+          <span style="font-size:11.5px;color:var(--sk-text-accent)">⌨ 触屏虚拟数字键盘（_TouchNumericKeypad）</span>
           <button type="button" class="outline-pill" style="height:24px;font-size:11px;padding:0 8px" onclick="const kp=document.getElementById('pwdKeypadBox');kp.style.display=kp.style.display==='none'?'grid':'none'">显隐键盘</button>
         </div>
         <div class="pwd-keypad" id="pwdKeypadBox">
@@ -2265,8 +2346,8 @@
     document.getElementById('bkModalTitle').textContent = '退出登录确认';
     document.getElementById('bkModalConfirmBtn').textContent = '确认退出';
     document.getElementById('bkModalBody').innerHTML = `
-      <div style="font-size:14px;line-height:1.6;color:rgba(255,255,255,0.9)">是否退出登录？</div>
-      <div style="font-size:12px;color:rgba(174,216,255,0.72)">退出后将清空当前会话并返回员工工号登录页。</div>
+      <div style="font-size:14px;line-height:1.6;color:var(--sk-text-primary)">是否退出登录？</div>
+      <div style="font-size:12px;color:var(--sk-text-muted)">退出后将清空当前会话并返回员工工号登录页。</div>
     `;
     document.getElementById('bookingModalMask').classList.add('show');
   }
@@ -2290,9 +2371,9 @@
     document.getElementById('deptTreeList').innerHTML = list.map(d => `
       <div class="dept-tree-row ${selectedDeptName===d.name?'selected':''}" style="padding-left:${12 + d.depth * 22}px" onclick="pickDeptTree('${d.name}')">
         <span>${d.depth > 0 ? '└ ' : ''}${d.name}</span>
-        <span style="font-size:12px;color:#AED8FF">${d.cnt} 台</span>
+        <span style="font-size:12px;color:var(--sk-text-accent)">${d.cnt} 台</span>
       </div>
-    `).join('') || '<div style="padding:18px;text-align:center;color:rgba(255,255,255,0.5)">无匹配部门</div>';
+    `).join('') || '<div style="padding:18px;text-align:center;color:var(--sk-text-muted)">无匹配部门</div>';
   }
   function pickDeptTree(name) {
     selectedDeptName = name;
@@ -2320,10 +2401,10 @@
     const list = STAFF_LIST.filter(st => !kw || `${st.code} ${st.name} ${st.py} ${st.dept} ${st.phone}`.toLowerCase().includes(kw));
     document.getElementById('kbStaffList').innerHTML = list.map(st => `
       <div class="dept-tree-row" onclick="selectStaff('${which}','${st.code}');document.getElementById('bookingModalMask').classList.remove('show');showBkToast('已选择订位人：${st.name} (${st.dept})', 'success')">
-        <div><strong>${st.name}</strong> <span style="font-size:12px;color:#AED8FF">(${st.code} · ${st.dept})</span></div>
-        <span style="font-size:12px;color:#7CF5B0">${st.phone}</span>
+        <div><strong>${st.name}</strong> <span style="font-size:12px;color:var(--sk-text-accent)">(${st.code} · ${st.dept})</span></div>
+        <span style="font-size:12px;color:var(--sk-progress-full)">${st.phone}</span>
       </div>
-    `).join('') || '<div style="padding:18px;text-align:center;color:rgba(255,255,255,0.5)">无匹配员工</div>';
+    `).join('') || '<div style="padding:18px;text-align:center;color:var(--sk-text-muted)">无匹配员工</div>';
   }
 
   /* P2 Full Table Picker + Searchable Staff Picker */
@@ -2339,8 +2420,8 @@
     else pickerSelected.push(name);
     renderPickerGrid();
     document.getElementById('p2SelectedTags').innerHTML = pickerSelected.map(n =>
-      `<span style="background:#455EFF;padding:4px 10px;border-radius:14px;font-size:12px;cursor:pointer" onclick="togglePickSeat('${n}','')">${n} ×</span>`
-    ).join('') || '<span style="font-size:12px;color:rgba(255,255,255,0.55)">请在左侧点选空台</span>';
+      `<span style="background:var(--sk-brand);color:var(--sk-on-brand);padding:4px 10px;border-radius:14px;font-size:12px;cursor:pointer" onclick="togglePickSeat('${n}','')">${n} ×</span>`
+    ).join('') || '<span style="font-size:12px;color:var(--sk-text-muted)">请在左侧点选空台</span>';
   }
   function renderPickerGrid() {
     const wrap = document.getElementById('pickerGroupsWrap');
@@ -2357,10 +2438,10 @@
           ${seats.map(s => {
             const reason = reasonOf(s);
             const sel = pickerSelected.includes(s.name);
-            return `<div class="mini-seat s${s.status} ${sel?'selected':''} ${reason?'disabled':''}" style="background:var(--status-${s.status===1?'empty':s.status===2?'locked':[3,8].includes(s.status)?'reserved':s.status===4?'opened':s.status===5?'ordered':'paid'})" onclick="togglePickSeat('${s.name}','${reason}')">
+            return `<div class="mini-seat s${s.status} ${sel?'selected':''} ${reason?'disabled':''}" data-st="${s.status}" onclick="togglePickSeat('${s.name}','${reason}')">
               <span>${s.area}</span>
               <strong style="font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</strong>
-              <span style="font-size:10.5px">${reason || `${s.cap}人·可选`}</span>
+              <span style="font-size:10.5px">${sel ? '✓ 已选' : (reason || `${s.cap}人·可选`)}</span>
             </div>`;
           }).join('')}
         </div>
@@ -2378,8 +2459,8 @@
     const kw = (inp.value || '').trim().toLowerCase();
     const matches = STAFF_LIST.filter(st => !kw || `${st.code} ${st.name} ${st.py} ${st.dept}`.toLowerCase().includes(kw));
     dd.innerHTML = matches.map(st =>
-      `<div class="staff-opt" onclick="selectStaff('${which}','${st.code}')"><span><strong>${st.name}</strong> (${st.code} · ${st.dept})</span><span style="color:#7CF5B0">${st.phone}</span></div>`
-    ).join('') || '<div style="padding:8px 12px;font-size:12px;color:rgba(255,255,255,0.5)">无匹配员工</div>';
+      `<div class="staff-opt" onclick="selectStaff('${which}','${st.code}')"><span><strong>${st.name}</strong> (${st.code} · ${st.dept})</span><span style="color:var(--sk-progress-full)">${st.phone}</span></div>`
+    ).join('') || '<div style="padding:8px 12px;font-size:12px;color:var(--sk-text-muted)">无匹配员工</div>';
     dd.classList.add('show');
   }
   function selectStaff(which, code) {
@@ -2415,7 +2496,14 @@
     btn.addEventListener('click', () => {
       const mode = btn.dataset.device;
       const frame = document.getElementById('deviceFrame');
-      frame.className = 'device-frame ' + mode;
+      const curSkin = window.ShouyinSkin ? window.ShouyinSkin.get() : (frame.dataset.skin || 'midnightBlue');
+      const isLight = window.ShouyinSkin && typeof window.ShouyinSkin.isLight === 'function'
+        ? window.ShouyinSkin.isLight(curSkin)
+        : ['daylightSlate', 'emeraldFresh', 'warmIvoryBistro'].includes(curSkin);
+      frame.classList.remove('desktop', 'tablet', 'phone');
+      frame.classList.add(mode);
+      frame.classList.toggle('theme-light', isLight);
+      frame.dataset.skin = curSkin;
       document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.classList.toggle('active', b === btn));
       const labels = {
         desktop: 'Desktop 宽屏（macOS / Windows · ≥1200dp）',
@@ -2475,6 +2563,11 @@
 
   renderSeats();
   renderPickerGrid();
+  window.addEventListener('shouyin-skin-change', e => {
+    const meta = e.detail;
+    showBkToast(`已切换为「${meta.name}」皮肤（${meta.modeTag}）`, 'success');
+  });
 </script>
+<script src="skins.js"></script>
 </body>
 </html>

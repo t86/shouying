@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23455EFF'/%3E%3Crect x='5' y='6' width='10' height='9' rx='2' fill='%2306B6D4'/%3E%3Crect x='17' y='6' width='10' height='9' rx='2' fill='%23F59E0B'/%3E%3Crect x='5' y='17' width='10' height='9' rx='2' fill='%23E11D48'/%3E%3Crect x='17' y='17' width='10' height='9' rx='2' fill='%238B5CF6'/%3E%3C/svg%3E" />
+<title>Shouyin 7 种房台状态 × 8 套皮肤横向对比矩阵 · 10 字段卡片配方</title>
+<link rel="stylesheet" href="skins.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    background: #060913;
+    color: #F3F4F6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Top Studio Navigation Bar ---------- */
+  .cmp-bar {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    background: #0B1020;
+    border-bottom: 1px solid rgba(50, 185, 255, 0.34);
+    padding: 9px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .cmp-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .sys-switch {
+    display: inline-flex;
+    background: #141D35;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .sys-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .sys-link:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+  .sys-link.active { background: #455EFF; color: #fff; }
+  .cmp-left h1 {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #E6F0FF;
+    letter-spacing: 0.01em;
+  }
+  .cmp-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .seg-group {
+    display: inline-flex;
+    background: #131B33;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .seg-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.76);
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .seg-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+  .seg-btn.active { background: #455EFF; color: #fff; }
+  .seg-btn.mint-active.active { background: #047857; color: #fff; }
+  .focus-btn,
+  .demo-btn {
+    border: 1px solid rgba(245, 158, 11, 0.55);
+    background: rgba(245, 158, 11, 0.14);
+    color: #FDE68A;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .focus-btn.active { background: #D97706; color: #FFFFFF; border-color: #FBBF24; }
+  .demo-btn {
+    border-color: rgba(56, 189, 248, 0.55);
+    background: rgba(14, 116, 144, 0.22);
+    color: #BAE6FD;
+  }
+  .demo-btn:hover { background: #0369A1; color: #FFFFFF; border-color: #38BDF8; }
+  .scope-divider {
+    min-width: 1180px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: #10182E;
+    border: 1px solid rgba(50, 185, 255, 0.26);
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #93C5FD;
+  }
+  .scope-divider.ext {
+    border-color: rgba(192, 132, 252, 0.34);
+    color: #DFC2FF;
+    background: #16122B;
+  }
+  .scope-divider small { font-weight: 600; color: #94A3B8; font-size: 11.5px; }
+
+  /* ---------- Main Stage ---------- */
+  .cmp-main {
+    width: min(1540px, 100%);
+    margin: 0 auto;
+    padding: 16px 18px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cmp-intro {
+    background: #0D1428;
+    border: 1px solid rgba(50, 185, 255, 0.26);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #CBD5E1;
+  }
+  .cmp-intro b { color: #FFFFFF; }
+  .cmp-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cmp-kpi {
+    background: #141E3A;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #93C5FD;
+  }
+  .cmp-kpi.amber { color: #FDE68A; border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.12); }
+  .cmp-kpi.mint { color: #6EE7B7; border-color: rgba(52, 211, 153, 0.4); background: rgba(4, 120, 87, 0.2); }
+
+  /* ---------- 7-Column Sticky Header ---------- */
+  .matrix-wrap {
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 4px;
+  }
+  .col-header-row {
+    min-width: 1180px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(156px, 1fr));
+    gap: 10px;
+    padding: 0 14px;
+  }
+  .col-hd {
+    background: #10182E;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #E2E8F0;
+  }
+  .col-hd small { font-weight: 600; color: #94A3B8; font-size: 10.5px; }
+  .col-hd.st6-hd {
+    border-color: #F59E0B;
+    background: rgba(245, 158, 11, 0.14);
+    color: #FDE68A;
+  }
+  .col-hd.st6-hd small { color: #FCD34D; }
+
+  /* ---------- Per-Skin Comparison Row (Real Canvas Scope!) ---------- */
+  .skin-row {
+    min-width: 1180px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid var(--sk-border-strong);
+    background: var(--sk-canvas);
+    color: var(--sk-text-primary);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+  .skin-row-hd {
+    background: var(--sk-header);
+    border-bottom: 1px solid var(--sk-divider);
+    padding: 10px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .skin-row-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .skin-row-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--sk-border-strong);
+    flex-shrink: 0;
+  }
+  .skin-row-name {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--sk-text-primary);
+  }
+  .skin-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--sk-chip);
+    color: var(--sk-text-secondary);
+    border: 1px solid var(--sk-border);
+  }
+  .skin-pill.core { background: var(--sk-brand); color: var(--sk-on-brand); border-color: var(--sk-brand); }
+  .skin-row-style {
+    font-size: 12px;
+    color: var(--sk-text-muted);
+    font-weight: 600;
+  }
+  .skin-row-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .mini-legend-strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--sk-footer);
+    border: 1px solid var(--sk-border);
+    border-radius: 8px;
+    padding: 4px 8px;
+  }
+  .mini-legend-strip .legend-swatch {
+    width: 22px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+  }
+  .mini-legend-lbl {
+    font-size: 10.5px;
+    color: var(--sk-text-muted);
+    margin-right: 3px;
+    font-weight: 700;
+  }
+  .open-links {
+    display: inline-flex;
+    gap: 5px;
+  }
+  .open-sys-btn {
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--sk-chip);
+    border: 1px solid var(--sk-border-strong);
+    color: var(--sk-text-primary);
+  }
+  .open-sys-btn:hover {
+    background: var(--sk-brand);
+    color: var(--sk-on-brand);
+    border-color: var(--sk-brand);
+  }
+
+  .skin-cards-grid {
+    padding: 12px 14px 14px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(156px, 1fr));
+    gap: 10px;
+  }
+  .matrix-wrap.focus-567 .card-cell.non-focus {
+    opacity: 0.28;
+    filter: saturate(0.5);
+    transition: opacity 0.16s ease;
+  }
+  .matrix-wrap.focus-567 .card-cell.focus-hot {
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Exact Real Card Primitives (matching S1/S2/S3 HTML) ---------- */
+  .t-card, .seat-card {
+    border-radius: 9px;
+    padding: 9px 10px;
+    min-height: 184px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    font-variant-numeric: tabular-nums;
+  }
+  .tc-r1, .c-row1, .sc-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 11.5px;
+    min-height: 18px;
+  }
+  .tc-reg, .c-area {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tc-badges, .sc-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .sq-tag, .mini-badge, .badge-online, .badge-mark, .tip-sq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 17px;
+    min-width: 17px;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .sq-later { background: var(--sk-badge-later); color: var(--sk-badge-later-fg); }
+  .sq-over { background: var(--sk-badge-overtime); color: var(--sk-badge-overtime-fg); animation: blinkOver3 500ms steps(2, start) 3 forwards; }
+  .sq-mark { background: var(--sk-badge-cs-mark); color: var(--sk-badge-cs-mark-fg); }
+  .sq-lock, .tip-sq.lock { background: var(--sk-badge-lock); color: var(--sk-badge-lock-fg); }
+  .badge-online { background: var(--sk-badge-online); color: var(--sk-badge-online-fg); }
+  .badge-mark { background: var(--sk-badge-bk-mark); color: var(--sk-badge-bk-mark-fg); }
+  .tc-settled-line {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; font-weight: 700; color: var(--rc-muted);
+    padding: 2px 6px; border-radius: 5px; border: 1px dashed var(--rc-divider); margin-top: 2px;
+  }
+
+  .tc-time { font-size: 10.5px; font-weight: 600; }
+  .tc-r2, .c-name, .sc-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin: 2px 0;
+  }
+  .tc-name, .c-name-txt, .sc-name {
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tc-amts, .sc-amt {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11.5px;
+    margin-top: 1px;
+  }
+  .tc-amt-row, .c-amt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+  }
+  .tc-min-bar, .c-bar, .min-bar {
+    height: 4px;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 2px 0;
+  }
+  .tc-min-fill, .c-bar i, .min-bar > i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+  }
+  .tc-state-note {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .tc-meta, .c-bottom, .sc-meta {
+    margin-top: auto;
+    padding-top: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .tc-remark, .c-line, .sc-remark {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- Expand Button ---------- */
+  .expand-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: #0E152A;
+    border: 1px dashed rgba(50, 185, 255, 0.45);
+    border-radius: 12px;
+  }
+  .expand-btn {
+    border: none;
+    background: linear-gradient(135deg, #455EFF, #7C3AED);
+    color: #FFFFFF;
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(69, 94, 255, 0.35);
+    transition: transform 0.12s ease, filter 0.12s ease;
+  }
+  .expand-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* ---------- 10-Field Card Recipe Value Reference Table ---------- */
+  .recipe-section {
+    background: #0D1428;
+    border: 1px solid rgba(50, 185, 255, 0.28);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .recipe-hd {
+    background: #121C36;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .recipe-hd h2 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #FFFFFF;
+  }
+  .recipe-hd p {
+    font-size: 11.5px;
+    color: #94A3B8;
+    margin-top: 2px;
+  }
+  .recipe-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .recipe-tab {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #182342;
+    color: #CBD5E1;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .recipe-tab.active {
+    background: #455EFF;
+    border-color: #60A5FA;
+    color: #FFFFFF;
+  }
+  .recipe-table-wrap {
+    overflow-x: auto;
+  }
+  table.rtbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    min-width: 1120px;
+  }
+  table.rtbl th {
+    background: #10182E;
+    color: #93C5FD;
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    white-space: nowrap;
+    font-weight: 800;
+  }
+  table.rtbl td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    color: #E2E8F0;
+    vertical-align: middle;
+  }
+  table.rtbl tr:nth-child(even) td { background: rgba(255, 255, 255, 0.025); }
+  table.rtbl tr.st6-row td { background: rgba(245, 158, 11, 0.08); }
+  .tok-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .tok-chip {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+  }
+  .aa-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .aa-pass { background: rgba(16, 185, 129, 0.18); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.45); }
+  .aa-base { background: rgba(96, 165, 250, 0.16); color: #93C5FD; border: 1px solid rgba(96, 165, 250, 0.4); }
+</style>
+</head>
+<body>
+  <header class="cmp-bar">
+    <div class="cmp-left">
+      <div class="sys-switch" id="sysSwitch">
+        <a class="sys-link" data-sys="index.html" href="index.html">S1 预订系统</a>
+        <a class="sys-link" data-sys="order.html" href="order.html">S2 点单系统</a>
+        <a class="sys-link" data-sys="cashier.html" href="cashier.html">S3 收银系统</a>
+        <a class="sys-link active" href="compare.html">📊 7态对比矩阵</a>
+      </div>
+      <h1>7 种房台状态 × 多皮肤横向对比矩阵（10 字段卡片配方）</h1>
+    </div>
+    <div class="cmp-controls">
+      <div class="seg-group" id="scopeGroup">
+        <button type="button" class="seg-btn active" data-scope="core" onclick="setScope('core')">★ 首发 3 套核心（本期开发）</button>
+        <button type="button" class="seg-btn mint-active" data-scope="all" onclick="setScope('all')">🎨 全部 8 套（含 5 套选型参考）</button>
+      </div>
+      <div class="seg-group" id="cardModeGroup">
+        <button type="button" class="seg-btn active" data-mode="s3" onclick="setCardMode('s3')">S3 收银卡面</button>
+        <button type="button" class="seg-btn" data-mode="s1" onclick="setCardMode('s1')">S1 预订卡面</button>
+        <button type="button" class="seg-btn" data-mode="s2" onclick="setCardMode('s2')">S2 点单卡面</button>
+      </div>
+      <button type="button" class="demo-btn" id="demoStateBtn" onclick="demoSingleCardChange()">⚡ 演示单卡状态变化</button>
+      <button type="button" class="focus-btn" id="focus567Btn" onclick="toggleFocus567()">🔎 重点对比 5/6/7</button>
+      <button type="button" class="skin-motion-btn" data-reduced-motion-toggle="1" onclick="ShouyinSkin.toggleReducedMotion()">🎞 减少动效：关</button>
+    </div>
+  </header>
+
+  <main class="cmp-main">
+    <div class="cmp-intro">
+      <div>
+        <b>横向同屏核验指南：</b>
+        同一列 = 同一业务状态（全皮肤色相统一，1.5 米外扫一眼可辨）；同一行 = 真实皮肤画布 + 真实卡片配方 + 同步图例色块。
+      </div>
+      <div class="cmp-kpis">
+        <span class="cmp-kpi">7 列标准状态流</span>
+        <span class="cmp-kpi amber">状态 6 = 玫红语义 + 2px 琥珀粗边 + 右上角标 + 部分结标签 + 高亮未付</span>
+        <span class="cmp-kpi mint">7 套新皮肤全量通过 WCAG 2.1 AA (≥ 4.5:1)</span>
+      </div>
+    </div>
+
+    <div class="matrix-wrap" id="matrixWrap">
+      <div class="col-header-row">
+        <div class="col-hd"><span>1 空台</span><small>灰蓝中性</small></div>
+        <div class="col-hd"><span>2 锁定</span><small>暗金/锁标</small></div>
+        <div class="col-hd"><span>8 预订</span><small>青绿语义</small></div>
+        <div class="col-hd"><span>4 开台</span><small>暖橙语义</small></div>
+        <div class="col-hd"><span>5 点单</span><small>玫红消费中</small></div>
+        <div class="col-hd st6-hd"><span>6 部分结 ★</span><small>玫红+琥珀强警示</small></div>
+        <div class="col-hd"><span>7 已结</span><small>深紫已清账</small></div>
+      </div>
+      <div id="skinRowsContainer" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+
+    <div class="expand-banner" id="expandBanner">
+      <span style="font-size:13px;color:#CBD5E1">当前展示 <b>首发 3 套核心皮肤</b>（午夜深蓝 · 曜石暗黑 · 晴空灰蓝）</span>
+      <button type="button" class="expand-btn" onclick="setScope('all')">✦ 一键展开全部 8 套皮肤（含 5 套拓展风格选型）</button>
+    </div>
+
+    <section class="recipe-section">
+      <div class="recipe-hd">
+        <div>
+          <h2>📐 10 字段卡片配方色值对照表（实时读取 DOM 计算值 &amp; WCAG 对比度）</h2>
+          <p>变量契约：--rc-fill / --rc-fg / --rc-muted / --rc-border / --rc-accent-bar / --rc-chip-bg / --rc-chip-fg / --rc-amt-bg / --rc-amt-fg / --rc-shadow</p>
+        </div>
+        <div class="recipe-tabs" id="recipeSkinTabs"></div>
+      </div>
+      <div class="recipe-table-wrap">
+        <table class="rtbl">
+          <thead>
+            <tr>
+              <th>状态</th>
+              <th>fill (卡底)</th>
+              <th>accentBar (色条/头栏)</th>
+              <th>fg (主字)</th>
+              <th>muted (次字)</th>
+              <th>border (描边)</th>
+              <th>chipBg / chipFg (状态标签)</th>
+              <th>amtBg / amtFg (金额高亮)</th>
+              <th>shadow (静态阴影)</th>
+              <th>实测最小 AA 对比度</th>
+            </tr>
+          </thead>
+          <tbody id="recipeTbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+<script src="skins.js"></script>
+<script>
+  const STATES = [
+    { st: 1, cls: '1', label: '空台', id: 'A01', area: '大厅卡座', cap: 6, online: true, mark: '', time: '', settle: 1, over: false, order: 0, paid: 0, unpaid: 0, min: 1500, yh: 0, sales: '', dept: '', customer: '', turn: 1, remark: '可立即预留 / 开台' },
+    { st: 2, cls: '2', label: '锁定', id: 'A02', area: '大厅卡座', cap: 6, online: false, mark: '', time: '', settle: 1, over: false, order: 0, paid: 0, unpaid: 0, min: 1500, yh: 0, sales: '督查锁定', dept: '', customer: '', turn: 0, remark: '设备检修暂停开放' },
+    { st: 8, cls: '8', label: '预订', id: 'V01', area: 'VIP包厢', cap: 10, online: true, mark: '生', time: '21:00', settle: 1, over: false, order: 0, paid: 0, unpaid: 0, min: 5800, yh: 0, sales: '林经理', dept: '营销一部', customer: '王先生 138****8888', turn: 0, remark: '生日布置需花篮' },
+    { st: 4, cls: '4', label: '开台', id: 'V12', area: 'VIP包厢', cap: 8, online: false, mark: 'VIP', time: '20:15', settle: 2, over: false, order: 0, paid: 0, unpaid: 0, min: 3000, yh: 0, sales: '张伟', dept: '营销二部', customer: '陈女士 139****2201', turn: 0, remark: '已入座 · 待点单' },
+    { st: 5, cls: '5', label: '点单', id: 'V02', area: 'VIP包厢', cap: 10, online: false, mark: 'V', time: '20:45', settle: 2, over: true, order: 6800, paid: 0, unpaid: 6800, min: 5800, yh: 500, sales: '陈主管', dept: '营销二部', customer: '周总 139****3321', turn: 1, remark: '需加冰桶配柠檬' },
+    { st: 6, cls: '6', label: '部分结', id: 'A12', area: '大厅卡座', cap: 8, online: false, mark: '必', time: '20:20', settle: 2, over: false, order: 3500, paid: 1200, unpaid: 2300, min: 3500, yh: 200, sales: '李四', dept: '营销一部', customer: '黄总 137****6612', turn: 0, remark: '已结首轮 · 尚欠 ¥2,300' },
+    { st: 7, cls: '7', label: '已结', id: 'V05', area: 'VIP包厢', cap: 8, online: false, mark: '', time: '19:50', settle: 1, over: false, order: 4200, paid: 4200, unpaid: 0, min: 3600, yh: 0, sales: '林经理', dept: '营销一部', customer: '吴总 186****1120', turn: 2, remark: '全额结清 · 可清台' },
+  ];
+
+  let viewScope = 'core'; // 'core' | 'all'
+  let cardMode = 's3';    // 's3' | 's1' | 's2'
+  let focus567 = false;
+  let recipeSkinId = (window.ShouyinSkin && window.ShouyinSkin.get()) || 'obsidianCarbon';
+
+  // Honor ?scope=all or ?skin=...
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('scope') === 'all') viewScope = 'all';
+    if (['s1', 's2', 's3'].includes(sp.get('mode'))) cardMode = sp.get('mode');
+    if (sp.get('skin') && window.ShouyinSkin) {
+      const m = window.ShouyinSkin.meta(sp.get('skin'));
+      if (m) {
+        recipeSkinId = m.id;
+        if (m.group === 'ext') viewScope = 'all';
+      }
+    }
+  } catch (_) {}
+
+  function renderCardHtml(d) {
+    const pct = d.min > 0 ? Math.round((d.order / d.min) * 100) : 0;
+    const isActive = [4, 5, 6, 7].includes(d.st);
+    const hasAmt = [5, 6, 7].includes(d.st);
+
+    if (cardMode === 's1') {
+      return `
+        <div class="seat-card s${d.cls}">
+          <div class="c-row1">
+            <span class="c-area"><span>${d.area}</span>${d.online ? '<span class="badge-online">线</span>' : ''}</span>
+            <span class="tc-badges">
+              ${d.mark ? `<span class="badge-mark">${d.mark}</span>` : ''}
+              <span class="tc-time">${d.st === 1 ? d.cap + '人' : d.time}</span>
+            </span>
+          </div>
+          <div class="c-name">
+            <span class="c-name-txt">${d.id}</span>
+            <span class="rc-status-chip">${d.label}</span>
+          </div>
+          ${hasAmt ? `
+            <div class="tc-amts">
+              <div class="c-amt-row"><span>主 <strong>¥${d.order.toLocaleString()}</strong> · 惠 <strong>¥${d.yh}</strong></span><strong>${pct}%</strong></div>
+              <div class="c-bar"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.min(100, pct)}%"></i></div>
+              ${d.st === 6 ? `<div class="rc-amt-box"><span>未付</span><b>¥${d.unpaid.toLocaleString()}</b></div>` : ''}
+            </div>
+          ` : `<div class="tc-state-note">${d.st === 4 ? '已开台 · 低消 ¥' + d.min.toLocaleString() : d.st === 8 ? '预订 · 低消 ¥' + d.min.toLocaleString() : d.st === 2 ? '锁定中' : '空闲可选'}</div>`}
+          <div class="c-line">${d.sales ? d.sales + ' ' + d.dept : (isActive ? '散客' : '—')}</div>
+          <div class="c-bottom">
+            <span class="c-tips" style="display:inline-flex;align-items:center;gap:4px;min-width:0;overflow:hidden">
+              ${d.st === 2 ? '<span class="tip-sq lock">锁</span>' : ''}
+              <span class="tc-remark">${d.remark}</span>
+            </span>
+            <span>${d.turn > 0 ? '翻' + d.turn : ''}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (cardMode === 's2') {
+      return `
+        <div class="seat-card s${d.cls}">
+          <div class="sc-top">
+            <span class="tc-reg">${d.area}${d.time ? ' · ' + d.time : ''}</span>
+            <div class="sc-badges">
+              ${d.mark ? `<span class="mini-badge mb-mark">${d.mark}</span>` : ''}
+              ${d.st === 2 ? '<span class="mini-badge mb-lock">锁</span>' : ''}
+              ${d.turn > 0 ? `<span class="mini-badge mb-turn">翻${d.turn}</span>` : ''}
+            </div>
+          </div>
+          <div class="sc-name-row">
+            <span class="sc-name">${d.id}</span>
+            <span class="sc-status-txt rc-status-chip">${d.label}</span>
+          </div>
+          ${hasAmt ? `
+            <div class="sc-amt">
+              <div class="tc-amt-row"><span>点：¥${d.order.toLocaleString()}</span><strong>${pct}%</strong></div>
+              ${d.yh > 0 ? `<span class="yh">惠：¥${d.yh.toLocaleString()}</span>` : ''}
+              <div class="min-bar"><i style="width:${Math.min(100, pct)}%"></i></div>
+              ${d.st === 6 ? `<div class="rc-amt-box"><span>未付</span><b>¥${d.unpaid.toLocaleString()}</b></div>` : ''}
+            </div>
+          ` : `<div class="tc-state-note">${d.st === 4 ? '已开台 · 待点酒水' : d.st === 8 ? '预订 · 低消 ¥' + d.min.toLocaleString() : d.st === 2 ? '锁定不可点单' : '空台'}</div>`}
+          <div class="sc-meta">
+            <span>${d.sales ? d.sales + (d.dept ? ' · ' + d.dept : '') : '空台'}</span>
+          </div>
+          <div class="sc-remark">${d.remark}</div>
+        </div>
+      `;
+    }
+
+    // Default: S3 Cashier card (.t-card.st*)
+    return `
+      <div class="t-card st${d.cls}">
+        <div class="tc-r1">
+          <span class="tc-reg">${d.area}</span>
+          <span class="tc-badges">
+            ${d.settle === 2 ? '<span class="sq-tag sq-later" title="后买单">后</span>' : ''}
+            ${d.over ? '<span class="sq-tag sq-over" title="支付超时">超</span>' : ''}
+            ${d.mark ? `<span class="sq-tag sq-mark" title="S3绿标记">${d.mark}</span>` : ''}
+            ${d.time ? `<span class="tc-time">(${d.time})</span>` : ''}
+          </span>
+        </div>
+        <div class="tc-r2">
+          <span class="tc-name">${d.id}</span>
+          <span class="rc-status-chip">${d.label}</span>
+        </div>
+        ${hasAmt ? `
+          <div class="tc-amts">
+            <div class="tc-amt-row"><span>点：¥${d.order.toLocaleString()}</span><span>${pct}%</span></div>
+            <div class="tc-min-bar"><div class="tc-min-fill ${pct < 100 ? 'warn' : ''}" style="width:${Math.min(100, pct)}%"></div></div>
+            <div class="tc-amt-row"><span>已付：¥${d.paid.toLocaleString()}</span></div>
+            ${d.st === 7
+              ? `<div class="tc-settled-line"><span>已结清</span><span>¥0</span></div>`
+              : `<div class="tc-unpaid rc-amt-box"><span>未付</span><b>¥${d.unpaid.toLocaleString()}</b></div>`}
+          </div>
+        ` : `<div class="tc-state-note">${d.st === 4 ? '已开台 · 待点单' : d.st === 8 ? '已预订 · ' + d.remark : d.st === 2 ? '锁定中' : '空台（翻台可查记录）'}</div>`}
+        <div class="tc-meta">
+          <span>${d.st === 2 ? '<span class="sq-tag sq-lock">锁</span>' : (d.sales ? d.sales + ' ' + d.dept : '')}</span>
+          <span>${d.turn > 0 ? '翻' + d.turn : ''}</span>
+        </div>
+        <div class="tc-remark">${d.remark}</div>
+      </div>
+    `;
+  }
+
+  let demoStepIdx = 0;
+  const DEMO_FLOW = [
+    { st: 4, cls: '4', label: '开台', order: 0, paid: 0, unpaid: 0, remark: '已入座 · 待点单' },
+    { st: 5, cls: '5', label: '点单', order: 3600, paid: 0, unpaid: 3600, remark: '已点单 · 待结账' },
+    { st: 6, cls: '6', label: '部分结', order: 3600, paid: 1600, unpaid: 2000, remark: '部分结 · 尚欠 ¥2,000' },
+    { st: 7, cls: '7', label: '已结', order: 3600, paid: 3600, unpaid: 0, remark: '全额结清 · 可清台' },
+  ];
+
+  function renderSkinRowHtml(s) {
+    const groupBadge = s.group === 'core'
+      ? `<span class="skin-pill core">首发核心 · 本期开发</span>`
+      : `<span class="skin-pill">拓展风格 · 仅作选型参考</span>`;
+    return `
+      <div class="skin-row skin-scope" data-skin="${s.id}" id="row-${s.id}">
+        <div class="skin-row-hd">
+          <div class="skin-row-info">
+            <span class="skin-row-dot" style="background:${s.dot}"></span>
+            <span class="skin-row-name">${s.name}</span>
+            ${groupBadge}
+            <span class="skin-pill">${s.modeTag}</span>
+            <span class="skin-row-style">${s.cardStyleTag}</span>
+          </div>
+          <div class="skin-row-right">
+            <div class="mini-legend-strip" title="该皮肤下的真实图例色块预览">
+              <span class="mini-legend-lbl">图例</span>
+              <span class="legend-swatch" data-st="1" title="1 空台"></span>
+              <span class="legend-swatch" data-st="2" title="2 锁定">锁</span>
+              <span class="legend-swatch" data-st="8" title="8 预订"></span>
+              <span class="legend-swatch" data-st="4" title="4 开台"></span>
+              <span class="legend-swatch" data-st="5" title="5 点单"></span>
+              <span class="legend-swatch sw-partial" data-st="6" title="6 部分结"></span>
+              <span class="legend-swatch" data-st="7" title="7 已结"></span>
+            </div>
+            <div class="open-links">
+              <a class="open-sys-btn" href="index.html?skin=${s.id}">S1 预订 →</a>
+              <a class="open-sys-btn" href="order.html?skin=${s.id}">S2 点单 →</a>
+              <a class="open-sys-btn" href="cashier.html?skin=${s.id}">S3 收银 →</a>
+            </div>
+          </div>
+        </div>
+        <div class="skin-cards-grid">
+          ${STATES.map((d) => {
+            const isFocus = [5, 6, 7].includes(d.st);
+            return `<div class="card-cell ${isFocus ? 'focus-hot' : 'non-focus'}" data-col-st="${d.st}">${renderCardHtml(d)}</div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMatrix() {
+    demoStepIdx = 0;
+    const coreSkins = window.ShouyinSkin.coreSkins;
+    const extSkins = window.ShouyinSkin.extSkins;
+    const container = document.getElementById('skinRowsContainer');
+
+    let html = `
+      <div class="scope-divider">
+        <span>★ 首发 3 套核心皮肤（本期开发范围）</span>
+        <small>午夜深蓝（1:1 实色基线） · 曜石暗黑（炭黑左条无发光） · 晴空灰蓝（加深浅彩底 + 6px 顶带）</small>
+      </div>
+      ${coreSkins.map(renderSkinRowHtml).join('')}
+    `;
+    if (viewScope === 'all') {
+      html += `
+        <div class="scope-divider ext">
+          <span>✦ 5 套拓展风格（仅作选型参考，不进入计划）</span>
+          <small>黑金尊享 · 赛博霓紫 · 墨绿爵士 · 翡翠白玉 · 暖杏轻咖（同套 10 字段配方，全量 WCAG AA）</small>
+        </div>
+        ${extSkins.map(renderSkinRowHtml).join('')}
+      `;
+    }
+    container.innerHTML = html;
+
+    // Update top buttons & expand banner
+    document.querySelectorAll('#scopeGroup .seg-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.scope === viewScope);
+    });
+    document.querySelectorAll('#cardModeGroup .seg-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.mode === cardMode);
+    });
+    document.getElementById('matrixWrap').classList.toggle('focus-567', focus567);
+    document.getElementById('focus567Btn').classList.toggle('active', focus567);
+
+    const banner = document.getElementById('expandBanner');
+    if (viewScope === 'core') {
+      banner.innerHTML = `
+        <span style="font-size:13px;color:#CBD5E1">当前展示 <b>首发 3 套核心皮肤（本期开发范围）</b>：午夜深蓝 · 曜石暗黑 · 晴空灰蓝</span>
+        <button type="button" class="expand-btn" onclick="setScope('all')">✦ 展开 5 套拓展风格（仅作选型参考，不进入计划）</button>
+      `;
+    } else {
+      banner.innerHTML = `
+        <span style="font-size:13px;color:#6EE7B7">✓ 已展开 <b>全部 8 套皮肤</b>（首发 3 套核心·本期开发 + 5 套拓展风格·仅作选型参考）</span>
+        <button type="button" class="seg-btn active" onclick="setScope('core')" style="padding:7px 14px">收起为首发 3 套核心</button>
+      `;
+    }
+
+    renderRecipeTable();
+  }
+
+  function demoSingleCardChange() {
+    demoStepIdx = (demoStepIdx + 1) % DEMO_FLOW.length;
+    const next = DEMO_FLOW[demoStepIdx];
+    const base = Object.assign({}, STATES[3], next); // Mutate ONLY the V12 card (col 4) in-place!
+    const prefix = cardMode === 's3' ? 'st' : 's';
+    document.querySelectorAll('.card-cell[data-col-st="4"]').forEach((cell) => {
+      const card = cell.querySelector('.t-card, .seat-card');
+      if (!card) return;
+      // Preserve existing DOM node so CSS 200ms background/border/color transition + 1-shot outline flash runs smoothly
+      card.className = (cardMode === 's3' ? 't-card ' : 'seat-card ') + prefix + next.cls;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderCardHtml(base).trim();
+      const freshCard = tmp.firstElementChild;
+      if (freshCard) card.innerHTML = freshCard.innerHTML;
+      if (window.ShouyinSkin && typeof window.ShouyinSkin.flashStateChange === 'function') {
+        window.ShouyinSkin.flashStateChange(card);
+      }
+    });
+    const btn = document.getElementById('demoStateBtn');
+    if (btn) btn.textContent = `⚡ 单卡演示：V12 → ${next.label}`;
+  }
+
+  /* ---------- Color Parsing & Live WCAG Contrast Computation ---------- */
+  function parseColorToRgb(str) {
+    if (!str) return null;
+    const s = str.trim();
+    if (s.startsWith('#')) {
+      const h = s.slice(1);
+      if (h.length === 3) {
+        return [parseInt(h[0]+h[0], 16), parseInt(h[1]+h[1], 16), parseInt(h[2]+h[2], 16), 1];
+      }
+      if (h.length >= 6) {
+        return [parseInt(h.slice(0,2), 16), parseInt(h.slice(2,4), 16), parseInt(h.slice(4,6), 16), 1];
+      }
+    }
+    const m = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i);
+    if (m) return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] !== undefined ? Number(m[4]) : 1];
+    return null;
+  }
+
+  function resolveColor(raw, scopeEl) {
+    // Use a temporary hidden probe element so var(...) / color-mix(...) resolves accurately
+    const probe = document.createElement('div');
+    probe.style.display = 'none';
+    probe.style.color = raw;
+    scopeEl.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return parseColorToRgb(resolved);
+  }
+
+  function composite(fg, bg) {
+    const a = fg[3];
+    return [
+      Math.round(fg[0] * a + bg[0] * (1 - a)),
+      Math.round(fg[1] * a + bg[1] * (1 - a)),
+      Math.round(fg[2] * a + bg[2] * (1 - a)),
+      1,
+    ];
+  }
+
+  function relLum(rgb) {
+    const f = (c) => {
+      const v = c / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+  }
+
+  function contrastRatio(c1, c2) {
+    const l1 = relLum(c1);
+    const l2 = relLum(c2);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+
+  function rgbToHex(rgb) {
+    return '#' + [rgb[0], rgb[1], rgb[2]].map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  function tokHtml(val, swatchColor) {
+    const shortVal = val.length > 26 ? val.slice(0, 24) + '…' : val;
+    return `<span class="tok-cell" title="${val}"><span class="tok-chip" style="background:${swatchColor || val}"></span>${shortVal}</span>`;
+  }
+
+  function renderRecipeTabs() {
+    const tabs = document.getElementById('recipeSkinTabs');
+    tabs.innerHTML = window.ShouyinSkin.skins.map((s) => `
+      <button type="button" class="recipe-tab ${s.id === recipeSkinId ? 'active' : ''}" onclick="setRecipeSkin('${s.id}')">
+        <span style="width:8px;height:8px;border-radius:50%;background:${s.dot};border:1px solid rgba(255,255,255,0.45)"></span>
+        ${s.name}
+      </button>
+    `).join('');
+  }
+
+  function renderRecipeTable() {
+    renderRecipeTabs();
+    // Create an offscreen probe scope for the selected recipe skin so even collapsed extended skins can be inspected accurately
+    const probeScope = document.createElement('div');
+    probeScope.className = 'skin-scope';
+    probeScope.dataset.skin = recipeSkinId;
+    probeScope.style.cssText = 'position:fixed;left:-9999px;top:-9999px;visibility:hidden;pointer-events:none;';
+    document.body.appendChild(probeScope);
+
+    const rowsHtml = STATES.map((d) => {
+      const card = document.createElement('div');
+      card.className = `t-card st${d.cls}`;
+      probeScope.appendChild(card);
+      const cs = getComputedStyle(card);
+      const getVar = (k) => cs.getPropertyValue(k).trim();
+
+      const fillRaw = getVar('--rc-fill');
+      const accentRaw = getVar('--rc-accent-bar');
+      const fgRaw = getVar('--rc-fg');
+      const mutedRaw = getVar('--rc-muted');
+      const borderRaw = getVar('--rc-border');
+      const chipBgRaw = getVar('--rc-chip-bg');
+      const chipFgRaw = getVar('--rc-chip-fg');
+      const amtBgRaw = getVar('--rc-amt-bg');
+      const amtFgRaw = getVar('--rc-amt-fg');
+      const shadowRaw = getVar('--rc-shadow') || 'none';
+      const shadowShort = shadowRaw.length > 28 ? shadowRaw.slice(0, 26) + '…' : shadowRaw;
+
+      // For gradient fills (emeraldJazz), use the lightest stop (accentBar) for conservative worst-case AA measurement
+      const fillRgb = fillRaw.startsWith('linear-gradient')
+        ? resolveColor(accentRaw, card)
+        : resolveColor(fillRaw, card);
+      const fgRgb = composite(resolveColor(fgRaw, card), fillRgb);
+      const mutedRgb = composite(resolveColor(mutedRaw, card), fillRgb);
+      const chipBgRgb = composite(resolveColor(chipBgRaw, card), fillRgb);
+      const chipFgRgb = composite(resolveColor(chipFgRaw, card), chipBgRgb);
+      const amtBgRgb = composite(resolveColor(amtBgRaw, card), fillRgb);
+      const amtFgRgb = composite(resolveColor(amtFgRaw, card), amtBgRgb);
+
+      const ratios = [
+        contrastRatio(fgRgb, fillRgb),
+        contrastRatio(mutedRgb, fillRgb),
+        contrastRatio(chipFgRgb, chipBgRgb),
+        contrastRatio(amtFgRgb, amtBgRgb),
+      ];
+      const minCr = Math.min(...ratios);
+      const isBaseline = recipeSkinId === 'midnightBlue';
+      const badgeCls = minCr >= 4.5 ? 'aa-pass' : 'aa-base';
+      const badgeTxt = minCr >= 4.5 ? `✓ AA ${minCr.toFixed(2)}:1` : (isBaseline ? `基线 ${minCr.toFixed(2)}:1` : `⚠ ${minCr.toFixed(2)}:1`);
+
+      const fillDisplay = fillRaw.startsWith('linear-gradient') ? `渐变(${rgbToHex(fillRgb)})` : rgbToHex(fillRgb);
+      const fgHex = rgbToHex(fgRgb);
+      const mutedHex = rgbToHex(mutedRgb);
+      const accentHex = rgbToHex(resolveColor(accentRaw, card));
+      const borderHex = rgbToHex(composite(resolveColor(borderRaw, card), fillRgb));
+      const chipBgHex = rgbToHex(chipBgRgb);
+      const chipFgHex = rgbToHex(chipFgRgb);
+      const amtBgHex = rgbToHex(amtBgRgb);
+      const amtFgHex = rgbToHex(amtFgRgb);
+
+      return `
+        <tr class="${d.st === 6 ? 'st6-row' : ''}">
+          <td><strong>${d.st} ${d.label}</strong></td>
+          <td>${tokHtml(fillDisplay, fillRaw)}</td>
+          <td>${tokHtml(accentHex, accentHex)}</td>
+          <td>${tokHtml(fgHex, fgHex)}</td>
+          <td>${tokHtml(mutedHex, mutedHex)}</td>
+          <td>${tokHtml(borderHex, borderHex)}</td>
+          <td>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              ${tokHtml(chipBgHex, chipBgHex)}
+              ${tokHtml(chipFgHex, chipFgHex)}
+            </div>
+          </td>
+          <td>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              ${tokHtml(amtBgHex, amtBgHex)}
+              ${tokHtml(amtFgHex, amtFgHex)}
+            </div>
+          </td>
+          <td><span class="tok-cell" title="${shadowRaw}" style="color:#94A3B8">${shadowShort}</span></td>
+          <td><span class="aa-badge ${badgeCls}">${badgeTxt}</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    probeScope.remove();
+    document.getElementById('recipeTbody').innerHTML = rowsHtml;
+
+    // Keep top S1/S2/S3 links synchronized with recipeSkinId
+    document.querySelectorAll('#sysSwitch a[data-sys]').forEach((a) => {
+      a.href = `${a.dataset.sys}?skin=${encodeURIComponent(recipeSkinId)}`;
+    });
+  }
+
+  function setScope(s) {
+    viewScope = s;
+    renderMatrix();
+  }
+  function setCardMode(m) {
+    cardMode = m;
+    renderMatrix();
+  }
+  function toggleFocus567() {
+    focus567 = !focus567;
+    document.getElementById('matrixWrap').classList.toggle('focus-567', focus567);
+    document.getElementById('focus567Btn').classList.toggle('active', focus567);
+  }
+  function setRecipeSkin(id) {
+    recipeSkinId = id;
+    if (window.ShouyinSkin) window.ShouyinSkin.set(id);
+    renderRecipeTable();
+  }
+
+  renderMatrix();
+</script>
+</body>
+</html>

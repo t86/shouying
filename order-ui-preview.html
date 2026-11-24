@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E7490'/%3E%3Ctext x='16' y='21.5' text-anchor='middle' font-size='15' font-weight='800' fill='%23fff' font-family='sans-serif'%3ES2%3C/text%3E%3C/svg%3E" />
 <title>点单系统（S2）全端视觉还原 & 酒吧极速点单预览 · 深浅主题 / Desktop / 平板 / 手机</title>
 <style>
   :root {
@@ -29,7 +30,7 @@
     --ord-brand: #4B89FF;
     --ord-brand-sec: #334770;
     --ord-glow: #32B9FF;
-    --ord-cta-green: #1CC96C;
+    --ord-cta-green: #047857;
     --ord-discount: #FFAB2E;
     --ord-yh2: #9B6DFF;
     --ord-wine: #1AC8D4;
@@ -48,7 +49,7 @@
     --st-reserved: #008F95;
     --st-opened: #D08322;
     --st-ordered: #C83758;
-    --st-partial: #6E3AC7;
+    --st-partial: #C83758;
     --st-paid: #5C3BC1;
     --st-card-ink: #FFFFFF;
     --st-card-sub: rgba(255,255,255,0.84);
@@ -95,7 +96,7 @@
     --st-reserved: #0E8F96;
     --st-opened: #D97706;
     --st-ordered: #CC2D52;
-    --st-partial: #7C3AED;
+    --st-partial: #C2264B;
     --st-paid: #5B3CC4;
     --st-card-ink: #FFFFFF;
     --st-card-sub: rgba(255,255,255,0.9);
@@ -143,6 +144,10 @@
   }
   .seg-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
   .seg-btn.active { background: #455EFF; color: #fff; }
+  .device-frame .seg-group { background: var(--ord-chip); border-color: var(--ord-border); }
+  .device-frame .seg-btn { color: var(--ord-ink-2); }
+  .device-frame .seg-btn:hover { color: var(--ord-ink); background: rgba(128,128,128,0.12); }
+  .device-frame .seg-btn.active { background: var(--ord-brand); color: var(--ord-on-brand); }
   .toggle-chip {
     display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #AED8FF;
     background: #131B33; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px;
@@ -163,7 +168,7 @@
     border: 2px solid rgba(50,185,255,0.45); border-radius: 14px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.65), 0 0 24px rgba(26,137,255,0.22);
     overflow: hidden; display: flex; flex-direction: column;
-    transition: width .22s, height .22s, background .18s, color .18s;
+    transition: width .22s, height .22s;
   }
   .device-frame.desktop { width: 1366px; max-width: calc(100vw - 28px); height: 790px; }
   .device-frame.tablet  { width: 1024px; max-width: calc(100vw - 28px); height: 740px; }
@@ -188,11 +193,11 @@
   .btn:hover:not(:disabled) { filter: brightness(1.08); }
   .btn:active:not(:disabled) { transform: scale(0.97); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-brand { background: var(--ord-brand); color: #fff; }
+  .btn-brand { background: var(--ord-brand); color: var(--ord-on-brand); }
   .btn-green { background: var(--ord-cta-green); color: #fff; }
-  .btn-wine { background: var(--ord-wine); color: #fff; }
+  .btn-wine { background: #0E7490; color: #fff; }
   .btn-amber { background: var(--ord-discount); color: #121A2C; }
-  .btn-yh2 { background: var(--ord-yh2); color: #fff; }
+  .btn-yh2 { background: #6D28D9; color: #fff; }
   .btn-danger { background: var(--ord-danger); color: #fff; }
   .btn-danger-soft {
     background: rgba(255,71,87,0.14); border: 1px solid rgba(255,71,87,0.55); color: var(--ord-danger);
@@ -235,10 +240,10 @@
   .reg-pill {
     border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink-2);
     border-radius: 999px; padding: 5px 13px; font-size: 12.5px; font-weight: 700;
-    cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all .12s;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
   }
   .reg-pill.active {
-    background: var(--ord-chip-sel); color: #fff; border-color: var(--ord-chip-sel);
+    background: var(--ord-chip-sel); color: var(--ord-on-brand); border-color: var(--ord-chip-sel);
   }
   .reg-pill.opened-fast {
     border-color: rgba(208,131,34,0.65); color: #FFB03A; background: rgba(208,131,34,0.14);
@@ -279,9 +284,10 @@
     display: flex; flex-direction: column; justify-content: space-between;
     cursor: pointer; position: relative; color: var(--st-card-ink);
     border: 1px solid rgba(255,255,255,0.16);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.22); transition: transform .12s, box-shadow .12s;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.22); transition: transform 100ms ease-out;
   }
-  .seat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.34); }
+  .seat-card:hover { transform: translateY(-1px); }
+  .seat-card:active { transform: scale(0.97); }
   .phone .seat-card { min-height: 158px; padding: 8px 9px; }
   .sc-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 11.5px; color: var(--st-card-sub); }
   .sc-badges { display: flex; align-items: center; gap: 4px; }
@@ -289,8 +295,8 @@
     display: inline-flex; align-items: center; justify-content: center;
     padding: 0 5px; height: 18px; border-radius: 4px; font-size: 10.5px; font-weight: 800; line-height: 1;
   }
-  .mb-mark { background: #F1FF00; color: #08080A; }
-  .mb-lock { background: #FFBD00; color: #08080A; }
+  .mb-mark { background: var(--sk-badge-bk-mark, #F1FF00); color: var(--sk-badge-bk-mark-fg, #08080A); }
+  .mb-lock { background: var(--sk-badge-lock, #FFBD00); color: var(--sk-badge-lock-fg, #08080A); }
   .mb-turn { background: rgba(0,0,0,0.32); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
   .mb-partial { background: #6E3AC7; color: #fff; border: 1px solid rgba(255,255,255,0.35); }
   .sc-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; margin: 2px 0; }
@@ -322,13 +328,12 @@
     display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px;
     font-size: 12px; font-weight: 700; cursor: pointer; user-select: none;
     background: var(--ord-chip); border: 1.5px solid var(--ord-border); color: var(--ord-ink);
-    transition: all .12s;
   }
   .leg-chip.active {
-    background: var(--ord-chip-sel); border-color: var(--ord-chip-sel); color: #fff;
+    background: var(--ord-chip-sel); border-color: var(--ord-chip-sel); color: var(--ord-on-brand);
     box-shadow: 0 0 0 2px rgba(75,137,255,0.28);
   }
-  .leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .leg-dot { width: 18px; height: 12px; border-radius: 3px; flex-shrink: 0; }
   .p1-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .phone .p1-actions { width: 100%; justify-content: space-between; }
 
@@ -369,9 +374,9 @@
     text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
   }
   .cat-btn:hover { background: var(--ord-chip); color: var(--ord-ink); }
-  .cat-btn.active { background: var(--ord-chip-sel); color: #fff; font-weight: 800; }
-  .cat-time-tag { font-size: 9.5px; opacity: 0.85; color: #FFB03A; }
-  .cat-btn.active .cat-time-tag { color: #FFE8A3; }
+  .cat-btn.active { background: var(--ord-chip-sel); color: var(--ord-on-brand); font-weight: 800; }
+  .cat-time-tag { font-size: 9.5px; color: var(--ord-warn); }
+  .cat-btn.active .cat-time-tag { color: inherit; opacity: 0.9; }
 
   .prd-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .prd-filter-hint {
@@ -388,7 +393,7 @@
   .prd-card {
     background: var(--ord-card); border: 1px solid var(--ord-border); border-radius: 12px;
     padding: 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-    cursor: pointer; position: relative; transition: border-color .14s, transform .1s;
+    cursor: pointer; position: relative; transition: transform 100ms ease-out;
   }
   .prd-card:hover { border-color: var(--ord-brand); }
   .prd-card.soldout { opacity: 0.56; }
@@ -406,7 +411,7 @@
   .ptag-set { background: rgba(26,200,212,0.18); color: var(--ord-wine); border: 1px solid rgba(26,200,212,0.4); }
   .ptag-stock { background: rgba(255,176,58,0.18); color: var(--ord-warn); border: 1px solid rgba(255,176,58,0.45); }
   .ptag-out { background: rgba(255,71,87,0.18); color: var(--ord-danger); border: 1px solid rgba(255,71,87,0.45); }
-  .ptag-ordered { background: rgba(75,137,255,0.18); color: var(--ord-brand); border: 1px solid rgba(75,137,255,0.45); }
+  .ptag-ordered { background: var(--sk-level1-fill, rgba(75,137,255,0.18)); color: var(--sk-text-accent, var(--ord-brand)); border: 1px solid var(--sk-outline-border, rgba(75,137,255,0.45)); }
   .ptag-fc { background: rgba(155,109,255,0.18); color: var(--ord-yh2); border: 1px solid rgba(155,109,255,0.45); }
 
   .prd-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; }
@@ -422,7 +427,7 @@
     background: var(--ord-chip); color: var(--ord-ink); font-size: 16px; font-weight: 900;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
-  .step-btn.plus { background: var(--ord-brand); color: #fff; border-color: var(--ord-brand); }
+  .step-btn.plus { background: var(--ord-brand); color: var(--ord-on-brand); border-color: var(--ord-brand); }
   .step-qty { min-width: 22px; text-align: center; font-size: 14px; font-weight: 900; color: var(--ord-ink); }
   .prd-perm-row { display: flex; gap: 4px; border-top: 1px dashed var(--ord-divider); padding-top: 6px; }
 
@@ -470,9 +475,9 @@
     position: relative; border: 1px solid var(--ord-border); background: var(--ord-chip); color: var(--ord-ink);
     border-radius: 8px; padding: 6px 11px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
   }
-  .foot-tab.active { background: var(--ord-brand); border-color: var(--ord-brand); color: #fff; }
+  .foot-tab.active { background: var(--ord-brand); border-color: var(--ord-brand); color: var(--ord-on-brand); }
   .badge-cnt {
-    background: #FF4757; color: #fff; font-size: 10.5px; font-weight: 900;
+    background: var(--ord-danger-btn, #C81E3A); color: #fff; font-size: 10.5px; font-weight: 900;
     padding: 1px 6px; border-radius: 999px; margin-left: 4px;
   }
 
@@ -500,15 +505,15 @@
     display: inline-flex; align-items: center; justify-content: center;
     padding: 2px 6px; border-radius: 5px; font-size: 10.5px; font-weight: 800; color: #fff; flex-shrink: 0;
   }
-  .rb-norm { background: #1DC344; }
-  .rb-set { background: #00A8B5; }
+  .rb-norm { background: #15803D; }
+  .rb-set { background: #0E7490; }
   .rb-yh { background: #FF9F1A; color: #121A2C; }
-  .rb-yh2 { background: #9B6DFF; }
-  .rb-paid { background: #16A34A; }
-  .rb-unpaid { background: #7C3AED; }
-  .rb-refund { background: #DC2626; }
-  .rb-lock { background: #2563EB; }
-  .rb-add { background: #0891B2; }
+  .rb-yh2 { background: #6D28D9; }
+  .rb-paid { background: #15803D; }
+  .rb-unpaid { background: #6D28D9; }
+  .rb-refund { background: #C81E3A; }
+  .rb-lock { background: #1D4ED8; }
+  .rb-add { background: #0E7490; }
 
   /* 5-item pay_info KPI Strip */
   .kpi-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -530,7 +535,7 @@
   .phone .order-row-card { flex-direction: column; align-items: stretch; }
   .req-chip {
     display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700;
-    background: rgba(75,137,255,0.16); color: var(--ord-brand); border: 1px solid rgba(75,137,255,0.35);
+    background: var(--sk-level1-fill, rgba(75,137,255,0.16)); color: var(--sk-text-accent, var(--ord-brand)); border: 1px solid var(--sk-outline-border, rgba(75,137,255,0.35));
   }
 
   /* Wine 3-Tab Workbench */
@@ -541,9 +546,24 @@
   .overlay-bg {
     position: absolute; inset: 0; background: rgba(5, 10, 22, 0.72); z-index: 120;
     display: none; align-items: center; justify-content: center; padding: 14px;
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   }
   .overlay-bg.open { display: flex; }
+  @keyframes ordModalIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ordSheetUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  .overlay-bg.open .modal-card { animation: ordModalIn 180ms ease-out both; }
+  .phone .overlay-bg.sheet-mode.open .modal-card { animation: ordSheetUp 180ms ease-out both; }
+  [data-reduced-motion="true"] *,
+  [data-reduced-motion="true"] *::before,
+  [data-reduced-motion="true"] *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+  [data-reduced-motion="true"] .overlay-bg {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
   .phone .overlay-bg.sheet-mode { align-items: flex-end; padding: 0; }
   .modal-card {
     width: 560px; max-width: 100%; max-height: 92%;
@@ -566,7 +586,7 @@
     padding: 6px 12px; border-radius: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer;
     background: var(--ord-chip); border: 1.5px solid var(--ord-border); color: var(--ord-ink);
   }
-  .pick-chip.active { background: var(--ord-brand); border-color: var(--ord-brand); color: #fff; }
+  .pick-chip.active { background: var(--ord-brand); border-color: var(--ord-brand); color: var(--ord-on-brand); }
   .numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .num-key {
     height: 40px; border-radius: 9px; border: 1px solid var(--ord-border);
@@ -585,8 +605,9 @@
   td { padding: 8px 9px; border-top: 1px solid var(--ord-divider); color: var(--ord-ink); }
   tr:nth-child(even) td { background: var(--ord-tbl-alt); }
 </style>
+<link rel="stylesheet" href="skins.css" />
 </head>
-<body>
+<body class="sys-order">
   <!-- ==================== STUDIO BAR ==================== -->
   <header class="studio-bar">
     <div class="studio-left">
@@ -734,7 +755,7 @@
               <span style="font-size:16px">🛒</span>
               <div>
                 <div style="font-size:13px;font-weight:800" id="phoneCartSummary">共 0 件 · ¥0</div>
-                <div style="font-size:10.5px;color:#93C5FD">点此展开微调 / 改要求 / 优惠</div>
+                <div style="font-size:10.5px;color:#BAE6FD">点此展开微调 / 改要求 / 优惠</div>
               </div>
             </div>
             <button class="btn btn-green btn-sm" style="border-radius:999px;padding:0 14px" onclick="submitCartOrder()">⚡ 立即下单</button>
@@ -1025,7 +1046,7 @@
   /* ==================== Mock Data (Source-Aligned with Vue dev & Flutter) ==================== */
   const SEATS = [
     { id:'V02', reg:'VIP', regName:'VIP包厢', st:5, stTxt:'点单', mine:true, time:'21:15', mark:'生', lock:false, ord:3280, min:3000, yh:380, sales:'林经理', dept:'营销一部', turn:1, remark:'要冰桶加柠檬', wineOk:true },
-    { id:'V01', reg:'VIP', regName:'VIP包厢', st:6, stTxt:'部分结', mine:true, time:'20:40', mark:'V', lock:false, ord:6800, min:5000, yh:600, sales:'陈主管', dept:'VIP组', turn:0, remark:'先结首轮洋酒', wineOk:true },
+    { id:'V01', reg:'VIP', regName:'VIP包厢', st:6, stTxt:'部分结', mine:true, time:'20:40', mark:'V', lock:false, ord:6800, paid:4200, unpaid:2000, min:5000, yh:600, sales:'陈主管', dept:'VIP组', turn:0, remark:'先结首轮洋酒', wineOk:true },
     { id:'A08', reg:'HALL', regName:'大厅卡座', st:4, stTxt:'开台', mine:true, time:'22:05', mark:'', lock:false, ord:1920, min:2000, yh:0, sales:'林经理', dept:'营销一部', turn:0, remark:'待上鸡尾酒', wineOk:true },
     { id:'A03', reg:'HALL', regName:'大厅卡座', st:5, stTxt:'点单', mine:true, time:'21:30', mark:'必', lock:false, ord:2450, min:2000, yh:200, sales:'周总监', dept:'商务部', turn:2, remark:'常客老王', wineOk:true },
     { id:'B12', reg:'BAR', regName:'吧台/散台', st:7, stTxt:'已结', mine:true, time:'20:10', mark:'', lock:false, ord:980, min:0, yh:0, sales:'散客', dept:'', turn:1, remark:'已结待存酒', wineOk:true },
@@ -1107,6 +1128,7 @@
   let activeReg = 'MINE';
   let activeLegendSt = null;
   let activeSeatId = 'V02';
+  let pendingStateFlashSeat = null;
   let activeCat1 = 'c1';
   let activeCat2 = 's1';
   let p4Tab = 'orders';
@@ -1140,20 +1162,17 @@
 
   /* ==================== Theme & Safe Mode ==================== */
   function toggleOrderTheme() {
-    isDark = !isDark;
-    const frame = document.getElementById('deviceFrame');
-    frame.classList.toggle('theme-light', !isDark);
-    const topChip = document.getElementById('themeToggleTop');
-    topChip.textContent = isDark ? '🌙 默认深色 → 切浅色' : '☀ 当前浅色 → 切深色';
-    topChip.classList.toggle('light-on', !isDark);
-    document.getElementById('themeMetaTxt').textContent = isDark
-      ? '深色护眼模式（OrderPalette.dark · 默认）'
-      : '浅灰蓝高可读模式（OrderPalette.light）';
-    document.querySelectorAll('[data-theme-pill]').forEach(el => {
-      el.textContent = isDark ? '☀ 浅色' : '🌙 深色';
-    });
-    showToast(isDark ? '已切换为深色护眼主题（酒吧默认）' : '已切换为浅灰蓝浅色主题', 'success');
+    if (window.ShouyinSkin) {
+      window.ShouyinSkin.openPicker();
+    }
   }
+  window.addEventListener('shouyin-skin-change', e => {
+    const meta = e.detail;
+    isDark = !(window.ShouyinSkin && typeof window.ShouyinSkin.isLight === 'function'
+      ? window.ShouyinSkin.isLight(meta.id)
+      : ['daylightSlate', 'emeraldFresh', 'warmIvoryBistro'].includes(meta.id));
+    showToast(`已切换为「${meta.name}」皮肤（${meta.modeTag}）`, 'success');
+  });
 
   function toggleSafeMode() {
     safeMode = !safeMode;
@@ -1180,22 +1199,27 @@
     const counts = { 1:0, 2:0, 8:0, 4:0, 5:0, 6:0, 7:0 };
     SEATS.forEach(s => counts[s.st] = (counts[s.st]||0) + 1);
     const items = [
-      { st:1, lbl:'空台', bg:'var(--st-empty)', n:counts[1] },
-      { st:2, lbl:'锁定', bg:'var(--st-lock)', n:counts[2] },
-      { st:8, lbl:'预订', bg:'var(--st-reserved)', n:counts[8] },
-      { st:4, lbl:'开台', bg:'var(--st-opened)', n:counts[4] },
-      { st:5, lbl:'点单', bg:'var(--st-ordered)', n:counts[5] + counts[6] },
-      { st:7, lbl:'已结', bg:'var(--st-paid)', n:counts[7] },
+      { st:1, lbl:'空台', n:counts[1] },
+      { st:2, lbl:'锁定', n:counts[2] },
+      { st:8, lbl:'预订', n:counts[8] },
+      { st:4, lbl:'开台', n:counts[4] },
+      { st:5, lbl:'点单', n:counts[5] },
+      { st:6, lbl:'部分结', n:counts[6] },
+      { st:7, lbl:'已结', n:counts[7] },
     ];
     document.getElementById('legendRow').innerHTML = items.map(it =>
       `<div class="leg-chip ${activeLegendSt===it.st?'active':''}" onclick="toggleLegend(${it.st})">
-        <span class="leg-dot" style="background:${it.bg}"></span>${it.lbl} ${it.n}
+        <span class="leg-dot ${it.st===6?'sw-partial':''}" data-st="${it.st}"></span>${it.lbl} ${it.n}
       </div>`
     ).join('') + `<div class="leg-chip" style="cursor:default">抵达数 <b>11</b></div>`;
   }
 
   function toggleLegend(st) {
     activeLegendSt = activeLegendSt === st ? null : st;
+    if (activeLegendSt !== null && activeReg === 'MINE' && !SEATS.some(s => s.mine && s.st === activeLegendSt)) {
+      activeReg = 'ALL';
+      document.querySelectorAll('#regStrip .reg-pill').forEach(x => x.classList.toggle('active', x.dataset.reg === 'ALL'));
+    }
     renderLegends();
     renderSeats();
   }
@@ -1212,10 +1236,7 @@
       if (activeReg === 'MINE' && !s.mine) return false;
       if (activeReg === 'OPENED' && ![4,5,6,7].includes(s.st)) return false;
       if (['VIP','HALL','BAR'].includes(activeReg) && s.reg !== activeReg) return false;
-      if (activeLegendSt !== null) {
-        if (activeLegendSt === 5) { if (![5,6].includes(s.st)) return false; }
-        else if (s.st !== activeLegendSt) return false;
-      }
+      if (activeLegendSt !== null && s.st !== activeLegendSt) return false;
       if (kw && !`${s.id} ${s.regName} ${s.sales} ${s.dept}`.toLowerCase().includes(kw)) return false;
       return true;
     });
@@ -1226,7 +1247,7 @@
     document.getElementById('seatGrid').innerHTML = list.map(s => {
       const pct = s.min > 0 ? Math.round((s.ord / s.min) * 100) : 0;
       const longCls = s.id.length > 6 ? 'long' : '';
-      return `<div class="seat-card" style="background:${ST_BG[s.st]}" onclick="onTapSeat('${s.id}')">
+      return `<div class="seat-card s${s.st}" data-st="${s.st}" data-seat-id="${s.id}" onclick="onTapSeat('${s.id}')">
         <div>
           <div class="sc-top">
             <span>${s.regName} ${s.time ? '· ' + s.time : ''}</span>
@@ -1234,18 +1255,18 @@
               ${s.mark ? `<span class="mini-badge mb-mark">${s.mark}</span>` : ''}
               ${s.lock ? `<span class="mini-badge mb-lock">锁</span>` : ''}
               ${s.turn > 0 ? `<span class="mini-badge mb-turn">翻${s.turn}</span>` : ''}
-              ${s.st === 6 ? `<span class="mini-badge mb-partial">部分结</span>` : ''}
             </div>
           </div>
           <div class="sc-name-row">
             <span class="sc-name ${longCls}">${s.id}</span>
-            <span class="sc-status-txt">${s.stTxt}</span>
+            <span class="rc-status-chip sc-status-txt">${s.stTxt}</span>
           </div>
           ${!wineMode && [4,5,6,7].includes(s.st) ? `
             <div class="sc-amt">
-              <span>点：¥${s.ord.toLocaleString()} ${s.min > 0 ? `<small style="opacity:.85">(${pct}%)</small>` : ''}</span>
+              <span>点：¥${s.ord.toLocaleString()} ${s.min > 0 ? `<small style="color:var(--rc-muted)">(${pct}%)</small>` : ''}</span>
               ${s.yh > 0 ? `<span class="yh">惠：¥${s.yh.toLocaleString()}</span>` : ''}
               ${s.min > 0 ? `<div class="min-bar"><i style="width:${Math.min(100, pct)}%"></i></div>` : ''}
+              ${s.st === 6 ? `<div class="rc-amt-box"><span>未付</span><b>¥${(s.unpaid || 2000).toLocaleString()}</b></div>` : ''}
             </div>` : ''}
         </div>
         <div>
@@ -1482,7 +1503,7 @@
             <span class="rbadge ${cls}">${lbl}</span>
             <div>
               <div style="font-size:12.5px;font-weight:800">${c.name}</div>
-              ${c.req.length ? `<div style="font-size:10.5px;color:var(--ord-brand)">${c.req.join(' · ')}</div>` : ''}
+              ${c.req.length ? `<div style="font-size:10.5px;color:var(--sk-text-accent, var(--ord-brand))">${c.req.join(' · ')}</div>` : ''}
             </div>
           </div>
           <strong style="font-size:13px;color:var(--price-normal)">¥${(c.price * c.qty).toLocaleString()}</strong>
@@ -1540,9 +1561,21 @@
   function submitCartOrder() {
     if (!cart.length) { showToast('购物车为空，请先加购酒水', 'warn'); return; }
     const cnt = cart.reduce((a, b) => a + b.qty, 0);
+    const addAmt = cart.reduce((a, b) => a + b.qty * b.price, 0);
+    const seat = SEATS.find(x => x.id === activeSeatId);
+    if (seat) {
+      seat.ord = (seat.ord || 0) + addAmt;
+      if (seat.st === 4) {
+        seat.st = 5;
+        seat.stTxt = '点单';
+        pendingStateFlashSeat = seat.id;
+      }
+    }
     cart = [];
     renderProducts();
     renderCartViews();
+    renderLegends();
+    renderSeats();
     showToast(`✓ 已下单 ${cnt} 件酒水至卡台 ${activeSeatId}（自动通知吧台出品打印）`, 'success');
   }
 
@@ -1556,7 +1589,7 @@
       return `<div class="panel-card">
         <div class="panel-title-row">
           <strong style="font-size:14px">${g.title}</strong>
-          <span style="font-size:12.5px;font-weight:800;color:${picked===g.need?'var(--ord-cta-green)':'var(--ord-warn)'}">已选 ${picked} / 须选 ${g.need}</span>
+          <span style="font-size:12.5px;font-weight:800;color:${picked===g.need?'var(--sk-success-text, var(--price-normal))':'var(--ord-warn)'}">已选 ${picked} / 须选 ${g.need}</span>
         </div>
         <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${picked===g.need?'var(--ord-cta-green)':'var(--ord-brand)'}"></div></div>
         <div class="set-opt-grid">
@@ -1845,13 +1878,34 @@
         </div>`;
       ft.innerHTML = `
         <button class="btn btn-danger-soft" onclick="waiterPayStep='select';renderWaiterPay();showToast('已调用 /wo/cancel_waiter_olpay 取消支付')">取消订单</button>
-        <button class="btn btn-green" onclick="closeAllModals();showToast('✓ 模拟扫码支付成功！已实时更新卡台未结金额', 'success')">模拟支付成功 ✓</button>`;
+        <button class="btn btn-green" onclick="completeWaiterPay()">模拟支付成功 ✓</button>`;
     }
   }
 
   function toggleWpOrder(id) {
     if (waiterPaySel.has(id)) waiterPaySel.delete(id); else waiterPaySel.add(id);
     renderWaiterPay();
+  }
+  function completeWaiterPay() {
+    closeAllModals();
+    const seat = SEATS.find(x => x.id === activeSeatId);
+    if (seat && (seat.st === 5 || seat.st === 6)) {
+      if (seat.st === 5) {
+        seat.st = 6;
+        seat.stTxt = '部分结';
+        seat.paid = Math.round((seat.ord || 3000) * 0.45);
+        seat.unpaid = Math.max(200, (seat.ord || 3000) - seat.paid);
+      } else {
+        seat.st = 7;
+        seat.stTxt = '已结';
+        seat.paid = seat.ord;
+        seat.unpaid = 0;
+      }
+      pendingStateFlashSeat = seat.id;
+      renderLegends();
+      renderSeats();
+    }
+    showToast('✓ 模拟扫码支付成功！已实时更新卡台状态与未结金额', 'success');
   }
 
   function openRefundModal(name, maxQty) {
@@ -1908,7 +1962,7 @@
       <div class="tbl-wrap"><table>
         <thead><tr><th>台号</th><th>区域</th><th>订位人</th><th>低消</th><th>已点主营</th><th>达成率</th><th>差额</th></tr></thead>
         <tbody>
-          <tr><td><b>V02</b></td><td>VIP包厢</td><td>林经理</td><td>¥3,000</td><td>¥3,280</td><td style="color:var(--ord-cta-green);font-weight:800">109%</td><td>¥0</td></tr>
+          <tr><td><b>V02</b></td><td>VIP包厢</td><td>林经理</td><td>¥3,000</td><td>¥3,280</td><td style="color:var(--sk-success-text, var(--price-normal));font-weight:800">109%</td><td>¥0</td></tr>
           <tr><td><b>A08</b></td><td>大厅卡座</td><td>林经理</td><td>¥2,000</td><td>¥1,920</td><td style="color:var(--ord-warn);font-weight:800">96%</td><td>¥80</td></tr>
           <tr><td><b>V05</b></td><td>VIP包厢</td><td>王经理</td><td>¥4,000</td><td>¥0</td><td style="color:var(--ord-danger);font-weight:800">0%</td><td>¥4,000</td></tr>
         </tbody>
@@ -1939,10 +1993,11 @@
   }
 
   function openAccountModal() {
-    openGeneric('👤 员工账户：李服务员（3 项）', `
+    openGeneric('👤 员工账户：李服务员（4 项）', `
       <div style="display:flex;flex-direction:column;gap:8px">
         <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();showToast('打开「修改密码」（大写 MD5 + 1s 自动登出 · 浅色键盘防溢出）')">🔑 修改密码</button>
         <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();openAuthModal('授权密码设置（兼容 enabled=2 关闭态 + 触屏键盘）', () => showToast('授权密码已更新', 'success'))">🔐 授权密码（含触屏数字键盘）</button>
+        <button class="btn btn-chip btn-lg-touch" onclick="closeAllModals();ShouyinSkin.openPicker()">🎨 界面皮肤（8 套风格）</button>
         <button class="btn btn-danger btn-lg-touch" onclick="openConfirmLogout()">🚪 退出登录（二次确认）</button>
       </div>`);
   }
@@ -2011,11 +2066,27 @@
   }
 
   /* ==================== Navigation & Viewport Switching ==================== */
+  function flashSeatStateChange(seatId) {
+    const card = document.querySelector(`#seatGrid .seat-card[data-seat-id="${seatId}"]`);
+    if (!card) return;
+    card.classList.remove('rc-state-changed');
+    void card.offsetWidth;
+    card.classList.add('rc-state-changed');
+    clearTimeout(card._rcFlashTimer);
+    card._rcFlashTimer = setTimeout(() => card.classList.remove('rc-state-changed'), 680);
+  }
   function switchPage(id) {
     closeAllModals();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
     document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+    if (id === 'p1' && pendingStateFlashSeat) {
+      const targetId = pendingStateFlashSeat;
+      pendingStateFlashSeat = null;
+      renderLegends();
+      renderSeats();
+      flashSeatStateChange(targetId);
+    }
     if (id === 'p2set') renderSetPage();
     if (id === 'p4') renderP4();
     if (id === 'p5') renderWineTab();
@@ -2025,7 +2096,14 @@
   document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.addEventListener('click', () => {
     const m = b.dataset.device;
     const frame = document.getElementById('deviceFrame');
-    frame.className = 'device-frame ' + m + (isDark ? '' : ' theme-light');
+    const curSkin = window.ShouyinSkin ? window.ShouyinSkin.get() : (frame.dataset.skin || 'midnightBlue');
+    const isLight = window.ShouyinSkin && typeof window.ShouyinSkin.isLight === 'function'
+      ? window.ShouyinSkin.isLight(curSkin)
+      : ['daylightSlate', 'emeraldFresh', 'warmIvoryBistro'].includes(curSkin);
+    frame.classList.remove('desktop', 'tablet', 'phone');
+    frame.classList.add(m);
+    frame.classList.toggle('theme-light', isLight);
+    frame.dataset.skin = curSkin;
     document.querySelectorAll('#deviceTabs .seg-btn').forEach(x => x.classList.toggle('active', x === b));
     const names = {
       desktop: 'Desktop 宽屏 (≥1200dp · 三栏实时购物车)',
@@ -2062,5 +2140,6 @@
   renderP4();
   renderWineTab();
 </script>
+<script src="skins.js"></script>
 </body>
 </html>

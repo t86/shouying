@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C83758'/%3E%3Ctext x='16' y='21.5' text-anchor='middle' font-size='15' font-weight='800' fill='%23fff' font-family='sans-serif'%3ES3%3C/text%3E%3C/svg%3E" />
 <title>收银系统（S3）全端视觉还原 & 酒吧高效交互预览 · Desktop / 平板 / 手机</title>
 <style>
   :root {
@@ -23,7 +24,7 @@
     --st-reserved: #008F95;
     --st-opened: #D08322;
     --st-ordered: #C83758;
-    --st-partial: #6E3AC7;
+    --st-partial: #C83758;
     --st-paid: #5C3BC1;
     /* Brand & Semantics */
     --brand-primary: #455EFF;
@@ -187,15 +188,16 @@
     display: flex; flex-direction: column; gap: 3px; cursor: pointer;
     border: 1px solid rgba(255,255,255,0.16);
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.45);
-    transition: transform .1s, box-shadow .12s;
+    transition: transform 100ms ease-out;
   }
-  .t-card:hover { transform: translateY(-1px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.6), 0 6px 16px rgba(0,0,0,0.35); }
+  .t-card:hover { transform: translateY(-1px); }
+  .t-card:active { transform: scale(0.97); }
   .t-card.st1 { background: var(--st-empty); }
   .t-card.st2 { background: var(--st-lock); }
   .t-card.st8 { background: var(--st-reserved); }
   .t-card.st4 { background: var(--st-opened); }
   .t-card.st5 { background: var(--st-ordered); }
-  .t-card.st6 { background: linear-gradient(155deg, #B52F5C 0%, #5C3BC1 100%); border-color: rgba(255,173,69,0.55); }
+  .t-card.st6 { background: var(--st-partial); }
   .t-card.st7 { background: var(--st-paid); }
 
   .tc-r1 { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 11.5px; }
@@ -206,9 +208,10 @@
     display: inline-flex; align-items: center; justify-content: center; color: #08080A;
   }
   .sq-later { background: var(--badge-later); }
-  .sq-over { background: var(--badge-overtime); animation: blinkOver 1s steps(2, start) infinite; }
+  .sq-over { background: var(--badge-overtime); animation: blinkOver 0.55s steps(2, start) 3; }
   .sq-mark { background: var(--badge-mark); }
   .sq-lock { background: var(--badge-lock); width: 16px; height: 16px; font-size: 10px; }
+  .phone .sq-tag { width: 16px; height: 16px; font-size: 10px; }
   @keyframes blinkOver { 0%,49% { opacity: 1; } 50%,100% { opacity: 0.25; } }
   .tc-time { font-size: 11px; opacity: 0.88; font-weight: 600; }
 
@@ -232,6 +235,7 @@
   .tc-min-fill.warn { background: #FFD166; }
 
   .tc-meta { margin-top: auto; padding-top: 3px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; opacity: 0.92; gap: 4px; }
+  .tc-state-note { min-height: 54px; display: flex; align-items: center; font-size: 12px; color: var(--rc-muted); }
   .tc-remark { font-size: 11px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tc-transfer { font-size: 10.5px; color: rgba(255,255,255,0.72); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -242,27 +246,33 @@
     flex-shrink: 0;
   }
   .phone .footer-bar { flex-direction: column; align-items: stretch; padding: 6px 8px; gap: 6px; }
-  .legend-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .legend-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; }
+  .tablet .legend-row { gap: 4px; }
+  .tablet .lg-item { padding: 3px 4px; }
+  .tablet .footer-actions { max-width: 53%; }
   .legend-row::-webkit-scrollbar { display: none; }
   .lg-item {
     display: flex; flex-direction: column; align-items: center; gap: 2px;
     padding: 3px 7px; border-radius: 8px; cursor: pointer; border: 1.5px solid transparent;
-    transition: all .12s; flex-shrink: 0;
+    flex-shrink: 0;
   }
   .lg-item:hover { background: rgba(255,255,255,0.06); }
   .lg-item.active {
     border-color: var(--glow-border); background: rgba(69,94,255,0.25);
     box-shadow: 0 0 8px rgba(50,185,255,0.45);
   }
-  .lg-swatch { width: 24px; height: 9px; border-radius: 999px; }
+  .lg-swatch { width: 28px; height: 12px; border-radius: 4px; }
   .lg-lbl { font-size: 11px; color: rgba(255,255,255,0.88); white-space: nowrap; }
 
-  .footer-actions { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .footer-actions { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; max-width: 56%; }
+  .phone .footer-actions { max-width: 100%; width: 100%; }
+  .footer-actions > * { flex-shrink: 0; }
   .footer-actions::-webkit-scrollbar { display: none; }
   .merchant-chip {
     background: rgba(30,218,173,0.12); border: 1px solid rgba(30,218,173,0.45);
     color: var(--mint-amt); border-radius: 8px; padding: 3px 9px; font-size: 11.5px;
     font-weight: 700; cursor: pointer; display: inline-flex; flex-direction: column; line-height: 1.25;
+    white-space: nowrap; flex-shrink: 0;
   }
   .badge-dot {
     background: var(--danger-red); color: #fff; font-size: 10px; font-weight: 800;
@@ -400,7 +410,7 @@
     flex: 1; min-height: 0; display: grid; grid-template-columns: 195px 1fr 300px;
     background: var(--surface-drawer);
   }
-  .tablet .combo-shell { grid-template-columns: 165px 1fr 255px; }
+  .tablet .combo-shell { grid-template-columns: 158px 1fr 278px; }
   .phone .combo-shell { display: flex; flex-direction: column; overflow-y: auto; }
 
   .cnl-rail {
@@ -421,6 +431,7 @@
   .cnl-tag { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: rgba(30,218,173,0.2); color: var(--mint-amt); }
 
   .cnl-center { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+  .phone .cnl-center { flex-shrink: 0; overflow: visible; padding: 10px 12px; }
   .member-strip {
     background: rgba(69,94,255,0.12); border: 1px solid rgba(75,137,255,0.35);
     border-radius: 9px; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between;
@@ -435,7 +446,7 @@
     background: transparent; border: none; outline: none; width: 100%;
   }
   .amt-display-val.fresh {
-    background: rgba(30,218,173,0.18); border-radius: 6px; padding: 0 6px;
+    background: var(--sk-mint-soft-bg, rgba(30,218,173,0.18)); border-radius: 6px; padding: 0 6px;
   }
   .quick-chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .q-chip {
@@ -459,7 +470,7 @@
     background: #141C32; border-left: 1px solid rgba(255,255,255,0.1);
     padding: 12px; display: flex; flex-direction: column; gap: 10px;
   }
-  .phone .cnl-cart { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); }
+  .phone .cnl-cart { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
   .cart-kpis {
     background: #0F1629; border: 1px solid rgba(255,255,255,0.1); border-radius: 9px;
     padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;
@@ -500,8 +511,23 @@
   .overlay-bg {
     position: absolute; inset: 0; background: rgba(4,8,20,0.72); z-index: 90;
     display: none; align-items: center; justify-content: center; padding: 14px;
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   }
   .overlay-bg.open { display: flex; }
+  @keyframes csModalIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .overlay-bg.open .modal-card,
+  .overlay-bg.open .more-panel { animation: csModalIn 180ms ease-out both; }
+  [data-reduced-motion="true"] *,
+  [data-reduced-motion="true"] *::before,
+  [data-reduced-motion="true"] *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+  [data-reduced-motion="true"] .overlay-bg {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
   .modal-card {
     background: var(--surface-dialog); border: 1.5px solid var(--glow-border);
     box-shadow: 0 0 24px rgba(26,137,255,0.45); border-radius: 14px;
@@ -571,8 +597,9 @@
   }
   .toast.show { display: block; }
 </style>
+<link rel="stylesheet" href="skins.css" />
 </head>
-<body>
+<body class="sys-cashier">
   <header class="studio-bar">
     <div class="studio-left">
       <div class="sys-switch">
@@ -637,6 +664,7 @@
             <button class="btn btn-secondary btn-sm" onclick="switchPage('p3')">⚠ 异议单 <span class="badge-dot">2</span></button>
             <button class="btn btn-late btn-sm" onclick="switchPage('p3')">🏦 滞留金</button>
             <button class="btn btn-outline btn-sm" id="moreMenuBtn" onclick="openMore38()">⊞ 更多功能 (38)</button>
+            <button class="btn btn-secondary btn-sm" data-skin-pill onclick="ShouyinSkin.openPicker()">🌙 午夜深蓝 ▾</button>
             <button class="btn btn-secondary btn-sm" onclick="openAccountMenu()">👤 王收银 ▾</button>
           </div>
         </div>
@@ -652,7 +680,7 @@
               <span class="pay-seat-title" id="poSeatName">V02</span>
               <span class="meta-pill">订位：<b>林经理 / 营销一部</b></span>
               <span class="meta-pill">低消：<b>¥3,000</b> (86%)</span>
-              <span class="meta-pill">客人：陈先生 (138****8821) · 服务员：小周 <a href="javascript:void(0)" style="color:#6A9EFF;margin-left:4px" onclick="showToast('弹窗修改本台服务员 (/sel/chg_csm_waiter)')">改</a></span>
+              <span class="meta-pill">客人：陈先生 (138****8821) · 服务员：小周 <a href="javascript:void(0)" style="color:var(--sk-outline-text);margin-left:4px" onclick="showToast('弹窗修改本台服务员 (/sel/chg_csm_waiter)')">改</a></span>
               <span class="meta-pill" id="poSettleTag">买单：<b id="poSettleVal">后买单</b></span>
             </div>
             <div class="turnover-tabs">
@@ -689,12 +717,12 @@
                 </div>
                 <div class="paid-ch-card">
                   <div style="display:flex;justify-content:space-between"><strong>💳 会员卡 (VIP8821)</strong><strong style="color:var(--mint-amt)">¥1,000.00</strong></div>
-                  <div style="color:rgba(255,255,255,0.7);font-size:11px">储值 ¥850.00 · 折扣 ¥150.00 · 积分 +850</div>
-                  <div style="color:rgba(255,255,255,0.58);font-size:11px">结账：22:18 · 王收银</div>
+                  <div style="color:var(--sk-text-secondary);font-size:11px">储值 ¥850.00 · 折扣 ¥150.00 · 积分 +850</div>
+                  <div style="color:var(--sk-text-muted);font-size:11px">结账：22:18 · 王收银</div>
                 </div>
                 <div class="paid-ch-card">
                   <div style="display:flex;justify-content:space-between"><strong>💵 现金</strong><strong style="color:var(--mint-amt)">¥200.00</strong></div>
-                  <div style="color:rgba(255,255,255,0.58);font-size:11px">结账：22:18 · 王收银</div>
+                  <div style="color:var(--sk-text-muted);font-size:11px">结账：22:18 · 王收银</div>
                 </div>
               </aside>
 
@@ -744,7 +772,7 @@
 
             <div style="display:flex;justify-content:space-between;align-items:center">
               <strong id="activeCnlTitle" style="font-size:15px">💵 现金</strong>
-              <span style="font-size:12.5px;color:var(--warning-amber)">还差未收：<b id="centerRemainTxt">¥2,580.00</b></span>
+              <span style="font-size:12.5px;color:var(--warning-amber)">还差未收：<b id="centerRemainTxt">¥3,580.00</b></span>
             </div>
 
             <!-- Inline Specialized Container (VIP / Prepay / Late / Credit / Rounding / Online) -->
@@ -754,7 +782,7 @@
             <div id="numericArea" style="display:flex;flex-direction:column;gap:9px">
               <div class="amt-display-box">
                 <span style="font-size:20px;color:var(--text-ice);font-weight:800">¥</span>
-                <input class="amt-display-val fresh" id="amtInput" value="2580" readonly />
+                <input class="amt-display-val fresh" id="amtInput" value="3580" readonly />
                 <button class="btn btn-outline btn-xs" onclick="fillRemain()">填入剩余</button>
               </div>
               <div class="quick-chips" id="quickChips"></div>
@@ -765,10 +793,10 @@
           <!-- Right Cart & Smart 1-Click Settle -->
           <div class="cnl-cart">
             <div class="cart-kpis">
-              <div><div style="color:rgba(255,255,255,0.65)">本次应收</div><strong style="font-size:17px;color:#fff" id="cartTargetTxt">¥2,580.00</strong></div>
-              <div><div style="color:rgba(255,255,255,0.65)">已入收款车</div><strong style="font-size:17px;color:var(--mint-amt)" id="cartPaidTxt">¥0.00</strong></div>
-              <div><div style="color:rgba(255,255,255,0.65)">还差金额</div><strong style="font-size:17px;color:var(--warning-amber)" id="cartRemainTxt">¥2,580.00</strong></div>
-              <div><div style="color:rgba(255,255,255,0.65)">找零参考</div><strong style="font-size:17px;color:#7CF5B0" id="cartChangeTxt">¥0.00</strong></div>
+              <div><div style="color:var(--sk-text-muted)">本次应收</div><strong style="font-size:17px;color:var(--sk-text-primary)" id="cartTargetTxt">¥3,580.00</strong></div>
+              <div><div style="color:var(--sk-text-muted)">已入收款车</div><strong style="font-size:17px;color:var(--mint-amt)" id="cartPaidTxt">¥0.00</strong></div>
+              <div><div style="color:var(--sk-text-muted)">还差金额</div><strong style="font-size:17px;color:var(--warning-amber)" id="cartRemainTxt">¥3,580.00</strong></div>
+              <div><div style="color:var(--sk-text-muted)">找零参考</div><strong style="font-size:17px;color:var(--sk-progress-full)" id="cartChangeTxt">¥0.00</strong></div>
             </div>
 
             <div style="font-size:12px;color:var(--text-ice);font-weight:700">待结算收款车 (/sel/cart_items)</div>
@@ -779,7 +807,7 @@
             </label>
 
             <div style="display:flex;flex-direction:column;gap:7px">
-              <button class="btn btn-pink" style="height:44px;font-size:14.5px" id="smartPayBtn" onclick="executeSmartPay()">⚡ 一键全额收款 ¥2,580 (现金)</button>
+              <button class="btn btn-pink" style="min-height:44px;height:auto;padding:6px 10px;font-size:13.5px;white-space:normal;line-height:1.25" id="smartPayBtn" onclick="executeSmartPay()">⚡ 一键全额收款 ¥3,580 (现金)</button>
               <button class="btn btn-secondary" style="height:34px" id="addToCartBtn" onclick="addChannelToCart()">＋ 仅加入收款车（多渠道组合）</button>
             </div>
           </div>
@@ -824,11 +852,11 @@
             </div>
             <div class="sub-bd" style="flex-direction:row;flex-wrap:wrap;gap:14px">
               <div class="inline-card" style="flex:1;min-width:240px">
-                <div><strong>主体A · 星空娱乐公账</strong><div style="font-size:11.5px;color:rgba(255,255,255,0.7)">对私 8.60万 · 对公(G) 4.20万</div></div>
+                <div><strong>主体A · 星空娱乐公账</strong><div style="font-size:11.5px;color:var(--sk-text-secondary)">对私 8.60万 · 对公(G) 4.20万</div></div>
                 <strong style="color:var(--mint-amt);font-size:18px">12.80万</strong>
               </div>
               <div class="inline-card" style="flex:1;min-width:240px">
-                <div><strong>主体B · 备用商户</strong><div style="font-size:11.5px;color:rgba(255,255,255,0.7)">对私 4.90万 · 对公(G) 1.50万</div></div>
+                <div><strong>主体B · 备用商户</strong><div style="font-size:11.5px;color:var(--sk-text-secondary)">对私 4.90万 · 对公(G) 1.50万</div></div>
                 <strong style="color:var(--mint-amt);font-size:18px">6.40万</strong>
               </div>
             </div>
@@ -855,7 +883,7 @@
               <div class="receipt-row"><span>总实收合计</span><strong style="color:var(--mint-amt);font-size:17px">¥128,640.00</strong></div>
               <div class="receipt-row"><span>主营实收 / 非主营实收</span><strong>¥112,400 / ¥16,240</strong></div>
               <div class="receipt-row"><span>微信 / 支付宝 / POS / 会员卡</span><strong>¥48.2k / ¥32.1k / ¥24.5k / ¥18.2k</strong></div>
-              <div class="receipt-row"><span>退单 (4笔) / 优惠+优惠2</span><strong style="color:#FF8C9C">-¥1,860 / ¥6,420</strong></div>
+              <div class="receipt-row"><span>退单 (4笔) / 优惠+优惠2</span><strong style="color:var(--sk-danger-text)">-¥1,860 / ¥6,420</strong></div>
               <div class="receipt-row"><span>未付合计 (主营 / 非主营)</span><strong style="color:var(--warning-amber)">¥18,400 / ¥4,800</strong></div>
             </div>
           </div>
@@ -907,7 +935,10 @@
         <div class="more-panel">
           <div class="modal-hd">
             <span>⊞ 收银更多功能（全量 38 项 · 含 dev 新增「订单查询」）</span>
-            <button class="btn btn-secondary btn-xs" onclick="closeOverlays()">关闭 (Esc)</button>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn btn-outline btn-xs" onclick="closeOverlays();ShouyinSkin.openPicker()">🎨 界面皮肤</button>
+              <button class="btn btn-secondary btn-xs" onclick="closeOverlays()">关闭 (Esc)</button>
+            </div>
           </div>
           <div class="modal-bd">
             <input class="input-dark" id="moreSearch" placeholder="输入名称即时筛选报表/工具（如：班结、订单、鸡尾酒、估清...）" oninput="renderMore38()" />
@@ -936,7 +967,7 @@
               <button class="btn btn-secondary btn-xs" onclick="showToast('已切换展示门店收款二维码 (客人扫我-微信/支付宝/小程序)')">切换「客人扫我」二维码</button>
             </div>
             <input class="input-dark" id="scanCodeInput" placeholder="扫码枪监听中… 也可手动输入18位付款码回车" onkeydown="if(event.key==='Enter')simScan(this.value)" />
-            <div style="font-size:11.5px;color:rgba(255,255,255,0.65);line-height:1.5">
+            <div style="font-size:11.5px;color:var(--sk-text-muted);line-height:1.5">
               • 自动识别前缀：<b>10–15 开头 → 微信 (pay_type=6)</b>；<b>25–30 开头 → 支付宝 (pay_type=5)</b><br/>
               • 内置防重提交锁，彻底杜绝旧版扫码枪 18位+回车 触发两次扣款的问题。
             </div>
@@ -986,10 +1017,11 @@
   let poTab = 'unpaid';
   let settleMode = 2; // 1 先买单, 2 后买单
   let printIncludeCocktail = false;
+  let currentPaySeatId = 'V02';
 
   // Cards sorted in exact Vue /moneyCard priority: 5 -> 6 -> 7 -> 4 -> 8 -> 1(turnover) -> 1 -> 2
   const CARDS = [
-    { id:'V02', reg:'VIP', regName:'VIP包厢', st:5, settle:2, over:true, mark:'生', open:'21:10', order:3780, paid:1200, unpaid:2580, min:3000, booker:'林经理', dept:'营销一部', guest:'陈先生', phone:'13812348821', turn:1, remark:'要冰桶加柠檬', transfer:'A03-V01-V02' },
+    { id:'V02', reg:'VIP', regName:'VIP包厢', st:5, settle:2, over:true, mark:'生', open:'21:10', order:3580, paid:0, unpaid:3580, min:3000, booker:'林经理', dept:'营销一部', guest:'陈先生', phone:'13812348821', turn:1, remark:'要冰桶加柠檬', transfer:'A03-V01-V02' },
     { id:'A08', reg:'HALL', regName:'大厅卡座', st:5, settle:1, over:true, mark:'', open:'21:45', order:1880, paid:0, unpaid:1880, min:1500, booker:'王丽', dept:'营销二部', guest:'周总', phone:'18600004456', turn:0, remark:'线上未出品单待确认', transfer:'' },
     { id:'V05', reg:'VIP', regName:'VIP包厢', st:6, settle:2, over:false, mark:'V', open:'20:30', order:6800, paid:4800, unpaid:2000, min:5000, booker:'张总监', dept:'营销一部', guest:'吴总', phone:'18699991120', turn:0, remark:'有滞留金¥2000', transfer:'' },
     { id:'B03', reg:'BAR', regName:'吧台/散台', st:6, settle:1, over:false, mark:'', open:'22:05', order:920, paid:500, unpaid:420, min:0, booker:'散客', dept:'', guest:'', phone:'', turn:0, remark:'', transfer:'' },
@@ -1069,20 +1101,24 @@
     renderCards();
   }
 
+  const ST_LABELS = { 1:'空台', 2:'锁定', 8:'预订', 4:'开台', 5:'点单', 6:'部分结', 7:'已结' };
+
   function renderLegends() {
-    const cnt = st => CARDS.filter(c => st === 5 ? (c.st===5 || c.st===6) : c.st===st).length;
+    const scoped = CARDS.filter(c => activeReg === 'ALL' || c.reg === activeReg);
+    const cnt = st => scoped.filter(c => c.st === st).length;
     const defs = [
-      { st:1, lbl:'空台', c:'var(--st-empty)', n:cnt(1) },
-      { st:2, lbl:'锁定', c:'var(--st-lock)', n:cnt(2) },
-      { st:8, lbl:'预订', c:'var(--st-reserved)', n:cnt(8) },
-      { st:4, lbl:'开台', c:'var(--st-opened)', n:cnt(4) },
-      { st:5, lbl:'点单(含部分结)', c:'linear-gradient(90deg,var(--st-ordered) 55%,var(--st-partial) 100%)', n:cnt(5) },
-      { st:7, lbl:'已结', c:'var(--st-paid)', n:cnt(7) },
-      { st:20, lbl:'抵达数', c:'transparent', n:6 },
+      { st:1, lbl:'空台', n:cnt(1) },
+      { st:2, lbl:'锁定', n:cnt(2) },
+      { st:8, lbl:'预订', n:cnt(8) },
+      { st:4, lbl:'开台', n:cnt(4) },
+      { st:5, lbl:'点单', n:cnt(5) },
+      { st:6, lbl:'部分结', n:cnt(6) },
+      { st:7, lbl:'已结', n:cnt(7) },
+      { st:20, lbl:'抵达数', n:scoped.filter(c => [4,5,6,7].includes(c.st)).length },
     ];
     document.getElementById('legendRow').innerHTML = defs.map(d => `
       <div class="lg-item ${activeSt===d.st?'active':''}" onclick="${d.st===20?'':`toggleLegend(${d.st})`}">
-        ${d.st===20 ? '<div style="height:9px;font-size:10px;color:var(--mint-amt);font-weight:800">TODAY</div>' : `<div class="lg-swatch" style="background:${d.c}"></div>`}
+        ${d.st===20 ? '<div style="height:12px;font-size:10px;color:var(--mint-amt);font-weight:800;line-height:12px">TODAY</div>' : `<div class="lg-swatch ${d.st===6?'sw-partial':''}" data-st="${d.st}"></div>`}
         <div class="lg-lbl">${d.lbl} ${d.n}</div>
       </div>
     `).join('');
@@ -1100,9 +1136,7 @@
     const list = CARDS.filter(c => {
       if (activeReg !== 'ALL' && c.reg !== activeReg) return false;
       if (overtimeOnly && !c.over) return false;
-      if (activeSt !== null) {
-        if (activeSt === 5 ? !(c.st===5 || c.st===6) : c.st !== activeSt) return false;
-      }
+      if (activeSt !== null && c.st !== activeSt) return false;
       if (kw) {
         const hay = `${c.id} ${c.guest} ${c.phone} ${c.booker} ${c.dept} ${c.regName}`.toLowerCase();
         if (!hay.includes(kw)) return false;
@@ -1112,8 +1146,9 @@
     document.getElementById('cardGrid').innerHTML = list.map(c => {
       const showAmts = !safeMode && [5,6,7].includes(c.st);
       const minPct = c.min > 0 ? Math.min(100, Math.round(c.order / c.min * 100)) : 0;
+      const stLabel = ST_LABELS[c.st] || '';
       return `
-        <div class="t-card st${c.st}" onclick="onTapCard('${c.id}')">
+        <div class="t-card st${c.st}" data-st="${c.st}" data-seat-id="${c.id}" onclick="onTapCard('${c.id}')">
           <div class="tc-r1">
             <span class="tc-reg">${c.regName}</span>
             <span class="tc-badges">
@@ -1125,16 +1160,18 @@
           </div>
           <div class="tc-r2">
             <span class="tc-name">${c.id}</span>
-            ${c.st===6 ? '<span class="pill-partial">部分结</span>' : ''}
+            <span class="rc-status-chip">${stLabel}</span>
           </div>
           ${showAmts ? `
             <div class="tc-amts">
               <div class="tc-amt-row"><span>点：¥${c.order.toLocaleString()}</span><span>${c.min>0 ? minPct+'%' : ''}</span></div>
               ${c.min>0 ? `<div class="tc-min-bar"><div class="tc-min-fill ${minPct<100?'warn':''}" style="width:${minPct}%"></div></div>` : ''}
               <div class="tc-amt-row"><span>已付：¥${c.paid.toLocaleString()}</span></div>
-              <div class="tc-unpaid"><span>未付</span><b>¥${c.unpaid.toLocaleString()}</b></div>
+              ${c.st === 7 && c.unpaid === 0
+                ? `<div class="tc-amt-row" style="color:var(--rc-muted)"><span>已结清</span><span>¥0</span></div>`
+                : `<div class="tc-unpaid rc-amt-box"><span>未付</span><b>¥${c.unpaid.toLocaleString()}</b></div>`}
             </div>
-          ` : `<div style="height:56px;display:flex;align-items:center;font-size:12px;opacity:0.75">${c.st===4?'已开台 · 待点单':c.st===8?'已预订 · '+c.remark:c.st===2?'锁定中':c.turn>0?'空台（可复台/查记录）':'空台'}</div>`}
+          ` : `<div class="tc-state-note">${c.st===4?'已开台 · 待点单':c.st===8?'已预订 · '+c.remark:c.st===2?'锁定中':c.turn>0?'空台（可复台/查记录）':'空台'}</div>`}
           <div class="tc-meta">
             <span>${c.st===2 ? '<span class="sq-tag sq-lock">锁</span>' : (c.booker ? `${c.booker} ${c.dept}` : '')}</span>
             <span>${c.turn>0 ? '翻'+c.turn : ''}</span>
@@ -1150,6 +1187,7 @@
     const c = CARDS.find(x => x.id === id);
     if (!c) return;
     if ([4,5,6,7].includes(c.st)) {
+      currentPaySeatId = c.id;
       document.getElementById('poSeatName').textContent = c.id;
       switchPage('p2');
       showToast(`1 键直进 ${c.id} 结账工作台`);
@@ -1191,7 +1229,7 @@
       lock:'<span class="ob ob-lock">锁</span>',
       line:'<span class="ob ob-line">线</span>',
       hold:'<span class="ob ob-hold">未出</span>',
-      scheme:'<span class="ob" style="background:#3A6DF0">方案</span>',
+      scheme:'<span class="ob" style="background:#2563EB">方案</span>',
     };
     return arr.map(k => map[k] || '').join('');
   }
@@ -1213,7 +1251,7 @@
     document.getElementById('poTbody').innerHTML = rows.map(r => {
       const qty = isUnpaid ? r.qty : r.pc;
       const sub = (r.at===2||r.at===3) ? 0 : (qty===r.pc ? r.pa : r.p2 * qty);
-      const priceHtml = r.p2 !== r.pp && r.at !== 2 ? `<del style="opacity:.45;font-size:11px">¥${r.pp}</del> <b>¥${r.p2}</b>` : `¥${r.pp}`;
+      const priceHtml = r.p2 !== r.pp && r.at !== 2 ? `<del style="color:var(--sk-text-muted);font-size:11px">¥${r.pp}</del> <b>¥${r.p2}</b>` : `¥${r.pp}`;
       if (isUnpaid) {
         return `<tr class="${r.online?'online-row':''}">
           <td><input type="checkbox" ${r.checked?'checked':''} onchange="toggleItem('${r.id}')" /></td>
@@ -1270,7 +1308,7 @@
           </label>
           <strong style="color:var(--mint-amt);font-size:14px">¥${sub.toLocaleString()}</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:rgba(255,255,255,0.72)">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--sk-text-secondary)">
           <span>${r.waiter}${r.auther?' · 授:'+r.auther:''} · ${r.time}</span>
           ${isUnpaid ? `<div class="stepper">
             <button ${r.online||r.at===2||r.qty<=1?'disabled':''} onclick="chgQty('${r.id}',-1)">-</button>
@@ -1363,7 +1401,7 @@
     document.getElementById('cartTargetTxt').textContent = '¥' + target.toLocaleString('zh-CN',{minimumFractionDigits:2});
     document.getElementById('cartPaidTxt').textContent = '¥' + paid.toLocaleString('zh-CN',{minimumFractionDigits:2});
     document.getElementById('cartRemainTxt').textContent = '¥' + remain.toLocaleString('zh-CN',{minimumFractionDigits:2});
-    document.getElementById('cartRemainTxt').style.color = remain === 0 ? 'var(--success-green)' : 'var(--warning-amber)';
+    document.getElementById('cartRemainTxt').style.color = remain === 0 ? 'var(--sk-success-text, var(--success-green))' : 'var(--warning-amber)';
     document.getElementById('cartChangeTxt').textContent = '¥' + change.toLocaleString('zh-CN',{minimumFractionDigits:2});
 
     const isNumeric = [1,2,3,4,6,10].includes(activeCnlId);
@@ -1449,7 +1487,7 @@
 
     // Cart list
     document.getElementById('cartList').innerHTML = cart.length === 0
-      ? '<div style="font-size:12px;color:rgba(255,255,255,0.45);text-align:center;padding:18px 0">单渠道可直接点下方「一键全额收款」<br/>多渠道组合点「＋加入收款车」</div>'
+      ? '<div style="font-size:12px;color:var(--sk-text-muted);text-align:center;padding:18px 0">单渠道可直接点下方「一键全额收款」<br/>多渠道组合点「＋加入收款车」</div>'
       : cart.map((c, idx) => `
           <div class="cart-row">
             <span>${c.name}</span>
@@ -1544,6 +1582,15 @@
     fillRemain();
     renderCombo();
   }
+  function flashCardStateChange(seatId) {
+    const card = document.querySelector(`#cardGrid .t-card[data-seat-id="${seatId}"]`);
+    if (!card) return;
+    card.classList.remove('rc-state-changed');
+    void card.offsetWidth;
+    card.classList.add('rc-state-changed');
+    clearTimeout(card._rcFlashTimer);
+    card._rcFlashTimer = setTimeout(() => card.classList.remove('rc-state-changed'), 680);
+  }
   function executeSmartPay() {
     const remain = getRemain();
     const inpVal = Number(document.getElementById('amtInput').value) || 0;
@@ -1556,9 +1603,22 @@
       cart.push({ name: cnl.name, amt: remain });
     }
     const autoPrint = document.getElementById('autoPrintChk').checked;
+    const settledId = currentPaySeatId;
+    const cardObj = CARDS.find(c => c.id === settledId);
+    if (cardObj && (cardObj.st === 5 || cardObj.st === 6)) {
+      cardObj.st = 7;
+      cardObj.paid = cardObj.order;
+      cardObj.unpaid = 0;
+      cardObj.over = false;
+    }
     showToast(`✓ 结账成功！已自动执行加渠道+结算${autoPrint ? ' + 自动打印结算单' : ''}`);
     cart = [];
-    setTimeout(() => switchPage('p1'), 900);
+    renderLegends();
+    renderCards();
+    setTimeout(() => {
+      switchPage('p1');
+      flashCardStateChange(settledId);
+    }, 900);
   }
 
   /* ==================== Overlays ==================== */
@@ -1598,7 +1658,20 @@
     showToast(`✓ 自动识别为 ${label} · 扣款成功！`);
   }
   function openOrderLookupModal() { switchPage('p4'); showToast('已打开「订单查询」(/sel/get_ol_pay_order_info)'); }
-  function openAccountMenu() { showToast('员工账户（3 项）：修改密码 · 授权密码 · 退出登录'); }
+  function openAccountMenu() {
+    openCashierModal('👤 王收银 · 员工账户（4 项）', `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-secondary" style="height:38px" onclick="closeOverlays();showToast('打开修改密码弹窗（含触屏数字键盘）')">🔑 修改密码</button>
+        <button class="btn btn-secondary" style="height:38px" onclick="closeOverlays();showToast('打开授权密码设置弹窗')">🔐 授权密码</button>
+        <button class="btn btn-primary" style="height:38px" onclick="closeOverlays();ShouyinSkin.openPicker()">🎨 界面皮肤（8 套风格）</button>
+        <button class="btn btn-danger" style="height:38px" onclick="closeOverlays();showToast('已安全退出收银登录')">🚪 退出登录</button>
+      </div>
+    `);
+  }
+  window.addEventListener('shouyin-skin-change', e => {
+    const meta = e.detail;
+    showToast(`已切换为「${meta.name}」皮肤（${meta.modeTag}）`);
+  });
   function closeOverlays() { document.querySelectorAll('.overlay-bg').forEach(o => o.classList.remove('open')); }
 
   function switchPage(id) {
@@ -1612,7 +1685,15 @@
   document.querySelectorAll('#pageTabs .seg-btn').forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
   document.querySelectorAll('#deviceTabs .seg-btn').forEach(b => b.addEventListener('click', () => {
     const m = b.dataset.device;
-    document.getElementById('deviceFrame').className = 'device-frame ' + m;
+    const frame = document.getElementById('deviceFrame');
+    const curSkin = window.ShouyinSkin ? window.ShouyinSkin.get() : (frame.dataset.skin || 'midnightBlue');
+    const isLight = window.ShouyinSkin && typeof window.ShouyinSkin.isLight === 'function'
+      ? window.ShouyinSkin.isLight(curSkin)
+      : ['daylightSlate', 'emeraldFresh', 'warmIvoryBistro'].includes(curSkin);
+    frame.classList.remove('desktop', 'tablet', 'phone');
+    frame.classList.add(m);
+    frame.classList.toggle('theme-light', isLight);
+    frame.dataset.skin = curSkin;
     document.querySelectorAll('#deviceTabs .seg-btn').forEach(x => x.classList.toggle('active', x === b));
     const names = { desktop:'Desktop 宽屏 (≥1200dp)', tablet:'Android 平板 (720–1199dp)', phone:'Android 手机 (393×810 · 2列卡台 + 堆叠账单卡)' };
     document.querySelector('#deviceMeta span b').textContent = names[m];
@@ -1621,6 +1702,7 @@
     document.querySelectorAll('#regionStrip .reg-pill').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     activeReg = b.dataset.reg;
+    renderLegends();
     renderCards();
   }));
   document.getElementById('cardSearch').addEventListener('input', renderCards);
@@ -1637,6 +1719,7 @@
   renderCards();
   renderPayOrder();
   renderNumpad();
+  fillRemain();
   renderCombo();
 
   /* ==================== 11-22 Synced Landed S3 Interactive Modules ==================== */
@@ -1679,15 +1762,15 @@
     const rows = OBJECTIONS.filter(o => activeObjTab === 'all' || o.st === activeObjTab);
     el.innerHTML = rows.map(o => {
       const bdCol = o.st === 'failed' ? 'rgba(255,47,75,0.5)' : (o.st === 'pending' ? 'rgba(255,173,69,0.5)' : 'rgba(50,185,255,0.45)');
-      const badgeSty = o.st === 'failed' ? 'background:var(--badge-red)' : (o.st === 'pending' ? 'background:#D08322' : 'background:#0079FF');
+      const badgeSty = o.st === 'failed' ? 'background:var(--badge-red)' : (o.st === 'pending' ? 'background:#B45309' : 'background:#1D4ED8');
       return `<div class="inline-card" style="border-color:${bdCol}">
         <div>
           <strong>${o.seat} · ${o.title}</strong> <span class="ob" style="${badgeSty}">${o.stTxt}</span>
-          <div style="font-size:11.5px;color:rgba(255,255,255,0.72)">单号 ${o.id} · ¥${o.amt.toFixed(2)} · ${o.desc}</div>
+          <div style="font-size:11.5px;color:var(--sk-text-secondary)">单号 ${o.id} · ¥${o.amt.toFixed(2)} · ${o.desc}</div>
         </div>
         <button class="btn ${o.st==='failed'?'btn-danger':'btn-primary'} btn-xs" ${o.locked?'disabled':''} onclick="runObjectionCmd('${o.id}')">${o.locked?'处理中…':o.act}</button>
       </div>`;
-    }).join('') || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.45)">当前分类暂无异议单</div>';
+    }).join('') || '<div style="text-align:center;padding:24px;color:var(--sk-text-muted)">当前分类暂无异议单</div>';
   }
   function runObjectionCmd(id) {
     const o = OBJECTIONS.find(x => x.id === id);
@@ -1705,7 +1788,7 @@
       <div class="inline-card">
         <div>
           <strong>${r.seat} · ${r.cnl}</strong> <span style="color:var(--mint-amt);font-weight:800">¥${r.amt.toLocaleString()}.00</span>
-          <div style="font-size:11.5px;color:rgba(255,255,255,0.68)">${r.time} · ${r.desc}</div>
+          <div style="font-size:11.5px;color:var(--sk-text-secondary)">${r.time} · ${r.desc}</div>
         </div>
         <div style="display:flex;gap:5px;flex-shrink:0">
           <button class="btn btn-outline btn-xs" onclick="openTransferLateModal('${r.id}')">转滞留金</button>
@@ -1713,7 +1796,7 @@
             ? `<button class="btn btn-danger btn-xs" onclick="confirmLateDanger('${r.id}','refund')">退还</button>`
             : `<button class="btn btn-danger btn-xs" onclick="confirmLateDanger('${r.id}','delete')">删除</button>`}
         </div>
-      </div>`).join('') || '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.45)">暂无滞留金记录</div>';
+      </div>`).join('') || '<div style="text-align:center;padding:24px;color:var(--sk-text-muted)">暂无滞留金记录</div>';
   }
   function openAddLateModal() {
     openCashierModal('＋ 新增线下滞留金 (/sel/new_late_cnl)', `
@@ -1736,7 +1819,7 @@
     const r = LATE_DEPOSITS.find(x => x.id === id);
     if (!r) return;
     openCashierModal(`将 ¥${r.amt} 滞留金转至其他卡台`, `
-      <div style="font-size:12.5px;color:rgba(255,255,255,0.8)">当前滞留金：<b>${r.seat} · ${r.cnl} (¥${r.amt})</b></div>
+      <div style="font-size:12.5px;color:var(--sk-text-primary)">当前滞留金：<b>${r.seat} · ${r.cnl} (¥${r.amt})</b></div>
       <div><label style="font-size:12px;color:var(--text-ice)">选择目标卡台</label><select id="xferDestSeat" class="input-dark" style="width:100%;margin-top:4px"><option>V01</option><option>A08</option><option>V06</option><option>V02</option></select></div>
     `, `<button class="btn btn-secondary btn-sm" onclick="closeOverlays()">取消</button><button class="btn btn-primary btn-sm" onclick="confirmTransferLate('${id}')">下一步：二次确认</button>`);
   }
@@ -1778,9 +1861,9 @@
       <tr>
         <td><b>${q.emp}</b> (${q.code})</td>
         <td>${q.dept}</td>
-        <td><a href="javascript:void(0)" style="color:#6A9EFF;font-weight:700" onclick="openQuotaProducts(${idx})">${q.scheme} ↗</a></td>
+        <td><a href="javascript:void(0)" style="color:var(--sk-outline-text);font-weight:700" onclick="openQuotaProducts(${idx})">${q.scheme} ↗</a></td>
         <td style="color:var(--mint-amt)">${q.day} / ${q.mon}</td>
-      </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.45)">无匹配员工限额</td></tr>';
+      </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--sk-text-muted)">无匹配员工限额</td></tr>';
   }
   function openQuotaProducts(idx) {
     const q = QUOTAS[idx];
@@ -1801,13 +1884,13 @@
           <td>${o.bizDay}</td><td style="font-family:monospace">${o.no}</td><td>${o.reg}</td><td><b>${o.seat}</b></td><td>${o.openTime}</td>
           <td style="color:var(--mint-amt);font-weight:700">¥${o.amt.toFixed(2)}</td><td>${o.booker}</td><td>${o.dept}</td><td>${o.payTime}</td>
           <td><span class="ob ob-yh">${o.status}</span></td><td>${o.prds}</td><td>${o.waiter}</td>
-        </tr>`).join('') || '<tr><td colspan="12" style="text-align:center;color:rgba(255,255,255,0.45)">未查到该订单号</td></tr>';
+        </tr>`).join('') || '<tr><td colspan="12" style="text-align:center;color:var(--sk-text-muted)">未查到该订单号</td></tr>';
     }
     if (pCards) {
       pCards.innerHTML = rows.map(o => `
         <div class="lookup-card">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong style="color:#fff">${o.reg} · ${o.seat}</strong>
+            <strong style="color:var(--sk-text-primary)">${o.reg} · ${o.seat}</strong>
             <span class="ob ob-yh">${o.status}</span>
           </div>
           <div class="lookup-kv"><span>订单号</span><b style="font-family:monospace;font-size:11.5px">${o.no}</b></div>
@@ -1815,7 +1898,7 @@
           <div class="lookup-kv"><span>订位人 / 部门</span><b>${o.booker} (${o.dept})</b></div>
           <div class="lookup-kv"><span>营业日 / 完成时间</span><b>${o.bizDay} ${o.payTime}</b></div>
           <div class="lookup-kv"><span>商品 / 服务员</span><b>${o.prds} · ${o.waiter}</b></div>
-        </div>`).join('') || '<div style="text-align:center;padding:18px;color:rgba(255,255,255,0.45)">未查到该订单号</div>';
+        </div>`).join('') || '<div style="text-align:center;padding:18px;color:var(--sk-text-muted)">未查到该订单号</div>';
     }
   }
 
@@ -1824,5 +1907,6 @@
   renderQuotaRows();
   renderLookupOrders();
 </script>
+<script src="skins.js"></script>
 </body>
 </html>
