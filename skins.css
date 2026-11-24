@@ -1236,7 +1236,7 @@ body.sys-cashier .device-frame { --badge-mark: var(--sk-badge-cs-mark); }
 .seat-card.rc-state-changed,
 .t-card.rc-state-changed {
   transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 100ms cubic-bezier(0.2, 0, 0, 1) !important;
-  animation: rcBorderFlash 380ms ease-out 1 !important;
+  animation: rcBorderFlash 380ms ease-out 1;
 }
 @keyframes rcBorderFlash {
   0% { outline: 2px solid var(--rc-accent-bar); outline-offset: 0px; }
@@ -1844,10 +1844,10 @@ body.sys-cashier .device-frame .sq-later { background: var(--sk-badge-later); co
 body.sys-cashier .device-frame .sq-over {
   background: var(--sk-badge-overtime);
   color: var(--sk-badge-overtime-fg);
-  animation: blinkOver3 500ms steps(2, start) 3 forwards !important;
+  animation: blinkOver3 500ms steps(2, start) 3 forwards;
 }
 .skin-scope .sq-over {
-  animation: blinkOver3 500ms steps(2, start) 3 forwards !important;
+  animation: blinkOver3 500ms steps(2, start) 3 forwards;
 }
 @keyframes blinkOver3 {
   0% { opacity: 1; }
@@ -2194,7 +2194,16 @@ body.sys-order .device-frame:not([data-skin="midnightBlue"]) .badge-cnt { backgr
 [data-reduced-motion="true"],
 [data-reduced-motion="true"] *,
 [data-reduced-motion="true"] *::before,
-[data-reduced-motion="true"] *::after {
+[data-reduced-motion="true"] *::after,
+[data-reduced-motion="true"] .seat-card.rc-state-changed,
+[data-reduced-motion="true"] .t-card.rc-state-changed,
+html[data-reduced-motion="true"] .seat-card.rc-state-changed,
+html[data-reduced-motion="true"] .t-card.rc-state-changed,
+body.sys-cashier .device-frame[data-reduced-motion="true"] .sq-over,
+html[data-reduced-motion="true"] body.sys-cashier .device-frame .sq-over,
+[data-reduced-motion="true"] .skin-scope .sq-over,
+.skin-scope[data-reduced-motion="true"] .sq-over,
+html[data-reduced-motion="true"] .skin-scope .sq-over {
   animation: none !important;
   animation-duration: 0ms !important;
   transition: none !important;
@@ -2211,7 +2220,11 @@ body.sys-order .device-frame:not([data-skin="midnightBlue"]) .badge-cnt { backgr
   :root:not([data-reduced-motion="false"]),
   :root:not([data-reduced-motion="false"]) *,
   :root:not([data-reduced-motion="false"]) *::before,
-  :root:not([data-reduced-motion="false"]) *::after {
+  :root:not([data-reduced-motion="false"]) *::after,
+  :root:not([data-reduced-motion="false"]) .seat-card.rc-state-changed,
+  :root:not([data-reduced-motion="false"]) .t-card.rc-state-changed,
+  :root:not([data-reduced-motion="false"]) body.sys-cashier .device-frame .sq-over,
+  :root:not([data-reduced-motion="false"]) .skin-scope .sq-over {
     animation: none !important;
     animation-duration: 0ms !important;
     transition: none !important;
